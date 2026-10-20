@@ -299,7 +299,8 @@ IMPORTS = {
                        HOH1_IMPORT / "levels" / "boss_mines.json"],
     "campaign": lambda: [CAMPAIGN / "hoh1" / ".hwp-generated", CAMPAIGN_MISSION, HOH1_IMPORT / "convert.md"],
     "classes": lambda: [CLASSES / "hoh1art" / "players" / "hwp" / c / f
-                        for c in HOH1_CLASSES for f in ("class_showcase.png", "icons.png")],
+                        for c in HOH1_CLASSES for f in ("class_showcase.png", "icons.png")]
+                       + [CLASSES / "hoh1art" / "players" / "hwp" / "remastered" / "icons.png"],
 }
 NEEDS_BASE = {"levels", "campaign"}
 

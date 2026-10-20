@@ -14,6 +14,15 @@ dyes) into the gitignored `hoh1art/`, which `build.py --with-local` packs in
 their place (`local_overlay`). The skills that are new here borrow a fitting
 HoH1 icon (the table is `HOH1_SKILL_ICONS` in the tool).
 
+HoH1 Remastered (planned): a 5th spec for each vanilla class HoH1 also has
+(Paladin, Priest, Ranger, Sorcerer, Warlock, Wizard), built from that class's
+HoH1 abilities HoH2 lacks. Nothing in game uses it yet. Its icons are
+`players/hwp/remastered/icons.png`: the committed placeholder
+(`tools/make_remastered_icons.py`) has a shape in each cell of
+`HOH1_REMASTERED_ICONS` in `tools/import_hoh1.py`, and `import_hoh1.py classes`
+copies HoH1's whole `gui/icons_skills.png` over it in `hoh1art/` (same 256x256
+layout, so a skill keeps its HoH1 rect).
+
 ## Thief (`hwp_thief`, rogue panel, starts with twin daggers)
 HoH1 stats scaled to HoH2 (90 hp, 40 mana, 2 armor, dex 10).
 - Base: **Throwing Knives** (fan of the rogue's knives), **Grappling Hook**

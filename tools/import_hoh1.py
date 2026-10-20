@@ -53,6 +53,11 @@ HoH1 skill icons (gui/icons_skills.png) into our skill icon sheet layout:
 
     mods/classes/hoh1art/players/hwp/<class>/class_showcase.png|icons.png
 
+and HoH1's whole skill icon sheet, as is, for the HoH1 Remastered specs of the vanilla
+classes (a skill there uses its HoH1 icon rect unchanged):
+
+    mods/classes/hoh1art/players/hwp/remastered/icons.png
+
 hoh1art/ is the classes module's `local_overlay`: build.py --with-local packs
 these in place of the committed placeholder art at the same paths.
 """
@@ -871,6 +876,25 @@ HOH1_SKILL_ICONS = {
     },
 }
 
+# HoH1 Remastered specs: gui/icons_skills.png is copied whole (same 256x256 layout), so a skill
+# keeps its HoH1 rect. The committed placeholder at the same path has a shape in each of these
+# cells (tools/make_remastered_icons.py); add a cell there when a skill uses a new one.
+# HoH1 abilities HoH2 lacks (docs/RE_NOTES.md, 2026-10-20), by class.
+HOH1_REMASTERED_ICONS = {
+    "paladin": {"charge": (24, 0), "whirlwind": (48, 0), "shield": (96, 0),
+                "stunning_blows": (120, 0), "flames_of_devotion": (168, 0)},
+    "priest": {"smite": (0, 96), "remedy": (48, 96), "aura_of_purification": (120, 96)},
+    "ranger": {"flurry_of_arrows": (120, 24), "powershot": (168, 24), "on_the_prowl": (48, 24),
+               "twinned_arrows": (144, 24), "grasping_roots": (96, 24), "marked_prey": (72, 24)},
+    "sorcerer": {"frost_shard": (0, 48), "comet": (24, 48), "ice_barrier": (72, 48),
+                 "biting_chill": (48, 48)},
+    "warlock": {"soul_dagger": (168, 144), "lightning_bolt": (24, 144), "extended_domain": (216, 144),
+                "soul_cleaver": (192, 144), "stormlash": (144, 144), "summon_gargoyle": (96, 144),
+                "eye_of_the_storm": (120, 144)},
+    "wizard": {"fire_breath": (24, 120), "blast_wave": (96, 120), "combustion": (48, 120),
+               "scorched_earth": (144, 120)},
+}
+
 # the shadow under vanilla's showcase figures (row widths, top row 8 px above the feet);
 # the class list's selection ring sits around it, so a bigger one would hide the ring
 SHOWCASE_SHADOW = [4, 8, 10, 12, 14, 14, 16, 16, 16, 16, 14, 14, 12, 10, 8, 4]
@@ -966,7 +990,13 @@ def import_classes(archive: hwr.Archive, force: bool) -> None:
             sheet.paste(hoh1_icons.crop((sx, sy, sx + 24, sy + 24)), (x, y))
         write(out_dir / "icons.png", png_bytes(sheet), force, written)
 
-    print(f"classes: HoH1 class and skill icons for {', '.join(HOH1_CLASS_ART)}")
+    # the Remastered specs' sheet: HoH1's own, the same size as the committed placeholder
+    placeholder = Image.open(CLASSES_MODULE / "players/hwp/remastered/icons.png")
+    if placeholder.size != hoh1_icons.size:
+        raise SystemExit(f"remastered/icons.png is {placeholder.size}, HoH1's sheet {hoh1_icons.size}")
+    write(CLASS_ART / "players/hwp/remastered/icons.png", png_bytes(hoh1_icons), force, written)
+
+    print(f"classes: HoH1 class and skill icons for {', '.join(HOH1_CLASS_ART)}, and the Remastered sheet")
     print("  (build.py --with-local packs them over the placeholders; unpacked dev links show the placeholders)")
     for w in written:
         print("  wrote", w)

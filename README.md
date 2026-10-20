@@ -118,6 +118,8 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 - Firearms still to do: the two base passives (the old Scavenger and Steady Hands stand in)
   and final icons (the current ones are placeholders from `tools/make_firearms_icons.py`).
 - The vanilla classes' 4th specs are being designed in the class planner.
+- Planned: an "HoH1 Remastered" 5th spec for each vanilla class HoH1 also has, from its HoH1
+  abilities HoH2 lacks. The icons are wired up (`tools/import_hoh1.py classes`); the skills are not built yet.
 - What each session changed, with the GameLab run behind every claim, is in
   `docs/RE_NOTES.md`. The HoH1-to-HoH2 trinket comparison is a private web app outside the
   repo; its link is there too.

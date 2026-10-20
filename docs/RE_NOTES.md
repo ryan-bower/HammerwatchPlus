@@ -2182,3 +2182,28 @@ another Reload press starts it again as usual. Then the second `/code-review hig
   rather than crashing (from source; not run). No release shipped these subclasses.
 - Runs: mod-classes 20261020-153330 PASS (`self-check done: 3/3 classes`), mod-all
   20261020-153342 PASS.
+
+## HoH1 Remastered specs: the HoH1 abilities HoH2 lacks, and their art (2026-10-20)
+
+- Planned: a 5th spec, tagged "(HoH1 Remastered)", for each vanilla class HoH1 also has
+  (Paladin, Priest, Ranger, Sorcerer, Warlock, Wizard), made of that class's HoH1 abilities
+  HoH2 lacks. The owner is picking which. Rogue and Warrior have no HoH1 class.
+- The list, from HoH1's class svals against HoH2's skill svals (source, not run): Paladin
+  Charge, Whirlwind, Shield, Stunning Blows (close: Flames of Devotion, an HoH2 orb name);
+  Priest Smite, Remedy (close: Aura of Purification); Ranger Flurry of Arrows, Powershot, On
+  the Prowl, Twinned Arrows (close: Grasping Roots, Marked Prey); Sorcerer Frost Shard, Comet,
+  Ice Barrier (close: Biting Chill); Warlock Soul Dagger, Lightning Bolt, Extended Domain, Soul
+  Cleaver, Stormlash (close: Summon Gargoyle, Eye of the Storm); Wizard Fire Breath, Blast
+  Wave, Combustion, Scorched Earth.
+- Holy Blast and ally healing: `pri_holy_blast.sval` has only damage effects, and
+  ShootChargedBeam.as:149 skips team members, so on the pinned build it does not heal allies
+  (source, not run). The owner says it heals; not yet measured in GameLab.
+- Art: `HOH1_REMASTERED_ICONS` in `tools/import_hoh1.py` holds each ability's rect in HoH1's
+  `gui/icons_skills.png` (29 cells). `import_hoh1.py classes` copies that sheet whole to
+  `mods/classes/hoh1art/players/hwp/remastered/icons.png`; the committed placeholder at
+  `players/hwp/remastered/icons.png` is made by `tools/make_remastered_icons.py`. Doctor's
+  classes row now also wants the sheet, so `doctor --fix` writes it on an existing clone
+  (checked: with the file moved away, `import_missing('classes')` lists it, and the importer
+  rewrites it byte-identical). Default build packs the placeholder (2608 B), `--with-local`
+  HoH1's sheet (39326 B). Nothing in game uses it yet.
+- Runs: mod-classes 20261020-160710 PASS, mod-all 20261020-160722 PASS.
