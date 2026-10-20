@@ -1,0 +1,181 @@
+{
+ "name": "look-firearms-icons",
+ "about": "Look only: the Firearms Specialist's skill and orb icons (art/firearms/override, the user's round-2 picks) on the skill bar and the skills page, with the base skills learned and an orb on each. Not evidence of play.",
+ "fixture": "town-paladin",
+ "mods": [
+  "core",
+  "firearms"
+ ],
+ "timeout": 150,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "gl",
+   "verb": "char",
+   "args": [
+    "hwp_firearms",
+    "Icons"
+   ]
+  },
+  {
+   "do": "wait_phase",
+   "phase": "town",
+   "timeout": 60
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:firearms\\] self-check done",
+   "timeout": 20
+  },
+  {
+   "do": "gl",
+   "verb": "levelup",
+   "args": [
+    "24"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "gl",
+   "verb": "skill",
+   "args": [
+    "hwp_fs_reload",
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "gl",
+   "verb": "skill",
+   "args": [
+    "hwp_fs_frag",
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "gl",
+   "verb": "skill",
+   "args": [
+    "hwp_fs_scavenger",
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "gl",
+   "verb": "skill",
+   "args": [
+    "hwp_fs_steady",
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "gl",
+   "verb": "orb",
+   "args": [
+    "hwp_fs_frag_shrapnel",
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "orb",
+   "args": [
+    "hwp_fs_reload_explosive",
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "orb",
+   "args": [
+    "hwp_fs_scavenger_fire",
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "orb",
+   "args": [
+    "hwp_fs_steady_crit",
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "hud"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "mods",
+    "skills-content"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "shot",
+   "name": "skills"
+  },
+  {
+   "do": "key",
+   "key": "escape"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  }
+ ]
+}
