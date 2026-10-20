@@ -240,7 +240,7 @@ namespace Modifiers
 	class HWPFirearmsExtendedClip : Modifier
 	{
 		vec2 m_pct;
-		array<string> m_markers = { "rifle", "glock_main", "glock_off" };
+		array<string> m_markers = { "rifle", "glock_main", "glock_off", "hcannon_main", "hcannon_off" };
 		array<int> m_mags;
 		array<uint> m_hashes;
 

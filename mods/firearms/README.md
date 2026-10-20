@@ -25,8 +25,8 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
   The last rounds of a clip click (3 or fewer, 6 or fewer with dual pistols):
   a dry metal click after the shot (`HWPFirearmsLowClick`, Audition.as; the
   game's `button_metal`, since a mod can't add a sound).
-- **Rifles** `hwp_rifle_01/02/03` (`tweak/hwp/equipment_firearms.sval`):
-  two-handed, 30 rounds, a three-round burst (rounds at 0/100/200 ms of an
+- **Grenade Launching Rifles** `hwp_rifle_01/02/03` (`tweak/hwp/equipment_firearms.sval`;
+  "Flintlock/Field/Marksman's Rifle" until 2026-10-20): two-handed, 30 rounds, a three-round burst (rounds at 0/100/200 ms of an
   800 ms cycle, 52 % each; epic 65 %), no piercing.
   The secondary is an under-barrel grenade launcher: 4 mana, 1.5 s cooldown,
   no rounds. Its shell arms after 40 px of flight (`Launcher.as`
@@ -37,6 +37,21 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
   keeps the rifle's icon). Dex-gated, crossbow anim set, tag `hwp_firearm`. The t1
   rifle sits in the armory pool. A new character starts with one Service
   Pistol (`hwp_glock_mh_01`) in the main hand. Every weapon type is allowed.
+- **Flamethrower Rifles** `hwp_flamerifle_01/02/03`: the same rifle (30 rounds,
+  the three-round burst) with a flamethrower under the barrel in place of the
+  launcher (`hwp_attack_flamer`, the game's `PlayerSkillDirectionalChannelling`).
+  Held, it sprays a flame every 100 ms (`projectiles/flame.unit`: vanilla's
+  bandit flame-spray ray, 25 % weapon damage as fire, through 3 enemies, about
+  68 px out) and pays 1 mana every 100 ms (`cost-interval`); it stops when the
+  mana runs out. No cooldown, no rounds. The off-hand slot shows the
+  flamethrower close-up (`flamerifle_nozzle_0N`, `LauncherHUD.as`). The t1 is in
+  the armory pool.
+- **Full Auto Rifles** `hwp_autorifle_01/02/03`: the same rifle (30 rounds, the
+  three-round burst on left click) with full auto on right click in place of the
+  launcher (`hwp_attack_autofire`, an `HWPFirearmsGun` on a 100 ms cycle): held,
+  a rifle round every 100 ms with a 40 degree spread (the burst's is 2). Rounds,
+  no mana, no cooldown; a full clip lasts 3 s. The off-hand slot shows the
+  full-auto close-up (`autorifle_mode_0N`). The t1 is in the armory pool.
 - **Pistols:** `hwp_glock_mh_01/02/03`, one item for either hand, 10 rounds each.
   Clicked in the bag, a pistol goes to the main hand; with the main hand full
   (and not two-handed) and the off hand free, it goes to the off hand. There it
@@ -68,8 +83,25 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
   right click fires about 15 % more.
   - An off-hand pistol with another main-hand weapon fires one round on right
     click.
-  - After a rifle or pistol shot the arm stays raised until 1 s without a shot
+  - After a rifle, pistol or cannon shot the arm stays raised until 1 s without a shot
     (or a dodge or reload).
+- **Hand Cannons** `hwp_hcannon_mh_01/02/03` (off-hand twins `hwp_hcannon_oh_0N`,
+  the same hand swap as the pistols, `Pistols.as`), 6 rounds each. Each round is
+  1.5 times a pistol round (`hcannon_round*.unit`, mul 1.2 against the
+  pistol's 0.8, on the same weapon damage) at half the rate:
+  - Alone (a shield, any other off hand): one round every 600 ms.
+  - With a pistol in the other hand, either way round (16 rounds): left click
+    fires pistol, cannon, pistol 100 ms apart, then waits the lone pistol's
+    300 ms before the next burst (a 500 ms cycle; `hwp-mixed-with`/`-length` on
+    `HWPFirearmsGun`, the `mix1-3` lists). Right click fires both at once at the
+    cannon's rate (1040 ms).
+  - Two cannons (12 rounds): left click alternates muzzles every 600 ms; right
+    click fires both at once.
+  - An off-hand cannon with another main-hand weapon fires one round on right
+    click.
+  - Measured: plan-firearms-cannon 20261020-170919 and 20261020-173547 PASS (gaps 561-594 alone,
+    99/99/297 in either mixed pair, 561-594 between the two cannons' muzzles; the
+    flamer took 90 to 73.4 mana over a 2 s hold, its 20 less the regen).
 - **Base kit:** Reload and the Frag Grenade (targeted lob, `GroundBouncing` +
   `Explode` on landing, armor penetration, radius 64: half the old 128, and
   the Incendiary and Gas areas match it). The two base passives are still to
@@ -160,6 +192,10 @@ base passives and final icons. See `docs/design/firearms.md`.
    clip (Reloading, won't fire, refills), the dodge restart and Reload.
 4. Guns: `python -m gamelab run plan-firearms-guns --mode lab`. Covers
    magazines 10/20/30 and the rounds each loadout's clicks take.
+   `plan-firearms-cannon`: the Hand Cannon alone, mixed with a pistol either
+   way round, paired, in the off hand, the Flamethrower Rifle's mana drain and the
+   Full Auto Rifle's rate and spread. `look-firearms-cannon` pictures their models,
+   rounds, flame and icons.
 5. Frag grenade lands where aimed and explodes; damage numbers appear.
 6. Specializations and orbs: `plan-firearms-a` (Frag, the picker, Marksman),
    `plan-firearms-b` (Demolitionist, Assault) and `plan-firearms-orbs` (the

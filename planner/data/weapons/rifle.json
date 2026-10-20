@@ -3,7 +3,7 @@
   "clip": 30,
   "damage": "heavy",
   "mana": "grenade launcher only",
-  "name": "Rifle",
+  "name": "Grenade Launching Rifle",
   "notes": "AP rounds come from upgrades, not the base gun. Magazine comes from the rifle's marker buff (ModifyStack add-max 30). Verified in GameLab plan-t14.",
   "order": 2,
   "pairing": "",

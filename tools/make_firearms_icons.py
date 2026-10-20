@@ -153,6 +153,13 @@ ICONS = {
     "scavenger_blind": ("skills", 4, 5, None, []),
     "scavenger_slow": ("skills", 5, 5, None, []),
     "scavenger_stun": ("skills", 6, 5, None, []),
+    # the Hand Cannon's, the Flamethrower Rifle's and the Full Auto Rifle's attacks
+    # (tools/icon_art/fa_guns.py)
+    "hcannon_attack": ("skills", 7, 5, None, []),
+    "hcannon_mixed": ("skills", 8, 5, None, []),
+    "hcannon_dual": ("skills", 9, 5, None, []),
+    "flamer_attack": ("skills", 0, 6, None, []),
+    "autofire_attack": ("skills", 1, 6, None, []),
     # items: the guns' inventory icons, one per item tier
     "rifle_01": ("items", 0, 0, None, [L("rifle")]),
     "rifle_02": ("items", 1, 0, None, [L("rifle", swap=DARKWOOD)]),
@@ -167,8 +174,29 @@ ICONS = {
     "rifle_gl_01": ("items", 0, 1, None, [L("rifle", 2, 6)]),
     "rifle_gl_02": ("items", 1, 1, None, [L("rifle", 2, 6, swap=DARKWOOD)]),
     "rifle_gl_03": ("items", 2, 1, None, [L("rifle", 2, 6, swap=GILDED)]),
+    # row 2: the Hand Cannon in either hand; row 3: the Flamethrower Rifle and its
+    # under-barrel flamethrower close up, for the off-hand slot; row 4: the Full Auto Rifle
+    # and its drum close up, likewise (tools/icon_art/fa_guns.py)
+    "hcannon_mh_01": ("items", 0, 2, None, []),
+    "hcannon_mh_02": ("items", 1, 2, None, []),
+    "hcannon_mh_03": ("items", 2, 2, None, []),
+    "hcannon_oh_01": ("items", 3, 2, None, []),
+    "hcannon_oh_02": ("items", 4, 2, None, []),
+    "hcannon_oh_03": ("items", 5, 2, None, []),
+    "flamerifle_01": ("items", 0, 3, None, []),
+    "flamerifle_02": ("items", 1, 3, None, []),
+    "flamerifle_03": ("items", 2, 3, None, []),
+    "flamerifle_nozzle_01": ("items", 3, 3, None, []),
+    "flamerifle_nozzle_02": ("items", 4, 3, None, []),
+    "flamerifle_nozzle_03": ("items", 5, 3, None, []),
+    "autorifle_01": ("items", 0, 4, None, []),
+    "autorifle_02": ("items", 1, 4, None, []),
+    "autorifle_03": ("items", 2, 4, None, []),
+    "autorifle_mode_01": ("items", 3, 4, None, []),
+    "autorifle_mode_02": ("items", 4, 4, None, []),
+    "autorifle_mode_03": ("items", 5, 4, None, []),
 }
-ATLAS_SIZE = {"skills": (10, 6), "items": (9, 2)}
+ATLAS_SIZE = {"skills": (10, 7), "items": (9, 5)}
 
 
 def load_sprites(path: Path) -> dict[str, list[str]]:

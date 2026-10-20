@@ -2221,3 +2221,61 @@ another Reload press starts it again as usual. Then the second `/code-review hig
   (purple "5th: HoH1 Remastered" box; an All classes column). `planner_icons.py` cuts
   `hoh1_icon` records from the Remastered sheet: 380 wanted, 380 found. Checked by headless
   Edge screenshots of the Warrior specs, Paladin orbs and All classes tabs.
+
+## Firearms: Hand Cannon, Flamethrower Rifle, the Grenade Launching Rifle rename (2026-10-20)
+
+- Hand Cannon (`hwp_hcannon_mh_0N`, off-hand twin `hwp_hcannon_oh_0N`, the pistols' hand
+  swap): 6 rounds (assumed), a round worth 1.5 pistol rounds (projectile `mul` 1.2 against the
+  pistol's 0.8, same weapon damage), half the rate (600 ms alone). With a pistol in the other
+  hand, left click is pistol, cannon, pistol at 0/100/200 of a 500 ms cycle (the lone pistol's
+  300 ms between bursts), from whichever hand holds the pistol. plan-firearms-cannon
+  20261020-170919 PASS, 19 flags; gaps 99/99/297 both ways, 561-594 alone and for two cannons.
+- `HWPFirearmsGun` gains `hwp-mixed-with/-length/-blocking` (a third cycle while the other
+  hand's marker is the other gun kind) and logs `<skill>: cycle N ms` when its cycle changes.
+- Engine fact (source, then measured): `PlayerSkillDirectional::Update` sets
+  `m_skillLen = max(m_animLen, m_timeline.GetLength())` every frame (PlayerSkillDirectional.as:107),
+  so a cycle shorter than the timeline's last entry is stretched to it. The cannon's 500 ms mixed
+  cycle ran 600 (its right-hand round is at 600; 20261020-170115: gaps 99/99/396). The gun now
+  resets `m_skillLen = m_animLen` after the base Update; entries past the cycle never fire.
+- Engine fact (source, then measured): `anim-length` and `blocking` are read in
+  `PlayerSkill::Initialize` (PlayerSkill.as:207-211), not the constructor. `HWPFirearmsGun`
+  copied them in its constructor, so `m_fullLen` and `m_fullBlocking` were always 0: a paired
+  gun ran the attack scene's own length (two cannons logged `cycle 0 ms` and fired both muzzles
+  together every 600 ms, 20261020-170639), and paired pistols' blocking ended at 0. They are now
+  copied in an `Initialize` override. The paired pistols had looked right because the wand
+  attack scene is about 600 ms, their own anim-length.
+- Flamethrower Rifle (`hwp_flamerifle_0N`): the rifle's burst on left click; right click is
+  `hwp_attack_flamer`, a `PlayerSkillDirectionalChannelling` (cooldown 0, castpoint 100,
+  `mana-cost` 1 per `cost-interval` 100) that shoots `projectiles/flame.unit` every 100 ms from
+  `timelines-looping`. flame.unit is the bandit flame spray's RayProjectile (speed 4.5, ttl 500,
+  about 68 px, through 3) dealing 25 % weapon damage as fire (assumed numbers). Measured: no
+  rounds spent; mana 90 to 73.4 over a 2 s hold (the 20 less regen), and 0.95 left after 9 s.
+- The rifles are renamed Grenade Launching Rifle (Field, Marksman's); ids unchanged.
+- `LauncherHUD.as` shows the flamethrower's close-up on the off-hand slot for a flame rifle.
+- Regression after the Initialize fix, all PASS: plan-firearms-guns 20261020-171120,
+  mod-firearms-pistols 20261020-171243, mod-firearms 20261020-171330, mod-firearms-clip
+  20261020-171342, plan-firearms-arm 20261020-171438, plan-firearms-reload-cut 20261020-171528.
+- bench-weapons 20261020-171745 (15 s, one dummy at 80 px, L1): pistol 24 a hit, two cannons 36
+  a hit (1.5x, verified), 57.2 dps against the lone pistol's 60.3. Pistol + cannon either way
+  round 120 dps (64 hits, 28 a hit: two pistol rounds and a cannon round every 500 ms), about
+  twice the lone pistol and 1.7x dual pistols (70.2): the burst the owner asked for is the
+  strongest one-hand loadout. Flamer 114.7 dps (rifle 87.7) until the mana ran out (low for 5.1
+  s of 15); 1384 of its 1723 from the flames, the rest burning. The "cannon" row there was not
+  a lone cannon: `gl kit` leaves an unnamed slot as it was, so it kept the pistols row's off-hand
+  pistol (64 hits, the mixed burst's numbers). The row now names a shield.
+- Full Auto Rifle (`hwp_autorifle_0N`): the rifle's burst on left click; right click is
+  `hwp_attack_autofire`, an `HWPFirearmsGun` on a 100 ms cycle firing one rifle round (52 %)
+  with `spread` 40 (ShootProjectile.as:60: (randf()-0.5)*spread, so +-20 degrees; the burst's
+  is 2). Rate, spread and damage are assumed picks. Measured, plan-firearms-cannon
+  20261020-173547 PASS (25 flags): gaps 99 ms, 16 rounds over a 1.5 s hold, no mana; the rounds'
+  headings (`gl track`, the player to each round's last sight) spanned 35.5 degrees over 11
+  rounds, all within +-20, against the burst's 1.5 over 6. A wide round often leaves the probe's
+  400 px radius after one sample, so a first-to-last heading drops exactly the wide ones.
+- Art (the pixel-art agent): held models `hwp_hcannon_mh/oh`, `hwp_flamerifle`,
+  `hwp_autorifle.model` (new `tools/make_gun_models.py`, an ozz mesh reader/writer: all 158
+  models round-trip byte-identical), icons and close-ups (`tools/icon_art/fa_guns.py`), drops
+  (new `tools/make_firearms_drops.py`, sheet now 128x64), cannon rounds and `flame_jet.effect`
+  (`tools/make_bullet_art.py`, rounds.png now 128x128). flame.unit now draws flame_jet.
+  mod-all 20261020-174139 PASS. look-firearms-cannon 20261020-173754 PASS: the held guns, the flame and full-auto rounds in
+  flight, the item icons, and the skill bar's flamethrower and full-auto close-ups (logged
+  "flamethrower close-up ... tier 2", "full-auto close-up ... tier 3"). Judged by eye.

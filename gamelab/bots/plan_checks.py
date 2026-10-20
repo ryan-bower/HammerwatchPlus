@@ -10,6 +10,7 @@ petshop / petbowl / petgold (HoH1 pets, XP and feeding, the Gold toggle in a run
 goldpet / goldpet_run (the Gold Collector vendor and the cat in a run), floor_chests (the floor's own locked chests), chests (silver key loot, ace chest legendary and epic), swap (weapon sets
 with the X key), swap_sets (the other set's slots and HUD tip, a bow, R as the key, swapdrop)."""
 import json
+import math
 import re
 import time
 
@@ -1599,6 +1600,153 @@ class Checks:
         self.flag("rifle_mag_30", mx == 30, f"equip {eq}, clip max {mx}")
         r = [self.press("main") for _ in range(2)]
         self.flag("rifle_three_round_burst", all(c0 - c1 == 3 for c0, c1 in r), f"{r}")
+        self.g.console("dbg_cht_ignore_equipment_requirements 0")
+        self.to_town()
+
+    def shot_gaps(self, rounds):
+        """The gaps (ms) between the last `rounds` gun rounds (`hwp firearms shots`)."""
+        m = re.findall(r"shots: \d+ rounds, gaps ([\d ]*)", self.hwp("firearms shots", until="shots:"))
+        gaps = [int(x) for x in m[-1].split()] if m else []
+        return gaps[-(rounds - 1):] if rounds > 1 else []
+
+    def hold(self, button, ms):
+        """Hold an attack button aimed east for ms; the clip before and after, and the gaps
+        between the rounds it fired."""
+        c0 = self.clip()
+        self.gl("input", ms, 0, 0, 1, 0, button)
+        time.sleep(ms / 1000 + 1.2)
+        c1 = self.clip()
+        return c0, c1, self.shot_gaps(c0 - c1)
+
+    @staticmethod
+    def near(gaps, want, tol=40):
+        return bool(gaps) and all(abs(g - w) <= tol for g, w in zip(gaps, want))
+
+    def firearms_cannon(self):
+        """firearms: the Hand Cannon, the Flamethrower Rifle and the Full Auto Rifle. Magazines (cannon 6, with a
+        pistol 16, two cannons 12); a lone cannon fires a round every 600 ms (the pistol's
+        300 ms, halved); pistol + cannon, either way round, fire pistol, cannon, pistol 100 ms
+        apart and wait the pistol's 300 ms (gaps 100 100 300); two cannons alternate every
+        600 ms; right click with a cannon in either hand fires both at once; an off-hand
+        cannon with a sword fires 1. The Flamethrower Rifle has the rifle's 30 rounds and
+        3-round burst; holding the flamethrower spends mana (10 a second), no rounds, and
+        stops when the mana runs out. The Full Auto Rifle: 30 rounds, the burst, and held full
+        auto at a round every 100 ms, no mana, its rounds' headings spread wide (the burst's
+        tight). Damage is the bench's (bench-weapons, cannon rows)."""
+        self.gl("char", "hwp_firearms", "LabCannon")
+        self.wait_phase("town", 60)
+        time.sleep(2)
+        if not self.start_floor(0):
+            self.flag("firearms_mission", False)
+            return
+        self.hwp("god")
+        self.gl("kill", 6000, "tag:enemy")
+        self.g.console("dbg_cht_ignore_equipment_requirements 0")
+        self.g.console("dbg_cht_ignore_equipment_requirements 1")
+        time.sleep(1)
+
+        def loadout(*items):
+            got = [bool(self.gl("equip", it, "common").get("ok")) for it in items]
+            time.sleep(1.0)  # the markers re-apply every 250 ms; an old one lasts 600 ms
+            self.gl("givestacks", self.CLIP, 999)
+            return got
+
+        eq = loadout("hwp_hcannon_mh_01", "offhand_shield_01")
+        mx = self.clip_max()
+        a = [self.press("main", settle=1.0) for _ in range(2)]
+        self.flag("cannon_shield_mag_6", mx == 6, f"equip {eq}, clip max {mx}")
+        self.flag("cannon_shield_one_round", all(c0 - c1 == 1 for c0, c1 in a), f"{a}")
+        self.gl("givestacks", self.CLIP, 999)
+        c0, c1, gaps = self.hold("main", 1900)
+        self.flag("cannon_solo_600ms", c0 - c1 >= 3 and self.near(gaps, [600] * len(gaps)), f"clip {c0}->{c1}, gaps {gaps}")
+
+        for name, items in (("pistol_cannon", ("hwp_glock_mh_01", "hwp_hcannon_oh_01")),
+                            ("cannon_pistol", ("hwp_hcannon_mh_01", "hwp_glock_oh_01"))):
+            eq = loadout(*items)
+            mx = self.clip_max()
+            c0, c1, gaps = self.hold("main", 1300)
+            self.flag(f"{name}_mag_16", mx == 16, f"equip {eq}, clip max {mx}")
+            # 0 100 200, 500 600 700, 1000 1100 1200 (and 1500 when a frame runs over)
+            self.flag(f"{name}_burst", c0 - c1 >= 9 and self.near(gaps, [100, 100, 300] * 4), f"clip {c0}->{c1}, gaps {gaps}")
+            self.gl("givestacks", self.CLIP, 999)
+            b = [self.press("off", settle=1.3) for _ in range(2)]
+            self.flag(f"{name}_right_two", all(c0 - c1 == 2 for c0, c1 in b), f"{b}")
+
+        eq = loadout("hwp_hcannon_mh_01", "hwp_hcannon_oh_01")
+        mx = self.clip_max()
+        c0, c1, gaps = self.hold("main", 1900)
+        self.flag("cannons_mag_12", mx == 12, f"equip {eq}, clip max {mx}")
+        self.flag("cannons_600ms", c0 - c1 >= 3 and self.near(gaps, [600] * len(gaps)), f"clip {c0}->{c1}, gaps {gaps}")
+        self.gl("givestacks", self.CLIP, 999)
+        b = [self.press("off", settle=1.3) for _ in range(2)]
+        self.flag("cannons_right_two", all(c0 - c1 == 2 for c0, c1 in b), f"{b}")
+
+        eq = loadout("mainhand_longsword_01", "hwp_hcannon_oh_01")
+        mx = self.clip_max()
+        c = [self.press("off", settle=1.3) for _ in range(2)]
+        self.flag("offhand_cannon_mag_6", mx == 6, f"equip {eq}, clip max {mx}")
+        self.flag("offhand_cannon_one_round", all(c0 - c1 == 1 for c0, c1 in c), f"{c}")
+
+        eq = loadout("hwp_flamerifle_01")
+        mx = self.clip_max()
+        r = [self.press("main") for _ in range(2)]
+        self.flag("flamer_mag_30", mx == 30, f"equip {eq}, clip max {mx}")
+        self.flag("flamer_rifle_burst", all(c0 - c1 == 3 for c0, c1 in r), f"{r}")
+        def mana():
+            return self.gl("state").get("player", {}).get("manaExact", -1.0)
+
+        mul = self.gl("state").get("player", {}).get("manaCostMul", 1.0) or 1.0
+        m0, k0 = mana(), self.clip()
+        self.gl("input", 2000, 0, 0, 1, 0, "off")
+        time.sleep(2.1)
+        m1, k1 = mana(), self.clip()
+        # 1 mana every 100 ms is 20 over the hold, less the pool's regeneration
+        want = 20 * mul
+        self.flag("flamer_drains_mana", 0.7 * want <= m0 - m1 <= 1.15 * want,
+                  f"mana {m0:.2f} -> {m1:.2f} over a 2 s hold (20 x {mul:.3f})")
+        self.flag("flamer_no_rounds", k0 == k1, f"clip {k0} -> {k1}")
+        self.gl("input", 9000, 0, 0, 1, 0, "off")
+        time.sleep(9.1)
+        m2 = mana()
+        self.flag("flamer_runs_dry", 0 <= m2 < 3, f"mana {m2:.2f} after a 9 s hold from {m1:.2f}")
+
+        eq = loadout("hwp_autorifle_01")
+        mx = self.clip_max()
+        r = [self.press("main") for _ in range(2)]
+        self.flag("autorifle_mag_30", mx == 30, f"equip {eq}, clip max {mx}")
+        self.flag("autorifle_burst", all(c0 - c1 == 3 for c0, c1 in r), f"{r}")
+        self.gl("givestacks", self.CLIP, 999)
+        m0 = mana()
+        c0, c1, gaps = self.hold("off", 1500)
+        m1 = mana()
+        self.flag("autofire_100ms", c0 - c1 >= 12 and self.near(gaps, [100] * len(gaps)), f"clip {c0}->{c1}, gaps {gaps}")
+        self.flag("autofire_no_mana", m1 >= m0 - 0.5, f"mana {m0:.2f} -> {m1:.2f}")
+
+        # the rounds' headings: full auto's 40 degree spread against the
+        # burst's 2, both aimed due east
+        def headings(button, ms):
+            self.gl("givestacks", self.CLIP, 999)
+            self._tracks = getattr(self, "_tracks", 0) + 1
+            tag = f"fac{int(time.time() * 1000) % 100000000}x{self._tracks}"
+            if not self.gl("track", tag, ms + 600, 400, "rifle_round").get("ok"):
+                return []
+            self.gl("input", ms, 0, 0, 1, 0, button)
+            ev = self.g.wait_gl(lambda o: o.get("ev") == "track" and o.get("tag") == tag, ms / 1000 + 10) or {}
+            out = []
+            # from the player (who stands still) to the last sight: a wide round often leaves
+            # the probe's radius after one sample (plan-firearms-cannon 20261020-173029)
+            for t in ev.get("tracks") or []:
+                dx, dy = t["x1"] - t["px0"], t["y1"] - t["py0"]
+                if dx * dx + dy * dy > 100:
+                    out.append(round(math.degrees(math.atan2(dy, dx)), 1))
+            return out
+
+        wide = headings("off", 1000)
+        tight = headings("main", 900)
+        span = lambda h: max(h) - min(h) if h else 0
+        self.flag("autofire_wild", len(wide) >= 6 and span(wide) >= 15 and all(abs(a) <= 23 for a in wide),
+                  f"{len(wide)} rounds, span {span(wide):.1f}, headings {wide}")
+        self.flag("autorifle_burst_tight", len(tight) >= 3 and span(tight) <= 6, f"{len(tight)} rounds, span {span(tight):.1f}, headings {tight}")
         self.g.console("dbg_cht_ignore_equipment_requirements 0")
         self.to_town()
 

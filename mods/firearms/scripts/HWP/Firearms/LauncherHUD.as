@@ -6,41 +6,57 @@ namespace HWP
 		// (HUDPlayer.RefreshSkills: SetSkill(offHandSkill, mainHandWeapon, true)). A rifle's
 		// off-hand attack is its underbarrel grenade launcher, so that slot shows the launcher
 		// close-up of the rifle's tier instead (items/hwp/firearms_items.png row 1, rifle_gl_0N),
-		// unmirrored. Only the skill bar: the inventory keeps the rifle's own icon.
+		// unmirrored; a Flamethrower Rifle's is its flamethrower (row 3 from column 3,
+		// flamerifle_nozzle_0N), a Full Auto Rifle's its full-auto close-up (row 4 from column 3,
+		// autorifle_mode_0N). Only the skill bar: the inventory keeps the rifle's own icon.
 		class LauncherIcon : Item::Item
 		{
 			ScriptSprite@ m_icon;
 			int m_tier;
+			string m_kind;
 
-			LauncherIcon(int tier)
+			LauncherIcon(const string &in kind, int tier, vec2 cell)
 			{
+				m_kind = kind;
 				m_tier = tier;
-				@m_icon = ScriptSprite(Resources::GetTexture2D("items/hwp/firearms_items.png"), vec4(24 * tier, 24, 24, 24));
+				@m_icon = ScriptSprite(Resources::GetTexture2D("items/hwp/firearms_items.png"), vec4(24 * cell.x, 24 * cell.y, 24, 24));
 			}
 
 			ScriptSprite@ GetIcon() override { return m_icon; }
 		}
 
+		// the rifles' id prefixes, and the cell of each one's tier-1 close-up (the tiers follow it)
+		const array<string> LAUNCHER_RIFLES = { "hwp_rifle_", "hwp_flamerifle_", "hwp_autorifle_" };
+		const array<string> LAUNCHER_KINDS = { "launcher", "flamethrower", "full-auto" };
+		const array<vec2> LAUNCHER_CELLS = { vec2(0, 1), vec2(3, 3), vec2(3, 4) };
 		array<LauncherIcon@> g_launcherIcons;
 
-		// the close-up for a rifle (hwp_rifle_01..03), or null for anything else
+		// the close-up for a rifle (hwp_rifle_01..03, hwp_flamerifle_01..03, hwp_autorifle_01..03), or null for anything else
 		LauncherIcon@ LauncherIconFor(Item::Item@ weapon)
 		{
 			auto equip = cast<Equipment::Item>(weapon);
 			if (equip is null || equip.baseItem is null)
 				return null;
 			string id = equip.baseItem.m_id;
-			if (id.length() != 12 || id.substr(0, 10) != "hwp_rifle_")
-				return null;
-			int tier = parseInt(id.substr(10)) - 1;
-			if (tier < 0 || tier > 2)
-				return null;
-			if (g_launcherIcons.length() == 0)
+			for (uint k = 0; k < LAUNCHER_RIFLES.length(); k++)
 			{
-				for (int i = 0; i < 3; i++)
-					g_launcherIcons.insertLast(LauncherIcon(i));
+				string pre = LAUNCHER_RIFLES[k];
+				if (id.length() != pre.length() + 2 || id.substr(0, pre.length()) != pre)
+					continue;
+				int tier = parseInt(id.substr(pre.length())) - 1;
+				if (tier < 0 || tier > 2)
+					return null;
+				if (g_launcherIcons.length() == 0)
+				{
+					for (uint r = 0; r < LAUNCHER_RIFLES.length(); r++)
+					{
+						for (int i = 0; i < 3; i++)
+							g_launcherIcons.insertLast(LauncherIcon(LAUNCHER_KINDS[r], i, LAUNCHER_CELLS[r] + vec2(i, 0)));
+					}
+				}
+				return g_launcherIcons[3 * k + tier];
 			}
-			return g_launcherIcons[tier];
+			return null;
 		}
 	}
 }
@@ -52,7 +68,7 @@ namespace Modules
 	// left alone).
 	class HWPFirearmsLauncherHUDModule : Module
 	{
-		int m_shownTier = -1;
+		HWP::Firearms::LauncherIcon@ m_shown;
 
 		HWPFirearmsLauncherHUDModule()
 		{
@@ -87,9 +103,9 @@ namespace Modules
 						continue;
 					@w.m_item = icon;
 					w.m_mirroredIcon = false;
-					if (m_shownTier != icon.m_tier)
-						print("[HWP:firearms] launcher close-up on the off-hand slot: tier " + (icon.m_tier + 1));
-					m_shownTier = icon.m_tier;
+					if (m_shown !is icon)
+						print("[HWP:firearms] " + icon.m_kind + " close-up on the off-hand slot: tier " + (icon.m_tier + 1));
+					@m_shown = icon;
 				}
 			}
 		}

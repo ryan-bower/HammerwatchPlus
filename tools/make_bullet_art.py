@@ -1,22 +1,31 @@
 """Writes the Firearms rounds' and missiles' in-flight art into
 mods/firearms/players/hwp/firearms/projectiles/:
 
-- rounds.png (128x64; textures must be powers of two or the boot hangs):
-  - left half, 16x8 cells: rows plain, fire, ice, lightning, poison; columns rifle f0, f1,
+- rounds.png (128x128; textures must be powers of two or the boot hangs):
+  - top left, 16x8 cells: rows plain, fire, ice, lightning, poison; columns rifle f0, f1,
     pistol f0, f1; row 5 the rifle launcher's 40 mm shell f0, f1.
-  - right half, 32x16 cells: rows rocket, fatboy, magic, quad; columns f0, f1.
+  - top right, 32x16 cells: rows rocket, fatboy, magic, quad; columns f0, f1.
+  - bottom left (y 64..), 16x8 cells: the Hand Cannon's round, rows plain .. poison as
+    above, columns f0, f1.
+  - bottom right (x 32.., y 64..), 32x32 cells: the flamethrower's flame, its six frames
+    of life left to right, top row then bottom.
   Everything points right (+x is the flight direction, as crossbow_bolt.png).
 - one effect per sprite, laid out as players/projectiles/crossbow_bolt.effect (shadow,
   sprite, trail, light; the rounds have no trail) plus particles for the elemental rounds
   and the missiles:
-  round_<rifle|pistol>[_<element>].effect, gl_shell.effect, missile_<name>.effect.
+  round_<rifle|pistol|cannon>[_<element>].effect, gl_shell.effect, missile_<name>.effect,
+  flame_jet.effect.
   Rifle-sized rounds are for the rifles, the sniper shot and the turret; pistol rounds
-  are a little smaller. Params: angle, height (never r/g/b: those names render wrong).
+  are a little smaller; the Hand Cannon's is a fat, short slug. The flame jet is one
+  flame of the Flamethrower Rifle's spray: it plays once over 480 ms, a hot bud that
+  grows into a ragged red tongue, so flames shot 80-100 ms apart read as one jet.
+  Params: angle, height (never r/g/b: those names render wrong).
 
     python tools/make_bullet_art.py
 """
 from __future__ import annotations
 
+import math
 from pathlib import Path
 
 from PIL import Image
@@ -52,6 +61,12 @@ PISTOL = [
     ["...:scc..", ".:;SCHW..", "...:scc.."],
     ["..::scc..", ":;;SCHW..", "..::scc.."],
 ]
+# hand cannon round: a fat round-nosed slug five rows tall, short smear (12 x 5)
+CANNON = [
+    [".....:sscb..", "...::;SCCHb.", ".::;;;SCHWWw", "...::;sCCcb.", ".....:sscb.."],
+    ["....::sscb..", "..:::;SCCHb.", "::;;;;SCHWWw", "..:::;sCCcb.", "....::sscb.."],
+]
+CANNON_Y = 64          # the cannon rounds' rows start here
 
 ELEMENTS = {
     "plain": {":": h("ffcc66", 70), ";": h("ffd98a", 150), "s": h("8a5a24"), "S": h("c8862e"),
@@ -68,12 +83,15 @@ ELEMENTS = {
 BULLET_ROWS = ["plain", "fire", "ice", "lightning", "poison"]
 
 
-def element_marks(img, ox, oy, el, frame, tip, k=1.0):
+def element_marks(img, ox, oy, el, frame, tip, k=1.0, fat=False):
     """Per-element flourishes around the slug. (ox, oy) is where the slug's rows start
-    (oy the cell top), tip the nose's x in them; k shrinks the offsets for the pistol."""
+    (oy the cell top), tip the nose's x in them; k shrinks the offsets for the pistol;
+    fat moves them a row further out, round the cannon's five-row slug."""
     P = ELEMENTS[el]
 
     def mark(dx, y, c):  # dx: px behind the nose on the rifle round
+        if fat:
+            y = max(0, y - 1) if y < 3 else min(7, y + 1)
         put(img, ox + tip - round(dx * k), oy + y, c)
     if el == "fire":        # flame tongues licking back off the slug
         for dx, y in ([(6, 1), (8, 5), (9, 1)] if frame == 0 else [(7, 5), (9, 1), (10, 5)]):
@@ -102,6 +120,14 @@ def bullets(img):
                 if el != "plain":
                     nose = max(i for i, ch in enumerate(rows[1]) if ch != ".")
                     element_marks(img, ox + x0, oy, el, f, nose, 1.0 if shape is RIFLE else 0.6)
+        for f in (0, 1):
+            ox, oy = f * 16, CANNON_Y + r * 8
+            rows = CANNON[f]
+            x0 = 14 - len(rows[0])
+            draw(img, ox + x0, oy + 1, rows, ELEMENTS[el])
+            if el != "plain":
+                nose = max(i for i, ch in enumerate(rows[2]) if ch != ".")
+                element_marks(img, ox + x0, oy, el, f, nose, 0.9, fat=True)
 
 
 # ---- the rifle launcher's 40 mm shell: copper driving band, olive ogive ------------------
@@ -206,11 +232,57 @@ def missiles(img):
             draw(img, ox + x0, oy + 8 - hh // 2, rows, pal)
 
 
+# ---- the flamethrower's flame: 32x32 cells at x 32.., y 64.., six frames of its life -----
+JET_PAL = [h("fffff0"), h("ffe878"), h("ffb238"), h("ff6c1c"), h("d0320c", 220), h("8a1c0c", 150),
+           h("4a1008", 90)]
+JET_X, JET_Y, JET_FRAMES, JET_MS = 32, 64, 6, 80
+
+
+def _noise(x, y, k):
+    n = (x * 374761393 + y * 668265263 + k * 2147483647) & 0xFFFFFFFF
+    n = ((n ^ (n >> 13)) * 1274126177) & 0xFFFFFFFF
+    return ((n ^ (n >> 16)) & 0xFFFF) / 65535
+
+
+def jet_frame(img, k):
+    """Frame k: a teardrop of flame centred in its cell, round head forward (+x), tail
+    tapering back; it grows, cools and breaks into licks as it ages."""
+    a = k / (JET_FRAMES - 1)
+    ox, oy = JET_X + (k % 3) * 32, JET_Y + (k // 3) * 32
+    length, half = 12 + a * 12, 2.4 + a * 4.2
+    tail = -length * 0.66
+    for y in range(32):
+        for x in range(32):
+            u, v = x + 0.5 - 16, y + 0.5 - 16
+            s = (u - tail) / length            # 0 at the tail, 1 at the head
+            if not 0 <= s <= 1:
+                continue
+            if s > 0.7:
+                w = half * math.sqrt(max(0.0, 1 - ((s - 0.7) / 0.3) ** 2))
+            else:
+                w = half * (s / 0.7) ** 0.7
+            w *= 1 + (0.18 + 0.2 * a) * math.sin(u * 1.1 - k * 2.3 + v * 0.6) + 0.12 * (_noise(x, y, k) - 0.5)
+            if w <= 0 or abs(v) > w:
+                continue
+            d = 1 - abs(v) / w
+            if a > 0.35 and d < 0.5 and _noise(x, y, k + 9) < (a - 0.35) * 0.6:
+                continue
+            heat = d * (0.45 + 0.55 * s) * (1.05 - a * 0.62) + (_noise(x, y, k + 3) - 0.5) * 0.12
+            for i, t in enumerate((0.78, 0.6, 0.44, 0.3, 0.18, 0.08)):
+                if heat > t:
+                    break
+            else:
+                i = 6
+            put(img, ox + x, oy + y, JET_PAL[i])
+
+
 def sheet() -> Image.Image:
-    img = Image.new("RGBA", (128, 64), (0, 0, 0, 0))
+    img = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
     bullets(img)
     shell(img)
     missiles(img)
+    for k in range(JET_FRAMES):
+        jet_frame(img, k)
     return img
 
 
@@ -332,14 +404,16 @@ def effects() -> dict[str, str]:
     for r, el in enumerate(BULLET_ROWS):
         _trail_rgb, light_rgb, specks = LOOK[el]
         suffix = "" if el == "plain" else "_" + el
-        for kind, col0, origin, back in (("rifle", 0, "9 3.5", 4), ("pistol", 2, "10 3.5", 2)):
-            frames = [f"{(col0 + f) * 16} {r * 8} 16 8" for f in (0, 1)]
+        for kind, col0, y0, origin, back, rate, size, what in (
+                ("rifle", 0, 0, "9 3.5", 4, 10, 40, "rifle/turret"),
+                ("pistol", 2, 0, "10 3.5", 2, 7, 30, "pistol (a little smaller)"),
+                ("cannon", 0, CANNON_Y, "9 3.5", 3, 12, 44, "Hand Cannon (a fat slug)")):
+            frames = [f"{(col0 + f) * 16} {y0 + r * 8} 16 8" for f in (0, 1)]
             # no trail on a round: only the missiles keep one
             body = [sprite_pair(frames, origin, 60)]
             if specks:
-                body.append(speckles(specks, 10 if kind == "rifle" else 7, back, "rpick(150,350)"))
-            body.append(light(light_rgb, 40 if kind == "rifle" else 30, 0.2 if el == "plain" else 0.35))
-            what = "rifle/turret" if kind == "rifle" else "pistol (a little smaller)"
+                body.append(speckles(specks, rate, back, "rpick(150,350)"))
+            body.append(light(light_rgb, size, 0.2 if el == "plain" else 0.35))
             out[f"round_{kind}{suffix}.effect"] = effect(f"A {what} round, {el}.", body)
     out["gl_shell.effect"] = effect("The rifle launcher's 40 mm shell.", [
         sprite_pair([f"{f * 16} 40 16 8" for f in (0, 1)], "8 3.5", 80),
@@ -363,7 +437,26 @@ def effects() -> dict[str, str]:
             trail((1, 0.7, 0.35) if name != "magic" else (0.6, 0.85, 1), back, 2 if name != "quad" else 1.2, 0.5),
             light(lrgb, 70 if name == "fatboy" else (40 if name == "quad" else 56), 0.35)]
         out[f"missile_{name}.effect"] = effect(f"Missile: {name}.", body)
+    out["flame_jet.effect"] = effect("One flame of the Flamethrower Rifle's spray.", [
+        flame_jet(), speckles("2.8;0.7;0.1;1", 14, 4, "rpick(200,450)"), light((1, 0.5, 0.15), 40, 0.45)])
     return out
+
+
+def flame_jet() -> str:
+    """The flame's six frames played once, so it ages over its 500 ms life; additive like
+    vanilla's fire, each flame a little bigger or smaller and off the line, so a spray of
+    them doesn't repeat. No shadow: fire casts none."""
+    fr = "\n".join(f'\t\t<frame time="{JET_MS}">{JET_X + (k % 3) * 32} {JET_Y + (k // 3) * 32} 32 32</frame>'
+                   for k in range(JET_FRAMES))
+    return f'''\t<sprite looping="false" origin="16 16" texture="{TEX}" material="system/default.mats:bright-glow"
+\t\tpos-x="0"
+\t\tpos-y="-height+(rand(u+7)-0.5)*3"
+\t\tscale-x="0.85+rand(u+12)*0.3"
+\t\tscale-y="0.8+rand(u+31)*0.4"
+\t\tcolor-a="1-pow(t,6)"
+\t\tangle="angle">
+{fr}
+\t</sprite>'''
 
 
 def main() -> None:

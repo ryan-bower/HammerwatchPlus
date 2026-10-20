@@ -1,0 +1,17 @@
+{
+  "built": "hwp_hcannon_mh_01/02/03 (off-hand twins hwp_hcannon_oh_0N)",
+  "clip": 6,
+  "damage": "1.5x a pistol round (mul 1.2 vs 0.8, same weapon damage)",
+  "mana": "none",
+  "name": "Hand Cannon",
+  "notes": "One item for either hand, like the pistol. Main hand with a shield or other off hand, or dual wielded. The 6-round magazine is a placeholder pick.",
+  "order": 4,
+  "pairing": "Marker buffs hcannon_main / hcannon_off. With a pistol in the other hand (either way round): left click fires pistol, cannon, pistol, 100 ms apart, then the lone pistol's 300 ms before the next burst. Two cannons alternate muzzles every 600 ms.",
+  "primary": "Alone: one heavy round every 600 ms (half the pistol's rate), 120% weapon damage.",
+  "rate": "half a pistol's",
+  "reload": "1.6s auto; dodge restarts",
+  "secondary": "Off hand: with a pistol or a cannon in the main hand, both at once (2 rounds, wide spread) at the cannon's rate; otherwise one round.",
+  "slot": "mainhand / offhand",
+  "spread": "tight alone; moderate when dual",
+  "status": "built"
+}

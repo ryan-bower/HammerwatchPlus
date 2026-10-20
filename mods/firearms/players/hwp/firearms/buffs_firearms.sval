@@ -24,6 +24,8 @@
 	%block GunMarker rifle 30
 	%block GunMarker glock_main 10
 	%block GunMarker glock_off 10
+	%block GunMarker hcannon_main 6
+	%block GunMarker hcannon_off 6
 	<!--
 		Orb markers. An orb's Modifiers::Buff re-applies its marker while the orb is held, so
 		data elsewhere can branch on "buff has" and the module script can read the level.

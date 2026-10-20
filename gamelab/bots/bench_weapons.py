@@ -14,14 +14,24 @@ import time
 
 from gamelab.bots.bench import CLIP, DUMMY, OUT
 
-# per level: (weapon build name, items for `gl kit`)
+# per level: (weapon build name, items for `gl kit`[, the bench's hand: "off" or "offonly"]).
+# `gl kit` leaves a slot it isn't given as it was, so a one-handed row names its off hand: a
+# lone "cannon" after "pistols" kept the off-hand pistol (bench-weapons 20261020-171745)
 WEAPONS = {
     1: [("shortbow", "twohanded_shortbow_01"), ("longbow", "twohanded_longbow_01"),
         ("crossbow", "twohanded_crossbow_01"), ("rifle", "hwp_rifle_01"),
-        ("pistol", "hwp_glock_mh_01"), ("pistols", "hwp_glock_mh_01,hwp_glock_oh_01")],
+        ("pistol", "hwp_glock_mh_01"), ("pistols", "hwp_glock_mh_01,hwp_glock_oh_01"),
+        ("cannon", "hwp_hcannon_mh_01,offhand_shield_01"), ("pistol+cannon", "hwp_glock_mh_01,hwp_hcannon_oh_01"),
+        ("cannon+pistol", "hwp_hcannon_mh_01,hwp_glock_oh_01"), ("cannons", "hwp_hcannon_mh_01,hwp_hcannon_oh_01"),
+        ("flamer", "hwp_flamerifle_01", "offonly"),
+        ("autofire", "hwp_autorifle_01", "offonly")],
     12: [("shortbow", "twohanded_shortbow_02"), ("longbow", "twohanded_longbow_02"),
          ("crossbow", "twohanded_crossbow_01"), ("rifle", "hwp_rifle_02"),
-         ("pistol", "hwp_glock_mh_02"), ("pistols", "hwp_glock_mh_02,hwp_glock_oh_02")],
+         ("pistol", "hwp_glock_mh_02"), ("pistols", "hwp_glock_mh_02,hwp_glock_oh_02"),
+         ("cannon", "hwp_hcannon_mh_02,offhand_shield_01"), ("pistol+cannon", "hwp_glock_mh_02,hwp_hcannon_oh_02"),
+         ("cannon+pistol", "hwp_hcannon_mh_02,hwp_glock_oh_02"), ("cannons", "hwp_hcannon_mh_02,hwp_hcannon_oh_02"),
+         ("flamer", "hwp_flamerifle_02", "offonly"),
+         ("autofire", "hwp_autorifle_02", "offonly")],
 }
 
 
@@ -48,7 +58,7 @@ def run(p, levels=(1, 12), ms=15000, only=""):
             have = level
             time.sleep(1)
         gl("assign", "dex", "all")
-        for name, items in WEAPONS[level]:
+        for name, items, *hand in WEAPONS[level]:
             if only and name not in only.split(","):
                 continue
             kit = gl("kit", level, "common", items)
@@ -60,7 +70,7 @@ def run(p, levels=(1, 12), ms=15000, only=""):
             gl("givestacks", CLIP, 999)
             time.sleep(0.5)
             tag = f"{name}.L{level}"
-            gl("bench", tag, ms, 400, "noskills")
+            gl("bench", tag, ms, 400, *hand, "noskills")
             ev = g.wait_gl(lambda o: o.get("ev") == "bench" and o.get("tag") == tag, ms / 1000 + 30) or {}
             gl("kill", 600, "target_dummy")
             dummies = ev.get("dummies", [])

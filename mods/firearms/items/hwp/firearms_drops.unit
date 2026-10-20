@@ -1,4 +1,4 @@
-<!-- HammerwatchPlus Firearms: the guns lying on the ground (scene = gun + tier). Sprites: items/hwp/firearms_drops.png. -->
+<!-- HammerwatchPlus Firearms: the guns lying on the ground (scene = gun + tier). Sprites: items/hwp/firearms_drops.png. Written by tools/make_firearms_drops.py; edit that, not this. -->
 <unit slot="item">
 	<behavior class="Pickup">
 		<bool name="global">true</bool>
@@ -39,6 +39,60 @@
 			<data name="sound"><s>event:/sfx/items/item_metal</s></data>
 			<sprite origin="8 8" texture="items/hwp/firearms_drops.png" material="items/items.mats:item">
 				<frame>80 0 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="hcannon_01">
+			<data name="sound"><s>event:/sfx/items/item_metal</s></data>
+			<sprite origin="8 8" texture="items/hwp/firearms_drops.png" material="items/items.mats:item">
+				<frame>0 16 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="hcannon_02">
+			<data name="sound"><s>event:/sfx/items/item_metal</s></data>
+			<sprite origin="8 8" texture="items/hwp/firearms_drops.png" material="items/items.mats:item">
+				<frame>16 16 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="hcannon_03">
+			<data name="sound"><s>event:/sfx/items/item_metal</s></data>
+			<sprite origin="8 8" texture="items/hwp/firearms_drops.png" material="items/items.mats:item">
+				<frame>32 16 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="flamerifle_01">
+			<data name="sound"><s>event:/sfx/items/item_wood</s></data>
+			<sprite origin="8 8" texture="items/hwp/firearms_drops.png" material="items/items.mats:item">
+				<frame>48 16 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="flamerifle_02">
+			<data name="sound"><s>event:/sfx/items/item_wood</s></data>
+			<sprite origin="8 8" texture="items/hwp/firearms_drops.png" material="items/items.mats:item">
+				<frame>64 16 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="flamerifle_03">
+			<data name="sound"><s>event:/sfx/items/item_wood</s></data>
+			<sprite origin="8 8" texture="items/hwp/firearms_drops.png" material="items/items.mats:item">
+				<frame>80 16 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="autorifle_01">
+			<data name="sound"><s>event:/sfx/items/item_wood</s></data>
+			<sprite origin="8 8" texture="items/hwp/firearms_drops.png" material="items/items.mats:item">
+				<frame>0 32 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="autorifle_02">
+			<data name="sound"><s>event:/sfx/items/item_wood</s></data>
+			<sprite origin="8 8" texture="items/hwp/firearms_drops.png" material="items/items.mats:item">
+				<frame>16 32 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="autorifle_03">
+			<data name="sound"><s>event:/sfx/items/item_wood</s></data>
+			<sprite origin="8 8" texture="items/hwp/firearms_drops.png" material="items/items.mats:item">
+				<frame>32 32 16 16</frame>
 			</sprite>
 		</scene>
 	</scenes>

@@ -1,0 +1,658 @@
+{
+ "name": "look-firearms-cannon",
+ "about": "Look only (timescale 0.1 while firing): the Hand Cannon held alone, with an off-hand pistol and paired, the Flamethrower Rifle's held model and flame (flame_jet.effect) and the Full Auto Rifle's model and spray; their ground sprites, item icons and the flamethrower's and full auto's off-hand close-ups on the character screen. Judged by eye from the shots; not evidence of play.",
+ "fixture": "town-paladin",
+ "mods": [
+  "core",
+  "firearms"
+ ],
+ "timeout": 420,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "gl",
+   "verb": "char",
+   "args": [
+    "hwp_firearms",
+    "Cannon"
+   ]
+  },
+  {
+   "do": "wait_phase",
+   "phase": "town",
+   "timeout": 60
+  },
+  {
+   "do": "console",
+   "line": "dbg_cht_ignore_equipment_requirements 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:firearms\\] self-check done",
+   "timeout": 20
+  },
+  {
+   "do": "gl",
+   "verb": "equip",
+   "args": [
+    "hwp_hcannon_mh_01",
+    "1",
+    "1"
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "console",
+   "line": "cht_spawn_specific_equipment hwp_hcannon_mh_01"
+  },
+  {
+   "do": "console",
+   "line": "cht_spawn_specific_equipment hwp_flamerifle_01"
+  },
+  {
+   "do": "console",
+   "line": "cht_spawn_specific_equipment hwp_hcannon_mh_02"
+  },
+  {
+   "do": "console",
+   "line": "cht_spawn_specific_equipment hwp_flamerifle_02"
+  },
+  {
+   "do": "console",
+   "line": "cht_spawn_specific_equipment hwp_hcannon_mh_03"
+  },
+  {
+   "do": "console",
+   "line": "cht_spawn_specific_equipment hwp_flamerifle_03"
+  },
+  {
+   "do": "console",
+   "line": "cht_spawn_specific_equipment hwp_autorifle_01"
+  },
+  {
+   "do": "console",
+   "line": "cht_spawn_specific_equipment hwp_autorifle_02"
+  },
+  {
+   "do": "console",
+   "line": "cht_spawn_specific_equipment hwp_autorifle_03"
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "items",
+   "args": [
+    "200"
+   ],
+   "save_as": "drops"
+  },
+  {
+   "do": "gl",
+   "verb": "givestacks",
+   "args": [
+    "players/hwp/firearms/stacks_firearms.sval:clip",
+    "999"
+   ]
+  },
+  {
+   "do": "shot",
+   "name": "cannon_town"
+  },
+  {
+   "do": "gl",
+   "verb": "timescale",
+   "args": [
+    "0.1"
+   ]
+  },
+  {
+   "do": "gl",
+   "verb": "input",
+   "args": [
+    "900",
+    "0",
+    "0",
+    "1",
+    "0",
+    "main"
+   ]
+  },
+  {
+   "do": "shot",
+   "name": "cannon_fire_00"
+  },
+  {
+   "do": "shot",
+   "name": "cannon_fire_01"
+  },
+  {
+   "do": "shot",
+   "name": "cannon_fire_02"
+  },
+  {
+   "do": "shot",
+   "name": "cannon_fire_03"
+  },
+  {
+   "do": "shot",
+   "name": "cannon_fire_04"
+  },
+  {
+   "do": "shot",
+   "name": "cannon_fire_05"
+  },
+  {
+   "do": "gl",
+   "verb": "timescale",
+   "args": [
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "cannon_inventory"
+  },
+  {
+   "do": "key",
+   "key": "escape"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "gl",
+   "verb": "equip",
+   "args": [
+    "hwp_glock_oh_02",
+    "1",
+    "1"
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "givestacks",
+   "args": [
+    "players/hwp/firearms/stacks_firearms.sval:clip",
+    "999"
+   ]
+  },
+  {
+   "do": "shot",
+   "name": "mixed_town"
+  },
+  {
+   "do": "gl",
+   "verb": "timescale",
+   "args": [
+    "0.1"
+   ]
+  },
+  {
+   "do": "gl",
+   "verb": "input",
+   "args": [
+    "1200",
+    "0",
+    "0",
+    "1",
+    "0",
+    "main"
+   ]
+  },
+  {
+   "do": "shot",
+   "name": "mixed_fire_00"
+  },
+  {
+   "do": "shot",
+   "name": "mixed_fire_01"
+  },
+  {
+   "do": "shot",
+   "name": "mixed_fire_02"
+  },
+  {
+   "do": "shot",
+   "name": "mixed_fire_03"
+  },
+  {
+   "do": "shot",
+   "name": "mixed_fire_04"
+  },
+  {
+   "do": "shot",
+   "name": "mixed_fire_05"
+  },
+  {
+   "do": "shot",
+   "name": "mixed_fire_06"
+  },
+  {
+   "do": "shot",
+   "name": "mixed_fire_07"
+  },
+  {
+   "do": "gl",
+   "verb": "timescale",
+   "args": [
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "mixed_inventory"
+  },
+  {
+   "do": "key",
+   "key": "escape"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "gl",
+   "verb": "equip",
+   "args": [
+    "hwp_hcannon_oh_03",
+    "1",
+    "1"
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "givestacks",
+   "args": [
+    "players/hwp/firearms/stacks_firearms.sval:clip",
+    "999"
+   ]
+  },
+  {
+   "do": "shot",
+   "name": "cannons_town"
+  },
+  {
+   "do": "gl",
+   "verb": "timescale",
+   "args": [
+    "0.1"
+   ]
+  },
+  {
+   "do": "gl",
+   "verb": "input",
+   "args": [
+    "900",
+    "0",
+    "0",
+    "1",
+    "0",
+    "off"
+   ]
+  },
+  {
+   "do": "shot",
+   "name": "cannons_fire_00"
+  },
+  {
+   "do": "shot",
+   "name": "cannons_fire_01"
+  },
+  {
+   "do": "shot",
+   "name": "cannons_fire_02"
+  },
+  {
+   "do": "shot",
+   "name": "cannons_fire_03"
+  },
+  {
+   "do": "shot",
+   "name": "cannons_fire_04"
+  },
+  {
+   "do": "shot",
+   "name": "cannons_fire_05"
+  },
+  {
+   "do": "gl",
+   "verb": "timescale",
+   "args": [
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "cannons_inventory"
+  },
+  {
+   "do": "key",
+   "key": "escape"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "gl",
+   "verb": "equip",
+   "args": [
+    "hwp_flamerifle_02",
+    "1",
+    "1"
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "givestacks",
+   "args": [
+    "players/hwp/firearms/stacks_firearms.sval:clip",
+    "999"
+   ]
+  },
+  {
+   "do": "shot",
+   "name": "flamer_town"
+  },
+  {
+   "do": "gl",
+   "verb": "timescale",
+   "args": [
+    "0.1"
+   ]
+  },
+  {
+   "do": "gl",
+   "verb": "input",
+   "args": [
+    "1500",
+    "0",
+    "0",
+    "1",
+    "0",
+    "off"
+   ]
+  },
+  {
+   "do": "shot",
+   "name": "flamer_fire_00"
+  },
+  {
+   "do": "shot",
+   "name": "flamer_fire_01"
+  },
+  {
+   "do": "shot",
+   "name": "flamer_fire_02"
+  },
+  {
+   "do": "shot",
+   "name": "flamer_fire_03"
+  },
+  {
+   "do": "shot",
+   "name": "flamer_fire_04"
+  },
+  {
+   "do": "shot",
+   "name": "flamer_fire_05"
+  },
+  {
+   "do": "shot",
+   "name": "flamer_fire_06"
+  },
+  {
+   "do": "shot",
+   "name": "flamer_fire_07"
+  },
+  {
+   "do": "shot",
+   "name": "flamer_fire_08"
+  },
+  {
+   "do": "shot",
+   "name": "flamer_fire_09"
+  },
+  {
+   "do": "gl",
+   "verb": "timescale",
+   "args": [
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "flamer_inventory"
+  },
+  {
+   "do": "key",
+   "key": "escape"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "gl",
+   "verb": "equip",
+   "args": [
+    "hwp_autorifle_03",
+    "1",
+    "1"
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "givestacks",
+   "args": [
+    "players/hwp/firearms/stacks_firearms.sval:clip",
+    "999"
+   ]
+  },
+  {
+   "do": "shot",
+   "name": "autorifle_town"
+  },
+  {
+   "do": "gl",
+   "verb": "timescale",
+   "args": [
+    "0.1"
+   ]
+  },
+  {
+   "do": "gl",
+   "verb": "input",
+   "args": [
+    "1500",
+    "0",
+    "0",
+    "1",
+    "0",
+    "off"
+   ]
+  },
+  {
+   "do": "shot",
+   "name": "autofire_fire_00"
+  },
+  {
+   "do": "shot",
+   "name": "autofire_fire_01"
+  },
+  {
+   "do": "shot",
+   "name": "autofire_fire_02"
+  },
+  {
+   "do": "shot",
+   "name": "autofire_fire_03"
+  },
+  {
+   "do": "shot",
+   "name": "autofire_fire_04"
+  },
+  {
+   "do": "shot",
+   "name": "autofire_fire_05"
+  },
+  {
+   "do": "shot",
+   "name": "autofire_fire_06"
+  },
+  {
+   "do": "shot",
+   "name": "autofire_fire_07"
+  },
+  {
+   "do": "shot",
+   "name": "autofire_fire_08"
+  },
+  {
+   "do": "shot",
+   "name": "autofire_fire_09"
+  },
+  {
+   "do": "gl",
+   "verb": "timescale",
+   "args": [
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "autorifle_inventory"
+  },
+  {
+   "do": "key",
+   "key": "escape"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "console",
+   "line": "dbg_cht_ignore_equipment_requirements 0"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

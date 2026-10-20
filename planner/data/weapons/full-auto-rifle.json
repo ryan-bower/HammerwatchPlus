@@ -1,0 +1,17 @@
+{
+  "built": "hwp_autorifle_01/02/03",
+  "clip": 30,
+  "damage": "rifle rounds, 52% weapon damage each (burst and full auto alike)",
+  "mana": "none",
+  "name": "Full Auto Rifle",
+  "notes": "A variant of the Grenade Launching Rifle: same gun and magazine, the under-barrel grenade launcher swapped for a full-auto mode. Full auto's 10 rounds a second and 40 degree spread are placeholder picks.",
+  "order": 6,
+  "pairing": "",
+  "primary": "The rifle's three-round burst.",
+  "rate": "slow burst; full auto 10 rounds/s",
+  "reload": "1.6s auto; dodge restarts",
+  "secondary": "Full auto: hold to fire a rifle round every 100 ms, wildly inaccurate (+-20 degrees); spends rounds, no mana, no cooldown. A full clip lasts 3 s.",
+  "slot": "twohand",
+  "spread": "burst tight (2 degrees); full auto 40 degrees",
+  "status": "built"
+}

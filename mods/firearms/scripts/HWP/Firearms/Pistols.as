@@ -1,5 +1,5 @@
-// One pistol for either hand. Drops, shops and the bag only hold the main-hand pistols
-// (hwp_glock_mh_0N). Clicking one in the bag while the main hand is full (and not
+// One pistol for either hand, and one Hand Cannon (hwp_hcannon_mh_0N / _oh_0N, the same way).
+// Drops, shops and the bag only hold the main-hand pistols (hwp_glock_mh_0N). Clicking one in the bag while the main hand is full (and not
 // two-handed) and the off hand is free swaps it for its off-hand twin (hwp_glock_oh_0N)
 // first, through core's HWP::Bag::OnEquip, so it lands in the off hand. A twin back in the
 // bag (unequipped, or bumped off by a two-handed weapon) turns into the main-hand pistol
@@ -8,8 +8,10 @@ namespace HWP
 {
 	namespace Firearms
 	{
-		const array<string> PISTOL_MAIN = { "hwp_glock_mh_01", "hwp_glock_mh_02", "hwp_glock_mh_03" };
-		const array<string> PISTOL_OFF = { "hwp_glock_oh_01", "hwp_glock_oh_02", "hwp_glock_oh_03" };
+		const array<string> PISTOL_MAIN = { "hwp_glock_mh_01", "hwp_glock_mh_02", "hwp_glock_mh_03",
+			"hwp_hcannon_mh_01", "hwp_hcannon_mh_02", "hwp_hcannon_mh_03" };
+		const array<string> PISTOL_OFF = { "hwp_glock_oh_01", "hwp_glock_oh_02", "hwp_glock_oh_03",
+			"hwp_hcannon_oh_01", "hwp_hcannon_oh_02", "hwp_hcannon_oh_03" };
 
 		int g_pistolCheck = 0;
 

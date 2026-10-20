@@ -15,7 +15,7 @@ needs `pets`.
 
 | Module | What it does |
 |---|---|
-| `firearms` | The **Firearms Specialist**, a new class. Guns fire from a clip that counts down per shot and reloads (automatically at 0, or with the Reload skill, which a dodge cancels); mana pays for gadgets. A rifle (30 rounds, 3-round bursts, an under-barrel grenade launcher) or pistols, one or two (10 rounds each, 20 dual). Base kit: Reload and Frag Grenade, whose orbs give Explosive Reload, Over-Reload's timed perfect reload, and Stun, Incendiary or Gas grenades. Four specializations, each with orbs: **Marksman** (Snipe, Critical Aim), **Demolitionist** (Rocket Launcher, Ordinance Hoarder), **Assault** (Double Barrel Burst, Adrenaline) and **Engineer** (Deploy Turret, My Turret!). New characters start with a Service Pistol. Details: `mods/firearms/README.md`; design: `docs/design/firearms.md`. |
+| `firearms` | The **Firearms Specialist**, a new class. Guns fire from a clip that counts down per shot and reloads (automatically at 0, or with the Reload skill, which a dodge cancels); mana pays for gadgets. A rifle (30 rounds, 3-round bursts; the Grenade Launching Rifle has an under-barrel grenade launcher, the Flamethrower Rifle a mana-fed flamethrower held on right click, the Full Auto Rifle a wild full-auto spray) or pistols, one or two (10 rounds each, 20 dual), or Hand Cannons (half a pistol's rate, 1.5 times its damage, 6 rounds; with a pistol, a pistol-cannon-pistol burst). Base kit: Reload and Frag Grenade, whose orbs give Explosive Reload, Over-Reload's timed perfect reload, and Stun, Incendiary or Gas grenades. Four specializations, each with orbs: **Marksman** (Snipe, Critical Aim), **Demolitionist** (Rocket Launcher, Ordinance Hoarder), **Assault** (Double Barrel Burst, Adrenaline) and **Engineer** (Deploy Turret, My Turret!). New characters start with a Service Pistol. Details: `mods/firearms/README.md`; design: `docs/design/firearms.md`. |
 | `classes` | The HoH1 classes HoH2 lacks: **Thief**, **Gladiator** and **Witch Hunter**, three masteries each. The Thief's extra actives cast on core's Skill 4 key. The real HoH1 art comes from your own HoH1 install (`tools/import_hoh1.py classes`). |
 | `weapons` | Twelve new endgame weapons (ilvl 35, four per slot) with new modifier profiles on vanilla visuals and attacks. |
 | `weaponswap` | A second weapon set on a hotkey (default X): a 2 s channel standing still, cancelled by a dodge or a second press. |
@@ -117,6 +117,8 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 - GameLab is pinned to build 25932569 (since 2026-10-19).
 - Firearms still to do: the two base passives (the old Scavenger and Steady Hands stand in)
   and final icons (the current ones are placeholders from `tools/make_firearms_icons.py`).
+- Firearms gained the Hand Cannon, the Flamethrower Rifle and the Full Auto Rifle on
+  2026-10-20 (`plan-firearms-cannon`); the rifle is now the Grenade Launching Rifle.
 - The vanilla classes' 4th specs are being designed in the class planner.
 - Designed in the planner, not built: an "HoH1 Remastered" 5th spec for every vanilla class
   (the Rogue's from the HoH1 Thief, the Warrior's from the Gladiator), one active and one

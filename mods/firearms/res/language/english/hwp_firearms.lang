@@ -66,9 +66,15 @@
 	<string name="skills.hwp_firearms.myturret_shared.name">Our Turret!</string>
 	<string name="skills.hwp_firearms.myturret_shared.desc">Teammates near your turrets also repair and boost them, with your bonuses. Boosts do not stack.</string>
 
-	<string name="equipment.twohanded.hwp_rifle.1a">Flintlock Rifle</string>
-	<string name="equipment.twohanded.hwp_rifle.2a">Field Rifle</string>
-	<string name="equipment.twohanded.hwp_rifle.3a">Marksman's Rifle</string>
+	<string name="equipment.twohanded.hwp_rifle.1a">Grenade Launching Rifle</string>
+	<string name="equipment.twohanded.hwp_rifle.2a">Field Grenade Launching Rifle</string>
+	<string name="equipment.twohanded.hwp_rifle.3a">Marksman's Grenade Launching Rifle</string>
+	<string name="equipment.twohanded.hwp_flamerifle.1a">Flamethrower Rifle</string>
+	<string name="equipment.twohanded.hwp_flamerifle.2a">Field Flamethrower Rifle</string>
+	<string name="equipment.twohanded.hwp_flamerifle.3a">Marksman's Flamethrower Rifle</string>
+	<string name="equipment.twohanded.hwp_autorifle.1a">Full Auto Rifle</string>
+	<string name="equipment.twohanded.hwp_autorifle.2a">Field Full Auto Rifle</string>
+	<string name="equipment.twohanded.hwp_autorifle.3a">Marksman's Full Auto Rifle</string>
 	<string name="skills.attacks.twohanded.hwp_rifle1.name">Shoot</string>
 	<string name="skills.attacks.twohanded.hwp_rifle1.desc">Fire a three-round burst, %dmg% weapon damage a round. Uses 1 round a shot.</string>
 	<string name="skills.attacks.twohanded.hwp_rifle1_epic.desc">Fire a three-round burst, %dmg% weapon damage a round. Uses 1 round a shot.</string>
@@ -80,15 +86,26 @@
 	<string name="stacks.hwp_firearms.reloading.desc">Reloading. The clip refills when this ends; dodging restarts it.</string>
 
 	<string name="skills.attacks.twohanded.hwp_rifle_gl.name">Grenade Launcher</string>
+	<string name="skills.attacks.twohanded.hwp_flamer.name">Flamethrower</string>
+	<string name="skills.attacks.twohanded.hwp_flamer.desc">Hold to spray fire from the under-barrel flamethrower, %dmg% weapon damage as fire with each burst, through up to 3 enemies. Drains %mana% mana a second while held, and stops when your mana runs out. No cooldown; costs mana, not rounds.</string>
+	<string name="skills.attacks.twohanded.hwp_autofire.name">Full Auto</string>
+	<string name="skills.attacks.twohanded.hwp_autofire.desc">Hold to fire on full auto, %rate% rounds a second for %dmg% weapon damage each, but wildly inaccurate. Uses 1 round a shot.</string>
 	<string name="skills.attacks.twohanded.hwp_rifle_gl.desc">Fire an explosive shell from the under-barrel launcher for %dmg% weapon damage in an area. Point-blank it has no time to arm: it hits the first enemy as a slug for half damage and stuns it for 0.5 seconds. Costs mana, not rounds.</string>
 
 	<string name="equipment.mainhand.hwp_glock.1a">Service Pistol</string>
 	<string name="equipment.mainhand.hwp_glock.2a">Officer's Pistol</string>
 	<string name="equipment.mainhand.hwp_glock.3a">Duelist's Pistol</string>
 	<string name="skills.attacks.mainhand.hwp_glock.name">Pistol Shots</string>
-	<string name="skills.attacks.mainhand.hwp_glock.desc">Fire accurate rounds for %dmg% weapon damage. With a pistol in each hand, fire from each in turn for %dual% damage, less accurately. Uses 1 round a shot.</string>
+	<string name="skills.attacks.mainhand.hwp_glock.desc">Fire accurate rounds for %dmg% weapon damage. With a pistol in each hand, fire from each in turn for %dual% damage, less accurately. With a Hand Cannon in the off hand, fire bursts of pistol, cannon, pistol. Uses 1 round a shot.</string>
 	<string name="skills.attacks.offhand.hwp_glock.name">Pistol Burst</string>
-	<string name="skills.attacks.offhand.hwp_glock.desc">With a pistol in each hand, fire both at once with a wide spread, %dmg% weapon damage each, using 2 rounds. Otherwise, fire one round.</string>
+	<string name="skills.attacks.offhand.hwp_glock.desc">With a pistol in each hand, fire both at once with a wide spread, %dmg% weapon damage each, using 2 rounds; with a Hand Cannon in the main hand, the same at the cannon's rate. Otherwise, fire one round.</string>
+	<string name="equipment.mainhand.hwp_hcannon.1a">Hand Cannon</string>
+	<string name="equipment.mainhand.hwp_hcannon.2a">Officer's Hand Cannon</string>
+	<string name="equipment.mainhand.hwp_hcannon.3a">Duelist's Hand Cannon</string>
+	<string name="skills.attacks.mainhand.hwp_hcannon.name">Cannon Shots</string>
+	<string name="skills.attacks.mainhand.hwp_hcannon.desc">Fire heavy rounds for %dmg% weapon damage, half as fast as a pistol. With a pistol in the other hand, fire bursts of pistol, cannon, pistol (the pistol's rounds %pistol%). With a Hand Cannon in each hand, fire from each in turn. Uses 1 round a shot.</string>
+	<string name="skills.attacks.offhand.hwp_hcannon.name">Cannon Blast</string>
+	<string name="skills.attacks.offhand.hwp_hcannon.desc">With a pistol or a Hand Cannon in the other hand, fire both at once with a wide spread, using 2 rounds. Otherwise, fire one heavy round for %dmg% weapon damage.</string>
 	<string name="hwp.firearms.status">Firearms Specialist: class %cls%, weapon %rifle%, clip %clip%/%clipmax%, mana %mana%/%max%</string>
 
 	<!-- Reload orbs -->

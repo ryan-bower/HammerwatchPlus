@@ -18,6 +18,9 @@ namespace HWP
 			"players/hwp/firearms/projectiles/glock_round.unit",
 			"players/hwp/firearms/projectiles/glock_round_dual.unit",
 			"players/hwp/firearms/projectiles/glock_round_off.unit",
+			"players/hwp/firearms/projectiles/hcannon_round.unit",
+			"players/hwp/firearms/projectiles/hcannon_round_off.unit",
+			"players/hwp/firearms/projectiles/flame.unit",
 			"players/hwp/firearms/projectiles/bullet_snipe.unit",
 			"players/hwp/firearms/projectiles/grenade_frag.unit",
 			"players/hwp/firearms/projectiles/grenade_frag_stun.unit",
@@ -238,7 +241,9 @@ namespace HWP
 			if (items)
 			{
 				// the pistols from the lists their hand swap uses (Pistols.as)
-				array<string> ids = { "hwp_rifle_01", "hwp_rifle_02", "hwp_rifle_03" };
+				array<string> ids = { "hwp_rifle_01", "hwp_rifle_02", "hwp_rifle_03",
+					"hwp_flamerifle_01", "hwp_flamerifle_02", "hwp_flamerifle_03",
+					"hwp_autorifle_01", "hwp_autorifle_02", "hwp_autorifle_03" };
 				for (uint i = 0; i < PISTOL_MAIN.length(); i++)
 					ids.insertLast(PISTOL_MAIN[i]);
 				for (uint i = 0; i < PISTOL_OFF.length(); i++)

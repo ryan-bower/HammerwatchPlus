@@ -393,4 +393,542 @@
 			</dict>
 		</array>
 	</dict>
+
+	<!--
+		Hand Cannons: a heavy pistol, one item for either hand like the pistols (an off-hand twin,
+		Pistols.as). Its rounds do 1.5 times a pistol round's damage (mul 1.2 against 0.8, on the
+		same weapon damage) at half the rate (attacks_firearms.sval).
+	-->
+	<dict>
+		<string name="id">hwp_hcannon_mh_01</string>
+		<string name="name">.equipment.mainhand.hwp_hcannon.1a</string>
+
+		<array name="icon">
+			<string>items/hwp/firearms_items.png</string>
+			<int>100</int><vec4>0 48 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/hwp/firearms_drops.unit:hcannon_01</string>
+		<string name="model">players/models/equipment/hwp_hcannon_mh.model</string>
+		<string name="anim-set">wand-1h</string>
+		<string name="color">metal_t1</string>
+		<string name="color-secondary">leather_t1</string>
+
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-dex">8 18</ivec2>
+
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_ranged</string>
+			<string>hwp_firearm</string>
+		</array>
+
+		<string name="skill">hwp_attack_hcannon</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">30 36</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Buff</string>
+				<string name="buff">players/hwp/firearms/buffs_firearms.sval:hcannon_main</string>
+				<int name="freq">250</int>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">hwp_hcannon_oh_01</string>
+		<string name="name">.equipment.mainhand.hwp_hcannon.1a</string>
+
+		<array name="icon">
+			<string>items/hwp/firearms_items.png</string>
+			<int>100</int><vec4>72 48 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/hwp/firearms_drops.unit:hcannon_01</string>
+		<string name="model">players/models/equipment/hwp_hcannon_oh.model</string>
+		<string name="color">metal_t1</string>
+		<string name="color-secondary">leather_t1</string>
+
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">999</int>
+		<int name="ilvl-max">999</int>
+		<float name="spawn-chance">0</float>
+		<ivec2 name="req-dex">8 18</ivec2>
+
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_ranged</string>
+			<string>hwp_firearm</string>
+		</array>
+
+		<string name="skill">hwp_attack_hcannon_off</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">30 36</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Buff</string>
+				<string name="buff">players/hwp/firearms/buffs_firearms.sval:hcannon_off</string>
+				<int name="freq">250</int>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">hwp_hcannon_mh_02</string>
+		<string name="name">.equipment.mainhand.hwp_hcannon.2a</string>
+
+		<array name="icon">
+			<string>items/hwp/firearms_items.png</string>
+			<int>100</int><vec4>24 48 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/hwp/firearms_drops.unit:hcannon_02</string>
+		<string name="model">players/models/equipment/hwp_hcannon_mh.model</string>
+		<string name="anim-set">wand-1h</string>
+		<string name="color">metal_t2</string>
+		<string name="color-secondary">leather_t2</string>
+
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-dex">12 26</ivec2>
+
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_ranged</string>
+			<string>hwp_firearm</string>
+		</array>
+
+		<string name="skill">hwp_attack_hcannon</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">33 39</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Buff</string>
+				<string name="buff">players/hwp/firearms/buffs_firearms.sval:hcannon_main</string>
+				<int name="freq">250</int>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">hwp_hcannon_oh_02</string>
+		<string name="name">.equipment.mainhand.hwp_hcannon.2a</string>
+
+		<array name="icon">
+			<string>items/hwp/firearms_items.png</string>
+			<int>100</int><vec4>96 48 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/hwp/firearms_drops.unit:hcannon_02</string>
+		<string name="model">players/models/equipment/hwp_hcannon_oh.model</string>
+		<string name="color">metal_t2</string>
+		<string name="color-secondary">leather_t2</string>
+
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">999</int>
+		<int name="ilvl-max">999</int>
+		<float name="spawn-chance">0</float>
+		<ivec2 name="req-dex">12 26</ivec2>
+
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_ranged</string>
+			<string>hwp_firearm</string>
+		</array>
+
+		<string name="skill">hwp_attack_hcannon_off</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">33 39</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Buff</string>
+				<string name="buff">players/hwp/firearms/buffs_firearms.sval:hcannon_off</string>
+				<int name="freq">250</int>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">hwp_hcannon_mh_03</string>
+		<string name="name">.equipment.mainhand.hwp_hcannon.3a</string>
+
+		<array name="icon">
+			<string>items/hwp/firearms_items.png</string>
+			<int>100</int><vec4>48 48 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/hwp/firearms_drops.unit:hcannon_03</string>
+		<string name="model">players/models/equipment/hwp_hcannon_mh.model</string>
+		<string name="anim-set">wand-1h</string>
+		<string name="color">metal_t3</string>
+		<string name="color-secondary">leather_t3</string>
+
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">40</int>
+		<ivec2 name="req-dex">16 34</ivec2>
+
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_ranged</string>
+			<string>hwp_firearm</string>
+		</array>
+
+		<string name="skill">hwp_attack_hcannon</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">36 42</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Buff</string>
+				<string name="buff">players/hwp/firearms/buffs_firearms.sval:hcannon_main</string>
+				<int name="freq">250</int>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">hwp_hcannon_oh_03</string>
+		<string name="name">.equipment.mainhand.hwp_hcannon.3a</string>
+
+		<array name="icon">
+			<string>items/hwp/firearms_items.png</string>
+			<int>100</int><vec4>120 48 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/hwp/firearms_drops.unit:hcannon_03</string>
+		<string name="model">players/models/equipment/hwp_hcannon_oh.model</string>
+		<string name="color">metal_t3</string>
+		<string name="color-secondary">leather_t3</string>
+
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">999</int>
+		<int name="ilvl-max">999</int>
+		<float name="spawn-chance">0</float>
+		<ivec2 name="req-dex">16 34</ivec2>
+
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_ranged</string>
+			<string>hwp_firearm</string>
+		</array>
+
+		<string name="skill">hwp_attack_hcannon_off</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">36 42</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Buff</string>
+				<string name="buff">players/hwp/firearms/buffs_firearms.sval:hcannon_off</string>
+				<int name="freq">250</int>
+			</dict>
+		</array>
+	</dict>
+
+	<!--
+		Flamethrower Rifles: the rifle's gun with a flamethrower under the barrel in place of the
+		grenade launcher (hwp_attack_flamer: held, drains mana, no cooldown).
+	-->
+	<dict>
+		<string name="id">hwp_flamerifle_01</string>
+		<string name="name">.equipment.twohanded.hwp_flamerifle.1a</string>
+
+		<array name="icon">
+			<string>items/hwp/firearms_items.png</string>
+			<int>100</int><vec4>0 72 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/hwp/firearms_drops.unit:flamerifle_01</string>
+		<string name="model">players/models/equipment/hwp_flamerifle.model</string>
+		<string name="anim-set">crossbow-2h</string>
+		<string name="color">wood_t1</string>
+		<string name="color-secondary">metal_t1</string>
+
+		<string name="slot">twohand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-dex">10 20</ivec2>
+
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_twohanded</string>
+			<string>mods_weapon_twohanded_ranged</string>
+			<string>hwp_firearm</string>
+		</array>
+
+		<string name="skill">hwp_attack_rifle</string>
+		<string name="skill-epic">hwp_attack_rifle_epic</string>
+		<string name="skill-secondary">hwp_attack_flamer</string>
+		<string name="skill-secondary-epic">hwp_attack_flamer</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">48 58</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Buff</string>
+				<string name="buff">players/hwp/firearms/buffs_firearms.sval:rifle</string>
+				<int name="freq">250</int>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">hwp_flamerifle_02</string>
+		<string name="name">.equipment.twohanded.hwp_flamerifle.2a</string>
+
+		<array name="icon">
+			<string>items/hwp/firearms_items.png</string>
+			<int>100</int><vec4>24 72 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/hwp/firearms_drops.unit:flamerifle_02</string>
+		<string name="model">players/models/equipment/hwp_flamerifle.model</string>
+		<string name="anim-set">crossbow-2h</string>
+		<string name="color">wood_t2</string>
+		<string name="color-secondary">metal_t2</string>
+
+		<string name="slot">twohand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-dex">15 30</ivec2>
+
+		<array name="tags">
+			<string>mods_weapon_twohanded</string>
+			<string>mods_weapon_twohanded_ranged</string>
+			<string>hwp_firearm</string>
+		</array>
+
+		<string name="skill">hwp_attack_rifle</string>
+		<string name="skill-epic">hwp_attack_rifle_epic</string>
+		<string name="skill-secondary">hwp_attack_flamer</string>
+		<string name="skill-secondary-epic">hwp_attack_flamer</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">53 62</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Buff</string>
+				<string name="buff">players/hwp/firearms/buffs_firearms.sval:rifle</string>
+				<int name="freq">250</int>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">hwp_flamerifle_03</string>
+		<string name="name">.equipment.twohanded.hwp_flamerifle.3a</string>
+
+		<array name="icon">
+			<string>items/hwp/firearms_items.png</string>
+			<int>100</int><vec4>48 72 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/hwp/firearms_drops.unit:flamerifle_03</string>
+		<string name="model">players/models/equipment/hwp_flamerifle.model</string>
+		<string name="anim-set">crossbow-2h</string>
+		<string name="color">wood_t3</string>
+		<string name="color-secondary">metal_t3</string>
+
+		<string name="slot">twohand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">40</int>
+		<ivec2 name="req-dex">20 40</ivec2>
+
+		<array name="tags">
+			<string>mods_weapon_twohanded</string>
+			<string>mods_weapon_twohanded_ranged</string>
+			<string>hwp_firearm</string>
+		</array>
+
+		<string name="skill">hwp_attack_rifle</string>
+		<string name="skill-epic">hwp_attack_rifle_epic</string>
+		<string name="skill-secondary">hwp_attack_flamer</string>
+		<string name="skill-secondary-epic">hwp_attack_flamer</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">58 67</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Buff</string>
+				<string name="buff">players/hwp/firearms/buffs_firearms.sval:rifle</string>
+				<int name="freq">250</int>
+			</dict>
+		</array>
+	</dict>
+
+	<!--
+		Full Auto Rifles: the rifle's burst on left click; right click is held full auto in place
+		of the grenade launcher (hwp_attack_autofire: a round every 100 ms, wide spread).
+	-->
+	<dict>
+		<string name="id">hwp_autorifle_01</string>
+		<string name="name">.equipment.twohanded.hwp_autorifle.1a</string>
+
+		<array name="icon">
+			<string>items/hwp/firearms_items.png</string>
+			<int>100</int><vec4>0 96 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/hwp/firearms_drops.unit:autorifle_01</string>
+		<string name="model">players/models/equipment/hwp_autorifle.model</string>
+		<string name="anim-set">crossbow-2h</string>
+		<string name="color">wood_t1</string>
+		<string name="color-secondary">metal_t1</string>
+
+		<string name="slot">twohand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-dex">10 20</ivec2>
+
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_twohanded</string>
+			<string>mods_weapon_twohanded_ranged</string>
+			<string>hwp_firearm</string>
+		</array>
+
+		<string name="skill">hwp_attack_rifle</string>
+		<string name="skill-epic">hwp_attack_rifle_epic</string>
+		<string name="skill-secondary">hwp_attack_autofire</string>
+		<string name="skill-secondary-epic">hwp_attack_autofire</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">48 58</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Buff</string>
+				<string name="buff">players/hwp/firearms/buffs_firearms.sval:rifle</string>
+				<int name="freq">250</int>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">hwp_autorifle_02</string>
+		<string name="name">.equipment.twohanded.hwp_autorifle.2a</string>
+
+		<array name="icon">
+			<string>items/hwp/firearms_items.png</string>
+			<int>100</int><vec4>24 96 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/hwp/firearms_drops.unit:autorifle_02</string>
+		<string name="model">players/models/equipment/hwp_autorifle.model</string>
+		<string name="anim-set">crossbow-2h</string>
+		<string name="color">wood_t2</string>
+		<string name="color-secondary">metal_t2</string>
+
+		<string name="slot">twohand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-dex">15 30</ivec2>
+
+		<array name="tags">
+			<string>mods_weapon_twohanded</string>
+			<string>mods_weapon_twohanded_ranged</string>
+			<string>hwp_firearm</string>
+		</array>
+
+		<string name="skill">hwp_attack_rifle</string>
+		<string name="skill-epic">hwp_attack_rifle_epic</string>
+		<string name="skill-secondary">hwp_attack_autofire</string>
+		<string name="skill-secondary-epic">hwp_attack_autofire</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">53 62</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Buff</string>
+				<string name="buff">players/hwp/firearms/buffs_firearms.sval:rifle</string>
+				<int name="freq">250</int>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">hwp_autorifle_03</string>
+		<string name="name">.equipment.twohanded.hwp_autorifle.3a</string>
+
+		<array name="icon">
+			<string>items/hwp/firearms_items.png</string>
+			<int>100</int><vec4>48 96 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/hwp/firearms_drops.unit:autorifle_03</string>
+		<string name="model">players/models/equipment/hwp_autorifle.model</string>
+		<string name="anim-set">crossbow-2h</string>
+		<string name="color">wood_t3</string>
+		<string name="color-secondary">metal_t3</string>
+
+		<string name="slot">twohand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">40</int>
+		<ivec2 name="req-dex">20 40</ivec2>
+
+		<array name="tags">
+			<string>mods_weapon_twohanded</string>
+			<string>mods_weapon_twohanded_ranged</string>
+			<string>hwp_firearm</string>
+		</array>
+
+		<string name="skill">hwp_attack_rifle</string>
+		<string name="skill-epic">hwp_attack_rifle_epic</string>
+		<string name="skill-secondary">hwp_attack_autofire</string>
+		<string name="skill-secondary-epic">hwp_attack_autofire</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">58 67</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Buff</string>
+				<string name="buff">players/hwp/firearms/buffs_firearms.sval:rifle</string>
+				<int name="freq">250</int>
+			</dict>
+		</array>
+	</dict>
 </array>

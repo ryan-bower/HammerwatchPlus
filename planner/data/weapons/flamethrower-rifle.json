@@ -1,0 +1,17 @@
+{
+  "built": "hwp_flamerifle_01/02/03",
+  "clip": 30,
+  "damage": "rifle primary; flames 25% weapon damage as fire each",
+  "mana": "flamethrower: 1 every 100 ms held (10/s)",
+  "name": "Flamethrower Rifle",
+  "notes": "A variant of the Grenade Launching Rifle: same gun and magazine, the under-barrel grenade launcher swapped for a flamethrower.",
+  "order": 5,
+  "pairing": "",
+  "primary": "The rifle's three-round burst.",
+  "rate": "slow",
+  "reload": "1.6s auto; dodge restarts",
+  "secondary": "Under-barrel flamethrower: hold to spray flame (a jet every 100 ms, through 3 enemies, ~68 px reach); drains mana while held, stops when it runs out, no cooldown, no rounds.",
+  "slot": "twohand",
+  "spread": "tight; flames 12 degrees",
+  "status": "built"
+}

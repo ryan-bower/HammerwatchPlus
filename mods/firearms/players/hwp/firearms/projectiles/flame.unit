@@ -1,0 +1,37 @@
+<!--
+	The Flamethrower Rifle's flame (attacks_firearms.sval hwp_attack_flamer, one every 100 ms while
+	held): the bandit flame spray's ray (actors/humans/bandits/projectiles/flame_spray.unit) with the
+	gun's weapon damage as fire, drawn by flame_jet.effect (tools/make_bullet_art.py; RayProjectile
+	sets its angle, RayProjectile.as:103). A RayProjectile moves speed px every 33 ms, so 4.5 for 500 ms is
+	about 68 px; it burns through 3 enemies.
+-->
+<unit netsync="none">
+	<behavior class="RayProjectile">
+		<string name="anim">default</string>
+		<float name="speed">4.5</float>
+		<int name="ttl">500</int>
+		<int name="penetration">3</int>
+
+		<array name="effects">
+			<dict>
+				<string name="class">HWPFirearmsElementalDamage</string>
+				<string name="element">fire</string>
+				<bool name="off-hand">false</bool>
+				<float name="mul">0.25</float>
+			</dict>
+		</array>
+
+		<dict name="effect-params">
+			<float name="height">11</float>
+		</dict>
+	</behavior>
+
+	<scenes>
+		<scene name="default">
+			<collision static="false">
+				<circle projectile="true" radius="4" />
+			</collision>
+			<effect src="players/hwp/firearms/projectiles/flame_jet.effect" />
+		</scene>
+	</scenes>
+</unit>

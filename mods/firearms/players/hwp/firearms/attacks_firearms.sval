@@ -23,6 +23,50 @@
 					<bool name="target-self">true</bool>
 				</dict>
 %endblock
+%defblock Shot ROUND OFFSET SPREAD
+					<dict>
+						<string name="class">HWPFirearmsGunShot</string>
+						<string name="projectile">players/hwp/firearms/projectiles/%%ROUND%%.unit</string>
+						<string name="fire">players/hwp/firearms/projectiles/%%ROUND%%_fire.unit</string>
+						<string name="ice">players/hwp/firearms/projectiles/%%ROUND%%_ice.unit</string>
+						<string name="lightning">players/hwp/firearms/projectiles/%%ROUND%%_lightning.unit</string>
+						<string name="poison">players/hwp/firearms/projectiles/%%ROUND%%_poison.unit</string>
+						<int name="dist">12</int>
+						<vec2 name="offset">0 %%OFFSET%%</vec2>
+						<bool name="rotate-offset">true</bool>
+						<int name="converge">100</int>
+						<int name="spread">%%SPREAD%%</int>
+					</dict>
+%endblock
+%defblock Bang VOLUME
+					<dict>
+						<string name="class">HWPFirearmsSound</string>
+						<string name="sound">event:/sfx/actors/humans/bandits/bandit_rogue/bandit_rogue_bomb_bounce</string>
+						<float name="volume">%%VOLUME%%</float>
+					</dict>
+%endblock
+%defblock Low N
+					<dict>
+						<string name="class">HWPFirearmsLowClick</string>
+						<int name="low">%%N%%</int>
+					</dict>
+%endblock
+%defblock If MARK N
+					<dict>
+						<bool name="cond-target-self">true</bool>
+						<array name="conditional">
+							<s>buff</s><s>has</s><s>players/hwp/firearms/buffs_firearms.sval:%%MARK%%</s><s>buff stacks</s><s>players/hwp/firearms/stacks_firearms.sval:clip</s><s>ge</s><i>%%N%%</i>
+						</array>
+					</dict>
+%endblock
+%defblock IfLast MARK
+					<dict>
+						<bool name="cond-target-self">true</bool>
+						<array name="conditional">
+							<s>buff</s><s>has</s><s>players/hwp/firearms/buffs_firearms.sval:%%MARK%%</s><s>buff stacks</s><s>players/hwp/firearms/stacks_firearms.sval:clip</s><s>lt</s><i>2</i>
+						</array>
+					</dict>
+%endblock
 %defblock HasRound
 		<array name="conditional">
 			<s>buff stacks</s><s>players/hwp/firearms/stacks_firearms.sval:clip</s><s>ge</s><i>1</i>
@@ -369,6 +413,11 @@
 			<string name="hwp-solo-unless">glock_off</string>
 			<!-- alone, the blocking ends after the one round (the 0 350 below covers the right-hand round at 300) -->
 			<int name="hwp-solo-blocking">100</int>
+			<!-- with an off-hand Hand Cannon: pistol, cannon, pistol 100 ms apart, then the lone
+			     pistol's 300 ms before the next burst (mix1-3) -->
+			<string name="hwp-mixed-with">hcannon_off</string>
+			<int name="hwp-mixed-length">500</int>
+			<int name="hwp-mixed-blocking">250</int>
 
 			<int name="cooldown">0</int>
 			<float name="move-speed-mul">0.6</float>
@@ -386,7 +435,7 @@
 					<dict>
 						<bool name="cond-target-self">true</bool>
 						<array name="conditional">
-							<s>buff</s><s>hasnt</s><s>players/hwp/firearms/buffs_firearms.sval:glock_off</s><s>buff stacks</s><s>players/hwp/firearms/stacks_firearms.sval:clip</s><s>ge</s><i>1</i>
+							<s>buff</s><s>hasnt</s><s>players/hwp/firearms/buffs_firearms.sval:glock_off</s><s>buff</s><s>hasnt</s><s>players/hwp/firearms/buffs_firearms.sval:hcannon_off</s><s>buff stacks</s><s>players/hwp/firearms/stacks_firearms.sval:clip</s><s>ge</s><i>1</i>
 						</array>
 					</dict>
 					<dict>
@@ -476,12 +525,36 @@
 						<int name="low">6</int>
 					</dict>
 				</array>
+				<array name="mix1">
+					%block If hcannon_off 1
+					%block Shot glock_round_dual 6 5
+					%block Bang 1
+					%block Spend 1
+					%block Low 6
+				</array>
+				<array name="mix2">
+					%block If hcannon_off 1
+					%block Shot hcannon_round_off -6 5
+					%block Bang 1.8
+					%block Spend 1
+					%block Low 6
+				</array>
+				<array name="mix3">
+					%block If hcannon_off 1
+					%block Shot glock_round_dual 6 5
+					%block Bang 1
+					%block Spend 1
+					%block Low 6
+				</array>
 			</dict>
 
 			<array name="timeline">
 				<i>0</i><s>solo</s>
 				<i>0</i><s>left</s>
 				<i>300</i><s>right</s>
+				<i>0</i><s>mix1</s>
+				<i>100</i><s>mix2</s>
+				<i>200</i><s>mix3</s>
 			</array>
 		</dict>
 	</dict>
@@ -502,6 +575,10 @@
 			<string name="class">HWPFirearmsGun</string>
 			<string name="anim">offhand-handcrossbow</string>
 			<int name="anim-length">520</int>
+			<!-- with a main-hand Hand Cannon (bothc), the cannon's rate: twice the cycle -->
+			<string name="hwp-mixed-with">hcannon_main</string>
+			<int name="hwp-mixed-length">1040</int>
+			<int name="hwp-mixed-blocking">100</int>
 
 			<int name="cooldown">0</int>
 			<float name="move-speed-mul">0.4</float>
@@ -562,7 +639,7 @@
 					<dict>
 						<bool name="cond-target-self">true</bool>
 						<array name="conditional">
-							<s>buff</s><s>hasnt</s><s>players/hwp/firearms/buffs_firearms.sval:glock_main</s>
+							<s>buff</s><s>hasnt</s><s>players/hwp/firearms/buffs_firearms.sval:glock_main</s><s>buff</s><s>hasnt</s><s>players/hwp/firearms/buffs_firearms.sval:hcannon_main</s>
 						</array>
 					</dict>
 					<dict>
@@ -631,13 +708,325 @@
 						<int name="low">6</int>
 					</dict>
 				</array>
+				<!-- with a main-hand Hand Cannon: both at once, as with two pistols -->
+				<array name="bothc">
+					%block If hcannon_main 2
+					%block Shot hcannon_round 6 18
+					%block Shot glock_round_off -6 18
+					%block Bang 1.8
+					%block Spend 2
+					%block Low 6
+				</array>
+				<array name="lastc">
+					%block IfLast hcannon_main
+					%block Shot glock_round_off -6 4
+					%block Bang 1
+					%block Spend 1
+					%block Low 6
+				</array>
 			</dict>
 
 			<array name="timeline">
 				<!-- last before both: at one round it spends it, so both (2 or more) can't follow -->
 				<i>0</i><s>last</s>
+				<i>0</i><s>lastc</s>
 				<i>0</i><s>both</s>
+				<i>0</i><s>bothc</s>
 				<i>0</i><s>solo</s>
+			</array>
+		</dict>
+	</dict>
+
+	<!--
+		Hand Cannon, main hand (left click): the pistol's attack at half the rate, its rounds 1.5
+		times a pistol round (hcannon_round*.unit, mul 1.2 to the pistol's 0.8). Alone, one
+		round every 600 ms. With an off-hand Hand Cannon, one from each muzzle in turn (a
+		1200 ms cycle). With an off-hand pistol, pistol, cannon, pistol 100 ms apart, then the
+		lone pistol's 300 ms (a 500 ms cycle); the main-hand pistol runs the same burst with an
+		off-hand cannon (hwp_attack_glock mix1-3).
+	-->
+	<dict>
+		<string name="name">.skills.attacks.mainhand.hwp_hcannon.name</string>
+		<string name="description">.skills.attacks.mainhand.hwp_hcannon.desc?dmg=120%&pistol=80%</string>
+		<array name="icon"><s>players/hwp/firearms/icons.png</s><i>100</i><vec4>168 120 24 24</vec4></array>
+		<string name="id">hwp_attack_hcannon</string>
+		<string name="type">mainhand</string>
+		<array name="tags"><s>weapon</s><s>ranged</s><s>hwp_firearm</s><s>physical</s></array>
+
+		<dict name="skill">
+			<string name="class">HWPFirearmsGun</string>
+			<string name="anim">attack</string>
+			<int name="anim-length">1200</int>
+			<int name="hwp-solo-length">600</int>
+			<string name="hwp-solo-unless">hcannon_off</string>
+			<int name="hwp-solo-blocking">100</int>
+			<string name="hwp-mixed-with">glock_off</string>
+			<int name="hwp-mixed-length">500</int>
+			<int name="hwp-mixed-blocking">250</int>
+
+			<int name="cooldown">0</int>
+			<float name="move-speed-mul">0.6</float>
+			<ivec2 name="move-speed">0 600</ivec2>
+			<float name="cast-speed-mul">1</float>
+			<ivec2 name="blocking">0 650</ivec2>
+			<int name="castpoint">0</int>
+			<ivec2 name="update-aim">0 1200</ivec2>
+			<bool name="repeating">true</bool>
+			<int name="mana-cost">0</int>
+			%block HasRound
+
+			<dict name="actions">
+				<array name="solo">
+					<dict>
+						<bool name="cond-target-self">true</bool>
+						<array name="conditional">
+							<s>buff</s><s>hasnt</s><s>players/hwp/firearms/buffs_firearms.sval:hcannon_off</s><s>buff</s><s>hasnt</s><s>players/hwp/firearms/buffs_firearms.sval:glock_off</s><s>buff stacks</s><s>players/hwp/firearms/stacks_firearms.sval:clip</s><s>ge</s><i>1</i>
+						</array>
+					</dict>
+					%block Shot hcannon_round 6 3
+					%block Bang 1.8
+					%block Spend 1
+					%block Low 2
+				</array>
+				<array name="left">
+					%block If hcannon_off 1
+					%block Shot hcannon_round 6 5
+					%block Bang 1.8
+					%block Spend 1
+					%block Low 4
+				</array>
+				<array name="right">
+					%block If hcannon_off 1
+					%block Shot hcannon_round_off -6 5
+					%block Bang 1.8
+					%block Spend 1
+					%block Low 4
+				</array>
+				<array name="mix1">
+					%block If glock_off 1
+					%block Shot glock_round_off -6 5
+					%block Bang 1
+					%block Spend 1
+					%block Low 6
+				</array>
+				<array name="mix2">
+					%block If glock_off 1
+					%block Shot hcannon_round 6 5
+					%block Bang 1.8
+					%block Spend 1
+					%block Low 6
+				</array>
+				<array name="mix3">
+					%block If glock_off 1
+					%block Shot glock_round_off -6 5
+					%block Bang 1
+					%block Spend 1
+					%block Low 6
+				</array>
+			</dict>
+
+			<array name="timeline">
+				<i>0</i><s>solo</s>
+				<i>0</i><s>left</s>
+				<i>600</i><s>right</s>
+				<i>0</i><s>mix1</s>
+				<i>100</i><s>mix2</s>
+				<i>200</i><s>mix3</s>
+			</array>
+		</dict>
+	</dict>
+
+	<!--
+		Hand Cannon, off hand (right click), at the cannon's rate (twice the off-hand pistol's
+		520 ms cycle). With a main-hand pistol or Hand Cannon, both guns at once with a wide
+		spread, 2 rounds. Alone (any other main hand), one round.
+	-->
+	<dict>
+		<string name="name">.skills.attacks.offhand.hwp_hcannon.name</string>
+		<string name="description">.skills.attacks.offhand.hwp_hcannon.desc?dmg=120%</string>
+		<array name="icon"><s>players/hwp/firearms/icons.png</s><i>100</i><vec4>216 120 24 24</vec4></array>
+		<string name="id">hwp_attack_hcannon_off</string>
+		<string name="type">offhand</string>
+		<array name="tags"><s>weapon</s><s>ranged</s><s>hwp_firearm</s><s>physical</s></array>
+
+		<dict name="skill">
+			<string name="class">HWPFirearmsGun</string>
+			<string name="anim">offhand-handcrossbow</string>
+			<int name="anim-length">1040</int>
+
+			<int name="cooldown">0</int>
+			<float name="move-speed-mul">0.4</float>
+			<ivec2 name="move-speed">0 520</ivec2>
+			<float name="cast-speed-mul">1</float>
+			<ivec2 name="blocking">0 100</ivec2>
+			<int name="castpoint">0</int>
+			<ivec2 name="update-aim">0 1</ivec2>
+			<bool name="repeating">true</bool>
+			<int name="mana-cost">0</int>
+			%block HasRound
+
+			<dict name="actions">
+				<array name="last">
+					%block IfLast glock_main
+					%block Shot hcannon_round_off -6 4
+					%block Bang 1.8
+					%block Spend 1
+					%block Low 6
+				</array>
+				<array name="lastc">
+					%block IfLast hcannon_main
+					%block Shot hcannon_round_off -6 4
+					%block Bang 1.8
+					%block Spend 1
+					%block Low 4
+				</array>
+				<array name="both">
+					%block If glock_main 2
+					%block Shot glock_round_dual 6 18
+					%block Shot hcannon_round_off -6 18
+					%block Bang 1.8
+					%block Spend 2
+					%block Low 6
+				</array>
+				<array name="bothc">
+					%block If hcannon_main 2
+					%block Shot hcannon_round 6 18
+					%block Shot hcannon_round_off -6 18
+					%block Bang 1.8
+					%block Spend 2
+					%block Low 4
+				</array>
+				<array name="solo">
+					<dict>
+						<bool name="cond-target-self">true</bool>
+						<array name="conditional">
+							<s>buff</s><s>hasnt</s><s>players/hwp/firearms/buffs_firearms.sval:glock_main</s><s>buff</s><s>hasnt</s><s>players/hwp/firearms/buffs_firearms.sval:hcannon_main</s>
+						</array>
+					</dict>
+					<dict>
+						<string name="class">SpawnEffect</string>
+						<string name="effect">effects/generic/attacks/hand_crossbow_quickshot.effect</string>
+						<bool name="attach-to-owner">true</bool>
+						<bool name="send-angle">true</bool>
+					</dict>
+					%block Shot hcannon_round_off -6 4
+					%block Bang 1.8
+					%block Spend 1
+					%block Low 2
+				</array>
+			</dict>
+
+			<array name="timeline">
+				<!-- the last-round lists first: at one round they spend it, so both (2 or more) can't follow -->
+				<i>0</i><s>last</s>
+				<i>0</i><s>lastc</s>
+				<i>0</i><s>both</s>
+				<i>0</i><s>bothc</s>
+				<i>0</i><s>solo</s>
+			</array>
+		</dict>
+	</dict>
+
+	<!--
+		The Flamethrower Rifle's under-barrel flamethrower (right click): held, a jet of flame
+		every 100 ms (flame.unit: fire, through 3 enemies, about 68 px out) for 1 mana each
+		100 ms while held. The channel stops when the mana runs out. No rounds, no cooldown.
+	-->
+	<dict>
+		<string name="name">.skills.attacks.twohanded.hwp_flamer.name</string>
+		<string name="description">.skills.attacks.twohanded.hwp_flamer.desc?dmg=25%&mana=10</string>
+		<array name="icon"><s>players/hwp/firearms/icons.png</s><i>100</i><vec4>0 144 24 24</vec4></array>
+		<string name="id">hwp_attack_flamer</string>
+		<string name="type">offhand</string>
+		<array name="tags"><s>weapon</s><s>ranged</s><s>hwp_firearm</s><s>fire</s></array>
+
+		<dict name="skill">
+			<string name="class">Skills::PlayerSkillDirectionalChannelling</string>
+			<string name="anim">cast-channel</string>
+
+			<int name="cooldown">0</int>
+			<int name="castpoint">100</int>
+			<float name="cast-speed-mul">1</float>
+			<float name="move-speed-mul">0.5</float>
+			<ivec2 name="move-speed">0 1000000000</ivec2>
+			<ivec2 name="blocking">0 100</ivec2>
+			<bool name="update-aim">true</bool>
+			<bool name="cooldown-on-castpoint">false</bool>
+
+			<!-- paid every cost-interval; one no longer than the castpoint, or the channel ends at
+			     its first castpoint before the first payment (PlayerSkillDirectionalChannelling.Update) -->
+			<int name="mana-cost">1</int>
+			<int name="cost-interval">100</int>
+
+			<dict name="actions">
+				<array name="flame">
+					<dict>
+						<string name="class">ShootProjectile</string>
+						<string name="projectile">players/hwp/firearms/projectiles/flame.unit</string>
+						<int name="dist">22</int>
+						<int name="spread">12</int>
+					</dict>
+				</array>
+			</dict>
+
+			<array name="timelines-looping">
+				<array>
+					<i>100</i><s>flame</s>
+				</array>
+			</array>
+		</dict>
+	</dict>
+
+	<!--
+		The Full Auto Rifle's full auto (right click): held, one rifle round every 100 ms (a
+		100 ms cycle with its round at 0) with a 40 degree spread (ShootProjectile.as:60:
+		+-20 degrees), against the burst's 2. Rounds, not mana; no cooldown. The blocking covers
+		the first 50 ms, so a skill or a dodge can still cut in between rounds.
+	-->
+	<dict>
+		<string name="name">.skills.attacks.twohanded.hwp_autofire.name</string>
+		<string name="description">.skills.attacks.twohanded.hwp_autofire.desc?dmg=52%&rate=10</string>
+		<array name="icon"><s>players/hwp/firearms/icons.png</s><i>100</i><vec4>24 144 24 24</vec4></array>
+		<string name="id">hwp_attack_autofire</string>
+		<string name="type">offhand</string>
+		<array name="tags"><s>weapon</s><s>ranged</s><s>hwp_firearm</s><s>physical</s></array>
+
+		<dict name="skill">
+			<string name="class">HWPFirearmsGun</string>
+			<string name="anim">attack</string>
+			<int name="anim-length">100</int>
+
+			<int name="cooldown">0</int>
+			<float name="move-speed-mul">0.4</float>
+			<ivec2 name="move-speed">0 100</ivec2>
+			<float name="cast-speed-mul">1</float>
+			<ivec2 name="blocking">0 50</ivec2>
+			<int name="castpoint">0</int>
+			<ivec2 name="update-aim">0 100</ivec2>
+			<bool name="repeating">true</bool>
+			<int name="mana-cost">0</int>
+			%block HasRound
+
+			<dict name="actions">
+				<array name="shot">
+					<dict>
+						<string name="class">HWPFirearmsGunShot</string>
+						<string name="projectile">players/hwp/firearms/projectiles/rifle_round.unit</string>
+						<string name="fire">players/hwp/firearms/projectiles/rifle_round_fire.unit</string>
+						<string name="ice">players/hwp/firearms/projectiles/rifle_round_ice.unit</string>
+						<string name="lightning">players/hwp/firearms/projectiles/rifle_round_lightning.unit</string>
+						<string name="poison">players/hwp/firearms/projectiles/rifle_round_poison.unit</string>
+						<int name="dist">22</int>
+						<int name="spread">40</int>
+					</dict>
+					%block Bang 1.2
+					%block Spend 1
+					%block Low 3
+				</array>
+			</dict>
+
+			<array name="timeline">
+				<i>0</i><s>shot</s>
 			</array>
 		</dict>
 	</dict>

@@ -698,7 +698,9 @@ namespace HWP
 		const array<uint> GUNS = {
 			HashString("hwp_attack_rifle"), HashString("hwp_attack_rifle_epic"),
 			HashString("hwp_attack_rifle_gl"), HashString("hwp_attack_rifle_gl_epic"),
-			HashString("hwp_attack_glock"), HashString("hwp_attack_glock_off") };
+			HashString("hwp_attack_glock"), HashString("hwp_attack_glock_off"),
+			HashString("hwp_attack_hcannon"), HashString("hwp_attack_hcannon_off"),
+			HashString("hwp_attack_autofire") };
 
 		class AimHold
 		{
@@ -1067,8 +1069,8 @@ class HWPFirearmsThrowMag : ShootProjectile
 
 	void PickMag(Actor@ owner)
 	{
-		m_pistol = m_pistolProjectile !is null
-			&& (HWP::Firearms::HasBuff(owner, "glock_main") || HWP::Firearms::HasBuff(owner, "glock_off"));
+		m_pistol = m_pistolProjectile !is null && (HWP::Firearms::HasBuff(owner, "glock_main") || HWP::Firearms::HasBuff(owner, "glock_off")
+			|| HWP::Firearms::HasBuff(owner, "hcannon_main") || HWP::Firearms::HasBuff(owner, "hcannon_off"));
 	}
 
 	UnitPtr ProduceProjectile(vec2 shootPos, int id = 0) override
@@ -1116,7 +1118,9 @@ class HWPFirearmsThrowMag : ShootProjectile
 		int rounds = plr.GetStacks(clip);
 		if (rounds <= 0)
 			return Skip(builder);
-		bool dual = HWP::Firearms::HasBuff(owner, "glock_main") && HWP::Firearms::HasBuff(owner, "glock_off");
+		// a pistol or Hand Cannon in each hand
+		bool dual = (HWP::Firearms::HasBuff(owner, "glock_main") || HWP::Firearms::HasBuff(owner, "hcannon_main"))
+			&& (HWP::Firearms::HasBuff(owner, "glock_off") || HWP::Firearms::HasBuff(owner, "hcannon_off"));
 		HWP::Log("firearms", "explosive reload: " + rounds + " rounds at " + m_dmg + (dual ? ", two magazines" : "") + " (scene " + g_scene.GetTime() + " ms)");
 		if (!dual)
 			return ShootProjectile::DoAction(builder, owner, target, pos, dir, intensity * rounds);
@@ -1336,30 +1340,62 @@ class HWPFirearmsGun : Skills::PlayerSkillDirectional
 	// 300 ms, not two a 600 ms cycle, which read as a two-round burst). The timeline entries
 	// past the short cycle then never fire. "hwp-solo-blocking" likewise replaces the end of
 	// the blocking window, which for the pair covers the second round.
+	// With the "hwp-mixed-with" marker (the other hand's gun is the other kind: a pistol with a
+	// Hand Cannon) "hwp-mixed-length" and "hwp-mixed-blocking" win over both.
 	int m_fullLen;
 	int m_soloLen;
 	string m_soloUnless;
 	int m_fullBlocking;
 	int m_soloBlocking;
+	string m_mixedWith;
+	int m_mixedLen;
+	int m_mixedBlocking;
+	int m_loggedLen = -1;
 
 	HWPFirearmsGun(UnitPtr unit, SValue& params)
 	{
 		super(unit, params);
-		m_fullLen = m_animLen;
 		m_soloLen = GetParamInt(unit, params, "hwp-solo-length", false, -1);
 		m_soloUnless = GetParamString(unit, params, "hwp-solo-unless", false, "");
-		m_fullBlocking = m_blocking.y;
 		m_soloBlocking = GetParamInt(unit, params, "hwp-solo-blocking", false, -1);
+		m_mixedWith = GetParamString(unit, params, "hwp-mixed-with", false, "");
+		m_mixedLen = GetParamInt(unit, params, "hwp-mixed-length", false, -1);
+		m_mixedBlocking = GetParamInt(unit, params, "hwp-mixed-blocking", false, -1);
+	}
+
+	// anim-length and blocking are read in Initialize (PlayerSkill.as:207-211), not the
+	// constructor: copied there, both read 0, and a paired gun ran the attack scene's own
+	// length with no blocking (plan-firearms-cannon 20261020-170639: two Hand Cannons, cycle 0)
+	void Initialize(Actor@ owner, UnitPtr unit, array<SValue@>@ params, uint id) override
+	{
+		Skills::PlayerSkillDirectional::Initialize(owner, unit, params, id);
+		m_fullLen = m_animLen;
+		m_fullBlocking = m_blocking.y;
 	}
 
 	void NetActivate(vec2 target, float intensity) override
 	{
-		if (m_soloLen > 0)
+		if (m_mixedLen > 0 && HWP::Firearms::HasBuff(m_owner, m_mixedWith))
+		{
+			m_animLen = m_mixedLen;
+			m_blocking.y = m_mixedBlocking >= 0 ? m_mixedBlocking : m_fullBlocking;
+		}
+		else if (m_soloLen > 0)
 		{
 			bool paired = HWP::Firearms::HasBuff(m_owner, m_soloUnless);
 			m_animLen = paired ? m_fullLen : m_soloLen;
 			if (m_soloBlocking >= 0)
 				m_blocking.y = paired ? m_fullBlocking : m_soloBlocking;
+		}
+		else if (m_mixedLen > 0)
+		{
+			m_animLen = m_fullLen;
+			m_blocking.y = m_fullBlocking;
+		}
+		if (m_animLen != m_loggedLen)
+		{
+			m_loggedLen = m_animLen;
+			HWP::Log("firearms", m_id + ": cycle " + m_animLen + " ms");
 		}
 		Skills::PlayerSkillDirectional::NetActivate(target, intensity);
 		if (m_carry >= 0)
@@ -1391,6 +1427,11 @@ class HWPFirearmsGun : Skills::PlayerSkillDirectional
 				carry = min(next - m_skillLen, CARRY_MAX);
 		}
 		Skills::PlayerSkillDirectional::Update(dt, walking, aimDir);
+		// the base Update stretches the cycle to the timeline's last entry (max(m_animLen,
+		// GetLength()), PlayerSkillDirectional.as:107): a Hand Cannon's 500 ms mixed cycle ran
+		// 600, to its right-hand round (plan-firearms-cannon 20261020-170115)
+		if (m_castingT >= 0 && m_animLen > 0)
+			m_skillLen = m_animLen;
 		auto plr = cast<Player>(m_owner);
 		if (plr is null || plr.m_targetHelper is null)
 			return;

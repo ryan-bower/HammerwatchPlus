@@ -1,0 +1,89 @@
+{
+ "name": "plan-firearms-cannon",
+ "about": "Test plan through the plan_checks bot: the Hand Cannon, the Flamethrower Rifle and the Full Auto Rifle. Magazines (cannon 6, with a pistol 16, two cannons 12); a lone cannon a round every 600 ms; pistol + cannon either way round a pistol, cannon, pistol burst 100 ms apart with the pistol's 300 ms between bursts; two cannons every 600 ms; right click with a cannon fires both guns at once; an off-hand cannon with a sword 1. The Flamethrower Rifle: 30 rounds and the rifle's burst; the held flamethrower drains 10 mana a second, no rounds, and runs dry. The Full Auto Rifle: 30 rounds, the burst, and held full auto at a round every 100 ms, no mana, its rounds' headings spread wide (the burst's tight). Equipment requirements are turned off, as in plan-firearms-guns.",
+ "fixture": "town-paladin",
+ "mods": [
+  "core",
+  "abyss",
+  "architect",
+  "bufftips",
+  "campaign",
+  "chatlinks",
+  "classes",
+  "colors",
+  "deathrecap",
+  "droptrade",
+  "farming",
+  "firearms",
+  "fishing",
+  "gambler",
+  "goldpet",
+  "groupcombo",
+  "keys",
+  "laststats",
+  "legacy",
+  "maps",
+  "mercenary",
+  "pets",
+  "puzzles",
+  "stash",
+  "strongbox",
+  "summons",
+  "wavemode",
+  "weapons",
+  "weaponswap"
+ ],
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "plan_checks",
+   "kwargs": {
+    "sections": "firearms_cannon"
+   },
+   "name": "firearms cannon",
+   "expect": {
+    "cannon_shield_mag_6": true,
+    "cannon_shield_one_round": true,
+    "cannon_solo_600ms": true,
+    "pistol_cannon_mag_16": true,
+    "pistol_cannon_burst": true,
+    "pistol_cannon_right_two": true,
+    "cannon_pistol_mag_16": true,
+    "cannon_pistol_burst": true,
+    "cannon_pistol_right_two": true,
+    "cannons_mag_12": true,
+    "cannons_600ms": true,
+    "cannons_right_two": true,
+    "offhand_cannon_mag_6": true,
+    "offhand_cannon_one_round": true,
+    "flamer_mag_30": true,
+    "flamer_rifle_burst": true,
+    "flamer_drains_mana": true,
+    "flamer_no_rounds": true,
+    "flamer_runs_dry": true,
+    "autorifle_mag_30": true,
+    "autorifle_burst": true,
+    "autofire_100ms": true,
+    "autofire_no_mana": true,
+    "autofire_wild": true,
+    "autorifle_burst_tight": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}
