@@ -1,0 +1,20 @@
+{
+  "cls": "warlock",
+  "group": "warlock-hoh1",
+  "hoh1_file": "players/warlock/soul_cleaver.sval",
+  "hoh1_icon": "warlock/soul_cleaver",
+  "kind": "passive",
+  "levels": [
+    "20% chance to spread on death",
+    "40% chance to spread on death",
+    "60% chance to spread on death",
+    "80% chance to spread on death",
+    ""
+  ],
+  "name": "Soul Cleaver",
+  "notes": "HoH1 stops at 4 levels.",
+  "order": 1,
+  "status": "designed",
+  "summary": "Enemies with Soul Consumption pass 50% of the damage they take on to nearby enemies, and can spread Soul Consumption when they die.",
+  "unlock": "bought"
+}

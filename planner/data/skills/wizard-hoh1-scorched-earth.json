@@ -1,0 +1,20 @@
+{
+  "cls": "wizard",
+  "group": "wizard-hoh1",
+  "hoh1_file": "players/wizard/scorched_earth.sval",
+  "hoh1_icon": "wizard/scorched_earth",
+  "kind": "passive",
+  "levels": [
+    "8 Magic damage per second",
+    "16 Magic damage per second, areas last twice as long",
+    "",
+    "",
+    ""
+  ],
+  "name": "Scorched Earth",
+  "notes": "HoH1 has only 2 levels.",
+  "order": 1,
+  "status": "designed",
+  "summary": "All your skills leave a burning area where they land.",
+  "unlock": "bought"
+}

@@ -13,7 +13,8 @@ from import_hoh1 import CLASSES_MODULE, HOH1_REMASTERED_ICONS  # noqa: E402
 
 OUT = CLASSES_MODULE / "players/hwp/remastered/icons.png"
 COLOURS = {"paladin": (214, 178, 90), "priest": (236, 226, 190), "ranger": (120, 196, 110),
-           "sorcerer": (120, 180, 240), "warlock": (176, 120, 220), "wizard": (236, 120, 80)}
+           "sorcerer": (120, 180, 240), "warlock": (176, 120, 220), "wizard": (236, 120, 80),
+           "rogue": (200, 200, 200), "warrior": (200, 90, 70)}
 
 
 def shape(d, k, c):

@@ -1,0 +1,9 @@
+{
+  "blurb": "HoH1's Thief, on the Rogue: grapple across the room and carve chunks out of anything.",
+  "cls": "rogue",
+  "name": "HoH1 Remastered",
+  "notes": "From the HoH1 class's abilities that HoH2 lacks. The numbers are HoH1's, to retune for HoH2. Not built in game yet.",
+  "order": 5,
+  "remastered": true,
+  "status": "designed"
+}

@@ -1,0 +1,22 @@
+{
+  "cls": "warrior",
+  "cooldown": "0.35 s",
+  "group": "warrior-hoh1",
+  "hoh1_file": "players/gladiator/trident.sval",
+  "hoh1_icon": "warrior/trident",
+  "kind": "active",
+  "levels": [
+    "12 Physical, 5 stacks",
+    "14 Physical, 7 stacks",
+    "16 Physical, 9 stacks",
+    "18 Physical, 11 stacks",
+    "20 Physical, 13 stacks"
+  ],
+  "mana": "0",
+  "name": "Trident",
+  "notes": "HoH1's Gladiator basic attack. HoH1 has a 6th level: 22 Physical, 15 stacks.",
+  "order": 0,
+  "status": "designed",
+  "summary": "A quick thrust in a 30° arc. You hold Trident stacks: each one lets you attack again instantly, with no cooldown, and they refill one every 0.5 s. With none left it waits out its normal cooldown. On the Warrior it is a skill key with its own stack counter, since left click is always the weapon.",
+  "unlock": "bought"
+}

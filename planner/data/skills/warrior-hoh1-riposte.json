@@ -1,0 +1,20 @@
+{
+  "cls": "warrior",
+  "group": "warrior-hoh1",
+  "hoh1_file": "players/gladiator/riposte.sval",
+  "hoh1_icon": "warrior/riposte",
+  "kind": "passive",
+  "levels": [
+    "-20% damage",
+    "-40% damage",
+    "-60% damage",
+    "-80% damage",
+    ""
+  ],
+  "name": "Riposte",
+  "notes": "HoH1 stops at 4 levels.",
+  "order": 1,
+  "status": "designed",
+  "summary": "For 0.2 s after a Trident attack, the next hit you take is reduced. A hit blocked this way refunds a Trident stack.",
+  "unlock": "bought"
+}

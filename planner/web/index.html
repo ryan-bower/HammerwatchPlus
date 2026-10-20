@@ -4,7 +4,7 @@
 <style>
 :root{
   --bg:#f5f3ee; --panel:#ffffff; --panel-2:#faf8f4; --ink:#1d1c1a; --muted:#6b675f; --line:#e2ded5;
-  --accent:#b4501e; --accent-ink:#ffffff; --focus:#d9772f;
+  --accent:#b4501e; --accent-ink:#ffffff; --focus:#d9772f; --remaster:#7a4fc0;
   --q-common:#7a7a7a; --q-uncommon:#2f8a3c; --q-rare:#2c6fc4; --q-epic:#8a3fc4;
   --s-idea:#9a948a; --s-designed:#c08a1e; --s-built:#2c6fc4; --s-tested:#2f8a3c;
   --active:#b4501e; --passive:#5a6bb0; --warn:#b03a2e;
@@ -15,7 +15,7 @@
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
     --bg:#141311; --panel:#1e1c19; --panel-2:#24221e; --ink:#ece8e0; --muted:#a29d93; --line:#34312b;
-    --accent:#e0743a; --accent-ink:#1a0f08; --focus:#f0904f;
+    --accent:#e0743a; --accent-ink:#1a0f08; --focus:#f0904f; --remaster:#b08cf0;
     --q-common:#a3a3a3; --q-uncommon:#5cc46a; --q-rare:#5c9cf0; --q-epic:#b57af0;
     --s-idea:#8c877e; --s-designed:#e0aa3e; --s-built:#5c9cf0; --s-tested:#5cc46a;
     --active:#e0743a; --passive:#8b9be0; --warn:#e06a5c;
@@ -26,7 +26,7 @@
 }
 :root[data-theme="dark"]{
   --bg:#141311; --panel:#1e1c19; --panel-2:#24221e; --ink:#ece8e0; --muted:#a29d93; --line:#34312b;
-  --accent:#e0743a; --accent-ink:#1a0f08; --focus:#f0904f;
+  --accent:#e0743a; --accent-ink:#1a0f08; --focus:#f0904f; --remaster:#b08cf0;
   --q-common:#a3a3a3; --q-uncommon:#5cc46a; --q-rare:#5c9cf0; --q-epic:#b57af0;
   --s-idea:#8c877e; --s-designed:#e0aa3e; --s-built:#5c9cf0; --s-tested:#5cc46a;
   --active:#e0743a; --passive:#8b9be0; --warn:#e06a5c;
@@ -71,6 +71,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:12px 14px;min-width:0}
 .doctrine{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .doctrine.new{border:2px solid var(--accent)}
+.doctrine.remastered{border:2px solid var(--remaster)}
+.doctrine.remastered>h2,.spechead.remastered{color:var(--remaster)}
 .doctrine>h2{display:flex;align-items:center;gap:8px;font-size:15px;margin:0}
 .doctrine .blurb{color:var(--muted);font-size:12.5px;margin:-4px 0 0}
 .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -385,7 +387,7 @@ function skillCard(s){
     h("div",{class:"row mono",style:"margin-top:2px"},
       s.unlock ? h("span",null, s.unlock==="free"?"free at lv1":"bought") : null,
       s.mana ? h("span",null,"· mana "+s.mana) : null, s.cooldown ? h("span",null,"· cd "+s.cooldown) : null,
-      s.built ? h("span",null,"· "+s.built) : null),
+      s.built ? h("span",null,"· "+s.built) : null, s.hoh1_file ? h("span",null,"· HoH1 "+s.hoh1_file) : null),
     s.summary ? h("p",{class:"summary"}, s.summary) : null,
     levelsList(s.levels),
     h("div",{class:"mods"},
@@ -408,11 +410,14 @@ function vanillaSkillCard(s, orbsOpen){
       h("div",{class:"row"}, h("span",{class:"mono grow"}, extra.length ? extra.length+" new orb"+(extra.length===1?"":"s") : "no new orbs"), addBtn("orb","mods", Object.assign({skill:s.id}, ORB()))),
       extra.map(modRow)));
 }
+// The HoH1 Remastered spec (remastered: true) is each class's 5th; every other designed spec is the 4th.
+const specLabel = d => d.remastered ? "5th: " : "4th: ";
+const spec4Of = (cls = state.cls) => mine("doctrines", cls).find(d => !d.remastered);
 function doctrineSection(d, isNew){
   const sk = mine("skills").filter(s => s.group === d._id);
   const a = sk.filter(s=>s.kind!=="passive").length, p = sk.length - a;
-  return h("section",{class:"doctrine"+(isNew?" new":"")},
-    h("h2",null, h("span",{class:"grow clickable", onclick:()=>openEditor("doctrines",d._id)}, (isNew ? "4th: " : "")+(d.name||d._id)), statusChip(d.status)),
+  return h("section",{class:"doctrine"+(d.remastered ? " remastered" : isNew ? " new" : "")},
+    h("h2",null, h("span",{class:"grow clickable", onclick:()=>openEditor("doctrines",d._id)}, (isNew ? specLabel(d) : "")+(d.name||d._id)), statusChip(d.status)),
     d.owner ? h("div",{class:"owner"}, d.owner+"'s spec") : null,
     d.blurb ? h("p",{class:"blurb"}, d.blurb) : null,
     h("div",{class:"row mono"}, h("span",{class:"grow"}, a+" active · "+p+" passive"), addBtn("skill","skills",{group:d._id})),
@@ -454,14 +459,15 @@ function viewVanilla(v){
     h("div",{class:"stats"}, ["str","dex","int","foc","vit","health","mana","armor"].filter(k => st[k] != null).map(k => h("div",{class:"stat"}, h("div",{class:"k"},k), h("div",{class:"v"}, st[k])))),
     (c.gear||[]).length ? h("div",{class:"mono",style:"margin-top:8px"}, "Starts with: "+c.gear.join(", ")) : null,
     c.notes ? h("div",{class:"para"}, h("span",{class:"k"},"Notes"), c.notes) : null));
-  const docs = mine("doctrines");
-  v.append(h("div",{class:"sectionhead"}, h("h2",null, c.port ? "Base kit, the three "+c.port+" masteries, and a 4th" : (c.specs||[]).some(sp => sp.port) ? "Base kit, the vanilla specs, the ported mastery, and the 4th" : "Base kit, the three vanilla specs, and the 4th"), h("span",{class:"grow"}),
-    docs.length ? null : addBtn("4th spec","doctrines",{spec4:true, order:4})));
+  const docs = mine("doctrines"), has4 = !!spec4Of();
+  const fifth = docs.some(d => d.remastered) ? ", and the HoH1 Remastered 5th" : "";
+  v.append(h("div",{class:"sectionhead"}, h("h2",null, (c.port ? "Base kit, the three "+c.port+" masteries, a 4th" : (c.specs||[]).some(sp => sp.port) ? "Base kit, the vanilla specs, the ported mastery, the 4th" : "Base kit, the three vanilla specs, the 4th")+fifth), h("span",{class:"grow"}),
+    has4 ? null : addBtn("4th spec","doctrines",{spec4:true, order:4})));
   const g = h("div",{class:"grid cols-4"});
   g.append(h("section",{class:"doctrine"}, h("h2",null, h("span",{class:"grow"},"Base kit"), chip("van", srcOf(null))), (c.base||[]).map(vanillaSkillCard)));
   for (const sp of c.specs||[]) g.append(h("section",{class:"doctrine"}, h("h2",null, h("span",{class:"grow"}, sp.name), chip("van", srcOf(sp))), (sp.skills||[]).map(vanillaSkillCard)));
   for (const d of docs) g.append(doctrineSection(d, true));
-  if (!docs.length) g.append(h("section",{class:"doctrine new"}, h("h2",null,"4th spec"), h("div",{class:"empty"},"Not started")));
+  if (!has4) g.insertBefore(h("section",{class:"doctrine new"}, h("h2",null,"4th spec"), h("div",{class:"empty"},"Not started")), g.querySelector(".doctrine.remastered"));
   v.append(g);
   cutSkills(v, c);
 }
@@ -483,7 +489,7 @@ function viewVanillaOrbs(v){
   const own = mine("skills");
   for (const d of mine("doctrines")){
     const sk = own.filter(s => s.group === d._id);
-    v.append(h("h3",{class:"spechead"}, "4th: "+(d.name||d._id), statusChip(d.status)));
+    v.append(h("h3",{class:"spechead"+(d.remastered ? " remastered" : "")}, specLabel(d)+(d.name||d._id), statusChip(d.status)));
     v.append(h("div",{class:"grid cols-3"}, sk.map(s => { const xs = rest.filter(m => m.skill === s._id);
       return h("div",{class:"card"}, h("div",{class:"row"}, ico(s), h("span",{class:"title grow"}, s.name||s._id), chip("kind-"+(s.kind==="passive"?"passive":"active"), s.kind||"active")),
         h("div",{class:"mods",style:"border:0;padding:0"}, xs.length ? xs.map(modRow) : h("span",{class:"mono"},"no orbs yet"), h("div",null, addBtn("orb","mods", Object.assign({skill:s._id}, ORB()))))); })));
@@ -623,7 +629,7 @@ function viewVanillaBudget(v){
   const specMods = (c.specs||[]).map(sp => (sp.skills||[]).reduce((a,s)=>a+(s.mods||[]).length,0));
   const avg = specMods.length ? Math.round(specMods.reduce((a,b)=>a+b,0)/specMods.length) : 0;
   const docs = mine("doctrines"), sk = mine("skills"), mods = mine("mods");
-  const d = docs[0], dsk = d ? sk.filter(s => s.group === d._id) : [], ids = new Set(dsk.map(s => s._id));
+  const d = spec4Of(), dsk = d ? sk.filter(s => s.group === d._id) : [], ids = new Set(dsk.map(s => s._id));
   const own = mods.filter(m => ids.has(m.skill));
   v.append(h("div",{class:"sectionhead"}, h("h2",null,"4th spec against the vanilla three")));
   v.append(h("div",{class:"card"},
@@ -636,17 +642,17 @@ function viewVanillaBudget(v){
       [["Base kit", c.base||[]], ...(c.specs||[]).map(sp => [sp.name, sp.skills||[]])].map(([name, ss]) => { const i = new Set(ss.map(s=>s.id));
         return h("tr",null, h("td",null,name), h("td",null,ss.map(s=>s.name).join(", ")), h("td",null,ss.reduce((a,s)=>a+(s.mods||[]).length,0)), h("td",null,ss.reduce((a,s)=>a+(s.mods||[]).reduce((b,m)=>b+vq(m).length,0),0)), h("td",null, mods.filter(m => i.has(m.skill)).length)); }),
       docs.map(x => { const s = sk.filter(y => y.group === x._id), i = new Set(s.map(y=>y._id)), ms = mods.filter(m => i.has(m.skill));
-        return h("tr",null, h("td",null,h("strong",null,"4th: "+(x.name||x._id))), h("td",null,s.map(y=>y.name).join(", ")), h("td",null,"—"), h("td",null,lvCount(ms)), h("td",null,ms.length)); })))));
+        return h("tr",null, h("td",null,h("strong",null,specLabel(x)+(x.name||x._id))), h("td",null,s.map(y=>y.name).join(", ")), h("td",null,"—"), h("td",null,lvCount(ms)), h("td",null,ms.length)); })))));
 }
 function viewOverview(v){
   v.append(h("div",{class:"sectionhead"}, h("h2",null,"All classes")));
   v.append(h("p",{class:"sub",style:"margin-top:-6px"},"Every class's new specialization and its new orbs. Pick a row to open that class."));
   v.append(h("div",{class:"tablewrap"}, h("table",null,
-    h("thead",null,h("tr",null, h("th",null,"Class"),h("th",null,"Specs"),h("th",null,"New spec"),h("th",null,"Active"),h("th",null,"Passive"),h("th",null,"New orbs"))),
+    h("thead",null,h("tr",null, h("th",null,"Class"),h("th",null,"Specs"),h("th",null,"New spec"),h("th",null,"Active"),h("th",null,"Passive"),h("th",null,"HoH1 Remastered"),h("th",null,"New orbs"))),
     h("tbody",null, classes().map(c => {
       const docs = mine("doctrines", c._id), sk = mine("skills", c._id), ms = mine("mods", c._id);
       const isF = c._id === FIREARMS;
-      const spec = isF ? null : docs[0];
+      const spec = isF ? null : spec4Of(c._id), rm = docs.find(d => d.remastered);
       const ssk = spec ? sk.filter(s => s.group === spec._id) : [];
       const cell = kind => { const s = ssk.find(x => (x.kind==="passive") === (kind==="passive")); return s ? h("span",null, s.name||s._id, " ", statusChip(s.status)) : (isF ? "—" : h("span",{class:"mono"},"none")); };
       return h("tr",{class:"clickable", onclick:()=>{ state.cls = c._id; state.tab = "class"; try{localStorage.setItem("fp.cls",c._id); localStorage.setItem("fp.tab","class");}catch{} render(); scrollTo(0,0); }},
@@ -654,6 +660,7 @@ function viewOverview(v){
         h("td",{class:"mono"}, isF ? "new class: "+docs.filter(d=>d._id!=="base").length+" doctrines" : (c.specs||[]).map(s=>s.name).join(", ")),
         h("td",null, isF ? "—" : spec ? h("span",null, spec.name||spec._id, " ", statusChip(spec.status), spec.owner ? " · "+spec.owner : "") : h("span",{class:"mono"},"not started")),
         h("td",null, cell("active")), h("td",null, cell("passive")),
+        h("td",null, rm ? sk.filter(s => s.group === rm._id).map(s => s.name||s._id).join(", ") : h("span",{class:"mono"},"—")),
         h("td",null, ms.length+" orb"+(ms.length===1?"":"s")));
     })))));
 }

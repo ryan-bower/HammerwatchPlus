@@ -1,0 +1,22 @@
+{
+  "cls": "warlock",
+  "cooldown": "0.25 s",
+  "group": "warlock-hoh1",
+  "hoh1_file": "players/warlock/soul_dagger.sval",
+  "hoh1_icon": "warlock/soul_dagger",
+  "kind": "active",
+  "levels": [
+    "10 per second for 2.5 s",
+    "12 per second for 3 s",
+    "14 per second for 3.5 s",
+    "16 per second for 4 s",
+    "18 per second for 4.5 s"
+  ],
+  "mana": "0",
+  "name": "Soul Dagger",
+  "notes": "HoH1 has a 6th level: 20 per second for 5 s.",
+  "order": 0,
+  "status": "designed",
+  "summary": "A short-ranged stab that applies Soul Consumption: Magic damage over time. You gain 5% of that damage as health and 10% as mana. It was HoH1's basic attack.",
+  "unlock": "bought"
+}

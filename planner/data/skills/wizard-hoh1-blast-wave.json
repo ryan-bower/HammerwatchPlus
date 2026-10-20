@@ -1,0 +1,22 @@
+{
+  "cls": "wizard",
+  "cooldown": "2.5 s",
+  "group": "wizard-hoh1",
+  "hoh1_file": "players/wizard/blast_wave.sval",
+  "hoh1_icon": "wizard/blast_wave",
+  "kind": "active",
+  "levels": [
+    "6 damage, 30% slow for 2.5 s, 35 mana",
+    "12 damage, 40% slow for 3 s, 40 mana",
+    "20 damage, 50% slow for 3.5 s, 45 mana",
+    "30 damage, 60% slow for 4 s, 50 mana",
+    ""
+  ],
+  "mana": "35-50",
+  "name": "Blast Wave",
+  "notes": "HoH1 stops at 4 levels.",
+  "order": 0,
+  "status": "designed",
+  "summary": "Unleash a blast wave around you that deals Magic damage, confuses and slows enemies, and destroys most projectiles.",
+  "unlock": "bought"
+}

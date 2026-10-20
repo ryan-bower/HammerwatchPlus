@@ -1,0 +1,17 @@
+{
+  "cls": "paladin",
+  "exclusive": "",
+  "hoh1_icon": "paladin/charge",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Charge inflicts Stun"
+    }
+  ],
+  "name": "Bull Rush",
+  "notes": "HoH2's own orb on the unused charge.sval (charge_stun). HoH1's Charge always stunned for 0.5 s.",
+  "order": 0,
+  "skill": "paladin-hoh1-zealous-charge",
+  "status": "designed",
+  "summary": "Zealous Charge inflicts Stun."
+}

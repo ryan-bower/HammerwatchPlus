@@ -1,0 +1,20 @@
+{
+  "cls": "paladin",
+  "group": "paladin-hoh1",
+  "hoh1_file": "players/paladin/shield.sval",
+  "hoh1_icon": "paladin/shield",
+  "kind": "passive",
+  "levels": [
+    "80° arc, blocks 5 Physical",
+    "100° arc, blocks 10 Physical",
+    "120° arc, blocks 15 Physical",
+    "140° arc, blocks 20 Physical",
+    "160° arc, blocks 25 Physical"
+  ],
+  "name": "Shield",
+  "notes": "HoH1 values. HoH2 has the same modifiers (Modifiers::BlockProjectile and Modifiers::Block). HoH1's block was a flat amount, so it likely wants a percentage at HoH2's damage numbers.",
+  "order": 1,
+  "status": "designed",
+  "summary": "Your shield blocks most projectiles coming at you from the front, in an arc that widens with each level, and has a 25% chance to block some Physical damage.",
+  "unlock": "bought"
+}

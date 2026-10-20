@@ -1,0 +1,20 @@
+{
+  "cls": "rogue",
+  "group": "rogue-hoh1",
+  "hoh1_file": "players/thief/vicious_cuts.sval",
+  "hoh1_icon": "rogue/vicious_cuts",
+  "kind": "passive",
+  "levels": [
+    "5% chance",
+    "10% chance",
+    "",
+    "",
+    ""
+  ],
+  "name": "Vicious Cuts",
+  "notes": "HoH1 has only 2 levels, on Twin Daggers hits. HoH2 has the damage (HPBasedDamage, curr-hp). The ported Thief's Vicious Cuts is a crit passive instead.",
+  "order": 1,
+  "status": "designed",
+  "summary": "Weapon hits have a chance to take 5% of the target's current health.",
+  "unlock": "bought"
+}

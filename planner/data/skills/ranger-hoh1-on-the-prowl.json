@@ -1,0 +1,20 @@
+{
+  "cls": "ranger",
+  "group": "ranger-hoh1",
+  "hoh1_file": "players/ranger/on_the_prowl.sval",
+  "hoh1_icon": "ranger/on_the_prowl",
+  "kind": "passive",
+  "levels": [
+    "2.5 s, 5% evasion",
+    "3 s, 10% evasion",
+    "3.5 s, 15% evasion",
+    "4 s, 20% evasion",
+    "4.5 s, 25% evasion"
+  ],
+  "name": "On the Prowl",
+  "notes": "HoH1 values (5 levels).",
+  "order": 1,
+  "status": "designed",
+  "summary": "Casting a skill gives you a buff for a few seconds: +25% movement speed and some evasion.",
+  "unlock": "bought"
+}

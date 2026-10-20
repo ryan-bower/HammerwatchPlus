@@ -1,0 +1,22 @@
+{
+  "cls": "paladin",
+  "cooldown": "3 s",
+  "group": "paladin-hoh1",
+  "hoh1_file": "players/paladin/charge.sval",
+  "hoh1_icon": "paladin/charge",
+  "kind": "active",
+  "levels": [
+    "40 damage, 15 mana",
+    "50 damage, 15 mana",
+    "65 damage, 20 mana",
+    "80 damage, 20 mana",
+    "100 damage, 25 mana"
+  ],
+  "mana": "15-25",
+  "name": "Zealous Charge",
+  "notes": "HoH1's Charge: a dash that deals 25-75 Physical damage (6 levels) and stuns for 0.5 s, 10-25 mana. HoH2's version stuns only with its Bull Rush orb. The levels here are HoH2's charge.sval.",
+  "order": 0,
+  "status": "designed",
+  "summary": "Charge forward, hitting every enemy in your path for Physical damage. Hold the key to charge it up for a faster, harder charge. This is HoH2's own unused Zealous Charge (players/paladin/skills/charge.sval), standing in for HoH1's Charge.",
+  "unlock": "bought"
+}

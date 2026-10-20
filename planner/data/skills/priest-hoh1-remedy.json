@@ -1,0 +1,20 @@
+{
+  "cls": "priest",
+  "group": "priest-hoh1",
+  "hoh1_file": "players/priest/remedy.sval",
+  "hoh1_icon": "priest/remedy",
+  "kind": "passive",
+  "levels": [
+    "+50% healing received",
+    "+100% healing received",
+    "+150% healing received",
+    "+200% healing received",
+    ""
+  ],
+  "name": "Remedy",
+  "notes": "HoH1 stops at 4 levels. HoH2 has the stat: health-gain (Modifiers::AttribAdd), which the Apothecary's trinket set uses.",
+  "order": 1,
+  "status": "designed",
+  "summary": "You regain health more effectively from every source.",
+  "unlock": "bought"
+}

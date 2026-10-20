@@ -3,6 +3,8 @@ from the icon atlases (vanilla, Firearms, the HoH1 classes), packed 24x24 into i
 with icons.json mapping each in-game id to its cell.
 python planner_icons.py [<data>] -> planner/web/icons.png, icons.json; <data> holds the
 planner's records as classes/*.json, skills/*.json and mods/*.json (default planner/data).
+A record with `hoh1_icon` ("<class>/<skill>", a key of HOH1_REMASTERED_ICONS in
+tools/import_hoh1.py: the HoH1 Remastered specs) gets that cell of the Remastered sheet.
 The HoH1 classes' atlases are committed placeholders; when the local HoH1 art is imported
 (mods/classes/hoh1art/), the same sheet cut from it is written as icons.local.png
 (git-ignored), which the planner serves instead.
@@ -17,6 +19,9 @@ SVALS = [REPO / "gamecode/sdk/hoh2/players", REPO / "mods/firearms/players", REP
 # a texture path resolves in the first package that has it, as the game's do
 BASES = [REPO / "mods/classes", REPO / "mods/firearms", REPO / "gamecode/sdk/hoh2"]
 OVERLAY = REPO / "mods/classes/hoh1art"
+REMASTERED = "players/hwp/remastered/icons.png"
+sys.path.insert(0, str(REPO / "tools"))
+from import_hoh1 import HOH1_REMASTERED_ICONS  # noqa: E402
 ID = re.compile(r'<string name="id">([^<]+)</string>')
 ICON = re.compile(r'<array name="icon">\s*<(?:string|s)>([^<]+)</(?:string|s)>\s*<(?:int|i)>\d+</(?:int|i)>\s*<vec4>([^<]+)</vec4>', re.S)
 
@@ -45,6 +50,11 @@ for coll in ("skills", "mods"):
         d = json.load(open(f, encoding="utf-8")); d = d.get("data", d)
         if (d.get("built") or "").startswith("hwp_"):
             want.add(d["built"])
+        if d.get("hoh1_icon"):
+            cls, sk = d["hoh1_icon"].split("/")
+            key = Path(f).stem
+            want.add(key)
+            icons[key] = (REMASTERED, (*HOH1_REMASTERED_ICONS[cls][sk], 24, 24))
 
 found = {i: icons[i] for i in want if i in icons}
 missing = sorted(want - set(found))

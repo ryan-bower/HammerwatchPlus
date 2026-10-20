@@ -2207,3 +2207,17 @@ another Reload press starts it again as usual. Then the second `/code-review hig
   rewrites it byte-identical). Default build packs the placeholder (2608 B), `--with-local`
   HoH1's sheet (39326 B). Nothing in game uses it yet.
 - Runs: mod-classes 20261020-160710 PASS, mod-all 20261020-160722 PASS.
+- Picks, now in the planner (design only, HoH1's numbers, nothing built): Paladin Zealous
+  Charge (HoH2's unused `players/paladin/skills/charge.sval`, with its Bull Rush orb) + Shield;
+  Priest Smite + Remedy; Ranger Flurry of Arrows + On the Prowl; Sorcerer Frost Shard + Ice
+  Barrier; Warlock Soul Dagger + Soul Cleaver; Wizard Blast Wave + Scorched Earth; Rogue (from
+  the HoH1 Thief) Grappling Hook (HoH2 has an unused `rog_grappling_hook.sval`) + Vicious Cuts;
+  Warrior (from the HoH1 Gladiator) Trident, reworked for the Warrior, with Planned Attack as an
+  orb on it, + Riposte. `HOH1_REMASTERED_ICONS` gains the Rogue's and Warrior's 5 cells (34).
+- Records: `doctrines/<cls>-hoh1.json` (`remastered: true`, order 5), 16 skills
+  `skills/<cls>-hoh1-<skill>.json`, 2 orbs in `mods/`. All are new files with a `-hoh1` prefix
+  the planner's own id scheme (`slug(name)`) never makes, so friends adding 4th specs can't
+  collide; no existing record changed. The page tells the 4th from the 5th by `remastered`
+  (purple "5th: HoH1 Remastered" box; an All classes column). `planner_icons.py` cuts
+  `hoh1_icon` records from the Remastered sheet: 380 wanted, 380 found. Checked by headless
+  Edge screenshots of the Warrior specs, Paladin orbs and All classes tabs.

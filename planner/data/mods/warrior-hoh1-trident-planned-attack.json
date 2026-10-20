@@ -1,0 +1,25 @@
+{
+  "cls": "warrior",
+  "exclusive": "",
+  "hoh1_icon": "warrior/planned_attack",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "3 stacks, 1 refills every 2 s"
+    },
+    {
+      "q": "uncommon",
+      "text": "5 stacks, 1 refills every 1.5 s"
+    },
+    {
+      "q": "rare",
+      "text": "7 stacks, 1 refills every 1 s"
+    }
+  ],
+  "name": "Planned Attack",
+  "notes": "HoH1's Planned Attack passive (5 levels: 3-7 stacks, refilling every 2-1 s), made an orb on Trident.",
+  "order": 0,
+  "skill": "warrior-hoh1-trident",
+  "status": "designed",
+  "summary": "Gives you a second pool of stacks. While you have one, a Trident attack spends it too and is a guaranteed critical hit."
+}

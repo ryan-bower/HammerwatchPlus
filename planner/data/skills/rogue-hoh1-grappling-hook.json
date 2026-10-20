@@ -1,0 +1,22 @@
+{
+  "cls": "rogue",
+  "cooldown": "0.25 s",
+  "group": "rogue-hoh1",
+  "hoh1_file": "players/thief/grappling_hook.sval",
+  "hoh1_icon": "rogue/grappling_hook",
+  "kind": "active",
+  "levels": [
+    "0.5 s stun, 5 mana",
+    "0.75 s stun, more range, 6 mana",
+    "1 s stun, more range, 7 mana",
+    "1.25 s stun, more range, 8 mana",
+    ""
+  ],
+  "mana": "5-8",
+  "name": "Grappling Hook",
+  "notes": "HoH1 stops at 4 levels. HoH2 ships an unused Rogue Grappling Hook (players/rogue/skills/rog_grappling_hook.sval: a teleport and a minor stun), which the ported Thief uses.",
+  "order": 0,
+  "status": "designed",
+  "summary": "Fire a grappling hook and pull yourself to where it lands, stunning enemies there. You have 100% evasion while you fly.",
+  "unlock": "bought"
+}

@@ -1,0 +1,22 @@
+{
+  "cls": "ranger",
+  "cooldown": "0.75 s",
+  "group": "ranger-hoh1",
+  "hoh1_file": "players/ranger/flurry_of_arrows.sval",
+  "hoh1_icon": "ranger/flurry_of_arrows",
+  "kind": "active",
+  "levels": [
+    "24 arrows, 10 mana",
+    "32 arrows, 15 mana",
+    "40 arrows, 20 mana",
+    "48 arrows, 25 mana",
+    "56 arrows, 30 mana"
+  ],
+  "mana": "10-30",
+  "name": "Flurry of Arrows",
+  "notes": "HoH1 has a 6th level: 64 arrows, 35 mana. The spin lasts about 0.5 s.",
+  "order": 0,
+  "status": "designed",
+  "summary": "Spin around and fire arrows in every direction, each one a Bow Shot at its current level.",
+  "unlock": "bought"
+}

@@ -32,7 +32,7 @@ without a reload.
 | Collection | Holds |
 |---|---|
 | `classes` | each class: stats, gear, base kit, specs and their orbs (read-only game data); the class notes field |
-| `doctrines` | specializations you design: the Firearms doctrines and each class's 4th (`spec4: true`; `owner` is who is designing it) |
+| `doctrines` | specializations you design: the Firearms doctrines and each class's 4th (`spec4: true`; `owner` is who is designing it) and its HoH1 Remastered 5th (`remastered: true`, files `<cls>-hoh1*`) |
 | `skills` | skills in those specializations |
 | `mods` | new orbs, on a new skill or on a vanilla one (`skill` is its id) |
 | `weapons`, `stacks`, `attributes` | Firearms only: arsenal, clip and reload, gun attributes |
@@ -46,4 +46,6 @@ A record with no `cls` belongs to the Firearms Specialist.
 atlases (vanilla, Firearms, and the HoH1 classes' committed placeholders) by
 `tools/icon_art/planner_icons.py`, which needs `gamecode/`. With the HoH1 art imported
 (`python -m gamelab doctor --fix`), it also writes the git-ignored `web/icons.local.png`,
-which the server sends instead.
+which the server sends instead. A record with `hoh1_icon` (`"<cls>/<skill>"`, a key of
+`HOH1_REMASTERED_ICONS` in `tools/import_hoh1.py`) takes its icon from the HoH1 Remastered
+sheet, `mods/classes/players/hwp/remastered/icons.png`; `hoh1_file` names its HoH1 sval.

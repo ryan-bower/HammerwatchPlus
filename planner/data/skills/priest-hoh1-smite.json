@@ -1,0 +1,22 @@
+{
+  "cls": "priest",
+  "cooldown": "0.25 s",
+  "group": "priest-hoh1",
+  "hoh1_file": "players/priest/smite.sval",
+  "hoh1_icon": "priest/smite",
+  "kind": "active",
+  "levels": [
+    "8 hybrid damage",
+    "10 hybrid damage, bigger area",
+    "12 hybrid damage, bigger area",
+    "14 hybrid damage, bigger area",
+    "16 hybrid damage, bigger area"
+  ],
+  "mana": "0",
+  "name": "Smite",
+  "notes": "HoH1 has a 6th level: 18 hybrid damage. HoH2 has no magic damage type; pick a split (Physical and an element) when it's built.",
+  "order": 0,
+  "status": "designed",
+  "summary": "A short-ranged strike that hits a small area for Physical and magic (hybrid) damage. It was HoH1's basic attack: no mana, a 0.25 s cooldown.",
+  "unlock": "bought"
+}

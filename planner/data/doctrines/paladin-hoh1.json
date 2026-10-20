@@ -1,0 +1,9 @@
+{
+  "blurb": "HoH1's Paladin: charge into the fight with a shield that stops arrows and bolts.",
+  "cls": "paladin",
+  "name": "HoH1 Remastered",
+  "notes": "From the HoH1 class's abilities that HoH2 lacks. The numbers are HoH1's, to retune for HoH2. Not built in game yet.",
+  "order": 5,
+  "remastered": true,
+  "status": "designed"
+}

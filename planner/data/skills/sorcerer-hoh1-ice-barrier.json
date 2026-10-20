@@ -1,0 +1,20 @@
+{
+  "cls": "sorcerer",
+  "group": "sorcerer-hoh1",
+  "hoh1_file": "players/sorcerer/ice_barrier.sval",
+  "hoh1_icon": "sorcerer/ice_barrier",
+  "kind": "passive",
+  "levels": [
+    "-20% per barrier, up to 5",
+    "-30% per barrier, up to 6",
+    "-40% per barrier, up to 7",
+    "-50% per barrier, up to 8",
+    ""
+  ],
+  "name": "Ice Barrier",
+  "notes": "HoH1 stops at 4 levels.",
+  "order": 1,
+  "status": "designed",
+  "summary": "Casting a skill conjures a barrier that lasts 2.5 s. Each barrier takes a share off one hit, and they stack.",
+  "unlock": "bought"
+}

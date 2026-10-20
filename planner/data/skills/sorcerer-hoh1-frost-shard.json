@@ -1,0 +1,22 @@
+{
+  "cls": "sorcerer",
+  "cooldown": "0.35 s",
+  "group": "sorcerer-hoh1",
+  "hoh1_file": "players/sorcerer/frost_shard.sval",
+  "hoh1_icon": "sorcerer/frost_shard",
+  "kind": "active",
+  "levels": [
+    "6 hybrid damage, 1 ricochet",
+    "8 hybrid damage, 2 ricochets",
+    "10 hybrid damage, 3 ricochets",
+    "12 hybrid damage, 4 ricochets",
+    "14 hybrid damage, 5 ricochets"
+  ],
+  "mana": "0",
+  "name": "Frost Shard",
+  "notes": "HoH1 has a 6th level: 16 hybrid damage, 6 ricochets. HoH2 projectiles can already bounce, with a damage multiplier per bounce.",
+  "order": 0,
+  "status": "designed",
+  "summary": "Fire a frost shard that ricochets off walls and enemies, dealing 10% more damage with every bounce. It was HoH1's basic attack: no mana, a 0.35 s cooldown.",
+  "unlock": "bought"
+}

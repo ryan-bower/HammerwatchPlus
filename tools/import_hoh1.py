@@ -879,7 +879,8 @@ HOH1_SKILL_ICONS = {
 # HoH1 Remastered specs: gui/icons_skills.png is copied whole (same 256x256 layout), so a skill
 # keeps its HoH1 rect. The committed placeholder at the same path has a shape in each of these
 # cells (tools/make_remastered_icons.py); add a cell there when a skill uses a new one.
-# HoH1 abilities HoH2 lacks (docs/RE_NOTES.md, 2026-10-20), by class.
+# HoH1 abilities HoH2 lacks (docs/RE_NOTES.md, 2026-10-20), by class; the Rogue's are the
+# HoH1 Thief's, the Warrior's the HoH1 Gladiator's.
 HOH1_REMASTERED_ICONS = {
     "paladin": {"charge": (24, 0), "whirlwind": (48, 0), "shield": (96, 0),
                 "stunning_blows": (120, 0), "flames_of_devotion": (168, 0)},
@@ -893,6 +894,8 @@ HOH1_REMASTERED_ICONS = {
                 "eye_of_the_storm": (120, 144)},
     "wizard": {"fire_breath": (24, 120), "blast_wave": (96, 120), "combustion": (48, 120),
                "scorched_earth": (144, 120)},
+    "rogue": {"grappling_hook": (96, 72), "vicious_cuts": (168, 72)},
+    "warrior": {"trident": (0, 168), "riposte": (120, 168), "planned_attack": (96, 168)},
 }
 
 # the shadow under vanilla's showcase figures (row widths, top row 8 px above the feet);
