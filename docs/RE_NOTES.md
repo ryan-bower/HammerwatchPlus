@@ -2327,3 +2327,81 @@ another Reload press starts it again as usual. Then the second `/code-review hig
 - Verified locally: both Winddancer and Arcane load through the planner JSON loader and
   HTTP data API, each with one active, one passive and two orbs per skill (one to three
   levels). The planner page responds successfully. No game was launched.
+
+## The six 4th specializations built: `mods/specs` (2026-10-21)
+
+- The planner designs became a mod, `mods/specs` (requires `core`): six subclasses
+  registered by `players/hwp/specs/class_specs.sval` (written by
+  `tools/make_specs_classes.py`), one active and one passive each, two or three orbs per
+  skill. Commits: a517a8e (the mod, Bannerlord, Winddancer), 290453d (Invocation),
+  1f96d2c (Stormbringer), acd02c4 (Branding), ca1cc08 (Arcane).
+- Verified: `plan-specs` passes all six sections, 78 checks, in run
+  `20261021-163852-plan-specs-lab` (387 s). The section-by-section checks are in
+  `gamelab/bots/plan_specs.py`.
+- Not verified (need a second player, which GameLab cannot run): teammates in Protective
+  Gale and Shared Breath, the Battlefield Standard's ally numbers and Martyr's Banner, and
+  Mana Conduit's host relay. Numbers the designs left open were picked and are marked
+  assumed in each sval header and on the planner record.
+- Icons are placeholders (tinted vanilla icons, `tools/make_specs_icons.py`). The art
+  requests went to the pixel-art agent (`art/specs/REQUESTS.md`). Effects are recoloured
+  vanilla ones (`tools/make_specs_fx.py`) or vanilla effects as they are.
+
+### Engine facts measured or read for the specs (build 25932569)
+
+- `Player.Damage` (Player.as ~381-630) returns early under `CVars::ChtGodmode`;
+  `modifiers.NonLethalDamage` caps the hit at current health - 1; the modifiers'
+  `DamageTaken(player, attacker, dmg)` runs before the health is reduced, then death
+  below 0.
+- A buff's damage over time takes health directly in `m_buffs.Update` (Player.as
+  ~1085-1115), bypassing `Damage()` and its modifiers. Living Mana catches it as a health
+  change on the next frame instead.
+- `Heal.CanApply` refuses at full health (`GetHealth() >= 1.0`).
+- Regeneration (Player.as 1241-1248): mana is `ManaRegen x regenMul x ManaGain / Mana`
+  a second, health is `HealthRegen x HealthGain` after the regen delay.
+- Dash charges: one comes back every `Tweak::BaseDashRechargeTime` (5000 ms) x
+  `DashRechargeMul` (Player.as 1254-1265); `GiveDashCharges(n)` clamps and needs
+  `PlayerSyncDashes` sent. The dodge is 90 units (players/attacks/dash.sval).
+- `Teleport.DoTeleport` (Behaviors/Effects/Teleport.as) raycasts and keeps 0.95 of the
+  distance: a 90 unit Blink measured 85.5 px.
+- `EffectTrigger::CastSpell` fires only from the targeting-helper input path, not from
+  `Skill.Activate`; the specs detect a cast by `m_castingT` leaving -1.
+- A `Modifiers::SkillModifier` runs in `ModifySkills`, which resets `m_modDamageMul` to 1
+  first; `PlayerRecord.RefreshModifiers()` reapplies them. Arcane Feedback uses this
+  (measured: x1.2 at 40 banked mana, run above).
+- `tweak/buffs/status_effects.sval:stun_greater` stuns a bandit brute elite (measured,
+  `gl buffnear`).
+
+### Arcane details (run `20261021-163852-plan-specs-lab`)
+
+- Max mana 265 + max health 148 = 413 with Living Mana. Health follows the mana fraction.
+- A real 30 pure hit drains 30 mana and leaves the health fraction at the mana's. A health
+  loss outside `Damage()` (a buff's damage over time) drains 14 of 14.8.
+- Blink moves 85.5 px and hits a dummy in range (hp 1.0 to 0.934). With a dash charge it
+  replays Static Discharge from the start point and the charges go 1 to 0; without one it
+  only teleports. Far Step at 35% moves 115.4 px.
+- A recast costing more than the mana left stops at 1 mana (the `floored` counter rises).
+  A plain cast can never reach the floor: `Skill.Activate` refuses a cast it can't pay
+  for, so the floor only matters for Blink's recast.
+- Void Barrier: a 500 pure hit right after a Blink leaves the sorcerer alive at 1 mana.
+  Without it, a 300 pure hit from 20 mana kills.
+- Regeneration is +15.0 in 4 s at 90% mana and +20.7 at 5% (Living Mana level 1, +50%
+  at empty).
+- New verbs: `gl damageme <amount> [dot]` (a pure hit through `Player.Damage`), and
+  `buffnear`, `dmgmuls` for Branding. `docs/generated/verbs.md` has all of them.
+
+### Planner, audio
+
+- Planner: all 46 records of the six specs carry their in-game id, the game's numbers and
+  a status (9f6aa43): tested where `plan-specs` measured the behaviour, built where only the
+  orb's numbers are checked or a second player is needed. `planner_icons.py` reads the
+  specs' icon sheet.
+- Audio (4f7d229): `tools/audio_pick` renders vanilla FMOD events offline with the game's
+  own `fmodstudio.dll` 2.2.11 (banks read from the install's `res/assets/sound`, nothing
+  written there; the NRT WAV writer, so nothing plays). 17 sound slots, 3-4 options each,
+  listed in `art/specs/AUDIO.md`; the picker page is a private artifact,
+  https://claude.ai/artifact/5u7FtTXXPVJk6hixoda7Ux, whose `picks` collection is read
+  back to wire the sounds in.
+- FMOD gotchas measured: samples load asynchronously, so an event started straight after
+  `GetEvent` renders silent until `LoadSampleData` reports loaded; in NRT mode each
+  Studio update mixes exactly one DSP block (1024 samples here), so one long WAV can be
+  cut per event by counting updates (the frames came out at exactly blocks x 1024).

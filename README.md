@@ -16,6 +16,7 @@ needs `pets`.
 | Module | What it does |
 |---|---|
 | `firearms` | The **Firearms Specialist**, a new class. Guns fire from a clip that counts down per shot and reloads (automatically at 0, or with the Reload skill, which a dodge cancels); mana pays for gadgets. A rifle (30 rounds, 3-round bursts; the Grenade Launching Rifle has an under-barrel grenade launcher, the Flamethrower Rifle a mana-fed flamethrower held on right click, the Full Auto Rifle a wild full-auto spray) or pistols, one or two (10 rounds each, 20 dual), or Hand Cannons (half a pistol's rate, 1.5 times its damage, 6 rounds; with a pistol, a pistol-cannon-pistol burst). Base kit: Reload and Frag Grenade, whose orbs give Explosive Reload, Over-Reload's timed perfect reload, and Stun, Incendiary or Gas grenades. Four specializations, each with orbs: **Marksman** (Snipe, Critical Aim), **Demolitionist** (Rocket Launcher, Ordinance Hoarder), **Assault** (Double Barrel Burst, Adrenaline) and **Engineer** (Deploy Turret, My Turret!). New characters start with a Service Pistol. Details: `mods/firearms/README.md`; design: `docs/design/firearms.md`. |
+| `specs` | A **4th specialization** for six vanilla classes, one active and one passive each, with orbs: **Stormbringer** Ranger (Electric Circuit, Gathering Winds), **Invocation** Wizard (Tempest Torrent, Static Charge), **Arcane** Sorcerer (Blink, Living Mana), **Winddancer** Rogue (Protective Gale, Second Wind), **Bannerlord** Warrior (Battlefield Standard, Righteous Crusade) and **Branding** Warlock (Pyrebrand, Essence Extraction). Icons and sounds are placeholders for now (`art/specs/`). |
 | `classes` | The HoH1 classes HoH2 lacks: **Thief**, **Gladiator** and **Witch Hunter**, three masteries each. The Thief's extra actives cast on core's Skill 4 key. The real HoH1 art comes from your own HoH1 install (`tools/import_hoh1.py classes`). |
 | `weapons` | Twelve new endgame weapons (ilvl 35, four per slot) with new modifier profiles on vanilla visuals and attacks. |
 | `weaponswap` | A second weapon set on a hotkey (default X): a 2 s channel standing still, cancelled by a dodge or a second press. |
@@ -94,9 +95,9 @@ Workshop uploads will follow once the modules settle.
 
 The class designs live in a local web page: every class's kit, specs and orbs from the game
 data, the Firearms Specialist's full design, and a 4th specialization for each of the other
-classes. The 4th specs of the six vanilla classes are being designed now (Rogue and
-Sorcerer: Zak; Warrior and Warlock: Colin; Ranger and Wizard: Noah); the brief is at the top
-of each class's page.
+classes (Rogue and Sorcerer: Zak; Warrior and Warlock: Colin; Ranger and Wizard: Noah). Six
+of them are built in `mods/specs`, and their planner records show the in-game numbers and
+whether each skill and orb is built or tested. The Paladin's and Priest's are still designs.
 
 It needs only Python 3 (no game, no packages):
 - **Windows:** double-click `planner.cmd`.
@@ -106,11 +107,6 @@ It needs only Python 3 (no game, no packages):
 Edits are saved as JSON files under `planner/data/`; commit and push them. More in
 `planner/README.md`.
 
-Zak's drafts, **Arcane** (Sorcerer) and **Winddancer** (Rogue), are recorded in the planner.
-Arcane converts health into mana and uses Blink to damage enemies on arrival. Winddancer
-boosts the party's Evasion and heals through successful evades. Each has one active and
-one passive with two orbs per skill. Gameplay implementation and numerical tuning are
-still to come.
 
 ## Status
 
@@ -125,7 +121,12 @@ still to come.
   and final icons (the current ones are placeholders from `tools/make_firearms_icons.py`).
 - Firearms gained the Hand Cannon, the Flamethrower Rifle and the Full Auto Rifle on
   2026-10-20 (`plan-firearms-cannon`); the rifle is now the Grenade Launching Rifle.
-- The vanilla classes' 4th specs are being designed in the class planner.
+- Built on 2026-10-21: the 4th specs of the Ranger, Wizard, Sorcerer, Rogue, Warrior and
+  Warlock (`mods/specs`). `plan-specs` passes all six (78 checks). Not yet tested: what
+  needs a second player (teammates in Protective Gale and Shared Breath, the standard's
+  allies, Martyr's Banner, Mana Conduit). Still to do: balance, final icons (requested,
+  `art/specs/REQUESTS.md`) and sounds (pick them in the audio picker, `art/specs/AUDIO.md`).
+  The Paladin's and Priest's 4th specs are still being designed.
 - Designed in the planner, not built, and parked for later: an "Echoes of Hammerwatch I"
   (formerly "HoH1 Remastered") 5th spec for every vanilla class (the Rogue's from the HoH1
   Thief, the Warrior's from the Gladiator), one active and one passive of HoH1's that HoH2
