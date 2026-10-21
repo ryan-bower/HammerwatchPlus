@@ -13,7 +13,7 @@
   ],
   "mana": "",
   "name": "Necrotic Resurrection",
-  "notes": "Each cast costs 3 Favor; at fewer than 3 Favor the rest goes into Heresy (e.g. 1 Favor -> 2 Heresy). Level numbers are a first pass. Open questions: cast on the body nearest your aim or all bodies in an area; do summons last until killed or have a duration; what happens past the summon cap (oldest dies?); can elites and bosses leave bodies.",
+  "notes": "Each cast costs 3 Favor; at fewer than 3 Favor the rest goes into Heresy (e.g. 1 Favor -> 2 Heresy). Risen summons can't be healed: the Lantern's Holy Light and other ally heals skip them (vanilla PlayerHeal heals any actor on your team, so the build has to exclude them). Level numbers are a first pass. Open questions: cast on the body nearest your aim or all bodies in an area; do summons last until killed or have a duration; what happens past the summon cap (oldest dies?); can elites and bosses leave bodies.",
   "order": 0,
   "role": "",
   "status": "idea",
