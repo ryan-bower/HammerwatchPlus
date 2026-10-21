@@ -1,11 +1,22 @@
 {
+  "built": "",
   "cls": "priest",
+  "cooldown": "",
   "group": "priest-spec4",
   "kind": "active",
-  "levels": [],
-  "name": "Placeholder Active",
+  "levels": [
+    "Up to 2 summons, 50% of the risen enemy's health and damage",
+    "Up to 2 summons, 60% of the risen enemy's health and damage",
+    "Up to 3 summons, 70% of the risen enemy's health and damage",
+    "Up to 3 summons, 85% of the risen enemy's health and damage",
+    "Up to 4 summons, 100% of the risen enemy's health and damage"
+  ],
+  "mana": "",
+  "name": "Necrotic Resurrection",
+  "notes": "Each cast costs 3 Favor; at fewer than 3 Favor the rest goes into Heresy (e.g. 1 Favor -> 2 Heresy). Level numbers are a first pass. Open questions: cast on the body nearest your aim or all bodies in an area; do summons last until killed or have a duration; what happens past the summon cap (oldest dies?); can elites and bosses leave bodies.",
   "order": 0,
+  "role": "",
   "status": "idea",
-  "summary": "Placeholder: not designed yet.",
+  "summary": "Reanimate an intact body left by Call of Heresy as a loyal summon that fights for you. Each raise costs 3 Favor stacks.",
   "unlock": "bought"
 }

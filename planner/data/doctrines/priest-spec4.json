@@ -1,9 +1,10 @@
 {
-  "blurb": "Placeholder: not designed yet.",
+  "blurb": "Turn from the light: the fallen rise again at your call, and every heresy you commit makes them stronger, and you hungrier.",
   "cls": "priest",
-  "name": "Placeholder",
-  "notes": "",
+  "name": "Devil Forgemaster",
+  "notes": "Built on Divine Favor: raising the dead spends Favor, and Favor can go below zero as Heresy stacks. Positive Favor is the base passive's damage bonus; negative Favor (Heresy) powers your summons and risks a flesh-eating lunge.",
   "order": 4,
+  "owner": "Ryan",
   "spec4": true,
   "status": "idea"
 }
