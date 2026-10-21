@@ -36,3 +36,4 @@ saves-backup/
 tools/icon_art/out/
 # the class planner's icons cut from the local HoH1 art (tools/icon_art/planner_icons.py)
 planner/web/icons.local.png
+tools/audio_pick/out/

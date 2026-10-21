@@ -1,0 +1,222 @@
+<title>Spec Sound Picks</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap">
+<style>
+/* Layout: the icon picker's sticky tally bar over a wrapping grid of slot cards; in each card,
+   one row per sound (play, its event name and length, pick). Dark like the game's panels. */
+:root {
+  --bg: #15131a; --panel: #1f1c26; --line: #3a3444; --fg: #e8e2d4; --muted: #9a92a6;
+  --gold: #e8b84a; --gold-ink: #1a1408; --keep: #7aa0c8; --focus: #f2d27a; --wave: #6c6480;
+  --display: "Silkscreen", "Courier New", monospace;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", Consolas, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) {
+  --bg: #efeae0; --panel: #faf7f0; --line: #d6cdbd; --fg: #241f2a; --muted: #6a6274;
+  --gold: #b8841a; --gold-ink: #fffaf0; --keep: #3a6a9a; --focus: #8a5a00; --wave: #a89cb8; color-scheme: light } }
+:root[data-theme="light"] {
+  --bg: #efeae0; --panel: #faf7f0; --line: #d6cdbd; --fg: #241f2a; --muted: #6a6274;
+  --gold: #b8841a; --gold-ink: #fffaf0; --keep: #3a6a9a; --focus: #8a5a00; --wave: #a89cb8; color-scheme: light }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 14px; line-height: 1.45 }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel) }
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 48px; max-width: 1280px; margin: 0 auto }
+header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line) }
+header .wrap { padding-block: 12px; display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center }
+h1 { font-family: var(--display); font-weight: 400; font-size: 20px; margin: 0; letter-spacing: .02em; text-wrap: balance }
+.tally { font-variant-numeric: tabular-nums; color: var(--muted) }
+.tally b { color: var(--gold); font-weight: 600 }
+.controls { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto }
+select { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); padding: 4px 8px; border-radius: 4px }
+.status { font-size: 12px; color: var(--muted); width: 100% }
+.intro { max-width: 68ch; color: var(--muted); margin: 16px 0 8px }
+h2 { font-family: var(--display); font-weight: 400; font-size: 16px; margin: 28px 0 12px; letter-spacing: .03em; text-transform: uppercase }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 470px), 1fr)); gap: 12px }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px; display: grid; gap: 10px; min-width: 0 }
+.card.done { border-color: color-mix(in srgb, var(--gold) 55%, var(--line)) }
+.card h3 { margin: 0; font-size: 14px; font-weight: 600 }
+.card .desc { color: var(--muted); font-size: 12px; margin: -6px 0 0 }
+.card .hook { font: 11px var(--mono); color: var(--muted); margin: -6px 0 0; overflow-wrap: anywhere }
+.rows { display: grid; gap: 6px }
+.row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 6px 8px;
+  border: 2px solid var(--line); border-radius: 5px; background: var(--bg) }
+.row.on { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, var(--bg)) }
+.row.now.on { border-color: var(--keep); background: color-mix(in srgb, var(--keep) 12%, var(--bg)) }
+.row .name { min-width: 0; display: grid }
+.row .name b { font: 600 11px var(--body); letter-spacing: .06em; color: var(--muted) }
+.row .name span { font: 12px var(--mono); overflow-wrap: anywhere }
+.row .name small { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums }
+button { font: inherit; cursor: pointer }
+button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px }
+.play { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel); color: var(--fg);
+  display: grid; place-items: center; padding: 0 }
+.play:hover { border-color: var(--muted) }
+.play.going { border-color: var(--gold); color: var(--gold) }
+.play svg { width: 14px; height: 14px; fill: currentColor }
+.pick { border: 1px solid var(--line); background: transparent; color: var(--fg); border-radius: 4px; padding: 4px 10px; font-size: 12px; font-weight: 600 }
+.pick:hover { border-color: var(--muted) }
+.row.on .pick { background: var(--gold); border-color: var(--gold); color: var(--gold-ink) }
+.row.now.on .pick { background: var(--keep); border-color: var(--keep); color: var(--bg) }
+.silent { justify-self: start; border: 1px dashed var(--line); background: transparent; color: var(--muted); border-radius: 4px; padding: 4px 10px; font-size: 12px }
+.silent[aria-pressed="true"] { border-style: solid; border-color: var(--fg); color: var(--fg) }
+.note { width: 100%; box-sizing: border-box; font: inherit; font-size: 13px; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 6px 8px }
+.note:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px }
+@media (prefers-reduced-motion: no-preference) { .row, .play { transition: border-color .12s, background .12s } }
+</style>
+
+<header><div class="wrap">
+  <h1>Spec Sound Picks</h1>
+  <span class="tally" id="tally">loading picks…</span>
+  <div class="controls">
+    <select id="grp" aria-label="Specialization"></select>
+    <select id="flt" aria-label="Show">
+      <option value="all">All sounds</option>
+      <option value="open">Not picked yet</option>
+      <option value="done">Picked</option>
+    </select>
+  </div>
+  <div class="status" id="status" aria-live="polite"></div>
+</div></header>
+
+<main class="wrap">
+  <p class="intro">Each card is one moment in the six 4th specs that plays a sound. Every option is a vanilla game sound, rendered by the game's own audio engine. <b>Now</b> is the placeholder the mod plays today; a card without one is silent so far, and <b>Keep it silent</b> leaves it that way. Play a few, pick one per card, and add a note if a sound is close but needs a change (shorter, quieter, pitched down). Picks save for everyone who opens this page, and Claude reads them back to wire the sounds in.</p>
+  <div id="groups"></div>
+</main>
+
+<script>
+const GROUPS = /*DATA*/null;
+const picks = {};          // slot id -> {choice, event, note}
+let col = null, playing = null;
+const $ = s => document.querySelector(s);
+const PLAY = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1.5v11l9.5-5.5z"/></svg>';
+const STOP = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 2.5h9v9h-9z"/></svg>';
+
+function setStatus(t) { $("#status").textContent = t; }
+const label = k => k === "now" ? "Now" : k.toUpperCase();
+
+function render() {
+  const g = $("#grp").value, f = $("#flt").value, root = $("#groups");
+  root.textContent = "";
+  for (const grp of GROUPS) {
+    if (g !== "all" && grp.id !== g) continue;
+    const items = grp.items.filter(it => f === "all" || (f === "done") === !!(picks[it.id] && picks[it.id].choice));
+    if (!items.length) continue;
+    const h = document.createElement("h2");
+    h.textContent = `${grp.title} · ${grp.items.filter(it => picks[it.id] && picks[it.id].choice).length}/${grp.items.length}`;
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    for (const it of items) grid.append(card(it));
+    root.append(h, grid);
+  }
+  tally();
+}
+
+function card(it) {
+  const p = picks[it.id] || {};
+  const c = document.createElement("section");
+  c.className = "card" + (p.choice ? " done" : "");
+  c.id = "card-" + it.id;
+  const h = document.createElement("h3"); h.textContent = it.name;
+  const d = document.createElement("p"); d.className = "desc"; d.textContent = it.desc;
+  const k = document.createElement("p"); k.className = "hook"; k.textContent = it.hook;
+  const rows = document.createElement("div"); rows.className = "rows";
+  for (const o of it.opts) {
+    const r = document.createElement("div");
+    r.className = "row" + (o.k === "now" ? " now" : "") + (p.choice === o.k ? " on" : "");
+    const pl = document.createElement("button");
+    pl.type = "button"; pl.className = "play"; pl.innerHTML = PLAY;
+    pl.setAttribute("aria-label", `Play ${label(o.k)}: ${o.short}`);
+    if (!o.src) { pl.disabled = true; pl.title = "This event rendered silent"; }
+    pl.addEventListener("click", () => play(o, pl));
+    const nm = document.createElement("div"); nm.className = "name";
+    const b = document.createElement("b"); b.textContent = label(o.k);
+    const s = document.createElement("span"); s.textContent = o.short; s.title = o.event;
+    const sm = document.createElement("small"); sm.textContent = o.src ? o.s.toFixed(1) + " s" : "silent";
+    nm.append(b, s, sm);
+    const pk = document.createElement("button");
+    pk.type = "button"; pk.className = "pick";
+    pk.textContent = p.choice === o.k ? "Picked" : "Pick";
+    pk.setAttribute("aria-pressed", p.choice === o.k ? "true" : "false");
+    pk.setAttribute("aria-label", `Pick ${label(o.k)} for ${it.name}`);
+    pk.addEventListener("click", () => choose(it, o.k, o.event));
+    r.append(pl, nm, pk);
+    rows.append(r);
+  }
+  const sil = document.createElement("button");
+  sil.type = "button"; sil.className = "silent"; sil.textContent = "Keep it silent";
+  sil.setAttribute("aria-pressed", p.choice === "silent" ? "true" : "false");
+  sil.addEventListener("click", () => choose(it, "silent", ""));
+  const note = document.createElement("input");
+  note.className = "note"; note.id = "note-" + it.id; note.placeholder = "Note (optional)"; note.value = p.note || "";
+  note.setAttribute("aria-label", `Note for ${it.name}`);
+  note.addEventListener("change", () => save(it, { note: note.value }));
+  c.append(h, d, k, rows, sil, note);
+  return c;
+}
+
+function play(o, btn) {
+  if (playing) { playing.a.pause(); playing.btn.classList.remove("going"); playing.btn.innerHTML = PLAY; }
+  if (playing && playing.btn === btn) { playing = null; return; }
+  const a = new Audio(o.src);
+  playing = { a, btn };
+  btn.classList.add("going"); btn.innerHTML = STOP;
+  const done = () => { btn.classList.remove("going"); btn.innerHTML = PLAY; if (playing && playing.a === a) playing = null; };
+  a.addEventListener("ended", done);
+  a.play().catch(e => { done(); setStatus("Couldn't play that sound: " + ((e && e.message) || e)); });
+}
+
+function tally() {
+  let n = 0, t = 0;
+  for (const g of GROUPS) for (const it of g.items) { t++; if (picks[it.id] && picks[it.id].choice) n++; }
+  $("#tally").innerHTML = `<b>${n}</b> of ${t} picked`;
+}
+
+async function save(it, patch) {
+  picks[it.id] = Object.assign({}, picks[it.id], patch);
+  if (!col) { setStatus("Not saved: the shared store isn't available in this view."); return; }
+  try {
+    await col.doc(it.id).set(Object.assign({ choice: "", event: "", note: "" }, picks[it.id], { at: new Date().toISOString() }));
+    setStatus(`Saved ${it.name}.`);
+  } catch (e) {
+    setStatus(`Couldn't save ${it.name}: ${(e && e.message) || e}. Viewers with view-only access can't pick.`);
+  }
+}
+
+function choose(it, choice, event) {
+  save(it, { choice, event });
+  render();
+  document.getElementById("card-" + it.id)?.querySelector('[aria-pressed="true"]')?.focus({ preventScroll: true });
+}
+
+(function init() {
+  const sel = $("#grp");
+  const all = document.createElement("option"); all.value = "all"; all.textContent = "All specs"; sel.append(all);
+  for (const g of GROUPS) { const o = document.createElement("option"); o.value = g.id; o.textContent = g.title; sel.append(o); }
+  try { const v = localStorage.getItem("snd.grp"); if (v && [...sel.options].some(o => o.value === v)) sel.value = v; } catch (e) {}
+  try { const v = localStorage.getItem("snd.flt"); if (v) $("#flt").value = v; } catch (e) {}
+  sel.addEventListener("change", () => { try { localStorage.setItem("snd.grp", sel.value); } catch (e) {} render(); });
+  $("#flt").addEventListener("change", () => { try { localStorage.setItem("snd.flt", $("#flt").value); } catch (e) {} render(); });
+  render();
+  $("#tally").textContent = "connecting…";
+  let tries = 0;
+  (function wait() {
+    if (window.claude && window.claude.use) return connect();
+    if (++tries > 40) { setStatus("Picks can't be saved here: open this page on claude.ai."); tally(); return; }
+    setTimeout(wait, 250);
+  })();
+})();
+
+function connect() {
+  window.claude.use("db").then(d => {
+    if (!d) { setStatus("Picks can't be saved in this view (sign in on claude.ai)."); tally(); return; }
+    col = d.collection("picks");
+    col.onSnapshot(snap => {
+      for (const doc of snap.docs) { const v = doc.data() || {}; picks[doc.id] = { choice: v.choice || "", event: v.event || "", note: v.note || "" }; }
+      const active = document.activeElement && document.activeElement.classList.contains("note") ? document.activeElement.id : null;
+      render();
+      if (active) document.getElementById(active)?.focus();
+    }, e => setStatus("Lost the connection to saved picks: " + ((e && e.message) || e)));
+  });
+}
+</script>
