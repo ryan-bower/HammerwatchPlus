@@ -2191,8 +2191,8 @@ another Reload press starts it again as usual. Then the second `/code-review hig
   (6 s cooldown, 20-30 mana). Pure ignores armor and every resistance
   (CompositeActorBehavior.as:721), hence the low numbers. With a dash charge, Blink
   spends it to recast your last elemental spell from where you left, regardless of its
-  cooldown or mana cost (the cost is still paid, down to 1 mana), and resets that
-  spell's cooldown;
+  cooldown or mana cost (the cost is still paid, down to 1 mana), and restarts that
+  spell's cooldown countdown from the start;
   players start with 1 dash charge (`MaxDashes`, Modifiers.as:287).
 - Living Mana converts the health pool, maximum-health bonuses and health restoration
   into mana. Incoming damage drains mana; reaching zero kills you. Spell costs leave at

@@ -17,6 +17,6 @@
   "order": 0,
   "role": "",
   "status": "idea",
-  "summary": "Teleport a short distance, dealing Pure damage to every enemy near where you reappear. If you have a dash charge, Blink spends it to recast your last cast elemental spell from your original location, regardless of cooldown or mana cost. It recasts even while that spell is on cooldown or you can't afford it; the cost is still paid, and if you can't afford it the recast leaves you at 1 mana. The recast also resets that spell's cooldown, so it is ready to cast again.",
+  "summary": "Teleport a short distance, dealing Pure damage to every enemy near where you reappear. If you have a dash charge, Blink spends it to recast your last cast elemental spell from your original location, regardless of cooldown or mana cost. It recasts even while that spell is on cooldown or you can't afford it; the cost is still paid, and if you can't afford it the recast leaves you at 1 mana. The recast also restarts that spell's cooldown from the beginning.",
   "unlock": "bought"
 }
