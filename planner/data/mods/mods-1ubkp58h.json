@@ -16,10 +16,10 @@
       "text": "Greater"
     }
   ],
-  "name": "",
+  "name": "Banner of Ruin",
   "notes": "",
   "order": null,
   "skill": "warrior-spec4-active",
   "status": "idea",
-  "summary": "Enemies within the aura of the Standard are Vulnerable."
+  "summary": "Enemies within the aura of the Standard are inflicted with Vulnerability."
 }

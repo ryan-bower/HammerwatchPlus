@@ -5,11 +5,11 @@
   "group": "warrior-spec4",
   "kind": "active",
   "levels": [
-    "DR: 2% CDR: 60s DURATION: 10s",
-    "DR: 4% CDR: 55s DURATION: 13s",
-    "DR: 6% CDR: 50s DURATION: 15s",
-    "DR: 8% CDR: 45s DURATION: 17s",
-    "DR: 10% CDR: 40s DURATION: 20s"
+    "DR: 2% Cooldown: 60s DURATION: 10s",
+    "DR: 4% Cooldown: 55s DURATION: 13s",
+    "DR: 6% Cooldown: 50s DURATION: 15s",
+    "DR: 8% Cooldown: 45s DURATION: 17s",
+    "DR: 10% Cooldown: 40s DURATION: 20s"
   ],
   "mana": "",
   "name": "Battlefield Standard",
