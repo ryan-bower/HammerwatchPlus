@@ -74,6 +74,17 @@ namespace HWP
 				stored += g_brands[i].m_stored;
 			ret += "; brands " + g_brands.length() + " stored " + int(stored + 0.5f) + "; claws " + g_claws + " hits " + g_clawHits
 				+ " last " + g_lastClaw + "; transfers " + g_transfers + "; essence hits " + g_essenceHits + " released " + g_released;
+			ret += "; blinks " + g_blinks + " hits " + g_blinkHits + " blink px " + g_lastBlink + "; recasts " + g_recasts + " " + g_lastRecast
+				+ "; last spell " + LastSpellName(plr) + "; drained " + g_drained + " converted " + g_converted + " barrier saves " + g_barrierSaves
+				+ "; feedback " + int(g_feedback + 0.5f) + " used " + g_fbUsed + " mul " + int(g_fbMul * 1000 + 0.5f) + "; conduit sent " + g_conduitSent + "; floored " + g_floored;
+			if (plr !is null)
+				ret += "; hp " + int(float(plr.m_record.hp) * 1000 + 0.5f) + " mana " + int(ManaPts(plr) + 0.5f) + "/" + plr.m_record.MaxMana()
+					+ " dashes " + plr.m_record.dashCharges;
+			Skills::Skill@ fb = null;
+			if (plr !is null && g_fbSkill != 0)
+				@fb = FindSkill(plr, g_fbSkill);
+			if (fb !is null)
+				ret += "; empowered " + fb.m_id + " moddmg " + int(fb.m_modDamageMul * 1000 + 0.5f);
 			HWP::Commands::Reply(ret);
 		}
 	}
@@ -88,6 +99,8 @@ namespace Modules
 			super("hwp-specs");
 			HWP::Commands::Register("specs", "  4th specializations status (standards, stacks)", HWP::Commands::Handler(HWP::Specs::CmdStatus));
 			HWP::Specs::SelfCheck();
+			HWP::Net::OnRequest("specs.conduit", HWP::Net::RequestHandler(HWP::Specs::OnConduit));
+			HWP::Net::OnEvent("specs.conduit_mana", HWP::Net::EventHandler(HWP::Specs::OnConduitMana));
 		}
 
 		void Start(StartMode sMode)
@@ -102,6 +115,7 @@ namespace Modules
 			HWP::Specs::g_circuitBackHits = 0;
 			HWP::Specs::g_galeArrows = 0;
 			HWP::Specs::ClearBrands();
+			HWP::Specs::ClearArcane();
 		}
 
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
@@ -113,6 +127,7 @@ namespace Modules
 			HWP::Specs::UpdateConduit(ms);
 			HWP::Specs::UpdateWindWard(ms);
 			HWP::Specs::UpdateBrands(ms);
+			HWP::Specs::UpdateArcane(ms);
 		}
 	}
 }

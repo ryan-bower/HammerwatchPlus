@@ -4,10 +4,11 @@ Each section makes a fresh level-20 character of the base class (`gl char`, `hwp
 takes the spec with `gl subclass`, learns its two skills with `gl skill` and equips orbs with
 `gl orb`, then casts in an emptied Bandit Keep floor with god mode on. The verbs are core
 gamelab plus mods/gamelab-hands/scripts/GameLab/Verbs_specs.as: hasbuff (a buff by its path,
-for the buffs that have no display name), evade (Player.Evade's real roll and triggers) and
-bind (a skill's live bind, to see the orbs took) and dmgmuls (the damage multipliers).
+for the buffs that have no display name), evade (Player.Evade's real roll and triggers),
+bind (a skill's live bind, to see the orbs took), dmgmuls (the damage multipliers), buffnear
+(a buff on enemies) and damageme (a real hit on the local player, god mode off).
 
-Sections: winddancer, bannerlord, invocation, stormbringer, branding. Single player: what only shows on a teammate (Shared Breath,
+Sections: winddancer, bannerlord, invocation, stormbringer, branding, arcane. Single player: what only shows on a teammate (Shared Breath,
 the standard's ally numbers) is checked as far as the bearer's own client goes."""
 import re
 import time
@@ -559,7 +560,220 @@ class Checks(Base):
         self.flag("brand_released", (r or 0) >= 6 and (n or 0) >= 6, f"{line[-120:]!r}: released {r}, essence {n} (6 an elite)")
         self.to_town()
 
-def run(p, sections="winddancer,bannerlord,invocation,stormbringer,branding", **_):
+    # --- Arcane
+    def blink(self, dx, dy, nocd=True):
+        """Blink through castat inside an aim hold (the effect takes the player's aim). Returns
+        (activated, the blink log line, the position before, after)."""
+        self.gl("input", 600, 0, 0, dx, dy)
+        time.sleep(0.1)
+        p0 = self.pos()
+        mark = len(self.g.read_log())
+        r = self.gl("castat", "hwp_sor_blink", dx, dy, *(["nocd"] if nocd else []))
+        time.sleep(0.5)
+        line = "\n".join(l for l in self.g.read_log()[mark:].splitlines() if "blink:" in l or "feedback" in l)
+        return bool(r.get("activated")), line, p0, self.pos()
+
+    def arcane(self):
+        bl, lm = "hwp_sor_blink", "hwp_sor_living_mana"
+        num = lambda st, label: (lambda m: int(m[-1]) if m else None)(re.findall(re.escape(label) + r" (-?\d+)", st))
+        # setup by hand: the max mana is read before the subclass, which teaches Living Mana
+        r, pl, lv = self.new_char("sorcerer", "LabArcane")
+        time.sleep(0.5)
+        pl = self.gl("state").get("player", {})
+        self.flag("arc_char", r.get("ok") and pl.get("class") == "sorcerer" and pl.get("level", 0) >= 20,
+                  f"{r} class {pl.get('class')} level {pl.get('level')}")
+        m0, h0 = pl.get("manaMax", 0), pl.get("hpMax", 0)
+        took = self.gl("subclass", "hwp_sorcerer_arcane").get("class")
+        self.hwp("skillpoints 40")
+        self.lvl = {s: self.gl("skill", s, 1).get("level", 0) for s in (bl, lm)}
+        self.flag("arc_learned", took == "hwp_sorcerer_arcane" and all(v >= 1 for v in self.lvl.values()),
+                  f"subclass {took}, levels {self.lvl}")
+        time.sleep(0.5)
+        pl = self.gl("state").get("player", {})
+        self.flag("arc_max_mana", abs(pl.get("manaMax", 0) - (m0 + h0)) <= 1,
+                  f"max mana {m0} + max health {h0} -> {pl.get('manaMax')} (health {pl.get('hpMax')})")
+        if not self.enter_floor("arc"):
+            return
+        fx, fy = self.open_dir(200)
+        x0, y0 = self.pos()
+        home = lambda: (self.gl("teleport", round(x0, 1), round(y0, 1)), time.sleep(0.2))
+
+        # health follows the mana fraction
+        self.gl("mana", 60)
+        time.sleep(0.4)
+        pl = self.gl("state").get("player", {})
+        hpf, mf = pl.get("hp", 0) / max(1, pl.get("hpMax", 1)), pl.get("manaExact", 0) / max(1, pl.get("manaMax", 1))
+        self.flag("arc_hp_mirror", abs(hpf - mf) < 0.03, f"mana {pl.get('manaExact')}/{pl.get('manaMax')} ({mf:.3f}), health {pl.get('hp')}/{pl.get('hpMax')} ({hpf:.3f})")
+
+        # health given (a heal, a potion, regeneration) turns into mana; health taken drains it
+        st = self.specs()
+        c0, d0 = num(st, "converted") or 0, num(st, "drained") or 0
+        hpmax = pl.get("hpMax", 1)
+        pl = self.gl("state").get("player", {})
+        f0 = pl.get("manaExact", 0) / max(1, pl.get("manaMax", 1))   # the health right now
+        self.gl("hurt", round(f0 + 0.25, 3))
+        time.sleep(0.4)
+        st = self.specs()
+        c1 = num(st, "converted") or 0
+        want = (round(f0 + 0.25, 3) - f0) * hpmax
+        # (health regeneration is converted the whole time too: a little on top)
+        self.flag("arc_heal_converts", -2 <= (c1 - c0) - want <= 10,
+                  f"health {f0:.3f} -> {f0 + 0.25:.3f} of {hpmax}: converted {c0} -> {c1} (want +{want:.1f}, regeneration on top)")
+        pl = self.gl("state").get("player", {})
+        hpf = pl.get("hp", 0) / max(1, hpmax)
+        self.gl("hurt", round(max(0.02, hpf - 0.1), 3))
+        time.sleep(0.4)
+        st = self.specs()
+        d1 = num(st, "drained") or 0
+        self.flag("arc_loss_drains", abs((d1 - d0) - 0.1 * hpmax) <= 2,
+                  f"health -10% of {hpmax} (as a buff's damage over time takes it): drained {d0} -> {d1}")
+
+        # a hit drains the mana, the health stays the mana's
+        self.god(False)
+        self.gl("mana", 200)
+        time.sleep(0.3)
+        r = self.gl("damageme", 30)
+        time.sleep(0.3)
+        pl = self.gl("state").get("player", {})
+        took, lost = r.get("took", 0), (r.get("mana0") or 0) - (r.get("mana") or 0)
+        self.flag("arc_hit_drains", took > 0 and abs(lost - took) <= 1 and not r.get("dead") and pl.get("hp", 0) > 0,
+                  f"30 pure: the hit took {took}, mana {r.get('mana0'):.1f} -> {r.get('mana'):.1f} (lost {lost:.1f}); "
+                  f"health {r.get('hp0'):.3f} -> {r.get('hp'):.3f}, now {pl.get('hp')}/{hpmax}")
+
+        cost = (20, 20, 25, 25, 30)[max(1, min(5, self.lvl[bl])) - 1]
+        self.gl("kill", 400, "tag:enemy")
+
+        # Blink: the dodge's distance (90, x 0.95 the teleport keeps off walls), pure where it lands
+        self.god(True)
+        home()
+        px, py = -fy, fx
+        self.gl("spawn", TARGET, round(86 * fx + 12 * px, 1), round(86 * fy + 12 * py, 1))
+        time.sleep(1.0)
+        hp0 = self.dummy_hp("target_dummy")
+        self.gl("mana", 200)
+        ok, line, p0, p1 = self.blink(fx, fy)
+        moved = ((p1[0] - p0[0]) ** 2 + (p1[1] - p0[1]) ** 2) ** 0.5
+        time.sleep(0.3)
+        hp1 = self.dummy_hp("target_dummy")
+        hit = [u for u, h in hp0.items() if hp1.get(u, 0.0) < h - 0.0001]
+        self.g.shot("blink", settle=False)
+        self.flag("arc_blink", ok and 80 <= moved <= 92 and "blink: " in line, f"activated {ok}, moved {moved:.1f} px: {line[-80:]!r}")
+        self.flag("arc_blink_damage", ", 1 hit" in line and len(hit) == 1, f"{line[-60:]!r}; dummy hp {hp0} -> {hp1}")
+
+        # the recast: the last elemental spell (Static Discharge) again from the start point,
+        # a dash charge spent, its cooldown started over
+        self.gl("kill", 400, "target_dummy")
+        home()
+        self.gl("input", 500, 0, 0, fx, fy)
+        self.gl("castat", "static_discharge", fx, fy, "nocd")
+        time.sleep(0.8)
+        st = self.specs()
+        dash0, last = num(st, "dashes"), re.findall(r"last spell (\w+)", st)
+        self.gl("mana", 200)
+        ok, line, p0, p1 = self.blink(fx, fy)
+        st = self.specs()
+        self.flag("arc_recast", ok and "recast static_discharge" in line and num(st, "dashes") == (dash0 or 0) - 1,
+                  f"last spell {last}; dashes {dash0} -> {num(st, 'dashes')}; {line[-80:]!r}")
+
+        # no dash charge (the one charge comes back 5 s after: Tweak::BaseDashRechargeTime): Blink only
+        home()
+        self.gl("mana", 200)
+        ok, line, p0, p1 = self.blink(fx, fy)
+        st = self.specs()
+        self.flag("arc_no_dash", ok and "recast" not in line and num(st, "dashes") == 0,
+                  f"dashes {num(st, 'dashes')}: {line[-80:]!r}")
+
+        # a spell stops at 1 mana: the charge back, Blink from its cost + 5, then the recast's
+        # whole cost (more than 5) out of what is left
+        time.sleep(5.5)
+        home()
+        fl0 = num(self.specs(), "floored") or 0
+        self.gl("mana", cost + 5)
+        ok, line, p0, p1 = self.blink(fx, fy)
+        m = self.mana_exact()
+        fl1 = num(self.specs(), "floored") or 0
+        # (regeneration refills it at once, so the floor is read off its counter, not the pool)
+        self.flag("arc_floor", ok and "recast static_discharge" in line and fl1 > fl0 and m >= 1
+                  and not self.gl("state").get("player", {}).get("dead"),
+                  f"Blink ({cost} mana) from {cost + 5}, then the recast: {line[-60:]!r}; floored {fl0} -> {fl1}, mana after {m}")
+
+        # the orbs
+        for orb, n in (("hwp_sor_bl_void_barrier", 1), ("hwp_sor_bl_far_step", 3),
+                       ("hwp_sor_lm_arcane_feedback", 3), ("hwp_sor_lm_mana_conduit", 3)):
+            self.gl("orb", orb, n)
+        time.sleep(0.5)
+        binds = {k: self.bind(s_, k) for s_, k in ((bl, "bl-barrier"), (bl, "bl-far"), (lm, "lm-feedback"), (lm, "lm-conduit"),
+                                                    (lm, "lm-regen"))}
+        lv = max(1, min(5, self.lvl[lm]))
+        self.flag("arc_orb_binds", binds == {"bl-barrier": "1000", "bl-far": "0.35", "lm-feedback": "120", "lm-conduit": "1",
+                                             "lm-regen": str((0.5, 0.75, 1, 1.25, 1.5)[lv - 1])}, f"{binds}")
+
+        # Far Step: 35% farther
+        home()
+        self.gl("mana", 200)
+        ok, line, p0, p1 = self.blink(fx, fy)
+        moved = ((p1[0] - p0[0]) ** 2 + (p1[1] - p0[1]) ** 2) ** 0.5
+        self.flag("arc_far_step", ok and 110 <= moved <= 124, f"moved {moved:.1f} px (90 x 1.35 x 0.95 = 115): {line[-60:]!r}")
+
+        # Arcane Feedback: mana lost to damage is banked, the next spell takes it
+        self.god(False)
+        self.gl("mana", 200)
+        r = self.gl("damageme", 40)
+        st = self.specs()
+        fb = num(st, "feedback")
+        mark = len(self.g.read_log())
+        self.gl("input", 500, 0, 0, fx, fy)
+        self.gl("castat", "static_discharge", fx, fy, "nocd")
+        time.sleep(0.4)
+        st = self.specs()
+        log = "\n".join(l for l in self.g.read_log()[mark:].splitlines() if "feedback" in l)
+        want = int(1000 * (1 + (fb or 0) * 0.005) + 0.5)
+        mod = num(st, "moddmg")
+        self.flag("arc_feedback", (fb or 0) >= 1 and abs((fb or 0) - r.get("took", 0)) <= 1 and "arcane feedback" in log
+                  and num(st, "used") == 1 and mod is not None and abs(mod - want) <= 2,
+                  f"40 pure took {r.get('took')}: banked {fb}; {log[-90:]!r}; static discharge damage mul x{mod}/1000 (want {want})")
+        # Mana Conduit: single player, no teammates, nothing sent
+        self.flag("arc_conduit_solo", num(st, "conduit sent") == 0, f"conduit sent {num(st, 'conduit sent')} (no teammates)")
+
+        # Void Barrier: a lethal hit within 1 s of a Blink leaves 1 mana
+        home()
+        self.gl("mana", 200)
+        self.gl("input", 500, 0, 0, fx, fy)
+        self.gl("castat", "hwp_sor_blink", fx, fy, "nocd")
+        time.sleep(0.25)   # past the castpoint, well inside the barrier's second
+        self.gl("mana", 40)
+        r = self.gl("damageme", 500)
+        st = self.specs()
+        self.flag("arc_void_barrier", not r.get("dead") and (r.get("mana") or 0) <= 2 and num(st, "barrier saves") == 1,
+                  f"500 pure from 40 mana right after a Blink: dead {r.get('dead')}, mana {r.get('mana')}, saves {num(st, 'barrier saves')}")
+
+        # the regeneration: faster at low mana (+ lm-regen x the missing fraction)
+        self.god(True)
+        maxm = pl.get("manaMax", 1)
+        gains = []
+        for frac in (0.9, 0.05):
+            self.gl("mana", int(maxm * frac))
+            a = self.mana_exact()
+            time.sleep(4.0)
+            gains.append(self.mana_exact() - a)
+        self.flag("arc_regen", gains[1] > gains[0] * 1.1 and gains[0] > 0,
+                  f"4 s of regeneration at 90% mana +{gains[0]:.1f}, at 5% +{gains[1]:.1f} (lm-regen {binds.get('lm-regen')})")
+
+        # running dry: a hit past the pool kills (last: the run ends here)
+        self.god(False)
+        time.sleep(1.2)   # the barrier is long gone
+        self.gl("mana", 20)
+        r = self.gl("damageme", 300)
+        time.sleep(0.5)
+        self.flag("arc_lethal", bool(r.get("dead")), f"300 pure from 20 mana: dead {r.get('dead')}, mana {r.get('mana')}, health {r.get('hp')}")
+        self.gl("abort", "failed")
+        self.wait_phase("town", 90)
+        time.sleep(2)
+        if self.gl("state").get("window"):
+            self.g.key("escape")
+            time.sleep(0.5)
+
+def run(p, sections="winddancer,bannerlord,invocation,stormbringer,branding,arcane", **_):
     c = Checks(p)
     for s in sections.split(","):
         try:

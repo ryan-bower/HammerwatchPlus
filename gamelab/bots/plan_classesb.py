@@ -147,6 +147,9 @@ class Checks(Base):
         time.sleep(2)
         lv = self.hwp("levelup 20", 1.0, until="now level")
         pl = self.gl("state").get("player", {})
+        if pl.get("level", 0) < 20:   # a stalled frame can eat the command: once more
+            lv = self.hwp("levelup 20", 2.0, until="now level")
+            pl = self.gl("state").get("player", {})
         return r, pl, lv
 
     def picker(self, count):

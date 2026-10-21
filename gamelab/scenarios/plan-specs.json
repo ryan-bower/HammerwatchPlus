@@ -1,13 +1,13 @@
 {
  "name": "plan-specs",
- "about": "Test plan through the plan_specs bot: the 4th specializations (mods/specs) cast in an emptied Bandit Keep floor at level 20. winddancer: Protective Gale puts gale_1 (Evasion, 6 s, HUD icon) on the rogue; an evade (the evade verb: Player.Evade's real roll) heals 20 through Second Wind, a second within 4 s does not; the orbs' binds take (Lasting Gale 12 s, Tailwind, Lingering Breeze, Shared Breath), the recast lasts 12 s with Tailwind's speed, a gust gives breeze_2, and the rogue never gets the teammates' share buff. bannerlord: the raise gives standard_dr at 2%, Feared Crest and War Drum debuff a dummy, Shared Provisions counts the buff; the second press plants it for free at 4%. invocation: Tempest Torrent zaps all three dummies in a row; the orbs' binds take; 3 Static Charge stacks (the stacks verb) give conduit_2_3; at 5 the next cast releases them (stacks 0) and Static Channel gives 20% mana back; the 5 s torrent with Thunderclap hurts all three again. stormbringer: Electric Circuit hits a dummy on the line and strikes the one beside it, and its 3 arrows come back (hp falls again); the orb binds; 3 shortbow secondaries give 3 Tailwind, more stop at the level's cap; Gale Force shoots 2 arrows at the cap; Wind Ward 2% a stack; a still ranger catches the arrows (Tailwind). branding: a Pyrebrand press brands a dummy, Demon's Tail feeds it and the skill is ready again; the recast's claw is the base plus the stored damage, free, then the full cooldown; a brand that runs out claws on its own; a dying victim passes it on; the orb binds; Essence Extraction's max; Essence Empowerment adds 3% fire per stack; Combustion spends 10 Essence for a 56 radius; Proliferation's brand is 3 s and goes to all 3 dummies; melee hits on a branded elite give Essence once per the cooldown; Released Essence gives 6 for an elite the claw kills.",
+ "about": "Test plan through the plan_specs bot: the 4th specializations (mods/specs) cast in an emptied Bandit Keep floor at level 20. winddancer: Protective Gale puts gale_1 (Evasion, 6 s, HUD icon) on the rogue; an evade (the evade verb: Player.Evade's real roll) heals 20 through Second Wind, a second within 4 s does not; the orbs' binds take (Lasting Gale 12 s, Tailwind, Lingering Breeze, Shared Breath), the recast lasts 12 s with Tailwind's speed, a gust gives breeze_2, and the rogue never gets the teammates' share buff. bannerlord: the raise gives standard_dr at 2%, Feared Crest and War Drum debuff a dummy, Shared Provisions counts the buff; the second press plants it for free at 4%. invocation: Tempest Torrent zaps all three dummies in a row; the orbs' binds take; 3 Static Charge stacks (the stacks verb) give conduit_2_3; at 5 the next cast releases them (stacks 0) and Static Channel gives 20% mana back; the 5 s torrent with Thunderclap hurts all three again. stormbringer: Electric Circuit hits a dummy on the line and strikes the one beside it, and its 3 arrows come back (hp falls again); the orb binds; 3 shortbow secondaries give 3 Tailwind, more stop at the level's cap; Gale Force shoots 2 arrows at the cap; Wind Ward 2% a stack; a still ranger catches the arrows (Tailwind). branding: a Pyrebrand press brands a dummy, Demon's Tail feeds it and the skill is ready again; the recast's claw is the base plus the stored damage, free, then the full cooldown; a brand that runs out claws on its own; a dying victim passes it on; the orb binds; Essence Extraction's max; Essence Empowerment adds 3% fire per stack; Combustion spends 10 Essence for a 56 radius; Proliferation's brand is 3 s and goes to all 3 dummies; melee hits on a branded elite give Essence once per the cooldown; Released Essence gives 6 for an elite the claw kills. arcane: Living Mana adds max health to max mana and keeps health at the mana fraction; health given turns into mana and health taken drains it; a real hit drains the mana; a cast stops at 1 mana; Blink moves the dodge's distance and hits a dummy where it lands; with a dash charge it recasts Static Discharge from the start, without one it does not; the orb binds; Far Step 35% farther; Arcane Feedback banks the mana a hit took and the next spell's damage multiplier takes it; no Mana Conduit with no teammates; Void Barrier survives a lethal hit after a Blink; regeneration is faster at low mana; a hit past the pool kills.",
  "fixture": "town-paladin",
  "mods": [
   "core",
   "classes",
   "specs"
  ],
- "timeout": 600,
+ "timeout": 720,
  "steps": [
   {
    "do": "console",
@@ -128,6 +128,35 @@
     "brand_essence_hit": true,
     "brand_released": true,
     "brand_empowerment": true
+   }
+  },
+  {
+   "do": "bot",
+   "bot": "plan_specs",
+   "kwargs": {
+    "sections": "arcane"
+   },
+   "name": "arcane",
+   "expect": {
+    "arc_char": true,
+    "arc_learned": true,
+    "arc_max_mana": true,
+    "arc_hp_mirror": true,
+    "arc_heal_converts": true,
+    "arc_loss_drains": true,
+    "arc_hit_drains": true,
+    "arc_floor": true,
+    "arc_blink": true,
+    "arc_blink_damage": true,
+    "arc_recast": true,
+    "arc_no_dash": true,
+    "arc_orb_binds": true,
+    "arc_far_step": true,
+    "arc_feedback": true,
+    "arc_conduit_solo": true,
+    "arc_void_barrier": true,
+    "arc_regen": true,
+    "arc_lethal": true
    }
   },
   {

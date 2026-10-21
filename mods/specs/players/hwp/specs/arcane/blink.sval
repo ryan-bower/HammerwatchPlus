@@ -1,0 +1,138 @@
+%include "players/skills_cost.inc"
+<!--
+	Blink (Arcane active). A teleport of the dodge's distance (90, players/attacks/dash.sval)
+	along the aim, then bl-dmg pure on every enemy within bl-radius of where the sorcerer lands
+	(HWPSpecsBlink, scripts/HWP/Specs/Arcane.as; the hit-effects at intensity damage / 100).
+	With a dash charge, Blink spends it to replay the last elemental spell (fire, ice or
+	lightning tagged, or the Elemental Orb) at the start point, whatever its cooldown; that
+	spell's cost is paid down to 1 mana and its cooldown starts over.
+	Planner numbers: 25/30/35/40/50 pure, radius 20/20/25/25/30, mana 20/20/25/25/30,
+	cooldown 6 s. The radius is taken as game units, as written.
+	Orbs: Void Barrier (bl-barrier: no lethal damage for 1 s after a Blink), Far Step (bl-far:
+	+15/25/35% distance).
+	Sound: placeholders until the audio picker (art/specs/AUDIO.md).
+-->
+<dict>
+	<string name="name">.hwp.specs.blink.name</string>
+	<string name="type-name">.skills.type.spell</string>
+	<string name="description">.hwp.specs.blink.desc</string>
+
+	<array name="description-params">
+		<array><s>damage</s><s>.skills.desc.params.damage</s><s>25</s><s>30</s><s>35</s><s>40</s><s>50</s></array>
+		<array><s>radius</s><s>.skills.desc.params.radius</s><s>20</s><s>20</s><s>25</s><s>25</s><s>30</s></array>
+		<array><s>mana-cost</s><b>t</b><s>.skills.desc.params.mana_cost</s><s>20</s><s>20</s><s>25</s><s>25</s><s>30</s></array>
+		<array><s>cooldown</s><b>t</b><s>.skills.desc.params.cooldown</s><s>6s</s></array>
+	</array>
+
+	<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>24 48 24 24</vec4></array>
+
+	<string name="id">hwp_sor_blink</string>
+	<string name="type">spell</string>
+	<array name="tags"><s>spell</s></array>
+	<int name="starting-level">1</int>
+
+	<dict name="skill">
+		<int name="skill-cost">SKILLCOSTMASTERYLEVEL_1</int>
+		<string name="class">Skills::PlayerSkillDirectional</string>
+		<string name="anim">cast</string>
+		<int name="anim-length">300</int>
+
+		<int name="cooldown">6000</int>
+		<int name="castpoint">100</int>
+		<float name="cast-speed-mul">1</float>
+		<float name="move-speed-mul">0</float>
+		<ivec2 name="move-speed">0 150</ivec2>
+		<ivec2 name="blocking">0 150</ivec2>
+		<ivec2 name="update-aim">0 30</ivec2>
+		<bool name="repeating">false</bool>
+		<int name="mana-cost">20</int>
+
+		<dict name="binds">
+			<int name="bl-dmg">25</int>
+			<int name="bl-radius">20</int>
+			<float name="bl-far">0</float>
+			<int name="bl-barrier">0</int>
+		</dict>
+
+		<dict name="actions">
+			<array name="cast">
+				<dict>
+					<string name="class">HWPSpecsBlink</string>
+					<array name="hit-effects">
+						<dict>
+							<string name="class">Damage</string>
+							<int name="pure">100</int>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+
+		<array name="timeline">
+			<i>100</i><s>cast</s>
+		</array>
+	</dict>
+
+	<array name="upgrades">
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
+			<dict name="binds"><int name="bl-dmg">30</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
+			<int name="mana-cost">25</int>
+			<dict name="binds"><int name="bl-dmg">35</int><int name="bl-radius">25</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
+			<int name="mana-cost">25</int>
+			<dict name="binds"><int name="bl-dmg">40</int><int name="bl-radius">25</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
+			<int name="mana-cost">30</int>
+			<dict name="binds"><int name="bl-dmg">50</int><int name="bl-radius">30</int></dict>
+		</dict>
+	</array>
+
+	<array name="modifier-skills">
+		<dict>
+			<string name="name">.hwp.specs.void_barrier.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.void_barrier.desc</string>
+			<array name="description-params">
+				<array><s>duration</s><s>.skills.desc.params.duration</s><s>1s</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>72 48 24 24</vec4></array>
+			<string name="id">hwp_sor_bl_void_barrier</string>
+			<string name="quality">rare</string>
+			<dict name="skill">
+				<dict name="binds"><int name="bl-barrier">1000</int></dict>
+			</dict>
+		</dict>
+		<dict>
+			<string name="name">.hwp.specs.far_step.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.far_step.desc</string>
+			<array name="description-params">
+				<array><s>distance</s><s>.hwp.specs.param.blink_distance</s><s>+15%</s><s>+25%</s><s>+35%</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>96 48 24 24</vec4></array>
+			<string name="id">hwp_sor_bl_far_step</string>
+			<string name="quality">common</string>
+			<dict name="skill">
+				<dict name="binds"><float name="bl-far">0.15</float></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds"><float name="bl-far">0.25</float></dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><float name="bl-far">0.35</float></dict>
+				</dict>
+			</array>
+		</dict>
+	</array>
+</dict>

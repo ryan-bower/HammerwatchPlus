@@ -24,6 +24,10 @@
 	<string name="hwp.specs.param.claw_base">Base Claw Damage:</string>
 	<string name="hwp.specs.param.per_essence">Per Essence Stack:</string>
 	<string name="hwp.specs.param.essence_stacks">Essence Stacks:</string>
+	<string name="hwp.specs.param.blink_distance">Blink Distance:</string>
+	<string name="hwp.specs.param.low_mana_regen">Regeneration when Empty:</string>
+	<string name="hwp.specs.param.feedback_cap">Most Mana Banked:</string>
+	<string name="hwp.specs.param.conduit_share">Mana Shared:</string>
 
 	<!-- Bannerlord -->
 	<string name="hwp.specs.battlefield_standard.name">Battlefield Standard</string>
@@ -103,4 +107,17 @@
 	<string name="hwp.specs.essence_empowerment.desc">Each stack of Essence adds %per-stack% of your Physical damage multiplier to your Fire damage. Hellfire Claw gains this before Combustion consumes the stacks.</string>
 	<string name="hwp.specs.released_essence.name">Released Essence</string>
 	<string name="hwp.specs.released_essence.desc">An elite or boss killed by Hellfire Claw grants %stacks% stacks of Essence.</string>
+	<!-- Arcane -->
+	<string name="hwp.specs.blink.name">Blink</string>
+	<string name="hwp.specs.blink.desc">Teleport a short distance in the direction you aim, dealing %damage% Pure damage to every enemy within %radius% of where you reappear. If you have a dash charge, Blink spends it to recast your last elemental spell from where you started, even while that spell is on cooldown. The spell's mana is still paid, down to 1 mana, and its cooldown starts over.</string>
+	<string name="hwp.specs.void_barrier.name">Void Barrier</string>
+	<string name="hwp.specs.void_barrier.desc">For %duration% after you Blink, damage cannot kill you.</string>
+	<string name="hwp.specs.far_step.name">Far Step</string>
+	<string name="hwp.specs.far_step.desc">Blink carries you %distance% farther.</string>
+	<string name="hwp.specs.living_mana.name">Living Mana</string>
+	<string name="hwp.specs.living_mana.desc">Your health becomes mana. Maximum health adds to your maximum mana, and healing, potions and health regeneration restore mana. Damage drains your mana, and running out of it kills you. Spells can only bring you down to 1 mana. The lower your mana, the faster it regenerates, up to %regen% when empty.</string>
+	<string name="hwp.specs.arcane_feedback.name">Arcane Feedback</string>
+	<string name="hwp.specs.arcane_feedback.desc">Mana lost to enemy damage builds up, to at most %cap%. Your next spell consumes it and deals 0.5% more damage for each point.</string>
+	<string name="hwp.specs.mana_conduit.name">Mana Conduit</string>
+	<string name="hwp.specs.mana_conduit.desc">%share% of the mana you lose to damage is restored to your teammates, split evenly between them.</string>
 </lang>

@@ -1,0 +1,130 @@
+%include "players/skills_cost.inc"
+<!--
+	Living Mana (Arcane passive). Max health is added to max mana (ConvertStat health to mana).
+	Health follows the mana: each frame the health the game moved (heals, potions, food,
+	regeneration, leech, damage over time from buffs) is turned into mana, then health is set
+	to the mana fraction, so a heal is only refused at full mana. A hit drains the mana
+	(HWPSpecsLivingMana, scripts/HWP/Specs/Arcane.as) and kills when it empties it. Casting
+	leaves at least 1 mana. Regeneration + lm-regen x the missing mana fraction.
+	Planner numbers: +50/75/100/125/150% regeneration at empty.
+	Orbs: Arcane Feedback (lm-feedback: up to 50/80/120 mana lost to enemy damage is banked;
+	the next spell cast deals + 0.5% damage per banked mana for 3 s, both assumed;
+	HWPSpecsFeedbackMul), Mana Conduit (lm-conduit: 33/66/100% of the mana lost to damage goes
+	to the teammates, split evenly, through the host).
+	Assumed: a buff's damage over time can kill a little before the pool is empty (it takes
+	health first, and health scales to max health, not max mana).
+-->
+<dict>
+	<string name="name">.hwp.specs.living_mana.name</string>
+	<string name="type-name">.skills.type.passive</string>
+	<string name="description">.hwp.specs.living_mana.desc</string>
+
+	<array name="description-params">
+		<array><s>regen</s><s>.hwp.specs.param.low_mana_regen</s><s>+50%</s><s>+75%</s><s>+100%</s><s>+125%</s><s>+150%</s></array>
+	</array>
+
+	<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>48 48 24 24</vec4></array>
+
+	<string name="id">hwp_sor_living_mana</string>
+	<array name="tags"><s>passive</s></array>
+	<int name="starting-level">1</int>
+
+	<dict name="skill">
+		<int name="skill-cost">SKILLCOSTMASTERYLEVEL_1</int>
+		<string name="class">Skills::PassiveSkill</string>
+		<dict name="binds">
+			<float name="lm-regen">0.5</float>
+			<int name="lm-feedback">0</int>
+			<float name="lm-conduit">0</float>
+		</dict>
+		<array name="modifiers">
+			<array>
+				<dict>
+					<string name="class">Modifiers::ConvertStat</string>
+					<string name="from">health</string>
+					<string name="to">mana</string>
+					<float name="mul">1</float>
+					<bool name="add">true</bool>
+				</dict>
+				<dict>
+					<string name="class">HWPSpecsLivingMana</string>
+				</dict>
+				<dict>
+					<string name="class">HWPSpecsFeedbackMul</string>
+				</dict>
+			</array>
+		</array>
+	</dict>
+
+	<array name="upgrades">
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
+			<dict name="binds"><float name="lm-regen">0.75</float></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
+			<dict name="binds"><float name="lm-regen">1</float></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
+			<dict name="binds"><float name="lm-regen">1.25</float></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
+			<dict name="binds"><float name="lm-regen">1.5</float></dict>
+		</dict>
+	</array>
+
+	<array name="modifier-skills">
+		<dict>
+			<string name="name">.hwp.specs.arcane_feedback.name</string>
+			<string name="description">.hwp.specs.arcane_feedback.desc</string>
+			<array name="description-params">
+				<array><s>cap</s><s>.hwp.specs.param.feedback_cap</s><s>50</s><s>80</s><s>120</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>144 48 24 24</vec4></array>
+			<array name="tags"><s>passive</s></array>
+			<string name="id">hwp_sor_lm_arcane_feedback</string>
+			<string name="quality">common</string>
+			<int name="starting-level">0</int>
+			<dict name="skill">
+				<dict name="binds"><int name="lm-feedback">50</int></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds"><int name="lm-feedback">80</int></dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><int name="lm-feedback">120</int></dict>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<string name="name">.hwp.specs.mana_conduit.name</string>
+			<string name="description">.hwp.specs.mana_conduit.desc</string>
+			<array name="description-params">
+				<array><s>share</s><s>.hwp.specs.param.conduit_share</s><s>33%</s><s>66%</s><s>100%</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>168 48 24 24</vec4></array>
+			<array name="tags"><s>passive</s></array>
+			<string name="id">hwp_sor_lm_mana_conduit</string>
+			<string name="quality">common</string>
+			<int name="starting-level">0</int>
+			<dict name="skill">
+				<dict name="binds"><float name="lm-conduit">0.33</float></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds"><float name="lm-conduit">0.66</float></dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><float name="lm-conduit">1</float></dict>
+				</dict>
+			</array>
+		</dict>
+	</array>
+</dict>

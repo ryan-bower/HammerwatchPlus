@@ -1,5 +1,6 @@
 // gamelab-hands: verbs for the 4th specializations' checks (plan_specs). hasbuff, bind and dmgmuls only
-// read; evade rolls the local player's real evade; mana sets the mana; buffnear buffs enemies.
+// read; evade rolls the local player's real evade; mana sets the mana; buffnear buffs enemies;
+// damageme hurts the local player through the real damage path.
 namespace GameLab
 {
 	const uint SPECS_CAP = 16;
@@ -182,6 +183,32 @@ namespace GameLab
 			.Bool("truncated", uint(n) > items.length()));
 	}
 
+	// damageme <amount> [dot]: Player.Damage on the local player with <amount> pure damage, no
+	// attacker (the trap path: Tweak::PlayerDmgTakenTrap scales it) and TrueStrike (no block), the
+	// whole damage path (modifiers' DamageTaken included); "dot" marks it damage over time. God
+	// mode (cht_god) returns 0 before any of it. Replies with what Damage returned (the health
+	// the hit took), hp and mana before and after.
+	void VerbDamageMe(const string &in id, array<string>@ args)
+	{
+		auto plr = cast<Player>(GetLocalPlayer());
+		if (plr is null || args.length() < 1)
+		{
+			Fail(id, plr is null ? "no spawned local player" : "usage: damageme <amount> [dot]");
+			return;
+		}
+		DamageInfo dmg(null);
+		dmg.PureDamage = uint(max(0, parseInt(args[0])));
+		dmg.TrueStrike = true;
+		dmg.DoT = args.length() > 1 && args[1] == "dot";
+		float maxm = float(max(1, plr.m_record.MaxMana()));
+		float hp0 = plr.m_record.hp;
+		float m0 = plr.m_record.mana * maxm;
+		vec2 pos = xy(plr.m_unit.GetPosition());
+		int took = plr.Damage(dmg, pos, vec2(0, -1));
+		Emit(Reply(id, true).Int("took", took).Num("hp0", hp0).Num("hp", float(plr.m_record.hp)).Num("mana0", m0)
+			.Num("mana", plr.m_record.mana * maxm).Int("max", int(maxm)).Bool("dead", plr.IsDead()));
+	}
+
 	void Register_specs()
 	{
 		RegisterVerb("mana", "<n>", Verb(VerbMana));
@@ -190,5 +217,6 @@ namespace GameLab
 		RegisterVerb("bind", "<skillId> <name>", Verb(VerbBind));
 		RegisterVerb("dmgmuls", "", Verb(VerbDmgMuls));
 		RegisterVerb("buffnear", "<radius> <filter> <buffPath> [ms]", Verb(VerbBuffNear));
+		RegisterVerb("damageme", "<amount> [dot]", Verb(VerbDamageMe));
 	}
 }
