@@ -13,10 +13,10 @@
   ],
   "mana": "20",
   "name": "Blink",
-  "notes": " With no dash charge, Blink only teleports and deals its own damage.\nTeleports you a dodge distance.\nThe recast spends 1 dash charge, so Blink and dodging share that resource. Blink itself never needs a dash charge. Elemental Affinity never boosts it; spell crit does.",
+  "notes": "With no dash charge, Blink only teleports and deals its own damage.\nTeleports you a dodge distance.\nThe recast spends 1 dash charge, so Blink and dodging share that resource. Blink itself never needs a dash charge. Elemental Affinity never boosts it; spell crit does.",
   "order": 0,
   "role": "",
   "status": "idea",
-  "summary": "Teleport a short distance, dealing Pure damage to every enemy near where you reappear. If you have a dash charge, Blink spends it to recast your last cast elemental spell from your original location, regardless of your remaining mana. ",
+  "summary": "Teleport a short distance, dealing Pure damage to every enemy near where you reappear. If you have a dash charge, Blink spends it to recast your last cast elemental spell from your original location, regardless of cooldown or mana cost. It recasts even while that spell is on cooldown or you can't afford it; the cost is still paid, and if you can't afford it the recast leaves you at 1 mana.",
   "unlock": "bought"
 }
