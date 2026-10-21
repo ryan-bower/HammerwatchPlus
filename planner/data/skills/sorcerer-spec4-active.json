@@ -1,12 +1,22 @@
 {
+  "built": "",
   "cls": "sorcerer",
+  "cooldown": "6",
   "group": "sorcerer-spec4",
   "kind": "active",
-  "levels": [],
+  "levels": [
+    "25 Pure damage in a 20m radius for 20 mana",
+    "30 Pure damage in a 20m radius for 20 mana",
+    "35 Pure damage in a 25m radius for 25 mana",
+    "40 Pure damage in a 25m radius for 25 mana",
+    "50 Pure damage in a 30m radius for 30 mana"
+  ],
+  "mana": "20",
   "name": "Blink",
-  "notes": "Damage, mana cost, cooldown, base distance and blast radius are left for tuning.",
+  "notes": "With no dash charge, Blink only teleports and deals its own damage.\nTeleports you a dodge distance.\nThe recast spends 1 dash charge, so Blink and dodging share that resource. Blink itself never needs a dash charge. Elemental Affinity never boosts it; spell crit does.",
   "order": 0,
+  "role": "",
   "status": "idea",
-  "summary": "Teleport a short distance, damaging every enemy near where you reappear.",
+  "summary": "Teleport a short distance, dealing Pure damage to every enemy near where you reappear. If you have a dash charge, Blink spends it to recast your last cast elemental spell from your original location, regardless of cooldown or mana cost. It recasts even while that spell is on cooldown or you can't afford it; the cost is still paid, and if you can't afford it the recast leaves you at 1 mana. The recast also restarts that spell's cooldown from the beginning.",
   "unlock": "bought"
 }

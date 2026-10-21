@@ -1,10 +1,19 @@
 {
+  "built": "",
   "cls": "sorcerer",
   "exclusive": "",
   "levels": [
     {
+      "q": "common",
+      "text": "Up to 50 mana"
+    },
+    {
+      "q": "uncommon",
+      "text": "Up to 80 mana"
+    },
+    {
       "q": "rare",
-      "text": "Taking enemy damage empowers your next spell based on the mana you lost, up to a cap."
+      "text": "Up to 120 mana"
     }
   ],
   "name": "Arcane Feedback",
