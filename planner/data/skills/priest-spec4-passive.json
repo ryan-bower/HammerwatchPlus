@@ -13,10 +13,10 @@
   ],
   "mana": "",
   "name": "Call of Heresy",
-  "notes": "Heresy is Favor below zero (Divine Favor's stacks can now go negative). Lunge: you suddenly lunge at a nearby body on the ground and consume its flesh, a 3 s channel that cancels whatever you're casting and blocks all abilities until it ends. It uses up the body. Level numbers are a first pass. Open questions: Heresy's floor (-5, mirroring Favor's 5?); do Heresy stacks decay or only come back through Favor gains; does consuming a body give anything back (health, or a Heresy stack back to Favor); how long do bodies stay on the ground.",
+  "notes": "Heresy is Favor below zero (Divine Favor's stacks can now go negative). Lunge: you suddenly lunge at a nearby body on the ground and consume its flesh, a 3 s channel that cancels whatever you're casting and blocks all abilities until it ends. It uses up the body. While you eat, your health regeneration rises by 50 per second. Level numbers are a first pass. Open questions: Heresy's floor (-5, mirroring Favor's 5?); do Heresy stacks decay or only come back through Favor gains; does consuming a body give anything else back (a Heresy stack back to Favor); how long do bodies stay on the ground.",
   "order": 1,
   "role": "",
   "status": "idea",
-  "summary": "Slain enemies have a chance to fall with their body intact, ready for Necrotic Resurrection. Favor can now drop below zero as Heresy stacks: each one makes your summons stronger, but raises the chance that you lunge at a body and consume its flesh, a 3 s channel that cancels and blocks all your abilities.",
+  "summary": "Slain enemies have a chance to fall with their body intact, ready for Necrotic Resurrection. Favor can now drop below zero as Heresy stacks: each one makes your summons stronger, but raises the chance that you lunge at a body and consume its flesh, a 3 s channel that cancels and blocks all your abilities but gives +50 health regeneration per second while it lasts.",
   "unlock": "bought"
 }
