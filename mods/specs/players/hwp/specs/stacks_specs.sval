@@ -1,0 +1,25 @@
+<loader>ActorBuffStackDef::LoadMultiple</loader>
+<!--
+	Stacks of the 4th specializations (mods/specs). HUD icons: players/hwp/specs/icons.png.
+-->
+<array>
+	<!-- Bannerlord, Shared Provisions: 1% cooldown reduction per stack. The module sets the
+	     count every 500 ms from the buffs on the party (Bannerlord.as UpdateProvisions). -->
+	<dict>
+		<string name="id">provisions</string>
+		<string name="name">.hwp.specs.stack.provisions.name</string>
+		<string name="description">.hwp.specs.stack.provisions.desc</string>
+		<int name="max">100</int>
+		<bool name="extrapolate-intensity">true</bool>
+		<dict name="buff">
+			<bool name="debuff">false</bool>
+			<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>224 96 14 14</vec4></array>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::BaseSkillModifier</string>
+					<vec2 name="cooldown-mul">1 0.99</vec2>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+</array>

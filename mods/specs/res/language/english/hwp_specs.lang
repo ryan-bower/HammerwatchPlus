@@ -1,0 +1,44 @@
+<lang name="English" official="false">
+	<string name="hwp.specs.stormbringer.name">Stormbringer</string>
+	<string name="hwp.specs.invocation.name">Invocation</string>
+	<string name="hwp.specs.arcane.name">Arcane</string>
+	<string name="hwp.specs.winddancer.name">Winddancer</string>
+	<string name="hwp.specs.bannerlord.name">Bannerlord</string>
+	<string name="hwp.specs.branding.name">Branding</string>
+
+	<string name="hwp.specs.param.dr">Damage Reduction:</string>
+	<string name="hwp.specs.param.ally_dr">Ally Damage Reduction:</string>
+	<string name="hwp.specs.param.buff_duration">Buff Duration:</string>
+	<string name="hwp.specs.param.max_weakness">Strongest Weakness:</string>
+	<string name="hwp.specs.param.cdr_per_buff">Cooldown Reduction per Buff:</string>
+
+	<!-- Bannerlord -->
+	<string name="hwp.specs.battlefield_standard.name">Battlefield Standard</string>
+	<string name="hwp.specs.battlefield_standard.desc">Raise a Battlefield Standard for %duration%. You and your allies near it take %dr% less damage. Use it again while you carry it to plant it where you stand, for free: the damage reduction doubles and the time left is halved.</string>
+	<string name="hwp.specs.feared_crest.name">Feared Crest</string>
+	<string name="hwp.specs.feared_crest.desc">Enemies near the Standard suffer %vulnerability%.</string>
+	<string name="hwp.specs.martyrs_banner.name">Martyr's Banner</string>
+	<string name="hwp.specs.martyrs_banner.desc">The Standard's damage reduction is %ally-mul% on your allies, but you no longer receive it.</string>
+	<string name="hwp.specs.righteous_crusade.name">Righteous Crusade</string>
+	<string name="hwp.specs.righteous_crusade.desc">Your buffs last %buff-duration% longer, and so do the buffs of allies standing near your Battlefield Standard.</string>
+	<string name="hwp.specs.war_drum.name">War Drum</string>
+	<string name="hwp.specs.war_drum.desc">Warcry and the Battlefield Standard weaken nearby enemies. Each cast makes the Weakness one step more severe, up to %weakness%.</string>
+	<string name="hwp.specs.shared_provisions.name">Shared Provisions</string>
+	<string name="hwp.specs.shared_provisions.desc">Gain %cdr% cooldown reduction for every buff on you and your allies, up to 30%.</string>
+	<string name="hwp.specs.stack.provisions.name">Shared Provisions</string>
+	<string name="hwp.specs.stack.provisions.desc">Cooldown reduction, 1% per stack.</string>
+
+	<!-- Winddancer -->
+	<string name="hwp.specs.protective_gale.name">Protective Gale</string>
+	<string name="hwp.specs.protective_gale.desc">Call up a gale around you. You and nearby teammates gain %evasion% Evasion for %duration%, and the wind goes with each of you.</string>
+	<string name="hwp.specs.lasting_gale.name">Lasting Gale</string>
+	<string name="hwp.specs.lasting_gale.desc">Protective Gale lasts %duration%.</string>
+	<string name="hwp.specs.tailwind.name">Tailwind</string>
+	<string name="hwp.specs.tailwind.desc">Protective Gale also grants %mspeed% Movement Speed.</string>
+	<string name="hwp.specs.second_wind.name">Second Wind</string>
+	<string name="hwp.specs.second_wind.desc">Evading an attack releases a healing gust that restores %heal% Health to you and nearby teammates. This can happen once every %cooldown%.</string>
+	<string name="hwp.specs.lingering_breeze.name">Lingering Breeze</string>
+	<string name="hwp.specs.lingering_breeze.desc">Everyone a healing gust touches also recovers %healthregen% Health every second for %duration%.</string>
+	<string name="hwp.specs.shared_breath.name">Shared Breath</string>
+	<string name="hwp.specs.shared_breath.desc">Teammates under your Protective Gale release your healing gust when they evade an attack.</string>
+</lang>

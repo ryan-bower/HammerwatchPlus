@@ -1,0 +1,28 @@
+{
+ "name": "mod-specs",
+ "about": "mods/specs loads in town: the self-check line (the six 4th-spec subclasses registered), no script errors in our files.",
+ "fixture": "town-paladin",
+ "mods": [
+  "core",
+  "specs"
+ ],
+ "timeout": 120,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] 6 of 6 subclasses registered",
+   "timeout": 20
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "still in town"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

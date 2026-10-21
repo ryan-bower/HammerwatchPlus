@@ -1,0 +1,192 @@
+%include "players/skills_cost.inc"
+<!--
+	Protective Gale (Winddancer active). A gust around the rogue: they and the teammates within
+	96 get gale_<lvl> (buffs_specs.sval: Evasion, the effect follows each player) for pg-ttl.
+	All numbers assumed (the planner leaves them for tuning): Evasion 15/18/21/24/30%,
+	6 s, radius 96, mana 40-60, cooldown 20 s.
+	Orbs: Lasting Gale (pg-ttl 8/10/12 s), Tailwind (pg-tail: gale_tailwind_<lvl>, +10/15/20%
+	movement speed for the same time).
+	Shared Breath (Second Wind's orb) rides on this cast: HWPSpecsShareBreath gives the
+	teammates it reaches the evade gust (scripts/HWP/Specs/Winddancer.as).
+	Sound: a placeholder until the audio picker (art/specs/AUDIO.md).
+-->
+<dict>
+	<string name="name">.hwp.specs.protective_gale.name</string>
+	<string name="type-name">.skills.type.spell</string>
+	<string name="description">.hwp.specs.protective_gale.desc</string>
+
+	<array name="description-params">
+		<array><s>evasion</s><s>.skills.desc.params.evasion</s><s>15%</s><s>18%</s><s>21%</s><s>24%</s><s>30%</s></array>
+		<array><s>duration</s><b>t</b><s>.skills.desc.params.duration</s><s>6s</s></array>
+		<array><s>mana-cost</s><s>.skills.desc.params.mana_cost</s><s>40</s><s>45</s><s>50</s><s>55</s><s>60</s></array>
+		<array><s>cooldown</s><b>t</b><s>.skills.desc.params.cooldown</s><s>20s</s></array>
+	</array>
+
+	<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>24 72 24 24</vec4></array>
+
+	<string name="id">hwp_rog_protective_gale</string>
+	<string name="type">spell</string>
+	<array name="tags"><s>spell</s></array>
+	<int name="starting-level">1</int>
+
+	<dict name="skill">
+		<int name="skill-cost">SKILLCOSTMASTERYLEVEL_1</int>
+		<string name="class">Skills::PlayerSkillDirectional</string>
+		<string name="anim">cast</string>
+		<int name="anim-length">600</int>
+
+		<int name="cooldown">20000</int>
+		<int name="castpoint">150</int>
+		<float name="cast-speed-mul">1</float>
+		<float name="move-speed-mul">0.7</float>
+		<ivec2 name="move-speed">0 250</ivec2>
+		<ivec2 name="blocking">0 250</ivec2>
+		<bool name="repeating">false</bool>
+		<int name="mana-cost">40</int>
+		<dict name="binds">
+			<string name="gale-buff">players/hwp/specs/buffs_specs.sval:gale_1</string>
+			<int name="pg-ttl">6000</int>
+			<string name="pg-tail">null</string>
+		</dict>
+		<dict name="actions">
+			<array name="cast">
+				<dict>
+					<string name="class">PlaySound</string>
+					<string name="sound">event:/sfx/player/classes/ranger/wind_weaver/wind_weaver_cast</string>
+				</dict>
+				<dict>
+					<string name="class">Explode</string>
+					<string name="fx">players/hwp/specs/effects/gale_cast.effect?radius=96</string>
+					<int name="radius">96</int>
+					<int name="min-radius">96</int>
+					<float name="dist-scaling">1000</float>
+
+					<bool name="hit-self">true</bool>
+					<bool name="hit-same-team">true</bool>
+					<bool name="hit-different-team">false</bool>
+
+					<array name="effects">
+						<dict>
+							<float name="self-dmg">1</float>
+							<float name="team-dmg">1</float>
+							<float name="enemy-dmg">0</float>
+							<bool name="only-actors">true</bool>
+						</dict>
+						<dict>
+							<string name="class">ApplyBuff</string>
+							<string name="buff-bind">gale-buff</string>
+							<string name="duration-bind">pg-ttl</string>
+						</dict>
+						<dict>
+							<string name="class">ApplyBuff</string>
+							<string name="buff-bind">pg-tail</string>
+							<string name="duration-bind">pg-ttl</string>
+						</dict>
+						<dict>
+							<string name="class">HWPSpecsShareBreath</string>
+							<string name="duration-bind">pg-ttl</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+
+		<array name="timeline">
+			<i>150</i><s>cast</s>
+		</array>
+	</dict>
+
+	<array name="upgrades">
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
+			<int name="mana-cost">45</int>
+			<dict name="binds">
+				<string name="gale-buff">players/hwp/specs/buffs_specs.sval:gale_2</string>
+			</dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
+			<int name="mana-cost">50</int>
+			<dict name="binds">
+				<string name="gale-buff">players/hwp/specs/buffs_specs.sval:gale_3</string>
+			</dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
+			<int name="mana-cost">55</int>
+			<dict name="binds">
+				<string name="gale-buff">players/hwp/specs/buffs_specs.sval:gale_4</string>
+			</dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
+			<int name="mana-cost">60</int>
+			<dict name="binds">
+				<string name="gale-buff">players/hwp/specs/buffs_specs.sval:gale_5</string>
+			</dict>
+		</dict>
+	</array>
+
+	<array name="modifier-skills">
+		<dict>
+			<string name="name">.hwp.specs.lasting_gale.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.lasting_gale.desc</string>
+			<array name="description-params">
+				<array><s>duration</s><s>.skills.desc.params.duration</s><s>8s</s><s>10s</s><s>12s</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>72 72 24 24</vec4></array>
+			<string name="id">hwp_rog_pg_lasting_gale</string>
+			<string name="quality">common</string>
+			<dict name="skill">
+				<dict name="binds">
+					<int name="pg-ttl">8000</int>
+				</dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds">
+						<int name="pg-ttl">10000</int>
+					</dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds">
+						<int name="pg-ttl">12000</int>
+					</dict>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<string name="name">.hwp.specs.tailwind.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.tailwind.desc</string>
+			<array name="description-params">
+				<array><s>mspeed</s><s>.skills.desc.params.mspeed</s><s>+10%</s><s>+15%</s><s>+20%</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>96 72 24 24</vec4></array>
+			<string name="id">hwp_rog_pg_tailwind</string>
+			<string name="quality">common</string>
+			<dict name="skill">
+				<dict name="binds">
+					<string name="pg-tail">players/hwp/specs/buffs_specs.sval:gale_tailwind_1</string>
+				</dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds">
+						<string name="pg-tail">players/hwp/specs/buffs_specs.sval:gale_tailwind_2</string>
+					</dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds">
+						<string name="pg-tail">players/hwp/specs/buffs_specs.sval:gale_tailwind_3</string>
+					</dict>
+				</dict>
+			</array>
+		</dict>
+	</array>
+</dict>

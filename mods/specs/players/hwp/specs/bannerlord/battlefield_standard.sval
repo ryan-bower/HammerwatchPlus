@@ -1,0 +1,171 @@
+%include "players/skills_cost.inc"
+<!--
+	Battlefield Standard (Bannerlord active, HWPSpecsStandard / HWPSpecsStandardCast in
+	scripts/HWP/Specs/Bannerlord.as). The first cast raises the standard for std-ttl:
+	players within std-radius take std-dr less damage. A cast while it is carried plants it:
+	free, during the cooldown too, the reduction doubled and the time left halved.
+	Planner numbers: DR 2-10%, cooldown 60-40 s, duration 10-20 s.
+	Assumed: mana 40, radius 75 (the Holy Banner's), the 600 ms refresh window.
+	Orbs: Feared Crest (std-enemy-debuff: the area Vulnerability, 500 ms, re-applied every
+	250 ms), Martyr's Banner (std-ally-mul on the others, std-self-mul 0 on the bearer).
+-->
+<dict>
+	<string name="name">.hwp.specs.battlefield_standard.name</string>
+	<string name="type-name">.skills.type.spell</string>
+	<string name="description">.hwp.specs.battlefield_standard.desc</string>
+
+	<array name="description-params">
+		<array><s>dr</s><s>.hwp.specs.param.dr</s><s>2%</s><s>4%</s><s>6%</s><s>8%</s><s>10%</s></array>
+		<array><s>duration</s><b>t</b><s>.skills.desc.params.duration</s><s>10s</s><s>13s</s><s>15s</s><s>17s</s><s>20s</s></array>
+		<array><s>mana-cost</s><s>.skills.desc.params.mana_cost</s><s>40</s></array>
+		<array><s>cooldown</s><b>t</b><s>.skills.desc.params.cooldown</s><s>60s</s><s>55s</s><s>50s</s><s>45s</s><s>40s</s></array>
+	</array>
+
+	<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>24 96 24 24</vec4></array>
+
+	<string name="id">hwp_war_battlefield_standard</string>
+	<string name="type">spell</string>
+	<array name="tags"><s>spell</s></array>
+	<int name="starting-level">1</int>
+
+	<dict name="skill">
+		<int name="skill-cost">SKILLCOSTMASTERYLEVEL_1</int>
+		<string name="class">HWPSpecsStandard</string>
+		<string name="anim">cast</string>
+		<int name="anim-length">600</int>
+
+		<int name="cooldown">60000</int>
+		<int name="castpoint">150</int>
+		<float name="cast-speed-mul">1</float>
+		<float name="move-speed-mul">0.7</float>
+		<ivec2 name="move-speed">0 250</ivec2>
+		<ivec2 name="blocking">0 250</ivec2>
+		<bool name="repeating">false</bool>
+		<int name="mana-cost">40</int>
+		<dict name="binds">
+			<float name="std-dr">0.02</float>
+			<int name="std-ttl">10000</int>
+			<int name="std-radius">75</int>
+			<float name="std-ally-mul">1</float>
+			<float name="std-self-mul">1</float>
+			<string name="std-enemy-debuff"></string>
+		</dict>
+		<dict name="actions">
+			<array name="cast">
+				<dict>
+					<string name="class">HWPSpecsStandardCast</string>
+				</dict>
+				<dict>
+					<string name="class">PlaySound</string>
+					<string name="sound">event:/sfx/player/classes/priest/holy_banner/holy_banner</string>
+				</dict>
+			</array>
+		</dict>
+
+		<array name="timeline">
+			<i>150</i><s>cast</s>
+		</array>
+	</dict>
+
+	<array name="upgrades">
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
+			<int name="cooldown">55000</int>
+			<dict name="binds">
+				<float name="std-dr">0.04</float>
+				<int name="std-ttl">13000</int>
+			</dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
+			<int name="cooldown">50000</int>
+			<dict name="binds">
+				<float name="std-dr">0.06</float>
+				<int name="std-ttl">15000</int>
+			</dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
+			<int name="cooldown">45000</int>
+			<dict name="binds">
+				<float name="std-dr">0.08</float>
+				<int name="std-ttl">17000</int>
+			</dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
+			<int name="cooldown">40000</int>
+			<dict name="binds">
+				<float name="std-dr">0.1</float>
+				<int name="std-ttl">20000</int>
+			</dict>
+		</dict>
+	</array>
+
+	<array name="modifier-skills">
+		<dict>
+			<string name="name">.hwp.specs.feared_crest.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.feared_crest.desc</string>
+			<array name="shown-icons"><s>vulnerability</s></array>
+			<array name="description-params">
+				<array><s>vulnerability</s><s>.skills.desc.params.status_effect</s><s>.status_effect.vulnerability_minor</s><s>.status_effect.vulnerability</s><s>.status_effect.vulnerability_greater</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>72 96 24 24</vec4></array>
+			<string name="id">hwp_war_bs_feared_crest</string>
+			<string name="quality">uncommon</string>
+			<dict name="skill">
+				<dict name="binds">
+					<string name="std-enemy-debuff">tweak/buffs/status_effects.sval:vulnerability_area_minor</string>
+				</dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds">
+						<string name="std-enemy-debuff">tweak/buffs/status_effects.sval:vulnerability_area</string>
+					</dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds">
+						<string name="std-enemy-debuff">tweak/buffs/status_effects.sval:vulnerability_area_greater</string>
+					</dict>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<string name="name">.hwp.specs.martyrs_banner.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.martyrs_banner.desc</string>
+			<array name="description-params">
+				<array><s>ally-mul</s><s>.hwp.specs.param.ally_dr</s><s>x1.5</s><s>x2</s><s>x3</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>96 96 24 24</vec4></array>
+			<string name="id">hwp_war_bs_martyrs_banner</string>
+			<string name="quality">uncommon</string>
+			<dict name="skill">
+				<dict name="binds">
+					<float name="std-ally-mul">1.5</float>
+					<float name="std-self-mul">0</float>
+				</dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds">
+						<float name="std-ally-mul">2</float>
+						<float name="std-self-mul">0</float>
+					</dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds">
+						<float name="std-ally-mul">3</float>
+						<float name="std-self-mul">0</float>
+					</dict>
+				</dict>
+			</array>
+		</dict>
+	</array>
+</dict>

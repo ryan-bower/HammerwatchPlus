@@ -1,0 +1,197 @@
+<effect looping="false" layer="-17">
+<!-- Winddancer's Second Wind, the healing gust (radius param): players/paladin/effects/lay_on_hands_radius.effect recoloured (tools/make_specs_fx.py) -->
+
+	<param name="radius" default="32"/>
+
+	<!-- big_circle -->
+	<sprite ulayer="1" origin="48 48" looping="false" texture="players/paladin/effects/lay_on_hands_circle.png" material="system/default.mats:bright-glow" 
+	
+	scale-x="radius/53*(0.73+sin(pow(t,0.25)*pi*1)*0.08)"
+	scale-y="radius/53*(0.73+sin(pow(t,0.25)*pi*1)*0.08)" 
+	angle="1"
+	pos-x="0"
+	pos-y="0"
+	
+	
+	color-r="0.455"
+	color-g="1.3"
+	color-b="0.65-pow(t,1.5)*(0.5/pi)"                    
+	color-a="(1-1*pow(t,0.5))-pow(t,1.5)*(0.3/pi)"
+	
+	
+	>
+		<frame time="1500">0 0 96 96</frame>
+	</sprite>
+	
+	<!-- BIG_circle -->
+	<sprite ulayer="1" origin="48 48" looping="false" texture="players/paladin/effects/lay_on_hands_circle.png" material="system/default.mats:bright" 
+	
+	scale-x="radius/48"
+	scale-y="radius/48"
+	angle="1"
+	pos-x="0"
+	pos-y="0"
+	
+	
+	color-r="0.455"
+	color-g="1.3-t*(1/pi)"
+	color-b="0.65"                                                                                    
+	color-a="sin(pow(t,0.8)*(pi*1.07))*0.5"
+	
+	
+	>
+		<frame time="1500">0 0 96 96</frame>
+	</sprite>
+	
+	<!-- knot -->
+	<sprite layer="-1" origin="36 33" looping="false" texture="players/paladin/effects/ring_knot.png" material="system/default.mats:bright-glow" 
+	
+	scale-x="(1+sin(pow(t,0.25)*pi*1)*0.08)*(radius/52)"
+	scale-y="(1+sin(pow(t,0.25)*pi*1)*0.08)*(radius/52)"
+	angle="pow(t,0.4)*pi*0.4" 
+	pos-x="0"
+	pos-y="0"
+	
+	
+	color-r="0.455"
+	color-g="1.3"
+	color-b="0.65-pow(t,2)*(0.5/pi)"                                                                                            
+	color-a="(1-1*t)-pow(t,1.5)*(0.5/pi)"
+	
+	
+	>
+		<frame time="1500">0 0 72 72</frame>
+	</sprite> 
+	
+	<!-- knot air-->
+	<sprite layer="-1" origin="36 33" looping="false" texture="players/paladin/effects/ring_knot.png" material="system/default.mats:bright-glow" 
+	
+	scale-x="radius/52*(1+sin(pow(t,0.25)*pi*1)*0.08)"
+	scale-y="radius/52*(1+sin(pow(t,0.25)*pi*1)*0.08)"
+	angle="pow(t,0.4)*pi*0.4" 
+	pos-x="0"
+	pos-y="-20*pow(t,0.8)+(sin(t*pi+(pi/2))*2)"
+	
+	
+	color-r="0.455+t*(0.7/pi)"
+	color-g="1.3+t*(1/pi)"
+	color-b="0.65-t*(0.2/pi)"                                                                      
+	color-a="(0.6-0.6*pow(t,0.5))-pow(t,1.5)*(0.3/pi)"
+	
+	
+	>
+		<frame time="1000">0 0 72 72</frame>
+	</sprite> 
+	
+ <!-- ray radial -->
+	<sprite ulayer="0" looping="false" origin="128 128" texture="effects/spritesheets/god_ray_radial.png" material="system/default.mats:bright-glow"
+	
+	scale-x="radius/48*(0.8+sin(t*pi-(pi/2))*0.05)"
+	scale-y="radius/48*(0.8+sin(t*pi-(pi/2))*0.05)"
+	angle="pi*2*rand(u+i+29)-sin(t*pi-(pi/4))*-0.025"
+	pos-x="0"
+	pos-y="0"
+	
+	
+	color-r="0.42+sin(t*pi*2+(pi/4))*0.1"
+	color-g="1.2"
+	color-b="0.6"
+	color-a="0.55+sin(t*pi+(pi/2))*0.55"
+	
+	
+	>
+		<frame time="400">0 0 256 256</frame>
+	</sprite>
+
+	
+	<!-- particles -->
+	
+	<!-- godray v --> 
+	<particle_spawner
+		num-particles="3*radius/36"
+		ttl="2500"
+		force-damping="-1"
+		pos="-3 ; -0 ; 0"
+	>
+		<behaviors>
+			<spread_range radius="rpick(10, 30*radius/36)"/>
+			<force_dir dir="0; -0.6; 0"/> 
+		</behaviors>
+
+		<particle src="players/paladin/effects/lay_on_hands_particles.unit:god_ray_1"/>  
+	</particle_spawner>
+	
+	<!-- specks -->
+	<particle_spawner
+		num-particles="4"
+		ttl="1001,2000"
+		force-damping="-1"
+		pos="1 ; 0 ; 0"
+		color="#ffdd53"
+	>
+		<behaviors>
+			<spread_range radius="rpick(2, 20*radius/48)"/>
+			<force_dir dir="0; -0.5; 0"/>
+			<force_toward point="0; 40; 0" mul="0.005"/>
+			<fade_to a="0" r="1" g="0.74" b="0.17" />
+		</behaviors>
+
+		<particle src="players/paladin/effects/lay_on_hands_particles.unit:speckle2"/>  
+		<particle src="players/paladin/effects/lay_on_hands_particles.unit:speckle1"/>  
+	</particle_spawner>
+	
+	<particle_spawner
+		spawn-rate="10-10*t*radius/36"
+		ttl="800,1200"
+		force-damping="3"
+		pos="1 ; 0 ; 0"
+		color="#ffdd53"
+		wind-speed="0"	
+		
+	>
+		<behaviors>
+			<spread_range radius="rpick(10, 70*radius/60)"/>
+			<force_dir dir="0; -0.5; 0"/>
+			<force_toward point="0; 20; 0" mul="0.0005"/>
+			<fade_to a="0" r="1" g="0.74" b="0.17" />
+		</behaviors>
+
+		<particle src="players/paladin/effects/lay_on_hands_particles.unit:speckle2"/>  
+	</particle_spawner>
+	   
+	<light>
+		<sprite texture="effects/lights/sewer_L.png">
+			<frame time="500">0 0 512 512</frame>
+		</sprite>
+		<looping value="false" />
+		<length value="250" />
+		<cast-shadows value="false" />
+		<shadow-cast-pos-x value="0" />
+		<shadow-cast-pos-y value="0" />
+		<shadow-cast-pos-jitter value="0 0 0 0" />
+		<size value="(280-150*t)*radius/56" />
+		<color-r value="0.7" />
+		<color-g value="2-pow(t,2)*(0.3/pi)" />
+		<color-b value="1" />
+		<color-a value="0.3-0.3*t"/>
+	</light>
+	
+	<light>
+		<sprite texture="effects/lights/sewer_L.png">
+			<frame time="500">0 0 512 512</frame>
+		</sprite>
+		<looping value="false" />
+		<length value="1050" />
+		<cast-shadows value="false" />
+		<shadow-cast-pos-x value="0" />
+		<shadow-cast-pos-y value="0" />
+		<shadow-cast-pos-jitter value="0 0 0 0" />
+		<size value="260*radius/54" />
+		<color-r value="(2-2*t)+t*(0.4/pi)" />
+		<color-g value="1-1*t" />
+		<color-b value="0" />
+		<color-a value="(0.1-0.1*t)"/>
+	</light>
+	
+	
+</effect>

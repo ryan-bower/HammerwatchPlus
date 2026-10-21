@@ -380,6 +380,7 @@ namespace Modules
 			GameLab::Register_newb();
 			GameLab::Register_pets();
 			GameLab::Register_runs();
+			GameLab::Register_specs();
 			GameLab::Register_ui();
 			GameLab::RegisterVerb("assign", "<str|dex|int|foc|vit> <n|all>", GameLab::Verb(GameLab::VerbAssign));
 			GameLab::RegisterVerb("upgrade", "<shopId> <upgradeId> <step>", GameLab::Verb(GameLab::VerbUpgrade));

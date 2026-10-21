@@ -1,0 +1,114 @@
+<effect looping="false" layer="-1">
+<!-- Winddancer's Protective Gale, the cast ring: players/warrior/effects/warcry_area.effect recoloured (tools/make_specs_fx.py) -->
+	<param name="radius" default="100" />
+	
+	%//soundwaves
+	<sprite origin="71 71" looping="false" texture="effects/spritesheets/effects.png" material="system/default.mats:default" 
+	scale-x="(radius/60)*pow(t,(i*1.25)+1)"
+	scale-y="(radius/60)*pow(t,(i*1.25)+1)"
+	
+	num-sprites="3"
+	
+	color-a="saturate(t*4)*0.2*(1-pow(t,8))"
+	>
+		<frame time="500" x="1891" y="207" w="142" h="142"/>
+	</sprite>
+	%//blast red wave
+	<sprite origin="71 71" looping="false" texture="effects/spritesheets/effects.png" material="system/default.mats:add" 
+	scale-x="(radius/60)*pow(t,1)"
+	scale-y="(radius/60)*pow(t,1)"
+	
+	color-r="0.63"
+	color-g="0.9"
+	color-b="0.765"
+	color-a="t*(saturate(t*6)*0.13*(1-it))*(1-pow(t,8))"
+	
+	num-sprites="1"
+	>
+		<frame time="500" x="151" y="257" w="142" h="142"/>
+	</sprite>	
+
+	<sprite origin="71 71" looping="false" texture="effects/spritesheets/effects.png" material="system/default.mats:add" 
+	scale-x="(radius/68)*(0.25+it*(0.45+0.1*i))"
+	scale-y="(radius/68)*(0.25+it*(0.45+0.1*i))"
+	
+	color-r="0.63"
+	color-g="0.9"
+	color-b="0.765"
+	color-a="t*(saturate(it*4)*0.05*(1-it))*(1-pow(t,2))"
+	
+	num-sprites="6"
+	>
+		<frame time="500" x="151" y="257" w="142" h="142"/>
+	</sprite>
+	<sprite origin="71 71" looping="false" texture="effects/spritesheets/effects.png" material="system/default.mats:add" 
+	scale-x="(radius/68)"
+	scale-y="(radius/68)"
+	
+	color-r="0.56"
+	color-g="0.8"
+	color-b="0.68"
+	color-a="saturate(t-0.25)*0.035*(1-pow(t,2))"
+	
+	num-sprites="2"
+	
+	angle="t*(1-i*2)*0.5"
+	
+	>
+		<frame time="500" x="151" y="257" w="142" h="142"/>
+	</sprite>
+	
+	<light pos-x="0" pos-y="0">
+		<sprite texture="effects/lights/light_L.png">
+		<frame>0 0 128 128</frame>
+		</sprite>
+
+		<overbright value="10" />
+		<length value="500" />
+		<looping value="false" />
+
+		<size value="radius*2.4" />
+
+		<color-r value="saturate(t*4)*0.56*(1-pow(t,2))" />
+		<color-g value="saturate(t*4)*0.8*(1-pow(t,2))" />
+		<color-b value="saturate(t*4)*0.68*(1-pow(t,2))" />
+		<color-a value="saturate(t*4)*0.01*(1-pow(t,2))" />
+	</light>
+	<particle_spawner
+		spawn-rate="radius*6"
+		length="60"
+		start="500"
+		looping="false"
+		ttl="rpick(250,1000)"
+		pos="0;0;0"
+		color="105 150 128 50; 178 255 217 50"
+		angle="rpick(-pi,pi)"
+		rot-speed="rpick(-1,1)"
+		curl-speed="2"
+		curl-scale="1"
+		force-damping="2"
+	>
+		<behaviors>
+			<spread_range radius="radius"/>
+			<force_toward pos="0;0;0" mul="-0.01"/>
+			<fade_to a="0" r="0" g="0" b="0" />
+		</behaviors>
+		<particle src="effects/subeffects/particles_speckles.unit:single_white_add"/>
+	</particle_spawner>
+<!-- 	<light pos-x="0" pos-y="0">
+		<sprite texture="effects/lights/light2_L.png">
+		<frame>0 0 128 128</frame>
+		</sprite>
+
+		<overbright value="10" />
+		<length value="200" />
+		<looping value="false" />
+
+		<size value="128*sin(t*pi*2)" />
+
+		<color-r value="0.7" />
+		<color-g value="1" />
+		<color-b value="0.85" />
+		<color-a value="0.1*1" />
+	</light> -->
+</effect>

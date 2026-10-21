@@ -1,0 +1,162 @@
+%include "players/skills_cost.inc"
+<!--
+	Righteous Crusade (Bannerlord passive). The warrior's buffs last crusade longer
+	(Modifiers::BuffScaling), and allies within the Battlefield Standard get the same while
+	they stand in it (buffs_specs.sval crusade_<crusade-lvl>, Bannerlord.as StandardPulse).
+	Planner numbers: +10-50% buff duration.
+	Orbs: War Drum (drum-tier: each Warcry, through the castspell trigger below, and each
+	standard cast steps the Weakness of the enemies around one tier up, to Minor / normal /
+	Greater by orb level; tiers assumed), Shared Provisions (prov-cdr: 1/2/3% cooldown
+	reduction per buff on the party, the provisions stack, capped at 30% (assumed)).
+-->
+<dict>
+	<string name="name">.hwp.specs.righteous_crusade.name</string>
+	<string name="type-name">.skills.type.passive</string>
+	<string name="description">.hwp.specs.righteous_crusade.desc</string>
+
+	<array name="description-params">
+		<array><s>buff-duration</s><s>.hwp.specs.param.buff_duration</s><s>+10%</s><s>+20%</s><s>+30%</s><s>+40%</s><s>+50%</s></array>
+	</array>
+
+	<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>48 96 24 24</vec4></array>
+
+	<string name="id">hwp_war_righteous_crusade</string>
+	<array name="tags"><s>passive</s></array>
+	<int name="starting-level">1</int>
+
+	<dict name="skill">
+		<int name="skill-cost">SKILLCOSTMASTERYLEVEL_1</int>
+		<string name="class">Skills::PassiveSkill</string>
+		<dict name="binds">
+			<vec2 name="crusade">1.1 1.1</vec2>
+			<int name="crusade-lvl">1</int>
+			<int name="drum-tier">0</int>
+			<float name="prov-cdr">0</float>
+		</dict>
+		<array name="modifiers">
+			<array>
+				<dict>
+					<string name="class">Modifiers::BuffScaling</string>
+					<string name="buff-scale-bind">crusade</string>
+				</dict>
+			</array>
+		</array>
+	</dict>
+
+	<array name="upgrades">
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
+			<dict name="binds">
+				<vec2 name="crusade">1.2 1.2</vec2>
+				<int name="crusade-lvl">2</int>
+			</dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
+			<dict name="binds">
+				<vec2 name="crusade">1.3 1.3</vec2>
+				<int name="crusade-lvl">3</int>
+			</dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
+			<dict name="binds">
+				<vec2 name="crusade">1.4 1.4</vec2>
+				<int name="crusade-lvl">4</int>
+			</dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
+			<dict name="binds">
+				<vec2 name="crusade">1.5 1.5</vec2>
+				<int name="crusade-lvl">5</int>
+			</dict>
+		</dict>
+	</array>
+
+	<array name="modifier-skills">
+		<dict>
+			<string name="name">.hwp.specs.war_drum.name</string>
+			<string name="description">.hwp.specs.war_drum.desc</string>
+			<array name="shown-icons"><s>weakness</s></array>
+			<array name="description-params">
+				<array><s>weakness</s><s>.hwp.specs.param.max_weakness</s><s>.status_effect.weakness_minor</s><s>.status_effect.weakness</s><s>.status_effect.weakness_greater</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>144 96 24 24</vec4></array>
+			<array name="tags"><s>passive</s></array>
+			<string name="id">hwp_war_rc_war_drum</string>
+			<string name="quality">uncommon</string>
+			<int name="starting-level">0</int>
+			<dict name="skill">
+				<dict name="binds">
+					<int name="drum-tier">1</int>
+				</dict>
+				<array name="modifiers">
+					<array>
+						<null />
+					</array>
+					<array>
+						<dict>
+							<string name="class">Modifiers::SkillTriggerEffect</string>
+							<string name="trigger">castspell</string>
+							<string name="skill-id">warcry</string>
+							<float name="chance">1</float>
+							<bool name="target-self">true</bool>
+							<array name="effects">
+								<dict>
+									<string name="class">HWPSpecsWarDrum</string>
+									<int name="radius">100</int>
+								</dict>
+							</array>
+						</dict>
+					</array>
+				</array>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds">
+						<int name="drum-tier">2</int>
+					</dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds">
+						<int name="drum-tier">3</int>
+					</dict>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<string name="name">.hwp.specs.shared_provisions.name</string>
+			<string name="description">.hwp.specs.shared_provisions.desc</string>
+			<array name="description-params">
+				<array><s>cdr</s><s>.hwp.specs.param.cdr_per_buff</s><s>1%</s><s>2%</s><s>3%</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>168 96 24 24</vec4></array>
+			<array name="tags"><s>passive</s></array>
+			<string name="id">hwp_war_rc_shared_provisions</string>
+			<string name="quality">uncommon</string>
+			<int name="starting-level">0</int>
+			<dict name="skill">
+				<dict name="binds">
+					<float name="prov-cdr">0.01</float>
+				</dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds">
+						<float name="prov-cdr">0.02</float>
+					</dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds">
+						<float name="prov-cdr">0.03</float>
+					</dict>
+				</dict>
+			</array>
+		</dict>
+	</array>
+</dict>
