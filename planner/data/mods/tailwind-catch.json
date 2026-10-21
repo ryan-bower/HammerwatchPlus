@@ -9,7 +9,7 @@
     }
   ],
   "name": "Tailwind Catch",
-  "notes": "",
+  "notes": "If the arrow hits your hitbox on the return trip it disappears and you \"caught\" it",
   "order": null,
   "skill": "ranger-spec4-active",
   "status": "idea",

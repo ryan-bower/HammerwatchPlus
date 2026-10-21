@@ -5,15 +5,11 @@
   "levels": [
     {
       "q": "uncommon",
-      "text": "+1"
-    },
-    {
-      "q": "uncommon",
-      "text": "+1.5"
+      "text": "+1 Seconds"
     },
     {
       "q": "rare",
-      "text": "+2"
+      "text": "+2 Seconds"
     }
   ],
   "name": "Lingering Storm",
@@ -21,5 +17,5 @@
   "order": null,
   "skill": "wizard-spec4-active",
   "status": "idea",
-  "summary": "Increases Tempest Orb's duration."
+  "summary": "Increases Tempest Torrent's duration."
 }

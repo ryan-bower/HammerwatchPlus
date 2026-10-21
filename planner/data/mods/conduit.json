@@ -5,11 +5,11 @@
   "levels": [
     {
       "q": "uncommon",
-      "text": "+2% cast speed per stack"
+      "text": "+4% cast speed per stack"
     },
     {
       "q": "rare",
-      "text": "+4% cast speed per stack"
+      "text": "+8% cast speed per stack"
     }
   ],
   "name": "Conduit",
