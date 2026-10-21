@@ -16,10 +16,10 @@
       "text": ""
     }
   ],
-  "name": "Empower",
-  "notes": "",
+  "name": "Essence Empowerment",
+  "notes": "Hellfire Claw will get this gain before the essence stacks reset with combustion orb mod.",
   "order": null,
   "skill": "warlock-spec4-passive",
   "status": "idea",
-  "summary": "Gain additional Fire Damage based on a percentage of your physical damage per Essence stack."
+  "summary": "Deal increased Fire Damage based on a percentage of your physical damage per Essence stack. Applies to Hellfire Claw."
 }

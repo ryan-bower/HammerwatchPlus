@@ -5,15 +5,15 @@
   "levels": [
     {
       "q": "uncommon",
-      "text": ""
+      "text": "+2% damage and area of effect per stack"
     },
     {
       "q": "uncommon",
-      "text": ""
+      "text": "+3% damage and area of effect per stack"
     },
     {
       "q": "rare",
-      "text": ""
+      "text": "+4% damage and area of effect per stack"
     }
   ],
   "name": "Combustion",
@@ -21,5 +21,5 @@
   "order": null,
   "skill": "warlock-spec4-active",
   "status": "idea",
-  "summary": "Skill now consumes all stacks of Essence but has scaled duration, damage, etc."
+  "summary": "When Hellfire Claw is trigger it consumes all stacks of Essence for increased damage and area of effect"
 }

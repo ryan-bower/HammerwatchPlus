@@ -1,16 +1,22 @@
 {
   "built": "",
   "cls": "warlock",
-  "cooldown": "",
+  "cooldown": "10",
   "group": "warlock-spec4",
   "kind": "active",
-  "levels": [],
-  "mana": "",
-  "name": "Pryebrand",
+  "levels": [
+    "10% of damage dealt added to Hellfire Claw, 40 mana",
+    "15% of damage dealt added to Hellfire Claw, 40 mana",
+    "25% of damage dealt added to Hellfire Claw, 50 mana",
+    "35% of damage dealt added to Hellfire Claw, 50 mana",
+    "50% of damage dealt added to Hellfire Claw, 60 mana"
+  ],
+  "mana": "40",
+  "name": "Pyrebrand",
   "notes": "",
   "order": 0,
   "role": "",
   "status": "idea",
-  "summary": "Brand an enemy with a demonic sigil. For a short duration, a portion of the damage you deal to that enemy feeds the brand. Reactivate the ability or let the duration expire to cash it out: a claw of hellfire tears up through the victim, dealing fire damage based on the stored offering. If the victim dies first, the brand transfers to a nearby enemy, carrying its stored damage.",
-  "unlock": "bought"
+  "summary": "Brand an enemy with a demonic sigil. For a short duration, a portion of the damage you deal to that enemy feeds the brand. When you reactivate the ability or the brand expires, a Hellfire Claw tears up through the victim dealing fire damage based on the stored offering. If the victim dies before the brand is triggered, the brand transfers to a nearby enemy, carrying its stored damage.",
+  "unlock": "free"
 }
