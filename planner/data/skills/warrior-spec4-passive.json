@@ -12,11 +12,11 @@
     "50%"
   ],
   "mana": "",
-  "name": "Placeholder Passive",
+  "name": "Righteous Crusade",
   "notes": "",
   "order": 1,
   "role": "",
   "status": "idea",
-  "summary": "Allies effected by your buffs (includes yourself) also receive Inc effect duration.",
+  "summary": "Allies affected by your buffs (including yourself) also gain increased buff duration.",
   "unlock": "bought"
 }

@@ -4,13 +4,19 @@
   "cooldown": "",
   "group": "warlock-spec4",
   "kind": "passive",
-  "levels": [],
+  "levels": [
+    "Effect cooldown 1.5 seconds, 11 max essence stacks",
+    "Effect cooldown 1.3 seconds, 12 max essence stacks",
+    "Effect cooldown 1.1 seconds, 13 max essence stacks",
+    "Effect cooldown 0.9 seconds, 14 max essence stacks",
+    "Effect cooldown 0.75 seconds, 15 max essence stacks"
+  ],
   "mana": "",
-  "name": "Placeholder Passive",
+  "name": "Essence Extraction",
   "notes": "",
   "order": 1,
   "role": "",
   "status": "idea",
-  "summary": "Spells skills now also counts towards gaining stacks of Essence.",
+  "summary": "Melee hits against Pyre Branded elites and bosses gain stacks of essence. Increase your max essence stacks.",
   "unlock": "bought"
 }

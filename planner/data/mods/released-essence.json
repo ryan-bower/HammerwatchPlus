@@ -1,0 +1,21 @@
+{
+  "built": "",
+  "cls": "warlock",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "3 stacks"
+    },
+    {
+      "q": "rare",
+      "text": "6 stacks"
+    }
+  ],
+  "name": "Released Essence",
+  "notes": "",
+  "order": null,
+  "skill": "warlock-spec4-passive",
+  "status": "idea",
+  "summary": "Elites killed by Hellfire Claw add stacks of essence"
+}
