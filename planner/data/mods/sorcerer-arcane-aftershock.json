@@ -1,16 +1,17 @@
 {
+  "built": "",
   "cls": "sorcerer",
   "exclusive": "",
   "levels": [
     {
       "q": "rare",
-      "text": "Blink also damages enemies around your departure point."
+      "text": "After using Blink you cannot take lethal damage for 1 second"
     }
   ],
-  "name": "Aftershock",
-  "notes": "The departure blast is in addition to Blink's normal arrival blast. Damage and radius are left for tuning.",
+  "name": "Void Barrier",
+  "notes": "Damage still lands, but it cannot take you below 1 mana. The engine has an unused modifier for exactly this on health, Modifiers::UnlethalDamage (Player.as:475 caps the hit at current health - 1); with Living Mana the same cap would apply to the mana pool.",
   "order": 0,
   "skill": "sorcerer-spec4-active",
   "status": "idea",
-  "summary": "Blink also creates a damaging blast where you teleported from, letting you hit enemies while escaping."
+  "summary": "After using Blink you cannot take lethal damage for 1 second"
 }

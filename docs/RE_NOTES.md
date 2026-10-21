@@ -2283,18 +2283,24 @@ another Reload press starts it again as usual. Then the second `/code-review hig
 ## Sorcerer fourth-spec design: Arcane (2026-10-20)
 
 - Zak's design is recorded in `planner/data/`: **Arcane**, with **Blink** as the active
-  and **Living Mana** (first drafted as Arcane Vessel) as the passive. Blink teleports a short
-  distance and damages enemies around the arrival point. The passive converts the
-  health pool, maximum-health bonuses and health restoration into mana. Incoming damage
-  drains mana; reaching zero kills you. Spell costs leave at least one mana, with the
-  normal requirement to afford the spell before casting.
+  and **Living Mana** (first drafted as Arcane Vessel) as the passive.
+- Blink teleports a dodge distance and deals 25-50 Pure damage around the arrival point
+  (6 s cooldown, 20-30 mana). Pure ignores armor and every resistance
+  (CompositeActorBehavior.as:721), hence the low numbers. With a dash charge, Blink
+  spends it to recast your last elemental spell from where you left, regardless of its
+  cooldown or mana cost (the cost is still paid, down to 1 mana), and restarts that
+  spell's cooldown countdown from the start;
+  players start with 1 dash charge (`MaxDashes`, Modifiers.as:287).
+- Living Mana converts the health pool, maximum-health bonuses and health restoration
+  into mana. Incoming damage drains mana; reaching zero kills you. Spell costs leave at
+  least one mana. Mana regeneration rises as mana runs low, up to +50-150% at empty.
 - Passive orbs: **Mana Conduit** restores 33/66/100% of mana lost to damage to the other
   players, as one total split evenly between them; spell costs do not trigger it.
-  **Arcane Feedback** empowers the next spell based on mana lost to enemy damage, up to
-  a cap, consumed on casting. Its scaling, cap and multi-hit behavior await tuning.
-- Blink orbs: **Aftershock** adds a departure blast; **Far Step** increases Blink range
-  over three orb levels. Feedback and Aftershock each have one orb level. Range, damage,
-  costs, cooldowns and blast radii await tuning.
+  **Arcane Feedback** empowers the next spell based on mana lost to enemy damage, capped
+  at 50/80/120 mana, consumed on casting.
+- Blink orbs: **Void Barrier** (replacing Aftershock): for 1 s after Blink you cannot
+  take lethal damage. The engine has an unused `Modifiers::UnlethalDamage` that caps a
+  hit at current health - 1 (Player.as:475). **Far Step** adds 15/25/35% Blink range.
 - Scope: planner design records. Gameplay implementation and GameLab verification remain
   for the in-game work; these mechanics are design intent rather than verified behavior.
 - Verified locally: all planner JSON loaded, the design has one active and one passive

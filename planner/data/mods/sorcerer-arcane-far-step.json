@@ -1,18 +1,19 @@
 {
+  "built": "",
   "cls": "sorcerer",
   "exclusive": "",
   "levels": [
     {
       "q": "common",
-      "text": "Increases Blink's maximum distance."
+      "text": "Increases Blink's maximum distance by 15%"
     },
     {
       "q": "uncommon",
-      "text": "Further increases Blink's maximum distance."
+      "text": "Increases Blink's maximum distance by 25%"
     },
     {
       "q": "rare",
-      "text": "Grants the largest increase to Blink's maximum distance."
+      "text": "Increases Blink's maximum distance by 35%"
     }
   ],
   "name": "Far Step",
