@@ -1,0 +1,167 @@
+%include "players/skills_cost.inc"
+<!--
+	Pyrebrand (Branding active). The cast brands the enemy nearest the aim (HWPSpecsPyrebrand,
+	scripts/HWP/Specs/Branding.as): pb-pct of the warlock's damage to it is stored on the brand
+	(HWPSpecsBrandFeed). Recasting, free while a brand is up, or the brand running out sets off
+	the Hellfire Claw: pb-base + the stored damage as fire (the claw-effects at intensity
+	damage / 100) on every enemy within 40 of the victim, then the full cooldown. A victim that
+	dies first passes the brand on, stored damage and time left, to the nearest enemy within 100.
+	Planner numbers: 10/15/25/35/50% stored, mana 40/40/50/50/60, cooldown 10 s.
+	Assumed: pb-base 20/25/30/35/40, the brand's 6 s, the claw radius 40, the transfer range
+	100, aiming (the nearest enemy in a 60 degree cone within 250, else within 120) and the
+	free recast.
+	Orbs: Combustion (pb-combust: the claw spends every Essence stack, +2/3/4% damage and radius
+	each), Proliferation (pb-spread: a dying victim's brand goes to every enemy within 60/80/100,
+	assumed, each with the whole stored damage; brands last 3 s).
+	Sound: placeholders until the audio picker (art/specs/AUDIO.md).
+-->
+<dict>
+	<string name="name">.hwp.specs.pyrebrand.name</string>
+	<string name="type-name">.skills.type.spell</string>
+	<string name="description">.hwp.specs.pyrebrand.desc</string>
+
+	<array name="description-params">
+		<array><s>pct</s><s>.hwp.specs.param.brand_stored</s><s>10%</s><s>15%</s><s>25%</s><s>35%</s><s>50%</s></array>
+		<array><s>base</s><s>.hwp.specs.param.claw_base</s><s>20</s><s>25</s><s>30</s><s>35</s><s>40</s></array>
+		<array><s>mana-cost</s><b>t</b><s>.skills.desc.params.mana_cost</s><s>40</s><s>40</s><s>50</s><s>50</s><s>60</s></array>
+		<array><s>cooldown</s><b>t</b><s>.skills.desc.params.cooldown</s><s>10s</s></array>
+	</array>
+
+	<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>24 120 24 24</vec4></array>
+
+	<string name="id">hwp_wlk_pyrebrand</string>
+	<string name="type">spell</string>
+	<array name="tags"><s>spell</s><s>fire</s></array>
+	<int name="starting-level">1</int>
+
+	<dict name="skill">
+		<int name="skill-cost">SKILLCOSTMASTERYLEVEL_1</int>
+		<string name="class">Skills::PlayerSkillDirectional</string>
+		<string name="anim">attack</string>
+		<int name="anim-length">400</int>
+
+		<int name="cooldown">10000</int>
+		<int name="castpoint">200</int>
+		<float name="cast-speed-mul">1</float>
+		<float name="move-speed-mul">0.5</float>
+		<ivec2 name="move-speed">0 200</ivec2>
+		<ivec2 name="blocking">0 200</ivec2>
+		<ivec2 name="update-aim">0 200</ivec2>
+		<bool name="repeating">false</bool>
+		<int name="mana-cost">40</int>
+
+		<dict name="binds">
+			<float name="pb-pct">0.1</float>
+			<int name="pb-base">20</int>
+			<float name="pb-combust">0</float>
+			<int name="pb-spread">0</int>
+		</dict>
+
+		<array name="modifiers">
+			<array>
+				<dict>
+					<string name="class">HWPSpecsBrandFeed</string>
+				</dict>
+			</array>
+		</array>
+
+		<dict name="actions">
+			<array name="cast">
+				<dict>
+					<string name="class">PlaySound</string>
+					<string name="sound">event:/sfx/player/classes/warlock/dark_ritual/dark_ritual_cast</string>
+				</dict>
+				<dict>
+					<string name="class">HWPSpecsPyrebrand</string>
+					<array name="claw-effects">
+						<dict>
+							<string name="class">Damage</string>
+							<int name="fire">100</int>
+						</dict>
+						<dict>
+							<string name="class">SpawnEffect</string>
+							<string name="effect">effects/generic/impacts/fire_impact_1.effect</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+
+		<array name="timeline">
+			<i>200</i><s>cast</s>
+		</array>
+	</dict>
+
+	<array name="upgrades">
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
+			<dict name="binds"><float name="pb-pct">0.15</float><int name="pb-base">25</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
+			<int name="mana-cost">50</int>
+			<dict name="binds"><float name="pb-pct">0.25</float><int name="pb-base">30</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
+			<int name="mana-cost">50</int>
+			<dict name="binds"><float name="pb-pct">0.35</float><int name="pb-base">35</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
+			<int name="mana-cost">60</int>
+			<dict name="binds"><float name="pb-pct">0.5</float><int name="pb-base">40</int></dict>
+		</dict>
+	</array>
+
+	<array name="modifier-skills">
+		<dict>
+			<string name="name">.hwp.specs.combustion.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.combustion.desc</string>
+			<array name="description-params">
+				<array><s>per-stack</s><s>.hwp.specs.param.per_essence</s><s>2%</s><s>3%</s><s>4%</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>72 120 24 24</vec4></array>
+			<string name="id">hwp_wlk_pb_combustion</string>
+			<string name="quality">uncommon</string>
+			<dict name="skill">
+				<dict name="binds"><float name="pb-combust">0.02</float></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds"><float name="pb-combust">0.03</float></dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><float name="pb-combust">0.04</float></dict>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<string name="name">.hwp.specs.proliferation.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.proliferation.desc</string>
+			<array name="description-params">
+				<array><s>radius</s><s>.skills.desc.params.radius</s><s>60</s><s>80</s><s>100</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>96 120 24 24</vec4></array>
+			<string name="id">hwp_wlk_pb_proliferation</string>
+			<string name="quality">uncommon</string>
+			<dict name="skill">
+				<dict name="binds"><int name="pb-spread">60</int></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds"><int name="pb-spread">80</int></dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><int name="pb-spread">100</int></dict>
+				</dict>
+			</array>
+		</dict>
+	</array>
+</dict>

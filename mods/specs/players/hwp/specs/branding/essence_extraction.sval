@@ -1,0 +1,151 @@
+%include "players/skills_cost.inc"
+<!--
+	Essence Extraction (Branding passive). +ee-add maximum Essence (the vanilla warlock stack,
+	players/warlock/stacks_warlock.sval:essence, max 10). A melee hit on a Pyrebranded elite or
+	boss gives an Essence stack, once per ee-cd ms (HWPSpecsEssenceHit,
+	scripts/HWP/Specs/Branding.as). A melee hit: a melee weapon's (the hit trigger, main and off
+	hand only) or a melee-tagged spell's such as Demon's Tail (spellhit; counting these is assumed). Planner numbers: max 11..15, cooldown 1.5/1.3/1.1/0.9/0.75 s.
+	Orbs: Essence Empowerment (ee-emp: the fire damage multiplier + 1/2/3% of the physical
+	damage multiplier per stack, assumed; HWPSpecsEssenceFire in the Essence stack), Released
+	Essence (ee-released: an elite or boss killed by the Hellfire Claw gives 3/6 stacks).
+-->
+<dict>
+	<string name="name">.hwp.specs.essence_extraction.name</string>
+	<string name="type-name">.skills.type.passive</string>
+	<string name="description">.hwp.specs.essence_extraction.desc</string>
+
+	<array name="description-params">
+		<array><s>cooldown</s><s>.skills.desc.params.cooldown</s><s>1.5s</s><s>1.3s</s><s>1.1s</s><s>0.9s</s><s>0.75s</s></array>
+		<array><s>stacks</s><s>.hwp.specs.param.max_stacks</s><s>11</s><s>12</s><s>13</s><s>14</s><s>15</s></array>
+	</array>
+
+	<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>48 120 24 24</vec4></array>
+
+	<string name="id">hwp_wlk_essence_extraction</string>
+	<array name="tags"><s>passive</s></array>
+	<int name="starting-level">1</int>
+
+	<dict name="skill">
+		<int name="skill-cost">SKILLCOSTMASTERYLEVEL_1</int>
+		<string name="class">Skills::PassiveSkill</string>
+		<dict name="binds">
+			<int name="ee-add">1</int>
+			<int name="ee-cd">1500</int>
+			<float name="ee-emp">0</float>
+			<int name="ee-released">0</int>
+		</dict>
+		<array name="modifiers">
+			<array>
+				<dict>
+					<string name="class">Modifiers::ModifyStack</string>
+					<string name="buff">players/warlock/stacks_warlock.sval:essence</string>
+					<string name="add-max-bind">ee-add</string>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::SkillTriggerEffect</string>
+					<string name="trigger">hit</string>
+					<array name="skill-tags"><s>melee</s></array>
+					<vec2 name="chance">1 1</vec2>
+					<array name="effects">
+						<dict>
+							<string name="class">HWPSpecsEssenceHit</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::SkillTriggerEffect</string>
+					<string name="trigger">spellhit</string>
+					<array name="skill-tags"><s>melee</s></array>
+					<vec2 name="chance">1 1</vec2>
+					<array name="effects">
+						<dict>
+							<string name="class">HWPSpecsEssenceHit</string>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::InjectModifiersIntoStack</string>
+					<string name="buff">players/warlock/stacks_warlock.sval:essence</string>
+					<array name="modifiers">
+						<dict>
+							<string name="class">HWPSpecsEssenceFire</string>
+							<bool name="add">true</bool>
+							<vec2 name="mul">0 0</vec2>
+							<string name="from">physicaldamagemul</string>
+							<string name="to">firedamagemul</string>
+							<string name="per-stack-bind">ee-emp</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</array>
+	</dict>
+
+	<array name="upgrades">
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
+			<dict name="binds"><int name="ee-add">2</int><int name="ee-cd">1300</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
+			<dict name="binds"><int name="ee-add">3</int><int name="ee-cd">1100</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
+			<dict name="binds"><int name="ee-add">4</int><int name="ee-cd">900</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
+			<dict name="binds"><int name="ee-add">5</int><int name="ee-cd">750</int></dict>
+		</dict>
+	</array>
+
+	<array name="modifier-skills">
+		<dict>
+			<string name="name">.hwp.specs.essence_empowerment.name</string>
+			<string name="description">.hwp.specs.essence_empowerment.desc</string>
+			<array name="description-params">
+				<array><s>per-stack</s><s>.hwp.specs.param.per_essence</s><s>1%</s><s>2%</s><s>3%</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>144 120 24 24</vec4></array>
+			<array name="tags"><s>passive</s></array>
+			<string name="id">hwp_wlk_ee_essence_empowerment</string>
+			<string name="quality">uncommon</string>
+			<int name="starting-level">0</int>
+			<dict name="skill">
+				<dict name="binds"><float name="ee-emp">0.01</float></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds"><float name="ee-emp">0.02</float></dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><float name="ee-emp">0.03</float></dict>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<string name="name">.hwp.specs.released_essence.name</string>
+			<string name="description">.hwp.specs.released_essence.desc</string>
+			<array name="description-params">
+				<array><s>stacks</s><s>.hwp.specs.param.essence_stacks</s><s>3</s><s>6</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>168 120 24 24</vec4></array>
+			<array name="tags"><s>passive</s></array>
+			<string name="id">hwp_wlk_ee_released_essence</string>
+			<string name="quality">uncommon</string>
+			<int name="starting-level">0</int>
+			<dict name="skill">
+				<dict name="binds"><int name="ee-released">3</int></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><int name="ee-released">6</int></dict>
+				</dict>
+			</array>
+		</dict>
+	</array>
+</dict>

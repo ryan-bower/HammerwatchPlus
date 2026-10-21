@@ -20,6 +20,10 @@
 	<string name="hwp.specs.param.max_stacks">Maximum Stacks:</string>
 	<string name="hwp.specs.param.extra_arrows">Extra Arrows:</string>
 	<string name="hwp.specs.param.dr_per_stack">Damage Reduction per Stack:</string>
+	<string name="hwp.specs.param.brand_stored">Damage Stored:</string>
+	<string name="hwp.specs.param.claw_base">Base Claw Damage:</string>
+	<string name="hwp.specs.param.per_essence">Per Essence Stack:</string>
+	<string name="hwp.specs.param.essence_stacks">Essence Stacks:</string>
 
 	<!-- Bannerlord -->
 	<string name="hwp.specs.battlefield_standard.name">Battlefield Standard</string>
@@ -51,7 +55,7 @@
 	<string name="hwp.specs.shared_breath.name">Shared Breath</string>
 	<string name="hwp.specs.shared_breath.desc">Teammates under your Protective Gale release your healing gust when they evade an attack.</string>
 
-	<!-- Invocation -->
+	<!-- Stormbringer -->
 	<string name="hwp.specs.electric_circuit.name">Electric Circuit</string>
 	<string name="hwp.specs.electric_circuit.desc">Fire three arrows in a fan that pierce every enemy for %damage% Physical and Lightning damage. Each enemy hit calls lightning down on up to 2 other enemies nearby for %strike% damage. At the end of their range, or at a wall, the arrows fly back to where you shot them, hitting everything again.</string>
 	<string name="hwp.specs.charged_boomerang.name">Charged Boomerang</string>
@@ -68,6 +72,8 @@
 	<string name="hwp.specs.wind_ward.desc">Each stack of Tailwind reduces the damage you take by %dr%.</string>
 	<string name="hwp.specs.stack.tailwind.name">Tailwind</string>
 	<string name="hwp.specs.stack.tailwind.desc">1% more Movement, Attack and Cast Speed per stack.</string>
+
+	<!-- Invocation -->
 	<string name="hwp.specs.tempest_torrent.name">Tempest Torrent</string>
 	<string name="hwp.specs.tempest_torrent.desc">Launch a slow orb of lightning that passes through enemies for %duration%. Every 0.25 seconds it zaps 3 times for %damage% Lightning damage, seeking out enemies it has not zapped yet. A wall stops it, but it keeps zapping.</string>
 	<string name="hwp.specs.overcharge.name">Overcharge</string>
@@ -84,4 +90,17 @@
 	<string name="hwp.specs.conduit.desc">Each Static Charge increases your Cast Speed by %cast-speed%.</string>
 	<string name="hwp.specs.stack.static_charge.name">Static Charge</string>
 	<string name="hwp.specs.stack.static_charge.desc">At 5, your next spell releases lightning strikes.</string>
+	<!-- Branding -->
+	<string name="hwp.specs.pyrebrand.name">Pyrebrand</string>
+	<string name="hwp.specs.pyrebrand.desc">Brand the enemy you aim at with a demonic sigil for 6 seconds. %pct% of the damage you deal to it feeds the brand. Use Pyrebrand again, for free, or let the brand run out, and a Hellfire Claw tears up through the victim, dealing %base% Fire damage plus the stored damage to it and the enemies beside it. If the victim dies first, the brand passes to the nearest enemy with its stored damage.</string>
+	<string name="hwp.specs.combustion.name">Combustion</string>
+	<string name="hwp.specs.combustion.desc">Hellfire Claw consumes all of your Essence, dealing %per-stack% more damage in a %per-stack% larger area for each stack.</string>
+	<string name="hwp.specs.proliferation.name">Proliferation</string>
+	<string name="hwp.specs.proliferation.desc">When a branded enemy dies, the brand spreads with all of its stored damage to every enemy within %radius%. Brands last half as long.</string>
+	<string name="hwp.specs.essence_extraction.name">Essence Extraction</string>
+	<string name="hwp.specs.essence_extraction.desc">Your melee hits on Pyrebranded elites and bosses grant a stack of Essence, once every %cooldown%. You can hold up to %stacks% Essence.</string>
+	<string name="hwp.specs.essence_empowerment.name">Essence Empowerment</string>
+	<string name="hwp.specs.essence_empowerment.desc">Each stack of Essence adds %per-stack% of your Physical damage multiplier to your Fire damage. Hellfire Claw gains this before Combustion consumes the stacks.</string>
+	<string name="hwp.specs.released_essence.name">Released Essence</string>
+	<string name="hwp.specs.released_essence.desc">An elite or boss killed by Hellfire Claw grants %stacks% stacks of Essence.</string>
 </lang>

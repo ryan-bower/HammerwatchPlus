@@ -1,0 +1,41 @@
+<effect looping="true" layer="-2">
+<!-- Branding's Pyrebrand on an enemy (buffs_specs.sval pyrebrand, scripts/HWP/Specs/Branding.as): two counter-turning rune rings (the rune circle of effects.png, as in players/items/symbol_area.effect) in hellfire red under the enemy, with embers rising off it. Hand-written; a placeholder until the sigil art (art/specs/REQUESTS.md). -->
+	<param name="diameter" default="28" />
+
+	<sprite origin="54 54" looping="true" texture="effects/spritesheets/effects.png" material="effects/effects.mats:add"
+		scale-x="diameter / 104"
+		scale-y="diameter / 104"
+		color-r="1"
+		color-g="0.22"
+		color-b="0.04"
+		color-a="0.7 + 0.2 * sin((t + l) * pi * 2)"
+		angle="(t + l) * pi * 0.5"
+	>
+		<frame time="1000">558 1035 108 108</frame>
+	</sprite>
+
+	<sprite origin="54 54" looping="true" texture="effects/spritesheets/effects.png" material="effects/effects.mats:add"
+		scale-x="(diameter - 8) / 104"
+		scale-y="(diameter - 8) / 104"
+		color-r="1"
+		color-g="0.45"
+		color-b="0.08"
+		color-a="0.5 + 0.2 * sin((t + l) * pi * 2 + pi)"
+		angle="-(t + l) * pi * 0.8"
+	>
+		<frame time="1000">558 1035 108 108</frame>
+	</sprite>
+
+	<sprite looping="true" origin="1 1" texture="effects/spritesheets/effects.png" material="effects/effects.mats:add"
+		color-r="1"
+		color-g="0.35"
+		color-b="0.05"
+		color-a="sin(saturate(pow(it, 2.2)) * pi) * 0.8"
+		pos-x="rand(i + u + il + 17) * diameter * 0.6 - diameter * 0.3"
+		pos-y="rand(i + u + il + 23) * 6 - 3 - 30 * saturate(pow(it, 2.2))"
+		num-sprites="10"
+		angle="rand(i + u + il + 11) * pi"
+	>
+		<frame time="1000">0 640 2 2</frame>
+	</sprite>
+</effect>

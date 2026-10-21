@@ -5,9 +5,9 @@ takes the spec with `gl subclass`, learns its two skills with `gl skill` and equ
 `gl orb`, then casts in an emptied Bandit Keep floor with god mode on. The verbs are core
 gamelab plus mods/gamelab-hands/scripts/GameLab/Verbs_specs.as: hasbuff (a buff by its path,
 for the buffs that have no display name), evade (Player.Evade's real roll and triggers) and
-bind (a skill's live bind, to see the orbs took).
+bind (a skill's live bind, to see the orbs took) and dmgmuls (the damage multipliers).
 
-Sections: winddancer, bannerlord, invocation, stormbringer. Single player: what only shows on a teammate (Shared Breath,
+Sections: winddancer, bannerlord, invocation, stormbringer, branding. Single player: what only shows on a teammate (Shared Breath,
 the standard's ally numbers) is checked as far as the bearer's own client goes."""
 import re
 import time
@@ -377,8 +377,189 @@ class Checks(Base):
                   f"dummies {hp0} -> {hp2} after the release and a 5 s torrent")
         self.to_town()
 
+    # --- Branding
+    def brand_cast(self, pb, dx, dy, nocd=True):
+        """Pyrebrand through castat, mana topped up first (nocd: the cooldown is not what is under
+        test). The brand goes to the enemy on the player's aim, not castat's direction, and the
+        emulated aim lets go when its hold ends: the cast lands inside a hold. Returns (activated,
+        the pyrebrand log lines it wrote)."""
+        self.gl("mana", 250)
+        self.gl("input", 700, 0, 0, dx, dy)
+        time.sleep(0.1)
+        mark = len(self.g.read_log())
+        r = self.gl("castat", pb, dx, dy, *(["nocd"] if nocd else []))
+        time.sleep(0.6)
+        return bool(r.get("activated")), "\n".join(l for l in self.g.read_log()[mark:].splitlines() if "pyrebrand" in l)
 
-def run(p, sections="winddancer,bannerlord,invocation,stormbringer", **_):
+    def tails(self, n, dx, dy, gap=0.4):
+        """n Demon's Tails (the warlock's melee-tagged spell) along (dx, dy), aimed there."""
+        self.gl("mana", 250)
+        self.gl("input", int(n * gap * 1000) + 300, 0, 0, dx, dy)
+        time.sleep(0.1)
+        for _ in range(n):
+            self.gl("castat", "demons_tail", dx, dy, "nocd")
+            time.sleep(gap)
+
+    def branding(self):
+        pb, ee = "hwp_wlk_pyrebrand", "hwp_wlk_essence_extraction"
+        ess = "players/warlock/stacks_warlock.sval:essence"
+        num = lambda st, label: (lambda m: int(m[-1]) if m else None)(re.findall(re.escape(label) + r" (-?\d+)", st))
+        self.setup("brand", "warlock", "hwp_warlock_branding", [pb, ee])
+        if not self.enter_floor("brand"):
+            return
+        fx, fy = self.open_dir(150)
+        self.gl("spawn", TARGET, round(60 * fx, 1), round(60 * fy, 1))
+        time.sleep(1.0)
+        base = int(self.bind(pb, "pb-base") or 0)
+        pct = float(self.bind(pb, "pb-pct") or 0)
+
+        # the press brands the dummy on the aim; Demon's Tail feeds it; the skill is ready again
+        # (the brand lasts 6 s and every status read takes a while: few reads until the recast)
+        self.gl("mana", 250)
+        mark = len(self.g.read_log())
+        presses, spent, button = self.cast_skill("brand_pb", pb, 40, aim=(fx, fy))
+        self.tails(2, fx, fy)
+        st = self.specs()
+        log = self.g.read_log()[mark:]
+        self.flag("brand_cast", presses > 0 and "pyrebrand: branded" in log and num(st, "brands") == 1,
+                  f"{pb} on {button}: {presses} press(es), mana -{spent}; brands {num(st, 'brands')}; "
+                  f"{[l for l in log.splitlines() if 'pyrebrand' in l][-2:]}")
+        stored = num(st, "stored")
+        self.flag("brand_feed", (stored or 0) > 0, f"2 Demon's Tails on the branded dummy: stored {stored} ({pct:.0%} of the damage)")
+
+        # the recast (a real Activate, not nocd, so it only goes off with the cooldown held at 0:
+        # brand_ready) the claw, the mana back, then the full cooldown
+        ok, line = self.brand_cast(pb, fx, fy, nocd=False)
+        self.flag("brand_ready", ok, f"the recast while a brand is up activated: {ok} (the cooldown held at 0)")
+        m0 = 250.0
+        time.sleep(0.3)
+        m1 = self.mana_exact()
+        cd = self.skill_cd(pb)
+        st = self.specs()
+        last = num(st, "last")
+        self.g.shot("brand claw", settle=False)
+        self.flag("brand_claw", ok and "claw (recast)" in line and last is not None and last >= base + (stored or 0) - 1,
+                  f"recast activated {ok}: {line[-120:]!r}; last claw {last} fire (base {base} + stored {stored}, at least)")
+        self.flag("brand_refund", m1 >= m0 - 3 and (cd or 0) > 5000,
+                  f"mana {m0} -> {m1} (the recast is free), cooldown after the claw {cd}")
+
+        # running out: the claw on its own, then the full cooldown
+        c0 = num(st, "claws") or 0
+        self.brand_cast(pb, fx, fy)
+        time.sleep(6.0)
+        st = self.specs()
+        cd = self.skill_cd(pb)
+        self.flag("brand_expire", num(st, "claws") == c0 + 1 and (cd or 0) > 5000 and num(st, "brands") == 0,
+                  f"6 s later: claws {c0} -> {num(st, 'claws')}, cooldown {cd}, brands {num(st, 'brands')}")
+
+        # the victim dies first: the brand moves to the nearest enemy. Dummies only (a brute walks
+        # off the aim): the victim 40 out, the next 60 from the ranger and 45 from the victim, so
+        # a kill within 50 takes only the victim
+        self.gl("kill", 400, "target_dummy")
+        self.gl("spawn", TARGET, round(40 * fx, 1), round(40 * fy, 1))
+        self.gl("spawn", TARGET, round(40 * fx - 45 * fy, 1), round(40 * fy + 45 * fx, 1))
+        time.sleep(1.0)
+        t0 = num(st, "transfers") or 0
+        self.brand_cast(pb, fx, fy)
+        self.gl("kill", 50, "target_dummy")
+        time.sleep(0.6)
+        st = self.specs()
+        self.flag("brand_transfer", num(st, "transfers") == t0 + 1 and num(st, "brands") == 1,
+                  f"transfers {t0} -> {num(st, 'transfers')}, brands {num(st, 'brands')}")
+        self.brand_cast(pb, fx, fy)   # set it off: the next checks start with none
+
+        # the orbs
+        for orb, n in (("hwp_wlk_pb_combustion", 3), ("hwp_wlk_pb_proliferation", 3),
+                       ("hwp_wlk_ee_essence_empowerment", 3), ("hwp_wlk_ee_released_essence", 2)):
+            self.gl("orb", orb, n)
+        time.sleep(0.5)
+        binds = {k: self.bind(s_, k) for s_, k in ((pb, "pb-combust"), (pb, "pb-spread"), (ee, "ee-emp"), (ee, "ee-released"),
+                                                    (ee, "ee-add"), (ee, "ee-cd"))}
+        lv = max(1, min(5, self.lvl[ee]))
+        self.flag("brand_orb_binds", binds == {"pb-combust": "0.04", "pb-spread": "100", "ee-emp": "0.03", "ee-released": "6",
+                                               "ee-add": str(lv), "ee-cd": str((1500, 1300, 1100, 900, 750)[lv - 1])}, f"{binds}")
+        self.set_stacks(ess, 30)
+        n = self.status_num("essence")
+        self.flag("brand_ee_max", n == 10 + lv, f"30 Essence given: {n} kept (10 + {lv})")
+
+        # Essence Empowerment: + 3% of the physical multiplier to fire, per stack
+        self.set_stacks(ess, 0)
+        time.sleep(0.3)
+        d0 = self.gl("dmgmuls")
+        self.set_stacks(ess, 10)
+        time.sleep(0.3)
+        d1 = self.gl("dmgmuls")
+        want = 0.03 * 10 * float(d1.get("physical") or 0)
+        got = float(d1.get("fire") or 0) - float(d0.get("fire") or 0)
+        self.flag("brand_empowerment", abs(got - want) < 0.01 and want > 0,
+                  f"fire mul {d0.get('fire')} at 0 essence, {d1.get('fire')} at 10 (+{got:.3f}, want 10 x 3% x physical "
+                  f"{d1.get('physical')} = {want:.3f})")
+
+        # Combustion: the claw spends the Essence for a bigger claw; Proliferation's brand is 3 s
+        self.gl("kill", 400, "target_dummy")
+        self.gl("spawn", TARGET, round(50 * fx, 1), round(50 * fy, 1))
+        time.sleep(1.0)
+        _, line = self.brand_cast(pb, fx, fy)
+        self.flag("brand_prolif_time", "for 3000 ms" in line, f"with Proliferation: {line[-80:]!r}")
+        self.set_stacks(ess, 10)
+        _, line = self.brand_cast(pb, fx, fy)
+        n = self.status_num("essence")
+        m = re.search(r"radius (\d+), \d+ hit, (\d+) essence spent", line)
+        spent_n = int(m.group(2)) if m else 0
+        self.flag("brand_combustion", bool(m) and spent_n >= 9 and int(m.group(1)) == int(40 * (1 + 0.04 * spent_n)) and n == 0,
+                  f"{line[-120:]!r}; essence after {n} (radius 40 x (1 + 4% a stack))")
+
+        # Proliferation: a dying victim's brand goes to all of them
+        self.gl("kill", 400, "target_dummy")
+        self.gl("spawn", TARGET, round(40 * fx, 1), round(40 * fy, 1))
+        for k in (-1, 1):
+            self.gl("spawn", TARGET, round(40 * fx + 45 * k * fy, 1), round(40 * fy - 45 * k * fx, 1))
+        self.gl("spawn", TARGET, round(100 * fx, 1), round(100 * fy, 1))
+        time.sleep(1.0)
+        st = self.specs()
+        t0 = num(st, "transfers") or 0
+        self.brand_cast(pb, fx, fy)
+        self.gl("kill", 50, "target_dummy")
+        time.sleep(0.6)
+        st = self.specs()
+        self.flag("brand_proliferation", num(st, "transfers") == t0 + 3 and num(st, "brands") == 3,
+                  f"transfers {t0} -> {num(st, 'transfers')}, brands {num(st, 'brands')} (3 dummies within 100)")
+        time.sleep(3.0)
+
+        # Essence Extraction: a melee hit (Demon's Tail is tagged melee) on a branded elite.
+        # Combustion off first: the brand's own claw would spend the stacks before the read
+        for _ in range(3):
+            self.gl("orb", "hwp_wlk_pb_combustion", "down")
+        self.gl("kill", 400, "target_dummy")
+        # stunned: its swings knock the warlock back, which cancels the cast
+        self.gl("spawn", "actors/humans/bandits/bandit_brute_elite.unit", round(45 * fx, 1), round(45 * fy, 1))
+        time.sleep(0.3)
+        stun = self.gl("buffnear", 200, "bandit_brute_elite", "tweak/buffs/status_effects.sval:stun_greater", 20000)
+        self.notes.append(f"brand: elite stunned: {stun.get('actors')}")
+        time.sleep(0.7)
+        self.set_stacks(ess, 0)
+        st = self.specs()
+        h0 = num(st, "essence hits") or 0
+        self.brand_cast(pb, fx, fy)
+        self.tails(4, fx, fy)
+        st = self.specs()
+        h1, n = num(st, "essence hits"), num(st, "essence")
+        cdms = int(self.bind(ee, "ee-cd") or 0)
+        self.flag("brand_essence_hit", 1 <= (h1 or 0) - h0 <= 2 and (n or 0) >= (h1 or 0) - h0,
+                  f"4 tails in 1.6 s on a branded elite: essence hits {h0} -> {h1} (once per {cdms} ms), essence {n}")
+
+        # Released Essence: the elite dies to the claw
+        time.sleep(3.0)
+        self.brand_cast(pb, fx, fy)
+        self.set_stacks(ess, 0)
+        self.gl("kill", 400, "bandit_brute_elite", 0.001)
+        _, line = self.brand_cast(pb, fx, fy)
+        st = self.specs()
+        r, n = num(st, "released"), num(st, "essence")
+        self.flag("brand_released", (r or 0) >= 6 and (n or 0) >= 6, f"{line[-120:]!r}: released {r}, essence {n} (6 an elite)")
+        self.to_town()
+
+def run(p, sections="winddancer,bannerlord,invocation,stormbringer,branding", **_):
     c = Checks(p)
     for s in sections.split(","):
         try:

@@ -38,7 +38,7 @@ namespace HWP
 			}
 
 			// the buffs the scripts load by name (the svals' own are checked when they load)
-			array<string> buffs = { "standard_dr", "standard_dr_planted", "crusade_5", "gale_share_20_0", "gale_share_60_3", "conduit_1_1", "conduit_2_5", "wind_ward" };
+			array<string> buffs = { "standard_dr", "standard_dr_planted", "crusade_5", "gale_share_20_0", "gale_share_60_3", "conduit_1_1", "conduit_2_5", "wind_ward", "pyrebrand" };
 			for (uint i = 0; i < buffs.length(); i++)
 			{
 				if (Buff(buffs[i]) is null)
@@ -64,9 +64,16 @@ namespace HWP
 				ret += "; static charge " + (sc !is null ? plr.GetStacks(sc) : -1);
 				auto tw = Stack("tailwind");
 				ret += "; tailwind " + (tw !is null ? plr.GetStacks(tw) : -1);
+				auto ess = Stack(ESSENCE);
+				ret += "; essence " + (ess !is null ? plr.GetStacks(ess) : -1);
 			}
 			ret += "; circuit returns " + g_circuitReturns + " back hits " + g_circuitBackHits + " catches " + g_circuitCatches
 				+ "; gale arrows " + g_galeArrows;
+			float stored = 0;
+			for (uint i = 0; i < g_brands.length(); i++)
+				stored += g_brands[i].m_stored;
+			ret += "; brands " + g_brands.length() + " stored " + int(stored + 0.5f) + "; claws " + g_claws + " hits " + g_clawHits
+				+ " last " + g_lastClaw + "; transfers " + g_transfers + "; essence hits " + g_essenceHits + " released " + g_released;
 			HWP::Commands::Reply(ret);
 		}
 	}
@@ -94,6 +101,7 @@ namespace Modules
 			HWP::Specs::g_circuitCatches = 0;
 			HWP::Specs::g_circuitBackHits = 0;
 			HWP::Specs::g_galeArrows = 0;
+			HWP::Specs::ClearBrands();
 		}
 
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
@@ -104,6 +112,7 @@ namespace Modules
 			HWP::Specs::UpdateProvisions(ms);
 			HWP::Specs::UpdateConduit(ms);
 			HWP::Specs::UpdateWindWard(ms);
+			HWP::Specs::UpdateBrands(ms);
 		}
 	}
 }

@@ -228,4 +228,11 @@
 	%block Conduit 2 3 1.24
 	%block Conduit 2 4 1.32
 	%block Conduit 2 5 1.4
+	<!-- Branding: the Pyrebrand on an enemy, kept on by UpdateBrands (scripts/HWP/Specs/Branding.as) -->
+	<dict name="pyrebrand">
+		<bool name="debuff">true</bool>
+		<int name="duration">400</int>
+		<string name="fx">players/hwp/specs/effects/branded_sigil.effect</string>
+		<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>192 120 14 14</vec4></array>
+	</dict>
 </svals>

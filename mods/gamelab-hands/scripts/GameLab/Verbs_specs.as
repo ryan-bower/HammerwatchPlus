@@ -1,5 +1,5 @@
-// gamelab-hands: verbs for the 4th specializations' checks (plan_specs). hasbuff and bind only
-// read; evade rolls the local player's real evade; mana sets the mana.
+// gamelab-hands: verbs for the 4th specializations' checks (plan_specs). hasbuff, bind and dmgmuls only
+// read; evade rolls the local player's real evade; mana sets the mana; buffnear buffs enemies.
 namespace GameLab
 {
 	const uint SPECS_CAP = 16;
@@ -118,11 +118,77 @@ namespace GameLab
 		Emit(Reply(id, true).Num("was", was).Num("now", plr.m_record.mana * maxm).Int("max", int(maxm)));
 	}
 
+	// dmgmuls: read-only. The local player's damage multipliers by type as the record's current
+	// stats hold them (PlayerRecord.currStats: PhysicalDamageMul, FireDamageMul, ...; 1 = none),
+	// what PlayerBase.DamageActor scales each part of a hit by (PlayerBase.as:928).
+	void VerbDmgMuls(const string &in id, array<string>@ args)
+	{
+		auto plr = cast<PlayerBase>(GetLocalPlayer());
+		if (plr is null)
+		{
+			Fail(id, "no spawned local player");
+			return;
+		}
+		auto st = plr.m_record.currStats;
+		Emit(Reply(id, true).Num("physical", st.PhysicalDamageMul).Num("fire", st.FireDamageMul).Num("ice", st.IceDamageMul)
+			.Num("lightning", st.LightningDamageMul).Num("poison", st.PoisonDamageMul).Num("pure", st.PureDamageMul));
+	}
+
+	// buffnear <radius> <filter> <buffPath> [ms]: ApplyBuff(ActorBuff(player, def, 1, false, 0, ms))
+	// on every live actor within radius whose .unit path or behavior type contains filter (as
+	// kill matches), never the local player, as a debuff effect on a hit does; ms -1 or left
+	// out keeps the def's duration. The enemy's own checks run (no-buffs, immune tags, debuff
+	// scale: CompositeActorBehavior.ApplyBuff), so the reply says which took it. For holding an
+	// enemy still (tweak/buffs/status_effects.sval:stun_greater) while a check runs. Capped.
+	void VerbBuffNear(const string &in id, array<string>@ args)
+	{
+		auto plr = GetLocalPlayer();
+		if (plr is null || args.length() < 3)
+		{
+			Fail(id, plr is null ? "no spawned local player" : "usage: buffnear <radius> <filter> <buffPath> [ms]");
+			return;
+		}
+		ActorBuffDef@ def = LoadActorBuff(args[2]);
+		if (def is null)
+		{
+			Fail(id, "no buff '" + args[2] + "'");
+			return;
+		}
+		int radius = int(parseInt(args[0]));
+		int ms = args.length() > 3 ? int(parseInt(args[3])) : -1;
+		vec2 center = xy(plr.m_unit.GetPosition());
+		auto units = g_scene.FetchAllUnits(~0, center, radius);
+		array<string> items;
+		int n = 0, applied = 0;
+		for (uint i = 0; i < units.length(); i++)
+		{
+			if (!units[i].IsValid() || units[i].IsDestroyed() || units[i] == plr.m_unit)
+				continue;
+			if (dist(center, xy(units[i].GetPosition())) > radius)
+				continue;
+			auto actor = cast<Actor>(units[i].GetScriptBehavior());
+			if (actor is null || actor.IsDead())
+				continue;
+			if (units[i].GetDebugName().findFirst(args[1]) < 0 && Reflect::GetTypeName(actor).findFirst(args[1]) < 0)
+				continue;
+			bool ok = actor.ApplyBuff(ActorBuff(plr, def, 1.0f, false, 0, ms));
+			n++;
+			if (ok)
+				applied++;
+			if (items.length() < SPECS_CAP)
+				items.insertLast(units[i].GetDebugName() + (ok ? " applied" : " refused"));
+		}
+		Emit(Reply(id, true).Int("count", n).Int("applied", applied).Str("actors", join(items, "; "))
+			.Bool("truncated", uint(n) > items.length()));
+	}
+
 	void Register_specs()
 	{
 		RegisterVerb("mana", "<n>", Verb(VerbMana));
 		RegisterVerb("hasbuff", "<path> [path ...]", Verb(VerbHasBuff));
 		RegisterVerb("evade", "[tries]", Verb(VerbEvade));
 		RegisterVerb("bind", "<skillId> <name>", Verb(VerbBind));
+		RegisterVerb("dmgmuls", "", Verb(VerbDmgMuls));
+		RegisterVerb("buffnear", "<radius> <filter> <buffPath> [ms]", Verb(VerbBuffNear));
 	}
 }
