@@ -5,6 +5,10 @@
       "desc": "A shard for # hybrid damage that ricochets off walls and enemies up to # times, +#% damage per bounce.",
       "file": "players/sorcerer/frost_shard.sval",
       "hoh1_file": "players/sorcerer/frost_shard.sval",
+      "hoh1_rect": [
+        0,
+        48
+      ],
       "id": "hoh1_sorcerer_frost_shard",
       "kind": "active",
       "levels": [
@@ -152,6 +156,10 @@
       "desc": "A comet lands in front of you: # hybrid damage split among the enemies hit, who freeze for #s.",
       "file": "players/sorcerer/comet.sval",
       "hoh1_file": "players/sorcerer/comet.sval",
+      "hoh1_rect": [
+        24,
+        48
+      ],
       "id": "hoh1_sorcerer_comet",
       "kind": "active",
       "levels": [
@@ -299,6 +307,10 @@
       "desc": "# frost balls burst out in every direction for # hybrid damage each.",
       "file": "players/sorcerer/frost_nova.sval",
       "hoh1_file": "players/sorcerer/frost_nova.sval",
+      "hoh1_rect": [
+        96,
+        48
+      ],
       "id": "hoh1_sorcerer_frost_nova",
       "kind": "active",
       "levels": [
@@ -402,6 +414,10 @@
       "desc": "A slow ice orb drifts forward for #s, spraying shards for # hybrid damage.",
       "file": "players/sorcerer/orb_of_winter.sval",
       "hoh1_file": "players/sorcerer/orb_of_winter.sval",
+      "hoh1_rect": [
+        120,
+        48
+      ],
       "id": "hoh1_sorcerer_orb_of_winter",
       "kind": "active",
       "levels": [
@@ -483,6 +499,10 @@
       "desc": "Your skills slow by #% for #s and have a #% chance to freeze for #s.",
       "file": "players/sorcerer/biting_chill.sval",
       "hoh1_file": "players/sorcerer/biting_chill.sval",
+      "hoh1_rect": [
+        48,
+        48
+      ],
       "id": "hoh1_sorcerer_biting_chill",
       "kind": "passive",
       "levels": [
@@ -608,6 +628,10 @@
       "desc": "Casting a skill adds a barrier for #s that cuts one hit's damage by #%; up to # barriers.",
       "file": "players/sorcerer/ice_barrier.sval",
       "hoh1_file": "players/sorcerer/ice_barrier.sval",
+      "hoh1_rect": [
+        72,
+        48
+      ],
       "id": "hoh1_sorcerer_ice_barrier",
       "kind": "passive",
       "levels": [
@@ -695,6 +719,10 @@
       "desc": "Frozen enemies you kill burst for # hybrid damage to enemies near them.",
       "file": "players/sorcerer/shatter.sval",
       "hoh1_file": "players/sorcerer/shatter.sval",
+      "hoh1_rect": [
+        144,
+        48
+      ],
       "id": "hoh1_sorcerer_shatter",
       "kind": "passive",
       "levels": [

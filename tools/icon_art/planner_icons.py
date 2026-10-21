@@ -5,6 +5,10 @@ python planner_icons.py [<data>] -> planner/web/icons.png, icons.json; <data> ho
 planner's records as classes/*.json, skills/*.json and mods/*.json (default planner/data).
 A record with `hoh1_icon` ("<class>/<skill>", a key of HOH1_REMASTERED_ICONS in
 tools/import_hoh1.py: the HoH1 Remastered specs) gets that cell of the Remastered sheet.
+A class skill with `hoh1_rect` (the HoH1 row) gets that cell too: the Remastered sheet is
+HoH1's gui/icons_skills.png copied whole, so only icons.local.png shows those (the committed
+placeholder has shapes only in the Remastered cells).
+An orb record on such a skill, unbuilt, shows its skill's icon (HoH1 had no orbs).
 The HoH1 classes' atlases are committed placeholders; when the local HoH1 art is imported
 (mods/classes/hoh1art/), the same sheet cut from it is written as icons.local.png
 (git-ignored), which the planner serves instead.
@@ -45,6 +49,10 @@ for f in glob.glob(str(S / "classes/*.json")):
     c = json.load(open(f, encoding="utf-8")); c = c.get("data", c)
     for sk in c.get("base", []) + [x for sp in c.get("specs", []) for x in sp.get("skills", [])]:
         want.add(sk["id"]); want.update(m["id"] for m in sk.get("mods", []))
+        if sk.get("hoh1_rect"):   # the HoH1 row (tools/planner_hoh1.py): a cell of HoH1's skill sheet
+            icons[sk["id"]] = (REMASTERED, (*sk["hoh1_rect"], 24, 24))
+            for m in sk.get("mods", []):   # HoH1 had no orbs: a new one shows its skill's icon
+                icons.setdefault(m["id"], icons[sk["id"]])
 for coll in ("skills", "mods"):
     for f in glob.glob(str(S / f"{coll}/*.json")):
         d = json.load(open(f, encoding="utf-8")); d = d.get("data", d)
@@ -55,6 +63,14 @@ for coll in ("skills", "mods"):
             key = Path(f).stem
             want.add(key)
             icons[key] = (REMASTERED, (*HOH1_REMASTERED_ICONS[cls][sk], 24, 24))
+
+# an orb record (mods/*.json) on an HoH1 skill has no art of its own (HoH1 had no orbs): it
+# shows its skill's icon until it is built
+for f in glob.glob(str(S / "mods/*.json")):
+    d = json.load(open(f, encoding="utf-8")); d = d.get("data", d)
+    key = Path(f).stem
+    if key not in icons and d.get("skill") in icons and not (d.get("built") or "").startswith("hwp_"):
+        want.add(key); icons[key] = icons[d["skill"]]
 
 found = {i: icons[i] for i in want if i in icons}
 missing = sorted(want - set(found))

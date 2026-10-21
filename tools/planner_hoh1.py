@@ -6,7 +6,8 @@ python tools/planner_hoh1.py [--check]
 Reads the HoH1 install read-only (res/assets.bin and res/language/english.lang, found by
 gamepaths.hoh1_dir). Each record is the HoH1 kit as HoH1 shipped it: the attack, three
 actives and three passives, each with its HoH1 numbers per level, plus the HoH1 base and
-per-level stats. The summaries below are our own paraphrase; only the numbers come from
+per-level stats, and `hoh1_rect`: the skill's cell of HoH1's gui/icons_skills.png, which
+tools/icon_art/planner_icons.py cuts the planner icon from. The summaries below are our own paraphrase; only the numbers come from
 HoH1 (HoH1 text and art are never committed). Gear is armor only: HoH1 had no weapons,
 the attack is a skill. The kits have no orbs (HoH1 never had any); new orbs are planner
 `mods` records whose `skill` is one of these skill ids.
@@ -125,6 +126,7 @@ def build(archive, lang) -> dict:
             summary, labels = kit["skills"][stem]
             sval = archive.read_file(f).decode("utf-8", "replace")
             key = re.search(r'name="name">\.?([^<]+)<', sval).group(1)
+            rect = re.search(r'<array name="icon">\s*<string>gui/icons_skills\.png</string>\s*<int>\d+</int>\s*<vec4>(\d+) (\d+) 24 24</vec4>', sval)
             levels = []
             for n, d in enumerate(level_dicts(sval), 1):
                 if f"{key}.{n}" not in lang: break   # a few svals carry a level HoH1 never sold or described
@@ -139,6 +141,7 @@ def build(archive, lang) -> dict:
                 levels.append({"params": params, "q": "common", "text": summary.format(*nums)})
             base.append({"class": d.find("string[@name='class']").text if d.find("string[@name='class']") is not None else "",
                          "desc": summary.format(*["#"] * len(labels)), "file": f, "hoh1_file": f,
+                         "hoh1_rect": [int(rect.group(1)), int(rect.group(2))] if rect else None,
                          "id": f"hoh1_{cls}_{stem}", "kind": KINDS[i], "levels": levels, "mods": [],
                          "name": lang[key], "port": "HoH1", "summon": False,
                          "type": "Attack" if i == 0 else "Passive" if KINDS[i] == "passive" else "Spell"})

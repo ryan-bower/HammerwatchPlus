@@ -5,6 +5,10 @@
       "desc": "An arrow for # physical damage that pierces up to # enemies; you move #% slower while shooting.",
       "file": "players/ranger/bow.sval",
       "hoh1_file": "players/ranger/bow.sval",
+      "hoh1_rect": [
+        0,
+        24
+      ],
       "id": "hoh1_ranger_bow",
       "kind": "active",
       "levels": [
@@ -152,6 +156,10 @@
       "desc": "Spin and loose # Bow Shot arrows in every direction.",
       "file": "players/ranger/flurry_of_arrows.sval",
       "hoh1_file": "players/ranger/flurry_of_arrows.sval",
+      "hoh1_rect": [
+        120,
+        24
+      ],
       "id": "hoh1_ranger_flurry_of_arrows",
       "kind": "active",
       "levels": [
@@ -275,6 +283,10 @@
       "desc": "Roots hold every enemy around you for #s and cut their armor by #%.",
       "file": "players/ranger/grasping_roots.sval",
       "hoh1_file": "players/ranger/grasping_roots.sval",
+      "hoh1_rect": [
+        96,
+        24
+      ],
       "id": "hoh1_ranger_grasping_roots",
       "kind": "active",
       "levels": [
@@ -378,6 +390,10 @@
       "desc": "Charge # arrows for up to # magical damage that ignore #% resistance; a full charge takes #s and adds range and speed.",
       "file": "players/ranger/powershot.sval",
       "hoh1_file": "players/ranger/powershot.sval",
+      "hoh1_rect": [
+        168,
+        24
+      ],
       "id": "hoh1_ranger_powershot",
       "kind": "active",
       "levels": [
@@ -483,6 +499,10 @@
       "desc": "Casting a skill gives #% movement speed and #% evasion for #s.",
       "file": "players/ranger/on_the_prowl.sval",
       "hoh1_file": "players/ranger/on_the_prowl.sval",
+      "hoh1_rect": [
+        48,
+        24
+      ],
       "id": "hoh1_ranger_on_the_prowl",
       "kind": "passive",
       "levels": [
@@ -588,6 +608,10 @@
       "desc": "Bow Shot has a #% chance to crit and Mark the target for #s; Marked enemies take a critical hit from any source #% of the time.",
       "file": "players/ranger/marked_prey.sval",
       "hoh1_file": "players/ranger/marked_prey.sval",
+      "hoh1_rect": [
+        72,
+        24
+      ],
       "id": "hoh1_ranger_marked_prey",
       "kind": "passive",
       "levels": [
@@ -675,6 +699,10 @@
       "desc": "Bow Shot arrows have a #% chance to split and seek another target.",
       "file": "players/ranger/twinned_arrows.sval",
       "hoh1_file": "players/ranger/twinned_arrows.sval",
+      "hoh1_rect": [
+        144,
+        24
+      ],
       "id": "hoh1_ranger_twinned_arrows",
       "kind": "passive",
       "levels": [

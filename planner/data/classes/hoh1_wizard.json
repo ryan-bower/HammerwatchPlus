@@ -5,6 +5,10 @@
       "desc": "A fireball for # magical damage in a small area; range and area grow with level.",
       "file": "players/wizard/fireball.sval",
       "hoh1_file": "players/wizard/fireball.sval",
+      "hoh1_rect": [
+        0,
+        120
+      ],
       "id": "hoh1_wizard_fireball",
       "kind": "active",
       "levels": [
@@ -104,6 +108,10 @@
       "desc": "Breathe fire in a forward cone, # magical damage per hit.",
       "file": "players/wizard/fire_breath.sval",
       "hoh1_file": "players/wizard/fire_breath.sval",
+      "hoh1_rect": [
+        24,
+        120
+      ],
       "id": "hoh1_wizard_fire_breath",
       "kind": "active",
       "levels": [
@@ -203,6 +211,10 @@
       "desc": "A blast around you for # magical damage that confuses and slows enemies by #% for #s and destroys most projectiles.",
       "file": "players/wizard/blast_wave.sval",
       "hoh1_file": "players/wizard/blast_wave.sval",
+      "hoh1_rect": [
+        96,
+        120
+      ],
       "id": "hoh1_wizard_blast_wave",
       "kind": "active",
       "levels": [
@@ -322,6 +334,10 @@
       "desc": "# meteors fall around you for # hybrid damage.",
       "file": "players/wizard/meteor_shower.sval",
       "hoh1_file": "players/wizard/meteor_shower.sval",
+      "hoh1_rect": [
+        120,
+        120
+      ],
       "id": "hoh1_wizard_meteor_shower",
       "kind": "active",
       "levels": [
@@ -403,6 +419,10 @@
       "desc": "Your skills set enemies burning for # magical damage per second over #s.",
       "file": "players/wizard/combustion.sval",
       "hoh1_file": "players/wizard/combustion.sval",
+      "hoh1_rect": [
+        48,
+        120
+      ],
       "id": "hoh1_wizard_combustion",
       "kind": "passive",
       "levels": [
@@ -488,6 +508,10 @@
       "desc": "A shield cuts one hit's damage by #% and sets off your Blast Wave; it recharges in #s.",
       "file": "players/wizard/flame_shield.sval",
       "hoh1_file": "players/wizard/flame_shield.sval",
+      "hoh1_rect": [
+        72,
+        120
+      ],
       "id": "hoh1_wizard_flame_shield",
       "kind": "passive",
       "levels": [
@@ -559,6 +583,10 @@
       "desc": "Your skills leave burning ground for # magical damage per second; level 2 also doubles how long it burns.",
       "file": "players/wizard/scorched_earth.sval",
       "hoh1_file": "players/wizard/scorched_earth.sval",
+      "hoh1_rect": [
+        144,
+        120
+      ],
       "id": "hoh1_wizard_scorched_earth",
       "kind": "passive",
       "levels": [

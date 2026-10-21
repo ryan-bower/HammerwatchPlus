@@ -5,6 +5,10 @@
       "desc": "A short stab that applies Soul Consumption, # magical damage per second for #s; you regain #% of it as health and #% as mana.",
       "file": "players/warlock/soul_dagger.sval",
       "hoh1_file": "players/warlock/soul_dagger.sval",
+      "hoh1_rect": [
+        168,
+        144
+      ],
       "id": "hoh1_warlock_soul_dagger",
       "kind": "active",
       "levels": [
@@ -176,6 +180,10 @@
       "desc": "A bolt that chains to # targets for # magical damage each.",
       "file": "players/warlock/lightning_bolt.sval",
       "hoh1_file": "players/warlock/lightning_bolt.sval",
+      "hoh1_rect": [
+        24,
+        144
+      ],
       "id": "hoh1_warlock_lightning_bolt",
       "kind": "active",
       "levels": [
@@ -323,6 +331,10 @@
       "desc": "Summon a gargoyle for #s that shoots lightning for # magical damage; nearby gargoyles link with a static beam for #% damage that stuns. Up to # at once.",
       "file": "players/warlock/summon_gargoyle.sval",
       "hoh1_file": "players/warlock/summon_gargoyle.sval",
+      "hoh1_rect": [
+        96,
+        144
+      ],
       "id": "hoh1_warlock_summon_gargoyle",
       "kind": "active",
       "levels": [
@@ -458,6 +470,10 @@
       "desc": "A storm follows you for #s and strikes nearby enemies for # magical damage; it links with gargoyles.",
       "file": "players/warlock/eye_of_the_storm.sval",
       "hoh1_file": "players/warlock/eye_of_the_storm.sval",
+      "hoh1_rect": [
+        120,
+        144
+      ],
       "id": "hoh1_warlock_eye_of_the_storm",
       "kind": "active",
       "levels": [
@@ -539,6 +555,10 @@
       "desc": "All your skills reach #% farther.",
       "file": "players/warlock/extended_domain.sval",
       "hoh1_file": "players/warlock/extended_domain.sval",
+      "hoh1_rect": [
+        216,
+        144
+      ],
       "id": "hoh1_warlock_extended_domain",
       "kind": "passive",
       "levels": [
@@ -604,6 +624,10 @@
       "desc": "Soul Consumption victims pass #% of their damage taken to nearby enemies, and spread Soul Consumption when they die #% of the time.",
       "file": "players/warlock/soul_cleaver.sval",
       "hoh1_file": "players/warlock/soul_cleaver.sval",
+      "hoh1_rect": [
+        192,
+        144
+      ],
       "id": "hoh1_warlock_soul_cleaver",
       "kind": "passive",
       "levels": [
@@ -675,6 +699,10 @@
       "desc": "Each lightning bolt has a #% chance to fire another at #% damage.",
       "file": "players/warlock/stormlash.sval",
       "hoh1_file": "players/warlock/stormlash.sval",
+      "hoh1_rect": [
+        144,
+        144
+      ],
       "id": "hoh1_warlock_stormlash",
       "kind": "passive",
       "levels": [

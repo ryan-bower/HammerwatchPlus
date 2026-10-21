@@ -5,6 +5,10 @@
       "desc": "Swing your sword for # physical damage across a #° arc.",
       "file": "players/paladin/sword.sval",
       "hoh1_file": "players/paladin/sword.sval",
+      "hoh1_rect": [
+        0,
+        0
+      ],
       "id": "hoh1_paladin_sword",
       "kind": "active",
       "levels": [
@@ -128,6 +132,10 @@
       "desc": "Dash forward; enemies you hit take # physical damage and are stunned for #s. Higher levels dash faster and farther.",
       "file": "players/paladin/charge.sval",
       "hoh1_file": "players/paladin/charge.sval",
+      "hoh1_rect": [
+        24,
+        0
+      ],
       "id": "hoh1_paladin_charge",
       "kind": "active",
       "levels": [
@@ -275,6 +283,10 @@
       "desc": "Allies around you get a #s blessing that heals # + #% of max health and gives a #% chance to block # magical damage.",
       "file": "players/paladin/lay_on_hands.sval",
       "hoh1_file": "players/paladin/lay_on_hands.sval",
+      "hoh1_rect": [
+        72,
+        0
+      ],
       "id": "hoh1_paladin_lay_on_hands",
       "kind": "active",
       "levels": [
@@ -426,6 +438,10 @@
       "desc": "Spin for #s, dealing # physical damage to every enemy around you.",
       "file": "players/paladin/whirlwind.sval",
       "hoh1_file": "players/paladin/whirlwind.sval",
+      "hoh1_rect": [
+        48,
+        0
+      ],
       "id": "hoh1_paladin_whirlwind",
       "kind": "active",
       "levels": [
@@ -507,6 +523,10 @@
       "desc": "Your shield stops most projectiles in a #° arc in front of you, and has a #% chance to block # physical damage.",
       "file": "players/paladin/shield.sval",
       "hoh1_file": "players/paladin/shield.sval",
+      "hoh1_rect": [
+        96,
+        0
+      ],
       "id": "hoh1_paladin_shield",
       "kind": "passive",
       "levels": [
@@ -612,6 +632,10 @@
       "desc": "Sword hits have a #% chance to stun for #s.",
       "file": "players/paladin/stunning_blows.sval",
       "hoh1_file": "players/paladin/stunning_blows.sval",
+      "hoh1_rect": [
+        120,
+        0
+      ],
       "id": "hoh1_paladin_stunning_blows",
       "kind": "passive",
       "levels": [
@@ -683,6 +707,10 @@
       "desc": "Each Sword hit adds # magical damage to all your skills, up to # stacks of #s each.",
       "file": "players/paladin/flames_of_devotion.sval",
       "hoh1_file": "players/paladin/flames_of_devotion.sval",
+      "hoh1_rect": [
+        168,
+        0
+      ],
       "id": "hoh1_paladin_flames_of_devotion",
       "kind": "passive",
       "levels": [

@@ -5,6 +5,10 @@
       "desc": "A short-range blast for # hybrid damage; the area grows with level.",
       "file": "players/priest/smite.sval",
       "hoh1_file": "players/priest/smite.sval",
+      "hoh1_rect": [
+        0,
+        96
+      ],
       "id": "hoh1_priest_smite",
       "kind": "active",
       "levels": [
@@ -104,6 +108,10 @@
       "desc": "A beam that builds up to # magical damage on an enemy, or heals an ally for # + #% of max health.",
       "file": "players/priest/holy_light.sval",
       "hoh1_file": "players/priest/holy_light.sval",
+      "hoh1_rect": [
+        24,
+        96
+      ],
       "id": "hoh1_priest_holy_light",
       "kind": "active",
       "levels": [
@@ -251,6 +259,10 @@
       "desc": "Consecrate the ground for #s: enemies in it take # magical damage per second, and #% of that heals allies standing in it.",
       "file": "players/priest/consecrated_ground.sval",
       "hoh1_file": "players/priest/consecrated_ground.sval",
+      "hoh1_rect": [
+        96,
+        96
+      ],
       "id": "hoh1_priest_consecrated_ground",
       "kind": "active",
       "levels": [
@@ -370,6 +382,10 @@
       "desc": "An aura for #s: nearby enemies are slowed and lose resistance by #%, and allies in it take #% less damage.",
       "file": "players/priest/aura.sval",
       "hoh1_file": "players/priest/aura.sval",
+      "hoh1_rect": [
+        120,
+        96
+      ],
       "id": "hoh1_priest_aura",
       "kind": "active",
       "levels": [
@@ -463,6 +479,10 @@
       "desc": "A shield absorbs #% of incoming damage, paid for at # mana per point absorbed.",
       "file": "players/priest/divine_protection.sval",
       "hoh1_file": "players/priest/divine_protection.sval",
+      "hoh1_rect": [
+        72,
+        96
+      ],
       "id": "hoh1_priest_divine_protection",
       "kind": "passive",
       "levels": [
@@ -548,6 +568,10 @@
       "desc": "All healing you receive is #% more effective.",
       "file": "players/priest/remedy.sval",
       "hoh1_file": "players/priest/remedy.sval",
+      "hoh1_rect": [
+        48,
+        96
+      ],
       "id": "hoh1_priest_remedy",
       "kind": "passive",
       "levels": [
@@ -603,6 +627,10 @@
       "desc": "# orbs circle you and fire beams for # magical damage, following Holy Light's target.",
       "file": "players/priest/celestial_orb.sval",
       "hoh1_file": "players/priest/celestial_orb.sval",
+      "hoh1_rect": [
+        144,
+        96
+      ],
       "id": "hoh1_priest_celestial_orb",
       "kind": "passive",
       "levels": [
