@@ -17,6 +17,6 @@
   "order": 0,
   "role": "",
   "status": "idea",
-  "summary": "You draw a Battlefield Standard. All Allies (including yourself) within a radius of your Battlefield Standard gain damage reduction.\n\nChannel the ability again to place the Standard into the ground doubling the effect, but halving the remaining duration.",
+  "summary": "Raise a Battlefield Standard. All allies (including yourself) within its radius gain damage reduction.\n\nTrigger the ability again to plant the Standard into the ground, doubling the effect but halving the remaining duration.",
   "unlock": "bought"
 }
