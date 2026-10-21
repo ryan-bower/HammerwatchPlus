@@ -5,14 +5,14 @@
   "levels": [
     {
       "q": "uncommon",
-      "text": "5% mana restored"
+      "text": "10% mana restored"
     },
     {
       "q": "rare",
-      "text": "10% mana restored"
+      "text": "20% mana restored"
     }
   ],
-  "name": "Charged Font",
+  "name": "Static Channel",
   "notes": "",
   "order": null,
   "skill": "wizard-spec4-passive",

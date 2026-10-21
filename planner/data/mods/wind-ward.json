@@ -5,11 +5,11 @@
   "levels": [
     {
       "q": "uncommon",
-      "text": "1.5%"
+      "text": "1%"
     },
     {
       "q": "rare",
-      "text": "3%"
+      "text": "2%"
     }
   ],
   "name": "Wind Ward",

@@ -4,13 +4,19 @@
   "cooldown": "",
   "group": "wizard-spec4",
   "kind": "passive",
-  "levels": [],
+  "levels": [
+    "50 Damage per Strike",
+    "70 Damage per Strike",
+    "90 Damage per Strike",
+    "120 Damage per Strike",
+    "150 Damage per Strike"
+  ],
   "mana": "",
   "name": "Static Charge",
   "notes": "",
   "order": 1,
   "role": "",
   "status": "idea",
-  "summary": "Your spells that Crit grant a stack of Static Charge, up to 1 per cast. At 5 stacks, your next spell releases a lightning strike that splits between up to 3 nearby enemies. If it hits only one enemy, it deals 50% more damage.",
+  "summary": "When your spells crit, grant a stack of Static Charge once per cast. At 5 stacks your next spell releases a lightning strike that splits between up to 3 nearby enemies. If all three strikes hit one enemy, it deals 50% more damage.",
   "unlock": "bought"
 }
