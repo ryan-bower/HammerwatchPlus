@@ -1,0 +1,21 @@
+{
+  "built": "",
+  "cls": "priest",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Lands for 100% Weapon damage"
+    },
+    {
+      "q": "rare",
+      "text": "Lands for 150% Weapon damage, knocks back"
+    }
+  ],
+  "name": "Ravenous Lunge",
+  "notes": "First-pass draft by Claude for the Devil Forgemaster; numbers and names are placeholders. The 3 s channel and the ability lockout stay; this only makes the lunge itself hit.",
+  "order": null,
+  "skill": "priest-spec4-passive",
+  "status": "idea",
+  "summary": "Your flesh-eating lunge slams into enemies where you land, damaging them before you start to eat."
+}

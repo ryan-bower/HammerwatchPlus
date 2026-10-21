@@ -1,0 +1,21 @@
+{
+  "built": "",
+  "cls": "priest",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Bursts for 60% Weapon damage"
+    },
+    {
+      "q": "rare",
+      "text": "Bursts for 120% Weapon damage"
+    }
+  ],
+  "name": "Rot Bloom",
+  "notes": "First-pass draft by Claude for the Devil Forgemaster; numbers and names are placeholders. The burst leaves no intact body. Heresy's summon damage bonus would also raise the burst, if wanted.",
+  "order": null,
+  "skill": "priest-spec4-active",
+  "status": "idea",
+  "summary": "When a risen summon dies, its body bursts, dealing poison damage to enemies around it."
+}
