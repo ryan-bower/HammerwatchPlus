@@ -1,0 +1,25 @@
+{
+  "built": "",
+  "cls": "warlock",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": ""
+    },
+    {
+      "q": "uncommon",
+      "text": ""
+    },
+    {
+      "q": "rare",
+      "text": ""
+    }
+  ],
+  "name": "Empower",
+  "notes": "",
+  "order": null,
+  "skill": "warlock-spec4-passive",
+  "status": "idea",
+  "summary": "Gain additional Fire Damage based on a percentage of your physical damage per Essence stack."
+}

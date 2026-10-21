@@ -1,11 +1,22 @@
 {
+  "built": "",
   "cls": "warrior",
+  "cooldown": "",
   "group": "warrior-spec4",
   "kind": "active",
-  "levels": [],
-  "name": "Placeholder Active",
+  "levels": [
+    "DR: 2% CDR: 60s DURATION: 10s",
+    "DR: 4% CDR: 55s DURATION: 13s",
+    "DR: 6% CDR: 50s DURATION: 15s",
+    "DR: 8% CDR: 45s DURATION: 17s",
+    "DR: 10% CDR: 40s DURATION: 20s"
+  ],
+  "mana": "",
+  "name": "Battlefield Standard",
+  "notes": "",
   "order": 0,
+  "role": "",
   "status": "idea",
-  "summary": "Placeholder: not designed yet.",
+  "summary": "You draw a Battlefield Standard. All Allies (including yourself) within a radius of your Battlefield Standard gain damage reduction.\n\nChannel the ability again to place the Standard into the ground doubling the effect, but halving the remaining duration.",
   "unlock": "bought"
 }

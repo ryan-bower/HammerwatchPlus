@@ -1,0 +1,25 @@
+{
+  "built": "",
+  "cls": "warlock",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": ""
+    },
+    {
+      "q": "uncommon",
+      "text": ""
+    },
+    {
+      "q": "rare",
+      "text": ""
+    }
+  ],
+  "name": "Combustion",
+  "notes": "",
+  "order": null,
+  "skill": "warlock-spec4-active",
+  "status": "idea",
+  "summary": "Skill now consumes all stacks of Essence but has scaled duration, damage, etc."
+}

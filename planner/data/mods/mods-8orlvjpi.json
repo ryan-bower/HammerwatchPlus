@@ -1,0 +1,25 @@
+{
+  "built": "",
+  "cls": "warrior",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": ""
+    },
+    {
+      "q": "uncommon",
+      "text": ""
+    },
+    {
+      "q": "rare",
+      "text": ""
+    }
+  ],
+  "name": "",
+  "notes": "",
+  "order": null,
+  "skill": "warrior-spec4-passive",
+  "status": "idea",
+  "summary": "Skills which apply AoE buffs now will also inflict Weakness to enemies, each new instance stacking increasing the severity of the Weakness on the enemy."
+}

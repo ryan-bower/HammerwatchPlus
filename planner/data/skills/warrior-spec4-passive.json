@@ -1,11 +1,22 @@
 {
+  "built": "",
   "cls": "warrior",
+  "cooldown": "",
   "group": "warrior-spec4",
   "kind": "passive",
-  "levels": [],
+  "levels": [
+    "10%",
+    "20%",
+    "30%",
+    "40%",
+    "50%"
+  ],
+  "mana": "",
   "name": "Placeholder Passive",
+  "notes": "",
   "order": 1,
+  "role": "",
   "status": "idea",
-  "summary": "Placeholder: not designed yet.",
+  "summary": "Allies effected by your buffs (includes yourself) also receive Inc effect duration.",
   "unlock": "bought"
 }

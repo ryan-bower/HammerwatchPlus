@@ -1,0 +1,25 @@
+{
+  "built": "",
+  "cls": "warrior",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "1%"
+    },
+    {
+      "q": "uncommon",
+      "text": "2%"
+    },
+    {
+      "q": "rare",
+      "text": "3%"
+    }
+  ],
+  "name": "",
+  "notes": "",
+  "order": null,
+  "skill": "warrior-spec4-passive",
+  "status": "idea",
+  "summary": "For every buff on an ally you gain CDR."
+}
