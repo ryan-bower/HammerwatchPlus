@@ -1,11 +1,16 @@
 {
+  "built": "",
   "cls": "warlock",
+  "cooldown": "",
   "group": "warlock-spec4",
   "kind": "passive",
   "levels": [],
+  "mana": "",
   "name": "Placeholder Passive",
+  "notes": "",
   "order": 1,
+  "role": "",
   "status": "idea",
-  "summary": "Placeholder: not designed yet.",
+  "summary": "Spells skills now also counts towards gaining stacks of Essence.",
   "unlock": "bought"
 }

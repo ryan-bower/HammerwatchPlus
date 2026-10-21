@@ -1,0 +1,25 @@
+{
+  "built": "",
+  "cls": "warlock",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": ""
+    },
+    {
+      "q": "uncommon",
+      "text": ""
+    },
+    {
+      "q": "rare",
+      "text": ""
+    }
+  ],
+  "name": "Prolif",
+  "notes": "",
+  "order": null,
+  "skill": "warlock-spec4-active",
+  "status": "idea",
+  "summary": "After the target dies the brand spreads to near by targets with the snapshotted damage. Scaling, scales radius. Duration of the brand is halved."
+}

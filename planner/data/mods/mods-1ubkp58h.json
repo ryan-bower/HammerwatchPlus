@@ -1,0 +1,25 @@
+{
+  "built": "",
+  "cls": "warrior",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Minor"
+    },
+    {
+      "q": "uncommon",
+      "text": "Normal"
+    },
+    {
+      "q": "rare",
+      "text": "Greater"
+    }
+  ],
+  "name": "",
+  "notes": "",
+  "order": null,
+  "skill": "warrior-spec4-active",
+  "status": "idea",
+  "summary": "Enemies within the aura of the Standard are Vulnerable."
+}

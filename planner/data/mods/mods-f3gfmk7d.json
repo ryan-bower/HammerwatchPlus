@@ -1,0 +1,25 @@
+{
+  "built": "",
+  "cls": "warrior",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "1.5x DR"
+    },
+    {
+      "q": "uncommon",
+      "text": "2x DR"
+    },
+    {
+      "q": "rare",
+      "text": "3x DR"
+    }
+  ],
+  "name": "",
+  "notes": "",
+  "order": null,
+  "skill": "warrior-spec4-active",
+  "status": "idea",
+  "summary": "Ally DR is increased, but you no longer receive the DR."
+}
