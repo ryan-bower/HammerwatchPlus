@@ -1,0 +1,25 @@
+<effect looping="false" layer="1">
+<!-- Branding's Hellfire Claw (pyrebrand.sval claw-effects, scripts/HWP/Specs/Branding.as): talons tearing up out of the ground under the branded enemy (fx_hellfire_claw in fx.png, tools/make_specs_fx.py), with a hellfire light. Plays once, about 0.6 s. Hand-written. -->
+	<sprite origin="16 43" looping="false" texture="players/hwp/specs/effects/fx.png" material="effects/effects.mats:add">
+		<frame time="70">0 24 32 48</frame>
+		<frame time="70">32 24 32 48</frame>
+		<frame time="70">64 24 32 48</frame>
+		<frame time="90">96 24 32 48</frame>
+		<frame time="140">128 24 32 48</frame>
+		<frame time="160">160 24 32 48</frame>
+	</sprite>
+
+	<light pos="0 -8">
+		<sprite texture="system/default_L.png">
+			<frame time="100">0 0 128 128</frame>
+		</sprite>
+		<length value="600" />
+		<looping value="false" />
+		<cast-shadows value="false" />
+		<size value="90" />
+		<color-r value="2 * sin(t * pi)" />
+		<color-g value="0.5 * sin(t * pi)" />
+		<color-b value="0.1 * sin(t * pi)" />
+		<color-a value="0.03" />
+	</light>
+</effect>

@@ -95,7 +95,7 @@ visible (a vanilla example: the Ranger's Marked Shot orbs).
 | `wlk_ee_released_essence` | 24 | Orb Released Essence: a slain elite bursting into essence wisps. |
 | `hud_pyrebrand` | 14 | Status Pyrebrand on an enemy: the branded sigil, small. |
 
-## World sprites (second priority; placeholders are tinted vanilla sprites until these land)
+## World sprites (done 2026-10-21: art/specs/fx, drawn by tools/icon_art/sp_fx.py, packed into effects/fx.png by tools/make_specs_fx.py)
 
 | name | size | what it is |
 |---|---|---|

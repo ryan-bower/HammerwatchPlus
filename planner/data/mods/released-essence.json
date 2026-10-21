@@ -13,7 +13,7 @@
     }
   ],
   "name": "Released Essence",
-  "notes": "In game (hwp_wlk_ee_released_essence, tested): an elite or boss killed by the Hellfire Claw gives the stacks.",
+  "notes": "In game (hwp_wlk_ee_released_essence, tested): an elite or boss killed by the Hellfire Claw gives the stacks (a death within 1 s of the claw counts: the host decides the kill).",
   "order": null,
   "skill": "warlock-spec4-passive",
   "status": "tested",

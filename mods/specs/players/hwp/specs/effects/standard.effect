@@ -1,5 +1,5 @@
 <effect looping="true" layer="-5">
-<!-- Bannerlord's Battlefield Standard (scripts/HWP/Specs/Bannerlord.as): players/priest/effects/holy_banner.effect in red and gold (tools/make_specs_fx.py). planted 0: carried over the bearer's shoulder, a faint ring; 1: planted in the ground. -->
+<!-- Bannerlord's Battlefield Standard (scripts/HWP/Specs/Bannerlord.as): players/priest/effects/holy_banner.effect in red and gold with the standard's art from fx.png (tools/make_specs_fx.py). planted 0: carried over the bearer's shoulder, a faint ring; 1: planted in the ground. -->
 	<param name="radius" default="40" />
 	<param name="planted" default="1" />
 
@@ -82,56 +82,6 @@
 		<frame time="500">0 0 0 0</frame>
 	</sprite>	
 	
-<!-- FLAG SHADOW-->
-	<sprite origin="9 44" looping="true" texture="players/priest/effects/holy_banner_shadow.png" material="system/default.mats:shadow_los"
-		
-		pos-x="0"
-		pos-y="0"
-
-		scale-x="1*prog_tl_fast_in"
-		scale-y="1*prog_tl_fast_in"
-		
-		color-r="1"
-		color-g="0.42"
-		color-b="0.12"
-		color-a="0.8*prog_tl_fast_out"
-	>
-
-		%replace "frame_del" "125"
-		<frame time="frame_del" x="32*0" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*1" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*2" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*3" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*4" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*5" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*6" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*7" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*8" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*9" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*10" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*11" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*12" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*13" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*14" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*15" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*16" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*17" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*18" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*19" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*20" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*21" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*22" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*23" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*24" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*25" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*26" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*27" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*28" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*0" y="64" w="32" h="64" />
-		<frame time="frame_del" x="32*1" y="64" w="32" h="64" />
-		<frame time="frame_del" x="32*2" y="64" w="32" h="64" />
-	</sprite>
-
 <!-- FLAG GLOW 1 -->
 	<sprite origin="128 128" looping="true" texture="effects/lights/radial_jagged_ring_L.png" material="system/default.mats:add"
 		
@@ -175,53 +125,27 @@
 	</sprite>
 
 <!-- FLAG -->
-	<sprite origin="16 44" looping="true" texture="players/priest/effects/holy_banner.png" material="system/default.mats:default-noxray"
-		
-		pos-x="0"
+	<sprite origin="4 39" looping="true" texture="players/hwp/specs/effects/fx.png" material="system/default.mats:default-noxray"
 		pos-x="flag_x_offset"
 		pos-y="flag_y_offset"
-
-		scale-x="1*prog_tl_fast_in"
-		scale-y="1"
-		
-		color-r="1.25"
-		color-g="0.45"
-		color-b="0.4"
-		color-a="prog_tl_fast_out"
+		color-a="(1-planted)*prog_tl_fast_out"
 	>
+		<frame time="220">0 72 24 40</frame>
+		<frame time="220">24 72 24 40</frame>
+	</sprite>
 
-		<frame time="frame_del" x="32*0" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*1" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*2" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*3" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*4" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*5" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*6" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*7" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*8" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*9" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*10" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*11" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*12" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*13" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*14" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*15" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*16" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*17" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*18" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*19" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*20" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*21" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*22" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*23" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*24" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*25" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*26" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*27" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*28" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*29" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*30" y="0" w="32" h="64" />
-		<frame time="frame_del" x="32*31" y="0" w="32" h="64" />
+	<sprite origin="4 39" looping="true" texture="players/hwp/specs/effects/fx.png" material="system/default.mats:default-noxray"
+		pos-x="flag_x_offset"
+		pos-y="flag_y_offset"
+		color-a="planted*prog_tl_fast_out"
+	>
+		<frame time="220">48 72 24 40</frame>
+		<frame time="220">72 72 24 40</frame>
+	</sprite>
+
+<!-- LENGTH -->
+	<sprite origin="0 0" looping="true" texture="players/hwp/specs/effects/fx.png" material="system/default.mats:default-noxray" color-a="0">
+		<frame time="4000">0 0 1 1</frame>
 	</sprite>
 
 <!-- LIGHT SHAFT -->

@@ -1,6 +1,8 @@
 """Writes the 4th specializations' visual effects, mods/specs/players/hwp/specs/effects/*.effect:
-vanilla effects (gamecode/sdk/hoh2) recoloured for each spec, until bespoke art lands
-(art/specs/REQUESTS.md, world sprites).
+vanilla effects (gamecode/sdk/hoh2) recoloured for each spec, and fx.png, the bespoke world
+sprites (art/specs/fx/*.png, from tools/icon_art/sp_fx.py) packed into one 256x128 sheet (the
+texture loader wants powers of two). The standard's flag comes from that sheet; branded_sigil,
+claw and orb.effect are hand-written and read it at the FX_SHEET offsets.
 
 python tools/make_specs_fx.py [--check]
 
@@ -18,6 +20,19 @@ SDK = REPO / "gamecode/sdk/hoh2"
 OUT = REPO / "mods/specs/players/hwp/specs/effects"
 
 NUM = r"-?\d+(?:\.\d+)?"
+
+# art/specs/fx strip: its top-left corner in fx.png (the hand-written effects use these numbers)
+FX_SHEET = {"fx_pyrebrand_sigil": (0, 0), "fx_tempest_orb": (96, 0),
+            "fx_hellfire_claw": (0, 24), "fx_battlefield_standard": (0, 72)}
+FX_SIZE = (256, 128)
+
+
+def fx_sheet():
+    from PIL import Image
+    sheet = Image.new("RGBA", FX_SIZE, (0, 0, 0, 0))
+    for name, xy in FX_SHEET.items():
+        sheet.paste(Image.open(REPO / "art/specs/fx" / f"{name}.png").convert("RGBA"), xy)
+    return sheet
 
 
 def tint(rgb, target):
@@ -128,9 +143,24 @@ def standard():
     s = s.replace('color-a="0.7*prog_tl_fast_out"', 'color-a="(0.25+0.45*planted)*prog_tl_fast_out"')
     s = recolour(s, (1.0, 0.42, 0.12))  # the cloth's markers are not numbers, so it keeps its own colour
     s = s.replace('"CLOTH_R"', '"1.25"').replace('"CLOTH_G"', '"0.45"').replace('"CLOTH_B"', '"0.4"')
+    # the holy banner and its shadow give way to the standard's own art (fx.png): frames 0-1
+    # carried, 2-3 planted in a mound; the effect is respawned on planting (StandardFx)
+    x, y = FX_SHEET["fx_battlefield_standard"]
+    flag = "<!-- FLAG -->"
+    for p, frames in (("(1-planted)", (0, 1)), ("planted", (2, 3))):
+        flag += (f'\n\t<sprite origin="4 39" looping="true" texture="players/hwp/specs/effects/fx.png" material="system/default.mats:default-noxray"\n'
+                 f'\t\tpos-x="flag_x_offset"\n\t\tpos-y="flag_y_offset"\n\t\tcolor-a="{p}*prog_tl_fast_out"\n\t>\n'
+                 + "".join(f'\t\t<frame time="220">{x + 24 * f} {y} 24 40</frame>\n' for f in frames) + "\t</sprite>\n")
+    # the vanilla flag's 32 frames made the effect 4 s long; with no sprite that long the whole
+    # effect stops drawing (GameLab: no standard at all in tmp runs 20261021-172055 and -172204,
+    # the ring and flag back in -172522 with this), so an invisible one keeps the length
+    flag += ('\n<!-- LENGTH -->\n\t<sprite origin="0 0" looping="true" texture="players/hwp/specs/effects/fx.png"'
+             ' material="system/default.mats:default-noxray" color-a="0">\n\t\t<frame time="4000">0 0 1 1</frame>\n\t</sprite>\n')
+    s = re.sub(r"<!-- FLAG SHADOW-->.*?(?=<!-- FLAG GLOW 1 -->)", "", s, flags=re.S)
+    s = re.sub(r"<!-- FLAG -->.*?(?=<!-- LIGHT SHAFT -->)", lambda m: flag + "\n", s, flags=re.S)
     return header(s, "Bannerlord's Battlefield Standard (scripts/HWP/Specs/Bannerlord.as): " + src
-                  + " in red and gold (tools/make_specs_fx.py). planted 0: carried over the bearer's shoulder,"
-                  " a faint ring; 1: planted in the ground.")
+                  + " in red and gold with the standard's art from fx.png (tools/make_specs_fx.py). planted 0:"
+                  " carried over the bearer's shoulder, a faint ring; 1: planted in the ground.")
 
 
 # out name: (vanilla source, target colour, what it is)
@@ -153,8 +183,13 @@ def build():
 
 
 def main():
+    from PIL import Image, ImageChops
     files = build()
     stale = [n for n, t in files.items() if not (OUT / n).exists() or (OUT / n).read_text(encoding="utf-8") != t]
+    sheet = fx_sheet()
+    if not (OUT / "fx.png").exists() or ImageChops.difference(
+            Image.open(OUT / "fx.png").convert("RGBA"), sheet).getbbox():
+        stale.append("fx.png")
     if "--check" in sys.argv:
         if stale:
             print("stale:", ", ".join(stale)); sys.exit(1)
@@ -162,7 +197,8 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for n, t in files.items():
         (OUT / n).write_text(t, encoding="utf-8", newline="\n")
-    print("wrote", len(files), "effects to", OUT.relative_to(REPO))
+    sheet.save(OUT / "fx.png")
+    print("wrote", len(files), "effects and fx.png to", OUT.relative_to(REPO))
 
 
 if __name__ == "__main__":

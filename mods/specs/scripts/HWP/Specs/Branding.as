@@ -34,6 +34,7 @@ namespace HWP
 		const float CLAW_RADIUS = 40;
 		const float TRANSFER_RADIUS = 100;
 		const uint MAX_BRANDS = 20;
+		const int CLAW_KILL_WINDOW = 1000; // a claw's elite victim dying this soon counts as its kill
 
 		class Brand
 		{
@@ -50,6 +51,9 @@ namespace HWP
 		int g_refundMana = 0;
 		int g_refundC = 0;
 		bool g_resetPyre = false;
+		bool g_brandsUp = false;      // brands were up at the end of the last update
+		array<Actor@> g_clawVictims;  // elites and bosses the claw hit (Released Essence)
+		int g_clawVictimC = 0;
 
 		// counters for `hwp specs`
 		int g_claws = 0;
@@ -68,6 +72,9 @@ namespace HWP
 			g_refundMana = 0;
 			g_refundC = 0;
 			g_resetPyre = false;
+			g_brandsUp = false;
+			g_clawVictims.removeRange(0, g_clawVictims.length());
+			g_clawVictimC = 0;
 			g_claws = g_clawHits = g_lastClaw = g_transfers = g_essenceHits = g_released = 0;
 		}
 
@@ -118,8 +125,7 @@ namespace HWP
 			auto sk = PyreSkill(plr);
 			if (sk is null)
 				return;
-			auto cost = sk.GetCost();
-			g_refundMana = int(cost.flatCost.y * cost.multiplier.y + 0.5f);
+			g_refundMana = int(ManaCost(plr, sk) + 0.5f);
 			g_refundC = 400;
 		}
 
@@ -141,19 +147,19 @@ namespace HWP
 			PlayEffect("players/warlock/effects/war_ritual.effect", at, ps);
 			PlaySound3D(Resources::GetSoundEvent("event:/sfx/player/classes/warlock/dark_ritual/dark_ritual_fire_explode"), xyz(at));
 
-			int released = BindI(plr, ESSENCE_EXTRACTION, "ee-released");
+			bool released = BindI(plr, ESSENCE_EXTRACTION, "ee-released") > 0;
 			auto enemies = EnemiesNear(at, radius, plr.Team);
 			for (uint i = 0; i < enemies.length(); i++)
 			{
 				auto a = enemies[i];
 				ApplyEffects(g_pyre.m_claw, plr, a.m_unit, xy(a.m_unit.GetPosition()), vec2(0, -1), amount / 100.0f, false);
 				g_clawHits++;
-				if (released > 0 && a.IsDead() && IsEliteOrBoss(a) && ess !is null)
-				{
-					plr.AddStacks(plr, ess, released);
-					g_released += released;
-				}
+				// the host decides the kill, so a client sees it frames later: watched in UpdateBrands
+				if (released && IsEliteOrBoss(a) && g_clawVictims.findByRef(a) < 0)
+					g_clawVictims.insertLast(a);
 			}
+			if (released && g_clawVictims.length() > 0)
+				g_clawVictimC = CLAW_KILL_WINDOW;
 			// the claw had Empowerment's fire from these stacks; now it spends them
 			if (combust > 0 && n > 0 && ess !is null)
 				plr.AddStacks(plr, ess, -n);
@@ -168,6 +174,7 @@ namespace HWP
 		{
 			array<Brand@> brands = g_brands;   // a copy: the claws can add brands
 			g_brands.removeRange(0, g_brands.length());
+			g_brandsUp = false;                // the recast's own cooldown is the skill's
 			for (uint i = 0; i < brands.length(); i++)
 				Claw(plr, brands[i], why);
 		}
@@ -220,18 +227,41 @@ namespace HWP
 			if (plr is null || plr.IsDead())
 			{
 				g_brands.removeRange(0, g_brands.length());
+				g_clawVictims.removeRange(0, g_clawVictims.length());
 				return;
 			}
+
+			// Released Essence: a claw's elite or boss victim that has died since
+			if (g_clawVictims.length() > 0)
+			{
+				g_clawVictimC -= ms;
+				auto ess = Stack(ESSENCE);
+				int released = BindI(plr, ESSENCE_EXTRACTION, "ee-released");
+				for (int i = int(g_clawVictims.length()) - 1; i >= 0; i--)
+				{
+					if (!g_clawVictims[i].IsDead())
+						continue;
+					if (ess !is null && released > 0)
+					{
+						plr.AddStacks(plr, ess, released);
+						g_released += released;
+					}
+					g_clawVictims.removeAt(i);
+				}
+				if (g_clawVictimC <= 0)
+					g_clawVictims.removeRange(0, g_clawVictims.length());
+			}
+
 			auto sk = PyreSkill(plr);
 			if (g_resetPyre && sk !is null && sk.m_castingT < 0)
 			{
 				sk.m_cooldownC = 0;
 				g_resetPyre = false;
 			}
-			if (g_brands.length() == 0)
-				return;
 
-			bool expired = false;
+			// brands running out are all taken off before any claw: a claw's damage would feed
+			// the others' stores (HWPSpecsBrandFeed) and they would compound
+			array<Brand@> expired;
 			for (int i = int(g_brands.length()) - 1; i >= 0; i--)
 			{
 				auto b = g_brands[i];
@@ -246,10 +276,11 @@ namespace HWP
 				if (b.m_left <= 0)
 				{
 					g_brands.removeAt(i);
-					Claw(plr, b, "expired");
-					expired = true;
+					expired.insertLast(b);
 				}
 			}
+			for (uint i = 0; i < expired.length(); i++)
+				Claw(plr, expired[i], "expired");
 
 			g_brandFxC -= ms;
 			if (g_brandFxC <= 0)
@@ -262,10 +293,13 @@ namespace HWP
 
 			if (sk is null || sk.m_castingT >= 0)
 				return;
+			// held ready while a brand is up; the full cooldown once the last one is gone, however
+			// it went (ran out, or died with nobody near to pass it to)
 			if (g_brands.length() > 0)
 				sk.m_cooldownC = 0;
-			else if (expired)
-				sk.m_cooldownC = int(sk.m_cooldown * sk.m_modCooldownMul);
+			else if (g_brandsUp)
+				sk.m_cooldownC = max(sk.m_cooldownC, int(sk.m_cooldown * sk.m_modCooldownMul));
+			g_brandsUp = g_brands.length() > 0;
 		}
 
 		Actor@ AimTarget(PlayerBase@ plr, vec2 dir)

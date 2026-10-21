@@ -13,7 +13,7 @@
   ],
   "mana": "40/40/50/50/60",
   "name": "Pyrebrand",
-  "notes": "In game (hwp_wlk_pyrebrand, tested): brands the enemy nearest the aim; the recast (free while a brand is up) or the brand running out sets off the Hellfire Claw: base + the stored damage as fire within 40. A victim that dies passes the brand on within 100. Assumed: the base 20-40, the brand's 6 s, the claw radius 40, the transfer range 100, the aim cone, the free recast.",
+  "notes": "In game (hwp_wlk_pyrebrand, tested): brands the enemy nearest the aim; the recast (free while a brand is up) or the brand running out sets off the Hellfire Claw: base + the stored damage as fire within 40. A victim that dies passes the brand on within 100; with nobody there the brand is gone and the full cooldown starts. Assumed: the base 20-40, the brand's 6 s, the claw radius 40, the transfer range 100, the aim cone, the free recast.",
   "order": 0,
   "role": "",
   "status": "tested",

@@ -2405,3 +2405,48 @@ another Reload press starts it again as usual. Then the second `/code-review hig
   `GetEvent` renders silent until `LoadSampleData` reports loaded; in NRT mode each
   Studio update mixes exactly one DSP block (1024 samples here), so one long WAV can be
   cut per event by counting updates (the frames came out at exactly blocks x 1024).
+
+### Review fixes and the world sprites (run `20261021-172656-plan-specs-lab`, 80 checks)
+
+A `/code-review high` of 1bff319..HEAD found ten issues, all read off the diff and not run;
+these were fixed, and the run above passes with two new checks:
+- Arcane's recast ran only `PlayerSkillDirectional`. `Timeline()` now covers DirectionalCharged,
+  Position and Automatic too, and only a skill with a timeline becomes the last spell. In the
+  shipped kit this never mattered: the Arcane subclass's only spells are Static Discharge and
+  the Elemental Orb (`class_specs.sval`), both Directional, so it is a guard (there is no test
+  for it; a learn of `lightning_ball` is refused, "no skill lightning_ball in hwp_sorcerer_arcane").
+- Arcane Feedback's bank now goes only to an elemental spell, never to Blink (`arc_feedback_blink`:
+  used 1 -> 1 after a Blink -> 2 after Static Discharge).
+- The cost of Blink's recast and of Pyrebrand's refund is `Specs::ManaCost`, worked out the
+  way `Player.UsePoints` does it (Player.as 776-790): the max and current percentages, flat,
+  `SkillCostMul`, the multiplier and the modifiers' `UsePoints` (pure: `UsePointsCost.as`).
+- Pyrebrand: a brand that ends without a claw (its victim dies with nobody within 100) now
+  starts the full cooldown (`brand_lone_cd`: 7912 ms left). Brands that run out in the same
+  frame all come off before any of them claws, so one claw cannot feed the next.
+- Released Essence: the claw's elite and boss victims are watched for 1 s, since the host
+  decides the kill and a client sees it frames later. A death in that second gives the stacks.
+- Mana Conduit: shares add up and go out every 250 ms; the host splits a float and the
+  teammate keeps the fractions until they make a whole point. This is still unverified with
+  two players.
+- The Battlefield Standard's plant keeps the skill's conditionals (only the cooldown and cost
+  are skipped).
+- Living Mana's binds are read every 250 ms, not every frame.
+- Not changed: the read-only verbs `hasbuff`, `bind` and `dmgmuls` stay in `gamelab-hands`
+  (`Verbs_specs.as`), as the read-only verbs of the other plans do (Verbs_bench, classesa/b,
+  farming, firearms).
+
+World sprites: the pixel-art agent drew the four strips in `art/specs/fx` (`tools/icon_art/sp_fx.py`).
+`tools/make_specs_fx.py` packs them into `effects/fx.png` (256x128: sigil 0,0; orb 96,0; claw
+0,24; standard 0,72). They are used by:
+- `branded_sigil.effect`: the sigil above a branded enemy, seen in run `20261021-171214`;
+- `claw.effect`: the claw, with the vanilla fire impact (`pyrebrand.sval claw-effects`);
+- `orb.effect`: the orb, over a smaller vanilla lightning ball (`torrent.unit`);
+- `standard.effect`: the standard's flag, carried in frames 0-1 and planted in 2-3.
+
+The claw and the orb draw, but at 640x360 the shots don't show them clearly.
+
+Measured: an effect whose longest sprite is short can stop drawing altogether. The standard,
+with the vanilla flag's 32 x 125 ms frames gone (about 1 s left), showed nothing, not even
+its ring (tmp runs `20261021-172055` and `-172204`). The vanilla effect minus only the shadow
+still drew (`-172421`). An invisible 4000 ms sprite brought back both the ring and the flag
+(`-172522`), so `make_specs_fx.py` writes one.

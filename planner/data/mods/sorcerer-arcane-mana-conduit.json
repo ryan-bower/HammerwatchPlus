@@ -17,7 +17,7 @@
     }
   ],
   "name": "Mana Conduit",
-  "notes": "The percentage determines one total mana amount, divided equally between the other player characters. Uses mana actually lost to incoming damage. Spending mana on skills does not trigger this effect.\n\nIn game (hwp_sor_lm_mana_conduit, built): sent through the host to the other live players. Solo only checked (nothing sent); the network path needs a second player.",
+  "notes": "The percentage determines one total mana amount, divided equally between the other player characters. Uses mana actually lost to incoming damage. Spending mana on skills does not trigger this effect.\n\nIn game (hwp_sor_lm_mana_conduit, built): sent through the host to the other live players, gathered and sent every 250 ms; fractions of a point are kept until they make one. Solo only checked (nothing sent); the network path needs a second player.",
   "order": 0,
   "skill": "sorcerer-spec4-passive",
   "status": "built",

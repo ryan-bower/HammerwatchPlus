@@ -122,9 +122,10 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 - Firearms gained the Hand Cannon, the Flamethrower Rifle and the Full Auto Rifle on
   2026-10-20 (`plan-firearms-cannon`); the rifle is now the Grenade Launching Rifle.
 - Built on 2026-10-21: the 4th specs of the Ranger, Wizard, Sorcerer, Rogue, Warrior and
-  Warlock (`mods/specs`). `plan-specs` passes all six (78 checks). Not yet tested: what
+  Warlock (`mods/specs`). `plan-specs` passes all six (80 checks, after the code review's fixes). Not yet tested: what
   needs a second player (teammates in Protective Gale and Shared Breath, the standard's
-  allies, Martyr's Banner, Mana Conduit). Still to do: balance, final icons (requested,
+  allies, Martyr's Banner, Mana Conduit). The world sprites (brand sigil, Hellfire Claw, the standard, the
+  Tempest orb) are in. Still to do: balance, final icons (to pick in the icon picker,
   `art/specs/REQUESTS.md`) and sounds (pick them in the audio picker, `art/specs/AUDIO.md`).
   The Paladin's and Priest's 4th specs are still being designed.
 - Designed in the planner, not built, and parked for later: an "Echoes of Hammerwatch I"

@@ -82,6 +82,10 @@
 							<string name="class">SpawnEffect</string>
 							<string name="effect">effects/generic/impacts/fire_impact_1.effect</string>
 						</dict>
+						<dict>
+							<string name="class">SpawnEffect</string>
+							<string name="effect">players/hwp/specs/effects/claw.effect</string>
+						</dict>
 					</array>
 				</dict>
 			</array>

@@ -431,6 +431,7 @@ class Checks(Base):
         # the recast (a real Activate, not nocd, so it only goes off with the cooldown held at 0:
         # brand_ready) the claw, the mana back, then the full cooldown
         ok, line = self.brand_cast(pb, fx, fy, nocd=False)
+        self.g.shot("brand claw", settle=False)   # at once: the claw lasts 0.6 s
         self.flag("brand_ready", ok, f"the recast while a brand is up activated: {ok} (the cooldown held at 0)")
         m0 = 250.0
         time.sleep(0.3)
@@ -438,7 +439,6 @@ class Checks(Base):
         cd = self.skill_cd(pb)
         st = self.specs()
         last = num(st, "last")
-        self.g.shot("brand claw", settle=False)
         self.flag("brand_claw", ok and "claw (recast)" in line and last is not None and last >= base + (stored or 0) - 1,
                   f"recast activated {ok}: {line[-120:]!r}; last claw {last} fire (base {base} + stored {stored}, at least)")
         self.flag("brand_refund", m1 >= m0 - 3 and (cd or 0) > 5000,
@@ -468,6 +468,19 @@ class Checks(Base):
         self.flag("brand_transfer", num(st, "transfers") == t0 + 1 and num(st, "brands") == 1,
                   f"transfers {t0} -> {num(st, 'transfers')}, brands {num(st, 'brands')}")
         self.brand_cast(pb, fx, fy)   # set it off: the next checks start with none
+
+        # a lone victim dies with nobody to take the brand: no claw, but the full cooldown
+        self.gl("kill", 400, "target_dummy")
+        self.gl("spawn", TARGET, round(40 * fx, 1), round(40 * fy, 1))
+        time.sleep(1.0)
+        self.brand_cast(pb, fx, fy)
+        self.g.shot("brand sigil", settle=False)
+        self.gl("kill", 400, "target_dummy")
+        time.sleep(0.6)
+        st = self.specs()
+        cd = self.skill_cd(pb)
+        self.flag("brand_lone_cd", num(st, "brands") == 0 and (cd or 0) > 5000,
+                  f"brands {num(st, 'brands')}, cooldown {cd} after the lone victim died")
 
         # the orbs
         for orb, n in (("hwp_wlk_pb_combustion", 3), ("hwp_wlk_pb_proliferation", 3),
@@ -555,6 +568,7 @@ class Checks(Base):
         self.set_stacks(ess, 0)
         self.gl("kill", 400, "bandit_brute_elite", 0.001)
         _, line = self.brand_cast(pb, fx, fy)
+        time.sleep(0.4)   # the kill is watched for (UpdateBrands), not read in the claw's frame
         st = self.specs()
         r, n = num(st, "released"), num(st, "essence")
         self.flag("brand_released", (r or 0) >= 6 and (n or 0) >= 6, f"{line[-120:]!r}: released {r}, essence {n} (6 an elite)")
@@ -732,6 +746,19 @@ class Checks(Base):
         self.flag("arc_feedback", (fb or 0) >= 1 and abs((fb or 0) - r.get("took", 0)) <= 1 and "arcane feedback" in log
                   and num(st, "used") == 1 and mod is not None and abs(mod - want) <= 2,
                   f"40 pure took {r.get('took')}: banked {fb}; {log[-90:]!r}; static discharge damage mul x{mod}/1000 (want {want})")
+        # the bank skips Blink and waits for the next elemental spell
+        self.gl("mana", 200)
+        self.gl("damageme", 40)
+        u0 = num(self.specs(), "used") or 0
+        ok, line, p0, p1 = self.blink(fx, fy)
+        u1 = num(self.specs(), "used") or 0
+        self.gl("input", 500, 0, 0, fx, fy)
+        self.gl("castat", "static_discharge", fx, fy, "nocd")
+        time.sleep(0.4)
+        u2 = num(self.specs(), "used") or 0
+        self.flag("arc_feedback_blink", ok and u1 == u0 and u2 == u0 + 1,
+                  f"feedback used {u0} -> {u1} after a Blink -> {u2} after Static Discharge")
+        st = self.specs()
         # Mana Conduit: single player, no teammates, nothing sent
         self.flag("arc_conduit_solo", num(st, "conduit sent") == 0, f"conduit sent {num(st, 'conduit sent')} (no teammates)")
 

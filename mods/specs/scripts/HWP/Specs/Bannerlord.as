@@ -240,11 +240,18 @@ class HWPSpecsStandard : Skills::PlayerSkillDirectional
 
 	HWPSpecsStandard(UnitPtr unit, SValue& params) { super(unit, params); }
 
-	// a carried standard is planted for free, whatever the cooldown
+	// a carried standard is planted for free, whatever the cooldown (the conditionals still hold)
 	bool CanActivate(bool warn = true) override
 	{
 		if (HWP::Specs::StandardCarried(m_owner))
-			return true;
+		{
+			if (CheckConditionals(m_conditionals, m_owner))
+				return true;
+			auto plr = cast<PlayerBase>(m_owner);
+			if (plr !is null && warn)
+				plr.m_record.PlayVoice("cant");
+			return false;
+		}
 		return Skills::PlayerSkillDirectional::CanActivate(warn);
 	}
 

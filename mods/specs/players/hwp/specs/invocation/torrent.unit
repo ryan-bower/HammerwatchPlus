@@ -71,7 +71,8 @@
 			<collision static="false">
 				<circle radius="6" projectile="true" />
 			</collision>
-			<effect layer="0" src="effects/generic/projectiles/lightning_projectile_ball_2.effect?radius=6" />
+			<effect layer="0" src="effects/generic/projectiles/lightning_projectile_ball_2.effect?radius=3" />
+			<effect layer="1" src="players/hwp/specs/effects/orb.effect" />
 		</scene>
 	</scenes>
 </unit>

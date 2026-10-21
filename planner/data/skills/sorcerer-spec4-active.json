@@ -13,7 +13,7 @@
   ],
   "mana": "20/20/25/25/30",
   "name": "Blink",
-  "notes": "With no dash charge, Blink only teleports and deals its own damage.\nTeleports you a dodge distance.\nThe recast spends 1 dash charge, so Blink and dodging share that resource. Blink itself never needs a dash charge. Elemental Affinity never boosts it; spell crit does.\n\nIn game (hwp_sor_blink, tested): a 90 px teleport (85.5 with the wall margin), pure damage within the radius in game units. With a dash charge it replays the last fire, ice or lightning spell (or the Elemental Orb) from the start, cost paid down to 1 mana, its cooldown restarted.",
+  "notes": "With no dash charge, Blink only teleports and deals its own damage.\nTeleports you a dodge distance.\nThe recast spends 1 dash charge, so Blink and dodging share that resource. Blink itself never needs a dash charge. Elemental Affinity never boosts it; spell crit does.\n\nIn game (hwp_sor_blink, tested): a 90 px teleport (85.5 with the wall margin), pure damage within the radius in game units. With a dash charge it replays the last fire, ice or lightning spell (or the Elemental Orb; Lightning Ball and Flame Step too, not channelled spells) from the start, its whole cost (flat and percentage, as the game charges it) paid down to 1 mana, its cooldown restarted.",
   "order": 0,
   "role": "",
   "status": "tested",

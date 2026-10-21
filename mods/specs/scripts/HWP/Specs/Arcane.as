@@ -38,6 +38,15 @@ namespace HWP
 		uint g_fbSkill = 0;        // the empowered spell
 		float g_fbMul = 1;
 		int g_fbC = 0;
+		float g_conduitPend = 0;   // Mana Conduit shares not sent yet
+		float g_conduitIn = 0;     // a teammate's shares not given yet (under 1 mana)
+		int g_conduitSendC = 0;
+		int g_bindsC = 0;
+		int g_lmFeedback = 0;      // Living Mana's binds, read every BINDS_EVERY ms
+		float g_lmConduit = 0;
+		float g_lmRegen = 0;
+		const int CONDUIT_SEND = 250;
+		const int BINDS_EVERY = 250;
 
 		// counters for `hwp specs`
 		int g_blinks = 0;
@@ -62,13 +71,37 @@ namespace HWP
 			g_fbSkill = 0;
 			g_fbMul = 1;
 			g_fbC = 0;
-			g_blinks = g_blinkHits = g_lastBlink = g_recasts = g_drained = g_converted = g_barrierSaves = g_fbUsed = g_conduitSent = g_floored = 0;
+			g_conduitPend = g_conduitIn = 0;
+			g_conduitSendC = g_bindsC = 0;
+			g_lmFeedback = 0;
+			g_lmConduit = g_lmRegen = 0;
+			g_blinks =g_blinkHits = g_lastBlink = g_recasts = g_drained = g_converted = g_barrierSaves = g_fbUsed = g_conduitSent = g_floored = 0;
 			g_lastRecast = "";
 		}
 
+		// a skill's timeline, for the classes that have one (Lightning Ball is DirectionalCharged,
+		// Flame Step Position); null for the rest (channelled spells), which Blink can't replay
+		Skills::PlayerSkillTimeline@ Timeline(Skills::Skill@ sk)
+		{
+			auto d = cast<Skills::PlayerSkillDirectional>(sk);
+			if (d !is null)
+				return d.m_timeline;
+			auto c = cast<Skills::PlayerSkillDirectionalCharged>(sk);
+			if (c !is null)
+				return c.m_timeline;
+			auto p = cast<Skills::PlayerSkillPosition>(sk);
+			if (p !is null)
+				return p.m_timeline;
+			auto a = cast<Skills::PlayerSkillAutomatic>(sk);
+			if (a !is null)
+				return a.m_timeline;
+			return null;
+		}
+
+		// an elemental spell Blink can replay (Blink itself never)
 		bool IsElemental(Skills::Skill@ sk)
 		{
-			if (sk is null || sk.m_skillId == BLINK)
+			if (sk is null || sk.m_skillId == BLINK || Timeline(sk) is null)
 				return false;
 			if (sk.m_skillId == ELEMENTAL_ORB)
 				return true;
@@ -98,13 +131,15 @@ namespace HWP
 		// way PlayerSkillTimeline.ExecuteEntry runs them (and sent on the same way)
 		void Recast(PlayerBase@ plr, vec2 from, vec2 dir)
 		{
-			auto sk = cast<Skills::PlayerSkillDirectional>(FindSkill(plr, g_lastSpell));
+			auto sk = cast<Skills::PlayerSkill>(FindSkill(plr, g_lastSpell));
+			auto timeline = Timeline(sk);
 			auto me = cast<Player>(plr);
-			if (sk is null || me is null || sk.m_timeline is null || plr.m_record.dashCharges < 1)
+			if (sk is null || me is null || timeline is null || plr.m_record.dashCharges < 1)
 				return;
+			float mana = ManaCost(plr, sk);
 			me.GiveDashCharges(-1);
 			(Network::Message("PlayerSyncDashes") << plr.m_record.dashCharges).SendToAll();
-			auto tl = sk.m_timeline.m_timeline;
+			auto tl = timeline.m_timeline;
 			for (uint i = 0; i < tl.length(); i++)
 			{
 				if (tl[i].actions is null)
@@ -115,8 +150,6 @@ namespace HWP
 				else
 					(Network::Message("PlayerSkillExecuteActionsP") << int(sk.m_skillId) << tl[i].actions.index << from << dir << params).SendToAll();
 			}
-			auto cost = sk.GetCost();
-			float mana = cost.flatCost.y * cost.multiplier.y;
 			if (ManaPts(plr) - mana < 1)
 				g_floored++;
 			SetManaPts(plr, max(1.0f, ManaPts(plr) - mana));
@@ -125,7 +158,9 @@ namespace HWP
 			g_lastRecast = sk.m_id;
 		}
 
-		// Mana Conduit: a share of the mana lost goes to the teammates, through the host
+		// Mana Conduit: a share of the mana lost goes to the teammates, through the host. Shares
+		// add up in g_conduitPend and go out every CONDUIT_SEND ms (UpdateArcane), so a drain of a
+		// fraction a frame still arrives and one request carries many hits
 		void Conduit(PlayerBase@ plr, float amount)
 		{
 			int mates = 0;
@@ -134,14 +169,21 @@ namespace HWP
 				if (g_players[i].peer != 255 && g_players[i].actor !is null && g_players[i].actor !is plr && !g_players[i].actor.IsDead())
 					mates++;
 			}
-			if (mates == 0 || amount < 1)
+			if (mates > 0 && amount > 0)
+				g_conduitPend += amount;
+		}
+
+		void FlushConduit()
+		{
+			if (g_conduitPend < 1)
 				return;
 			SValueBuilder b;
 			b.PushDictionary();
-			b.PushFloat("amount", amount);
+			b.PushFloat("amount", g_conduitPend);
 			b.PopDictionary();
 			HWP::Net::Request("specs.conduit", b.Build());
-			g_conduitSent += int(amount + 0.5f);
+			g_conduitSent += int(g_conduitPend + 0.5f);
+			g_conduitPend = 0;
 		}
 
 		// host: split it between every live player but the sender
@@ -158,18 +200,25 @@ namespace HWP
 			{
 				SValueBuilder b;
 				b.PushDictionary();
-				b.PushInteger("mana", int(amount / to.length() + 0.5f));
+				b.PushFloat("mana", amount / to.length());
 				b.PopDictionary();
 				HWP::Net::Send(to[i], "specs.conduit_mana", b.Build());
 			}
 		}
 
+		// a teammate's share; fractions are kept until they make a whole point
 		void OnConduitMana(SValue@ data)
 		{
 			auto me = cast<Player>(GetLocalPlayer());
-			int mana = GetParamInt(UnitPtr(), data, "mana", false, 0);
-			if (me !is null && !me.IsDead() && mana > 0)
+			if (me is null || me.IsDead())
+				return;
+			g_conduitIn += GetParamFloat(UnitPtr(), data, "mana", false, 0);
+			int mana = int(g_conduitIn);
+			if (mana > 0)
+			{
 				me.GiveMana(mana);
+				g_conduitIn -= mana;
+			}
 		}
 
 		// mana lost to damage (attacker null: damage over time from a buff)
@@ -178,12 +227,18 @@ namespace HWP
 			if (lost <= 0)
 				return;
 			g_drained += int(lost + 0.5f);
-			int cap = BindI(plr, LIVING_MANA, "lm-feedback");
-			if (cap > 0 && attacker !is plr)
-				g_feedback = min(float(cap), g_feedback + lost);
-			float share = BindF(plr, LIVING_MANA, "lm-conduit");
-			if (share > 0)
-				Conduit(plr, lost * share);
+			if (g_lmFeedback > 0 && attacker !is plr)
+				g_feedback = min(float(g_lmFeedback), g_feedback + lost);
+			if (g_lmConduit > 0)
+				Conduit(plr, lost * g_lmConduit);
+		}
+
+		// Living Mana's binds: they change only with skills and orbs, so read every BINDS_EVERY ms
+		void ReadLivingBinds(PlayerBase@ plr)
+		{
+			g_lmFeedback = BindI(plr, LIVING_MANA, "lm-feedback");
+			g_lmConduit = BindF(plr, LIVING_MANA, "lm-conduit");
+			g_lmRegen = BindF(plr, LIVING_MANA, "lm-regen");
 		}
 
 		// a hit (Player.Damage, through DamageTaken just before it takes the health)
@@ -214,8 +269,10 @@ namespace HWP
 
 		void OnSpellCast(PlayerBase@ plr, Skills::Skill@ sk)
 		{
-			if (IsElemental(sk))
-				g_lastSpell = sk.m_skillId;
+			if (!IsElemental(sk))
+				return;
+			g_lastSpell = sk.m_skillId;
+			// the bank goes on the next elemental spell, never on Blink
 			if (g_feedback >= 1)
 			{
 				g_fbSkill = sk.m_skillId;
@@ -264,6 +321,18 @@ namespace HWP
 
 			if (!Learned(plr, LIVING_MANA))
 				return;
+			g_bindsC -= ms;
+			if (g_bindsC <= 0)
+			{
+				g_bindsC = BINDS_EVERY;
+				ReadLivingBinds(plr);
+			}
+			g_conduitSendC -= ms;
+			if (g_conduitSendC <= 0)
+			{
+				g_conduitSendC = CONDUIT_SEND;
+				FlushConduit();
+			}
 			float maxHp = max(1, plr.GetMaxHp());
 			float hp = plr.m_record.hp;
 			if (g_lastHp >= 0 && abs(hp - g_lastHp) > 0.00001f)
@@ -285,9 +354,8 @@ namespace HWP
 			// regeneration: + lm-regen x the missing fraction of the vanilla rate
 			auto st = plr.m_record.currStats;
 			float missing = 1.0f - plr.m_record.mana;
-			float bonus = BindF(plr, LIVING_MANA, "lm-regen");
-			if (bonus > 0 && missing > 0)
-				SetManaPts(plr, ManaPts(plr) + ms / 1000.0f * st.ManaRegen * st.ManaGain * bonus * missing);
+			if (g_lmRegen > 0 && missing > 0)
+				SetManaPts(plr, ManaPts(plr) + ms / 1000.0f * st.ManaRegen * st.ManaGain * g_lmRegen * missing);
 
 			// casting stops at 1 mana
 			if (ManaPts(plr) < 1)

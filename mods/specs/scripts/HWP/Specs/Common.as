@@ -71,6 +71,25 @@ namespace HWP
 			return sv.GetString();
 		}
 
+		// the mana a cast of sk costs now, the way Player.UsePoints works it out (percentages of
+		// the max and current pools, flat, the cost multipliers and the modifiers' UsePoints)
+		float ManaCost(PlayerBase@ plr, Skills::Skill@ sk)
+		{
+			if (plr is null || sk is null)
+				return 0;
+			auto cost = sk.GetCost();
+			vec2 mul = plr.m_record.GetModifiers().SkillCostMul(plr);
+			if (GetVarBool("cht_plr_free_mana_cost") || plr.m_buffs.FreeMana())
+				mul.y = 0;
+			vec2 maxPts(float(plr.m_record.MaxHealth()), float(plr.m_record.MaxMana()));
+			vec2 currPts = vec2(plr.m_record.hp, plr.m_record.mana) * maxPts;
+			auto f = cost.percentageMaxCost * maxPts + cost.percentageCurrCost * currPts;
+			f += vec2(cost.flatCost.x, cost.flatCost.y);
+			f *= mul * cost.multiplier;
+			auto use = plr.m_record.GetModifiers().UsePoints(plr, f);
+			return max(0.0f, f.y + use.y * mul.y);
+		}
+
 		ActorBuffDef@ Buff(const string &in name)
 		{
 			return LoadActorBuff(name.findFirst(":") >= 0 ? name : BUFFS + name);
