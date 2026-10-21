@@ -14,7 +14,7 @@ dyes) into the gitignored `hoh1art/`, which `build.py --with-local` packs in
 their place (`local_overlay`). The skills that are new here borrow a fitting
 HoH1 icon (the table is `HOH1_SKILL_ICONS` in the tool).
 
-HoH1 Remastered (designed in the planner, `planner/data/*/<cls>-hoh1*`): a 5th
+Echoes of Hammerwatch I (formerly HoH1 Remastered; designed in the planner, `planner/data/*/<cls>-hoh1*`): a 5th
 spec for each vanilla class, built from that class's HoH1 abilities HoH2 lacks
 (the Rogue's from the HoH1 Thief, the Warrior's from the Gladiator). Nothing in
 game uses it yet. Its icons are

@@ -1,7 +1,7 @@
 {
   "blurb": "HoH1's Sorcerer: ricocheting frost shards, and a barrier that builds as you cast.",
   "cls": "sorcerer",
-  "name": "HoH1 Remastered",
+  "name": "Echoes of Hammerwatch I",
   "notes": "From the HoH1 class's abilities that HoH2 lacks. The numbers are HoH1's, to retune for HoH2. Not built in game yet.",
   "order": 5,
   "remastered": true,

@@ -1,7 +1,7 @@
 {
   "blurb": "HoH1's Priest: Smite up close, and heal better from everything.",
   "cls": "priest",
-  "name": "HoH1 Remastered",
+  "name": "Echoes of Hammerwatch I",
   "notes": "From the HoH1 class's abilities that HoH2 lacks. The numbers are HoH1's, to retune for HoH2. Not built in game yet.",
   "order": 5,
   "remastered": true,

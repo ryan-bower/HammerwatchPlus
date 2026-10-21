@@ -407,6 +407,7 @@
   "name": "Gladiator",
   "order": 10,
   "port": "HoH1",
+  "row": "hoh1",
   "specs": [
     {
       "id": "hwp_gladiator_champion",
@@ -1221,5 +1222,6 @@
     "str": 10,
     "vit": 8
   },
+  "status": "built",
   "vanilla": true
 }

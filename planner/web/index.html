@@ -6,7 +6,7 @@
   --bg:#f5f3ee; --panel:#ffffff; --panel-2:#faf8f4; --ink:#1d1c1a; --muted:#6b675f; --line:#e2ded5;
   --accent:#b4501e; --accent-ink:#ffffff; --focus:#d9772f; --remaster:#7a4fc0;
   --q-common:#7a7a7a; --q-uncommon:#2f8a3c; --q-rare:#2c6fc4; --q-epic:#8a3fc4;
-  --s-idea:#9a948a; --s-designed:#c08a1e; --s-built:#2c6fc4; --s-tested:#2f8a3c;
+  --s-idea:#9a948a; --s-designed:#c08a1e; --s-built:#2c6fc4; --s-tested:#2f8a3c; --s-finished:#1f6b4a; --c-red:#c0392b; --c-yellow:#d4a017; --c-green:#2f9a46;
   --active:#b4501e; --passive:#5a6bb0; --warn:#b03a2e;
   --shadow:0 1px 2px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.05);
   --ico-bg:#2b2622;
@@ -17,7 +17,7 @@
     --bg:#141311; --panel:#1e1c19; --panel-2:#24221e; --ink:#ece8e0; --muted:#a29d93; --line:#34312b;
     --accent:#e0743a; --accent-ink:#1a0f08; --focus:#f0904f; --remaster:#b08cf0;
     --q-common:#a3a3a3; --q-uncommon:#5cc46a; --q-rare:#5c9cf0; --q-epic:#b57af0;
-    --s-idea:#8c877e; --s-designed:#e0aa3e; --s-built:#5c9cf0; --s-tested:#5cc46a;
+    --s-idea:#8c877e; --s-designed:#e0aa3e; --s-built:#5c9cf0; --s-tested:#5cc46a; --s-finished:#3fd29a; --c-red:#e0645a; --c-yellow:#e8c13a; --c-green:#5cc46a;
     --active:#e0743a; --passive:#8b9be0; --warn:#e06a5c;
     --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
     --ico-bg:#0d0c0b;
@@ -28,7 +28,7 @@
   --bg:#141311; --panel:#1e1c19; --panel-2:#24221e; --ink:#ece8e0; --muted:#a29d93; --line:#34312b;
   --accent:#e0743a; --accent-ink:#1a0f08; --focus:#f0904f; --remaster:#b08cf0;
   --q-common:#a3a3a3; --q-uncommon:#5cc46a; --q-rare:#5c9cf0; --q-epic:#b57af0;
-  --s-idea:#8c877e; --s-designed:#e0aa3e; --s-built:#5c9cf0; --s-tested:#5cc46a;
+  --s-idea:#8c877e; --s-designed:#e0aa3e; --s-built:#5c9cf0; --s-tested:#5cc46a; --s-finished:#3fd29a; --c-red:#e0645a; --c-yellow:#e8c13a; --c-green:#5cc46a;
   --active:#e0743a; --passive:#8b9be0; --warn:#e06a5c;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
   --ico-bg:#0d0c0b;
@@ -49,6 +49,8 @@ h1{font-size:22px;margin:0;letter-spacing:-.01em}
 .clsbar button{flex:none;background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:4px 12px;font:inherit;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px}
 .clsbar button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
 .clsbar .mini{width:7px;height:7px;border-radius:50%}
+.clsbar.second{padding-top:0}
+.clsbar .rowlabel{flex:none;align-self:center;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding-right:2px}
 nav{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:16px;scrollbar-width:none}
 nav button{background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:9px 12px;font:inherit;font-weight:600;cursor:pointer;white-space:nowrap}
 nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
@@ -81,7 +83,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;border-radius:999px;padding:1px 8px;border:1px solid currentColor;white-space:nowrap;text-transform:lowercase}
 .kind-active{color:var(--active)} .kind-passive{color:var(--passive)}
 .chip.van{color:var(--muted)}
-.st-idea{color:var(--s-idea)} .st-designed{color:var(--s-designed)} .st-built{color:var(--s-built)} .st-tested{color:var(--s-tested)}
+.st-idea{color:var(--s-idea)} .st-designed{color:var(--s-designed)} .st-built{color:var(--s-built)} .st-tested{color:var(--s-tested)} .st-finished{color:var(--s-finished)}
 .mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;color:var(--muted);overflow-wrap:anywhere}
 .summary{margin:6px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
 .vdesc{margin:6px 0 0;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
@@ -163,6 +165,7 @@ label.f textarea{min-height:64px;resize:vertical}
     <span class="sync"><span class="dot" id="syncDot"></span><span id="syncText">Connecting…</span></span>
   </header>
   <div class="clsbar" id="clsbar" role="group" aria-label="Class"></div>
+  <div class="clsbar second" id="clsbar2" role="group" aria-label="HoH1 classes, parked"></div>
   <nav role="tablist" id="tabs"></nav>
   <div id="notice"></div>
   <main id="view"></main>
@@ -183,7 +186,7 @@ label.f textarea{min-height:64px;resize:vertical}
 
 <script>
 (() => {
-const STATUSES = ["idea","designed","built","tested"];
+const STATUSES = ["idea","designed","built","tested","finished"];
 const QUALITIES = ["common","uncommon","rare","epic"];
 const COLLECTIONS = ["classes","doctrines","skills","mods","weapons","stacks","attributes","reference"];
 const FIREARMS = "hwp_firearms";
@@ -289,14 +292,38 @@ function skillName(id){
 }
 
 // ---------- rendering ----------
+// A class's dot: red while anything of its own is still an idea or only designed, yellow once all
+// of it is built (built or tested, not yet balanced), green when all of it is finished. The
+// Echoes of Hammerwatch I specs (remastered) are parked and don't count; a class's own `status`
+// (the ported and HoH1 classes) counts with its records.
+function classProgress(c){
+  const remSpecs = new Set(mine("doctrines", c._id).filter(d => d.remastered).map(d => d._id));
+  const docs = mine("doctrines", c._id).filter(d => !d.remastered);
+  const sk = mine("skills", c._id).filter(s => !remSpecs.has(s.group));
+  const remSk = new Set(mine("skills", c._id).filter(s => remSpecs.has(s.group)).map(s => s._id));
+  const recs = [...docs, ...sk, ...mine("mods", c._id).filter(m => !remSk.has(m.skill)),
+    ...(c._id === FIREARMS ? [...mine("weapons", c._id), ...mine("stacks", c._id)] : [])];
+  const sts = recs.map(r => r.status || "idea");
+  if (c.status) sts.push(c.status);
+  if (c.vanilla && !c.port && !docs.length) sts.push("idea");   // no 4th spec yet
+  if (!sts.length) return null;
+  if (sts.some(x => x === "idea" || x === "designed" || !STATUSES.includes(x))) return ["red", "unfinished: something is still an idea or only designed"];
+  if (sts.every(x => x === "finished")) return ["green", "finished"];
+  return ["yellow", "fully built, not yet tested or balanced"];
+}
 function renderClassBar(){
-  const bar = $("#clsbar"); bar.replaceChildren();
-  for (const c of classes()){
-    const spec = mine("doctrines", c._id).find(d => d.spec4);
-    const st = c._id === FIREARMS ? null : (spec ? spec.status || "idea" : null);
-    bar.append(h("button",{"aria-pressed":String(state.cls===c._id), title: spec ? "4th spec: "+(spec.name||"") : null,
-      onclick:()=>{ state.cls = c._id; try{localStorage.setItem("fp.cls",c._id)}catch{} render(); }},
-      st ? h("span",{class:"mini", style:"background:var(--s-"+st+")"}) : null, c.name || c._id));
+  const rows = [[$("#clsbar"), classes().filter(c => c.row !== "hoh1"), null],
+                [$("#clsbar2"), classes().filter(c => c.row === "hoh1"), "HoH1 · parked"]];
+  for (const [bar, cs, label] of rows){
+    bar.replaceChildren(); bar.hidden = !cs.length;
+    if (label && cs.length) bar.append(h("span",{class:"rowlabel"}, label));
+    for (const c of cs){
+      const spec = mine("doctrines", c._id).find(d => d.spec4);
+      const pr = classProgress(c);
+      bar.append(h("button",{"aria-pressed":String(state.cls===c._id), title: (spec ? "4th spec: "+(spec.name||"")+". " : "")+(pr ? pr[1] : ""),
+        onclick:()=>{ state.cls = c._id; try{localStorage.setItem("fp.cls",c._id)}catch{} render(); }},
+        pr ? h("span",{class:"mini", style:"background:var(--c-"+pr[0]+")", "aria-label":pr[1]}) : null, c.name || c._id));
+    }
   }
 }
 function renderTabs(){
@@ -402,7 +429,7 @@ function vanillaSkillCard(s, orbsOpen){
   const lv = (s.mods||[]).reduce((a,m)=>a+vq(m).length,0);
   const sl = vLevels(s);
   return h("div",{class:"card"},
-    h("div",{class:"row"}, ico(s), h("span",{class:"title grow"}, s.name||s.id), chip("kind-"+(s.kind==="passive"?"passive":"active"), s.summon ? "summon" : s.kind), chip("van", s.port ? s.port+" port" : "vanilla")),
+    h("div",{class:"row"}, ico(s), h("span",{class:"title grow"}, s.name||s.id), chip("kind-"+(s.kind==="passive"?"passive":"active"), s.summon ? "summon" : s.kind), classDoc()?.row === "hoh1" && !(classDoc().specs||[]).length ? null : chip("van", s.port ? s.port+" port" : "vanilla")),
     s.desc ? h("p",{class:"vdesc"}, s.desc) : null,
     sl.length ? h("details",{class:"vm"}, h("summary",null, sl.length+" skill level"+(sl.length===1?"":"s")), levelTable(sl)) : null,
     (s.mods||[]).length ? h("details",{class:"vm", open: !!orbsOpen}, h("summary",null, s.mods.length+(s.port ? "" : " vanilla")+" orb"+(s.mods.length===1?"":"s")+" · "+lv+" levels"), h("div",{class:"mods",style:"border:0;padding:0"}, s.mods.map(vanillaModRow))) : null,
@@ -410,7 +437,7 @@ function vanillaSkillCard(s, orbsOpen){
       h("div",{class:"row"}, h("span",{class:"mono grow"}, extra.length ? extra.length+" new orb"+(extra.length===1?"":"s") : "no new orbs"), addBtn("orb","mods", Object.assign({skill:s.id}, ORB()))),
       extra.map(modRow)));
 }
-// The HoH1 Remastered spec (remastered: true) is each class's 5th; every other designed spec is the 4th.
+// The Echoes of Hammerwatch I spec (remastered: true) is each class's 5th; every other designed spec is the 4th.
 const specLabel = d => d.remastered ? "5th: " : "4th: ";
 const spec4Of = (cls = state.cls) => mine("doctrines", cls).find(d => !d.remastered);
 function doctrineSection(d, isNew){
@@ -453,21 +480,25 @@ function viewVanilla(v){
   const st = c.stats || {};
   brief(v);
   v.append(h("div",{class:"card",style:"margin-bottom:14px"},
-    h("div",{class:"row"}, h("span",{class:"title grow"}, c.name), chip("van", c.port ? c.port+" class, ported" : "vanilla class"),
+    h("div",{class:"row"}, h("span",{class:"title grow"}, c.name), chip("van", c.row === "hoh1" && !(c.specs||[]).length ? "HoH1 class, parked" : c.port ? c.port+" class, ported" : "vanilla class"),
       h("button",{class:"btn small", onclick:()=>openEditor("classes", c._id)}, state.canWrite ? "Notes" : "Details")),
     c.desc ? h("p",{class:"vdesc"}, c.desc) : null,
-    h("div",{class:"stats"}, ["str","dex","int","foc","vit","health","mana","armor"].filter(k => st[k] != null).map(k => h("div",{class:"stat"}, h("div",{class:"k"},k), h("div",{class:"v"}, st[k])))),
+    h("div",{class:"stats"}, (c.row === "hoh1" && !(c.specs||[]).length ? Object.keys(st) : ["str","dex","int","foc","vit","health","mana","armor"].filter(k => st[k] != null)).map(k => h("div",{class:"stat"}, h("div",{class:"k"},k), h("div",{class:"v"}, st[k])))),
     (c.gear||[]).length ? h("div",{class:"mono",style:"margin-top:8px"}, "Starts with: "+c.gear.join(", ")) : null,
     c.notes ? h("div",{class:"para"}, h("span",{class:"k"},"Notes"), c.notes) : null));
   const docs = mine("doctrines"), has4 = !!spec4Of();
-  const fifth = docs.some(d => d.remastered) ? ", and the HoH1 Remastered 5th" : "";
-  v.append(h("div",{class:"sectionhead"}, h("h2",null, (c.port ? "Base kit, the three "+c.port+" masteries, a 4th" : (c.specs||[]).some(sp => sp.port) ? "Base kit, the vanilla specs, the ported mastery, the 4th" : "Base kit, the three vanilla specs, the 4th")+fifth), h("span",{class:"grow"}),
-    has4 ? null : addBtn("4th spec","doctrines",{spec4:true, order:4})));
+  // An original HoH1 class (the HoH1 row, no specs): its HoH1 kit only, orbs to be added here.
+  const kitOnly = c.row === "hoh1" && !(c.specs||[]).length;
+  const fifth = docs.some(d => d.remastered) ? ", and the Echoes of Hammerwatch I 5th" : "";
+  v.append(h("div",{class:"sectionhead"}, h("h2",null, kitOnly ? "The HoH1 kit: the attack, three actives, three passives" : (c.port ? "Base kit, the three "+c.port+" masteries, a 4th" : (c.specs||[]).some(sp => sp.port) ? "Base kit, the vanilla specs, the ported mastery, the 4th" : "Base kit, the three vanilla specs, the 4th")+fifth), h("span",{class:"grow"}),
+    has4 || kitOnly ? null : addBtn("4th spec","doctrines",{spec4:true, order:4})));
   const g = h("div",{class:"grid cols-4"});
-  g.append(h("section",{class:"doctrine"}, h("h2",null, h("span",{class:"grow"},"Base kit"), chip("van", srcOf(null))), (c.base||[]).map(vanillaSkillCard)));
+  if (kitOnly) for (const [name, kind] of [["Attack and actives","active"],["Passives","passive"]])
+    g.append(h("section",{class:"doctrine"}, h("h2",null, h("span",{class:"grow"}, name), chip("van","HoH1")), (c.base||[]).filter(x => x.kind === kind).map(vanillaSkillCard)));
+  else g.append(h("section",{class:"doctrine"}, h("h2",null, h("span",{class:"grow"},"Base kit"), chip("van", srcOf(null))), (c.base||[]).map(vanillaSkillCard)));
   for (const sp of c.specs||[]) g.append(h("section",{class:"doctrine"}, h("h2",null, h("span",{class:"grow"}, sp.name), chip("van", srcOf(sp))), (sp.skills||[]).map(vanillaSkillCard)));
   for (const d of docs) g.append(doctrineSection(d, true));
-  if (!has4) g.insertBefore(h("section",{class:"doctrine new"}, h("h2",null,"4th spec"), h("div",{class:"empty"},"Not started")), g.querySelector(".doctrine.remastered"));
+  if (!has4 && !kitOnly) g.insertBefore(h("section",{class:"doctrine new"}, h("h2",null,"4th spec"), h("div",{class:"empty"},"Not started")), g.querySelector(".doctrine.remastered"));
   v.append(g);
   cutSkills(v, c);
 }
@@ -648,7 +679,7 @@ function viewOverview(v){
   v.append(h("div",{class:"sectionhead"}, h("h2",null,"All classes")));
   v.append(h("p",{class:"sub",style:"margin-top:-6px"},"Every class's new specialization and its new orbs. Pick a row to open that class."));
   v.append(h("div",{class:"tablewrap"}, h("table",null,
-    h("thead",null,h("tr",null, h("th",null,"Class"),h("th",null,"Specs"),h("th",null,"New spec"),h("th",null,"Active"),h("th",null,"Passive"),h("th",null,"HoH1 Remastered"),h("th",null,"New orbs"))),
+    h("thead",null,h("tr",null, h("th",null,"Class"),h("th",null,"Specs"),h("th",null,"New spec"),h("th",null,"Active"),h("th",null,"Passive"),h("th",null,"Echoes of Hammerwatch I"),h("th",null,"New orbs"))),
     h("tbody",null, classes().map(c => {
       const docs = mine("doctrines", c._id), sk = mine("skills", c._id), ms = mine("mods", c._id);
       const isF = c._id === FIREARMS;

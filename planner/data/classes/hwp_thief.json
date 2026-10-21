@@ -337,6 +337,7 @@
   "name": "Thief",
   "order": 9,
   "port": "HoH1",
+  "row": "hoh1",
   "specs": [
     {
       "id": "hwp_thief_assassin",
@@ -1131,5 +1132,6 @@
     "str": 4,
     "vit": 6
   },
+  "status": "built",
   "vanilla": true
 }

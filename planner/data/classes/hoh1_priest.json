@@ -1,0 +1,666 @@
+{
+  "base": [
+    {
+      "class": "Skills::ShootRay",
+      "desc": "A short-range blast for # hybrid damage; the area grows with level.",
+      "file": "players/priest/smite.sval",
+      "hoh1_file": "players/priest/smite.sval",
+      "id": "hoh1_priest_smite",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage",
+              "8"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "A short-range blast for 8 hybrid damage; the area grows with level."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "10"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "A short-range blast for 10 hybrid damage; the area grows with level."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "12"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "A short-range blast for 12 hybrid damage; the area grows with level."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "14"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "A short-range blast for 14 hybrid damage; the area grows with level."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "16"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "A short-range blast for 16 hybrid damage; the area grows with level."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "18"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "A short-range blast for 18 hybrid damage; the area grows with level."
+        }
+      ],
+      "mods": [],
+      "name": "Smite",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Attack"
+    },
+    {
+      "class": "Skills::ShootBeam",
+      "desc": "A beam that builds up to # magical damage on an enemy, or heals an ally for # + #% of max health.",
+      "file": "players/priest/holy_light.sval",
+      "hoh1_file": "players/priest/holy_light.sval",
+      "id": "hoh1_priest_holy_light",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage",
+              "17"
+            ],
+            [
+              "Heal",
+              "2"
+            ],
+            [
+              "Heal of max health",
+              "2%"
+            ],
+            [
+              "Mana Cost",
+              "3"
+            ]
+          ],
+          "q": "common",
+          "text": "A beam that builds up to 17 magical damage on an enemy, or heals an ally for 2 + 2% of max health."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "24"
+            ],
+            [
+              "Heal",
+              "4"
+            ],
+            [
+              "Heal of max health",
+              "2%"
+            ],
+            [
+              "Mana Cost",
+              "4"
+            ]
+          ],
+          "q": "common",
+          "text": "A beam that builds up to 24 magical damage on an enemy, or heals an ally for 4 + 2% of max health."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "31"
+            ],
+            [
+              "Heal",
+              "6"
+            ],
+            [
+              "Heal of max health",
+              "2%"
+            ],
+            [
+              "Mana Cost",
+              "5"
+            ]
+          ],
+          "q": "common",
+          "text": "A beam that builds up to 31 magical damage on an enemy, or heals an ally for 6 + 2% of max health."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "38"
+            ],
+            [
+              "Heal",
+              "8"
+            ],
+            [
+              "Heal of max health",
+              "2%"
+            ],
+            [
+              "Mana Cost",
+              "6"
+            ]
+          ],
+          "q": "common",
+          "text": "A beam that builds up to 38 magical damage on an enemy, or heals an ally for 8 + 2% of max health."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "45"
+            ],
+            [
+              "Heal",
+              "10"
+            ],
+            [
+              "Heal of max health",
+              "2%"
+            ],
+            [
+              "Mana Cost",
+              "7"
+            ]
+          ],
+          "q": "common",
+          "text": "A beam that builds up to 45 magical damage on an enemy, or heals an ally for 10 + 2% of max health."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "52"
+            ],
+            [
+              "Heal",
+              "12"
+            ],
+            [
+              "Heal of max health",
+              "2%"
+            ],
+            [
+              "Mana Cost",
+              "8"
+            ]
+          ],
+          "q": "common",
+          "text": "A beam that builds up to 52 magical damage on an enemy, or heals an ally for 12 + 2% of max health."
+        }
+      ],
+      "mods": [],
+      "name": "Holy Light",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::DropUnit",
+      "desc": "Consecrate the ground for #s: enemies in it take # magical damage per second, and #% of that heals allies standing in it.",
+      "file": "players/priest/consecrated_ground.sval",
+      "hoh1_file": "players/priest/consecrated_ground.sval",
+      "id": "hoh1_priest_consecrated_ground",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Duration",
+              "5s"
+            ],
+            [
+              "Damage per second",
+              "16"
+            ],
+            [
+              "Returned as healing",
+              "25%"
+            ],
+            [
+              "Mana Cost",
+              "45"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "Consecrate the ground for 5s: enemies in it take 16 magical damage per second, and 25% of that heals allies standing in it."
+        },
+        {
+          "params": [
+            [
+              "Duration",
+              "5.5s"
+            ],
+            [
+              "Damage per second",
+              "24"
+            ],
+            [
+              "Returned as healing",
+              "25%"
+            ],
+            [
+              "Mana Cost",
+              "60"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "Consecrate the ground for 5.5s: enemies in it take 24 magical damage per second, and 25% of that heals allies standing in it."
+        },
+        {
+          "params": [
+            [
+              "Duration",
+              "6s"
+            ],
+            [
+              "Damage per second",
+              "32"
+            ],
+            [
+              "Returned as healing",
+              "25%"
+            ],
+            [
+              "Mana Cost",
+              "75"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "Consecrate the ground for 6s: enemies in it take 32 magical damage per second, and 25% of that heals allies standing in it."
+        },
+        {
+          "params": [
+            [
+              "Duration",
+              "6.5s"
+            ],
+            [
+              "Damage per second",
+              "40"
+            ],
+            [
+              "Returned as healing",
+              "25%"
+            ],
+            [
+              "Mana Cost",
+              "90"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "Consecrate the ground for 6.5s: enemies in it take 40 magical damage per second, and 25% of that heals allies standing in it."
+        }
+      ],
+      "mods": [],
+      "name": "Consecrated Ground",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::TempBuffAoe",
+      "desc": "An aura for #s: nearby enemies are slowed and lose resistance by #%, and allies in it take #% less damage.",
+      "file": "players/priest/aura.sval",
+      "hoh1_file": "players/priest/aura.sval",
+      "id": "hoh1_priest_aura",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Slow and resistance cut",
+              "20%"
+            ],
+            [
+              "Ally damage reduction",
+              "10%"
+            ],
+            [
+              "Duration",
+              "6s"
+            ],
+            [
+              "Mana Cost",
+              "50"
+            ],
+            [
+              "Cooldown",
+              "12s"
+            ]
+          ],
+          "q": "common",
+          "text": "An aura for 6s: nearby enemies are slowed and lose resistance by 20%, and allies in it take 10% less damage."
+        },
+        {
+          "params": [
+            [
+              "Slow and resistance cut",
+              "30%"
+            ],
+            [
+              "Ally damage reduction",
+              "20%"
+            ],
+            [
+              "Duration",
+              "7s"
+            ],
+            [
+              "Mana Cost",
+              "60"
+            ],
+            [
+              "Cooldown",
+              "12s"
+            ]
+          ],
+          "q": "common",
+          "text": "An aura for 7s: nearby enemies are slowed and lose resistance by 30%, and allies in it take 20% less damage."
+        },
+        {
+          "params": [
+            [
+              "Slow and resistance cut",
+              "40%"
+            ],
+            [
+              "Ally damage reduction",
+              "30%"
+            ],
+            [
+              "Duration",
+              "8s"
+            ],
+            [
+              "Mana Cost",
+              "70"
+            ],
+            [
+              "Cooldown",
+              "12s"
+            ]
+          ],
+          "q": "common",
+          "text": "An aura for 8s: nearby enemies are slowed and lose resistance by 40%, and allies in it take 30% less damage."
+        }
+      ],
+      "mods": [],
+      "name": "Aura of Purification",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::ManaShield",
+      "desc": "A shield absorbs #% of incoming damage, paid for at # mana per point absorbed.",
+      "file": "players/priest/divine_protection.sval",
+      "hoh1_file": "players/priest/divine_protection.sval",
+      "id": "hoh1_priest_divine_protection",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Absorbed",
+              "30%"
+            ],
+            [
+              "Mana per damage",
+              "4"
+            ]
+          ],
+          "q": "common",
+          "text": "A shield absorbs 30% of incoming damage, paid for at 4 mana per point absorbed."
+        },
+        {
+          "params": [
+            [
+              "Absorbed",
+              "35%"
+            ],
+            [
+              "Mana per damage",
+              "2"
+            ]
+          ],
+          "q": "common",
+          "text": "A shield absorbs 35% of incoming damage, paid for at 2 mana per point absorbed."
+        },
+        {
+          "params": [
+            [
+              "Absorbed",
+              "40%"
+            ],
+            [
+              "Mana per damage",
+              "1"
+            ]
+          ],
+          "q": "common",
+          "text": "A shield absorbs 40% of incoming damage, paid for at 1 mana per point absorbed."
+        },
+        {
+          "params": [
+            [
+              "Absorbed",
+              "45%"
+            ],
+            [
+              "Mana per damage",
+              "0.75"
+            ]
+          ],
+          "q": "common",
+          "text": "A shield absorbs 45% of incoming damage, paid for at 0.75 mana per point absorbed."
+        },
+        {
+          "params": [
+            [
+              "Absorbed",
+              "50%"
+            ],
+            [
+              "Mana per damage",
+              "0.5"
+            ]
+          ],
+          "q": "common",
+          "text": "A shield absorbs 50% of incoming damage, paid for at 0.5 mana per point absorbed."
+        }
+      ],
+      "mods": [],
+      "name": "Divine Protection",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    },
+    {
+      "class": "Skills::PassiveSkill",
+      "desc": "All healing you receive is #% more effective.",
+      "file": "players/priest/remedy.sval",
+      "hoh1_file": "players/priest/remedy.sval",
+      "id": "hoh1_priest_remedy",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Healing received",
+              "50%"
+            ]
+          ],
+          "q": "common",
+          "text": "All healing you receive is 50% more effective."
+        },
+        {
+          "params": [
+            [
+              "Healing received",
+              "100%"
+            ]
+          ],
+          "q": "common",
+          "text": "All healing you receive is 100% more effective."
+        },
+        {
+          "params": [
+            [
+              "Healing received",
+              "150%"
+            ]
+          ],
+          "q": "common",
+          "text": "All healing you receive is 150% more effective."
+        },
+        {
+          "params": [
+            [
+              "Healing received",
+              "200%"
+            ]
+          ],
+          "q": "common",
+          "text": "All healing you receive is 200% more effective."
+        }
+      ],
+      "mods": [],
+      "name": "Remedy",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    },
+    {
+      "class": "Skills::CelestialOrbs",
+      "desc": "# orbs circle you and fire beams for # magical damage, following Holy Light's target.",
+      "file": "players/priest/celestial_orb.sval",
+      "hoh1_file": "players/priest/celestial_orb.sval",
+      "id": "hoh1_priest_celestial_orb",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Orbs",
+              "2"
+            ],
+            [
+              "Damage",
+              "8"
+            ]
+          ],
+          "q": "common",
+          "text": "2 orbs circle you and fire beams for 8 magical damage, following Holy Light's target."
+        },
+        {
+          "params": [
+            [
+              "Orbs",
+              "3"
+            ],
+            [
+              "Damage",
+              "12"
+            ]
+          ],
+          "q": "common",
+          "text": "3 orbs circle you and fire beams for 12 magical damage, following Holy Light's target."
+        }
+      ],
+      "mods": [],
+      "name": "Celestial Orbs",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    }
+  ],
+  "cut": [],
+  "desc": "The Priest as HoH1 shipped it, parked for later. Smite is the attack (a skill: HoH1 had no weapons, so this kit starts with armor only); Holy Light, Consecrated Ground, Aura of Purification are the actives; Divine Protection, Remedy, Celestial Orbs the passives. HoH1 had no orbs: add new ones on any skill here.",
+  "gear": [
+    "chest_int_t1a",
+    "feet_int_t1a"
+  ],
+  "name": "Priest (HoH1)",
+  "order": 22,
+  "port": "HoH1",
+  "row": "hoh1",
+  "specs": [],
+  "stats": {
+    "armor": "0 (+0.2/lv)",
+    "health": "30 (+5/lv)",
+    "health regen": "0 (+0.05/lv)",
+    "mana": "70 (+11/lv)",
+    "mana regen": "1.9 (+0.1/lv)",
+    "resistance": "3 (+0.5/lv)"
+  },
+  "status": "idea",
+  "vanilla": true
+}

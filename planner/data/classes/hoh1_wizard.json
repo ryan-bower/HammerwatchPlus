@@ -1,0 +1,614 @@
+{
+  "base": [
+    {
+      "class": "Skills::ShootProjectile",
+      "desc": "A fireball for # magical damage in a small area; range and area grow with level.",
+      "file": "players/wizard/fireball.sval",
+      "hoh1_file": "players/wizard/fireball.sval",
+      "id": "hoh1_wizard_fireball",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage",
+              "10"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A fireball for 10 magical damage in a small area; range and area grow with level."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "12"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A fireball for 12 magical damage in a small area; range and area grow with level."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "14"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A fireball for 14 magical damage in a small area; range and area grow with level."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "16"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A fireball for 16 magical damage in a small area; range and area grow with level."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "18"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A fireball for 18 magical damage in a small area; range and area grow with level."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "20"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A fireball for 20 magical damage in a small area; range and area grow with level."
+        }
+      ],
+      "mods": [],
+      "name": "Fireball",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Attack"
+    },
+    {
+      "class": "Skills::SpewProjectiles",
+      "desc": "Breathe fire in a forward cone, # magical damage per hit.",
+      "file": "players/wizard/fire_breath.sval",
+      "hoh1_file": "players/wizard/fire_breath.sval",
+      "id": "hoh1_wizard_fire_breath",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage per hit",
+              "3"
+            ],
+            [
+              "Mana Cost",
+              "4"
+            ]
+          ],
+          "q": "common",
+          "text": "Breathe fire in a forward cone, 3 magical damage per hit."
+        },
+        {
+          "params": [
+            [
+              "Damage per hit",
+              "5"
+            ],
+            [
+              "Mana Cost",
+              "5"
+            ]
+          ],
+          "q": "common",
+          "text": "Breathe fire in a forward cone, 5 magical damage per hit."
+        },
+        {
+          "params": [
+            [
+              "Damage per hit",
+              "7"
+            ],
+            [
+              "Mana Cost",
+              "6"
+            ]
+          ],
+          "q": "common",
+          "text": "Breathe fire in a forward cone, 7 magical damage per hit."
+        },
+        {
+          "params": [
+            [
+              "Damage per hit",
+              "9"
+            ],
+            [
+              "Mana Cost",
+              "7"
+            ]
+          ],
+          "q": "common",
+          "text": "Breathe fire in a forward cone, 9 magical damage per hit."
+        },
+        {
+          "params": [
+            [
+              "Damage per hit",
+              "11"
+            ],
+            [
+              "Mana Cost",
+              "8"
+            ]
+          ],
+          "q": "common",
+          "text": "Breathe fire in a forward cone, 11 magical damage per hit."
+        },
+        {
+          "params": [
+            [
+              "Damage per hit",
+              "13"
+            ],
+            [
+              "Mana Cost",
+              "9"
+            ]
+          ],
+          "q": "common",
+          "text": "Breathe fire in a forward cone, 13 magical damage per hit."
+        }
+      ],
+      "mods": [],
+      "name": "Fire Breath",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::Explode",
+      "desc": "A blast around you for # magical damage that confuses and slows enemies by #% for #s and destroys most projectiles.",
+      "file": "players/wizard/blast_wave.sval",
+      "hoh1_file": "players/wizard/blast_wave.sval",
+      "id": "hoh1_wizard_blast_wave",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage",
+              "6"
+            ],
+            [
+              "Slow",
+              "30%"
+            ],
+            [
+              "Duration",
+              "2.5s"
+            ],
+            [
+              "Mana Cost",
+              "35"
+            ],
+            [
+              "Cooldown",
+              "2.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A blast around you for 6 magical damage that confuses and slows enemies by 30% for 2.5s and destroys most projectiles."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "12"
+            ],
+            [
+              "Slow",
+              "40%"
+            ],
+            [
+              "Duration",
+              "3s"
+            ],
+            [
+              "Mana Cost",
+              "40"
+            ],
+            [
+              "Cooldown",
+              "2.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A blast around you for 12 magical damage that confuses and slows enemies by 40% for 3s and destroys most projectiles."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "20"
+            ],
+            [
+              "Slow",
+              "50%"
+            ],
+            [
+              "Duration",
+              "3.5s"
+            ],
+            [
+              "Mana Cost",
+              "45"
+            ],
+            [
+              "Cooldown",
+              "2.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A blast around you for 20 magical damage that confuses and slows enemies by 50% for 3.5s and destroys most projectiles."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "30"
+            ],
+            [
+              "Slow",
+              "60%"
+            ],
+            [
+              "Duration",
+              "4s"
+            ],
+            [
+              "Mana Cost",
+              "50"
+            ],
+            [
+              "Cooldown",
+              "2.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A blast around you for 30 magical damage that confuses and slows enemies by 60% for 4s and destroys most projectiles."
+        }
+      ],
+      "mods": [],
+      "name": "Blast Wave",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::StaggeredSpawnUnits",
+      "desc": "# meteors fall around you for # hybrid damage.",
+      "file": "players/wizard/meteor_shower.sval",
+      "hoh1_file": "players/wizard/meteor_shower.sval",
+      "id": "hoh1_wizard_meteor_shower",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Meteors",
+              "3"
+            ],
+            [
+              "Damage",
+              "160"
+            ],
+            [
+              "Mana Cost",
+              "80"
+            ],
+            [
+              "Cooldown",
+              "5s"
+            ]
+          ],
+          "q": "common",
+          "text": "3 meteors fall around you for 160 hybrid damage."
+        },
+        {
+          "params": [
+            [
+              "Meteors",
+              "5"
+            ],
+            [
+              "Damage",
+              "240"
+            ],
+            [
+              "Mana Cost",
+              "120"
+            ],
+            [
+              "Cooldown",
+              "5s"
+            ]
+          ],
+          "q": "common",
+          "text": "5 meteors fall around you for 240 hybrid damage."
+        },
+        {
+          "params": [
+            [
+              "Meteors",
+              "7"
+            ],
+            [
+              "Damage",
+              "320"
+            ],
+            [
+              "Mana Cost",
+              "160"
+            ],
+            [
+              "Cooldown",
+              "5s"
+            ]
+          ],
+          "q": "common",
+          "text": "7 meteors fall around you for 320 hybrid damage."
+        }
+      ],
+      "mods": [],
+      "name": "Meteor Shower",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::CombustionSkill",
+      "desc": "Your skills set enemies burning for # magical damage per second over #s.",
+      "file": "players/wizard/combustion.sval",
+      "hoh1_file": "players/wizard/combustion.sval",
+      "id": "hoh1_wizard_combustion",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage per second",
+              "4"
+            ],
+            [
+              "Duration",
+              "2s"
+            ]
+          ],
+          "q": "common",
+          "text": "Your skills set enemies burning for 4 magical damage per second over 2s."
+        },
+        {
+          "params": [
+            [
+              "Damage per second",
+              "8"
+            ],
+            [
+              "Duration",
+              "2.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "Your skills set enemies burning for 8 magical damage per second over 2.5s."
+        },
+        {
+          "params": [
+            [
+              "Damage per second",
+              "12"
+            ],
+            [
+              "Duration",
+              "3s"
+            ]
+          ],
+          "q": "common",
+          "text": "Your skills set enemies burning for 12 magical damage per second over 3s."
+        },
+        {
+          "params": [
+            [
+              "Damage per second",
+              "16"
+            ],
+            [
+              "Duration",
+              "3.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "Your skills set enemies burning for 16 magical damage per second over 3.5s."
+        },
+        {
+          "params": [
+            [
+              "Damage per second",
+              "20"
+            ],
+            [
+              "Duration",
+              "4s"
+            ]
+          ],
+          "q": "common",
+          "text": "Your skills set enemies burning for 20 magical damage per second over 4s."
+        }
+      ],
+      "mods": [],
+      "name": "Combustion",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    },
+    {
+      "class": "Skills::PassiveSkill",
+      "desc": "A shield cuts one hit's damage by #% and sets off your Blast Wave; it recharges in #s.",
+      "file": "players/wizard/flame_shield.sval",
+      "hoh1_file": "players/wizard/flame_shield.sval",
+      "id": "hoh1_wizard_flame_shield",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Reduction",
+              "20%"
+            ],
+            [
+              "Recharge",
+              "7.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A shield cuts one hit's damage by 20% and sets off your Blast Wave; it recharges in 7.5s."
+        },
+        {
+          "params": [
+            [
+              "Reduction",
+              "30%"
+            ],
+            [
+              "Recharge",
+              "6s"
+            ]
+          ],
+          "q": "common",
+          "text": "A shield cuts one hit's damage by 30% and sets off your Blast Wave; it recharges in 6s."
+        },
+        {
+          "params": [
+            [
+              "Reduction",
+              "40%"
+            ],
+            [
+              "Recharge",
+              "4.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A shield cuts one hit's damage by 40% and sets off your Blast Wave; it recharges in 4.5s."
+        },
+        {
+          "params": [
+            [
+              "Reduction",
+              "50%"
+            ],
+            [
+              "Recharge",
+              "3s"
+            ]
+          ],
+          "q": "common",
+          "text": "A shield cuts one hit's damage by 50% and sets off your Blast Wave; it recharges in 3s."
+        }
+      ],
+      "mods": [],
+      "name": "Flame Shield",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    },
+    {
+      "class": "Skills::ScorchedEarth",
+      "desc": "Your skills leave burning ground for # magical damage per second; level 2 also doubles how long it burns.",
+      "file": "players/wizard/scorched_earth.sval",
+      "hoh1_file": "players/wizard/scorched_earth.sval",
+      "id": "hoh1_wizard_scorched_earth",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage per second",
+              "8"
+            ]
+          ],
+          "q": "common",
+          "text": "Your skills leave burning ground for 8 magical damage per second; level 2 also doubles how long it burns."
+        },
+        {
+          "params": [
+            [
+              "Damage per second",
+              "16"
+            ]
+          ],
+          "q": "common",
+          "text": "Your skills leave burning ground for 16 magical damage per second; level 2 also doubles how long it burns."
+        }
+      ],
+      "mods": [],
+      "name": "Scorched Earth",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    }
+  ],
+  "cut": [],
+  "desc": "The Wizard as HoH1 shipped it, parked for later. Fireball is the attack (a skill: HoH1 had no weapons, so this kit starts with armor only); Fire Breath, Blast Wave, Meteor Shower are the actives; Combustion, Flame Shield, Scorched Earth the passives. HoH1 had no orbs: add new ones on any skill here.",
+  "gear": [
+    "chest_int_t1a",
+    "feet_int_t1a"
+  ],
+  "name": "Wizard (HoH1)",
+  "order": 26,
+  "port": "HoH1",
+  "row": "hoh1",
+  "specs": [],
+  "stats": {
+    "armor": "0 (+0.2/lv)",
+    "health": "35 (+4/lv)",
+    "health regen": "0 (+0.025/lv)",
+    "mana": "75 (+15/lv)",
+    "mana regen": "1.5 (+0.1/lv)",
+    "resistance": "2 (+0.5/lv)"
+  },
+  "status": "idea",
+  "vanilla": true
+}

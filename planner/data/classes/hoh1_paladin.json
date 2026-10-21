@@ -1,0 +1,754 @@
+{
+  "base": [
+    {
+      "class": "Skills::MeleeSwing",
+      "desc": "Swing your sword for # physical damage across a #° arc.",
+      "file": "players/paladin/sword.sval",
+      "hoh1_file": "players/paladin/sword.sval",
+      "id": "hoh1_paladin_sword",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage",
+              "16"
+            ],
+            [
+              "Arc",
+              "90°"
+            ],
+            [
+              "Cooldown",
+              "0.3s"
+            ]
+          ],
+          "q": "common",
+          "text": "Swing your sword for 16 physical damage across a 90° arc."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "19"
+            ],
+            [
+              "Arc",
+              "120°"
+            ],
+            [
+              "Cooldown",
+              "0.3s"
+            ]
+          ],
+          "q": "common",
+          "text": "Swing your sword for 19 physical damage across a 120° arc."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "22"
+            ],
+            [
+              "Arc",
+              "150°"
+            ],
+            [
+              "Cooldown",
+              "0.3s"
+            ]
+          ],
+          "q": "common",
+          "text": "Swing your sword for 22 physical damage across a 150° arc."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "25"
+            ],
+            [
+              "Arc",
+              "180°"
+            ],
+            [
+              "Cooldown",
+              "0.3s"
+            ]
+          ],
+          "q": "common",
+          "text": "Swing your sword for 25 physical damage across a 180° arc."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "28"
+            ],
+            [
+              "Arc",
+              "210°"
+            ],
+            [
+              "Cooldown",
+              "0.3s"
+            ]
+          ],
+          "q": "common",
+          "text": "Swing your sword for 28 physical damage across a 210° arc."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "31"
+            ],
+            [
+              "Arc",
+              "240°"
+            ],
+            [
+              "Cooldown",
+              "0.3s"
+            ]
+          ],
+          "q": "common",
+          "text": "Swing your sword for 31 physical damage across a 240° arc."
+        }
+      ],
+      "mods": [],
+      "name": "Sword",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Attack"
+    },
+    {
+      "class": "Skills::Charge",
+      "desc": "Dash forward; enemies you hit take # physical damage and are stunned for #s. Higher levels dash faster and farther.",
+      "file": "players/paladin/charge.sval",
+      "hoh1_file": "players/paladin/charge.sval",
+      "id": "hoh1_paladin_charge",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage",
+              "25"
+            ],
+            [
+              "Stun",
+              "0.5s"
+            ],
+            [
+              "Mana Cost",
+              "10"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "Dash forward; enemies you hit take 25 physical damage and are stunned for 0.5s. Higher levels dash faster and farther."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "35"
+            ],
+            [
+              "Stun",
+              "0.5s"
+            ],
+            [
+              "Mana Cost",
+              "13"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "Dash forward; enemies you hit take 35 physical damage and are stunned for 0.5s. Higher levels dash faster and farther."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "45"
+            ],
+            [
+              "Stun",
+              "0.5s"
+            ],
+            [
+              "Mana Cost",
+              "16"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "Dash forward; enemies you hit take 45 physical damage and are stunned for 0.5s. Higher levels dash faster and farther."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "55"
+            ],
+            [
+              "Stun",
+              "0.5s"
+            ],
+            [
+              "Mana Cost",
+              "19"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "Dash forward; enemies you hit take 55 physical damage and are stunned for 0.5s. Higher levels dash faster and farther."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "65"
+            ],
+            [
+              "Stun",
+              "0.5s"
+            ],
+            [
+              "Mana Cost",
+              "22"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "Dash forward; enemies you hit take 65 physical damage and are stunned for 0.5s. Higher levels dash faster and farther."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "75"
+            ],
+            [
+              "Stun",
+              "0.5s"
+            ],
+            [
+              "Mana Cost",
+              "25"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "Dash forward; enemies you hit take 75 physical damage and are stunned for 0.5s. Higher levels dash faster and farther."
+        }
+      ],
+      "mods": [],
+      "name": "Charge",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::Explode",
+      "desc": "Allies around you get a #s blessing that heals # + #% of max health and gives a #% chance to block # magical damage.",
+      "file": "players/paladin/lay_on_hands.sval",
+      "hoh1_file": "players/paladin/lay_on_hands.sval",
+      "id": "hoh1_paladin_lay_on_hands",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Duration",
+              "3s"
+            ],
+            [
+              "Heal",
+              "3"
+            ],
+            [
+              "Heal of max health",
+              "2%"
+            ],
+            [
+              "Block chance",
+              "25%"
+            ],
+            [
+              "Magical blocked",
+              "5"
+            ],
+            [
+              "Mana Cost",
+              "30"
+            ],
+            [
+              "Cooldown",
+              "8s"
+            ]
+          ],
+          "q": "common",
+          "text": "Allies around you get a 3s blessing that heals 3 + 2% of max health and gives a 25% chance to block 5 magical damage."
+        },
+        {
+          "params": [
+            [
+              "Duration",
+              "3.5s"
+            ],
+            [
+              "Heal",
+              "5"
+            ],
+            [
+              "Heal of max health",
+              "2%"
+            ],
+            [
+              "Block chance",
+              "25%"
+            ],
+            [
+              "Magical blocked",
+              "10"
+            ],
+            [
+              "Mana Cost",
+              "40"
+            ],
+            [
+              "Cooldown",
+              "8s"
+            ]
+          ],
+          "q": "common",
+          "text": "Allies around you get a 3.5s blessing that heals 5 + 2% of max health and gives a 25% chance to block 10 magical damage."
+        },
+        {
+          "params": [
+            [
+              "Duration",
+              "4s"
+            ],
+            [
+              "Heal",
+              "7"
+            ],
+            [
+              "Heal of max health",
+              "2%"
+            ],
+            [
+              "Block chance",
+              "25%"
+            ],
+            [
+              "Magical blocked",
+              "15"
+            ],
+            [
+              "Mana Cost",
+              "50"
+            ],
+            [
+              "Cooldown",
+              "8s"
+            ]
+          ],
+          "q": "common",
+          "text": "Allies around you get a 4s blessing that heals 7 + 2% of max health and gives a 25% chance to block 15 magical damage."
+        },
+        {
+          "params": [
+            [
+              "Duration",
+              "4.5s"
+            ],
+            [
+              "Heal",
+              "9"
+            ],
+            [
+              "Heal of max health",
+              "2%"
+            ],
+            [
+              "Block chance",
+              "25%"
+            ],
+            [
+              "Magical blocked",
+              "20"
+            ],
+            [
+              "Mana Cost",
+              "60"
+            ],
+            [
+              "Cooldown",
+              "8s"
+            ]
+          ],
+          "q": "common",
+          "text": "Allies around you get a 4.5s blessing that heals 9 + 2% of max health and gives a 25% chance to block 20 magical damage."
+        }
+      ],
+      "mods": [],
+      "name": "Lay on Hands",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::Whirlwind",
+      "desc": "Spin for #s, dealing # physical damage to every enemy around you.",
+      "file": "players/paladin/whirlwind.sval",
+      "hoh1_file": "players/paladin/whirlwind.sval",
+      "id": "hoh1_paladin_whirlwind",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage",
+              "30"
+            ],
+            [
+              "Duration",
+              "3s"
+            ],
+            [
+              "Mana Cost",
+              "50"
+            ],
+            [
+              "Cooldown",
+              "9s"
+            ]
+          ],
+          "q": "common",
+          "text": "Spin for 3s, dealing 30 physical damage to every enemy around you."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "40"
+            ],
+            [
+              "Duration",
+              "4s"
+            ],
+            [
+              "Mana Cost",
+              "60"
+            ],
+            [
+              "Cooldown",
+              "9s"
+            ]
+          ],
+          "q": "common",
+          "text": "Spin for 4s, dealing 40 physical damage to every enemy around you."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "50"
+            ],
+            [
+              "Duration",
+              "5s"
+            ],
+            [
+              "Mana Cost",
+              "70"
+            ],
+            [
+              "Cooldown",
+              "9s"
+            ]
+          ],
+          "q": "common",
+          "text": "Spin for 5s, dealing 50 physical damage to every enemy around you."
+        }
+      ],
+      "mods": [],
+      "name": "Whirlwind",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::PassiveSkill",
+      "desc": "Your shield stops most projectiles in a #° arc in front of you, and has a #% chance to block # physical damage.",
+      "file": "players/paladin/shield.sval",
+      "hoh1_file": "players/paladin/shield.sval",
+      "id": "hoh1_paladin_shield",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Arc",
+              "80°"
+            ],
+            [
+              "Block chance",
+              "25%"
+            ],
+            [
+              "Physical blocked",
+              "5"
+            ]
+          ],
+          "q": "common",
+          "text": "Your shield stops most projectiles in a 80° arc in front of you, and has a 25% chance to block 5 physical damage."
+        },
+        {
+          "params": [
+            [
+              "Arc",
+              "100°"
+            ],
+            [
+              "Block chance",
+              "25%"
+            ],
+            [
+              "Physical blocked",
+              "10"
+            ]
+          ],
+          "q": "common",
+          "text": "Your shield stops most projectiles in a 100° arc in front of you, and has a 25% chance to block 10 physical damage."
+        },
+        {
+          "params": [
+            [
+              "Arc",
+              "120°"
+            ],
+            [
+              "Block chance",
+              "25%"
+            ],
+            [
+              "Physical blocked",
+              "15"
+            ]
+          ],
+          "q": "common",
+          "text": "Your shield stops most projectiles in a 120° arc in front of you, and has a 25% chance to block 15 physical damage."
+        },
+        {
+          "params": [
+            [
+              "Arc",
+              "140°"
+            ],
+            [
+              "Block chance",
+              "25%"
+            ],
+            [
+              "Physical blocked",
+              "20"
+            ]
+          ],
+          "q": "common",
+          "text": "Your shield stops most projectiles in a 140° arc in front of you, and has a 25% chance to block 20 physical damage."
+        },
+        {
+          "params": [
+            [
+              "Arc",
+              "160°"
+            ],
+            [
+              "Block chance",
+              "25%"
+            ],
+            [
+              "Physical blocked",
+              "25"
+            ]
+          ],
+          "q": "common",
+          "text": "Your shield stops most projectiles in a 160° arc in front of you, and has a 25% chance to block 25 physical damage."
+        }
+      ],
+      "mods": [],
+      "name": "Shield",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    },
+    {
+      "class": "Skills::PassiveSkill",
+      "desc": "Sword hits have a #% chance to stun for #s.",
+      "file": "players/paladin/stunning_blows.sval",
+      "hoh1_file": "players/paladin/stunning_blows.sval",
+      "id": "hoh1_paladin_stunning_blows",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Chance",
+              "10%"
+            ],
+            [
+              "Stun",
+              "2.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "Sword hits have a 10% chance to stun for 2.5s."
+        },
+        {
+          "params": [
+            [
+              "Chance",
+              "15%"
+            ],
+            [
+              "Stun",
+              "2.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "Sword hits have a 15% chance to stun for 2.5s."
+        },
+        {
+          "params": [
+            [
+              "Chance",
+              "20%"
+            ],
+            [
+              "Stun",
+              "2.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "Sword hits have a 20% chance to stun for 2.5s."
+        },
+        {
+          "params": [
+            [
+              "Chance",
+              "25%"
+            ],
+            [
+              "Stun",
+              "2.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "Sword hits have a 25% chance to stun for 2.5s."
+        }
+      ],
+      "mods": [],
+      "name": "Stunning Blows",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    },
+    {
+      "class": "Skills::StackDamage",
+      "desc": "Each Sword hit adds # magical damage to all your skills, up to # stacks of #s each.",
+      "file": "players/paladin/flames_of_devotion.sval",
+      "hoh1_file": "players/paladin/flames_of_devotion.sval",
+      "id": "hoh1_paladin_flames_of_devotion",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Magical per stack",
+              "1"
+            ],
+            [
+              "Max stacks",
+              "12"
+            ],
+            [
+              "Stack duration",
+              "1s"
+            ]
+          ],
+          "q": "common",
+          "text": "Each Sword hit adds 1 magical damage to all your skills, up to 12 stacks of 1s each."
+        },
+        {
+          "params": [
+            [
+              "Magical per stack",
+              "1"
+            ],
+            [
+              "Max stacks",
+              "24"
+            ],
+            [
+              "Stack duration",
+              "1s"
+            ]
+          ],
+          "q": "common",
+          "text": "Each Sword hit adds 1 magical damage to all your skills, up to 24 stacks of 1s each."
+        }
+      ],
+      "mods": [],
+      "name": "Flames of Devotion",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    }
+  ],
+  "cut": [],
+  "desc": "The Paladin as HoH1 shipped it, parked for later. Sword is the attack (a skill: HoH1 had no weapons, so this kit starts with armor only); Charge, Lay on Hands, Whirlwind are the actives; Shield, Stunning Blows, Flames of Devotion the passives. HoH1 had no orbs: add new ones on any skill here.",
+  "gear": [
+    "chest_str_t1a",
+    "feet_str_t1a"
+  ],
+  "name": "Paladin (HoH1)",
+  "order": 21,
+  "port": "HoH1",
+  "row": "hoh1",
+  "specs": [],
+  "stats": {
+    "armor": "10 (+0.6/lv)",
+    "health": "75 (+8/lv)",
+    "health regen": "0 (+0.025/lv)",
+    "mana": "50 (+6/lv)",
+    "mana regen": "0.4 (+0.05/lv)",
+    "resistance": "0 (+0.2/lv)"
+  },
+  "status": "idea",
+  "vanilla": true
+}

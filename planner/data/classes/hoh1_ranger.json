@@ -1,0 +1,730 @@
+{
+  "base": [
+    {
+      "class": "Skills::ShootProjectile",
+      "desc": "An arrow for # physical damage that pierces up to # enemies; you move #% slower while shooting.",
+      "file": "players/ranger/bow.sval",
+      "hoh1_file": "players/ranger/bow.sval",
+      "id": "hoh1_ranger_bow",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage",
+              "10"
+            ],
+            [
+              "Pierce",
+              "1"
+            ],
+            [
+              "Move slow",
+              "50%"
+            ],
+            [
+              "Cooldown",
+              "0.3s"
+            ]
+          ],
+          "q": "common",
+          "text": "An arrow for 10 physical damage that pierces up to 1 enemies; you move 50% slower while shooting."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "12"
+            ],
+            [
+              "Pierce",
+              "2"
+            ],
+            [
+              "Move slow",
+              "45%"
+            ],
+            [
+              "Cooldown",
+              "0.3s"
+            ]
+          ],
+          "q": "common",
+          "text": "An arrow for 12 physical damage that pierces up to 2 enemies; you move 45% slower while shooting."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "14"
+            ],
+            [
+              "Pierce",
+              "3"
+            ],
+            [
+              "Move slow",
+              "40%"
+            ],
+            [
+              "Cooldown",
+              "0.3s"
+            ]
+          ],
+          "q": "common",
+          "text": "An arrow for 14 physical damage that pierces up to 3 enemies; you move 40% slower while shooting."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "16"
+            ],
+            [
+              "Pierce",
+              "4"
+            ],
+            [
+              "Move slow",
+              "35%"
+            ],
+            [
+              "Cooldown",
+              "0.3s"
+            ]
+          ],
+          "q": "common",
+          "text": "An arrow for 16 physical damage that pierces up to 4 enemies; you move 35% slower while shooting."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "18"
+            ],
+            [
+              "Pierce",
+              "5"
+            ],
+            [
+              "Move slow",
+              "30%"
+            ],
+            [
+              "Cooldown",
+              "0.3s"
+            ]
+          ],
+          "q": "common",
+          "text": "An arrow for 18 physical damage that pierces up to 5 enemies; you move 30% slower while shooting."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "20"
+            ],
+            [
+              "Pierce",
+              "6"
+            ],
+            [
+              "Move slow",
+              "25%"
+            ],
+            [
+              "Cooldown",
+              "0.3s"
+            ]
+          ],
+          "q": "common",
+          "text": "An arrow for 20 physical damage that pierces up to 6 enemies; you move 25% slower while shooting."
+        }
+      ],
+      "mods": [],
+      "name": "Bow Shot",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Attack"
+    },
+    {
+      "class": "Skills::ArrowFlurry",
+      "desc": "Spin and loose # Bow Shot arrows in every direction.",
+      "file": "players/ranger/flurry_of_arrows.sval",
+      "hoh1_file": "players/ranger/flurry_of_arrows.sval",
+      "id": "hoh1_ranger_flurry_of_arrows",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Arrows",
+              "24"
+            ],
+            [
+              "Mana Cost",
+              "10"
+            ],
+            [
+              "Cooldown",
+              "0.75s"
+            ]
+          ],
+          "q": "common",
+          "text": "Spin and loose 24 Bow Shot arrows in every direction."
+        },
+        {
+          "params": [
+            [
+              "Arrows",
+              "32"
+            ],
+            [
+              "Mana Cost",
+              "15"
+            ],
+            [
+              "Cooldown",
+              "0.75s"
+            ]
+          ],
+          "q": "common",
+          "text": "Spin and loose 32 Bow Shot arrows in every direction."
+        },
+        {
+          "params": [
+            [
+              "Arrows",
+              "40"
+            ],
+            [
+              "Mana Cost",
+              "20"
+            ],
+            [
+              "Cooldown",
+              "0.75s"
+            ]
+          ],
+          "q": "common",
+          "text": "Spin and loose 40 Bow Shot arrows in every direction."
+        },
+        {
+          "params": [
+            [
+              "Arrows",
+              "48"
+            ],
+            [
+              "Mana Cost",
+              "25"
+            ],
+            [
+              "Cooldown",
+              "0.75s"
+            ]
+          ],
+          "q": "common",
+          "text": "Spin and loose 48 Bow Shot arrows in every direction."
+        },
+        {
+          "params": [
+            [
+              "Arrows",
+              "56"
+            ],
+            [
+              "Mana Cost",
+              "30"
+            ],
+            [
+              "Cooldown",
+              "0.75s"
+            ]
+          ],
+          "q": "common",
+          "text": "Spin and loose 56 Bow Shot arrows in every direction."
+        },
+        {
+          "params": [
+            [
+              "Arrows",
+              "64"
+            ],
+            [
+              "Mana Cost",
+              "35"
+            ],
+            [
+              "Cooldown",
+              "0.75s"
+            ]
+          ],
+          "q": "common",
+          "text": "Spin and loose 64 Bow Shot arrows in every direction."
+        }
+      ],
+      "mods": [],
+      "name": "Flurry of Arrows",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::Explode",
+      "desc": "Roots hold every enemy around you for #s and cut their armor by #%.",
+      "file": "players/ranger/grasping_roots.sval",
+      "hoh1_file": "players/ranger/grasping_roots.sval",
+      "id": "hoh1_ranger_grasping_roots",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Root",
+              "2s"
+            ],
+            [
+              "Armor cut",
+              "10%"
+            ],
+            [
+              "Mana Cost",
+              "25"
+            ],
+            [
+              "Cooldown",
+              "6s"
+            ]
+          ],
+          "q": "common",
+          "text": "Roots hold every enemy around you for 2s and cut their armor by 10%."
+        },
+        {
+          "params": [
+            [
+              "Root",
+              "3s"
+            ],
+            [
+              "Armor cut",
+              "15%"
+            ],
+            [
+              "Mana Cost",
+              "30"
+            ],
+            [
+              "Cooldown",
+              "6s"
+            ]
+          ],
+          "q": "common",
+          "text": "Roots hold every enemy around you for 3s and cut their armor by 15%."
+        },
+        {
+          "params": [
+            [
+              "Root",
+              "4s"
+            ],
+            [
+              "Armor cut",
+              "20%"
+            ],
+            [
+              "Mana Cost",
+              "35"
+            ],
+            [
+              "Cooldown",
+              "6s"
+            ]
+          ],
+          "q": "common",
+          "text": "Roots hold every enemy around you for 4s and cut their armor by 20%."
+        },
+        {
+          "params": [
+            [
+              "Root",
+              "5s"
+            ],
+            [
+              "Armor cut",
+              "25%"
+            ],
+            [
+              "Mana Cost",
+              "40"
+            ],
+            [
+              "Cooldown",
+              "6s"
+            ]
+          ],
+          "q": "common",
+          "text": "Roots hold every enemy around you for 5s and cut their armor by 25%."
+        }
+      ],
+      "mods": [],
+      "name": "Grasping Roots",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::FanChargeUnit",
+      "desc": "Charge # arrows for up to # magical damage that ignore #% resistance; a full charge takes #s and adds range and speed.",
+      "file": "players/ranger/powershot.sval",
+      "hoh1_file": "players/ranger/powershot.sval",
+      "id": "hoh1_ranger_powershot",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Arrows",
+              "3"
+            ],
+            [
+              "Damage",
+              "80"
+            ],
+            [
+              "Resistance ignored",
+              "50%"
+            ],
+            [
+              "Full charge",
+              "1s"
+            ],
+            [
+              "Mana Cost",
+              "50"
+            ],
+            [
+              "Cooldown",
+              "2s"
+            ]
+          ],
+          "q": "common",
+          "text": "Charge 3 arrows for up to 80 magical damage that ignore 50% resistance; a full charge takes 1s and adds range and speed."
+        },
+        {
+          "params": [
+            [
+              "Arrows",
+              "3"
+            ],
+            [
+              "Damage",
+              "160"
+            ],
+            [
+              "Resistance ignored",
+              "50%"
+            ],
+            [
+              "Full charge",
+              "1s"
+            ],
+            [
+              "Mana Cost",
+              "70"
+            ],
+            [
+              "Cooldown",
+              "2s"
+            ]
+          ],
+          "q": "common",
+          "text": "Charge 3 arrows for up to 160 magical damage that ignore 50% resistance; a full charge takes 1s and adds range and speed."
+        },
+        {
+          "params": [
+            [
+              "Arrows",
+              "3"
+            ],
+            [
+              "Damage",
+              "240"
+            ],
+            [
+              "Resistance ignored",
+              "50%"
+            ],
+            [
+              "Full charge",
+              "1s"
+            ],
+            [
+              "Mana Cost",
+              "90"
+            ],
+            [
+              "Cooldown",
+              "2s"
+            ]
+          ],
+          "q": "common",
+          "text": "Charge 3 arrows for up to 240 magical damage that ignore 50% resistance; a full charge takes 1s and adds range and speed."
+        }
+      ],
+      "mods": [],
+      "name": "Powershot",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::PassiveSkill",
+      "desc": "Casting a skill gives #% movement speed and #% evasion for #s.",
+      "file": "players/ranger/on_the_prowl.sval",
+      "hoh1_file": "players/ranger/on_the_prowl.sval",
+      "id": "hoh1_ranger_on_the_prowl",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Duration",
+              "2.5s"
+            ],
+            [
+              "Move speed",
+              "25%"
+            ],
+            [
+              "Evasion",
+              "5%"
+            ]
+          ],
+          "q": "common",
+          "text": "Casting a skill gives 25% movement speed and 5% evasion for 2.5s."
+        },
+        {
+          "params": [
+            [
+              "Duration",
+              "3s"
+            ],
+            [
+              "Move speed",
+              "25%"
+            ],
+            [
+              "Evasion",
+              "10%"
+            ]
+          ],
+          "q": "common",
+          "text": "Casting a skill gives 25% movement speed and 10% evasion for 3s."
+        },
+        {
+          "params": [
+            [
+              "Duration",
+              "3.5s"
+            ],
+            [
+              "Move speed",
+              "25%"
+            ],
+            [
+              "Evasion",
+              "15%"
+            ]
+          ],
+          "q": "common",
+          "text": "Casting a skill gives 25% movement speed and 15% evasion for 3.5s."
+        },
+        {
+          "params": [
+            [
+              "Duration",
+              "4s"
+            ],
+            [
+              "Move speed",
+              "25%"
+            ],
+            [
+              "Evasion",
+              "20%"
+            ]
+          ],
+          "q": "common",
+          "text": "Casting a skill gives 25% movement speed and 20% evasion for 4s."
+        },
+        {
+          "params": [
+            [
+              "Duration",
+              "4.5s"
+            ],
+            [
+              "Move speed",
+              "25%"
+            ],
+            [
+              "Evasion",
+              "25%"
+            ]
+          ],
+          "q": "common",
+          "text": "Casting a skill gives 25% movement speed and 25% evasion for 4.5s."
+        }
+      ],
+      "mods": [],
+      "name": "On the Prowl",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    },
+    {
+      "class": "Skills::PassiveSkill",
+      "desc": "Bow Shot has a #% chance to crit and Mark the target for #s; Marked enemies take a critical hit from any source #% of the time.",
+      "file": "players/ranger/marked_prey.sval",
+      "hoh1_file": "players/ranger/marked_prey.sval",
+      "id": "hoh1_ranger_marked_prey",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Chance",
+              "5%"
+            ],
+            [
+              "Mark",
+              "2.5s"
+            ],
+            [
+              "Crit taken",
+              "5%"
+            ]
+          ],
+          "q": "common",
+          "text": "Bow Shot has a 5% chance to crit and Mark the target for 2.5s; Marked enemies take a critical hit from any source 5% of the time."
+        },
+        {
+          "params": [
+            [
+              "Chance",
+              "7.5%"
+            ],
+            [
+              "Mark",
+              "2.5s"
+            ],
+            [
+              "Crit taken",
+              "5%"
+            ]
+          ],
+          "q": "common",
+          "text": "Bow Shot has a 7.5% chance to crit and Mark the target for 2.5s; Marked enemies take a critical hit from any source 5% of the time."
+        },
+        {
+          "params": [
+            [
+              "Chance",
+              "10%"
+            ],
+            [
+              "Mark",
+              "2.5s"
+            ],
+            [
+              "Crit taken",
+              "5%"
+            ]
+          ],
+          "q": "common",
+          "text": "Bow Shot has a 10% chance to crit and Mark the target for 2.5s; Marked enemies take a critical hit from any source 5% of the time."
+        },
+        {
+          "params": [
+            [
+              "Chance",
+              "12.5%"
+            ],
+            [
+              "Mark",
+              "2.5s"
+            ],
+            [
+              "Crit taken",
+              "5%"
+            ]
+          ],
+          "q": "common",
+          "text": "Bow Shot has a 12.5% chance to crit and Mark the target for 2.5s; Marked enemies take a critical hit from any source 5% of the time."
+        }
+      ],
+      "mods": [],
+      "name": "Marked Prey",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    },
+    {
+      "class": "Skills::TwinnedArrow",
+      "desc": "Bow Shot arrows have a #% chance to split and seek another target.",
+      "file": "players/ranger/twinned_arrows.sval",
+      "hoh1_file": "players/ranger/twinned_arrows.sval",
+      "id": "hoh1_ranger_twinned_arrows",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Split chance",
+              "25%"
+            ]
+          ],
+          "q": "common",
+          "text": "Bow Shot arrows have a 25% chance to split and seek another target."
+        },
+        {
+          "params": [
+            [
+              "Split chance",
+              "40%"
+            ]
+          ],
+          "q": "common",
+          "text": "Bow Shot arrows have a 40% chance to split and seek another target."
+        }
+      ],
+      "mods": [],
+      "name": "Twinned Arrows",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    }
+  ],
+  "cut": [],
+  "desc": "The Ranger as HoH1 shipped it, parked for later. Bow Shot is the attack (a skill: HoH1 had no weapons, so this kit starts with armor only); Flurry of Arrows, Grasping Roots, Powershot are the actives; On the Prowl, Marked Prey, Twinned Arrows the passives. HoH1 had no orbs: add new ones on any skill here.",
+  "gear": [
+    "chest_dex_t1a",
+    "feet_dex_t1a"
+  ],
+  "name": "Ranger (HoH1)",
+  "order": 23,
+  "port": "HoH1",
+  "row": "hoh1",
+  "specs": [],
+  "stats": {
+    "armor": "0 (+0.5/lv)",
+    "health": "50 (+6/lv)",
+    "health regen": "0 (+0.025/lv)",
+    "mana": "50 (+6/lv)",
+    "mana regen": "0.5 (+0.075/lv)",
+    "resistance": "0 (+0.2/lv)"
+  },
+  "status": "idea",
+  "vanilla": true
+}

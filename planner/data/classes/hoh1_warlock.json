@@ -1,0 +1,738 @@
+{
+  "base": [
+    {
+      "class": "Skills::MeleeSwing",
+      "desc": "A short stab that applies Soul Consumption, # magical damage per second for #s; you regain #% of it as health and #% as mana.",
+      "file": "players/warlock/soul_dagger.sval",
+      "hoh1_file": "players/warlock/soul_dagger.sval",
+      "id": "hoh1_warlock_soul_dagger",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage per second",
+              "10"
+            ],
+            [
+              "Duration",
+              "2.5s"
+            ],
+            [
+              "Health back",
+              "5%"
+            ],
+            [
+              "Mana back",
+              "10%"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "A short stab that applies Soul Consumption, 10 magical damage per second for 2.5s; you regain 5% of it as health and 10% as mana."
+        },
+        {
+          "params": [
+            [
+              "Damage per second",
+              "12"
+            ],
+            [
+              "Duration",
+              "3s"
+            ],
+            [
+              "Health back",
+              "5%"
+            ],
+            [
+              "Mana back",
+              "10%"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "A short stab that applies Soul Consumption, 12 magical damage per second for 3s; you regain 5% of it as health and 10% as mana."
+        },
+        {
+          "params": [
+            [
+              "Damage per second",
+              "14"
+            ],
+            [
+              "Duration",
+              "3.5s"
+            ],
+            [
+              "Health back",
+              "5%"
+            ],
+            [
+              "Mana back",
+              "10%"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "A short stab that applies Soul Consumption, 14 magical damage per second for 3.5s; you regain 5% of it as health and 10% as mana."
+        },
+        {
+          "params": [
+            [
+              "Damage per second",
+              "16"
+            ],
+            [
+              "Duration",
+              "4s"
+            ],
+            [
+              "Health back",
+              "5%"
+            ],
+            [
+              "Mana back",
+              "10%"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "A short stab that applies Soul Consumption, 16 magical damage per second for 4s; you regain 5% of it as health and 10% as mana."
+        },
+        {
+          "params": [
+            [
+              "Damage per second",
+              "18"
+            ],
+            [
+              "Duration",
+              "4.5s"
+            ],
+            [
+              "Health back",
+              "5%"
+            ],
+            [
+              "Mana back",
+              "10%"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "A short stab that applies Soul Consumption, 18 magical damage per second for 4.5s; you regain 5% of it as health and 10% as mana."
+        },
+        {
+          "params": [
+            [
+              "Damage per second",
+              "20"
+            ],
+            [
+              "Duration",
+              "5s"
+            ],
+            [
+              "Health back",
+              "5%"
+            ],
+            [
+              "Mana back",
+              "10%"
+            ],
+            [
+              "Cooldown",
+              "0.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "A short stab that applies Soul Consumption, 20 magical damage per second for 5s; you regain 5% of it as health and 10% as mana."
+        }
+      ],
+      "mods": [],
+      "name": "Soul Dagger",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Attack"
+    },
+    {
+      "class": "Skills::ShootProjectile",
+      "desc": "A bolt that chains to # targets for # magical damage each.",
+      "file": "players/warlock/lightning_bolt.sval",
+      "hoh1_file": "players/warlock/lightning_bolt.sval",
+      "id": "hoh1_warlock_lightning_bolt",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Targets",
+              "5"
+            ],
+            [
+              "Damage",
+              "20"
+            ],
+            [
+              "Mana Cost",
+              "20"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A bolt that chains to 5 targets for 20 magical damage each."
+        },
+        {
+          "params": [
+            [
+              "Targets",
+              "6"
+            ],
+            [
+              "Damage",
+              "23"
+            ],
+            [
+              "Mana Cost",
+              "27"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A bolt that chains to 6 targets for 23 magical damage each."
+        },
+        {
+          "params": [
+            [
+              "Targets",
+              "7"
+            ],
+            [
+              "Damage",
+              "26"
+            ],
+            [
+              "Mana Cost",
+              "34"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A bolt that chains to 7 targets for 26 magical damage each."
+        },
+        {
+          "params": [
+            [
+              "Targets",
+              "8"
+            ],
+            [
+              "Damage",
+              "29"
+            ],
+            [
+              "Mana Cost",
+              "41"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A bolt that chains to 8 targets for 29 magical damage each."
+        },
+        {
+          "params": [
+            [
+              "Targets",
+              "9"
+            ],
+            [
+              "Damage",
+              "32"
+            ],
+            [
+              "Mana Cost",
+              "48"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A bolt that chains to 9 targets for 32 magical damage each."
+        },
+        {
+          "params": [
+            [
+              "Targets",
+              "10"
+            ],
+            [
+              "Damage",
+              "35"
+            ],
+            [
+              "Mana Cost",
+              "55"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A bolt that chains to 10 targets for 35 magical damage each."
+        }
+      ],
+      "mods": [],
+      "name": "Lightning Bolt",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::DropUnitWarlock",
+      "desc": "Summon a gargoyle for #s that shoots lightning for # magical damage; nearby gargoyles link with a static beam for #% damage that stuns. Up to # at once.",
+      "file": "players/warlock/summon_gargoyle.sval",
+      "hoh1_file": "players/warlock/summon_gargoyle.sval",
+      "id": "hoh1_warlock_summon_gargoyle",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage",
+              "20"
+            ],
+            [
+              "Duration",
+              "5s"
+            ],
+            [
+              "Link damage",
+              "50%"
+            ],
+            [
+              "Max gargoyles",
+              "2"
+            ],
+            [
+              "Mana Cost",
+              "45"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "Summon a gargoyle for 5s that shoots lightning for 20 magical damage; nearby gargoyles link with a static beam for 50% damage that stuns. Up to 2 at once."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "24"
+            ],
+            [
+              "Duration",
+              "5s"
+            ],
+            [
+              "Link damage",
+              "50%"
+            ],
+            [
+              "Max gargoyles",
+              "3"
+            ],
+            [
+              "Mana Cost",
+              "60"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "Summon a gargoyle for 5s that shoots lightning for 24 magical damage; nearby gargoyles link with a static beam for 50% damage that stuns. Up to 3 at once."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "28"
+            ],
+            [
+              "Duration",
+              "5s"
+            ],
+            [
+              "Link damage",
+              "50%"
+            ],
+            [
+              "Max gargoyles",
+              "4"
+            ],
+            [
+              "Mana Cost",
+              "75"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "Summon a gargoyle for 5s that shoots lightning for 28 magical damage; nearby gargoyles link with a static beam for 50% damage that stuns. Up to 4 at once."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "32"
+            ],
+            [
+              "Duration",
+              "5s"
+            ],
+            [
+              "Link damage",
+              "50%"
+            ],
+            [
+              "Max gargoyles",
+              "5"
+            ],
+            [
+              "Mana Cost",
+              "90"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "Summon a gargoyle for 5s that shoots lightning for 32 magical damage; nearby gargoyles link with a static beam for 50% damage that stuns. Up to 5 at once."
+        }
+      ],
+      "mods": [],
+      "name": "Summon Gargoyle",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::DropUnitWarlock",
+      "desc": "A storm follows you for #s and strikes nearby enemies for # magical damage; it links with gargoyles.",
+      "file": "players/warlock/eye_of_the_storm.sval",
+      "hoh1_file": "players/warlock/eye_of_the_storm.sval",
+      "id": "hoh1_warlock_eye_of_the_storm",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage",
+              "24"
+            ],
+            [
+              "Duration",
+              "7s"
+            ],
+            [
+              "Mana Cost",
+              "100"
+            ],
+            [
+              "Cooldown",
+              "12s"
+            ]
+          ],
+          "q": "common",
+          "text": "A storm follows you for 7s and strikes nearby enemies for 24 magical damage; it links with gargoyles."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "32"
+            ],
+            [
+              "Duration",
+              "9s"
+            ],
+            [
+              "Mana Cost",
+              "140"
+            ],
+            [
+              "Cooldown",
+              "12s"
+            ]
+          ],
+          "q": "common",
+          "text": "A storm follows you for 9s and strikes nearby enemies for 32 magical damage; it links with gargoyles."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "40"
+            ],
+            [
+              "Duration",
+              "11s"
+            ],
+            [
+              "Mana Cost",
+              "180"
+            ],
+            [
+              "Cooldown",
+              "12s"
+            ]
+          ],
+          "q": "common",
+          "text": "A storm follows you for 11s and strikes nearby enemies for 40 magical damage; it links with gargoyles."
+        }
+      ],
+      "mods": [],
+      "name": "Eye of the Storm",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::ExtendedDomain",
+      "desc": "All your skills reach #% farther.",
+      "file": "players/warlock/extended_domain.sval",
+      "hoh1_file": "players/warlock/extended_domain.sval",
+      "id": "hoh1_warlock_extended_domain",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Range",
+              "15%"
+            ]
+          ],
+          "q": "common",
+          "text": "All your skills reach 15% farther."
+        },
+        {
+          "params": [
+            [
+              "Range",
+              "30%"
+            ]
+          ],
+          "q": "common",
+          "text": "All your skills reach 30% farther."
+        },
+        {
+          "params": [
+            [
+              "Range",
+              "45%"
+            ]
+          ],
+          "q": "common",
+          "text": "All your skills reach 45% farther."
+        },
+        {
+          "params": [
+            [
+              "Range",
+              "60%"
+            ]
+          ],
+          "q": "common",
+          "text": "All your skills reach 60% farther."
+        },
+        {
+          "params": [
+            [
+              "Range",
+              "75%"
+            ]
+          ],
+          "q": "common",
+          "text": "All your skills reach 75% farther."
+        }
+      ],
+      "mods": [],
+      "name": "Extended Domain",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    },
+    {
+      "class": "Skills::PassiveSkill",
+      "desc": "Soul Consumption victims pass #% of their damage taken to nearby enemies, and spread Soul Consumption when they die #% of the time.",
+      "file": "players/warlock/soul_cleaver.sval",
+      "hoh1_file": "players/warlock/soul_cleaver.sval",
+      "id": "hoh1_warlock_soul_cleaver",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage spread",
+              "50%"
+            ],
+            [
+              "Spread on death",
+              "20%"
+            ]
+          ],
+          "q": "common",
+          "text": "Soul Consumption victims pass 50% of their damage taken to nearby enemies, and spread Soul Consumption when they die 20% of the time."
+        },
+        {
+          "params": [
+            [
+              "Damage spread",
+              "50%"
+            ],
+            [
+              "Spread on death",
+              "40%"
+            ]
+          ],
+          "q": "common",
+          "text": "Soul Consumption victims pass 50% of their damage taken to nearby enemies, and spread Soul Consumption when they die 40% of the time."
+        },
+        {
+          "params": [
+            [
+              "Damage spread",
+              "50%"
+            ],
+            [
+              "Spread on death",
+              "60%"
+            ]
+          ],
+          "q": "common",
+          "text": "Soul Consumption victims pass 50% of their damage taken to nearby enemies, and spread Soul Consumption when they die 60% of the time."
+        },
+        {
+          "params": [
+            [
+              "Damage spread",
+              "50%"
+            ],
+            [
+              "Spread on death",
+              "80%"
+            ]
+          ],
+          "q": "common",
+          "text": "Soul Consumption victims pass 50% of their damage taken to nearby enemies, and spread Soul Consumption when they die 80% of the time."
+        }
+      ],
+      "mods": [],
+      "name": "Soul Cleaver",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    },
+    {
+      "class": "Skills::Stormlash",
+      "desc": "Each lightning bolt has a #% chance to fire another at #% damage.",
+      "file": "players/warlock/stormlash.sval",
+      "hoh1_file": "players/warlock/stormlash.sval",
+      "id": "hoh1_warlock_stormlash",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Chance",
+              "25%"
+            ],
+            [
+              "Damage",
+              "25%"
+            ]
+          ],
+          "q": "common",
+          "text": "Each lightning bolt has a 25% chance to fire another at 25% damage."
+        },
+        {
+          "params": [
+            [
+              "Chance",
+              "50%"
+            ],
+            [
+              "Damage",
+              "50%"
+            ]
+          ],
+          "q": "common",
+          "text": "Each lightning bolt has a 50% chance to fire another at 50% damage."
+        }
+      ],
+      "mods": [],
+      "name": "Stormlash",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    }
+  ],
+  "cut": [],
+  "desc": "The Warlock as HoH1 shipped it, parked for later. Soul Dagger is the attack (a skill: HoH1 had no weapons, so this kit starts with armor only); Lightning Bolt, Summon Gargoyle, Eye of the Storm are the actives; Extended Domain, Soul Cleaver, Stormlash the passives. HoH1 had no orbs: add new ones on any skill here.",
+  "gear": [
+    "chest_int_t1a",
+    "feet_int_t1a"
+  ],
+  "name": "Warlock (HoH1)",
+  "order": 25,
+  "port": "HoH1",
+  "row": "hoh1",
+  "specs": [],
+  "stats": {
+    "armor": "2 (+0.3/lv)",
+    "health": "60 (+6/lv)",
+    "health regen": "0 (+0.025/lv)",
+    "mana": "75 (+13/lv)",
+    "mana regen": "1.5 (+0.075/lv)",
+    "resistance": "2 (+0.3/lv)"
+  },
+  "status": "idea",
+  "vanilla": true
+}

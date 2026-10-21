@@ -447,6 +447,7 @@
   "name": "Witch Hunter",
   "order": 11,
   "port": "HoH1",
+  "row": "hoh1",
   "specs": [
     {
       "id": "hwp_witch_hunter_inquisitor",
@@ -1181,5 +1182,6 @@
     "str": 5,
     "vit": 5
   },
+  "status": "built",
   "vanilla": true
 }

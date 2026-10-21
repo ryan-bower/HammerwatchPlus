@@ -1,0 +1,750 @@
+{
+  "base": [
+    {
+      "class": "Skills::ShootProjectile",
+      "desc": "A shard for # hybrid damage that ricochets off walls and enemies up to # times, +#% damage per bounce.",
+      "file": "players/sorcerer/frost_shard.sval",
+      "hoh1_file": "players/sorcerer/frost_shard.sval",
+      "id": "hoh1_sorcerer_frost_shard",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage",
+              "6"
+            ],
+            [
+              "Ricochets",
+              "1"
+            ],
+            [
+              "Per bounce",
+              "10%"
+            ],
+            [
+              "Cooldown",
+              "0.35s"
+            ]
+          ],
+          "q": "common",
+          "text": "A shard for 6 hybrid damage that ricochets off walls and enemies up to 1 times, +10% damage per bounce."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "8"
+            ],
+            [
+              "Ricochets",
+              "2"
+            ],
+            [
+              "Per bounce",
+              "10%"
+            ],
+            [
+              "Cooldown",
+              "0.35s"
+            ]
+          ],
+          "q": "common",
+          "text": "A shard for 8 hybrid damage that ricochets off walls and enemies up to 2 times, +10% damage per bounce."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "10"
+            ],
+            [
+              "Ricochets",
+              "3"
+            ],
+            [
+              "Per bounce",
+              "10%"
+            ],
+            [
+              "Cooldown",
+              "0.35s"
+            ]
+          ],
+          "q": "common",
+          "text": "A shard for 10 hybrid damage that ricochets off walls and enemies up to 3 times, +10% damage per bounce."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "12"
+            ],
+            [
+              "Ricochets",
+              "4"
+            ],
+            [
+              "Per bounce",
+              "10%"
+            ],
+            [
+              "Cooldown",
+              "0.35s"
+            ]
+          ],
+          "q": "common",
+          "text": "A shard for 12 hybrid damage that ricochets off walls and enemies up to 4 times, +10% damage per bounce."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "14"
+            ],
+            [
+              "Ricochets",
+              "5"
+            ],
+            [
+              "Per bounce",
+              "10%"
+            ],
+            [
+              "Cooldown",
+              "0.35s"
+            ]
+          ],
+          "q": "common",
+          "text": "A shard for 14 hybrid damage that ricochets off walls and enemies up to 5 times, +10% damage per bounce."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "16"
+            ],
+            [
+              "Ricochets",
+              "6"
+            ],
+            [
+              "Per bounce",
+              "10%"
+            ],
+            [
+              "Cooldown",
+              "0.35s"
+            ]
+          ],
+          "q": "common",
+          "text": "A shard for 16 hybrid damage that ricochets off walls and enemies up to 6 times, +10% damage per bounce."
+        }
+      ],
+      "mods": [],
+      "name": "Frost Shard",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Attack"
+    },
+    {
+      "class": "Skills::DropEffect",
+      "desc": "A comet lands in front of you: # hybrid damage split among the enemies hit, who freeze for #s.",
+      "file": "players/sorcerer/comet.sval",
+      "hoh1_file": "players/sorcerer/comet.sval",
+      "id": "hoh1_sorcerer_comet",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage",
+              "40"
+            ],
+            [
+              "Freeze",
+              "1s"
+            ],
+            [
+              "Mana Cost",
+              "25"
+            ],
+            [
+              "Cooldown",
+              "0.4s"
+            ]
+          ],
+          "q": "common",
+          "text": "A comet lands in front of you: 40 hybrid damage split among the enemies hit, who freeze for 1s."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "80"
+            ],
+            [
+              "Freeze",
+              "1.25s"
+            ],
+            [
+              "Mana Cost",
+              "30"
+            ],
+            [
+              "Cooldown",
+              "0.4s"
+            ]
+          ],
+          "q": "common",
+          "text": "A comet lands in front of you: 80 hybrid damage split among the enemies hit, who freeze for 1.25s."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "120"
+            ],
+            [
+              "Freeze",
+              "1.5s"
+            ],
+            [
+              "Mana Cost",
+              "35"
+            ],
+            [
+              "Cooldown",
+              "0.4s"
+            ]
+          ],
+          "q": "common",
+          "text": "A comet lands in front of you: 120 hybrid damage split among the enemies hit, who freeze for 1.5s."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "160"
+            ],
+            [
+              "Freeze",
+              "1.75s"
+            ],
+            [
+              "Mana Cost",
+              "40"
+            ],
+            [
+              "Cooldown",
+              "0.4s"
+            ]
+          ],
+          "q": "common",
+          "text": "A comet lands in front of you: 160 hybrid damage split among the enemies hit, who freeze for 1.75s."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "200"
+            ],
+            [
+              "Freeze",
+              "2s"
+            ],
+            [
+              "Mana Cost",
+              "45"
+            ],
+            [
+              "Cooldown",
+              "0.4s"
+            ]
+          ],
+          "q": "common",
+          "text": "A comet lands in front of you: 200 hybrid damage split among the enemies hit, who freeze for 2s."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "240"
+            ],
+            [
+              "Freeze",
+              "2.25s"
+            ],
+            [
+              "Mana Cost",
+              "50"
+            ],
+            [
+              "Cooldown",
+              "0.4s"
+            ]
+          ],
+          "q": "common",
+          "text": "A comet lands in front of you: 240 hybrid damage split among the enemies hit, who freeze for 2.25s."
+        }
+      ],
+      "mods": [],
+      "name": "Comet",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::ShootProjectileFan",
+      "desc": "# frost balls burst out in every direction for # hybrid damage each.",
+      "file": "players/sorcerer/frost_nova.sval",
+      "hoh1_file": "players/sorcerer/frost_nova.sval",
+      "id": "hoh1_sorcerer_frost_nova",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Frost balls",
+              "13"
+            ],
+            [
+              "Damage",
+              "12"
+            ],
+            [
+              "Mana Cost",
+              "35"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "13 frost balls burst out in every direction for 12 hybrid damage each."
+        },
+        {
+          "params": [
+            [
+              "Frost balls",
+              "15"
+            ],
+            [
+              "Damage",
+              "16"
+            ],
+            [
+              "Mana Cost",
+              "45"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "15 frost balls burst out in every direction for 16 hybrid damage each."
+        },
+        {
+          "params": [
+            [
+              "Frost balls",
+              "17"
+            ],
+            [
+              "Damage",
+              "20"
+            ],
+            [
+              "Mana Cost",
+              "55"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "17 frost balls burst out in every direction for 20 hybrid damage each."
+        },
+        {
+          "params": [
+            [
+              "Frost balls",
+              "19"
+            ],
+            [
+              "Damage",
+              "24"
+            ],
+            [
+              "Mana Cost",
+              "65"
+            ],
+            [
+              "Cooldown",
+              "0.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "19 frost balls burst out in every direction for 24 hybrid damage each."
+        }
+      ],
+      "mods": [],
+      "name": "Frost Nova",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::ShootProjectileFan",
+      "desc": "A slow ice orb drifts forward for #s, spraying shards for # hybrid damage.",
+      "file": "players/sorcerer/orb_of_winter.sval",
+      "hoh1_file": "players/sorcerer/orb_of_winter.sval",
+      "id": "hoh1_sorcerer_orb_of_winter",
+      "kind": "active",
+      "levels": [
+        {
+          "params": [
+            [
+              "Duration",
+              "3.5s"
+            ],
+            [
+              "Damage",
+              "12"
+            ],
+            [
+              "Mana Cost",
+              "120"
+            ],
+            [
+              "Cooldown",
+              "5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A slow ice orb drifts forward for 3.5s, spraying shards for 12 hybrid damage."
+        },
+        {
+          "params": [
+            [
+              "Duration",
+              "5s"
+            ],
+            [
+              "Damage",
+              "16"
+            ],
+            [
+              "Mana Cost",
+              "150"
+            ],
+            [
+              "Cooldown",
+              "5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A slow ice orb drifts forward for 5s, spraying shards for 16 hybrid damage."
+        },
+        {
+          "params": [
+            [
+              "Duration",
+              "6.5s"
+            ],
+            [
+              "Damage",
+              "20"
+            ],
+            [
+              "Mana Cost",
+              "180"
+            ],
+            [
+              "Cooldown",
+              "5s"
+            ]
+          ],
+          "q": "common",
+          "text": "A slow ice orb drifts forward for 6.5s, spraying shards for 20 hybrid damage."
+        }
+      ],
+      "mods": [],
+      "name": "Orb of Winter",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Spell"
+    },
+    {
+      "class": "Skills::PassiveSkill",
+      "desc": "Your skills slow by #% for #s and have a #% chance to freeze for #s.",
+      "file": "players/sorcerer/biting_chill.sval",
+      "hoh1_file": "players/sorcerer/biting_chill.sval",
+      "id": "hoh1_sorcerer_biting_chill",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Slow",
+              "20%"
+            ],
+            [
+              "Slow duration",
+              "2s"
+            ],
+            [
+              "Freeze chance",
+              "7.5%"
+            ],
+            [
+              "Freeze",
+              "1.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "Your skills slow by 20% for 2s and have a 7.5% chance to freeze for 1.25s."
+        },
+        {
+          "params": [
+            [
+              "Slow",
+              "25%"
+            ],
+            [
+              "Slow duration",
+              "2.5s"
+            ],
+            [
+              "Freeze chance",
+              "7.5%"
+            ],
+            [
+              "Freeze",
+              "1.5s"
+            ]
+          ],
+          "q": "common",
+          "text": "Your skills slow by 25% for 2.5s and have a 7.5% chance to freeze for 1.5s."
+        },
+        {
+          "params": [
+            [
+              "Slow",
+              "30%"
+            ],
+            [
+              "Slow duration",
+              "3s"
+            ],
+            [
+              "Freeze chance",
+              "7.5%"
+            ],
+            [
+              "Freeze",
+              "1.75s"
+            ]
+          ],
+          "q": "common",
+          "text": "Your skills slow by 30% for 3s and have a 7.5% chance to freeze for 1.75s."
+        },
+        {
+          "params": [
+            [
+              "Slow",
+              "35%"
+            ],
+            [
+              "Slow duration",
+              "3.5s"
+            ],
+            [
+              "Freeze chance",
+              "7.5%"
+            ],
+            [
+              "Freeze",
+              "2s"
+            ]
+          ],
+          "q": "common",
+          "text": "Your skills slow by 35% for 3.5s and have a 7.5% chance to freeze for 2s."
+        },
+        {
+          "params": [
+            [
+              "Slow",
+              "40%"
+            ],
+            [
+              "Slow duration",
+              "4s"
+            ],
+            [
+              "Freeze chance",
+              "7.5%"
+            ],
+            [
+              "Freeze",
+              "2.25s"
+            ]
+          ],
+          "q": "common",
+          "text": "Your skills slow by 40% for 4s and have a 7.5% chance to freeze for 2.25s."
+        }
+      ],
+      "mods": [],
+      "name": "Biting Chill",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    },
+    {
+      "class": "Skills::StackProtection",
+      "desc": "Casting a skill adds a barrier for #s that cuts one hit's damage by #%; up to # barriers.",
+      "file": "players/sorcerer/ice_barrier.sval",
+      "hoh1_file": "players/sorcerer/ice_barrier.sval",
+      "id": "hoh1_sorcerer_ice_barrier",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Duration",
+              "2.5s"
+            ],
+            [
+              "Reduction",
+              "20%"
+            ],
+            [
+              "Max barriers",
+              "5"
+            ]
+          ],
+          "q": "common",
+          "text": "Casting a skill adds a barrier for 2.5s that cuts one hit's damage by 20%; up to 5 barriers."
+        },
+        {
+          "params": [
+            [
+              "Duration",
+              "2.5s"
+            ],
+            [
+              "Reduction",
+              "30%"
+            ],
+            [
+              "Max barriers",
+              "6"
+            ]
+          ],
+          "q": "common",
+          "text": "Casting a skill adds a barrier for 2.5s that cuts one hit's damage by 30%; up to 6 barriers."
+        },
+        {
+          "params": [
+            [
+              "Duration",
+              "2.5s"
+            ],
+            [
+              "Reduction",
+              "40%"
+            ],
+            [
+              "Max barriers",
+              "7"
+            ]
+          ],
+          "q": "common",
+          "text": "Casting a skill adds a barrier for 2.5s that cuts one hit's damage by 40%; up to 7 barriers."
+        },
+        {
+          "params": [
+            [
+              "Duration",
+              "2.5s"
+            ],
+            [
+              "Reduction",
+              "50%"
+            ],
+            [
+              "Max barriers",
+              "8"
+            ]
+          ],
+          "q": "common",
+          "text": "Casting a skill adds a barrier for 2.5s that cuts one hit's damage by 50%; up to 8 barriers."
+        }
+      ],
+      "mods": [],
+      "name": "Ice Barrier",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    },
+    {
+      "class": "Skills::Shatter",
+      "desc": "Frozen enemies you kill burst for # hybrid damage to enemies near them.",
+      "file": "players/sorcerer/shatter.sval",
+      "hoh1_file": "players/sorcerer/shatter.sval",
+      "id": "hoh1_sorcerer_shatter",
+      "kind": "passive",
+      "levels": [
+        {
+          "params": [
+            [
+              "Damage",
+              "40"
+            ]
+          ],
+          "q": "common",
+          "text": "Frozen enemies you kill burst for 40 hybrid damage to enemies near them."
+        },
+        {
+          "params": [
+            [
+              "Damage",
+              "80"
+            ]
+          ],
+          "q": "common",
+          "text": "Frozen enemies you kill burst for 80 hybrid damage to enemies near them."
+        }
+      ],
+      "mods": [],
+      "name": "Shatter",
+      "port": "HoH1",
+      "summon": false,
+      "type": "Passive"
+    }
+  ],
+  "cut": [],
+  "desc": "The Sorcerer as HoH1 shipped it, parked for later. Frost Shard is the attack (a skill: HoH1 had no weapons, so this kit starts with armor only); Comet, Frost Nova, Orb of Winter are the actives; Biting Chill, Ice Barrier, Shatter the passives. HoH1 had no orbs: add new ones on any skill here.",
+  "gear": [
+    "chest_int_t1a",
+    "feet_int_t1a"
+  ],
+  "name": "Sorcerer (HoH1)",
+  "order": 24,
+  "port": "HoH1",
+  "row": "hoh1",
+  "specs": [],
+  "stats": {
+    "armor": "0 (+0.2/lv)",
+    "health": "40 (+5/lv)",
+    "health regen": "0 (+0.025/lv)",
+    "mana": "75 (+16/lv)",
+    "mana regen": "1.5 (+0.1/lv)",
+    "resistance": "2 (+0.5/lv)"
+  },
+  "status": "idea",
+  "vanilla": true
+}

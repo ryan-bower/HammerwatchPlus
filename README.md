@@ -126,9 +126,14 @@ still to come.
 - Firearms gained the Hand Cannon, the Flamethrower Rifle and the Full Auto Rifle on
   2026-10-20 (`plan-firearms-cannon`); the rifle is now the Grenade Launching Rifle.
 - The vanilla classes' 4th specs are being designed in the class planner.
-- Designed in the planner, not built: an "HoH1 Remastered" 5th spec for every vanilla class
-  (the Rogue's from the HoH1 Thief, the Warrior's from the Gladiator), one active and one
-  passive of HoH1's that HoH2 lacks. The icons are wired up (`tools/import_hoh1.py classes`).
+- Designed in the planner, not built, and parked for later: an "Echoes of Hammerwatch I"
+  (formerly "HoH1 Remastered") 5th spec for every vanilla class (the Rogue's from the HoH1
+  Thief, the Warrior's from the Gladiator), one active and one passive of HoH1's that HoH2
+  lacks. The icons are wired up (`tools/import_hoh1.py classes`).
+- Parked on 2026-10-21: the Thief, Gladiator and Witch Hunter are hidden from character
+  creation (`HWP::HideClass`, run `mod-classes-hidden`). The planner shows them on a second
+  "HoH1" row with the six original HoH1 classes, whose kits are the HoH1 ones
+  (`tools/planner_hoh1.py`), with armor-only gear and orbs still to design.
 - What each session changed, with the GameLab run behind every claim, is in
   `docs/RE_NOTES.md`. The HoH1-to-HoH2 trinket comparison is a private web app outside the
   repo; its link is there too.

@@ -32,13 +32,34 @@ without a reload.
 | Collection | Holds |
 |---|---|
 | `classes` | each class: stats, gear, base kit, specs and their orbs (read-only game data); the class notes field |
-| `doctrines` | specializations you design: the Firearms doctrines and each class's 4th (`spec4: true`; `owner` is who is designing it) and its HoH1 Remastered 5th (`remastered: true`, files `<cls>-hoh1*`) |
+| `doctrines` | specializations you design: the Firearms doctrines and each class's 4th (`spec4: true`; `owner` is who is designing it) and its Echoes of Hammerwatch I 5th (`remastered: true`, files `<cls>-hoh1*`) |
 | `skills` | skills in those specializations |
 | `mods` | new orbs, on a new skill or on a vanilla one (`skill` is its id) |
 | `weapons`, `stacks`, `attributes` | Firearms only: arsenal, clip and reload, gun attributes |
 | `reference` | `vanilla`: the Firearms budget targets; `spec4-brief`: the brief shown on a class whose 4th spec has an owner |
 
 A record with no `cls` belongs to the Firearms Specialist.
+
+## The HoH1 row
+
+The class bar's second row holds the parked HoH1 classes (`row: "hoh1"` on the class record):
+the three ported ones (Thief, Gladiator, Witch Hunter, built in `mods/classes` but hidden from
+character creation) and the six original HoH1 classes HoH2 remade, `hoh1_<cls>.json`. Those
+six are written by `tools/planner_hoh1.py` from a local HoH1 install (read only; `--check`
+reports drift): HoH1's attack, three actives and three passives with HoH1's numbers per
+level and HoH1's stats, in our own words. HoH1 had no weapons and no orbs, so they start with
+armor only, and their orbs are `mods` records on those skill ids.
+
+## Status and the class dots
+
+A record's status runs idea, designed, built, tested, finished. The dot on a class's tab sums
+up that class's own records (its 4th spec, skills and orbs; for Firearms also its weapons and
+stacks; the ported and HoH1 classes also their class `status`), leaving out the parked Echoes
+of Hammerwatch I specs:
+
+- red: anything is still an idea or only designed, or a vanilla class has no 4th spec yet;
+- yellow: everything is built or tested, but not yet balanced and signed off;
+- green: everything is finished.
 
 ## Icons
 
@@ -47,5 +68,5 @@ atlases (vanilla, Firearms, and the HoH1 classes' committed placeholders) by
 `tools/icon_art/planner_icons.py`, which needs `gamecode/`. With the HoH1 art imported
 (`python -m gamelab doctor --fix`), it also writes the git-ignored `web/icons.local.png`,
 which the server sends instead. A record with `hoh1_icon` (`"<cls>/<skill>"`, a key of
-`HOH1_REMASTERED_ICONS` in `tools/import_hoh1.py`) takes its icon from the HoH1 Remastered
+`HOH1_REMASTERED_ICONS` in `tools/import_hoh1.py`) takes its icon from the HoH1 Remastered (now Echoes of Hammerwatch I)
 sheet, `mods/classes/players/hwp/remastered/icons.png`; `hoh1_file` names its HoH1 sval.
