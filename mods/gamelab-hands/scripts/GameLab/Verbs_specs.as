@@ -1,5 +1,6 @@
 // gamelab-hands: verbs for the 4th specializations' checks (plan_specs). hasbuff and bind only
-// read; evade rolls the local player's real evade.
+// read; evade rolls the local player's real evade; stacks and mana set a
+// stack count and the mana.
 namespace GameLab
 {
 	const uint SPECS_CAP = 16;
@@ -102,8 +103,51 @@ namespace GameLab
 		Emit(Reply(id, true).Str("skill", args[0]).Str("name", args[1]).Str("type", t).Str("value", v));
 	}
 
+	// stacks <path> <n>: sets the local player's count of a buff stack (file:id, as
+	// ActorBuffStackDef::Get takes it) with PlayerBase.AddStacks(the difference), the call an
+	// AddStacks effect makes; for the checks that need a count the game would take long to
+	// build (Static Charge from spell crits). Replies the count before and after.
+	void VerbStacks(const string &in id, array<string>@ args)
+	{
+		auto plr = cast<PlayerBase>(GetLocalPlayer());
+		if (plr is null || args.length() < 2)
+		{
+			Fail(id, plr is null ? "no spawned local player" : "usage: stacks <path> <n>");
+			return;
+		}
+		auto def = ActorBuffStackDef::Get(args[0]);
+		if (def is null)
+		{
+			Fail(id, "no stack " + args[0]);
+			return;
+		}
+		int was = plr.GetStacks(def);
+		int want = max(0, parseInt(args[1]));
+		if (want != was)
+			plr.AddStacks(plr, def, want - was);
+		Emit(Reply(id, true).Str("path", args[0]).Int("was", was).Int("now", plr.GetStacks(def)));
+	}
+
+	// mana <n>: sets the local player's mana to n (m_record.mana, a fraction of MaxMana), so a
+	// check can see mana given back that the cap would otherwise eat. Replies before and after.
+	void VerbMana(const string &in id, array<string>@ args)
+	{
+		auto plr = cast<PlayerBase>(GetLocalPlayer());
+		if (plr is null || args.length() < 1)
+		{
+			Fail(id, plr is null ? "no spawned local player" : "usage: mana <n>");
+			return;
+		}
+		float maxm = float(max(1, plr.m_record.MaxMana()));
+		float was = plr.m_record.mana * maxm;
+		plr.m_record.mana = clamp(parseFloat(args[0]) / maxm, 0.0f, 1.0f);
+		Emit(Reply(id, true).Num("was", was).Num("now", plr.m_record.mana * maxm).Int("max", int(maxm)));
+	}
+
 	void Register_specs()
 	{
+		RegisterVerb("mana", "<n>", Verb(VerbMana));
+		RegisterVerb("stacks", "<path> <n>", Verb(VerbStacks));
 		RegisterVerb("hasbuff", "<path> [path ...]", Verb(VerbHasBuff));
 		RegisterVerb("evade", "[tries]", Verb(VerbEvade));
 		RegisterVerb("bind", "<skillId> <name>", Verb(VerbBind));

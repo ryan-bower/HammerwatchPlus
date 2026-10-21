@@ -22,4 +22,16 @@
 			</array>
 		</dict>
 	</dict>
+	<!-- Invocation, Static Charge: a stack per spell crit (once per cast), released at 5 by the
+	     next spell (Invocation.as HWPSpecsStaticRelease). No timer: they wait for the release. -->
+	<dict>
+		<string name="id">static_charge</string>
+		<string name="name">.hwp.specs.stack.static_charge.name</string>
+		<string name="description">.hwp.specs.stack.static_charge.desc</string>
+		<int name="max">5</int>
+		<dict name="buff">
+			<bool name="debuff">false</bool>
+			<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>192 24 14 14</vec4></array>
+		</dict>
+	</dict>
 </array>

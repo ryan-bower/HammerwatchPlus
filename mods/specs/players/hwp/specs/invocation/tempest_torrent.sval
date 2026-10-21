@@ -1,0 +1,155 @@
+%include "players/skills_cost.inc"
+<!--
+	Tempest Torrent (Invocation active). Shoots invocation/torrent.unit along the aim: a slow
+	lightning orb that passes through enemies, stops at a wall and every 250 ms zaps 3 times
+	(HWPSpecsZap, scripts/HWP/Specs/Invocation.as): new targets first, so a pack is swept and
+	a lone target takes all three.
+	Planner numbers: 5/6/7/8/10 per zap, 2/2.5/2.5/3/3 s, mana 40/50/50/60/60, cooldown 12 s.
+	Assumed: the zap range 70, the orb's speed (about 50 px/s).
+	Orbs: Overcharge (tt-overcharge: +4/7% per earlier zap of the orb on that enemy, up to 10),
+	Lingering Storm (tt-ttl-add: +1/2 s), Thunderclap (tt-clap: on expiry every enemy within
+	70 takes 150% of a zap).
+	Sound: a placeholder until the audio picker (art/specs/AUDIO.md).
+-->
+<dict>
+	<string name="name">.hwp.specs.tempest_torrent.name</string>
+	<string name="type-name">.skills.type.spell</string>
+	<string name="description">.hwp.specs.tempest_torrent.desc</string>
+
+	<array name="description-params">
+		<array><s>damage</s><s>.skills.desc.params.damage.lightning</s><s>5</s><s>6</s><s>7</s><s>8</s><s>10</s></array>
+		<array><s>duration</s><s>.skills.desc.params.duration</s><s>2s</s><s>2.5s</s><s>2.5s</s><s>3s</s><s>3s</s></array>
+		<array><s>mana-cost</s><s>.skills.desc.params.mana_cost</s><s>40</s><s>50</s><s>50</s><s>60</s><s>60</s></array>
+		<array><s>cooldown</s><b>t</b><s>.skills.desc.params.cooldown</s><s>12s</s></array>
+	</array>
+
+	<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>24 24 24 24</vec4></array>
+
+	<string name="id">hwp_wiz_tempest_torrent</string>
+	<string name="type">spell</string>
+	<array name="tags"><s>spell</s><s>lightning</s></array>
+	<int name="starting-level">1</int>
+
+	<dict name="skill">
+		<int name="skill-cost">SKILLCOSTMASTERYLEVEL_1</int>
+		<string name="class">Skills::PlayerSkillDirectional</string>
+		<string name="anim">cast</string>
+		<int name="anim-length">600</int>
+
+		<int name="cooldown">12000</int>
+		<int name="castpoint">150</int>
+		<float name="cast-speed-mul">1</float>
+		<float name="move-speed-mul">0.5</float>
+		<ivec2 name="move-speed">0 150</ivec2>
+		<ivec2 name="blocking">0 150</ivec2>
+		<ivec2 name="update-aim">0 150</ivec2>
+		<bool name="repeating">false</bool>
+		<int name="mana-cost">40</int>
+
+		<dict name="binds">
+			<int name="tt-dmg">5</int>
+			<int name="tt-ttl">2000</int>
+			<int name="tt-ttl-add">0</int>
+			<float name="tt-overcharge">0</float>
+			<float name="tt-clap">0</float>
+		</dict>
+
+		<dict name="actions">
+			<array name="cast">
+				<dict>
+					<string name="class">PlaySound</string>
+					<string name="sound">event:/sfx/player/classes/wizard/magic_missiles/magic_missiles_cast</string>
+				</dict>
+				<dict>
+					<string name="class">ShootProjectile</string>
+					<string name="projectile">players/hwp/specs/invocation/torrent.unit</string>
+					<int name="dist">8</int>
+				</dict>
+			</array>
+		</dict>
+
+		<array name="timeline">
+			<i>150</i><s>cast</s>
+		</array>
+	</dict>
+
+	<array name="upgrades">
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
+			<int name="mana-cost">50</int>
+			<dict name="binds"><int name="tt-dmg">6</int><int name="tt-ttl">2500</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
+			<int name="mana-cost">50</int>
+			<dict name="binds"><int name="tt-dmg">7</int><int name="tt-ttl">2500</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
+			<int name="mana-cost">60</int>
+			<dict name="binds"><int name="tt-dmg">8</int><int name="tt-ttl">3000</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
+			<int name="mana-cost">60</int>
+			<dict name="binds"><int name="tt-dmg">10</int><int name="tt-ttl">3000</int></dict>
+		</dict>
+	</array>
+
+	<array name="modifier-skills">
+		<dict>
+			<string name="name">.hwp.specs.overcharge.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.overcharge.desc</string>
+			<array name="description-params">
+				<array><s>per-zap</s><s>.hwp.specs.param.dmg_per_zap</s><s>+4%</s><s>+7%</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>72 24 24 24</vec4></array>
+			<string name="id">hwp_wiz_tt_overcharge</string>
+			<string name="quality">uncommon</string>
+			<dict name="skill">
+				<dict name="binds"><float name="tt-overcharge">0.04</float></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><float name="tt-overcharge">0.07</float></dict>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<string name="name">.hwp.specs.lingering_storm.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.lingering_storm.desc</string>
+			<array name="description-params">
+				<array><s>duration</s><s>.skills.desc.params.duration</s><s>+1s</s><s>+2s</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>96 24 24 24</vec4></array>
+			<string name="id">hwp_wiz_tt_lingering_storm</string>
+			<string name="quality">uncommon</string>
+			<dict name="skill">
+				<dict name="binds"><int name="tt-ttl-add">1000</int></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><int name="tt-ttl-add">2000</int></dict>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<string name="name">.hwp.specs.thunderclap.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.thunderclap.desc</string>
+			<array name="description-params">
+				<array><s>burst</s><s>.hwp.specs.param.burst_damage</s><s>150%</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>120 24 24 24</vec4></array>
+			<string name="id">hwp_wiz_tt_thunderclap</string>
+			<string name="quality">rare</string>
+			<dict name="skill">
+				<dict name="binds"><float name="tt-clap">1.5</float></dict>
+			</dict>
+		</dict>
+	</array>
+</dict>

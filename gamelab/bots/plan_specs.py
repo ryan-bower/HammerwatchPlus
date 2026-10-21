@@ -7,7 +7,7 @@ gamelab plus mods/gamelab-hands/scripts/GameLab/Verbs_specs.as: hasbuff (a buff 
 for the buffs that have no display name), evade (Player.Evade's real roll and triggers) and
 bind (a skill's live bind, to see the orbs took).
 
-Sections: winddancer, bannerlord. Single player: what only shows on a teammate (Shared Breath,
+Sections: winddancer, bannerlord, invocation. Single player: what only shows on a teammate (Shared Breath,
 the standard's ally numbers) is checked as far as the bearer's own client goes."""
 import re
 import time
@@ -199,7 +199,77 @@ class Checks(Base):
         self.to_town()
 
 
-def run(p, sections="winddancer,bannerlord", **_):
+    # --- Invocation
+    def dummy_hp(self):
+        """{unit id: hp fraction, 0 when dead} of the dummies around."""
+        return {u["unit"]: (0.0 if u.get("dead") else u.get("hp", 1.0)) for u in self.dummies(400)}
+
+    def invocation(self):
+        tt, sc = "hwp_wiz_tempest_torrent", "hwp_wiz_static_charge"
+        self.setup("inv", "wizard", "hwp_wizard_invocation", [tt, sc])
+        if not self.enter_floor("inv"):
+            return
+        for dy in (-25, 0, 25):
+            self.gl("spawn", DUMMY, 70, dy)
+        time.sleep(1.0)
+        hp0 = self.dummy_hp()
+        mark = len(self.g.read_log())
+        presses, spent, button = self.cast_skill("inv_tt", tt, 40)
+        self.g.shot("inv torrent", settle=False)
+        time.sleep(3.0)
+        hp1 = self.dummy_hp()
+        hit = [u for u, h in hp0.items() if hp1.get(u, 0.0) < h - 0.001]
+        self.flag("inv_tt_cast", presses > 0, f"{tt} on {button}: {presses} press(es), mana -{spent}")
+        self.flag("inv_tt_spread", len(hp0) == 3 and len(hit) == 3,
+                  f"dummies hp before {hp0}, after {hp1}: {len(hit)} of {len(hp0)} zapped")
+
+        for orb, n in (("hwp_wiz_tt_overcharge", 2), ("hwp_wiz_tt_lingering_storm", 2), ("hwp_wiz_tt_thunderclap", 1),
+                       ("hwp_wiz_sc_static_channel", 2), ("hwp_wiz_sc_conduit", 2)):
+            self.gl("orb", orb, n)
+        time.sleep(0.5)
+        binds = {k: self.bind(s_, k) for s_, k in ((tt, "tt-overcharge"), (tt, "tt-ttl-add"), (tt, "tt-clap"),
+                                                    (sc, "sc-channel"), (sc, "sc-conduit-lvl"))}
+        self.flag("inv_orb_binds", binds == {"tt-overcharge": "0.07", "tt-ttl-add": "2000", "tt-clap": "1.5",
+                                             "sc-channel": "0.2", "sc-conduit-lvl": "2"}, f"{binds}")
+
+        path = "players/hwp/specs/stacks_specs.sval:static_charge"
+        self.gl("stacks", path, 3)
+        cb = self.wait_buff("conduit_2_3", 1.5)
+        self.flag("inv_conduit", bool(cb.get("on")), f"3 charges, Conduit 2: conduit_2_3 {cb} (+24% cast speed)")
+
+        # a release on the next cast: 5 charges, the torrent's cooldown over
+        self.gl("stacks", path, 5)
+        end = time.time() + 14
+        while time.time() < end and (self.skill_cd(tt) or 0) > 0:
+            time.sleep(0.5)
+        self.gl("kill", 600, "bandit_brute")
+        for dy in (-25, 0, 25):
+            self.gl("spawn", DUMMY, 70, dy)
+        time.sleep(1.0)
+        hp0 = self.dummy_hp()
+        mark = len(self.g.read_log())
+        maxm = self.gl("mana", 100).get("max", 0)
+        presses, spent, button = self.cast_skill("inv_tt2", tt, 40)
+        time.sleep(0.6)
+        m1 = self.mana_exact()
+        log = self.g.read_log()[mark:]
+        st = self.specs()
+        # the torrent's own zaps can crit and start the count again: 0 or 1 after the release
+        left = re.findall(r"static charge (\d+)", st)
+        self.flag("inv_release", "static charge: released" in log and bool(left) and int(left[-1]) < 2,
+                  f"log {[l for l in log.splitlines() if 'static charge' in l][-2:]}; {st.strip()[-120:]}")
+        # from 100: the torrent's cost (50 at level 2), then 20% of max back, plus some regen
+        want = 100 - 50 + 0.2 * maxm
+        self.flag("inv_static_channel", "20% mana" in log and want - 3 <= m1 <= want + 25,
+                  f"mana 100 -> {m1} (max {maxm}: want about {want:.0f}, regen on top)")
+        time.sleep(5.5)  # 3 s + Lingering Storm 2 s, then Thunderclap
+        hp2 = self.dummy_hp()
+        self.flag("inv_tt_orbs", all(hp2.get(u, 0.0) < h - 0.001 for u, h in hp0.items()) and len(hp0) == 3,
+                  f"dummies {hp0} -> {hp2} after the release and a 5 s torrent")
+        self.to_town()
+
+
+def run(p, sections="winddancer,bannerlord,invocation", **_):
     c = Checks(p)
     for s in sections.split(","):
         try:

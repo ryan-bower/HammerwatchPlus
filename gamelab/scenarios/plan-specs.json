@@ -1,6 +1,6 @@
 {
  "name": "plan-specs",
- "about": "Test plan through the plan_specs bot: the 4th specializations (mods/specs) cast in an emptied Bandit Keep floor at level 20. winddancer: Protective Gale puts gale_1 (Evasion, 6 s, HUD icon) on the rogue; an evade (the evade verb: Player.Evade's real roll) heals 20 through Second Wind, a second within 4 s does not; the orbs' binds take (Lasting Gale 12 s, Tailwind, Lingering Breeze, Shared Breath), the recast lasts 12 s with Tailwind's speed, a gust gives breeze_2, and the rogue never gets the teammates' share buff. bannerlord: the raise gives standard_dr at 2%, Feared Crest and War Drum debuff a dummy, Shared Provisions counts the buff; the second press plants it for free at 4%.",
+ "about": "Test plan through the plan_specs bot: the 4th specializations (mods/specs) cast in an emptied Bandit Keep floor at level 20. winddancer: Protective Gale puts gale_1 (Evasion, 6 s, HUD icon) on the rogue; an evade (the evade verb: Player.Evade's real roll) heals 20 through Second Wind, a second within 4 s does not; the orbs' binds take (Lasting Gale 12 s, Tailwind, Lingering Breeze, Shared Breath), the recast lasts 12 s with Tailwind's speed, a gust gives breeze_2, and the rogue never gets the teammates' share buff. bannerlord: the raise gives standard_dr at 2%, Feared Crest and War Drum debuff a dummy, Shared Provisions counts the buff; the second press plants it for free at 4%. invocation: Tempest Torrent zaps all three dummies in a row; the orbs' binds take; 3 Static Charge stacks (the stacks verb) give conduit_2_3; at 5 the next cast releases them (stacks 0) and Static Channel gives 20% mana back; the 5 s torrent with Thunderclap hurts all three again.",
  "fixture": "town-paladin",
  "mods": [
   "core",
@@ -61,6 +61,25 @@
     "banner_plant": true,
     "banner_plant_free": true,
     "banner_plant_doubled": true
+   }
+  },
+  {
+   "do": "bot",
+   "bot": "plan_specs",
+   "kwargs": {
+    "sections": "invocation"
+   },
+   "name": "invocation",
+   "expect": {
+    "inv_char": true,
+    "inv_learned": true,
+    "inv_tt_cast": true,
+    "inv_tt_spread": true,
+    "inv_orb_binds": true,
+    "inv_conduit": true,
+    "inv_release": true,
+    "inv_static_channel": true,
+    "inv_tt_orbs": true
    }
   },
   {

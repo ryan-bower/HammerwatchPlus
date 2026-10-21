@@ -1,0 +1,77 @@
+<unit netsync="none">
+	<!--
+		Tempest Torrent's orb (invocation/tempest_torrent.sval, HWPSpecsZap in
+		scripts/HWP/Specs/Invocation.as). Slow (1.6 px a tick, about 50 px/s), through enemies
+		(penetration 999, no hit effects), stopped by a wall (bounce speed 0: it stays and keeps
+		zapping). Every 250 ms: 3 zaps of tt-dmg lightning within 70. Binds: tt-ttl (+tt-ttl-add,
+		Lingering Storm), tt-overcharge (Overcharge), tt-clap (Thunderclap, on the way out).
+	-->
+	<behavior class="NewProjectile">
+		<string name="anim">default</string>
+		<float name="speed">1.6</float>
+		<string name="ttl-bind">tt-ttl</string>
+		<int name="penetration">999</int>
+		<int name="bounces">999</int>
+		<bool name="bounce-on-collide">true</bool>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Projectile::Speed</string>
+				<float name="bounce-speed-mul">0</float>
+				<vec2 name="speed-limits">0 10</vec2>
+			</dict>
+			<dict>
+				<string name="class">HWPSpecsTtlAdd</string>
+				<string name="add-bind">tt-ttl-add</string>
+			</dict>
+			<dict>
+				<string name="class">Projectile::PeriodicEffect</string>
+				<int name="freq">250</int>
+				<array name="effects">
+					<dict>
+						<string name="class">HWPSpecsZap</string>
+						<int name="targets">3</int>
+						<int name="radius">70</int>
+						<string name="overcharge-bind">tt-overcharge</string>
+						<int name="max-overcharge">10</int>
+						<array name="effects">
+							<dict>
+								<string name="class">Damage</string>
+								<string name="lightning-bind">tt-dmg</string>
+							</dict>
+						</array>
+					</dict>
+				</array>
+			</dict>
+		</array>
+
+		<array name="destroyed-effects">
+			<dict>
+				<string name="class">HWPSpecsZap</string>
+				<bool name="all">true</bool>
+				<int name="radius">70</int>
+				<string name="mul-bind">tt-clap</string>
+				<string name="hit-fx">effects/generic/explosions/lightning_explosion_1.effect</string>
+				<array name="effects">
+					<dict>
+						<string name="class">Damage</string>
+						<string name="lightning-bind">tt-dmg</string>
+					</dict>
+				</array>
+			</dict>
+		</array>
+
+		<dict name="effect-params">
+			<float name="height">6</float>
+		</dict>
+	</behavior>
+
+	<scenes start="default">
+		<scene name="default">
+			<collision static="false">
+				<circle radius="6" projectile="true" />
+			</collision>
+			<effect layer="0" src="effects/generic/projectiles/lightning_projectile_ball_2.effect?radius=6" />
+		</scene>
+	</scenes>
+</unit>

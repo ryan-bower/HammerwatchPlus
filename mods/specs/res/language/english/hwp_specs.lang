@@ -11,6 +11,10 @@
 	<string name="hwp.specs.param.buff_duration">Buff Duration:</string>
 	<string name="hwp.specs.param.max_weakness">Strongest Weakness:</string>
 	<string name="hwp.specs.param.cdr_per_buff">Cooldown Reduction per Buff:</string>
+	<string name="hwp.specs.param.dmg_per_zap">Damage per Earlier Zap:</string>
+	<string name="hwp.specs.param.burst_damage">Burst Damage:</string>
+	<string name="hwp.specs.param.dmg_per_strike">Lightning Damage per Strike:</string>
+	<string name="hwp.specs.param.cast_speed_per_stack">Cast Speed per Stack:</string>
 
 	<!-- Bannerlord -->
 	<string name="hwp.specs.battlefield_standard.name">Battlefield Standard</string>
@@ -41,4 +45,22 @@
 	<string name="hwp.specs.lingering_breeze.desc">Everyone a healing gust touches also recovers %healthregen% Health every second for %duration%.</string>
 	<string name="hwp.specs.shared_breath.name">Shared Breath</string>
 	<string name="hwp.specs.shared_breath.desc">Teammates under your Protective Gale release your healing gust when they evade an attack.</string>
+
+	<!-- Invocation -->
+	<string name="hwp.specs.tempest_torrent.name">Tempest Torrent</string>
+	<string name="hwp.specs.tempest_torrent.desc">Launch a slow orb of lightning that passes through enemies for %duration%. Every 0.25 seconds it zaps 3 times for %damage% Lightning damage, seeking out enemies it has not zapped yet. A wall stops it, but it keeps zapping.</string>
+	<string name="hwp.specs.overcharge.name">Overcharge</string>
+	<string name="hwp.specs.overcharge.desc">Each zap on an enemy deals %per-zap% more damage for every earlier zap on it, up to 10 times.</string>
+	<string name="hwp.specs.lingering_storm.name">Lingering Storm</string>
+	<string name="hwp.specs.lingering_storm.desc">Tempest Torrent lasts %duration% longer.</string>
+	<string name="hwp.specs.thunderclap.name">Thunderclap</string>
+	<string name="hwp.specs.thunderclap.desc">When Tempest Torrent ends it bursts, dealing %burst% of its zap damage to every nearby enemy.</string>
+	<string name="hwp.specs.static_charge.name">Static Charge</string>
+	<string name="hwp.specs.static_charge.desc">Your spell critical hits build Static Charge, once per cast. At 5 charges your next spell releases 3 lightning strikes of %damage% damage, split between up to 3 nearby enemies. If all three strike one enemy, they deal 50% more damage.</string>
+	<string name="hwp.specs.static_channel.name">Static Channel</string>
+	<string name="hwp.specs.static_channel.desc">Releasing Static Charge restores %mana% of your maximum Mana.</string>
+	<string name="hwp.specs.conduit.name">Conduit</string>
+	<string name="hwp.specs.conduit.desc">Each Static Charge increases your Cast Speed by %cast-speed%.</string>
+	<string name="hwp.specs.stack.static_charge.name">Static Charge</string>
+	<string name="hwp.specs.stack.static_charge.desc">At 5, your next spell releases lightning strikes.</string>
 </lang>
