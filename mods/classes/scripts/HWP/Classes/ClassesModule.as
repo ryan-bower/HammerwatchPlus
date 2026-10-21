@@ -92,6 +92,10 @@ namespace Modules
 			super("hwp-classes");
 			HWP::Commands::Register("classes", " HoH1 classes status", HWP::Commands::Handler(HWP::Classes::CmdClasses));
 			HWP::Classes::SelfCheck();
+			// Parked for later (2026-10-21): not offered at character creation;
+			// existing characters of these classes still play.
+			for (uint i = 0; i < HWP::Classes::IDS.length(); i++)
+				HWP::HideClass(HWP::Classes::IDS[i]);
 		}
 
 		void Start(StartMode sMode)

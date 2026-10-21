@@ -1,0 +1,21 @@
+{
+ "name": "mod-classes-hidden",
+ "about": "Thief, Gladiator and Witch Hunter are parked: the create-character list leaves them out (core's HWP::HideClass), and the Firearms Specialist is still offered.",
+ "fixture": "town-paladin",
+ "mods": ["core", "classes", "firearms"],
+ "timeout": 200,
+ "steps": [
+  {"do": "wait_phase", "phase": "town", "timeout": 60},
+  {"do": "sleep", "seconds": 2},
+  {"do": "gl", "verb": "charcreate", "args": []},
+  {"do": "log_has", "pattern": "\\[HWP:core\\] create-character: hid hwp_thief", "timeout": 20},
+  {"do": "log_has", "pattern": "\\[HWP:core\\] create-character: hid hwp_gladiator", "timeout": 5},
+  {"do": "log_has", "pattern": "\\[HWP:core\\] create-character: hid hwp_witch_hunter", "timeout": 5},
+  {"do": "log_lacks", "pattern": "create-character: hid hwp_firearms"},
+  {"do": "sleep", "seconds": 1},
+  {"do": "shot", "name": "classlist"},
+  {"do": "key", "key": "escape"},
+  {"do": "sleep", "seconds": 1},
+  {"do": "log_clean"}
+ ]
+}

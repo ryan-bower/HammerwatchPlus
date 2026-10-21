@@ -71,6 +71,12 @@ class CreateCharacterMenuClassTab : MenuTab
 				continue;
 			if (!CheckGlobalConditionals(PlayerClass::Instances[i].m_conditionals))
 				continue;
+			// HWP (core): classes a module parked for later (HWP::HideClass)
+			if (HWP::IsClassHidden(PlayerClass::Instances[i].m_idHash))
+			{
+				HWP::Log("core", "create-character: hid " + PlayerClass::Instances[i].m_id);
+				continue;
+			}
 			classSort.insertLast(PlayerClass::Instances[i]);
 		}
 
