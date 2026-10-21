@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_paladin",
+  "exclusive": "",
+  "hoh1_file": "players/paladin/mercenary/flames_of_devotion_merc.sval",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Any primary attack builds Flames"
+    }
+  ],
+  "name": "Mercenary Flames of Devotion",
+  "notes": "HoH1 Mercenary version of Flames of Devotion (players/paladin/mercenary/flames_of_devotion_merc.sval, 25 skill points in the Mercenary skill shop). Against HoH1 level 2 (in brackets): max stacks 12 (24); triggers on any class's primary attack. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_paladin_flames_of_devotion",
+  "status": "idea",
+  "summary": "Each primary attack hit, from any weapon, adds 1 magical damage to all your skills, up to 12 stacks of 1 s."
+}

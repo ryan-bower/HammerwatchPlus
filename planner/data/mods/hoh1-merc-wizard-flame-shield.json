@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_wizard",
+  "exclusive": "",
+  "hoh1_file": "players/wizard/mercenary/flame_shield_merc.sval",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Sets off its own blast"
+    }
+  ],
+  "name": "Mercenary Flame Shield",
+  "notes": "HoH1 Mercenary version of Flame Shield (players/wizard/mercenary/flame_shield_merc.sval, 14 skill points in the Mercenary skill shop). Against HoH1 level 4 (in brackets): a fixed blast (your Blast Wave at its level). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_wizard_flame_shield",
+  "status": "idea",
+  "summary": "When Flame Shield takes a hit (50% less damage, 3 s recharge) it sets off its own blast for 30 magical in a 64 radius, with Blast Wave's level-4 slow and confusion, whether or not you have Blast Wave."
+}

@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_paladin",
+  "exclusive": "",
+  "hoh1_file": "players/paladin/mercenary/charge_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Shorter, slower dash"
+    }
+  ],
+  "name": "Mercenary Charge",
+  "notes": "HoH1 Mercenary version of Charge (players/paladin/mercenary/charge_merc.sval, 18 skill points in the Mercenary skill shop). Against HoH1 level 6 (in brackets): dash speed 12 for 0.19 s (16 for 0.2 s). Its own mana 30 (25), cooldown 0.25 s. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_paladin_charge",
+  "status": "idea",
+  "summary": "Charge on a shorter, slower dash: still 75 physical damage and a 0.5 s stun."
+}

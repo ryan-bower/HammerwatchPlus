@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hwp_gladiator",
+  "exclusive": "",
+  "hoh1_file": "players/gladiator/mercenary/gladius_merc.sval",
+  "levels": [
+    {
+      "q": "rare",
+      "text": "Throw three"
+    }
+  ],
+  "name": "Mercenary Spinning Gladius",
+  "notes": "HoH1 Mercenary version of Spinning Gladius (players/gladiator/mercenary/gladius_merc.sval, 18 skill points in the Mercenary skill shop). Against HoH1 level 4 (in brackets): 3 gladii, no fan (1, fanned by Strength in Numbers); mana 50 (42). Its own mana 50 (42), cooldown 4 s. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon. Numbers are HoH1's, not this port's.",
+  "order": null,
+  "skill": "hwp_gladiator_gladius",
+  "status": "idea",
+  "summary": "Throws three gladii straight ahead; each spins in place for 3 s on impact, 128 magical per second."
+}

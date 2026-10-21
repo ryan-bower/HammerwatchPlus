@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_paladin",
+  "exclusive": "",
+  "hoh1_file": "players/paladin/mercenary/shield_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Narrow 90° shield"
+    }
+  ],
+  "name": "Mercenary Shield",
+  "notes": "HoH1 Mercenary version of Shield (players/paladin/mercenary/shield_merc.sval, 17 skill points in the Mercenary skill shop). Against HoH1 level 5 (in brackets): arc 90° (160°); block 5 physical (25). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_paladin_shield",
+  "status": "idea",
+  "summary": "The shield covers a 90° arc instead of 160°, and its 25% block stops only 5 physical damage."
+}

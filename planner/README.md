@@ -50,6 +50,13 @@ reports drift): HoH1's attack, three actives and three passives with HoH1's numb
 level and HoH1's stats, in our own words. HoH1 had no weapons and no orbs, so they start with
 armor only, and their orbs are `mods` records on those skill ids.
 
+HoH1's Mercenary mode sold one fixed version of a class's skill to a mercenary of any class;
+each one that plays differently from the skill's top level is an orb idea,
+`mods/hoh1-merc-<class>-<skill>.json`, with the HoH1 numbers and the top level's in its notes
+(`hoh1_file` is the Mercenary sval). `mods/hoh1-cut-*.json` and `hoh2-cut-*.json` are versions
+the games shipped commented out (Remedy's ally aura, Vicious Cuts on skill hits, Flurry of
+Blades' extra strikes).
+
 ## Status and the class dots
 
 A record's status runs idea, designed, built, tested, finished. The dot on a class's tab sums

@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_priest",
+  "exclusive": "",
+  "hoh1_file": "players/priest/remedy.sval",
+  "levels": [
+    {
+      "q": "rare",
+      "text": "Allies near you regenerate health"
+    }
+  ],
+  "name": "Remedy Aura",
+  "notes": "Cut from HoH1: Remedy's level 4 carries a commented-out friendly aura (range 60, refreshed every 0.25 s) that gave allies a 1 s 'remedy' buff of 5 health regen per second; the buff is commented out of players/buffs.sval too. HoH1 shipped Remedy as a self-only healing bonus.",
+  "order": null,
+  "skill": "hoh1_priest_remedy",
+  "status": "idea",
+  "summary": "Remedy also heals the party: allies within 60 of you regenerate 5 health per second."
+}

@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_ranger",
+  "exclusive": "",
+  "hoh1_file": "players/ranger/mercenary/powershot_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Weaker, on a long cooldown"
+    }
+  ],
+  "name": "Mercenary Powershot",
+  "notes": "HoH1 Mercenary version of Powershot (players/ranger/mercenary/powershot_merc.sval, 25 skill points in the Mercenary skill shop). Against HoH1 level 3 (in brackets): damage 175 (240); ignores 25% resistance (50%); cooldown 8 s (2 s). Its own mana 90, cooldown 8 s (2 s). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_ranger_powershot",
+  "status": "idea",
+  "summary": "Three charged arrows for up to 175 magical damage that ignore 25% resistance, on an 8 s cooldown."
+}

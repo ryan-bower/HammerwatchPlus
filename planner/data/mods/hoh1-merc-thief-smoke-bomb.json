@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hwp_thief",
+  "exclusive": "",
+  "hoh1_file": "players/thief/mercenary/smoke_bomb_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Shorter stun, thinner smoke"
+    }
+  ],
+  "name": "Mercenary Smoke Bomb",
+  "notes": "HoH1 Mercenary version of Smoke Bomb (players/thief/mercenary/smoke_bomb_merc.sval, 25 skill points in the Mercenary skill shop). Against HoH1 level 3 (in brackets): stun 3.5 s (4 s); evasion 15% (30%); mana 60 (50). Its own mana 60 (50), cooldown 7 s. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon. Numbers are HoH1's, not this port's.",
+  "order": null,
+  "skill": "hwp_thief_smoke",
+  "status": "idea",
+  "summary": "The bomb stuns for 3.5 s and its cloud gives allies 15% evasion."
+}

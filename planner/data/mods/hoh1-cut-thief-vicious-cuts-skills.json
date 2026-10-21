@@ -1,0 +1,22 @@
+{
+  "built": "",
+  "cls": "hwp_thief",
+  "exclusive": "",
+  "hoh1_file": "players/thief/vicious_cuts.sval",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Skill hits can cut 5% health (2%)"
+    },
+    {
+      "q": "rare",
+      "text": "Skill hits can cut 5% health (5%)"
+    }
+  ],
+  "name": "Vicious Spells",
+  "notes": "Cut from HoH1: both Vicious Cuts levels carry a commented-out second trigger on skill hits (hitspell) that takes 5% of the target's current health, at 2% (level 1) and 5% (level 2) chance. HoH1 shipped only the Twin Daggers trigger (5% and 10%). Numbers are HoH1's, not this port's.",
+  "order": null,
+  "skill": "hwp_thief_vicious_cuts",
+  "status": "idea",
+  "summary": "Skill hits can also cut 5% of the target's current health: a 2% chance, then 5%."
+}

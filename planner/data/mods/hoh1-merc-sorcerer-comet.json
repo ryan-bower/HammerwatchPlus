@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_sorcerer",
+  "exclusive": "",
+  "hoh1_file": "players/sorcerer/mercenary/comet_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Faster cast, shorter freeze"
+    }
+  ],
+  "name": "Mercenary Comet",
+  "notes": "HoH1 Mercenary version of Comet (players/sorcerer/mercenary/comet_merc.sval, 12 skill points in the Mercenary skill shop). Against HoH1 level 6 (in brackets): cast point 0.2 s (0.25 s); freeze 2 s (2.25 s; HoH1's own text says 2.25). Its own mana 50, cooldown 0.4 s. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_sorcerer_comet",
+  "status": "idea",
+  "summary": "Comet lands sooner (0.2 s cast point) for 240 hybrid damage split among the enemies hit, who freeze for 2 s."
+}

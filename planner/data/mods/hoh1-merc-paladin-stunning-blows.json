@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_paladin",
+  "exclusive": "",
+  "hoh1_file": "players/paladin/mercenary/stunning_blows_merc.sval",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Any primary attack stuns"
+    }
+  ],
+  "name": "Mercenary Stunning Blows",
+  "notes": "HoH1 Mercenary version of Stunning Blows (players/paladin/mercenary/stunning_blows_merc.sval, 12 skill points in the Mercenary skill shop). Against HoH1 level 4 (in brackets): chance 20% (25%); triggers on any class's primary attack. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_paladin_stunning_blows",
+  "status": "idea",
+  "summary": "Any primary attack, not just the Sword, has a 20% chance to stun for 2.5 s."
+}

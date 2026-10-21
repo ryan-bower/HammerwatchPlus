@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_ranger",
+  "exclusive": "",
+  "hoh1_file": "players/ranger/mercenary/on_the_prowl_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Less evasion"
+    }
+  ],
+  "name": "Mercenary On the Prowl",
+  "notes": "HoH1 Mercenary version of On the Prowl (players/ranger/mercenary/on_the_prowl_merc.sval, 12 skill points in the Mercenary skill shop). Against HoH1 level 5 (in brackets): evasion 15% (25%). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_ranger_on_the_prowl",
+  "status": "idea",
+  "summary": "Casting a skill gives 25% movement speed and 15% evasion for 4.5 s."
+}

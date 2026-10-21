@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_warlock",
+  "exclusive": "",
+  "hoh1_file": "players/warlock/soul_dagger.sval",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Longer reach"
+    }
+  ],
+  "name": "Mercenary Soul Dagger",
+  "notes": "HoH1 Mercenary version of Soul Dagger (players/warlock/soul_dagger.sval, its mercenary-primary block). Against HoH1 level 6 (in brackets): reach 50 (30). Its own cooldown 0.25 s. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_warlock_soul_dagger",
+  "status": "idea",
+  "summary": "Soul Dagger reaches 50 instead of 30; Soul Consumption as at level 6 (20 magical per second for 5 s, 5% health and 10% mana back)."
+}

@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hwp_witch_hunter",
+  "exclusive": "",
+  "hoh1_file": "players/witch_hunter/mercenary/fanatic_zeal_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "More, shorter stacks"
+    }
+  ],
+  "name": "Mercenary Fanatic Zeal",
+  "notes": "HoH1 Mercenary version of Fanatic Zeal (players/witch_hunter/mercenary/fanatic_zeal_merc.sval, 17 skill points in the Mercenary skill shop). Against HoH1 level 5 (in brackets): 2% per stack (2.5%); max 10 (8); 5 s (8 s). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon. Numbers are HoH1's, not this port's.",
+  "order": null,
+  "skill": "hwp_witch_hunter_zeal",
+  "status": "idea",
+  "summary": "Casting a skill gives a Zeal stack: 2% crit chance each, up to 10 stacks of 5 s."
+}

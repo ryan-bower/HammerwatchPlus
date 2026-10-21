@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_priest",
+  "exclusive": "",
+  "hoh1_file": "players/priest/mercenary/divine_protection_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Absorbs less, costs more mana"
+    }
+  ],
+  "name": "Mercenary Divine Protection",
+  "notes": "HoH1 Mercenary version of Divine Protection (players/priest/mercenary/divine_protection_merc.sval, 17 skill points in the Mercenary skill shop). Against HoH1 level 5 (in brackets): absorbs 30% (50%); 1 mana per point (0.5). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_priest_divine_protection",
+  "status": "idea",
+  "summary": "The shield absorbs 30% of incoming damage, at 1 mana per point absorbed."
+}

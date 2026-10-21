@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_sorcerer",
+  "exclusive": "",
+  "hoh1_file": "players/sorcerer/mercenary/biting_chill_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Weaker chill"
+    }
+  ],
+  "name": "Mercenary Biting Chill",
+  "notes": "HoH1 Mercenary version of Biting Chill (players/sorcerer/mercenary/biting_chill_merc.sval, 14 skill points in the Mercenary skill shop). Against HoH1 level 5 (in brackets): slow 30% (40%); freeze 2 s (2.25 s). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_sorcerer_biting_chill",
+  "status": "idea",
+  "summary": "Your skills slow by 30% for 4 s and have a 7.5% chance to freeze for 2 s."
+}

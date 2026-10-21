@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_sorcerer",
+  "exclusive": "",
+  "hoh1_file": "players/sorcerer/mercenary/shatter_merc.sval",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Any kill can shatter"
+    }
+  ],
+  "name": "Mercenary Shatter",
+  "notes": "HoH1 Mercenary version of Shatter (players/sorcerer/mercenary/shatter_merc.sval, 20 skill points in the Mercenary skill shop). Against HoH1 level 2 (in brackets): 20% on any kill (100% on frozen kills). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_sorcerer_shatter",
+  "status": "idea",
+  "summary": "Any enemy you kill, frozen or not, has a 20% chance to burst for 80 hybrid damage to enemies near it."
+}

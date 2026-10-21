@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hwp_gladiator",
+  "exclusive": "",
+  "hoh1_file": "players/gladiator/mercenary/pit_fighters_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Same fighters, more mana"
+    }
+  ],
+  "name": "Mercenary Pit Fighters",
+  "notes": "HoH1 Mercenary version of Pit Fighters (players/gladiator/mercenary/pit_fighters_merc.sval, 25 skill points in the Mercenary skill shop). Against HoH1 level 3 (in brackets): mana 150 (120). Its own mana 150 (120), cooldown 30 s. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon. Numbers are HoH1's, not this port's.",
+  "order": null,
+  "skill": "hwp_gladiator_pit_fighters",
+  "status": "idea",
+  "summary": "Three pit fighters (600 health, 30 armor and resistance, 50 physical) for 15 s, for 150 mana."
+}

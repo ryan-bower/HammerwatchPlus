@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_paladin",
+  "exclusive": "",
+  "hoh1_file": "players/paladin/mercenary/whirlwind_merc.sval",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Spin without locking your other skills"
+    }
+  ],
+  "name": "Mercenary Whirlwind",
+  "notes": "HoH1 Mercenary version of Whirlwind (players/paladin/mercenary/whirlwind_merc.sval, 22 skill points in the Mercenary skill shop). Against HoH1 level 3 (in brackets): not blocking; no stamina cost (3). Its own mana 70, cooldown 9 s. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_paladin_whirlwind",
+  "status": "idea",
+  "summary": "Whirlwind (50 physical for 5 s) no longer blocks your other actions while you spin, and costs no stamina."
+}

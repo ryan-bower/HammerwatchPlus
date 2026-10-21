@@ -1,0 +1,21 @@
+{
+  "built": "",
+  "cls": "rogue",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "4 strikes at levels 3 and 4"
+    },
+    {
+      "q": "rare",
+      "text": "5 strikes at level 5"
+    }
+  ],
+  "name": "Mounting Flurry",
+  "notes": "Cut from HoH2: rog_flurry.sval keeps a commented-out 'strikes-hits' description row (3/3/4/4/5 over the five levels) and commented-out flurry-hits 3/4/4/5 in its upgrades; the shipped skill always strikes 3 times and only its damage (30% to 70% of mainhand) grows.",
+  "order": null,
+  "skill": "rog_flurry",
+  "status": "idea",
+  "summary": "Flurry of Blades gains strikes as it levels: 3, 3, 4, 4, 5 instead of always 3."
+}

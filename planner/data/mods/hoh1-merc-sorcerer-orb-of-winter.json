@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_sorcerer",
+  "exclusive": "",
+  "hoh1_file": "players/sorcerer/mercenary/orb_of_winter_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Twice the cooldown"
+    }
+  ],
+  "name": "Mercenary Orb of Winter",
+  "notes": "HoH1 Mercenary version of Orb of Winter (players/sorcerer/mercenary/orb_of_winter_merc.sval, 25 skill points in the Mercenary skill shop). Against HoH1 level 3 (in brackets): cooldown 10 s (5 s). Its own mana 180, cooldown 10 s (5 s). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_sorcerer_orb_of_winter",
+  "status": "idea",
+  "summary": "Orb of Winter as at level 3 (6.5 s, 20 hybrid per shard) on a 10 s cooldown."
+}

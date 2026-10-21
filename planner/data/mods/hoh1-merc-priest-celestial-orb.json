@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_priest",
+  "exclusive": "",
+  "hoh1_file": "players/priest/mercenary/celestial_orb_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Weaker orb beams"
+    }
+  ],
+  "name": "Mercenary Celestial Orbs",
+  "notes": "HoH1 Mercenary version of Celestial Orbs (players/priest/mercenary/celestial_orb_merc.sval, 25 skill points in the Mercenary skill shop). Against HoH1 level 2 (in brackets): beam damage 8 (12). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_priest_celestial_orb",
+  "status": "idea",
+  "summary": "Three orbs follow Holy Light's target and fire beams for 8 magical damage."
+}

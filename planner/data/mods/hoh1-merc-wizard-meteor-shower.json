@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_wizard",
+  "exclusive": "",
+  "hoh1_file": "players/wizard/mercenary/meteor_shower_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Longer cooldown, more mana"
+    }
+  ],
+  "name": "Mercenary Meteor Shower",
+  "notes": "HoH1 Mercenary version of Meteor Shower (players/wizard/mercenary/meteor_shower_merc.sval, 25 skill points in the Mercenary skill shop). Against HoH1 level 3 (in brackets): cooldown 8 s (5 s); mana 180 (160). Its own mana 180 (160), cooldown 8 s (5 s). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_wizard_meteor_shower",
+  "status": "idea",
+  "summary": "Meteor Shower as at level 3 (7 meteors, 320 hybrid) on an 8 s cooldown for 180 mana."
+}

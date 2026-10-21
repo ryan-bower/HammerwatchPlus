@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hwp_thief",
+  "exclusive": "",
+  "hoh1_file": "players/thief/mercenary/sidestep_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Less evasion, slower recharge"
+    }
+  ],
+  "name": "Mercenary Sidestep",
+  "notes": "HoH1 Mercenary version of Sidestep (players/thief/mercenary/sidestep_merc.sval, 16 skill points in the Mercenary skill shop). Against HoH1 level 5 (in brackets): evasion 15% (25%); recharge 5 s (3 s). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon. Numbers are HoH1's, not this port's.",
+  "order": null,
+  "skill": "hwp_thief_sidestep",
+  "status": "idea",
+  "summary": "15% evasion, and a guaranteed dodge that recharges over 5 s."
+}

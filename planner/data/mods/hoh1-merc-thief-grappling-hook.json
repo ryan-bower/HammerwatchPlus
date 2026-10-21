@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hwp_thief",
+  "exclusive": "",
+  "hoh1_file": "players/thief/mercenary/grappling_hook_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Shorter hook, short stun"
+    }
+  ],
+  "name": "Mercenary Grappling Hook",
+  "notes": "HoH1 Mercenary version of Grappling Hook (players/thief/mercenary/grappling_hook_merc.sval, 18 skill points in the Mercenary skill shop). Against HoH1 level 4 (in brackets): range 175 (200); stun 0.5 s (1.25 s); mana 20 (5). Its own mana 20 (5), cooldown 0.25 s. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon. Numbers are HoH1's, not this port's.",
+  "order": null,
+  "skill": "rog_grappling_hook",
+  "status": "idea",
+  "summary": "The hook reaches 175 instead of 200 and stuns for 0.5 s; you still evade everything while you travel."
+}

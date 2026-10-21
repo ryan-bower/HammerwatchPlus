@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_warlock",
+  "exclusive": "",
+  "hoh1_file": "players/warlock/mercenary/stormlash_merc.sval",
+  "levels": [
+    {
+      "q": "rare",
+      "text": "Skill hits call lightning"
+    }
+  ],
+  "name": "Mercenary Stormlash",
+  "notes": "HoH1 Mercenary version of Stormlash (players/warlock/mercenary/stormlash_merc.sval, 22 skill points in the Mercenary skill shop). Against HoH1 level 2 (in brackets): any skill hit at 30% for a flat 20 (lightning bolts at 50% for 50% damage). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_warlock_stormlash",
+  "status": "idea",
+  "summary": "Skill hits have a 30% chance to strike a random enemy within 80 with lightning for 20 magical damage."
+}

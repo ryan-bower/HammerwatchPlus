@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hwp_thief",
+  "exclusive": "",
+  "hoh1_file": "players/thief/mercenary/vicious_cuts_merc.sval",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Any primary attack cuts deep"
+    }
+  ],
+  "name": "Mercenary Vicious Cuts",
+  "notes": "HoH1 Mercenary version of Vicious Cuts (players/thief/mercenary/vicious_cuts_merc.sval, 25 skill points in the Mercenary skill shop). Against HoH1 level 2 (in brackets): same numbers; triggers on any class's primary attack. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon. Numbers are HoH1's, not this port's.",
+  "order": null,
+  "skill": "hwp_thief_vicious_cuts",
+  "status": "idea",
+  "summary": "Each primary attack hit, from any weapon, has a 10% chance to take 5% of the target's current health."
+}

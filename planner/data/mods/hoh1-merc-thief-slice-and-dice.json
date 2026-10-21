@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hwp_thief",
+  "exclusive": "",
+  "hoh1_file": "players/thief/mercenary/slice_and_dice_merc.sval",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Any primary attack builds speed"
+    }
+  ],
+  "name": "Mercenary Slice and Dice",
+  "notes": "HoH1 Mercenary version of Slice and Dice (players/thief/mercenary/slice_and_dice_merc.sval, 18 skill points in the Mercenary skill shop). Against HoH1 level 4 (in brackets): same numbers; triggers on any class's primary attack. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon. Numbers are HoH1's, not this port's.",
+  "order": null,
+  "skill": "hwp_thief_slice",
+  "status": "idea",
+  "summary": "Each primary attack hit, from any weapon, gives 2% attack speed, up to 32 stacks, lost after 2.5 s without attacking."
+}

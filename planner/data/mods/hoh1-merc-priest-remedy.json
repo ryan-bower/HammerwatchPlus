@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_priest",
+  "exclusive": "",
+  "hoh1_file": "players/priest/mercenary/remedy_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "+100% healing received"
+    }
+  ],
+  "name": "Mercenary Remedy",
+  "notes": "HoH1 Mercenary version of Remedy (players/priest/mercenary/remedy_merc.sval, 18 skill points in the Mercenary skill shop). Against HoH1 level 4 (in brackets): +100% (+200%). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_priest_remedy",
+  "status": "idea",
+  "summary": "Healing you receive is 100% more effective."
+}

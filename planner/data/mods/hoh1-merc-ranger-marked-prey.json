@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_ranger",
+  "exclusive": "",
+  "hoh1_file": "players/ranger/mercenary/marked_prey_merc.sval",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Any primary attack marks"
+    }
+  ],
+  "name": "Mercenary Marked Prey",
+  "notes": "HoH1 Mercenary version of Marked Prey (players/ranger/mercenary/marked_prey_merc.sval, 14 skill points in the Mercenary skill shop). Against HoH1 level 4 (in brackets): same numbers; triggers on any class's primary attack. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_ranger_marked_prey",
+  "status": "idea",
+  "summary": "Any primary attack has a 12.5% chance to crit and Mark for 2.5 s; Marked enemies take a crit from any source 5% of the time."
+}

@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_priest",
+  "exclusive": "",
+  "hoh1_file": "players/priest/mercenary/consecrated_ground_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Shorter field, cheaper, cast on the move"
+    }
+  ],
+  "name": "Mercenary Consecrated Ground",
+  "notes": "HoH1 Mercenary version of Consecrated Ground (players/priest/mercenary/consecrated_ground_merc.sval, 17 skill points in the Mercenary skill shop). Against HoH1 level 4 (in brackets): duration 5 s (6.5 s); not blocking. Its own mana 75 (90), cooldown 0.5 s. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_priest_consecrated_ground",
+  "status": "idea",
+  "summary": "Consecrated Ground lasts 5 s (40 magical per second, 25% returned as healing), costs less, and doesn't stop you while you cast it."
+}

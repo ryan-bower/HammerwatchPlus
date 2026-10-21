@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_sorcerer",
+  "exclusive": "",
+  "hoh1_file": "players/sorcerer/mercenary/ice_barrier_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Thinner barriers"
+    }
+  ],
+  "name": "Mercenary Ice Barrier",
+  "notes": "HoH1 Mercenary version of Ice Barrier (players/sorcerer/mercenary/ice_barrier_merc.sval, 16 skill points in the Mercenary skill shop). Against HoH1 level 4 (in brackets): reduction 33% (50%). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_sorcerer_ice_barrier",
+  "status": "idea",
+  "summary": "Casting a skill adds a 2.5 s barrier that cuts one hit's damage by 33%; up to 8 barriers."
+}

@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_ranger",
+  "exclusive": "",
+  "hoh1_file": "players/ranger/mercenary/twinned_arrows_merc.sval",
+  "levels": [
+    {
+      "q": "rare",
+      "text": "Hits fire a seeking arrow"
+    }
+  ],
+  "name": "Mercenary Twinned Arrows",
+  "notes": "HoH1 Mercenary version of Twinned Arrows (players/ranger/mercenary/twinned_arrows_merc.sval, 25 skill points in the Mercenary skill shop). Against HoH1 level 2 (in brackets): a new arrow on any primary hit at 35% (Bow Shot arrows split at 40%). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_ranger_twinned_arrows",
+  "status": "idea",
+  "summary": "Each primary attack hit, from any weapon, has a 35% chance to fire an arrow for 20 physical damage at another enemy within 175."
+}

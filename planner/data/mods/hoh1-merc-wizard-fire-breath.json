@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_wizard",
+  "exclusive": "",
+  "hoh1_file": "players/wizard/mercenary/fire_breath_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Shorter flames, no scorched ground"
+    }
+  ],
+  "name": "Mercenary Fire Breath",
+  "notes": "HoH1 Mercenary version of Fire Breath (players/wizard/mercenary/fire_breath_merc.sval, 12 skill points in the Mercenary skill shop). Against HoH1 level 6 (in brackets): flame speed 6 / 0.6 s (7 / 0.7 s); cooldown 0.25 s (none); no ScorchEarth. Its own mana 9, cooldown 0.25 s (0 s). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_wizard_fire_breath",
+  "status": "idea",
+  "summary": "Fire Breath (13 magical per hit) with shorter flames, a 0.25 s cooldown, and no Scorched Earth ground."
+}

@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_ranger",
+  "exclusive": "",
+  "hoh1_file": "players/ranger/mercenary/grasping_roots_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Shorter root"
+    }
+  ],
+  "name": "Mercenary Grasping Roots",
+  "notes": "HoH1 Mercenary version of Grasping Roots (players/ranger/mercenary/grasping_roots_merc.sval, 12 skill points in the Mercenary skill shop). Against HoH1 level 4 (in brackets): root 4 s (5 s). Its own mana 40, cooldown 6 s. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_ranger_grasping_roots",
+  "status": "idea",
+  "summary": "Roots hold enemies around you for 4 s and cut their armor by 25%."
+}

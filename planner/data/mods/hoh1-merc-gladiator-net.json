@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hwp_gladiator",
+  "exclusive": "",
+  "hoh1_file": "players/gladiator/mercenary/net_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Netted take +50%"
+    }
+  ],
+  "name": "Mercenary Crippling Net",
+  "notes": "HoH1 Mercenary version of Crippling Net (players/gladiator/mercenary/net_merc.sval, 14 skill points in the Mercenary skill shop). Against HoH1 level 6 (in brackets): damage taken +50% (+100%); cooldown 0.2 s (0.4 s); mana 30 (24). Its own mana 30 (24), cooldown 0.2 s (0.4 s). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon. Numbers are HoH1's, not this port's.",
+  "order": null,
+  "skill": "hwp_gladiator_net",
+  "status": "idea",
+  "summary": "The net disarms and slows by 80% for 3 s; netted enemies take 50% more damage. Faster to throw again (0.2 s), costs 30 mana."
+}

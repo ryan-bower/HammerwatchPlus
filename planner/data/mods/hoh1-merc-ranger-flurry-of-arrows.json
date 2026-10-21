@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_ranger",
+  "exclusive": "",
+  "hoh1_file": "players/ranger/mercenary/flurry_of_arrows_merc.sval",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Fires its own arrows"
+    }
+  ],
+  "name": "Mercenary Flurry of Arrows",
+  "notes": "HoH1 Mercenary version of Flurry of Arrows (players/ranger/mercenary/flurry_of_arrows_merc.sval, 15 skill points in the Mercenary skill shop). Against HoH1 level 6 (in brackets): 48 fixed arrows (64 Bow Shot arrows). Its own mana 40 (35), cooldown 0.75 s. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_ranger_flurry_of_arrows",
+  "status": "idea",
+  "summary": "Flurry of Arrows fires 48 arrows of its own (20 physical, pierce 7) instead of copies of your Bow Shot, so it works with any primary attack."
+}

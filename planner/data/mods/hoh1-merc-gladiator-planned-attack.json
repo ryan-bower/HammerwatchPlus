@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hwp_gladiator",
+  "exclusive": "",
+  "hoh1_file": "players/gladiator/mercenary/planned_attack_merc.sval",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Crits for any primary attack"
+    }
+  ],
+  "name": "Mercenary Planned Attack",
+  "notes": "HoH1 Mercenary version of Planned Attack (players/gladiator/mercenary/planned_attack_merc.sval, 14 skill points in the Mercenary skill shop). Against HoH1 level 5 (in brackets): same numbers; works with any class's primary attack. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon. Numbers are HoH1's, not this port's.",
+  "order": null,
+  "skill": "hwp_gladiator_planned_attack",
+  "status": "idea",
+  "summary": "Builds up to 7 guaranteed crits (one per second) for any primary attack, not just Trident stacks."
+}

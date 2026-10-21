@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hwp_witch_hunter",
+  "exclusive": "",
+  "hoh1_file": "players/witch_hunter/mercenary/pyre_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Frailer pyre"
+    }
+  ],
+  "name": "Mercenary Witch Pyre",
+  "notes": "HoH1 Mercenary version of Witch Pyre (players/witch_hunter/mercenary/pyre_merc.sval, 25 skill points in the Mercenary skill shop). Against HoH1 level 3 (in brackets): health 500 (700); armor/resistance 25 (30); explosion 100 (120); mana 125 (115). Its own mana 125 (115), cooldown 15 s. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon. Numbers are HoH1's, not this port's.",
+  "order": null,
+  "skill": "hwp_witch_hunter_pyre",
+  "status": "idea",
+  "summary": "The pyre (7.5 s) has 500 health and 25 armor and resistance; enemies that hit it set off 100 magical damage."
+}

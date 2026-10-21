@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hoh1_warlock",
+  "exclusive": "",
+  "hoh1_file": "players/warlock/mercenary/lightning_bolt_merc.sval",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Cheaper bolt"
+    }
+  ],
+  "name": "Mercenary Lightning Bolt",
+  "notes": "HoH1 Mercenary version of Lightning Bolt (players/warlock/mercenary/lightning_bolt_merc.sval, 12 skill points in the Mercenary skill shop). Against HoH1 level 6 (in brackets): mana 45 (55). Its own mana 45 (55), cooldown 0.5 s. Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon.",
+  "order": null,
+  "skill": "hoh1_warlock_lightning_bolt",
+  "status": "idea",
+  "summary": "Lightning Bolt as at level 6 (10 targets, 35 magical each) for 45 mana."
+}

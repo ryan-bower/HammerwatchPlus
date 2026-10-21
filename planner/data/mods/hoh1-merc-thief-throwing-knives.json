@@ -1,0 +1,18 @@
+{
+  "built": "",
+  "cls": "hwp_thief",
+  "exclusive": "",
+  "hoh1_file": "players/thief/mercenary/throwing_knives_merc.sval",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Slower, costlier knives"
+    }
+  ],
+  "name": "Mercenary Throwing Knives",
+  "notes": "HoH1 Mercenary version of Throwing Knives (players/thief/mercenary/throwing_knives_merc.sval, 14 skill points in the Mercenary skill shop). Against HoH1 level 6 (in brackets): cooldown 0.25 s (0.2 s); mana 25 (20). Its own mana 25 (20), cooldown 0.25 s (0.2 s). Mercenaries bought one fixed version of a class's skill once that class reached level 20 in town; its 'Primary Attack' wording let the class passives work with any weapon. Numbers are HoH1's, not this port's.",
+  "order": null,
+  "skill": "hwp_thief_knives",
+  "status": "idea",
+  "summary": "Throwing Knives as at level 6 (10 knives, 32 physical, pierce 10) on a 0.25 s cooldown for 25 mana."
+}
