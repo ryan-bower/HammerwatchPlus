@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_wlk_pb_combustion",
   "cls": "warlock",
   "exclusive": "",
   "levels": [
@@ -17,9 +17,9 @@
     }
   ],
   "name": "Combustion",
-  "notes": "",
+  "notes": "In game (hwp_wlk_pb_combustion, tested): the claw spends every Essence stack for +2/3/4% damage and radius each.",
   "order": null,
   "skill": "warlock-spec4-active",
-  "status": "idea",
+  "status": "tested",
   "summary": "When Hellfire Claw is trigger it consumes all stacks of Essence for increased damage and area of effect"
 }

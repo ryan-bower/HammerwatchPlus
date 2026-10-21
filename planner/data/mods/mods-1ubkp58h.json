@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_war_bs_feared_crest",
   "cls": "warrior",
   "exclusive": "",
   "levels": [
@@ -17,9 +17,9 @@
     }
   ],
   "name": "Feared Crest",
-  "notes": "",
+  "notes": "In game (hwp_war_bs_feared_crest, tested): enemies in the standard's radius get the area Vulnerability (500 ms, re-applied every 250 ms).",
   "order": null,
   "skill": "warrior-spec4-active",
-  "status": "idea",
+  "status": "tested",
   "summary": "Enemies within the aura of the Standard are inflicted with Vulnerability."
 }

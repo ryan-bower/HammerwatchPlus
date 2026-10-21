@@ -1,22 +1,22 @@
 {
-  "built": "",
+  "built": "hwp_wlk_pyrebrand",
   "cls": "warlock",
   "cooldown": "10",
   "group": "warlock-spec4",
   "kind": "active",
   "levels": [
-    "10% of damage dealt added to Hellfire Claw, 40 mana",
-    "15% of damage dealt added to Hellfire Claw, 40 mana",
-    "25% of damage dealt added to Hellfire Claw, 50 mana",
-    "35% of damage dealt added to Hellfire Claw, 50 mana",
-    "50% of damage dealt added to Hellfire Claw, 60 mana"
+    "10% of damage dealt added to Hellfire Claw (20 base), 40 mana",
+    "15% of damage dealt added to Hellfire Claw (25 base), 40 mana",
+    "25% of damage dealt added to Hellfire Claw (30 base), 50 mana",
+    "35% of damage dealt added to Hellfire Claw (35 base), 50 mana",
+    "50% of damage dealt added to Hellfire Claw (40 base), 60 mana"
   ],
-  "mana": "40",
+  "mana": "40/40/50/50/60",
   "name": "Pyrebrand",
-  "notes": "",
+  "notes": "In game (hwp_wlk_pyrebrand, tested): brands the enemy nearest the aim; the recast (free while a brand is up) or the brand running out sets off the Hellfire Claw: base + the stored damage as fire within 40. A victim that dies passes the brand on within 100. Assumed: the base 20-40, the brand's 6 s, the claw radius 40, the transfer range 100, the aim cone, the free recast.",
   "order": 0,
   "role": "",
-  "status": "idea",
+  "status": "tested",
   "summary": "Brand an enemy with a demonic sigil. For a short duration, a portion of the damage you deal to that enemy feeds the brand. When you reactivate the ability or the brand expires, a Hellfire Claw tears up through the victim dealing fire damage based on the stored offering. If the victim dies before the brand is triggered, the brand transfers to a nearby enemy, carrying its stored damage.",
   "unlock": "free"
 }

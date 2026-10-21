@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_wlk_ee_released_essence",
   "cls": "warlock",
   "exclusive": "",
   "levels": [
@@ -13,9 +13,9 @@
     }
   ],
   "name": "Released Essence",
-  "notes": "",
+  "notes": "In game (hwp_wlk_ee_released_essence, tested): an elite or boss killed by the Hellfire Claw gives the stacks.",
   "order": null,
   "skill": "warlock-spec4-passive",
-  "status": "idea",
+  "status": "tested",
   "summary": "Elites killed by Hellfire Claw add stacks of essence"
 }

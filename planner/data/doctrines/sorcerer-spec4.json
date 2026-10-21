@@ -1,10 +1,11 @@
 {
   "blurb": "Mana becomes your life pool. Blink through battle and damage enemies where you reappear.",
+  "built": "hwp_sorcerer_arcane",
   "cls": "sorcerer",
   "name": "Arcane",
-  "notes": "Zak's design draft. Damage, mana costs, cooldowns, blast radii, Blink distances and feedback scaling are left for tuning.",
+  "notes": "Zak's design draft. Damage, mana costs, cooldowns, blast radii, Blink distances and feedback scaling are left for tuning.\n\nIn game (hwp_sorcerer_arcane, tested): the subclass in mods/specs (players/hwp/specs/class_specs.sval). Every skill and orb is checked by plan-specs 20261021-163852; numbers the design left open are marked assumed on each record. Not balanced yet.",
   "order": 4,
   "owner": "Zak",
   "spec4": true,
-  "status": "idea"
+  "status": "tested"
 }

@@ -1,22 +1,22 @@
 {
-  "built": "",
+  "built": "hwp_ran_electric_circuit",
   "cls": "ranger",
   "cooldown": "6",
   "group": "ranger-spec4",
   "kind": "active",
   "levels": [
-    "20 damage when piercing, 12 damage lightning strikes",
-    "25 damage when piercing, 14 damage lightning strikes",
-    "30 damage when piercing, 16 damage lightning strikes",
-    "35 damage when piercing, 18 damage lightning strikes",
-    "40 damage when piercing, 20 damage lightning strikes"
+    "20 damage when piercing (10 physical + 10 lightning), 12 damage lightning strikes",
+    "25 damage when piercing (13 physical + 12 lightning), 14 damage lightning strikes",
+    "30 damage when piercing (15 physical + 15 lightning), 16 damage lightning strikes",
+    "35 damage when piercing (18 physical + 17 lightning), 18 damage lightning strikes",
+    "40 damage when piercing (20 physical + 20 lightning), 20 damage lightning strikes"
   ],
   "mana": "40",
   "name": "Electric Circuit",
-  "notes": "- On a boss: the boss takes 2 arrow hits per shot, one going out and one coming back. Fire with the boss between you and a wall for the shortest round trip and the fastest repeat hits.",
+  "notes": "- On a boss: the boss takes 2 arrow hits per shot, one going out and one coming back. Fire with the boss between you and a wall for the shortest round trip and the fastest repeat hits.\n\nIn game (hwp_ran_electric_circuit, tested): 3 arrows in a 30 degree fan, through every enemy and back from their range or a wall. Each hit calls lightning on up to 2 other enemies within 60. Assumed: the half physical, half lightning split, the fan, the 2 strikes, the radius 60.",
   "order": 0,
   "role": "",
-  "status": "idea",
+  "status": "tested",
   "summary": "You fire a volley of three arrows in a V that deals hybrid Physical and Lightning damage and pierces every enemy in its path. Each enemy it hits calls lightning down on up to 2 other nearby enemies. When the arrow reaches max range or hits a wall, it returns to where you fired it from, hitting everything along the way again.\n\nAoE and single target:\n- In a pack: each piercing hit spawns lightning strikes, and the return trip triggers them again, so the arrow covers the pack twice.\n",
   "unlock": "bought"
 }

@@ -1,25 +1,25 @@
 {
-  "built": "",
+  "built": "hwp_wlk_ee_essence_empowerment",
   "cls": "warlock",
   "exclusive": "",
   "levels": [
     {
       "q": "uncommon",
-      "text": ""
+      "text": "+1% fire damage per stack"
     },
     {
       "q": "uncommon",
-      "text": ""
+      "text": "+2% fire damage per stack"
     },
     {
       "q": "rare",
-      "text": ""
+      "text": "+3% fire damage per stack"
     }
   ],
   "name": "Essence Empowerment",
-  "notes": "Hellfire Claw will get this gain before the essence stacks reset with combustion orb mod.",
+  "notes": "Hellfire Claw will get this gain before the essence stacks reset with combustion orb mod.\n\nIn game (hwp_wlk_ee_essence_empowerment, tested): fire damage + 1/2/3% of the physical damage multiplier per Essence stack (assumed).",
   "order": null,
   "skill": "warlock-spec4-passive",
-  "status": "idea",
+  "status": "tested",
   "summary": "Deal increased Fire Damage based on a percentage of your physical damage per Essence stack. Applies to Hellfire Claw."
 }

@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_war_rc_shared_provisions",
   "cls": "warrior",
   "exclusive": "",
   "levels": [
@@ -17,9 +17,9 @@
     }
   ],
   "name": "Shared Provisions",
-  "notes": "",
+  "notes": "In game (hwp_war_rc_shared_provisions, tested): 1/2/3% cooldown reduction per buff on the party, capped at 30% (the cap assumed).",
   "order": null,
   "skill": "warrior-spec4-passive",
-  "status": "idea",
+  "status": "tested",
   "summary": "For every buff on an ally you gain CDR."
 }

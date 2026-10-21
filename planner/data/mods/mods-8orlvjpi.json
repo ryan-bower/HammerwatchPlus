@@ -1,25 +1,25 @@
 {
-  "built": "",
+  "built": "hwp_war_rc_war_drum",
   "cls": "warrior",
   "exclusive": "",
   "levels": [
     {
       "q": "uncommon",
-      "text": ""
+      "text": "Weakness up to Minor"
     },
     {
       "q": "uncommon",
-      "text": ""
+      "text": "Weakness up to Normal"
     },
     {
       "q": "rare",
-      "text": ""
+      "text": "Weakness up to Greater"
     }
   ],
   "name": "War Drum",
-  "notes": "",
+  "notes": "In game (hwp_war_rc_war_drum, tested): each Warcry and each standard cast steps the Weakness of the enemies around one tier up, to Minor / Normal / Greater by orb level (the tiers assumed).",
   "order": null,
   "skill": "warrior-spec4-passive",
-  "status": "idea",
+  "status": "tested",
   "summary": "Skills which apply AoE buffs now will also inflict Weakness to enemies, each new instance stacking increasing the severity of the Weakness on the enemy."
 }

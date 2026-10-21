@@ -1,22 +1,22 @@
 {
-  "built": "",
+  "built": "hwp_war_righteous_crusade",
   "cls": "warrior",
   "cooldown": "",
   "group": "warrior-spec4",
   "kind": "passive",
   "levels": [
-    "10%",
-    "20%",
-    "30%",
-    "40%",
-    "50%"
+    "+10% buff duration",
+    "+20% buff duration",
+    "+30% buff duration",
+    "+40% buff duration",
+    "+50% buff duration"
   ],
   "mana": "",
   "name": "Righteous Crusade",
-  "notes": "",
+  "notes": "In game (hwp_war_righteous_crusade, tested): the warrior's buffs last longer; allies standing in the Battlefield Standard get the same while in it.",
   "order": 1,
   "role": "",
-  "status": "idea",
+  "status": "tested",
   "summary": "Allies affected by your buffs (including yourself) also gain increased buff duration.",
   "unlock": "bought"
 }

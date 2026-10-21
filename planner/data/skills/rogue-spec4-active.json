@@ -1,12 +1,21 @@
 {
+  "built": "hwp_rog_protective_gale",
   "cls": "rogue",
+  "cooldown": "20",
   "group": "rogue-spec4",
   "kind": "active",
-  "levels": [],
+  "levels": [
+    "15% Evasion for 6 seconds, 40 mana",
+    "18% Evasion for 6 seconds, 45 mana",
+    "21% Evasion for 6 seconds, 50 mana",
+    "24% Evasion for 6 seconds, 55 mana",
+    "30% Evasion for 6 seconds, 60 mana"
+  ],
+  "mana": "40/45/50/55/60",
   "name": "Protective Gale",
-  "notes": "One cast applies the buff to everyone in range. Evasion means dodge chance. The buff's Evasion amount, duration, range, mana cost and cooldown are left for tuning.",
+  "notes": "One cast applies the buff to everyone in range. Evasion means dodge chance. The buff's Evasion amount, duration, range, mana cost and cooldown are left for tuning.\n\nIn game (hwp_rog_protective_gale, tested): the rogue and teammates within 96 get Evasion for 6 s, the effect following each player. All numbers assumed (the design left them for tuning): Evasion 15/18/21/24/30%, 6 s, radius 96, mana 40-60, cooldown 20 s. Teammates are untested (needs a second player).",
   "order": 0,
-  "status": "idea",
+  "status": "tested",
   "summary": "Grant yourself and nearby teammates increased Evasion for a duration. The buff stays with each player as they move.",
   "unlock": "bought"
 }

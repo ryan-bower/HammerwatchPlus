@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_wlk_essence_extraction",
   "cls": "warlock",
   "cooldown": "",
   "group": "warlock-spec4",
@@ -13,10 +13,10 @@
   ],
   "mana": "",
   "name": "Essence Extraction",
-  "notes": "",
+  "notes": "In game (hwp_wlk_essence_extraction, tested): a melee hit on a branded elite or boss gives an Essence stack, once per the cooldown. Melee-tagged spells such as Demon's Tail count (assumed).",
   "order": 1,
   "role": "",
-  "status": "idea",
+  "status": "tested",
   "summary": "Melee hits against Pyre Branded elites and bosses gain stacks of essence. Increase your max essence stacks.",
   "unlock": "bought"
 }

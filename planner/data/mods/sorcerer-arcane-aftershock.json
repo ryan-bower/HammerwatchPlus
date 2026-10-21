@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_sor_bl_void_barrier",
   "cls": "sorcerer",
   "exclusive": "",
   "levels": [
@@ -9,9 +9,9 @@
     }
   ],
   "name": "Void Barrier",
-  "notes": "Damage still lands, but it cannot take you below 1 mana. The engine has an unused modifier for exactly this on health, Modifiers::UnlethalDamage (Player.as:475 caps the hit at current health - 1); with Living Mana the same cap would apply to the mana pool.",
+  "notes": "Damage still lands, but it cannot take you below 1 mana. The engine has an unused modifier for exactly this on health, Modifiers::UnlethalDamage (Player.as:475 caps the hit at current health - 1); with Living Mana the same cap would apply to the mana pool.\n\nIn game (hwp_sor_bl_void_barrier, tested): damage cannot kill for 1 s after a Blink.",
   "order": 0,
   "skill": "sorcerer-spec4-active",
-  "status": "idea",
+  "status": "tested",
   "summary": "After using Blink you cannot take lethal damage for 1 second"
 }

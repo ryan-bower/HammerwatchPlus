@@ -1,7 +1,7 @@
 {
-  "built": "",
+  "built": "hwp_war_battlefield_standard",
   "cls": "warrior",
-  "cooldown": "",
+  "cooldown": "60/55/50/45/40",
   "group": "warrior-spec4",
   "kind": "active",
   "levels": [
@@ -11,12 +11,12 @@
     "DR: 8% Cooldown: 45s DURATION: 17s",
     "DR: 10% Cooldown: 40s DURATION: 20s"
   ],
-  "mana": "",
+  "mana": "40",
   "name": "Battlefield Standard",
-  "notes": "",
+  "notes": "In game (hwp_war_battlefield_standard, tested): the first cast raises the standard; a cast while it is carried plants it (free, during the cooldown too). Assumed: mana 40, radius 75 (the Holy Banner's). Allies' numbers are untested (needs a second player).",
   "order": 0,
   "role": "",
-  "status": "idea",
+  "status": "tested",
   "summary": "Raise a Battlefield Standard. All allies (including yourself) within its radius gain damage reduction.\n\nTrigger the ability again to plant the Standard into the ground, doubling the effect but halving the remaining duration.",
   "unlock": "bought"
 }

@@ -1,10 +1,11 @@
 {
   "blurb": "Placeholder: not designed yet.",
+  "built": "hwp_warlock_branding",
   "cls": "warlock",
   "name": "Branding",
-  "notes": "",
+  "notes": "In game (hwp_warlock_branding, tested): the subclass in mods/specs (players/hwp/specs/class_specs.sval). Every skill and orb is checked by plan-specs 20261021-163852; numbers the design left open are marked assumed on each record. Not balanced yet.",
   "order": 4,
   "owner": "Colin",
   "spec4": true,
-  "status": "idea"
+  "status": "tested"
 }

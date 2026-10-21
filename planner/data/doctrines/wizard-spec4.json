@@ -1,10 +1,11 @@
 {
   "blurb": "Wizarc lightning magus with the shocking fingertips of Palpatine himself",
+  "built": "hwp_wizard_invocation",
   "cls": "wizard",
   "name": "Invocation",
-  "notes": "",
+  "notes": "In game (hwp_wizard_invocation, tested): the subclass in mods/specs (players/hwp/specs/class_specs.sval). Every skill and orb is checked by plan-specs 20261021-163852; numbers the design left open are marked assumed on each record. Not balanced yet.",
   "order": 4,
   "owner": "Noah",
   "spec4": true,
-  "status": "idea"
+  "status": "tested"
 }

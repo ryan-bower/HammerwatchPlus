@@ -1,12 +1,19 @@
 {
+  "built": "hwp_rog_second_wind",
   "cls": "rogue",
   "group": "rogue-spec4",
   "kind": "passive",
-  "levels": [],
+  "levels": [
+    "Heals 20",
+    "Heals 30",
+    "Heals 40",
+    "Heals 50",
+    "Heals 60"
+  ],
   "name": "Second Wind",
-  "notes": "Triggers on successful Evasion, including evades granted by Sidestep. The base gust originates at the Rogue. Shared Breath allows affected teammates to trigger gusts from their own positions, using the same passive cooldown. Healing, radius and cooldown are left for tuning.",
+  "notes": "Triggers on successful Evasion, including evades granted by Sidestep. The base gust originates at the Rogue. Shared Breath allows affected teammates to trigger gusts from their own positions, using the same passive cooldown. Healing, radius and cooldown are left for tuning.\n\nIn game (hwp_rog_second_wind, tested): an evade (Sidestep's too) heals the rogue and teammates within 80, at most once every 4 s. All numbers assumed: heal 20-60, radius 80, 4 s.",
   "order": 1,
-  "status": "idea",
+  "status": "tested",
   "summary": "Successfully evading an attack releases a healing gust that restores health to you and nearby teammates. This effect has a short cooldown.",
   "unlock": "bought"
 }

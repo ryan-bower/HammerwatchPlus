@@ -1,25 +1,25 @@
 {
-  "built": "",
+  "built": "hwp_wlk_pb_proliferation",
   "cls": "warlock",
   "exclusive": "",
   "levels": [
     {
       "q": "uncommon",
-      "text": ""
+      "text": "Spreads within 60"
     },
     {
       "q": "uncommon",
-      "text": ""
+      "text": "Spreads within 80"
     },
     {
       "q": "rare",
-      "text": ""
+      "text": "Spreads within 100"
     }
   ],
   "name": "Proliferation",
-  "notes": "",
+  "notes": "In game (hwp_wlk_pb_proliferation, tested): a dying victim's brand goes to every enemy within 60/80/100 (assumed), each with the whole stored damage; brands last 3 s.",
   "order": null,
   "skill": "warlock-spec4-active",
-  "status": "idea",
+  "status": "tested",
   "summary": "After the target dies the brand spreads to nearby targets with the snapshotted damage. Scaling, scales radius. Duration of the brand is halved."
 }

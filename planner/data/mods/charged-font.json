@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_wiz_sc_static_channel",
   "cls": "wizard",
   "exclusive": "",
   "levels": [
@@ -13,9 +13,9 @@
     }
   ],
   "name": "Static Channel",
-  "notes": "",
+  "notes": "In game (hwp_wiz_sc_static_channel, tested): a release gives back 10/20% of max mana.",
   "order": null,
   "skill": "wizard-spec4-passive",
-  "status": "idea",
+  "status": "tested",
   "summary": "Releasing Static Charge restores Mana."
 }

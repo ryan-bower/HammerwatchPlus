@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_ran_gathering_winds",
   "cls": "ranger",
   "cooldown": "",
   "group": "ranger-spec4",
@@ -13,10 +13,10 @@
   ],
   "mana": "",
   "name": "Gathering Winds",
-  "notes": "stacks drop back to 0 after 5s, but adding a stack resets the timer. Offhand weapons do not trigger a stack, only main-hand/two hands using their secondary (right click) ability.",
+  "notes": "stacks drop back to 0 after 5s, but adding a stack resets the timer. Offhand weapons do not trigger a stack, only main-hand/two hands using their secondary (right click) ability.\n\nIn game (hwp_ran_gathering_winds, tested): a two-handed bow or crossbow secondary attack adds a Tailwind stack: +1% movement, attack and cast speed each, 5 s, refreshed by every stack (assumed). The off-hand crossbow does not count.",
   "order": 1,
   "role": "",
-  "status": "idea",
+  "status": "tested",
   "summary": "Using Bow & Crossbow secondary attacks grants a stack of Tailwind for 5s. Each added stack resets the countdown and increases your Action Speed (Movement, Skill and Weapon Speed) by 1%.",
   "unlock": "bought"
 }

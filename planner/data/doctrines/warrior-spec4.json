@@ -1,10 +1,11 @@
 {
   "blurb": "Raise your standard, hold the line: shield your allies, stretch their buffs, and break the enemies who stand against you.",
+  "built": "hwp_warrior_bannerlord",
   "cls": "warrior",
   "name": "Bannerlord",
-  "notes": "",
+  "notes": "In game (hwp_warrior_bannerlord, tested): the subclass in mods/specs (players/hwp/specs/class_specs.sval). Every skill and orb is checked by plan-specs 20261021-163852; numbers the design left open are marked assumed on each record. Not balanced yet.",
   "order": 4,
   "owner": "Colin",
   "spec4": true,
-  "status": "idea"
+  "status": "tested"
 }

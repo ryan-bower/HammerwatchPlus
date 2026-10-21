@@ -1,10 +1,11 @@
 {
   "blurb": "Protect your team with evasive winds and healing gusts triggered by successful evades.",
+  "built": "hwp_rogue_winddancer",
   "cls": "rogue",
   "name": "Winddancer",
-  "notes": "Zak's survival-focused support design. Protective Gale applies a buff that stays with each player as they move. Second Wind heals automatically on successful evades. Evasion, movement speed, duration, healing, regeneration, range, mana cost and cooldown values are left for tuning.",
+  "notes": "Zak's survival-focused support design. Protective Gale applies a buff that stays with each player as they move. Second Wind heals automatically on successful evades. Evasion, movement speed, duration, healing, regeneration, range, mana cost and cooldown values are left for tuning.\n\nIn game (hwp_rogue_winddancer, tested): the subclass in mods/specs (players/hwp/specs/class_specs.sval). Every skill and orb is checked by plan-specs 20261021-163852; numbers the design left open are marked assumed on each record. Not balanced yet.",
   "order": 4,
   "owner": "Zak",
   "spec4": true,
-  "status": "idea"
+  "status": "tested"
 }

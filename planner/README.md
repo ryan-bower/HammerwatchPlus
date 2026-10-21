@@ -71,7 +71,8 @@ of Hammerwatch I specs:
 ## Icons
 
 `web/icons.png` and `web/icons.json` are the skill and orb icons, cut from the game's
-atlases (vanilla, Firearms, and the HoH1 classes' committed placeholders) by
+atlases (vanilla, Firearms, the 4th specs' placeholder sheet and the HoH1 classes' committed
+placeholders) by
 `tools/icon_art/planner_icons.py`, which needs `gamecode/`. With the HoH1 art imported
 (`python -m gamelab doctor --fix`), it also writes the git-ignored `web/icons.local.png`,
 which the server sends instead. A record with `hoh1_icon` (`"<cls>/<skill>"`, a key of

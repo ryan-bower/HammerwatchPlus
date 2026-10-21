@@ -1,5 +1,5 @@
 """Builds the class planner's icon sheet: every skill and orb icon the planner shows, cut
-from the icon atlases (vanilla, Firearms, the HoH1 classes), packed 24x24 into icons.png,
+from the icon atlases (vanilla, Firearms, the HoH1 classes, the 4th specs), packed 24x24 into icons.png,
 with icons.json mapping each in-game id to its cell.
 python planner_icons.py [<data>] -> planner/web/icons.png, icons.json; <data> holds the
 planner's records as classes/*.json, skills/*.json and mods/*.json (default planner/data).
@@ -19,9 +19,10 @@ from PIL import Image
 
 REPO = Path(__file__).resolve().parents[2]
 S = Path(sys.argv[1]) if len(sys.argv) > 1 else REPO / "planner/data"
-SVALS = [REPO / "gamecode/sdk/hoh2/players", REPO / "mods/firearms/players", REPO / "mods/classes/players"]
+SVALS = [REPO / "gamecode/sdk/hoh2/players", REPO / "mods/firearms/players", REPO / "mods/classes/players",
+         REPO / "mods/specs/players"]
 # a texture path resolves in the first package that has it, as the game's do
-BASES = [REPO / "mods/classes", REPO / "mods/firearms", REPO / "gamecode/sdk/hoh2"]
+BASES = [REPO / "mods/classes", REPO / "mods/firearms", REPO / "mods/specs", REPO / "gamecode/sdk/hoh2"]
 OVERLAY = REPO / "mods/classes/hoh1art"
 REMASTERED = "players/hwp/remastered/icons.png"
 sys.path.insert(0, str(REPO / "tools"))

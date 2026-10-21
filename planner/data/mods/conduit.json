@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_wiz_sc_conduit",
   "cls": "wizard",
   "exclusive": "",
   "levels": [
@@ -13,9 +13,9 @@
     }
   ],
   "name": "Conduit",
-  "notes": "",
+  "notes": "In game (hwp_wiz_sc_conduit, tested): +4/8% cast speed per Static Charge stack.",
   "order": null,
   "skill": "wizard-spec4-passive",
-  "status": "idea",
+  "status": "tested",
   "summary": "Each stack of Static Charge increases your Cast Speed."
 }

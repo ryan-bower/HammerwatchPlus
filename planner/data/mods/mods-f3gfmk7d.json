@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_war_bs_martyrs_banner",
   "cls": "warrior",
   "exclusive": "",
   "levels": [
@@ -17,9 +17,9 @@
     }
   ],
   "name": "Martyr's Banner",
-  "notes": "",
+  "notes": "In game (hwp_war_bs_martyrs_banner, built): the others get 1.5x/2x/3x the reduction, the bearer none. Only the orb's numbers are checked (needs a second player).",
   "order": null,
   "skill": "warrior-spec4-active",
-  "status": "idea",
+  "status": "built",
   "summary": "Ally DR is increased, but you no longer receive the DR."
 }
