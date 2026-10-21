@@ -1,11 +1,16 @@
 {
+  "built": "",
   "cls": "warlock",
+  "cooldown": "",
   "group": "warlock-spec4",
   "kind": "active",
   "levels": [],
-  "name": "Placeholder Active",
+  "mana": "",
+  "name": "Pryebrand",
+  "notes": "",
   "order": 0,
+  "role": "",
   "status": "idea",
-  "summary": "Placeholder: not designed yet.",
+  "summary": "Brand an enemy with a demonic sigil. For a short duration, a portion of the damage you deal to that enemy feeds the brand. Reactivate the ability or let the duration expire to cash it out: a claw of hellfire tears up through the victim, dealing fire damage based on the stored offering. If the victim dies first, the brand transfers to a nearby enemy, carrying its stored damage.",
   "unlock": "bought"
 }
