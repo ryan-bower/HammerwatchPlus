@@ -15,6 +15,14 @@
 		<vec2 name="dmg-taken-mul">1 0</vec2>
 		<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>192 96 14 14</vec4></array>
 	</dict>
+	<!-- Stormbringer, Wind Ward: gw-ward x Tailwind stacks less damage taken, as the intensity
+	     (Stormbringer.as UpdateWindWard) -->
+	<dict name="wind_ward">
+		<bool name="debuff">false</bool>
+		<int name="duration">600</int>
+		<bool name="ignore-buff-scaling">true</bool>
+		<vec2 name="dmg-taken-mul">1 0</vec2>
+	</dict>
 	<dict name="standard_dr_planted">
 		<bool name="debuff">false</bool>
 		<int name="duration">600</int>

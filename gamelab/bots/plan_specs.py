@@ -7,7 +7,7 @@ gamelab plus mods/gamelab-hands/scripts/GameLab/Verbs_specs.as: hasbuff (a buff 
 for the buffs that have no display name), evade (Player.Evade's real roll and triggers) and
 bind (a skill's live bind, to see the orbs took).
 
-Sections: winddancer, bannerlord, invocation. Single player: what only shows on a teammate (Shared Breath,
+Sections: winddancer, bannerlord, invocation, stormbringer. Single player: what only shows on a teammate (Shared Breath,
 the standard's ally numbers) is checked as far as the bearer's own client goes."""
 import re
 import time
@@ -17,6 +17,8 @@ from gamelab.bots.plan_classesb import Checks as Base
 BUFFS = "players/hwp/specs/buffs_specs.sval:"
 STATUS = "tweak/buffs/status_effects.sval:"
 DUMMY = "actors/humans/bandits/bandit_brute.unit"
+# 500 hp, stands still, never blocks: for projectiles (a brute's SkillBlock stops arrows)
+TARGET = "doodads/generic/target_dummy_breakable.unit"
 
 
 class Checks(Base):
@@ -56,9 +58,34 @@ class Checks(Base):
         for orb, n in orbs:
             self.gl("orb", orb, n)
 
-    def cast_skill(self, tag, skill, cost, done=None, fallback="skill3"):
+    def set_stacks(self, path, n):
+        """The local player's count of a stack, through givestacks (it adds): all off, then n."""
+        self.gl("givestacks", path, -999)
+        return self.gl("givestacks", path, n) if n > 0 else {}
+
+    def status_num(self, label):
+        """A number from `hwp specs` ("...; <label> N"), None when it isn't there."""
+        m = re.findall(re.escape(label) + r" (-?\d+)", self.specs())
+        return int(m[-1]) if m else None
+
+    def open_dir(self, need=230):
+        """A unit direction from the player with no wall for `need` px (rayhit, 8 tries), the
+        clearest one when none is; for the skills that turn at walls."""
+        import math
+        x, y = self.pos()
+        best = (-1.0, (1.0, 0.0))
+        for k in range(8):
+            d = (round(math.cos(k * math.pi / 4), 3), round(math.sin(k * math.pi / 4), 3))
+            r = self.gl("rayhit", round(x, 1), round(y, 1), round(x + d[0] * need, 1), round(y + d[1] * need, 1))
+            free = need if not r.get("wall") else float(r.get("wd", 0.0))
+            if free >= need:
+                return d
+            best = max(best, (free, d))
+        return best[1]
+
+    def cast_skill(self, tag, skill, cost, done=None, fallback="skill3", aim=(1, 0)):
         button = self.button_for(tag, skill, fallback)
-        presses, spent = self.cast(skill, button, cost, done=done)
+        presses, spent = self.cast(skill, button, cost, done=done, aim=aim)
         return presses, spent, button
 
     # --- Winddancer
@@ -199,10 +226,92 @@ class Checks(Base):
         self.to_town()
 
 
+    # --- Stormbringer
+    def stormbringer(self):
+        ec, gw = "hwp_ran_electric_circuit", "hwp_ran_gathering_winds"
+        self.setup("storm", "ranger", "hwp_ranger_stormbringer", [ec, gw])
+        if not self.enter_floor("storm"):
+            return
+        # one target on the line of fire, one beside it out of the 30 degree fan, in strike range,
+        # the way the floor leaves open: the arrows turn at a wall
+        fx, fy = self.open_dir()
+        self.gl("spawn", TARGET, round(45 * fx, 1), round(45 * fy, 1))
+        self.gl("spawn", TARGET, round(45 * fx - 40 * fy, 1), round(45 * fy + 40 * fx, 1))
+        time.sleep(1.0)
+        hp0 = self.dummy_hp("target_dummy")
+        r0 = self.status_num("circuit returns") or 0
+        b0 = self.status_num("back hits") or 0
+        # a press aimed right (castat's direction does not reach the fan: it shoots on the aim)
+        presses, spent, button = self.cast_skill("storm_ec", ec, 40, aim=(fx, fy))
+        time.sleep(0.1)  # the press waited 0.6 s: the way out is done, the arrows turn at 0.8 s
+        hp1 = self.dummy_hp("target_dummy")
+        self.g.shot("storm circuit", settle=False)
+        time.sleep(1.6)  # turned at 600 ms, back past the dummy
+        hp2 = self.dummy_hp("target_dummy")
+        r1 = self.status_num("circuit returns")
+        b1 = self.status_num("back hits")
+        lower = lambda a, b: a < b - 0.001
+        self.flag("storm_ec_cast", presses > 0, f"{ec} on {button}: {presses} press(es), mana -{spent}")
+        self.flag("storm_ec_hits", len(hp0) == 2 and all(lower(hp2.get(u, 0.0), hp0[u]) for u in hp0),
+                  f"dummies {hp0} -> out {hp1} -> back {hp2} (the side one: lightning strikes only)")
+        self.flag("storm_ec_return", r1 is not None and r1 - r0 >= 3 and b1 is not None and b1 - b0 >= 1,
+                  f"aim {fx, fy}: returns {r0} -> {r1} (3 arrows), hits on the way back {b0} -> {b1}; hp after the way out {hp1}, "
+                  f"after the way back {hp2}")
+
+        for orb, n in (("hwp_ran_ec_charged_boomerang", 2), ("hwp_ran_ec_lightning_rod", 3), ("hwp_ran_ec_tailwind_catch", 1),
+                       ("hwp_ran_gw_gale_force", 2), ("hwp_ran_gw_wind_ward", 2)):
+            self.gl("orb", orb, n)
+        time.sleep(0.5)
+        binds = {k: self.bind(s_, k) for s_, k in ((ec, "ec-return-mul"), (ec, "ec-lone"), (ec, "ec-strikes"), (ec, "ec-radius"),
+                                                    (ec, "ec-catch"), (gw, "gw-gale"), (gw, "gw-ward"), (gw, "gw-max"))}
+        cap = int(binds.get("gw-max") or 0)
+        self.flag("storm_orb_binds", binds == {"ec-return-mul": "1.4", "ec-lone": "1", "ec-strikes": "5", "ec-radius": "84",
+                                               "ec-catch": "1", "gw-gale": "2", "gw-ward": "0.02",
+                                               "gw-max": str((5, 7, 9, 12, 15)[max(1, min(5, self.lvl[gw])) - 1])}, f"{binds}")
+
+        # Gathering Winds: the shortbow's secondary adds a stack, up to the level's cap
+        tw = "players/hwp/specs/stacks_specs.sval:tailwind"
+        self.set_stacks(tw, 0)
+        sec = "attack_2h_shortbow_secondary"
+        for _ in range(3):
+            self.gl("castat", sec, 1, 0, "nocd")
+            time.sleep(0.5)
+        n3 = self.status_num("tailwind")
+        self.flag("storm_gw_stack", n3 == 3, f"3 x {sec}: tailwind {n3}")
+        for _ in range(cap + 2 - 3):
+            self.gl("castat", sec, 1, 0, "nocd")
+            time.sleep(0.45)
+        ncap = self.status_num("tailwind")
+        self.flag("storm_gw_cap", ncap == cap, f"{cap + 2} secondaries: tailwind {ncap}, cap {cap}")
+        g0 = self.status_num("gale arrows") or 0
+        self.gl("castat", sec, 1, 0, "nocd")
+        time.sleep(0.5)
+        g1 = self.status_num("gale arrows")
+        self.flag("storm_gale_force", g1 is not None and g1 - g0 == 2, f"at the cap a secondary: gale arrows {g0} -> {g1} (+2)")
+        ww = self.wait_buff("wind_ward", 1.5)
+        want = round(0.02 * cap, 3)
+        self.flag("storm_wind_ward", bool(ww.get("on")) and abs(float(ww.get("intensity", 0)) - want) < 0.001,
+                  f"wind_ward {ww} (want intensity {want}: 2% x {cap})")
+
+        # Tailwind Catch: the arrows come back to the ranger standing still
+        self.set_stacks(tw, 0)
+        c0 = self.status_num("catches") or 0
+        end = time.time() + 8
+        while time.time() < end and (self.skill_cd(ec) or 0) > 0:
+            time.sleep(0.5)
+        self.cast_skill("storm_ec2", ec, 40, aim=(fx, fy))
+        time.sleep(2.0)
+        c1 = self.status_num("catches")
+        n = self.status_num("tailwind")
+        self.flag("storm_catch", c1 is not None and c1 - c0 >= 1 and (n or 0) >= 1,
+                  f"catches {c0} -> {c1}, tailwind {n}")
+        self.to_town()
+
     # --- Invocation
-    def dummy_hp(self):
-        """{unit id: hp fraction, 0 when dead} of the dummies around."""
-        return {u["unit"]: (0.0 if u.get("dead") else u.get("hp", 1.0)) for u in self.dummies(400)}
+    def dummy_hp(self, name="bandit_brute"):
+        """{unit id: hp fraction, 0 when dead} of the dummies around (near's name filter)."""
+        return {u["unit"]: (0.0 if u.get("dead") else u.get("hp", 1.0))
+                for u in self.gl("near", 400, name).get("units") or []}
 
     def invocation(self):
         tt, sc = "hwp_wiz_tempest_torrent", "hwp_wiz_static_charge"
@@ -233,12 +342,12 @@ class Checks(Base):
                                              "sc-channel": "0.2", "sc-conduit-lvl": "2"}, f"{binds}")
 
         path = "players/hwp/specs/stacks_specs.sval:static_charge"
-        self.gl("stacks", path, 3)
+        self.set_stacks(path, 3)
         cb = self.wait_buff("conduit_2_3", 1.5)
         self.flag("inv_conduit", bool(cb.get("on")), f"3 charges, Conduit 2: conduit_2_3 {cb} (+24% cast speed)")
 
         # a release on the next cast: 5 charges, the torrent's cooldown over
-        self.gl("stacks", path, 5)
+        self.set_stacks(path, 5)
         end = time.time() + 14
         while time.time() < end and (self.skill_cd(tt) or 0) > 0:
             time.sleep(0.5)
@@ -269,7 +378,7 @@ class Checks(Base):
         self.to_town()
 
 
-def run(p, sections="winddancer,bannerlord,invocation", **_):
+def run(p, sections="winddancer,bannerlord,invocation,stormbringer", **_):
     c = Checks(p)
     for s in sections.split(","):
         try:

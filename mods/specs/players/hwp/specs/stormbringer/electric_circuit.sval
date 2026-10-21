@@ -1,0 +1,158 @@
+%include "players/skills_cost.inc"
+<!--
+	Electric Circuit (Stormbringer active). A fan of 3 stormbringer/circuit.unit arrows (30
+	degrees): through every enemy, back from their range or a wall to where they were shot
+	(HWPSpecsReturn, scripts/HWP/Specs/Stormbringer.as), each hit calling lightning on up to 2
+	other enemies nearby (HWPSpecsStrike).
+	Planner numbers: 20/25/30/35/40 a hit (half physical, half lightning: assumed), strikes
+	12/14/16/18/20, mana 40, cooldown 6 s. Assumed: the 30 degree fan, the strike radius 60.
+	Orbs: Charged Boomerang (ec-return-mul 1.2/1.4 on the way back; ec-lone: a lone enemy takes
+	the strikes), Lightning Rod (ec-strikes 3/4/5, ec-radius 69/75/84), Tailwind Catch
+	(ec-catch: catching an arrow adds a Tailwind stack, with Gathering Winds).
+	Sound: placeholders until the audio picker (art/specs/AUDIO.md).
+-->
+<dict>
+	<string name="name">.hwp.specs.electric_circuit.name</string>
+	<string name="type-name">.skills.type.spell</string>
+	<string name="description">.hwp.specs.electric_circuit.desc</string>
+
+	<array name="description-params">
+		<array><s>damage</s><s>.skills.desc.params.damage</s><s>20</s><s>25</s><s>30</s><s>35</s><s>40</s></array>
+		<array><s>strike</s><s>.hwp.specs.param.dmg_per_strike</s><s>12</s><s>14</s><s>16</s><s>18</s><s>20</s></array>
+		<array><s>mana-cost</s><b>t</b><s>.skills.desc.params.mana_cost</s><s>40</s></array>
+		<array><s>cooldown</s><b>t</b><s>.skills.desc.params.cooldown</s><s>6s</s></array>
+	</array>
+
+	<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>24 0 24 24</vec4></array>
+
+	<string name="id">hwp_ran_electric_circuit</string>
+	<string name="type">spell</string>
+	<array name="tags"><s>spell</s><s>lightning</s><s>physical</s></array>
+	<int name="starting-level">1</int>
+
+	<dict name="skill">
+		<int name="skill-cost">SKILLCOSTMASTERYLEVEL_1</int>
+		<string name="class">Skills::PlayerSkillDirectional</string>
+		<string name="anim">attack</string>
+		<int name="anim-length">400</int>
+
+		<int name="cooldown">6000</int>
+		<int name="castpoint">200</int>
+		<float name="cast-speed-mul">1</float>
+		<float name="move-speed-mul">0.5</float>
+		<ivec2 name="move-speed">0 200</ivec2>
+		<ivec2 name="blocking">0 200</ivec2>
+		<ivec2 name="update-aim">0 200</ivec2>
+		<bool name="repeating">false</bool>
+		<int name="mana-cost">40</int>
+
+		<dict name="binds">
+			<int name="ec-phys">10</int>
+			<int name="ec-light">10</int>
+			<int name="ec-strike">12</int>
+			<int name="ec-strikes">2</int>
+			<int name="ec-radius">60</int>
+			<float name="ec-return-mul">1</float>
+			<float name="ec-lone">0</float>
+			<float name="ec-catch">0</float>
+		</dict>
+
+		<dict name="actions">
+			<array name="cast">
+				<dict>
+					<string name="class">PlaySound</string>
+					<string name="sound">event:/sfx/player/attacks/twohanded/shortbow_quick_shot</string>
+				</dict>
+				<dict>
+					<string name="class">ShootProjectileFan</string>
+					<string name="projectile">players/hwp/specs/stormbringer/circuit.unit</string>
+					<int name="dist">8</int>
+					<int name="projectiles">3</int>
+					<int name="spread">30</int>
+				</dict>
+			</array>
+		</dict>
+
+		<array name="timeline">
+			<i>200</i><s>cast</s>
+		</array>
+	</dict>
+
+	<array name="upgrades">
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
+			<dict name="binds"><int name="ec-phys">13</int><int name="ec-light">12</int><int name="ec-strike">14</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
+			<dict name="binds"><int name="ec-phys">15</int><int name="ec-light">15</int><int name="ec-strike">16</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
+			<dict name="binds"><int name="ec-phys">18</int><int name="ec-light">17</int><int name="ec-strike">18</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
+			<dict name="binds"><int name="ec-phys">20</int><int name="ec-light">20</int><int name="ec-strike">20</int></dict>
+		</dict>
+	</array>
+
+	<array name="modifier-skills">
+		<dict>
+			<string name="name">.hwp.specs.charged_boomerang.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.charged_boomerang.desc</string>
+			<array name="description-params">
+				<array><s>return</s><s>.hwp.specs.param.return_damage</s><s>+20%</s><s>+40%</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>72 0 24 24</vec4></array>
+			<string name="id">hwp_ran_ec_charged_boomerang</string>
+			<string name="quality">uncommon</string>
+			<dict name="skill">
+				<dict name="binds"><float name="ec-return-mul">1.2</float><float name="ec-lone">1</float></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><float name="ec-return-mul">1.4</float></dict>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<string name="name">.hwp.specs.lightning_rod.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.lightning_rod.desc</string>
+			<array name="description-params">
+				<array><s>strikes</s><s>.hwp.specs.param.extra_strikes</s><s>+1</s><s>+2</s><s>+3</s></array>
+				<array><s>radius</s><s>.skills.desc.params.radius</s><s>+15%</s><s>+25%</s><s>+40%</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>96 0 24 24</vec4></array>
+			<string name="id">hwp_ran_ec_lightning_rod</string>
+			<string name="quality">uncommon</string>
+			<dict name="skill">
+				<dict name="binds"><int name="ec-strikes">3</int><int name="ec-radius">69</int></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds"><int name="ec-strikes">4</int><int name="ec-radius">75</int></dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><int name="ec-strikes">5</int><int name="ec-radius">84</int></dict>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<string name="name">.hwp.specs.tailwind_catch.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.tailwind_catch.desc</string>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>120 0 24 24</vec4></array>
+			<string name="id">hwp_ran_ec_tailwind_catch</string>
+			<string name="quality">rare</string>
+			<dict name="skill">
+				<dict name="binds"><float name="ec-catch">1</float></dict>
+			</dict>
+		</dict>
+	</array>
+</dict>

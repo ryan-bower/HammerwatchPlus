@@ -15,6 +15,11 @@
 	<string name="hwp.specs.param.burst_damage">Burst Damage:</string>
 	<string name="hwp.specs.param.dmg_per_strike">Lightning Damage per Strike:</string>
 	<string name="hwp.specs.param.cast_speed_per_stack">Cast Speed per Stack:</string>
+	<string name="hwp.specs.param.return_damage">Return Damage:</string>
+	<string name="hwp.specs.param.extra_strikes">Lightning Strikes:</string>
+	<string name="hwp.specs.param.max_stacks">Maximum Stacks:</string>
+	<string name="hwp.specs.param.extra_arrows">Extra Arrows:</string>
+	<string name="hwp.specs.param.dr_per_stack">Damage Reduction per Stack:</string>
 
 	<!-- Bannerlord -->
 	<string name="hwp.specs.battlefield_standard.name">Battlefield Standard</string>
@@ -47,6 +52,22 @@
 	<string name="hwp.specs.shared_breath.desc">Teammates under your Protective Gale release your healing gust when they evade an attack.</string>
 
 	<!-- Invocation -->
+	<string name="hwp.specs.electric_circuit.name">Electric Circuit</string>
+	<string name="hwp.specs.electric_circuit.desc">Fire three arrows in a fan that pierce every enemy for %damage% Physical and Lightning damage. Each enemy hit calls lightning down on up to 2 other enemies nearby for %strike% damage. At the end of their range, or at a wall, the arrows fly back to where you shot them, hitting everything again.</string>
+	<string name="hwp.specs.charged_boomerang.name">Charged Boomerang</string>
+	<string name="hwp.specs.charged_boomerang.desc">Returning arrows deal %return% damage. An enemy with no other enemies nearby is struck by the lightning itself.</string>
+	<string name="hwp.specs.lightning_rod.name">Lightning Rod</string>
+	<string name="hwp.specs.lightning_rod.desc">Each arrow hit calls %strikes% more lightning strikes, in a %radius% larger radius.</string>
+	<string name="hwp.specs.tailwind_catch.name">Tailwind Catch</string>
+	<string name="hwp.specs.tailwind_catch.desc">Catching a returning arrow grants a stack of Tailwind (Gathering Winds).</string>
+	<string name="hwp.specs.gathering_winds.name">Gathering Winds</string>
+	<string name="hwp.specs.gathering_winds.desc">Your two-handed bow and crossbow secondary attacks grant a stack of Tailwind for 5 seconds, up to %stacks%. Each stack increases your Movement, Attack and Cast Speed by 1%, and each new stack resets the timer.</string>
+	<string name="hwp.specs.gale_force.name">Gale Force</string>
+	<string name="hwp.specs.gale_force.desc">At maximum Tailwind, your bow and crossbow attacks fire %arrows% more arrows.</string>
+	<string name="hwp.specs.wind_ward.name">Wind Ward</string>
+	<string name="hwp.specs.wind_ward.desc">Each stack of Tailwind reduces the damage you take by %dr%.</string>
+	<string name="hwp.specs.stack.tailwind.name">Tailwind</string>
+	<string name="hwp.specs.stack.tailwind.desc">1% more Movement, Attack and Cast Speed per stack.</string>
 	<string name="hwp.specs.tempest_torrent.name">Tempest Torrent</string>
 	<string name="hwp.specs.tempest_torrent.desc">Launch a slow orb of lightning that passes through enemies for %duration%. Every 0.25 seconds it zaps 3 times for %damage% Lightning damage, seeking out enemies it has not zapped yet. A wall stops it, but it keeps zapping.</string>
 	<string name="hwp.specs.overcharge.name">Overcharge</string>

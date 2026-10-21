@@ -30,7 +30,7 @@ namespace HWP
 			}
 			Log("specs", found + " of " + SUBCLASSES.length() + " subclasses registered");
 
-			array<string> stacks = { "provisions", "static_charge" };
+			array<string> stacks = { "provisions", "static_charge", "tailwind" };
 			for (uint i = 0; i < stacks.length(); i++)
 			{
 				if (Stack(stacks[i]) is null)
@@ -38,7 +38,7 @@ namespace HWP
 			}
 
 			// the buffs the scripts load by name (the svals' own are checked when they load)
-			array<string> buffs = { "standard_dr", "standard_dr_planted", "crusade_5", "gale_share_20_0", "gale_share_60_3", "conduit_1_1", "conduit_2_5" };
+			array<string> buffs = { "standard_dr", "standard_dr_planted", "crusade_5", "gale_share_20_0", "gale_share_60_3", "conduit_1_1", "conduit_2_5", "wind_ward" };
 			for (uint i = 0; i < buffs.length(); i++)
 			{
 				if (Buff(buffs[i]) is null)
@@ -62,7 +62,11 @@ namespace HWP
 				ret += "; provisions " + (prov !is null ? plr.GetStacks(prov) : -1);
 				auto sc = Stack("static_charge");
 				ret += "; static charge " + (sc !is null ? plr.GetStacks(sc) : -1);
+				auto tw = Stack("tailwind");
+				ret += "; tailwind " + (tw !is null ? plr.GetStacks(tw) : -1);
 			}
+			ret += "; circuit returns " + g_circuitReturns + " back hits " + g_circuitBackHits + " catches " + g_circuitCatches
+				+ "; gale arrows " + g_galeArrows;
 			HWP::Commands::Reply(ret);
 		}
 	}
@@ -85,6 +89,11 @@ namespace Modules
 			HWP::Specs::g_provisionsC = 0;
 			HWP::Specs::g_conduitC = 0;
 			HWP::Specs::g_channelMana = 0;
+			HWP::Specs::g_wardC = 0;
+			HWP::Specs::g_circuitReturns = 0;
+			HWP::Specs::g_circuitCatches = 0;
+			HWP::Specs::g_circuitBackHits = 0;
+			HWP::Specs::g_galeArrows = 0;
 		}
 
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
@@ -94,6 +103,7 @@ namespace Modules
 			HWP::Specs::UpdateStandards(ms);
 			HWP::Specs::UpdateProvisions(ms);
 			HWP::Specs::UpdateConduit(ms);
+			HWP::Specs::UpdateWindWard(ms);
 		}
 	}
 }

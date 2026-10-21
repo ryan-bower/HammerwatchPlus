@@ -34,4 +34,38 @@
 			<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>192 24 14 14</vec4></array>
 		</dict>
 	</dict>
+	<!-- Stormbringer, Gathering Winds: +1% move, attack and cast speed per stack (intensity is the
+	     count), 5 s, every add resets the timer; the level's cap is kept by the script
+	     (Stormbringer.as AddTailwind), the def's max is the top level's 15. -->
+	<dict>
+		<string name="id">tailwind</string>
+		<string name="name">.hwp.specs.stack.tailwind.name</string>
+		<string name="description">.hwp.specs.stack.tailwind.desc</string>
+		<int name="max">15</int>
+		<bool name="refresh-on-max">true</bool>
+		<bool name="display-timer-radius">true</bool>
+		<bool name="extrapolate-intensity">true</bool>
+		<dict name="timer">
+			<int name="time">5000</int>
+			<int name="add-stack">-999</int>
+			<bool name="gain-set">true</bool>
+			<bool name="add-set">true</bool>
+			<bool name="sub-set">true</bool>
+			<bool name="gain-reset">true</bool>
+			<bool name="add-reset">true</bool>
+			<bool name="sub-reset">true</bool>
+		</dict>
+		<dict name="buff">
+			<bool name="debuff">false</bool>
+			<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>192 0 14 14</vec4></array>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::SpeedMul</string>
+					<vec2 name="move-speed">1 1.01</vec2>
+					<vec2 name="attack-speed">1 1.01</vec2>
+					<vec2 name="cast-speed">1 1.01</vec2>
+				</dict>
+			</array>
+		</dict>
+	</dict>
 </array>

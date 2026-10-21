@@ -1,6 +1,6 @@
 {
  "name": "plan-specs",
- "about": "Test plan through the plan_specs bot: the 4th specializations (mods/specs) cast in an emptied Bandit Keep floor at level 20. winddancer: Protective Gale puts gale_1 (Evasion, 6 s, HUD icon) on the rogue; an evade (the evade verb: Player.Evade's real roll) heals 20 through Second Wind, a second within 4 s does not; the orbs' binds take (Lasting Gale 12 s, Tailwind, Lingering Breeze, Shared Breath), the recast lasts 12 s with Tailwind's speed, a gust gives breeze_2, and the rogue never gets the teammates' share buff. bannerlord: the raise gives standard_dr at 2%, Feared Crest and War Drum debuff a dummy, Shared Provisions counts the buff; the second press plants it for free at 4%. invocation: Tempest Torrent zaps all three dummies in a row; the orbs' binds take; 3 Static Charge stacks (the stacks verb) give conduit_2_3; at 5 the next cast releases them (stacks 0) and Static Channel gives 20% mana back; the 5 s torrent with Thunderclap hurts all three again.",
+ "about": "Test plan through the plan_specs bot: the 4th specializations (mods/specs) cast in an emptied Bandit Keep floor at level 20. winddancer: Protective Gale puts gale_1 (Evasion, 6 s, HUD icon) on the rogue; an evade (the evade verb: Player.Evade's real roll) heals 20 through Second Wind, a second within 4 s does not; the orbs' binds take (Lasting Gale 12 s, Tailwind, Lingering Breeze, Shared Breath), the recast lasts 12 s with Tailwind's speed, a gust gives breeze_2, and the rogue never gets the teammates' share buff. bannerlord: the raise gives standard_dr at 2%, Feared Crest and War Drum debuff a dummy, Shared Provisions counts the buff; the second press plants it for free at 4%. invocation: Tempest Torrent zaps all three dummies in a row; the orbs' binds take; 3 Static Charge stacks (the stacks verb) give conduit_2_3; at 5 the next cast releases them (stacks 0) and Static Channel gives 20% mana back; the 5 s torrent with Thunderclap hurts all three again. stormbringer: Electric Circuit hits a dummy on the line and strikes the one beside it, and its 3 arrows come back (hp falls again); the orb binds; 3 shortbow secondaries give 3 Tailwind, more stop at the level's cap; Gale Force shoots 2 arrows at the cap; Wind Ward 2% a stack; a still ranger catches the arrows (Tailwind).",
  "fixture": "town-paladin",
  "mods": [
   "core",
@@ -80,6 +80,27 @@
     "inv_release": true,
     "inv_static_channel": true,
     "inv_tt_orbs": true
+   }
+  },
+  {
+   "do": "bot",
+   "bot": "plan_specs",
+   "kwargs": {
+    "sections": "stormbringer"
+   },
+   "name": "stormbringer",
+   "expect": {
+    "storm_char": true,
+    "storm_learned": true,
+    "storm_ec_cast": true,
+    "storm_ec_hits": true,
+    "storm_ec_return": true,
+    "storm_orb_binds": true,
+    "storm_gw_stack": true,
+    "storm_gw_cap": true,
+    "storm_gale_force": true,
+    "storm_wind_ward": true,
+    "storm_catch": true
    }
   },
   {

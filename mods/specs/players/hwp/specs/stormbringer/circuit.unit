@@ -1,0 +1,79 @@
+<unit netsync="none">
+	<!--
+		Electric Circuit's arrow (stormbringer/electric_circuit.sval, HWPSpecsReturn and
+		HWPSpecsStrike in scripts/HWP/Specs/Stormbringer.as). Through every enemy (penetration
+		999); at its range (ttl 600 ms at speed 10, about 180 px) or a wall it turns back for the
+		point it was shot from and hits everything again (ec-return-mul on the way back). Every
+		hit: ec-phys physical and ec-light lightning, then lightning on ec-strikes other enemies
+		within ec-radius for ec-strike each. Assumed: the speed and range, the half and half split.
+	-->
+	<behavior class="NewProjectile">
+		<string name="anim">default</string>
+		<float name="speed">10</float>
+		<int name="ttl">600</int>
+		<int name="penetration">999</int>
+		<int name="bounces">999</int>
+		<bool name="bounce-on-collide">true</bool>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">HWPSpecsReturn</string>
+				<string name="mul-bind">ec-return-mul</string>
+				<string name="catch-bind">ec-catch</string>
+			</dict>
+		</array>
+
+		<array name="hit-effects">
+			<dict>
+				<string name="class">Damage</string>
+				<string name="physical-bind">ec-phys</string>
+				<string name="lightning-bind">ec-light</string>
+			</dict>
+			<dict>
+				<string name="class">HWPSpecsStrike</string>
+				<string name="count-bind">ec-strikes</string>
+				<string name="radius-bind">ec-radius</string>
+				<string name="lone-bind">ec-lone</string>
+				<array name="effects">
+					<dict>
+						<string name="class">Damage</string>
+						<string name="lightning-bind">ec-strike</string>
+					</dict>
+				</array>
+			</dict>
+			<dict>
+				<string name="class">PlaySound</string>
+				<string name="sound">event:/sfx/player/classes/ranger/rain_of_arrows/rain_of_arrows_lightning</string>
+			</dict>
+			<dict>
+				<bool name="only-actors">true</bool>
+			</dict>
+			<dict>
+				<string name="class">SpawnEffect</string>
+				<string name="effect">effects/generic/impacts/lightning_impact_2.effect</string>
+			</dict>
+		</array>
+
+		<array name="destroyed-effects">
+			<dict>
+				<string name="class">SpawnEffect</string>
+				<string name="effect">effects/generic/impacts/spark_impact_1.effect</string>
+				<bool name="clone-owner-params">true</bool>
+			</dict>
+		</array>
+
+		<dict name="effect-params">
+			<float name="height">8</float>
+		</dict>
+	</behavior>
+
+	<scenes>
+		<scene name="default">
+			<collision static="false">
+				<circle radius="6" projectile="true" />
+			</collision>
+			<effect src="players/projectiles/arrow.effect" />
+			<effect src="effects/generic/projectiles/lightning_projectile_ball_2.effect?radius=3" />
+		</scene>
+	</scenes>
+</unit>
