@@ -1,0 +1,24 @@
+{
+  "cls": "sorcerer",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Up to +50% Mana Regeneration at low mana."
+    },
+    {
+      "q": "uncommon",
+      "text": "Up to +100% Mana Regeneration at low mana."
+    },
+    {
+      "q": "rare",
+      "text": "Up to +150% Mana Regeneration at low mana."
+    }
+  ],
+  "name": "Ebb and Flow",
+  "notes": "The bonus scales linearly with missing mana: none at full, the full bonus at empty. With Living Mana, mana regeneration is your health regeneration, so this is a comeback orb. Casting down to 1 mana also maxes the bonus, but one hit at that point kills you. The percentages are suggested starting values, left for tuning.",
+  "order": 2,
+  "skill": "sorcerer-spec4-passive",
+  "status": "idea",
+  "summary": "Your Mana Regeneration increases the lower your mana is."
+}

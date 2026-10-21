@@ -2283,7 +2283,7 @@ another Reload press starts it again as usual. Then the second `/code-review hig
 ## Sorcerer fourth-spec design: Arcane (2026-10-20)
 
 - Zak's design is recorded in `planner/data/`: **Arcane**, with **Blink** as the active
-  and **Arcane Vessel** as a working name for the passive. Blink teleports a short
+  and **Living Mana** (first drafted as Arcane Vessel) as the passive. Blink teleports a short
   distance and damages enemies around the arrival point. The passive converts the
   health pool, maximum-health bonuses and health restoration into mana. Incoming damage
   drains mana; reaching zero kills you. Spell costs leave at least one mana, with the
