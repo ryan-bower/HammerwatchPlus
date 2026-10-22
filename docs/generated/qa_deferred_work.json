@@ -9,200 +9,253 @@
   "contents": [
     {
       "path": "gamelab/results/qa-20261022-resume-o-v2-install-plan.json",
-      "sha256": "12c24378234a9accbb759da848bbe4d05b8adb716aeb5339f0dfea1185ed6113"
+      "sha256": "12c24378234a9accbb759da848bbe4d05b8adb716aeb5339f0dfea1185ed6113",
+      "bundle_entry": "gamelab/results/qa-20261022-resume-o-v2-install-plan.json"
     },
     {
       "path": "gamelab/results/qa-20261022-resume-o-v2-install.py",
-      "sha256": "715ad659652b94de3857ff7a7738778e099297e7c9e7feaa330094d53d596ad4"
+      "sha256": "715ad659652b94de3857ff7a7738778e099297e7c9e7feaa330094d53d596ad4",
+      "bundle_entry": "gamelab/results/qa-20261022-resume-o-v2-install.py"
     },
     {
       "path": "gamelab/results/qa-20261022-resume-o-v2-installer-peer.json",
-      "sha256": "4a5486771a484e2cd35d16e41a59081b7a26ce934532f96eca2c7eaceca0a5dd"
+      "sha256": "4a5486771a484e2cd35d16e41a59081b7a26ce934532f96eca2c7eaceca0a5dd",
+      "bundle_entry": "gamelab/results/qa-20261022-resume-o-v2-installer-peer.json"
     },
     {
       "path": "gamelab/results/qa-classes-drafts/resumed-base-all-positive/manifest.json",
-      "sha256": "3d3e2f93b1cdb6cbc80dd48e1438e448a685f56623aac98cc18aab6a7a4888d5"
+      "sha256": "3d3e2f93b1cdb6cbc80dd48e1438e448a685f56623aac98cc18aab6a7a4888d5",
+      "bundle_entry": "gamelab/results/qa-classes-drafts/resumed-base-all-positive/manifest.json"
     },
     {
       "path": "gamelab/results/qa-classes-drafts/resumed-base-all-positive/qa-classes-knives-all-ranks.json.pending",
-      "sha256": "e76a0eb77e4792468489b63c7b7b4282c1a2d58d16ad80161880c7bab14935c4"
+      "sha256": "e76a0eb77e4792468489b63c7b7b4282c1a2d58d16ad80161880c7bab14935c4",
+      "bundle_entry": "gamelab/results/qa-classes-drafts/resumed-base-all-positive/qa-classes-knives-all-ranks.json.pending"
     },
     {
       "path": "gamelab/results/qa-classes-drafts/resumed-base-all-positive/qa-classes-net-all-ranks.json.pending",
-      "sha256": "fd327383d7cbea584b7e3acc7880d8e62b4ea720aa0fb07913d2f24104b50d70"
+      "sha256": "fd327383d7cbea584b7e3acc7880d8e62b4ea720aa0fb07913d2f24104b50d70",
+      "bundle_entry": "gamelab/results/qa-classes-drafts/resumed-base-all-positive/qa-classes-net-all-ranks.json.pending"
     },
     {
       "path": "gamelab/results/qa-classes-drafts/resumed-base-all-positive/qa-classes-smoke-all-ranks.json.pending",
-      "sha256": "aaf1bd6c91eadfce5d73a640fe051b163ff8c5d3f9469b1b7fdebf414ef5eef8"
+      "sha256": "aaf1bd6c91eadfce5d73a640fe051b163ff8c5d3f9469b1b7fdebf414ef5eef8",
+      "bundle_entry": "gamelab/results/qa-classes-drafts/resumed-base-all-positive/qa-classes-smoke-all-ranks.json.pending"
     },
     {
       "path": "gamelab/results/qa-classes-drafts/resumed-base-all-positive/qa-classes-ward-all-ranks.json.pending",
-      "sha256": "96d15035accbf1c6ff58665b8507a5c32a2496267d0a7b00223a2c74a897b597"
+      "sha256": "96d15035accbf1c6ff58665b8507a5c32a2496267d0a7b00223a2c74a897b597",
+      "bundle_entry": "gamelab/results/qa-classes-drafts/resumed-base-all-positive/qa-classes-ward-all-ranks.json.pending"
     },
     {
       "path": "gamelab/results/qa-classes-drafts/resumed-base-all-positive/qa_class_base_all.py.pending",
-      "sha256": "e18ea30827b4fae567a1f378694d3880e9ebff5ef1d499a1c9829386bdd9fcf1"
+      "sha256": "e18ea30827b4fae567a1f378694d3880e9ebff5ef1d499a1c9829386bdd9fcf1",
+      "bundle_entry": "gamelab/results/qa-classes-drafts/resumed-base-all-positive/qa_class_base_all.py.pending"
     },
     {
       "path": "gamelab/results/qa-classes-drafts/resumed-input-target-projection-facts/change.diff",
-      "sha256": "73baf6c387e3b8dc93e993586df8ee41eac9a4b0e358cd0c098ce94b63a1f546"
+      "sha256": "73baf6c387e3b8dc93e993586df8ee41eac9a4b0e358cd0c098ce94b63a1f546",
+      "bundle_entry": "gamelab/results/qa-classes-drafts/resumed-input-target-projection-facts/change.diff"
     },
     {
       "path": "gamelab/results/qa-classes-drafts/resumed-input-target-projection-facts/manifest.json",
-      "sha256": "2f87ec7508100b31510cb968aff316e81780b27927554fb4f8cd14197d3ba0da"
+      "sha256": "2f87ec7508100b31510cb968aff316e81780b27927554fb4f8cd14197d3ba0da",
+      "bundle_entry": "gamelab/results/qa-classes-drafts/resumed-input-target-projection-facts/manifest.json"
     },
     {
       "path": "gamelab/results/qa-classes-drafts/resumed-input-target-projection-facts/Verbs_qa_input_target.as.pending",
-      "sha256": "edd260a4e422772849a6fe89b1eccb6573682a42c656c963d78cd79603ca326a"
+      "sha256": "edd260a4e422772849a6fe89b1eccb6573682a42c656c963d78cd79603ca326a",
+      "bundle_entry": "gamelab/results/qa-classes-drafts/resumed-input-target-projection-facts/Verbs_qa_input_target.as.pending"
     },
     {
       "path": "gamelab/results/qa-classes-drafts/resumed-ordinary-own-abilities/design.json",
-      "sha256": "8c1ab052e82f1b4e6eee96d685039a218a1d6d5fb3684dbc4b9a74f824cd3bc8"
+      "sha256": "8c1ab052e82f1b4e6eee96d685039a218a1d6d5fb3684dbc4b9a74f824cd3bc8",
+      "bundle_entry": "gamelab/results/qa-classes-drafts/resumed-ordinary-own-abilities/design.json"
     },
     {
       "path": "gamelab/results/qa-classes-drafts/resumed-shadow-settled-origin/change.diff",
-      "sha256": "165450abc791072251d72d98741433434b80272f9135e726dc61a39acf8344b7"
+      "sha256": "165450abc791072251d72d98741433434b80272f9135e726dc61a39acf8344b7",
+      "bundle_entry": "gamelab/results/qa-classes-drafts/resumed-shadow-settled-origin/change.diff"
     },
     {
       "path": "gamelab/results/qa-classes-drafts/resumed-shadow-settled-origin/manifest.json",
-      "sha256": "1eba1f021eda59071b23e308a7173646709dd019acceb25049f7d0b220789142"
+      "sha256": "1eba1f021eda59071b23e308a7173646709dd019acceb25049f7d0b220789142",
+      "bundle_entry": "gamelab/results/qa-classes-drafts/resumed-shadow-settled-origin/manifest.json"
     },
     {
       "path": "gamelab/results/qa-classes-drafts/resumed-shadow-settled-origin/qa_class_ranks.py.pending",
-      "sha256": "795b2ef79d27c0d6367db12f35ab11418927706fa0743f28547b30191900d732"
+      "sha256": "795b2ef79d27c0d6367db12f35ab11418927706fa0743f28547b30191900d732",
+      "bundle_entry": "gamelab/results/qa-classes-drafts/resumed-shadow-settled-origin/qa_class_ranks.py.pending"
     },
     {
       "path": "gamelab/results/qa-firearms-resumed/burst-triple-breath/manifest.json",
-      "sha256": "ec4bdbd0026e5528f019969b4f32846b89b9348d29a57eb5f01aacc143a8289d"
+      "sha256": "ec4bdbd0026e5528f019969b4f32846b89b9348d29a57eb5f01aacc143a8289d",
+      "bundle_entry": "gamelab/results/qa-firearms-resumed/burst-triple-breath/manifest.json"
     },
     {
       "path": "gamelab/results/qa-firearms-resumed/burst-triple-breath/pure-controls.json",
-      "sha256": "1edfd8d40b920754e84088cad91fcbdd4a725fecc2232de6e32e074c04e3d1ea"
+      "sha256": "1edfd8d40b920754e84088cad91fcbdd4a725fecc2232de6e32e074c04e3d1ea",
+      "bundle_entry": "gamelab/results/qa-firearms-resumed/burst-triple-breath/pure-controls.json"
     },
     {
       "path": "gamelab/results/qa-firearms-resumed/burst-triple-breath/qa-firearms-burst-triple-breath.json.pending",
-      "sha256": "5b4a2cec3f4c6daea68aa3c1af2649f68924e2115faaced3757837abd6f0deb2"
+      "sha256": "5b4a2cec3f4c6daea68aa3c1af2649f68924e2115faaced3757837abd6f0deb2",
+      "bundle_entry": "gamelab/results/qa-firearms-resumed/burst-triple-breath/qa-firearms-burst-triple-breath.json.pending"
     },
     {
       "path": "gamelab/results/qa-firearms-resumed/burst-triple-breath/qa_firearms_burst_combo.py.pending",
-      "sha256": "42bf5f7825da7dad4286964d3059cd20333be40e558d0019667bbefd6ce338b6"
+      "sha256": "42bf5f7825da7dad4286964d3059cd20333be40e558d0019667bbefd6ce338b6",
+      "bundle_entry": "gamelab/results/qa-firearms-resumed/burst-triple-breath/qa_firearms_burst_combo.py.pending"
     },
     {
       "path": "gamelab/results/qa-firearms-resumed/damage-events/manifest.json",
-      "sha256": "ce2610a7ee6d581730e23112e40d0a0cce0c963212861e7a06466854e0f9974a"
+      "sha256": "ce2610a7ee6d581730e23112e40d0a0cce0c963212861e7a06466854e0f9974a",
+      "bundle_entry": "gamelab/results/qa-firearms-resumed/damage-events/manifest.json"
     },
     {
       "path": "gamelab/results/qa-firearms-resumed/damage-events/protocol-controls.json",
-      "sha256": "385c92057d4dc9eea17ecee64a31162a1c40cbfed28d0973c5ea77085c815ac3"
+      "sha256": "385c92057d4dc9eea17ecee64a31162a1c40cbfed28d0973c5ea77085c815ac3",
+      "bundle_entry": "gamelab/results/qa-firearms-resumed/damage-events/protocol-controls.json"
     },
     {
       "path": "gamelab/results/qa-firearms-resumed/damage-events/qa_damage_events.py.pending",
-      "sha256": "be687d273edcc42e2216d9e65c5e26fb1b923c692eb1d6ecbc72b355f5a8d7fa"
+      "sha256": "be687d273edcc42e2216d9e65c5e26fb1b923c692eb1d6ecbc72b355f5a8d7fa",
+      "bundle_entry": "gamelab/results/qa-firearms-resumed/damage-events/qa_damage_events.py.pending"
     },
     {
       "path": "gamelab/results/qa-firearms-resumed/damage-events/Verbs_qa_damage_events.as.pending",
-      "sha256": "2c13cb94944627a3bf209ead06f18bf5365e7f38e12663321344daae8c6ca912"
+      "sha256": "2c13cb94944627a3bf209ead06f18bf5365e7f38e12663321344daae8c6ca912",
+      "bundle_entry": "gamelab/results/qa-firearms-resumed/damage-events/Verbs_qa_damage_events.as.pending"
     },
     {
       "path": "gamelab/results/qa-firearms-resumed/settled-return/manifest.json",
-      "sha256": "024b5182f518be41a9d37790a358c80939314a568db1a90bb1353a4a27cc2ea5"
+      "sha256": "024b5182f518be41a9d37790a358c80939314a568db1a90bb1353a4a27cc2ea5",
+      "bundle_entry": "gamelab/results/qa-firearms-resumed/settled-return/manifest.json"
     },
     {
       "path": "gamelab/results/qa-firearms-resumed/settled-return/pure-controls.json",
-      "sha256": "5db1c5a68290e5928c0dd7f1d34586156f093752fcdb725490f635057aabd7b7"
+      "sha256": "5db1c5a68290e5928c0dd7f1d34586156f093752fcdb725490f635057aabd7b7",
+      "bundle_entry": "gamelab/results/qa-firearms-resumed/settled-return/pure-controls.json"
     },
     {
       "path": "gamelab/results/qa-firearms-resumed/settled-return/qa_firearms_burst_cancel.py.pending",
-      "sha256": "faac7faa55a2e6af0228a5e388eeb28c7d8f2117855b4bac22052c6aaac29e0a"
+      "sha256": "faac7faa55a2e6af0228a5e388eeb28c7d8f2117855b4bac22052c6aaac29e0a",
+      "bundle_entry": "gamelab/results/qa-firearms-resumed/settled-return/qa_firearms_burst_cancel.py.pending"
     },
     {
       "path": "gamelab/results/qa-firearms-resumed/settled-return/qa_native_return.py.pending",
-      "sha256": "14e8f4ffc1fbcd9571629c8d28d87a1ad08ca48eeada54b629c0ce6ccea214a4"
+      "sha256": "14e8f4ffc1fbcd9571629c8d28d87a1ad08ca48eeada54b629c0ce6ccea214a4",
+      "bundle_entry": "gamelab/results/qa-firearms-resumed/settled-return/qa_native_return.py.pending"
     },
     {
       "path": "gamelab/results/qa-modules-resumed/chatlinks-maul-fixture/manifest.json",
-      "sha256": "ba02968f84486feb914af0aa5664e6aa2f657e98927aff12c63a78a56f10ae73"
+      "sha256": "ba02968f84486feb914af0aa5664e6aa2f657e98927aff12c63a78a56f10ae73",
+      "bundle_entry": "gamelab/results/qa-modules-resumed/chatlinks-maul-fixture/manifest.json"
     },
     {
       "path": "gamelab/results/qa-modules-resumed/chatlinks-maul-fixture/qa_chatlinks_native.py.pending",
-      "sha256": "1f7db117ce93fdeab2fdfe8e4d0494ac188d8ff96fc9e478ad98e7de09d51287"
+      "sha256": "1f7db117ce93fdeab2fdfe8e4d0494ac188d8ff96fc9e478ad98e7de09d51287",
+      "bundle_entry": "gamelab/results/qa-modules-resumed/chatlinks-maul-fixture/qa_chatlinks_native.py.pending"
     },
     {
       "path": "gamelab/results/qa-modules-resumed/droptrade-native/manifest.json",
-      "sha256": "a1a1c5b6f07563649cf1c3756e4355db035f93dc0402d21312a159ee1e9fd52a"
+      "sha256": "a1a1c5b6f07563649cf1c3756e4355db035f93dc0402d21312a159ee1e9fd52a",
+      "bundle_entry": "gamelab/results/qa-modules-resumed/droptrade-native/manifest.json"
     },
     {
       "path": "gamelab/results/qa-modules-resumed/droptrade-native/qa-module-droptrade-native-full.json.pending",
-      "sha256": "c4a2d02a8595c54fc065e9d3362934d2c673e7f4e09edcd74c9b58704bc74436"
+      "sha256": "c4a2d02a8595c54fc065e9d3362934d2c673e7f4e09edcd74c9b58704bc74436",
+      "bundle_entry": "gamelab/results/qa-modules-resumed/droptrade-native/qa-module-droptrade-native-full.json.pending"
     },
     {
       "path": "gamelab/results/qa-modules-resumed/droptrade-native/qa-module-droptrade-native-standalone.json.pending",
-      "sha256": "bcdfa2052941ad96b8d52ade710b3194b14ac4d8fe4d78e1195da3f2545496ad"
+      "sha256": "bcdfa2052941ad96b8d52ade710b3194b14ac4d8fe4d78e1195da3f2545496ad",
+      "bundle_entry": "gamelab/results/qa-modules-resumed/droptrade-native/qa-module-droptrade-native-standalone.json.pending"
     },
     {
       "path": "gamelab/results/qa-modules-resumed/laststats-main-town-v2/manifest.json",
-      "sha256": "d58034296c773093fc1cb778427ed15c40b3717c2a5845c8d966018a3f8a32a2"
+      "sha256": "d58034296c773093fc1cb778427ed15c40b3717c2a5845c8d966018a3f8a32a2",
+      "bundle_entry": "gamelab/results/qa-modules-resumed/laststats-main-town-v2/manifest.json"
     },
     {
       "path": "gamelab/results/qa-modules-resumed/laststats-main-town-v2/qa_laststats_native.py.pending",
-      "sha256": "ccbf09be208b5e0528735949028efa7c67b6ec0e3f0c5da9d1f64b64b95b6bf8"
+      "sha256": "ccbf09be208b5e0528735949028efa7c67b6ec0e3f0c5da9d1f64b64b95b6bf8",
+      "bundle_entry": "gamelab/results/qa-modules-resumed/laststats-main-town-v2/qa_laststats_native.py.pending"
     },
     {
       "path": "gamelab/results/qa-specs-drafts/resumed-arcane-barrier-feedback/manifest.json",
-      "sha256": "40c53668ed52e79bde765d34aa73d1f271d8fcdf950673c4f7e89236f0dcea8a"
+      "sha256": "40c53668ed52e79bde765d34aa73d1f271d8fcdf950673c4f7e89236f0dcea8a",
+      "bundle_entry": "gamelab/results/qa-specs-drafts/resumed-arcane-barrier-feedback/manifest.json"
     },
     {
       "path": "gamelab/results/qa-specs-drafts/resumed-arcane-barrier-feedback/protocol-controls.json",
-      "sha256": "ee2f03258ff37a82597a9a3ebf30082d725f122662600e494cd6b30518082b8a"
+      "sha256": "ee2f03258ff37a82597a9a3ebf30082d725f122662600e494cd6b30518082b8a",
+      "bundle_entry": "gamelab/results/qa-specs-drafts/resumed-arcane-barrier-feedback/protocol-controls.json"
     },
     {
       "path": "gamelab/results/qa-specs-drafts/resumed-arcane-barrier-feedback/qa-specs-arcane-barrier-feedback-q1.json.pending",
-      "sha256": "7fc73cd16907251bb899c6aa59eb5032f8b069cb2fb9e4fb89e3982e8b6284eb"
+      "sha256": "7fc73cd16907251bb899c6aa59eb5032f8b069cb2fb9e4fb89e3982e8b6284eb",
+      "bundle_entry": "gamelab/results/qa-specs-drafts/resumed-arcane-barrier-feedback/qa-specs-arcane-barrier-feedback-q1.json.pending"
     },
     {
       "path": "gamelab/results/qa-specs-drafts/resumed-arcane-barrier-feedback/qa-specs-arcane-barrier-feedback-q2.json.pending",
-      "sha256": "1cbb48b7d01b2e3d352ba0de03467cb4cf296dcf6f1fcf9267814546260c8b33"
+      "sha256": "1cbb48b7d01b2e3d352ba0de03467cb4cf296dcf6f1fcf9267814546260c8b33",
+      "bundle_entry": "gamelab/results/qa-specs-drafts/resumed-arcane-barrier-feedback/qa-specs-arcane-barrier-feedback-q2.json.pending"
     },
     {
       "path": "gamelab/results/qa-specs-drafts/resumed-arcane-barrier-feedback/qa-specs-arcane-barrier-feedback-q3.json.pending",
-      "sha256": "51faecc7bfb2d45cee69691332d9f1d29ce79d15b1d3fe4574caa5c1bd386b88"
+      "sha256": "51faecc7bfb2d45cee69691332d9f1d29ce79d15b1d3fe4574caa5c1bd386b88",
+      "bundle_entry": "gamelab/results/qa-specs-drafts/resumed-arcane-barrier-feedback/qa-specs-arcane-barrier-feedback-q3.json.pending"
     },
     {
       "path": "gamelab/results/qa-specs-drafts/resumed-arcane-barrier-feedback/qa_specs_arcane_barrier_feedback.py.pending",
-      "sha256": "394a09df7b4d1b299d06ead50e384d33409a287adbd0ddbadd201b8f4be4131b"
+      "sha256": "394a09df7b4d1b299d06ead50e384d33409a287adbd0ddbadd201b8f4be4131b",
+      "bundle_entry": "gamelab/results/qa-specs-drafts/resumed-arcane-barrier-feedback/qa_specs_arcane_barrier_feedback.py.pending"
     },
     {
       "path": "gamelab/results/qa-specs-drafts/resumed-branding-boundaries/manifest.json",
-      "sha256": "01468e218faace17c4c7ec3e6983e720278a9307b3782423e35eddcd8f1378fa"
+      "sha256": "01468e218faace17c4c7ec3e6983e720278a9307b3782423e35eddcd8f1378fa",
+      "bundle_entry": "gamelab/results/qa-specs-drafts/resumed-branding-boundaries/manifest.json"
     },
     {
       "path": "gamelab/results/qa-specs-drafts/resumed-branding-boundaries/qa-specs-branding-essence-boundaries.json.pending",
-      "sha256": "1626e7ce56df0f091882bc262a8f71d1016e91cd5c502079cafc87033abff1b8"
+      "sha256": "1626e7ce56df0f091882bc262a8f71d1016e91cd5c502079cafc87033abff1b8",
+      "bundle_entry": "gamelab/results/qa-specs-drafts/resumed-branding-boundaries/qa-specs-branding-essence-boundaries.json.pending"
     },
     {
       "path": "gamelab/results/qa-specs-drafts/resumed-branding-boundaries/qa_specs_branding_boundaries.py.pending",
-      "sha256": "67d2a0d0c0d8d4ff23de04cade69ba05f42c243f99901a8b158eb3426bb12579"
+      "sha256": "67d2a0d0c0d8d4ff23de04cade69ba05f42c243f99901a8b158eb3426bb12579",
+      "bundle_entry": "gamelab/results/qa-specs-drafts/resumed-branding-boundaries/qa_specs_branding_boundaries.py.pending"
     },
     {
       "path": "gamelab/results/qa-specs-drafts/resumed-branding-boundaries/source-max-pool-controls.json",
-      "sha256": "66abb4890eccfab988750fdc95c9bea990e8b8dad04b927f5705f7fee1efc6a6"
+      "sha256": "66abb4890eccfab988750fdc95c9bea990e8b8dad04b927f5705f7fee1efc6a6",
+      "bundle_entry": "gamelab/results/qa-specs-drafts/resumed-branding-boundaries/source-max-pool-controls.json"
     },
     {
       "path": "gamelab/results/qa-specs-drafts/resumed-navigation-route-batches/manifest.json",
-      "sha256": "0cea0a41cbf289db184b245127035e1b7e090c6694003bf63c28762e2713670b"
+      "sha256": "0cea0a41cbf289db184b245127035e1b7e090c6694003bf63c28762e2713670b",
+      "bundle_entry": "gamelab/results/qa-specs-drafts/resumed-navigation-route-batches/manifest.json"
     },
     {
       "path": "gamelab/results/qa-specs-drafts/resumed-navigation-route-batches/navigation.diff",
-      "sha256": "3b440ceb9329e67d9e986fff9b3ad76ffac3b4d1a18d5e5f0089e83d74239608"
+      "sha256": "3b440ceb9329e67d9e986fff9b3ad76ffac3b4d1a18d5e5f0089e83d74239608",
+      "bundle_entry": "gamelab/results/qa-specs-drafts/resumed-navigation-route-batches/navigation.diff"
     },
     {
       "path": "gamelab/results/qa-specs-drafts/resumed-navigation-route-batches/protocol-controls.json",
-      "sha256": "24726eec41fc14b9d491d84cca7643dc557dd555c584ba9816acf7b69f1efd27"
+      "sha256": "24726eec41fc14b9d491d84cca7643dc557dd555c584ba9816acf7b69f1efd27",
+      "bundle_entry": "gamelab/results/qa-specs-drafts/resumed-navigation-route-batches/protocol-controls.json"
     },
     {
       "path": "gamelab/results/qa-specs-drafts/resumed-navigation-route-batches/qa_specs_navigation.py.pending",
-      "sha256": "10c048e0f25660a12b07afdf721dcbea3ea8ac64fffe186787ce317207ed213e"
+      "sha256": "10c048e0f25660a12b07afdf721dcbea3ea8ac64fffe186787ce317207ed213e",
+      "bundle_entry": "gamelab/results/qa-specs-drafts/resumed-navigation-route-batches/qa_specs_navigation.py.pending"
     }
   ],
-  "limits": "Ignored local recovery archive; not installed, not a release package, not native-verified. Damage observer remains incomplete and has no two-skill native contract. The installer pins the pre-PR HEAD and worktree; after committing or rebasing, a new reviewed baseline/plan is required before applying it."
+  "limits": "All 49 original UTF-8 draft/plan/control files are preserved byte-for-byte in the committed portable bundle; original paths above are historical local paths. Local ZIP/raw logs are optional and ignored. Nothing is installed or native-verified. The frozen installer pins pre-PR HEAD/worktree and must not be executed unchanged; rebase selected work into a newly reviewed plan. Damage observer remains incomplete and has no two-skill native contract.",
+  "portable_bundle": "docs/qa/deferred/2026-10-22-unapplied.json",
+  "portable_bundle_sha256": "e9a6e3127e77c7ea3b6b45b1d0c2f1751bcfd18f1634398041043eb40721ba4e",
+  "portable_file_count": 49,
+  "usage_guide": "docs/qa/deferred/README.md"
 }

@@ -2,7 +2,15 @@
 
 > Current status: **paused at the user-requested PR boundary; full sweep incomplete**. Historical tables below are superseded by `docs/generated/qa_pr_checkpoint.json` and the final wrap entry.
 
-## Run contract
+## Read the handoff first
+
+Use the [agent entry point](../AGENTS.md), [quickstart](../gamelab/README.md) and
+[regression/known-failure map](qa/REGRESSIONS.md) for current operating instructions.
+The checkpoint linked above is authoritative. The run contract and chronological
+entries below are historical snapshots; their active/current wording describes the
+time of each entry, not permission to resume the paused goal.
+
+## Original sweep run contract (historical)
 
 - Started: 2026-10-22 00:20:52 America/Chicago (05:20:52 UTC).
 - Original overnight deadline: 2026-10-22 10:20:52 America/Chicago (15:20:52 UTC).
@@ -1202,3 +1210,15 @@ Current normal packaging now passes:32archives,956all-in-one entries, everydecod
 
 
 Final PR verification: full-stack `20261022-175415-mod-all-lab` passes all 14 assertions at source `f242a80b25e8c4bdbd048ccf40f0fd7c97a7ce46bdc482c86a6508785878fe19` with clean teardown. The preceding `175056` bootstrap-shutdown access violation is retained; only isolated GameLab saves/appdata were reset before the successful recheck. Nine new source files received formatting-only cleanup, with native tokens/scalars or Python AST preserved. Final normal packaging verifies all 32 archives and 956 all-in-one payloads at this source; SHA256 `87bcb72411b57255c616a905a041464601022f2de75b4b6b170b7befce48d419`. Historical patch contents are preserved byte-for-byte in `docs/generated/qa_historical_patch_artifacts.json`. This adds no ability-coverage credit and does not complete the paused sweep.
+
+
+## Portable agent handoff update (2026-10-22)
+
+Added AGENTS.md, a GameLab quickstart and regression/known-failure map; removed
+missing playbook references and stale verb counts from the detailed instructions.
+The serial `tools/qa_batch.py` helper provides dry-run planning, exact source
+journals and fail/dirty/drift/partial/stop gates. All 49 deferred UTF-8 drafts are
+preserved in a committed, hash-indexed text bundle outside runtime/release inputs.
+They remain unapplied and native-unverified. Raw logs and imported assets remain
+ignored. This documentation/helper follow-up adds no native coverage; all historical
+runtime and archive fingerprints remain attached to their original runs.

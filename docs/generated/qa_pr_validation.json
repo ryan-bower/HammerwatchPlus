@@ -132,5 +132,51 @@
     "json": 265,
     "python": 101,
     "scope": "All staged additions and modifications; not only previously tracked unstaged files."
+  },
+  "agent_handoff_followup": {
+    "status": "PASS",
+    "scope": "Documentation and portable helper only. No native launches. Historical runtime evidence remains source-qualified.",
+    "local_links": 52,
+    "documented_scenarios": 38,
+    "portable_files_exact": 49,
+    "stored_native_record_contracts": 2,
+    "dry_run_no_journal": true,
+    "production_mod_tree_unchanged": true,
+    "source": {
+      "head": "2f61d6403352ac527c9a323d638e415395191747",
+      "source_sha256": "26226d3e152c75068e3c3c46582c93ef94bf5011e6da028bbcb2335b0589b710",
+      "files": 1334,
+      "fingerprint_scope": "mods+gamelab+tools-v2"
+    },
+    "checks": [
+      {
+        "name": "batch_tests",
+        "command": "python -m unittest tools.test_qa_batch -q",
+        "exit": 0,
+        "output": "----------------------------------------------------------------------\nRan 14 tests in 0.298s\n\nOK\n"
+      },
+      {
+        "name": "dry_run",
+        "command": "python tools/qa_batch.py --label docs-handoff-final --dry-run null-payload mod-all",
+        "exit": 0,
+        "output": "{\"source\": {\"head\": \"76a7b93bfe1f0ada787c389c812ecaf043eb11f5\", \"source_sha256\": \"694f9cf9f7d2ccfdc21c78d2fc882260baef354120419200ea284f2bfa09c4ba\", \"files\": 1293, \"fingerprint_scope\": \"mods+gamelab+tools-v2\"}, \"journal\": \"C:\\\\Users\\\\zakgi\\\\Development\\\\HammerwatchPlus\\\\gamelab\\\\results\\\\qa-batch-docs-handoff-final.jsonl\", \"stop_file\": \"C:\\\\Users\\\\zakgi\\\\Development\\\\HammerwatchPlus\\\\gamelab\\\\results\\\\qa-batch-docs-handoff-final.stop\"}\n{\"command\": [\"C:\\\\Users\\\\zakgi\\\\Development\\\\HammerwatchPlus\\\\.venv\\\\Scripts\\\\python.exe\", \"-m\", \"gamelab\", \"run\", \"null-payload\", \"--mode\", \"lab\"]}\n{\"command\": [\"C:\\\\Users\\\\zakgi\\\\Development\\\\HammerwatchPlus\\\\.venv\\\\Scripts\\\\python.exe\", \"-m\", \"gamelab\", \"run\", \"mod-all\", \"--mode\", \"lab\"]}\nwarning: unable to access 'C:\\Users\\zakgi/.config/git/ignore': Permission denied\n"
+      },
+      {
+        "name": "verbs",
+        "command": "python tools/list_verbs.py --check",
+        "exit": 0,
+        "output": "docs/generated/verbs.md is current\n"
+      }
+    ],
+    "staged_whitespace": "PASS",
+    "staged_fresh_clone_bundle_integrity": "PASS",
+    "preintegration_source": {
+      "head": "76a7b93bfe1f0ada787c389c812ecaf043eb11f5",
+      "source_sha256": "694f9cf9f7d2ccfdc21c78d2fc882260baef354120419200ea284f2bfa09c4ba",
+      "files": 1293,
+      "fingerprint_scope": "mods+gamelab+tools-v2"
+    },
+    "integration_base": "2f61d64",
+    "postintegration_tests": "14 mocked batch tests PASS; dry-run/no-journal and verb-doc check PASS; no native runs"
   }
 }

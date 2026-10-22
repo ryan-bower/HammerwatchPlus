@@ -632,5 +632,23 @@
     "20261022-162634-mod-firearms-lab",
     "20261022-162648-qa-firearms-input-sequence-lab"
   ],
-  "historical_native_gates_source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0"
+  "historical_native_gates_source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+  "agent_handoff_update": {
+    "recorded_utc": "2026-10-22T23:39:29.583036+00:00",
+    "entry_point": "AGENTS.md",
+    "quickstart": "gamelab/README.md",
+    "regression_map": "docs/qa/REGRESSIONS.md",
+    "batch_helper": "tools/qa_batch.py",
+    "portable_deferred_guide": "docs/qa/deferred/README.md",
+    "native_coverage_added": false,
+    "epoch_note": "This later docs/helper follow-up changes the source fingerprint scope through gamelab/README.md and new tools. Prior final load/archive/source fields describe their recorded historical native/package epoch, not this new helper.",
+    "integration_base": "2f61d64",
+    "upstream_merge_review": {
+      "source": "docs/RE_NOTES.md: PR #9 merged with main section",
+      "recorded_run": "20261022-193227-mod-all-lab",
+      "recorded_result": "PASS per upstream merged-tree review; no new native execution in handoff follow-up",
+      "reviewed_merge_commit": "0f22a6a",
+      "coverage_note": "Original sweep matrices cover six fourth specs and exclude subsequently built Priest Forgemaster."
+    }
+  }
 }
