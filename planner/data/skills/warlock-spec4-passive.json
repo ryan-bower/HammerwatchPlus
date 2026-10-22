@@ -1,22 +1,22 @@
 {
-  "built": "hwp_wlk_essence_extraction",
+  "built": "",
   "cls": "warlock",
-  "cooldown": "",
+  "cooldown": "2 second",
   "group": "warlock-spec4",
   "kind": "passive",
   "levels": [
-    "Effect cooldown 1.5 seconds, 11 max essence stacks",
-    "Effect cooldown 1.3 seconds, 12 max essence stacks",
-    "Effect cooldown 1.1 seconds, 13 max essence stacks",
-    "Effect cooldown 0.9 seconds, 14 max essence stacks",
-    "Effect cooldown 0.75 seconds, 15 max essence stacks"
+    "2 second cooldown",
+    "1.75 second cooldown",
+    "1.5 second cooldown",
+    "1.25 second cooldown",
+    "1 second cooldown"
   ],
   "mana": "",
   "name": "Essence Extraction",
-  "notes": "In game (hwp_wlk_essence_extraction, tested): a melee hit on a branded elite or boss gives an Essence stack, once per the cooldown. Melee-tagged spells such as Demon's Tail count (assumed).",
+  "notes": "",
   "order": 1,
   "role": "",
-  "status": "tested",
-  "summary": "Melee hits against Pyre Branded elites and bosses gain stacks of essence. Increase your max essence stacks.",
+  "status": "idea",
+  "summary": "Magic weapon attacks now also count towards gaining stacks of Essence, with 2 second cooldown. Essence stacks gained from branded enemies have their effects trigger twice.",
   "unlock": "bought"
 }
