@@ -13,7 +13,7 @@
   ],
   "mana": "",
   "name": "Call of Heresy",
-  "notes": "Heresy is its own stack, not negative Favor: normal raise +1, elite +2, boss +3; at 5 Heresy you can't raise. It goes down only through Sacrificial Penance (Necrotic Resurrection at 5 Favor) and the Pyre Sacrifice orb. Lunge: rolled once per intact body, the first time you come within range of it. You suddenly lunge at it and consume its flesh: a 3 s channel that cancels whatever you're casting and blocks all abilities until it ends, and uses up the body. While you eat, your health regeneration rises by 50 per second. Choosing the spec gives Divine Favor level 1 for free. Bodies stay on the ground for 60 s. Level numbers are a first pass.",
+  "notes": "Heresy is its own stack, not negative Favor: normal raise +1, elite +2, boss +3; at 5 Heresy you can't raise. It goes down only through Sacrificial Penance (Necrotic Resurrection at 5 Favor) and the Pyre Sacrifice orb. Lunge: rolled once per intact body, the first time you come within range of it. You suddenly lunge at it and consume its flesh: a 3 s channel that cancels whatever you're casting and blocks all abilities until it ends, and uses up the body. While you eat, your health regeneration rises by 50 per second. Choosing the spec gives Divine Favor level 1 for free. An intact body is a gray version of the enemy lying on its side (a boss's stands upright, gray). Bodies stay on the ground for 60 s. Level numbers are a first pass.",
   "order": 1,
   "role": "",
   "status": "idea",
