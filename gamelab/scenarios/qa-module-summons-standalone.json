@@ -1,0 +1,40 @@
+{
+  "name": "qa-module-summons-standalone",
+  "about": "Standalone functional subset with only required modules. Controlled real Priest summon HP/count floor carry, no resurrection of dead summons, immediate town return; no ordinary battle claim. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "summons"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_modules_checks",
+      "kwargs": {
+        "sections": "summons",
+        "required_flags": [
+          "crusader_setup",
+          "summons_follow",
+          "summons_keep_hp",
+          "dead_summons_stay",
+          "no_summons_in_town"
+        ]
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "name": "qa-classes-selfbuff-cloak",
+  "about": "All5 ranks via normal unique bound-button casts, native mana/cooldown, frame-observed exact natural duration/expiry and applied attack/move/evasion/armor/resistance/damage factors; Immolation also requires native fire damage addition. Actual normal held-main damage is correlated with active buff native targetHP events at ranks1/5. Precise DPS/cadence multiplier and co-op are not claimed.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "classes"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_buffs",
+      "kwargs": {
+        "sections": "cloak"
+      },
+      "expect": {
+        "cloak_all_ranks": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

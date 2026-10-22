@@ -1,0 +1,116 @@
+{
+  "name": "qa-classes-gladiator-integration",
+  "about": "Parked HoH1 class: level5 base-kit lab setup, save/reload, two ordinary1x god-off HoH2 floor exits with real rewards, summon readback, then separately controlled lethal Player.Damage and real DeadMenu/town/save/reload. Does not prove boss/co-op.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "classes",
+    "summons"
+  ],
+  "timeout": 1200,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_integration",
+      "kwargs": {
+        "cls": "hwp_gladiator",
+        "section": "prepare"
+      },
+      "expect": {
+        "prepared": true,
+        "class_record": true,
+        "base_ranks": true,
+        "starting_weapon": true,
+        "god_off": true
+      }
+    },
+    {
+      "do": "restart",
+      "readback": {
+        "phase": "town",
+        "player.class": "hwp_gladiator",
+        "player.name": "QAGladiatorRun",
+        "player.level": 5,
+        "player.dead": false
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_integration",
+      "kwargs": {
+        "cls": "hwp_gladiator",
+        "section": "verify"
+      },
+      "expect": {
+        "verified": true,
+        "class_record": true,
+        "base_ranks": true,
+        "starting_weapon": true
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_integration",
+      "kwargs": {
+        "cls": "hwp_gladiator",
+        "section": "ordinary",
+        "floors": 2,
+        "budget_s": 180
+      },
+      "expect": {
+        "ordinary_god_off": true,
+        "ordinary_floors": true,
+        "ordinary_class_survives": true,
+        "ordinary_rewards": true,
+        "ordinary_summon_after_floor": true
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_integration",
+      "kwargs": {
+        "cls": "hwp_gladiator",
+        "section": "death"
+      },
+      "expect": {
+        "death_damage_path": true,
+        "death_town_return": true
+      }
+    },
+    {
+      "do": "restart",
+      "readback": {
+        "phase": "town",
+        "player.class": "hwp_gladiator",
+        "player.name": "QAGladiatorRun",
+        "player.level": 5,
+        "player.dead": false
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_integration",
+      "kwargs": {
+        "cls": "hwp_gladiator",
+        "section": "verify"
+      },
+      "expect": {
+        "verified": true,
+        "class_record": true,
+        "base_ranks": true,
+        "starting_weapon": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

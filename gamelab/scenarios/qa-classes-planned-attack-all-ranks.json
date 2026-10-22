@@ -1,0 +1,72 @@
+{
+  "name": "qa-classes-planned-attack-all-ranks",
+  "about": "All5positive planned_attack ranks through fixed normal held-main native benches, actual targetHP and native damage attribution. Proc ranks each30s fixed; PlannedAttack each10s plus exact independent native damageMul readback. PoisonedBlades rank0 negative control. No fitted exact proc probability, exact native HP-ratio/cadence, cooldown or ordinary/co-op claim.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_passive_ranks",
+      "kwargs": {
+        "sections": "planned_attack"
+      },
+      "expect": {
+        "planned_r1_multiplier": true,
+        "planned_r2_multiplier": true,
+        "planned_r3_multiplier": true,
+        "planned_r4_multiplier": true,
+        "planned_r5_multiplier": true,
+        "planned_r1_actual_damage": true,
+        "planned_r2_actual_damage": true,
+        "planned_r3_actual_damage": true,
+        "planned_r4_actual_damage": true,
+        "planned_r5_actual_damage": true,
+        "planned_attack_all_ranks": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

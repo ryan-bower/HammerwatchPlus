@@ -1,0 +1,491 @@
+{
+  "generated_utc": "2026-10-22T18:38:52.276750+00:00",
+  "scope": "Scoped full31 native UI and common-ilvl35 weapon observations; broad feature/lifecycle/balance axes remain incomplete.",
+  "ui": {
+    "run_id": "20261022-130236-plan-ui-a-lab",
+    "runner_verdict": "PASS",
+    "runner_assertions": 17,
+    "code": {
+      "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+      "source_sha256": "de80c5d1ff63d4c0696e108b5ea9bffb4384f3141d0b4d10716ba53018fc43a0",
+      "files": 1218,
+      "fingerprint_scope": "mods+gamelab+tools-v2"
+    },
+    "checks": [
+      {
+        "LabTips_run": true,
+        "tips_hud": true,
+        "shrine_icon": true,
+        "cursor_pinned": true,
+        "tip_shown": true,
+        "tip_header_line": true,
+        "tip_name_desc": true,
+        "tip_counts_down": true
+      },
+      {
+        "vanilla_debuffs_have_no_icon": true,
+        "debuff_icon": true,
+        "debuff_tip_shown": true,
+        "debuff_name_red": true,
+        "stacks_count": true,
+        "stacks_tip_shown": true
+      },
+      {
+        "crown_icon": true,
+        "crown_lists_bonuses": true,
+        "crown_tip_shown": true,
+        "crown_no_countdown": true
+      },
+      {
+        "menu_no_tip": true,
+        "effects_title_bonuses": true,
+        "effects_morale": true,
+        "effects_class_buff": true
+      },
+      {
+        "dye_marker_shown": true,
+        "dye_marker_gone_on_pickup": true,
+        "dye_markers_hidden_setting": true,
+        "dye_markers_back": true
+      }
+    ],
+    "visuals": [
+      {
+        "path": "gamelab/results/20261022-130236-plan-ui-a-lab/shots/ui-shrine-on.png",
+        "sha256": "3c0fd243084208bc2c71aa20679062b6a0dbf31d12d7db47514159142f9f2ef6",
+        "root_visually_reviewed": true
+      },
+      {
+        "path": "gamelab/results/20261022-130236-plan-ui-a-lab/shots/ui-crown-on.png",
+        "sha256": "14ba4b0acab707665818c17aed48a7e243243e65281b0d26f2d6fc15bbe83dc6",
+        "root_visually_reviewed": true
+      },
+      {
+        "path": "gamelab/results/20261022-130236-plan-ui-a-lab/shots/ui-debuff-on.png",
+        "sha256": "466b16e30c1b11cf5976fd1e6fc566cb51b08ef4867184fff3c7d9285f57903e",
+        "root_visually_reviewed": true
+      },
+      {
+        "path": "gamelab/results/20261022-130236-plan-ui-a-lab/shots/ui-menu-on.png",
+        "sha256": "0e9f5a93aa1cff4b98f294fe0a8183712dbdc83bdd963cf11911bfced0bced9a",
+        "root_visually_reviewed": true
+      },
+      {
+        "path": "gamelab/results/20261022-130236-plan-ui-a-lab/shots/ui-stacks-on.png",
+        "sha256": "a566547b01dcdc242c05c8704ba7c309b96d0e3885b1c7ee935d570b0655f586",
+        "root_visually_reviewed": true
+      }
+    ],
+    "resolution": "640x360 physical;768x432 virtual, scale0.833333",
+    "actual": "Timed BlessingMight tooltip with native +100%Damage/120s metadata and changing countdown; actual InnerFlame3; nameless icon-bearing QA slow copy red fallback Effect; native TitleBonuses +15Armor/no countdown; actual Effects menu descriptions and suppression. Dye markers2-to1 after exact pickup,0off/1on.",
+    "limits": [
+      "Only lab resolution/English reviewed.",
+      "Icon-bearing debuff is explicitly a QA copy; stock Slow has no HUD sprite and correctly has no icon.",
+      "Native stacked buff was granted as controlled fixture.",
+      "Dye pickup used exact native Collide helper after short normal walk missed; no natural-acquisition claim.",
+      "No reload/settings persistence or title roster/floor/respawn/upgrade claim."
+    ]
+  },
+  "weapons": {
+    "run_id": "20261022-125945-qa-content-weapons-native-lab",
+    "overall_verdict": "FAIL",
+    "code": {
+      "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+      "source_sha256": "de80c5d1ff63d4c0696e108b5ea9bffb4384f3141d0b4d10716ba53018fc43a0",
+      "files": 1218,
+      "fingerprint_scope": "mods+gamelab+tools-v2"
+    },
+    "equipped_native_count": 12,
+    "passing_attack_count": 9,
+    "passing_attacks": [
+      {
+        "case": "hwp_mh_warhammer_native_attack_damage",
+        "runtime": "PASS",
+        "hp_loss": 1217.1270000003278,
+        "expected_skill": "attack_swing_mace",
+        "native_attribution": {
+          "weapon": "attack_swing_mace",
+          "dmg": 1218.0,
+          "hits": 6
+        }
+      },
+      {
+        "case": "hwp_mh_frostbrand_native_attack_damage",
+        "runtime": "PASS",
+        "hp_loss": 617.5040000006557,
+        "expected_skill": "attack_swing_longsword",
+        "native_attribution": {
+          "weapon": "attack_swing_longsword",
+          "dmg": 616.0,
+          "hits": 6
+        }
+      },
+      {
+        "case": "hwp_mh_stiletto_native_attack_damage",
+        "runtime": "PASS",
+        "hp_loss": 732.5409999992698,
+        "expected_skill": "attack_stab_dirk",
+        "native_attribution": {
+          "weapon": "attack_stab_dirk",
+          "dmg": 732.0,
+          "hits": 12
+        }
+      },
+      {
+        "case": "hwp_mh_stormrod_native_attack_damage",
+        "runtime": "PASS",
+        "hp_loss": 108.48000000044703,
+        "expected_skill": "attack_wand_lightning",
+        "native_attribution": {
+          "weapon": "attack_wand_lightning",
+          "dmg": 109.0,
+          "hits": 8
+        }
+      },
+      {
+        "case": "hwp_oh_handcannon_native_attack_damage",
+        "runtime": "PASS",
+        "hp_loss": 710.4869999997318,
+        "expected_skill": "attack_offhand_crossbow",
+        "native_attribution": {
+          "weapon": "attack_offhand_crossbow",
+          "dmg": 712.0,
+          "hits": 8
+        }
+      },
+      {
+        "case": "hwp_2h_warbow_native_attack_damage",
+        "runtime": "PASS",
+        "hp_loss": 1242.7569999992847,
+        "expected_skill": "attack_2h_longbow",
+        "native_attribution": {
+          "weapon": "attack_2h_longbow",
+          "dmg": 1243.0,
+          "hits": 11
+        }
+      },
+      {
+        "case": "hwp_2h_executioner_native_attack_damage",
+        "runtime": "PASS",
+        "hp_loss": 987.0529999993742,
+        "expected_skill": "attack_2h_greataxe",
+        "native_attribution": {
+          "weapon": "attack_2h_greataxe",
+          "dmg": 988.0,
+          "hits": 4
+        }
+      },
+      {
+        "case": "hwp_2h_tempest_native_attack_damage",
+        "runtime": "PASS",
+        "hp_loss": 278.3540000002831,
+        "expected_skill": "attack_2h_staff_lightning",
+        "native_attribution": {
+          "weapon": "attack_2h_staff_lightning",
+          "dmg": 282.0,
+          "hits": 13
+        }
+      },
+      {
+        "case": "hwp_2h_twinfangs_native_attack_damage",
+        "runtime": "PASS",
+        "hp_loss": 1467.466000000015,
+        "expected_skill": "attack_2h_daggers",
+        "native_attribution": {
+          "weapon": "attack_2h_daggers",
+          "dmg": 1388.0,
+          "hits": 12
+        }
+      }
+    ],
+    "retained_failures": [
+      "hwp_oh_bulwark_native_stun_cost_cooldown",
+      "hwp_oh_grimoire_native_attack_damage"
+    ],
+    "setup": "Requirementsenabled; extra450statpoints/150each;actual169STR/152DEX/152INT;commonilvl35;10MHP/res1000elemental target.",
+    "limits": "Shieldpressedbeforeinitialcooldownready, firegrimoire resisted tozero; both are setup failures pending reviewed zero-defense/naturalreadiness retest. Passing9attacks prove real equippedbutton binding + actual HP loss, not exactDPS/balance/epicqualities/models/acquisition/save."
+  },
+  "dirk": {
+    "run_id": "20261022-130134-qa-content-dirk-defense-lab",
+    "runner_verdict": "PASS",
+    "code": {
+      "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+      "source_sha256": "de80c5d1ff63d4c0696e108b5ea9bffb4384f3141d0b4d10716ba53018fc43a0",
+      "files": 1218,
+      "fingerprint_scope": "mods+gamelab+tools-v2"
+    },
+    "fixed_trials_per_condition": 24,
+    "unequipped": {
+      "parry": 0,
+      "damaged": 24
+    },
+    "equipped": {
+      "parry": 14,
+      "damaged": 10
+    },
+    "actual": "Each frontalmelee trial independently classifies fresh same-frame native Parry! plusunchangedHP, oractualHPdamage; actualcommondirkreadback and godoff. Declared60% only at-least-oneparrycheck, nofrequencyclaim.",
+    "limits": "Native stats-run dumps truncated, no serialized-stat-counter credit. No epicvariants/save/acquisition/ratebalance claim."
+  },
+  "latest_common_weapon_actions": [
+    {
+      "run_id": "20261022-165202-qa-content-weapons-native-standalone-lab",
+      "scenario": "qa-content-weapons-native-standalone",
+      "runner": "PASS",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+        "files": 1290,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "attacks": [
+        {
+          "case": "hwp_mh_warhammer_native_attack_damage",
+          "hp_loss": 977.9869999999937,
+          "native_attribution": {
+            "weapon": "attack_swing_mace",
+            "dmg": 978.0,
+            "hits": 6
+          },
+          "expected_skill": "attack_swing_mace",
+          "same_target": true
+        },
+        {
+          "case": "hwp_mh_frostbrand_native_attack_damage",
+          "hp_loss": 1354.015000000014,
+          "native_attribution": {
+            "weapon": "attack_swing_longsword",
+            "dmg": 1354.0,
+            "hits": 6
+          },
+          "expected_skill": "attack_swing_longsword",
+          "same_target": true
+        },
+        {
+          "case": "hwp_mh_stiletto_native_attack_damage",
+          "hp_loss": 923.994000000006,
+          "native_attribution": {
+            "weapon": "attack_stab_dirk",
+            "dmg": 924.0,
+            "hits": 12
+          },
+          "expected_skill": "attack_stab_dirk",
+          "same_target": true
+        },
+        {
+          "case": "hwp_mh_stormrod_native_attack_damage",
+          "hp_loss": 568.0199999999895,
+          "native_attribution": {
+            "weapon": "attack_wand_lightning",
+            "dmg": 568.0,
+            "hits": 8
+          },
+          "expected_skill": "attack_wand_lightning",
+          "same_target": true
+        },
+        {
+          "case": "hwp_oh_grimoire_native_attack_damage",
+          "hp_loss": 1175.9700000000012,
+          "native_attribution": {
+            "weapon": "attack_offhand_tome_fire",
+            "dmg": 897.0,
+            "hits": 9
+          },
+          "expected_skill": "attack_offhand_tome_fire",
+          "same_target": true
+        },
+        {
+          "case": "hwp_oh_handcannon_native_attack_damage",
+          "hp_loss": 871.9679999999935,
+          "native_attribution": {
+            "weapon": "attack_offhand_crossbow",
+            "dmg": 872.0,
+            "hits": 8
+          },
+          "expected_skill": "attack_offhand_crossbow",
+          "same_target": true
+        },
+        {
+          "case": "hwp_2h_warbow_native_attack_damage",
+          "hp_loss": 1616.9700000000012,
+          "native_attribution": {
+            "weapon": "attack_2h_longbow",
+            "dmg": 1617.0,
+            "hits": 11
+          },
+          "expected_skill": "attack_2h_longbow",
+          "same_target": true
+        },
+        {
+          "case": "hwp_2h_executioner_native_attack_damage",
+          "hp_loss": 2982.0080000000016,
+          "native_attribution": {
+            "weapon": "attack_2h_greataxe",
+            "dmg": 1422.0,
+            "hits": 4
+          },
+          "expected_skill": "attack_2h_greataxe",
+          "same_target": true
+        },
+        {
+          "case": "hwp_2h_tempest_native_attack_damage",
+          "hp_loss": 1228.9610000000102,
+          "native_attribution": {
+            "weapon": "attack_2h_staff_lightning",
+            "dmg": 1229.0,
+            "hits": 13
+          },
+          "expected_skill": "attack_2h_staff_lightning",
+          "same_target": true
+        },
+        {
+          "case": "hwp_2h_twinfangs_native_attack_damage",
+          "hp_loss": 2898.0109999999986,
+          "native_attribution": {
+            "weapon": "attack_2h_daggers",
+            "dmg": 2331.0,
+            "hits": 12
+          },
+          "expected_skill": "attack_2h_daggers",
+          "same_target": true
+        }
+      ],
+      "bulwark": {
+        "input_done_frames": 19,
+        "raw_cd_remaining_ms": 2901,
+        "trace_stored": 59,
+        "trace_complete": true
+      },
+      "limits": "Controlledcommon ilvl35/nativeextraattributes/zero-defense QA target. No exact modifier balance, proc rates, epic/legendary effects, natural acquisition, UI, persistence or ordinary proof. Initial stun observed; expiry not claimed."
+    },
+    {
+      "run_id": "20261022-165356-qa-content-weapons-native-lab",
+      "scenario": "qa-content-weapons-native",
+      "runner": "PASS",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+        "files": 1290,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "attacks": [
+        {
+          "case": "hwp_mh_warhammer_native_attack_damage",
+          "hp_loss": 737.9830000000075,
+          "native_attribution": {
+            "weapon": "attack_swing_mace",
+            "dmg": 738.0,
+            "hits": 6
+          },
+          "expected_skill": "attack_swing_mace",
+          "same_target": true
+        },
+        {
+          "case": "hwp_mh_frostbrand_native_attack_damage",
+          "hp_loss": 1363.9929999999877,
+          "native_attribution": {
+            "weapon": "attack_swing_longsword",
+            "dmg": 1364.0,
+            "hits": 6
+          },
+          "expected_skill": "attack_swing_longsword",
+          "same_target": true
+        },
+        {
+          "case": "hwp_mh_stiletto_native_attack_damage",
+          "hp_loss": 923.994000000006,
+          "native_attribution": {
+            "weapon": "attack_stab_dirk",
+            "dmg": 924.0,
+            "hits": 12
+          },
+          "expected_skill": "attack_stab_dirk",
+          "same_target": true
+        },
+        {
+          "case": "hwp_mh_stormrod_native_attack_damage",
+          "hp_loss": 480.0260000000126,
+          "native_attribution": {
+            "weapon": "attack_wand_lightning",
+            "dmg": 480.0,
+            "hits": 8
+          },
+          "expected_skill": "attack_wand_lightning",
+          "same_target": true
+        },
+        {
+          "case": "hwp_oh_grimoire_native_attack_damage",
+          "hp_loss": 976.9679999999935,
+          "native_attribution": {
+            "weapon": "attack_offhand_tome_fire",
+            "dmg": 747.0,
+            "hits": 9
+          },
+          "expected_skill": "attack_offhand_tome_fire",
+          "same_target": true
+        },
+        {
+          "case": "hwp_oh_handcannon_native_attack_damage",
+          "hp_loss": 1191.9739999999874,
+          "native_attribution": {
+            "weapon": "attack_offhand_crossbow",
+            "dmg": 1192.0,
+            "hits": 8
+          },
+          "expected_skill": "attack_offhand_crossbow",
+          "same_target": true
+        },
+        {
+          "case": "hwp_2h_warbow_native_attack_damage",
+          "hp_loss": 1616.9700000000012,
+          "native_attribution": {
+            "weapon": "attack_2h_longbow",
+            "dmg": 1617.0,
+            "hits": 11
+          },
+          "expected_skill": "attack_2h_longbow",
+          "same_target": true
+        },
+        {
+          "case": "hwp_2h_executioner_native_attack_damage",
+          "hp_loss": 1877.9929999999877,
+          "native_attribution": {
+            "weapon": "attack_2h_greataxe",
+            "dmg": 1878.0,
+            "hits": 4
+          },
+          "expected_skill": "attack_2h_greataxe",
+          "same_target": true
+        },
+        {
+          "case": "hwp_2h_tempest_native_attack_damage",
+          "hp_loss": 1228.9610000000102,
+          "native_attribution": {
+            "weapon": "attack_2h_staff_lightning",
+            "dmg": 1229.0,
+            "hits": 13
+          },
+          "expected_skill": "attack_2h_staff_lightning",
+          "same_target": true
+        },
+        {
+          "case": "hwp_2h_twinfangs_native_attack_damage",
+          "hp_loss": 2597.040000000008,
+          "native_attribution": {
+            "weapon": "attack_2h_daggers",
+            "dmg": 2091.0,
+            "hits": 12
+          },
+          "expected_skill": "attack_2h_daggers",
+          "same_target": true
+        }
+      ],
+      "bulwark": {
+        "input_done_frames": 19,
+        "raw_cd_remaining_ms": 2901,
+        "trace_stored": 59,
+        "trace_complete": true
+      },
+      "limits": "Controlledcommon ilvl35/nativeextraattributes/zero-defense QA target. No exact modifier balance, proc rates, epic/legendary effects, natural acquisition, UI, persistence or ordinary proof. Initial stun observed; expiry not claimed."
+    }
+  ]
+}

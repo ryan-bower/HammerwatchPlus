@@ -1,0 +1,71 @@
+{
+  "name": "qa-classes-input-target-contract",
+  "about": "Controlled normal Net TargetAOE protocol for additive sole-local current-GameInput world cursor sequence. Actual bound-button/normal-main-confirm, exact native input frames/cursor projection+restoration/timeline, real center immobilize/outside untouched+HP, paid nativeCD/MP and natural buff expiry. No castat/Activate/helper-state/resource setters, ordinary or cancellation credit. Native3500ms status differs from authored2s tooltip and remains separate correctness gap.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_input_target",
+      "expect": {
+        "hwp_gladiator_char": true,
+        "target_geometry": true,
+        "target_fixture": true,
+        "target_actual_centers": true,
+        "target_net_rank": true,
+        "target_bound_button": true,
+        "target_net_cooldown_ready": true,
+        "target_native_sequence_and_cursor": true,
+        "target_native_position_timeline": true,
+        "target_actual_effect_and_outside": true,
+        "target_normal_paid_cast": true,
+        "target_natural_buff_lifecycle": true,
+        "target_release_across_console": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

@@ -88,11 +88,13 @@ class HWPFirearmsGunShot : ShootProjectile
 	array<UnitProducer@> m_rounds;
 	Actor@ m_shooter;
 	vec2 m_aim;
+	bool m_magOff;
 
 	HWPFirearmsGunShot(UnitPtr unit, SValue& params)
 	{
 		super(unit, params);
 		@m_plain = m_projectile;
+		m_magOff = GetParamString(unit, params, "projectile", false, "").findFirst("_off") >= 0;
 		m_converge = GetParamInt(unit, params, "converge", false, 0);
 		for (uint i = 0; i < HWP::Firearms::ELEMENTS.length(); i++)
 		{
@@ -140,6 +142,8 @@ class HWPFirearmsGunShot : ShootProjectile
 		@m_shooter = owner;
 		m_aim = normalize(dir);
 		bool shot = ShootProjectile::DoAction(builder, owner, target, pos, dir, intensity);
+		if (shot)
+			HWP::Firearms::MagazineShot(owner, m_magOff);
 		@m_shooter = null;
 		Pick(-1);
 		builder.PopArray();
@@ -166,12 +170,16 @@ class HWPFirearmsGunShot : ShootProjectile
 			return true;
 		Pick(arr[0].GetInteger());
 		bool ret = ShootProjectile::NetDoAction(arr[1], owner, pos, dir);
+		// An ignored shot sends an empty inner array; native NetDoAction still
+		// returns true for it. Only a packet containing a round debits its magazine.
+		if (ret && arr[1].GetArray() !is null && arr[1].GetArray().length() >= 5)
+			HWP::Firearms::MagazineShot(owner, m_magOff);
 		Pick(-1);
 		return ret;
 	}
 }
 
-class HWPFirearmsElementalDamage : PlayerDamage
+class HWPFirearmsElementalDamage : HWPFirearmsGunDamage
 {
 	int m_element;
 
@@ -188,7 +196,7 @@ class HWPFirearmsElementalDamage : PlayerDamage
 		uint i = di.IceDamage;
 		uint l = di.LightningDamage;
 		uint o = di.PoisonDamage;
-		PlayerDamage::FillDamage(owner, target, di, intensity);
+		HWPFirearmsGunDamage::FillDamage(owner, target, di, intensity);
 		uint add = (di.PhysicalDamage - p) + (di.FireDamage - f) + (di.IceDamage - i)
 			+ (di.LightningDamage - l) + (di.PoisonDamage - o);
 		di.PhysicalDamage = p;

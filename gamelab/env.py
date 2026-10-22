@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 import shutil
+import stat
 import subprocess
 import sys
 from pathlib import Path
@@ -122,9 +123,68 @@ def ensure_res(src: Path, dst: Path, problems: list[str], fix: bool) -> None:
 RES_OWN = ("controls.cfg",)     # files the game may write into res/; GameLab's own, never the user's
 
 
-def install_res_snapshot() -> dict[str, tuple[int, int]]:
-    """{name: (size, mtime_ns)} of the install's res/: checked unchanged after every run."""
-    return {f.name: (f.stat().st_size, f.stat().st_mtime_ns) for f in (install() / "res").iterdir()}
+def _res_tree_snapshot(root: Path) -> dict[str, dict]:
+    """Read a complete resource manifest, failing closed on changes while reading.
+
+    Windows directory file-size fields are undefined (WIN32_FILE_ATTRIBUTE_DATA).
+    Track directory names/types/mtime and every file's bytes instead. Reparse
+    targets are recorded and traversed with an ancestor guard against cycles.
+    This function never writes to the resource tree.
+    """
+    snapshot: dict[str, dict] = {}
+
+    def identity(info, directory: bool) -> tuple:
+        fields = (info.st_mode, info.st_dev, info.st_ino, info.st_mtime_ns)
+        return fields if directory else fields + (info.st_size,)
+
+    def observe(path: Path):
+        own = path.lstat()  # Fresh metadata, never a cached DirEntry.stat result.
+        reparse = stat.S_ISLNK(own.st_mode) or bool(getattr(own, "st_file_attributes", 0) & 0x400)
+        target = os.readlink(path) if reparse else None
+        info = path.stat() if reparse else own
+        return own, target, info
+
+    def walk(path: Path, ancestors: frozenset[str]) -> None:
+        own, target, before = observe(path)
+        directory = stat.S_ISDIR(before.st_mode)
+        key = path.relative_to(root).as_posix()
+        row = {"type": "dir" if directory else "file", "mtime_ns": before.st_mtime_ns}
+        if target is not None:
+            row.update(link_target=target, link_mtime_ns=own.st_mtime_ns)
+        snapshot[key] = row
+
+        if directory:
+            resolved = os.path.normcase(str(path.resolve(strict=True)))
+            if resolved in ancestors:
+                row["cycle"] = True
+            else:
+                children = sorted(path.iterdir(), key=lambda p: p.name)
+                for child in children:
+                    walk(child, ancestors | {resolved})
+                if [p.name for p in children] != sorted(p.name for p in path.iterdir()):
+                    raise OSError(f"resource directory changed while snapshotting: {path}")
+        elif stat.S_ISREG(before.st_mode):
+            digest = hashlib.sha256()
+            with path.open("rb") as stream:
+                for block in iter(lambda: stream.read(1024 * 1024), b""):
+                    digest.update(block)
+            row.update(size=before.st_size, sha256=digest.hexdigest())
+        else:
+            raise OSError(f"unsupported resource entry type: {path}")
+
+        after_own, after_target, after = observe(path)
+        if (identity(before, directory) != identity(after, directory)
+                or identity(own, directory) != identity(after_own, directory)
+                or target != after_target):
+            raise OSError(f"resource entry changed while snapshotting: {path}")
+
+    walk(root, frozenset())
+    return snapshot
+
+
+def install_res_snapshot() -> dict[str, dict]:
+    """Recursive file hashes and stable metadata, compared before/after every run."""
+    return _res_tree_snapshot(install() / "res")
 
 
 def link(fix: bool = True, mods: list[str] | None = None) -> list[str]:

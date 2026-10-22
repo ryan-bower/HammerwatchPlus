@@ -1,0 +1,102 @@
+{
+  "name": "qa-firearms-magazine-resume",
+  "about": "Native Paladin seed fixture, then normal all31 module activation and one new Firearms record before measurement. Four fixed natural P,C,P bursts from15+9 leave7+5/shared12; proportional8+4 reconstruction must fail. Same Firearms record on floor2, native WM_CLOSE save/restart choice=resume, identical skill/gear/clip12/per-hand crit before setters, next real critical burst5+4/shared9.",
+  "fixture": "qa-firearms-resume",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 1800,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "sleep",
+      "seconds": 1
+    },
+    {
+      "do": "bot",
+      "bot": "qa_firearms_resume",
+      "kwargs": {
+        "stage": "prepare_save"
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    },
+    {
+      "do": "restart",
+      "choice": "resume",
+      "readback": {
+        "phase": "mission",
+        "player.class": "hwp_firearms",
+        "player.name": "QAMagResume",
+        "player.level": 20,
+        "player.dead": false
+      }
+    },
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "sleep",
+      "seconds": 1
+    },
+    {
+      "do": "bot",
+      "bot": "qa_firearms_resume",
+      "kwargs": {
+        "stage": "verify_resume"
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

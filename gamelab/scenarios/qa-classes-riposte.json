@@ -1,0 +1,18 @@
+{
+  "name": "qa-classes-riposte",
+  "about": "Controlled Riposte actual attacker HP: ranks0/1/5, incoming hits2/5, melee/ranged/spell, god off. Expected flat10/50 physical return only on melee. Requires damagefrom helper; no ordinary-play claim.",
+  "fixture": "town-paladin",
+  "mods": ["core", "classes"],
+  "timeout": 360,
+  "steps": [
+    {"do": "console", "line": "e_cheats 1"},
+    {"do": "console", "line": "show_chat"},
+    {"do": "bot", "bot": "qa_classes", "kwargs": {"sections": "riposte"}, "expect": {
+      "riposte_god_off": true,
+      "riposte_r1_rank": true,
+      "riposte_r5_rank": true,
+      "riposte_flat_melee_only": true
+    }},
+    {"do": "log_clean"}
+  ]
+}

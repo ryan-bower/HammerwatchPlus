@@ -1,5 +1,8 @@
 # HammerwatchPlus
 
+> **QA checkpoint (2026-10-22): paused at the user-requested PR boundary.** The full sweep is incomplete. Scoped passes: fourth specs60/60 rank cases and61/65 orb-quality cases; Firearms60/60 ranks and74/75 orb qualities; HoH1 imports29/39 skills and136/191 ranks;9/9 selected-mastery saves. Five orb cases need real co-op. All31modules have load evidence, with broader feature/lifecycle work open. Earlier QA summaries below are historical snapshots. See [the authoritative checkpoint](docs/generated/qa_pr_checkpoint.json) and [QA ledger](docs/QA_OVERNIGHT.md).
+
+
 A modular co-op mod for **Heroes of Hammerwatch II**: a new class (the Firearms Specialist)
 and the three HoH1 classes HoH2 lacks, Heroes of Hammerwatch 1 content (the Forsaken Tower
 campaign, keys and ace chests, legendaries, mercenaries, titles, pets), new things to find in
@@ -49,7 +52,7 @@ needs `pets`.
 |---|---|
 | `fishing` | Six fishing spots on the town coast (a timing minigame), more in the water of run floors' potion wells (always one in a boss room), greyed on the map once fished out. A pirate sells bait, rods and fish traps from the trading post's wreck, later its boat. Fish are swords, sell for bet tokens and can be eaten (100 HP per star). |
 | `farming` | The town's field grooves become farm plots: food crops and four Holy Herb strains grow with each completed run, faster when watered (the farmer sells the can and seeds; the well refills it). Smoke a herb for a buff that lasts 10 floors, or roll it into a joint: an off-hand with 5 puffs that a friend can take from you, with smoke that fills the room. |
-| `gambler` | A gambler in the tavern plays Higher/Lower for gold. He buys crops and herbs for gold and fish for bet tokens, and rerolls equipped gear for 2000 gold × item level, or 1 bet token per 5 item levels. |
+| `gambler` | A gambler in the tavern plays Higher/Lower for gold. He buys crops and herbs for gold and fish for bet tokens, and rerolls equipped gear for 2000 gold Ã— item level, or 1 bet token per 5 item levels. |
 | `goldpet` | A pet vendor in the Hunter's Lodge sells the Gold Collector cat, with two upgrades (materials and scrolls, then valuables). |
 | `stash` | A Sort button on the town stash: by class, then weapon type, then item level. |
 | `laststats` | The last run's stats for the whole party, on a notice board by the town fountain. |
@@ -110,6 +113,29 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+- 2026-10-22 overnight QA remains incomplete. Eight scoped
+  gameplay repairs have passing reproductions: Shadow Strike, Riposte, per-gun magazine
+  crit, Hoarder HUD cleanup, Thunder Orb cast attribution, returning-arrow catches,
+  custom weapon-family stash sorting and Dragon's Breath patch persistence
+  (`20261022-085158`). All 14 required regression scopes passed at their recorded
+  fingerprints; later changes only extend read-only QA telemetry. Production sources
+  and release payloads remain unchanged after those passes;
+  exact evidence and limits are in `docs/QA_OVERNIGHT.md` and `docs/generated/qa_*_inventory.json`.
+- Current granular coverage: the six built fourth specs have 55 of 60 skill-rank rows
+  with scoped passes and 5 partial; their 65 orb-quality rows have 47 scoped
+  passes, 3 partial, 11 untested and 4 blocked on real allies. Firearms has 42 of 75
+  orb-quality rows with scoped passes, 32 untested and 1 blocked; its 60 skill-rank
+  rows have 10 scoped passes, 10 partial and 40 untested. The three hidden
+  HoH1 ports each completed two ordinary floor transitions, but full boss/reward runs
+  remain unverified; 4 of their 39 skills have scoped granular passes at 14 of 191
+  positive-rank slots. These counts
+  preserve the narrower effects measured in each row; they do not establish full coverage.
+- The default build produced and verified all 32 archives in `dist/`: 31 content modules
+  and `HammerwatchPlus-All.bin`, whose 955 entries exactly match their union. All-in-one
+  SHA256: `8d42ca89b379f7bb4ada76085fa6cc1e5ec3c28d6aacbdd4970393c0ecf01274`.
+  Every archive's metadata and decompressed payload were checked. The complete 31-module
+  stack, UI/settings search, stash save/reload, Architect pricing and controlled event
+  timeouts also have scoped passes. Older scenario passes below remain historical evidence.
 - Every solo step of the in-game test plan has a `gamelab/scenarios/plan-*.json` scenario.
   As of 2026-10-18 they all pass in GameLab except Weapon Swap's "only you can pick it up",
   which needs a real lobby. The Firearms Specialist's checks (`plan-t14`, `plan-firearms-*`)
@@ -117,6 +143,10 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 - The co-op steps need two players: GameLab runs one game, and HoH2 only connects through
   Steam/GOG lobbies.
 - GameLab is pinned to build 25932569 (since 2026-10-19).
+- 2026-10-21: doctor and bootstrap also find a portable compiler in the ignored local
+  toolchain cache, without changing the system PATH. Fresh-command doctor is green;
+  the hidden smoke passed (`20261021-235153-null-payload-lab`). Setup details and checks
+  are in `docs/RE_NOTES.md`.
 - Firearms still to do: the two base passives (the old Scavenger and Steady Hands stand in)
   and final icons (the current ones are placeholders from `tools/make_firearms_icons.py`).
 - Firearms gained the Hand Cannon, the Flamethrower Rifle and the Full Auto Rifle on
@@ -133,13 +163,13 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
   4 s on its own, +2-4% Action Speed a stack) and **Aerotheurge** (Thunder Orb; Static Charge gains
   a stack per spell cast, plus one on its first crit, and a new Lightning Rod orb). The ids are kept, so
   saves still work. `plan-specs` passes (run `20261021-212606`, 17 checks). The crit stack is not
-  tested, because the lab can't force a crit.
+  tested at that checkpoint; the overnight sweep now has native critical-hit regressions.
   The Paladin's 4th spec is still being designed.
 - 2026-10-21: the Warlock's **Essence Extraction** now matches the planner (the user's version of
   Colin's design). Magic weapon hits (every arcane-tagged weapon) gain Essence once per 2 to 1 s, and
   Essence from a Pyrebranded enemy counts twice (two stacks; Drain Essence's bleed, health and mana
   twice). The old +max Essence and the melee-on-branded-elites gain are gone. Reading "trigger twice"
-  that way is assumed. `plan-specs` passes (run `20261021-232748`). Known flaky: Lightning Arrow's
+  that way is assumed. `plan-specs` passes (run `20261021-232748`). Original flakiness: Lightning Arrow's
   Tailwind Catch caught 0 to 3 of 3 returning arrows across five runs (`storm_catch` failed twice).
 - 2026-10-22: the Priest's 4th spec, the **Devil Forgemaster**, is fully designed in the planner
   (Necrotic Resurrection, Call of Heresy, Heresy as its own stack, which bosses can be raised).
@@ -205,9 +235,15 @@ mod loaded together; GUI textures must be power-of-two sized or the game won't b
 Requirements:
 - Windows, with Steam running.
 - Python 3.10+ with [uv](https://docs.astral.sh/uv/).
-- gcc from mingw-w64 (x86_64), which builds the GameLab capture shim.
+- gcc from mingw-w64 (x86_64), which builds the GameLab capture shim. It can be on PATH,
+  or extracted under `gamelab/fixtures/cache/toolchain/` as `mingw64/bin/gcc.exe` or
+  `w64devkit/bin/gcc.exe`. Doctor and bootstrap prefer PATH, then those local copies;
+  only compiler child processes get the compiler's bin directory added to PATH.
 - HoH2 installed.
 - HoH1 optional: with it, doctor imports the HoH1 content (pets, levels, campaign, class art).
+
+After setup creates `.venv`, use `uv run python` in place of `python` below, or run
+`.\.venv\Scripts\python.exe` directly, so GameLab uses the installed project dependencies.
 
 ```
 python -m gamelab doctor              # first thing on a new clone: checks every prerequisite
@@ -235,3 +271,23 @@ player imports it themselves.
 ## License
 
 MIT. Game assets belong to Crackshell.
+
+
+## Resumed full sweep ? no time limit (2026-10-22)
+
+The user removed the original overnight deadline and activated the goal again. Work remains in progress; the original deadline/final-hour notes below are historical. Verified scoped coverage now includes60/60 fourth-spec rank cases,49/65orb qualities (nine fresh Branding qualities awaiting granular audit; maximum combo failed),20/60 Firearms ranks,42/75orb qualities,62/191HoH1positive ranks and9/9mastery save/reload combinations. Native stat-only scopes remain separate from combat/cadence/mitigation.
+
+Fresh full-stack `mod-all 20261022-111422` and minimal `null-payload 111454` compile/load checks passed with the read-only per-frame resource observer. `qa-firearms-ranks-base 111509` and `qa-specs-living-mana-coefficients 111830` passed; exact per-run hashes are in the ledger/journals. `qa-specs-branding-orbs 113033` now obtains strict fine-grid/native-ray geometry through normal walking but fails the maximum-combination check. `qa-classes-gladiator-hoh2-run 112028` reached Keep3 and died during objective travel; no class/encounter bug is inferred. Controlled endgame weapon tests112325/112427 failed native equip requirements before attack/parry testing: ilvl35 requirements use unbounded vector interpolation at34/9, not the high endpoint at level10. A QA fixture correction is staged; no production change is inferred from these setup failures.
+
+The source is frozen during each serial GameLab batch. Remaining ranks/orbs, legal interactions, ordinary run lifecycles, UI/acquisition and module functional/persistence/failure paths remain required. See `docs/QA_OVERNIGHT.md` and `docs/generated/qa_overnight_summary.json`; previous repair regressions and all failures are retained.
+
+
+## Historical resumed sweep checkpoint (2026-10-22; superseded above)
+
+The full sweep has no time limit. Scoped native coverage is 60/60 fourth-spec rank rows and 61/65 orb-quality rows (four require true co-op), 60/60 Firearms rank rows and 71/75 orb-quality rows (three Reload rows await a corrected idle-timer test; one requires co-op), and 118/191 positive HoH1 ranks across 26/39 abilities. All nine selected-mastery save/reload combinations pass. These counts cover the recorded effects, not every amplitude, boundary, interaction, UI or ordinary lifecycle requirement.
+
+Two additional gameplay repairs are verified: Branding no longer retains the Essence damage bonus after consumption, and Gladius now deals native weapon-scaled damage instead of zero. Gladius first-contact damage passes at all five ranks in `qa-classes-gladius-collision 20261022-145123`. Current full-stack load passes in `mod-all 145021`; all 31 modules also have standalone load evidence. Full module functionality remains incomplete.
+
+The current serial batch is finishing Branding quality combinations and Sphere acquisition/UI prerequisites. Reload's expired negative input timer and Grimoire's stationary-glyph target distance are source-reviewed QA corrections awaiting native reruns. A Branding combination failed its clear-lane setup before any combat trial; it remains recorded and under investigation. Ordinary runs also need a source-correct reward-window input flow before boss/reward/save coverage can be claimed.
+
+The earlier 32-archive package verification predates the Branding and Gladius repairs. Those archives are historical; current-source packaging and final regressions remain required. The detailed source epochs, original failures and remaining work are retained in `docs/QA_OVERNIGHT.md` and the generated inventories.

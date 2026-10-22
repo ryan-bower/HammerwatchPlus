@@ -1,0 +1,19 @@
+{
+  "name": "qa-specs-arcane-feedback",
+  "about": "DRAFT, unrun: Arcane Feedback qualities1/2/3 bank actual enemy-attributed pure150 damage to caps50/80/120; actual native elemental casts consume the bank; exact15k targetHP demonstrates1.25/1.40/1.60 damage and natural3s reversion. Zero other Arcane orbs. Controlled fixture, not ordinary play, Blink-skip or true teammate coverage.",
+  "fixture": "town-paladin",
+  "mods": ["core", "abyss", "architect", "bufftips", "campaign", "chatlinks", "classes", "colors", "deathrecap", "droptrade", "farming", "firearms", "fishing", "gambler", "goldpet", "groupcombo", "keys", "laststats", "legacy", "maps", "mercenary", "pets", "puzzles", "specs", "stash", "strongbox", "summons", "valuables", "wavemode", "weapons", "weaponswap"],
+  "timeout": 420,
+  "steps": [
+    {"do": "console", "line": "e_cheats 1"},
+    {"do": "console", "line": "show_chat"},
+    {"do": "bot", "bot": "qa_specs_arcane_orbs", "kwargs": {"section": "feedback"}, "expect": {
+      "arc_orb_fresh": true, "arc_orb_lane": true, "arc_orb_controls": true,
+      "feedback_1_setup": true, "feedback_1_bank": true, "feedback_1_consume_damage": true, "feedback_1_expiry": true,
+      "feedback_2_setup": true, "feedback_2_bank": true, "feedback_2_consume_damage": true, "feedback_2_expiry": true,
+      "feedback_3_setup": true, "feedback_3_bank": true, "feedback_3_consume_damage": true, "feedback_3_expiry": true,
+      "feedback_all_qualities": true, "arc_orb_crit_restored": true
+    }},
+    {"do": "log_clean"}
+  ]
+}

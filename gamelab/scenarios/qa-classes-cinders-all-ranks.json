@@ -1,0 +1,68 @@
+{
+  "name": "qa-classes-cinders-all-ranks",
+  "about": "Cinders all5positive ranks plus rank0:208fixed real Ward hits through native spell activation, targetHP loss and armor_break proc/nonproc. Controlled nocd casts; no exact probability/cooldown/normal-input/armor mitigation credit.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 1200,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_proc_ranks",
+      "kwargs": {
+        "sections": "cinders"
+      },
+      "expect": {
+        "cinders_r0_spell_proc": true,
+        "cinders_r1_spell_proc": true,
+        "cinders_r2_spell_proc": true,
+        "cinders_r3_spell_proc": true,
+        "cinders_r4_spell_proc": true,
+        "cinders_r5_spell_proc": true,
+        "cinders_observed": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

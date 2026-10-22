@@ -590,10 +590,18 @@ class Checks(Base):
         time.sleep(3.0)
 
         # Essence Extraction: Drain Essence's own melee gain (Demon's Tail is tagged melee) runs
-        # twice on a branded enemy. Combustion off first: the brand's own claw would spend the
-        # stacks before the read
+        # twice on a branded enemy. Isolate the hit gains from the other orbs: Combustion
+        # spends stacks, Proliferation halves the brand to 3 s, and Released Essence can
+        # add six stacks when that shortened brand expires and its claw kills the elite.
+        # Baseline 20261022-003808 showed that exact claw/release before the old read.
         for _ in range(3):
             self.gl("orb", "hwp_wlk_pb_combustion", "down")
+            self.gl("orb", "hwp_wlk_pb_proliferation", "down")
+        for _ in range(2):
+            self.gl("orb", "hwp_wlk_ee_released_essence", "down")
+        isolated = {"combustion": self.bind(pb, "pb-combust"),
+                    "proliferation": self.bind(pb, "pb-spread"),
+                    "released": self.bind(ee, "ee-released")}
         self.gl("kill", 400, "target_dummy")
         # stunned: its swings knock the warlock back, which cancels the cast
         self.gl("spawn", "actors/humans/bandits/bandit_brute_elite.unit", round(45 * fx, 1), round(45 * fy, 1))
@@ -601,16 +609,33 @@ class Checks(Base):
         stun = self.gl("buffnear", 200, "bandit_brute_elite", "tweak/buffs/status_effects.sval:stun_greater", 20000)
         self.notes.append(f"brand: elite stunned: {stun.get('actors')}")
         time.sleep(0.7)
+        elite_hp0 = self.dummy_hp("bandit_brute_elite")
         self.set_stacks(ess, 0)
         st = self.specs()
         w0 = num(st, "twice") or 0
-        self.brand_cast(pb, fx, fy)
+        r0 = num(st, "released") or 0
+        ok, line = self.brand_cast(pb, fx, fy)
+        self.flag("brand_essence_setup", ok and "for 6000 ms" in line and num(st, "essence") == 0
+                  and all(value == "0" for value in isolated.values()),
+                  f"isolated binds {isolated}; zero Essence {num(st, 'essence')}; {line[-100:]!r}")
         self.tails(4, fx, fy)
         st = self.specs()
+        elite_hp1 = self.dummy_hp("bandit_brute_elite")
         w1, n = num(st, "twice"), num(st, "essence")
         d = (w1 or 0) - w0
-        self.flag("brand_essence_twice", d >= 2 and n == 2 * d,
-                  f"4 tails on a branded elite: second gains {w0} -> {w1}, essence {n} (2 a gain: Drain Essence's and ours)")
+        self.flag("brand_essence_target", len(elite_hp0) == 1 and num(st, "brands") == 1
+                  and all(0 < elite_hp1.get(unit, 0) < hp for unit, hp in elite_hp0.items()),
+                  f"same elite HP {elite_hp0} -> {elite_hp1}; brands {num(st, 'brands')} (still alive and branded)")
+        self.flag("brand_essence_twice", d >= 2 and n == 2 * d and num(st, "released") == r0,
+                  f"4 tails on a branded elite: second gains {w0} -> {w1}, essence {n}, released {r0} -> {num(st, 'released')} "
+                  "(2 a gain: Drain Essence's and ours; no independent elite reward)")
+
+        # End a surviving brand while Released Essence is still off, then restore the orb
+        # for its own test below. The doubled-gain equality above is unchanged.
+        if (num(st, "brands") or 0) > 0:
+            self.brand_cast(pb, fx, fy)
+        self.gl("orb", "hwp_wlk_ee_released_essence", 2)
+        self.flag("brand_released_setup", self.bind(ee, "ee-released") == "6", "Released Essence rank 2 restored")
 
         # Released Essence: a fresh elite dies to the claw (with the doubled Essence the tails'
         # brand's own claw can kill the last one: run 20261021-230738)
@@ -631,9 +656,8 @@ class Checks(Base):
         self.flag("brand_released", (r or 0) - r0 >= 6 and (n or 0) >= 6, f"{line[-120:]!r}: released {r0} -> {r}, essence {n} (6 an elite)")
 
         # Essence Extraction, magic weapons: a wand's hits are an Essence gain once per ee-cd ms,
-        # and two on a branded enemy. Proliferation off: its 3 s brand ends inside the 2 s of hits
-        for _ in range(3):
-            self.gl("orb", "hwp_wlk_pb_proliferation", "down")
+        # and two on a branded enemy. Proliferation remains off: its 3 s brand can end
+        # inside the setup and the 2 s of hits.
         cdms = int(self.bind(ee, "ee-cd") or 0)
         self.gl("kill", 400, "target_dummy")
         self.gl("spawn", TARGET, round(50 * fx, 1), round(50 * fy, 1))

@@ -1,0 +1,50 @@
+{
+  "name": "qa-module-keys-standalone",
+  "about": "Standalone functional subset with only required modules. Native bag purchases/cap and actual locked-chest key/refusal/loot checks; controlled floor setup and chest spawns. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "keys"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_modules_checks",
+      "kwargs": {
+        "sections": "merchant,mission,floor_chests,chests",
+        "required_flags": [
+          "bag_slot_bought",
+          "bag_slot_paid",
+          "bag_slot_price_rises",
+          "bag_slot_full_greyed",
+          "bag_slot_full_refused",
+          "mission_started",
+          "silver_unlocked",
+          "ace_legendary_unlocked",
+          "ace_legendary_given",
+          "ace_epic_unlocked",
+          "ace_epic_no_legendary",
+          "floor_all_locked",
+          "floor_no_key_nothing",
+          "floor_key_opens",
+          "floor_loot_spawned"
+        ]
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

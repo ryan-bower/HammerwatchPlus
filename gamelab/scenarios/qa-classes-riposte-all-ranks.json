@@ -1,0 +1,68 @@
+{
+  "name": "qa-classes-riposte-all-ranks",
+  "about": "Full31 modules; all5 positive ranks through original controlled actual effect/HP/debuff/outside/scaling controls. Riposte includes rank0 plus all5 x melee/ranged/spell x incoming2/5, raw attacker HP. Position/leap casts are controlled native Skill.Activate; ordinary cursor/UI/co-op and mana/CD boundary behavior are separate. No gameplay changes.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 900,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_ranks",
+      "kwargs": {
+        "sections": "riposte"
+      },
+      "expect": {
+        "riposte_god_off": true,
+        "riposte_r1_rank": true,
+        "riposte_r5_rank": true,
+        "riposte_flat_melee_only": true,
+        "riposte_r2_rank": true,
+        "riposte_r3_rank": true,
+        "riposte_r4_rank": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

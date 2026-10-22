@@ -1,0 +1,200 @@
+%define DEFAULT
+%define RIGHT
+<unit netsync="none">
+    <behavior class="NewProjectile">
+        <string name="anim">default</string>
+        <float name="speed">6</float>
+        <string name="ttl-bind">proj-ttl</string>
+        <!-- <int name="ttl">3600</int> -->
+        <!-- <int name="ttl">1200</int> -->
+
+        <int name="penetration">100</int>
+        <int name="bounces">10</int>
+        <bool name="bounce-on-collide">false</bool>
+        <bool name="hit-last-collision">false</bool>
+        <!-- doesnt work? -->
+        <int name="damage-tick-last-collision">1000</int>
+
+        <array name="modifiers">
+            <dict>
+                <string name="class">Projectile::Speed</string>
+                <!-- <float name="hit-intensity-mul">1.1</float> -->
+                <string name="hit-intensity-mul-bind">proj-hit-mul</string>
+                <float name="bounce-speed-mul">1</float>
+                <vec2 name="speed-limits">3 6</vec2>
+            </dict>
+
+            <dict>
+                <string name="class">Projectile::NestedModifier</string>
+                <ivec2 name="timespan">0 1200</ivec2>
+
+                <array name="modifiers">
+                    <dict>
+                        <string name="class">Projectile::DirectionSteering</string>
+        %if RIGHT
+                        <string name="dir">t*pi*0.5</string>
+        %else
+                        <string name="dir">-t*pi*0.5</string>
+        %endif
+                        <bool name="disable-on-bounce">true</bool>
+                        <bool name="disable-on-hit">false</bool>
+                        <bool name="disable-on-collide">false</bool>
+                    </dict>
+                </array>
+            </dict>
+
+
+            <dict>
+                <string name="class">Projectile::NestedModifier</string>
+                <ivec2 name="timespan">1200 4500</ivec2>
+
+                <array name="modifiers">
+                    <dict>
+                        <string name="class">Projectile::SeekingAng</string>
+                        <float name="turn-speed">1000</float>
+                        <!-- <float name="turn-speed-delta">90</float> -->
+                    </dict>
+                    <dict>
+                        <string name="class">Projectile::Speed</string>
+                        <float name="speed-delta">10</float>
+                        <vec2 name="speed-limits">3 6</vec2>
+                    </dict>
+                    <dict>
+                        <string name="class">Projectile::DestroyNearTarget</string>
+                        <float name="distance">16</float>
+                    </dict>
+                </array>
+            </dict>
+
+            <dict>
+                <string name="class">Projectile::AttachedLoopingSound</string>
+                <string name="sound">event:/sfx/player/classes/warrior/whirling_axes/whirling_axes_loop</string>
+            </dict>
+
+
+
+<!-- 			<dict>
+                <string name="class">Projectile::NestedModifier</string>
+                <ivec2 name="timespan">150 1750</ivec2>
+
+                <array name="modifiers">
+                    <dict>
+                        <string name="class">Projectile::DirectionSteering</string>
+                        <string name="dir">-sin(t*1.5)</string>
+                    </dict>
+                </array>
+            </dict>	 -->
+
+<!-- 			<dict>
+                <string name="class">Projectile::NestedModifier</string>
+                <ivec2 name="timespan">2000 3000</ivec2>
+
+                <array name="modifiers">
+                    <dict>
+                        <string name="class">Projectile::DirectionSteering</string>
+                        <string name="dir">0</string>
+                    </dict>
+                </array>
+            </dict> -->
+
+<!-- 			<dict>
+                <string name="class">Projectile::NestedModifier</string>
+                <ivec2 name="timespan">1100 1200</ivec2>
+
+                <array name="modifiers">
+                    <dict>
+                        <string name="class">Projectile::Speed</string>
+                        <float name="speed-delta">-50</float>
+                        <vec2 name="speed-limits">0 5</vec2>
+                    </dict>
+                </array>
+            </dict> -->
+%if RETURN
+
+            <dict>
+                <string name="class">Projectile::NestedModifier</string>
+                <ivec2 name="timespan">1200 5000</ivec2>
+
+                <array name="modifiers">
+                    <dict>
+                        <string name="class">Projectile::Speed</string>
+                        <float name="speed-delta">10</float>
+                        <vec2 name="speed-limits">0 10</vec2>
+                    </dict>
+                    <dict>
+                        <string name="class">Projectile::SeekingAng</string>
+                        <float name="turn-speed">2000</float>
+                    </dict>
+                    <dict>
+                        <string name="class">Projectile::DestroyNearTarget</string>
+                        <float name="distance">16</float>
+                    </dict>
+                </array>
+            </dict>
+%endif
+        </array>
+
+        <array name="hit-effects">
+            <dict>
+                <string name="class">PlaySound</string>
+                <string name="sound-bind">hit-sound</string>
+            </dict>
+            <dict>
+                <string name="class">PlayerDamage</string>
+                <string name="mul-bind">proj-hit-mul</string>
+                <bool name="shield-blockable">true</bool>
+            </dict>
+            <dict>
+                <string name="class">AddStacks</string>
+                <string name="buff">tweak/buffs/stacks_actors.sval:bleeding</string>
+                <string name="stacks-bind">bleeding-stacks</string>
+                <string name="chance-bind">bleeding-chance</string>
+            </dict>
+%if FIRE
+            <dict>
+                <string name="intensity-mul-bind">fire-dmg-mul</string>
+            </dict>
+            <dict>
+                <string name="class">Damage</string>
+                <string name="fire-bind">physical-dmg</string>
+                <bool name="shield-blockable">true</bool>
+            </dict>
+%endif
+        </array>
+
+        <array name="miss-effects">
+            <dict>
+                <string name="class">PlaySound</string>
+                <string name="sound-bind">hit-sound</string>
+            </dict>
+            <dict>
+                <string name="class">SpawnEffect</string>
+%if RIGHT
+                <string name="effect">players/warrior/effects/axe_end.effect?flip=0</string>
+%else
+                <string name="effect">players/warrior/effects/axe_end.effect?flip=1</string>
+%endif
+                <bool name="send-angle">true</bool>
+            </dict>
+        </array>
+        <dict name="effect-params">
+        </dict>
+    </behavior>
+
+    <scenes>
+        <scene name="default">
+            <collision static="false">
+                <circle projectile="true" radius="10" />
+            </collision>
+%if RIGHT && FIRE
+            <effect src="players/warrior/effects/axe.effect?flip=0&fire=1" />
+%elif RIGHT && !FIRE
+            <effect src="players/warrior/effects/axe.effect?flip=0&fire=0" />
+%elif LEFT && FIRE
+            <effect src="players/warrior/effects/axe.effect?flip=1&fire=1" />
+%else
+            <effect src="players/warrior/effects/axe.effect?flip=1&fire=0" />
+%endif
+        </scene>
+    </scenes>
+</unit>

@@ -235,26 +235,40 @@ class Run:
         shutil.copytree(saves, cache)
         return info
 
-    def enter_fixture(self, recipe: dict, extra_mods: list[str]) -> Game:
+    def enter_fixture(self, recipe: dict, extra_mods: list[str], *,
+                      choice: str | None = None, readback: dict | None = None) -> Game:
+        if choice not in (None, "town", "resume"):
+            raise GameError(f"unsupported restart choice: {choice!r}")
+        if readback is not None and not isinstance(readback, dict):
+            raise GameError("restart readback must be a mapping")
+        expected = {**recipe["readback"], **(readback or {})}
         game = self.boot(expect_mods=True, probe_menu=self.scenario.get("probe_menu", False))
         hb = game.wait_gl(lambda o: o.get("ev") == "hb", 30)
         self.out.setdefault("first_frame_at", time.time())   # watch mode's focus window ends here
         if self.mode == "watch":
             # from here on a human click may activate the game window (WS_EX_NOACTIVATE off)
             game.note("allow_activation", **winproc.allow_activation(game.window()))
+        selection = None
         if hb and hb.get("phase") == "no_character":
-            reply = game.gl_cmd("pick", 0)
+            reply = game.gl_cmd("pick", 0, *([choice] if choice is not None else []))
+            selection = reply
             if not reply.get("ok"):
                 raise GameError(f"pick failed: {reply}")
-        if game.wait_gl(lambda o: o.get("ev") == "hb" and o.get("phase") == recipe["readback"]["phase"], 60) is None:
-            raise GameError(f"never reached phase {recipe['readback']['phase']}")
+            if choice == "resume" and (reply.get("choice") != "resume" or not reply.get("run")):
+                raise GameError(f"no saved run to resume: {reply}")
+        elif choice is not None:
+            raise GameError("explicit restart choice requires the character selection window")
+        self.out.setdefault("fixture_entries", []).append(
+            {"choice": choice, "selection": selection, "readback": expected})
+        if game.wait_gl(lambda o: o.get("ev") == "hb" and o.get("phase") == expected["phase"], 60) is None:
+            raise GameError(f"never reached phase {expected['phase']}")
         # every recipe field is read back through the probes; a mismatch fails the run
         # recipe fields beyond the character (setup verbs) are read back through their own
         # probes; all of them, `state` and `mods` in one or two typed lines (gl_multi)
         probes = recipe.get("readback_probes", [])
         replies = game.gl_multi([["state"]] + [[rb["verb"], *rb.get("args", [])] for rb in probes] + [["mods"]])
         state, mods = replies[0], replies[-1]
-        bad = check(state, recipe["readback"])
+        bad = check(state, expected)
         for rb, reply in zip(probes, replies[1:-1]):
             bad += [f"{rb['verb']}: {b}" for b in check(reply, rb["expect"])]
         self.assert_("fixture readback", not bad, "; ".join(bad))
@@ -292,7 +306,8 @@ class Run:
         if kind == "restart":
             # save -> load context boundary: quit (WM_CLOSE, the game saves) and enter again
             self.finish(game)
-            return self.enter_fixture(self.recipe, self.extra)
+            return self.enter_fixture(self.recipe, self.extra, choice=s.get("choice"),
+                                      readback=s.get("readback"))
         if kind == "overlays":
             # repro playbook 1.3: everything drawn over the world, required empty or expected
             reply = game.gl_cmd("overlays")
@@ -346,6 +361,14 @@ class Run:
             p = pilotlib.Pilot(game, self.results.name, explore=bool(self.scenario.get("explore")))
             got = pilotlib.load_bot(s["bot"]).run(p, **s.get("kwargs", {}))
             got["intents"] = [{"intent": r.intent, "result": r.result, "reason": r.reason, "tick": r.tick} for r in p.log]
+            # Assertion summaries intentionally stay short. Preserve the full returned
+            # observations before scoring, including every failed fixed trial.
+            result_file = self.results / "bot-results.jsonl"
+            with result_file.open("a", encoding="utf-8") as f:
+                f.write(json.dumps({"bot": s["bot"], "kwargs": s.get("kwargs", {}),
+                                    "pass": self.passes, "assertion_index": len(self.assertions),
+                                    "result": got}, ensure_ascii=False) + "\n")
+            self.out["bot_results_file"] = result_file.name
             # the whole result, for tables the 3000-char assertion detail cuts (bot-<name>.json)
             label = re.sub(r"[^A-Za-z0-9_.-]+", "_", s.get("name", f"bot {s['bot']}"))
             try:

@@ -1,0 +1,31 @@
+{
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "weapons"
+  ],
+  "timeout": 900,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_content_weapons",
+      "kwargs": {},
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ],
+  "name": "qa-content-weapons-native-standalone",
+  "about": "All12 content weapons, minimum dependencies, native equipped inputs/readiness and zero-defense unsaturated HP; defensive Dirk parry remains separate."
+}

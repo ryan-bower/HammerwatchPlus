@@ -1,0 +1,81 @@
+{
+  "name": "qa-specs-living-mana-coefficients",
+  "about": "All5 LivingMana regeneration coefficients identified from actual native4s per-frame mana/HP trajectories at two missing-mana fractions, with no-LivingMana native control. Independent baseline from current native mana/health regen and gain stats plus source integration/update-phase/float32 bounds; each rank interval must include expected coefficient and exclude every other built coefficient. Controlled fixture only; no healing/DoT/lethal/floor/lifecycle/co-op claim.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_specs_living_mana",
+      "expect": {
+        "lmqa_char": true,
+        "lmqa_baseline_floor": true,
+        "lm_rank0_native_trajectory": true,
+        "lmqa_learned": true,
+        "lmqa_max_conversion": true,
+        "lmqa_no_orbs": true,
+        "lmqa_positive_floor": true,
+        "lmqa_controls": true,
+        "lm_rank1_setup": true,
+        "lm_rank1_low_trajectory": true,
+        "lm_rank1_high_trajectory": true,
+        "lm_rank2_setup": true,
+        "lm_rank2_low_trajectory": true,
+        "lm_rank2_high_trajectory": true,
+        "lm_rank3_setup": true,
+        "lm_rank3_low_trajectory": true,
+        "lm_rank3_high_trajectory": true,
+        "lm_rank4_setup": true,
+        "lm_rank4_low_trajectory": true,
+        "lm_rank4_high_trajectory": true,
+        "lm_rank5_setup": true,
+        "lm_rank5_low_trajectory": true,
+        "lm_rank5_high_trajectory": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

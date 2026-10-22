@@ -1,0 +1,39 @@
+{
+  "name": "qa-module-campaign-portal-standalone",
+  "about": "Standalone functional subset with only required modules. Native portal presence, locked refusal and actual mission picker entries; no imported boss/floor completion claim. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "campaign"
+  ],
+  "timeout": 400,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_modules_checks",
+      "kwargs": {
+        "sections": "portal",
+        "required_flags": [
+          "portal_in_town",
+          "portal_locked_says_why",
+          "portal_offers_tower",
+          "portal_offers_hoh1"
+        ]
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

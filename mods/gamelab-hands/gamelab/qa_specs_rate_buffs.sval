@@ -1,0 +1,9 @@
+<svals>
+  <!-- QA only: native ActorBuff timing multiplier; no effects, triggers, resource or stack writers. -->
+  <dict name="ee_fast_hits">
+    <bool name="debuff">false</bool>
+    <bool name="ignore-buff-scaling">true</bool>
+    <int name="duration">15000</int>
+    <vec2 name="attack-speed">2.5 2.5</vec2>
+  </dict>
+</svals>

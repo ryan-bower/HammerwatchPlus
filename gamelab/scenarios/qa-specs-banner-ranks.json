@@ -1,0 +1,12 @@
+{
+  "name": "qa-specs-banner-ranks",
+  "about": "Every Standard rank: real incoming damage before/carried/planted/expired, native cooldown and mana, free plant during cooldown. Controlled native activation with cooldown reset only for raises; solo, not teammate proof.",
+  "fixture": "town-paladin",
+  "mods": ["core", "classes", "specs"],
+  "timeout": 600,
+  "steps": [
+    {"do": "console", "line": "e_cheats 1"},
+    {"do": "bot", "bot": "qa_specs_banner_brand", "kwargs": {"section": "banner_ranks"}, "expect": {"standard_ranks_god_off": true, "standard_lane": true, "standard_damage_actor": true, "standard_all_ranks": true}},
+    {"do": "log_clean"}
+  ]
+}

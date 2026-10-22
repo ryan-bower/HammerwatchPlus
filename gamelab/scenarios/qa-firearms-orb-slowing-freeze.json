@@ -1,0 +1,66 @@
+{
+  "name": "qa-firearms-orb-slowing-freeze",
+  "about": "Uncommon Slowing Freeze: controlled caster CustomStat fixture makes native RollElement choose ice deterministically, then actual pistol projectiles/HP loss apply native1000ms additive slow up to3000ms with actual.6MoveSpeedMul relative to independently captured ice pool and expiry; absent/removed controls. Unmodified natural proc frequency remains separate.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "sleep",
+      "seconds": 1
+    },
+    {
+      "do": "bot",
+      "bot": "qa_firearms_missing_orbs",
+      "kwargs": {
+        "family": "slow"
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

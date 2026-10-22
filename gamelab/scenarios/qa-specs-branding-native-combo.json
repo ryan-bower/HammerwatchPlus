@@ -1,0 +1,77 @@
+{
+  "name": "qa-specs-branding-native-combo",
+  "about": "Three fixed0/10-Essence control pairs: ONE legal normal-button recast loops TWO actual transferred brands synchronously. Ready native cooldown/payment/native input-done, zero-defense native Actor identities, independent pinned fully-settled directFire+pool damage, shared Essence spend and full cooldown. Controlled mana/Essence/central enemy death are measurement prerequisites, not ordinary acquisition/kill evidence. No castat/cooldown-reset/positive measured proc injection. Original diagnostic FAIL retained.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_specs_branding_native_combo",
+      "expect": {
+        "native_brand_combo_lane": true,
+        "native_combo_orb_setup": true,
+        "native_pb5_rank": true,
+        "native_ee5_rank": true,
+        "native_combo_all_trials": true,
+        "native-brand-1-e0_setup": true,
+        "native-brand-1-e0_fully_settled_damage": true,
+        "native-brand-1-e0_spend_full_cd": true,
+        "native-brand-1-e10_setup": true,
+        "native-brand-1-e10_fully_settled_damage": true,
+        "native-brand-1-e10_spend_full_cd": true,
+        "native-brand-2-e0_setup": true,
+        "native-brand-2-e0_fully_settled_damage": true,
+        "native-brand-2-e0_spend_full_cd": true,
+        "native-brand-2-e10_setup": true,
+        "native-brand-2-e10_fully_settled_damage": true,
+        "native-brand-2-e10_spend_full_cd": true,
+        "native-brand-3-e0_setup": true,
+        "native-brand-3-e0_fully_settled_damage": true,
+        "native-brand-3-e0_spend_full_cd": true,
+        "native-brand-3-e10_setup": true,
+        "native-brand-3-e10_fully_settled_damage": true,
+        "native-brand-3-e10_spend_full_cd": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

@@ -165,7 +165,11 @@ namespace HWP
 				g_clawVictimC = CLAW_KILL_WINDOW;
 			// the claw had Empowerment's fire from these stacks; now it spends them
 			if (combust > 0 && n > 0 && ess !is null)
+			{
 				plr.AddStacks(plr, ess, -n);
+				// A recast can resolve more brands before the next native stat update.
+				plr.m_record.RefreshStats();
+			}
 			g_claws++;
 			g_lastClaw = int(amount + 0.5f);
 			Log("specs", "pyrebrand: claw (" + why + ") " + g_lastClaw + " fire, radius " + int(radius)

@@ -1,0 +1,68 @@
+{
+  "name": "qa-specs-ui-winddancer",
+  "about": "Controlled actual original sphere/native top-usable Use input/native menu callback acquisition and native widget text/quality/screenshots. No forced offers/RNG/orbs. Native compile and rendered visual review required; ordinary naturally dropped acquisition and trainer UI are separate.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 2400,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_specs_sphere_ui",
+      "kwargs": {
+        "cls": "hwp_rogue_winddancer",
+        "mode": "all",
+        "max_picks": 128
+      },
+      "expect": {
+        "sphere_ui_fresh_native_class": true,
+        "sphere_ui_floor": true,
+        "sphere_ui_controlled_fixture": true,
+        "sphere_ui_all_native_picks": true,
+        "sphere_ui_requested_acquisition": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

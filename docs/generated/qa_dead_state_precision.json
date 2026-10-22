@@ -1,0 +1,173 @@
+{
+  "schema": 1,
+  "purpose": "General GameLab dead-record precision regression; no ability or ordinary-play credit",
+  "status": "PASS",
+  "run": "gamelab/results/20261022-101134-qa-dead-state-precision-lab",
+  "scenario": "qa-dead-state-precision",
+  "timeout": 120,
+  "source_fingerprint": {
+    "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+    "source_sha256": "85b04b38bdbd5b565c86bc880e571a48f03557fdd71709356d76ea8961a69739",
+    "files": 1167,
+    "fingerprint_scope": "mods+gamelab+tools-v2"
+  },
+  "source_after": {
+    "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+    "source_sha256": "85b04b38bdbd5b565c86bc880e571a48f03557fdd71709356d76ea8961a69739",
+    "files": 1167,
+    "fingerprint_scope": "mods+gamelab+tools-v2"
+  },
+  "runner_assertions": 12,
+  "runner_seconds": 25.1,
+  "teardown": {
+    "clean": true,
+    "reasons": [],
+    "run": "20261022-101134-qa-dead-state-precision-lab",
+    "at": "2026-10-22T10:11:59"
+  },
+  "effect_gates": {
+    "precision_fixture": true,
+    "precision_mission": true,
+    "precision_controls": true,
+    "precision_fractional_setup": true,
+    "precision_native_death": true,
+    "precision_dead_exact_present": true,
+    "precision_dead_matches_raw": true,
+    "precision_distinguishes_integer": true
+  },
+  "actual": {
+    "fixture": "paladin level1",
+    "measurement": "one atomic mana12.375/live state/real Player.Damage10000/dead state batch",
+    "before": {
+      "name": "GameLab",
+      "class": "paladin",
+      "level": 1,
+      "xp": 0,
+      "hp": 160,
+      "hpMax": 160,
+      "mana": 12,
+      "manaMax": 120,
+      "dead": false,
+      "spawned": true,
+      "x": -240.0,
+      "y": -48.0,
+      "combo": false,
+      "manaExact": 12.375,
+      "manaCostMul": 1.0,
+      "buffs": [
+        ".hwp.legacy.buff"
+      ]
+    },
+    "native_damage_reply": {
+      "id": "c11.2",
+      "ok": true,
+      "took": 10000,
+      "hp0": 1.0,
+      "hp": -61.5,
+      "mana0": 12.375,
+      "mana": 12.375,
+      "max": 120,
+      "dead": true,
+      "_t": 23.209
+    },
+    "dead": {
+      "name": "GameLab",
+      "class": "paladin",
+      "level": 1,
+      "xp": 0,
+      "hp": -9840,
+      "hpMax": 160,
+      "mana": 12,
+      "manaMax": 120,
+      "dead": true,
+      "spawned": false,
+      "manaExact": 12.375
+    },
+    "enemy_clear_fixture": {
+      "id": "c9",
+      "ok": true,
+      "killed": 84,
+      "names": [
+        "actors/humans/bandits/bandit_hunter.unit",
+        "actors/humans/bandits/bandit_hunter.unit",
+        "actors/humans/bandits/bandit_brute.unit",
+        "actors/humans/bandits/bandit_brute.unit",
+        "actors/humans/bandits/bandit_brute.unit",
+        "actors/humans/bandits/bandit_hunter.unit",
+        "actors/humans/bandits/bandit_hunter.unit",
+        "actors/humans/bandits/bandit_brute.unit",
+        "actors/humans/bandits/bandit_rogue.unit",
+        "actors/humans/bandits/bandit_mage.unit",
+        "actors/humans/bandits/bandit_rogue.unit",
+        "actors/humans/bandits/bandit_hunter.unit",
+        "actors/humans/bandits/bandit_hunter.unit",
+        "actors/humans/bandits/bandit_rogue.unit",
+        "actors/humans/bandits/bandit_hunter.unit",
+        "actors/humans/bandits/bandit_brute.unit",
+        "actors/humans/bandits/bandit_mage.unit",
+        "actors/humans/bandits/bandit_hunter.unit",
+        "actors/humans/bandits/bandit_mage.unit",
+        "actors/humans/bandits/bandit_hunter.unit",
+        "actors/humans/bandits/bandit_brute.unit",
+        "actors/humans/bandits/bandit_brute.unit",
+        "actors/humans/bandits/bandit_brute.unit",
+        "actors/humans/bandits/bandit_brute.unit",
+        "actors/humans/bandits/bandit_hunter.unit",
+        "actors/humans/bandits/bandit_rogue.unit",
+        "actors/humans/bandits/bandit_brute.unit",
+        "actors/humans/bandits/bandit_mage.unit",
+        "actors/humans/bandits/bandit_hunter.unit",
+        "actors/humans/bandits/bandit_mage.unit",
+        "actors/humans/bandits/bandit_hunter.unit",
+        "actors/humans/bandits/bandit_brute.unit",
+        "actors/humans/bandits/bandit_brute.unit",
+        "actors/humans/bandits/bandit_brute.unit",
+        "actors/humans/bandits/bandit_brute.unit",
+        "actors/humans/bandits/bandit_rogue.unit",
+        "actors/humans/bandits/bandit_hunter.unit",
+        "actors/humans/bandits/bandit_brute.unit",
+        "actors/humans/bandits/bandit_brute.unit",
+        "actors/humans/bandits/bandit_hunter.unit"
+      ],
+      "_t": 22.627
+    },
+    "fraction_preserved": 12.375,
+    "truncated_integer": 12,
+    "fractional_difference": 0.375
+  },
+  "probe_sha256": "e68e00a51ec7506944ea7c66225013635732ccf8ca576e26eb4a62fa73e1c3a2",
+  "scope_limits": [
+    "Controlled prerequisite mana setter and enemy-clear fixture; not ordinary combat death.",
+    "Verifies only raw dead mana telemetry and actual native death.",
+    "Does not promote Void Barrier:094732 actual inside/outside effects retained;100030 failed lane setup with zero ability trials.",
+    "No class skill/rank, co-op, UI or persistence credit."
+  ],
+  "source_proof": [
+    {
+      "path": "mods/gamelab-probe/scripts/GameLab/Probe.as",
+      "line": 203,
+      "claim": "Dead/null-actor branch reads raw record.mana*float(record.MaxMana()), mutually exclusive with existing live branch."
+    },
+    {
+      "path": "gamecode/sdk/hoh2/scripts/Behaviors/Actors/Player/PlayerRecord.as",
+      "line": 2644,
+      "claim": "CurrentMana floors normalized mana*MaxMana; fractional test distinguishes raw field from integer fallback."
+    },
+    {
+      "path": "mods/gamelab-hands/scripts/GameLab/Verbs_specs.as",
+      "line": 191,
+      "claim": "damageme calls real Player.Damage and independently emits raw record mana before and after."
+    },
+    {
+      "path": "gamecode/sdk/hoh2/scripts/Behaviors/Actors/Player/PlayerBase.as",
+      "line": 943,
+      "claim": "Native death destroys actor without writing mana; controlled fractional value remains observable on record."
+    }
+  ],
+  "artifacts": [
+    "inner.json",
+    "bot-results.jsonl",
+    "gl.jsonl"
+  ],
+  "batch_journal": "gamelab/results/qa-20261022-final-ak.jsonl"
+}

@@ -1,0 +1,1094 @@
+{
+  "generated_at_utc": "2026-10-22T14:13:52.390801+00:00",
+  "purpose": "Scenario metadata and verified scoped final-regression evidence. Root is sole launcher. Completion applies only to the required regression set, not the entire overnight goal; earlier Firearms runs retain the explicit unchanged-relevant-source basis.",
+  "count_policy": "bot_expected_count counts only declared top-level expected keys. Aggregate ok flags contain multiple retained row records and are not one gameplay behavior. Do not add these counts to skill/orb coverage counts.",
+  "required": [
+    {
+      "scenario": "mod-all",
+      "path": "gamelab/scenarios/mod-all.json",
+      "scenario_sha256": "dad5932196486a944d35872b81ae772dfe139896322abac15003f9780b5819b0",
+      "timeout_seconds": 180,
+      "mods": [
+        "core",
+        "abyss",
+        "architect",
+        "bufftips",
+        "campaign",
+        "chatlinks",
+        "classes",
+        "colors",
+        "deathrecap",
+        "droptrade",
+        "farming",
+        "firearms",
+        "fishing",
+        "gambler",
+        "goldpet",
+        "groupcombo",
+        "keys",
+        "laststats",
+        "legacy",
+        "maps",
+        "mercenary",
+        "pets",
+        "puzzles",
+        "specs",
+        "stash",
+        "strongbox",
+        "summons",
+        "valuables",
+        "wavemode",
+        "weapons",
+        "weaponswap"
+      ],
+      "mod_count": 31,
+      "bots": [],
+      "bot_expected_count": 0,
+      "scope": "Compilation/load of all31 content modules; not functional coverage of every module.",
+      "final_revision_runtime_status": "PASS (scoped)",
+      "final_run": "20261022-100827-mod-all-lab",
+      "runner_assertions_passed": 14,
+      "teardown_clean": true,
+      "evidence": [
+        "gamelab/results/20261022-100827-mod-all-lab/run.json",
+        "gamelab/results/20261022-100827-mod-all-lab/inner.json"
+      ],
+      "source_fingerprint_prefix": "d60d37c0dd92d0da",
+      "recorded_run_seconds": 14.4,
+      "historical_final_runs": [
+        {
+          "final_run": "20261022-091541-mod-all-lab",
+          "evidence": [
+            "gamelab/results/20261022-091541-mod-all-lab/run.json",
+            "gamelab/results/20261022-091541-mod-all-lab/inner.json"
+          ],
+          "source_fingerprint_prefix": "20e6e53aa41364da",
+          "recorded_run_seconds": 13.6,
+          "runner_assertions_passed": 14,
+          "teardown_clean": true
+        }
+      ]
+    },
+    {
+      "scenario": "qa-specs-crit-contract",
+      "path": "gamelab/scenarios/qa-specs-crit-contract.json",
+      "scenario_sha256": "f7a63c253cb21a5108ebb35c6de550ccca140cfb06a45f90431be237c74a2c5b",
+      "timeout_seconds": 240,
+      "mods": [
+        "core",
+        "classes",
+        "specs"
+      ],
+      "mod_count": 3,
+      "bots": [
+        {
+          "bot": "qa_specs_static",
+          "kwargs": {
+            "contract_only": true
+          },
+          "expected_count": 7,
+          "expected": {
+            "staticqa_char": true,
+            "staticqa_learned": true,
+            "staticqa_input_own_button": true,
+            "staticqa_helper_query": true,
+            "staticqa_helper_set": true,
+            "staticqa_helper_rebuild": true,
+            "staticqa_helper_restore": true
+          }
+        }
+      ],
+      "bot_expected_count": 7,
+      "scope": "Bounded native critical-chance setup/query/rebuild/restore contract prerequisite; not gameplay critical proof.",
+      "final_revision_runtime_status": "PASS (scoped)",
+      "final_run": "20261022-091556-qa-specs-crit-contract-lab",
+      "runner_assertions_passed": 12,
+      "teardown_clean": true,
+      "evidence": [
+        "gamelab/results/20261022-091556-qa-specs-crit-contract-lab/run.json",
+        "gamelab/results/20261022-091556-qa-specs-crit-contract-lab/inner.json",
+        "gamelab/results/20261022-091556-qa-specs-crit-contract-lab/bot-results.jsonl"
+      ],
+      "source_fingerprint_prefix": "20e6e53aa41364da",
+      "recorded_run_seconds": 44.4
+    },
+    {
+      "scenario": "qa-classes-shadow-strike",
+      "path": "gamelab/scenarios/qa-classes-shadow-strike.json",
+      "scenario_sha256": "2a6ce11e159d0d8cece8c72a821f632254490f343e1c8e3fe9ed7e656c84754e",
+      "timeout_seconds": 240,
+      "mods": [
+        "core",
+        "classes"
+      ],
+      "mod_count": 2,
+      "bots": [
+        {
+          "bot": "qa_classes",
+          "kwargs": {
+            "sections": "shadow_strike"
+          },
+          "expected_count": 17,
+          "expected": {
+            "QAshadow_strike_mastery": true,
+            "shadow_strike_open_floor": true,
+            "shadow_strike_r1_rank": true,
+            "shadow_strike_r1_target": true,
+            "shadow_strike_r1_target_hp": true,
+            "shadow_strike_r1_outside_radius": true,
+            "shadow_strike_r1_moves": true,
+            "shadow_strike_r1_damage": true,
+            "shadow_strike_r1_landing_stun": true,
+            "shadow_strike_r5_rank": true,
+            "shadow_strike_r5_target": true,
+            "shadow_strike_r5_target_hp": true,
+            "shadow_strike_r5_outside_radius": true,
+            "shadow_strike_r5_moves": true,
+            "shadow_strike_r5_damage": true,
+            "shadow_strike_r5_landing_stun": true,
+            "shadow_strike_damage_scales": true
+          }
+        }
+      ],
+      "bot_expected_count": 17,
+      "scope": "Thief ShadowStrike ranks1/5 native offhand landed damage and landing stun.",
+      "final_revision_runtime_status": "PASS (scoped)",
+      "final_run": "20261022-093637-qa-classes-shadow-strike-lab",
+      "runner_assertions_passed": 12,
+      "teardown_clean": true,
+      "source_fingerprint_prefix": "20e6e53aa41364da",
+      "evidence": [
+        "gamelab/results/20261022-093637-qa-classes-shadow-strike-lab/run.json",
+        "gamelab/results/20261022-093637-qa-classes-shadow-strike-lab/inner.json",
+        "gamelab/results/20261022-093637-qa-classes-shadow-strike-lab/bot-results.jsonl"
+      ],
+      "recorded_run_seconds": 51.1
+    },
+    {
+      "scenario": "qa-classes-riposte",
+      "path": "gamelab/scenarios/qa-classes-riposte.json",
+      "scenario_sha256": "d60546fcc272ad20b650e51ca540e9be120991d6ef1c8296db45f40305987627",
+      "timeout_seconds": 360,
+      "mods": [
+        "core",
+        "classes"
+      ],
+      "mod_count": 2,
+      "bots": [
+        {
+          "bot": "qa_classes",
+          "kwargs": {
+            "sections": "riposte"
+          },
+          "expected_count": 4,
+          "expected": {
+            "riposte_god_off": true,
+            "riposte_r1_rank": true,
+            "riposte_r5_rank": true,
+            "riposte_flat_melee_only": true
+          }
+        }
+      ],
+      "bot_expected_count": 4,
+      "scope": "Gladiator Riposte ranks1/5 native incoming damage; flat melee-only reduction.",
+      "final_revision_runtime_status": "PASS (scoped)",
+      "final_run": "20261022-093528-qa-classes-riposte-lab",
+      "runner_assertions_passed": 12,
+      "teardown_clean": true,
+      "source_fingerprint_prefix": "20e6e53aa41364da",
+      "evidence": [
+        "gamelab/results/20261022-093528-qa-classes-riposte-lab/run.json",
+        "gamelab/results/20261022-093528-qa-classes-riposte-lab/inner.json",
+        "gamelab/results/20261022-093528-qa-classes-riposte-lab/bot-results.jsonl"
+      ],
+      "recorded_run_seconds": 68.7
+    },
+    {
+      "scenario": "qa-firearms-magazine-crit",
+      "path": "gamelab/scenarios/qa-firearms-magazine-crit.json",
+      "scenario_sha256": "1e96eb5b75a9555b095cc46d3c71b3bfa63f9c5014b1ba527fa39f3a7b1a945c",
+      "timeout_seconds": 420,
+      "mods": [
+        "core",
+        "abyss",
+        "architect",
+        "bufftips",
+        "campaign",
+        "chatlinks",
+        "classes",
+        "colors",
+        "deathrecap",
+        "droptrade",
+        "farming",
+        "firearms",
+        "fishing",
+        "gambler",
+        "goldpet",
+        "groupcombo",
+        "keys",
+        "laststats",
+        "legacy",
+        "maps",
+        "mercenary",
+        "pets",
+        "puzzles",
+        "specs",
+        "stash",
+        "strongbox",
+        "summons",
+        "valuables",
+        "wavemode",
+        "weapons",
+        "weaponswap"
+      ],
+      "mod_count": 31,
+      "bots": [
+        {
+          "bot": "qa_firearms_ranks",
+          "kwargs": {
+            "section": "magazine_crit"
+          },
+          "expected_count": 1,
+          "expected": {
+            "ok": true
+          }
+        }
+      ],
+      "bot_expected_count": 1,
+      "scope": "Magazine critical-chance progression and native modifier observations; bot ok aggregates its retained row records.",
+      "final_revision_runtime_status": "PASS (scoped)",
+      "final_run": "20261022-093247-qa-firearms-magazine-crit-lab",
+      "runner_assertions_passed": 12,
+      "teardown_clean": true,
+      "source_fingerprint_prefix": "20e6e53aa41364da",
+      "evidence": [
+        "gamelab/results/20261022-093247-qa-firearms-magazine-crit-lab/run.json",
+        "gamelab/results/20261022-093247-qa-firearms-magazine-crit-lab/inner.json",
+        "gamelab/results/20261022-093247-qa-firearms-magazine-crit-lab/bot-results.jsonl"
+      ],
+      "recorded_run_seconds": 104.6
+    },
+    {
+      "scenario": "qa-firearms-hoarder-unequip",
+      "path": "gamelab/scenarios/qa-firearms-hoarder-unequip.json",
+      "scenario_sha256": "9d88309124ce01363f17d2f798522f7a7a9f3c531645b8cc29d63b9ac9a32219",
+      "timeout_seconds": 420,
+      "mods": [
+        "core",
+        "abyss",
+        "architect",
+        "bufftips",
+        "campaign",
+        "chatlinks",
+        "classes",
+        "colors",
+        "deathrecap",
+        "droptrade",
+        "farming",
+        "firearms",
+        "fishing",
+        "gambler",
+        "goldpet",
+        "groupcombo",
+        "keys",
+        "laststats",
+        "legacy",
+        "maps",
+        "mercenary",
+        "pets",
+        "puzzles",
+        "specs",
+        "stash",
+        "strongbox",
+        "summons",
+        "valuables",
+        "wavemode",
+        "weapons",
+        "weaponswap"
+      ],
+      "mod_count": 31,
+      "bots": [
+        {
+          "bot": "qa_firearms_hoarder",
+          "kwargs": {},
+          "expected_count": 1,
+          "expected": {
+            "ok": true
+          }
+        }
+      ],
+      "bot_expected_count": 1,
+      "scope": "Hoarder damage/capacity reversion after switching off a gun; bot ok aggregates retained row records.",
+      "final_revision_runtime_status": "PASS (scoped)",
+      "final_run": "20261022-093432-qa-firearms-hoarder-unequip-lab",
+      "runner_assertions_passed": 12,
+      "teardown_clean": true,
+      "source_fingerprint_prefix": "20e6e53aa41364da",
+      "evidence": [
+        "gamelab/results/20261022-093432-qa-firearms-hoarder-unequip-lab/run.json",
+        "gamelab/results/20261022-093432-qa-firearms-hoarder-unequip-lab/inner.json",
+        "gamelab/results/20261022-093432-qa-firearms-hoarder-unequip-lab/bot-results.jsonl"
+      ],
+      "recorded_run_seconds": 54.2
+    },
+    {
+      "scenario": "qa-specs-static-native",
+      "path": "gamelab/scenarios/qa-specs-static-native.json",
+      "scenario_sha256": "21b2c1857d3107c04613086d8b5be7fa4d370842fd0d3b815eeceaca88651d0a",
+      "timeout_seconds": 600,
+      "mods": [
+        "core",
+        "classes",
+        "specs"
+      ],
+      "mod_count": 3,
+      "bots": [
+        {
+          "bot": "qa_specs_static_native",
+          "kwargs": {},
+          "expected_count": 32,
+          "expected": {
+            "staticnative_char": true,
+            "staticnative_learned": true,
+            "staticnative_tt_own_button": true,
+            "staticnative_mm_own_button": true,
+            "staticnative_lifetime_setup": true,
+            "native_1_ready": true,
+            "native_1_complete": true,
+            "native_1_setup": true,
+            "native_1_first_crit": true,
+            "native_1_later_crits": true,
+            "native_1_other_cast": true,
+            "native_1_old_orb_critical": true,
+            "native_1_overlap_one_bonus": true,
+            "native_1_restored": true,
+            "native_2_ready": true,
+            "native_2_complete": true,
+            "native_2_setup": true,
+            "native_2_first_crit": true,
+            "native_2_later_crits": true,
+            "native_2_other_cast": true,
+            "native_2_old_orb_critical": true,
+            "native_2_overlap_one_bonus": true,
+            "native_2_restored": true,
+            "native_3_ready": true,
+            "native_3_complete": true,
+            "native_3_setup": true,
+            "native_3_first_crit": true,
+            "native_3_later_crits": true,
+            "native_3_other_cast": true,
+            "native_3_old_orb_critical": true,
+            "native_3_overlap_one_bonus": true,
+            "native_3_restored": true
+          }
+        }
+      ],
+      "bot_expected_count": 32,
+      "scope": "Three fixed native TT?MM trials; one first-crit bonus for persistent oldTT, no rearming after unrelated new cast.",
+      "final_revision_runtime_status": "PASS (scoped)",
+      "final_run": "20261022-091916-qa-specs-static-native-lab",
+      "runner_assertions_passed": 12,
+      "teardown_clean": true,
+      "evidence": [
+        "gamelab/results/20261022-091916-qa-specs-static-native-lab/run.json",
+        "gamelab/results/20261022-091916-qa-specs-static-native-lab/inner.json",
+        "gamelab/results/20261022-091916-qa-specs-static-native-lab/bot-results.jsonl"
+      ],
+      "source_fingerprint_prefix": "20e6e53aa41364da",
+      "recorded_run_seconds": 79.8
+    },
+    {
+      "scenario": "qa-specs-static-overlap",
+      "path": "gamelab/scenarios/qa-specs-static-overlap.json",
+      "scenario_sha256": "a4f61c09302bbd3a59fefc2c55091c9ca5062d77aa42a64138447e4cdc612a8e",
+      "timeout_seconds": 600,
+      "mods": [
+        "core",
+        "classes",
+        "specs"
+      ],
+      "mod_count": 3,
+      "bots": [
+        {
+          "bot": "qa_specs_static_overlap",
+          "kwargs": {},
+          "expected_count": 27,
+          "expected": {
+            "staticoverlap_char": true,
+            "staticoverlap_learned": true,
+            "staticoverlap_lane": true,
+            "staticoverlap_input_own_button": true,
+            "staticoverlap_rank_radius_lifetime": true,
+            "staticoverlap_restored": true,
+            "overlap_1_ready": true,
+            "overlap_1_complete": true,
+            "overlap_1_setup": true,
+            "overlap_1_two_casts": true,
+            "overlap_1_new_orb_crit": true,
+            "overlap_1_old_orb_crit": true,
+            "overlap_1_two_bonuses": true,
+            "overlap_2_ready": true,
+            "overlap_2_complete": true,
+            "overlap_2_setup": true,
+            "overlap_2_two_casts": true,
+            "overlap_2_new_orb_crit": true,
+            "overlap_2_old_orb_crit": true,
+            "overlap_2_two_bonuses": true,
+            "overlap_3_ready": true,
+            "overlap_3_complete": true,
+            "overlap_3_setup": true,
+            "overlap_3_two_casts": true,
+            "overlap_3_new_orb_crit": true,
+            "overlap_3_old_orb_crit": true,
+            "overlap_3_two_bonuses": true
+          }
+        }
+      ],
+      "bot_expected_count": 27,
+      "scope": "Three fixed overlapping TT?TT trials; independently isolated critical HP hit from each real cast and exactly4 earned stacks.",
+      "final_revision_runtime_status": "PASS (scoped)",
+      "final_run": "20261022-092036-qa-specs-static-overlap-lab",
+      "runner_assertions_passed": 12,
+      "teardown_clean": true,
+      "evidence": [
+        "gamelab/results/20261022-092036-qa-specs-static-overlap-lab/run.json",
+        "gamelab/results/20261022-092036-qa-specs-static-overlap-lab/inner.json",
+        "gamelab/results/20261022-092036-qa-specs-static-overlap-lab/bot-results.jsonl"
+      ],
+      "source_fingerprint_prefix": "20e6e53aa41364da",
+      "recorded_run_seconds": 79.0
+    },
+    {
+      "scenario": "qa-specs-return",
+      "path": "gamelab/scenarios/qa-specs-return.json",
+      "scenario_sha256": "b5c07484eff82d0800119893b680d1de0c7ef806b315126d7a39679ae1fe6c28",
+      "timeout_seconds": 600,
+      "mods": [
+        "core",
+        "classes",
+        "specs"
+      ],
+      "mod_count": 3,
+      "bots": [
+        {
+          "bot": "qa_specs_return",
+          "kwargs": {
+            "trials": 3
+          },
+          "expected_count": 42,
+          "expected": {
+            "returnqa_char": true,
+            "returnqa_learned": true,
+            "returnqa_orb": true,
+            "returnqa_input_own_button": true,
+            "returnqa_normal_geometry": true,
+            "returnqa_close_geometry": true,
+            "normal_1_setup": true,
+            "normal_1_ready": true,
+            "normal_1_damage": true,
+            "normal_1_returned": true,
+            "normal_1_caught": true,
+            "normal_1_outgoing_damage": true,
+            "normal_1_return_damage": true,
+            "normal_2_setup": true,
+            "normal_2_ready": true,
+            "normal_2_damage": true,
+            "normal_2_returned": true,
+            "normal_2_caught": true,
+            "normal_2_outgoing_damage": true,
+            "normal_2_return_damage": true,
+            "normal_3_setup": true,
+            "normal_3_ready": true,
+            "normal_3_damage": true,
+            "normal_3_returned": true,
+            "normal_3_caught": true,
+            "normal_3_outgoing_damage": true,
+            "normal_3_return_damage": true,
+            "close_1_setup": true,
+            "close_1_ready": true,
+            "close_1_damage": true,
+            "close_1_returned": true,
+            "close_1_caught": true,
+            "close_2_setup": true,
+            "close_2_ready": true,
+            "close_2_damage": true,
+            "close_2_returned": true,
+            "close_2_caught": true,
+            "close_3_setup": true,
+            "close_3_ready": true,
+            "close_3_damage": true,
+            "close_3_returned": true,
+            "close_3_caught": true
+          }
+        }
+      ],
+      "bot_expected_count": 42,
+      "scope": "Three ordinary +three close-wall trials; native return/catch and stack gains; ordinary outgoing+return HP damage retained.",
+      "final_revision_runtime_status": "PASS (scoped)",
+      "final_run": "20261022-092156-qa-specs-return-lab",
+      "runner_assertions_passed": 12,
+      "teardown_clean": true,
+      "source_fingerprint_prefix": "20e6e53aa41364da",
+      "evidence": [
+        "gamelab/results/20261022-092156-qa-specs-return-lab/run.json",
+        "gamelab/results/20261022-092156-qa-specs-return-lab/inner.json",
+        "gamelab/results/20261022-092156-qa-specs-return-lab/bot-results.jsonl"
+      ],
+      "recorded_run_seconds": 141.5
+    },
+    {
+      "scenario": "qa-content-stash-families",
+      "path": "gamelab/scenarios/qa-content-stash-families.json",
+      "scenario_sha256": "978a39a446c846e46f619a3240aeeca38c1d95e9d18ac3f5c0a7a6fb469f8441",
+      "timeout_seconds": 600,
+      "mods": [
+        "core",
+        "abyss",
+        "architect",
+        "bufftips",
+        "campaign",
+        "chatlinks",
+        "classes",
+        "colors",
+        "deathrecap",
+        "droptrade",
+        "farming",
+        "firearms",
+        "fishing",
+        "gambler",
+        "goldpet",
+        "groupcombo",
+        "keys",
+        "laststats",
+        "legacy",
+        "maps",
+        "mercenary",
+        "pets",
+        "puzzles",
+        "specs",
+        "stash",
+        "strongbox",
+        "summons",
+        "valuables",
+        "wavemode",
+        "weapons",
+        "weaponswap"
+      ],
+      "mod_count": 31,
+      "bots": [
+        {
+          "bot": "qa_content_stash_families",
+          "kwargs": {},
+          "expected_count": 1,
+          "expected": {
+            "ok": true
+          }
+        }
+      ],
+      "bot_expected_count": 1,
+      "scope": "Original four custom weapon family sort regression; aggregate ok contains retained item/sort checks.",
+      "final_revision_runtime_status": "PASS (scoped)",
+      "final_run": "20261022-092457-qa-content-stash-families-lab",
+      "runner_assertions_passed": 12,
+      "teardown_clean": true,
+      "source_fingerprint_prefix": "20e6e53aa41364da",
+      "evidence": [
+        "gamelab/results/20261022-092457-qa-content-stash-families-lab/run.json",
+        "gamelab/results/20261022-092457-qa-content-stash-families-lab/inner.json",
+        "gamelab/results/20261022-092457-qa-content-stash-families-lab/bot-results.jsonl"
+      ],
+      "recorded_run_seconds": 21.3
+    },
+    {
+      "scenario": "qa-content-stash-neighbors",
+      "path": "gamelab/scenarios/qa-content-stash-neighbors.json",
+      "scenario_sha256": "4cb08b1a283cb6755a2087db4d3301fffeb9b813cfd22294114f50bedf9c0685",
+      "timeout_seconds": 600,
+      "mods": [
+        "core",
+        "abyss",
+        "architect",
+        "bufftips",
+        "campaign",
+        "chatlinks",
+        "classes",
+        "colors",
+        "deathrecap",
+        "droptrade",
+        "farming",
+        "firearms",
+        "fishing",
+        "gambler",
+        "goldpet",
+        "groupcombo",
+        "keys",
+        "laststats",
+        "legacy",
+        "maps",
+        "mercenary",
+        "pets",
+        "puzzles",
+        "specs",
+        "stash",
+        "strongbox",
+        "summons",
+        "valuables",
+        "wavemode",
+        "weapons",
+        "weaponswap"
+      ],
+      "mod_count": 31,
+      "bots": [
+        {
+          "bot": "qa_content_stash_neighbors",
+          "kwargs": {},
+          "expected_count": 1,
+          "expected": {
+            "ok": true
+          }
+        }
+      ],
+      "bot_expected_count": 1,
+      "scope": "Eight custom/ordinary weapon sort regression; family ordering, multiset preservation and second-sort idempotence.",
+      "final_revision_runtime_status": "PASS (scoped)",
+      "final_run": "20261022-092519-qa-content-stash-neighbors-lab",
+      "runner_assertions_passed": 12,
+      "teardown_clean": true,
+      "source_fingerprint_prefix": "20e6e53aa41364da",
+      "evidence": [
+        "gamelab/results/20261022-092519-qa-content-stash-neighbors-lab/run.json",
+        "gamelab/results/20261022-092519-qa-content-stash-neighbors-lab/inner.json",
+        "gamelab/results/20261022-092519-qa-content-stash-neighbors-lab/bot-results.jsonl"
+      ],
+      "recorded_run_seconds": 21.4
+    },
+    {
+      "scenario": "qa-firearms-orb-variants-shotgun",
+      "path": "gamelab/scenarios/qa-firearms-orb-variants-shotgun.json",
+      "scenario_sha256": "bd3d9b267f08b72eeb17c30a7b640a4133098b243994e222afcb7bffd33325be",
+      "timeout_seconds": 420,
+      "mods": [
+        "core",
+        "abyss",
+        "architect",
+        "bufftips",
+        "campaign",
+        "chatlinks",
+        "classes",
+        "colors",
+        "deathrecap",
+        "droptrade",
+        "farming",
+        "firearms",
+        "fishing",
+        "gambler",
+        "goldpet",
+        "groupcombo",
+        "keys",
+        "laststats",
+        "legacy",
+        "maps",
+        "mercenary",
+        "pets",
+        "puzzles",
+        "specs",
+        "stash",
+        "strongbox",
+        "summons",
+        "valuables",
+        "wavemode",
+        "weapons",
+        "weaponswap"
+      ],
+      "mod_count": 31,
+      "bots": [
+        {
+          "bot": "qa_firearms_variants",
+          "kwargs": {
+            "section": "shotgun"
+          },
+          "expected_count": 1,
+          "expected": {
+            "ok": true
+          }
+        }
+      ],
+      "bot_expected_count": 1,
+      "scope": "Eighth production repair: native Dragon ground areas preserve all authored instances, exact initialized TTL/counter/callback/owner/exemption state and actual HP. Unchanged control/Triple neighbors remain; does not prove all repeated-cast/orb combinations.",
+      "final_revision_runtime_status": "PASS (scoped)",
+      "final_run": "20261022-085158-qa-firearms-orb-variants-shotgun-lab",
+      "runner_assertions_passed": 14,
+      "teardown_clean": true,
+      "evidence": [
+        "gamelab/results/20261022-085158-qa-firearms-orb-variants-shotgun-lab/run.json",
+        "gamelab/results/20261022-085158-qa-firearms-orb-variants-shotgun-lab/inner.json",
+        "gamelab/results/20261022-085158-qa-firearms-orb-variants-shotgun-lab/bot-results.jsonl"
+      ],
+      "final_revision_basis": "Root accepts this passing family regression across the later Arcane-consumer-only Python edit; relevant Firearms gameplay and harness sources remain unchanged. This does not assert an identical global fingerprint.",
+      "recorded_run_seconds": 106.4
+    },
+    {
+      "scenario": "qa-firearms-orb-variants-grenades",
+      "path": "gamelab/scenarios/qa-firearms-orb-variants-grenades.json",
+      "scenario_sha256": "05206608af368d94e010606fb03fe31a963b06f85ada5034630d29638c2bb434",
+      "timeout_seconds": 600,
+      "mods": [
+        "core",
+        "abyss",
+        "architect",
+        "bufftips",
+        "campaign",
+        "chatlinks",
+        "classes",
+        "colors",
+        "deathrecap",
+        "droptrade",
+        "farming",
+        "firearms",
+        "fishing",
+        "gambler",
+        "goldpet",
+        "groupcombo",
+        "keys",
+        "laststats",
+        "legacy",
+        "maps",
+        "mercenary",
+        "pets",
+        "puzzles",
+        "specs",
+        "stash",
+        "strongbox",
+        "summons",
+        "valuables",
+        "wavemode",
+        "weapons",
+        "weaponswap"
+      ],
+      "mod_count": 31,
+      "bots": [
+        {
+          "bot": "qa_firearms_variants",
+          "kwargs": {
+            "section": "grenades"
+          },
+          "expected_count": 1,
+          "expected": {
+            "ok": true
+          }
+        }
+      ],
+      "bot_expected_count": 1,
+      "scope": "Neighbor for shared read-only area trace: all declared native grenade quality effects, exact source TTL/countdown, native debuffs, actual target HP, ammo and absence/retention gates. No new production repair claimed.",
+      "final_revision_runtime_status": "PASS (scoped)",
+      "final_run": "20261022-085345-qa-firearms-orb-variants-grenades-lab",
+      "runner_assertions_passed": 12,
+      "teardown_clean": true,
+      "evidence": [
+        "gamelab/results/20261022-085345-qa-firearms-orb-variants-grenades-lab/run.json",
+        "gamelab/results/20261022-085345-qa-firearms-orb-variants-grenades-lab/inner.json",
+        "gamelab/results/20261022-085345-qa-firearms-orb-variants-grenades-lab/bot-results.jsonl"
+      ],
+      "final_revision_basis": "Root accepts this passing family regression across the later Arcane-consumer-only Python edit; relevant Firearms gameplay and harness sources remain unchanged. This does not assert an identical global fingerprint.",
+      "recorded_run_seconds": 258.7
+    },
+    {
+      "scenario": "qa-firearms-orb-variants-missiles",
+      "path": "gamelab/scenarios/qa-firearms-orb-variants-missiles.json",
+      "scenario_sha256": "9ec34b1e9ddb38d884297222ee79d980f86c24ff3c1e9de43979f12ff7b17f18",
+      "timeout_seconds": 900,
+      "mods": [
+        "core",
+        "abyss",
+        "architect",
+        "bufftips",
+        "campaign",
+        "chatlinks",
+        "classes",
+        "colors",
+        "deathrecap",
+        "droptrade",
+        "farming",
+        "firearms",
+        "fishing",
+        "gambler",
+        "goldpet",
+        "groupcombo",
+        "keys",
+        "laststats",
+        "legacy",
+        "maps",
+        "mercenary",
+        "pets",
+        "puzzles",
+        "specs",
+        "stash",
+        "strongbox",
+        "summons",
+        "valuables",
+        "wavemode",
+        "weapons",
+        "weaponswap"
+      ],
+      "mod_count": 31,
+      "bots": [
+        {
+          "bot": "qa_firearms_variants",
+          "kwargs": {
+            "section": "missiles"
+          },
+          "expected_count": 1,
+          "expected": {
+            "ok": true
+          }
+        }
+      ],
+      "bot_expected_count": 1,
+      "scope": "Independent source-predicted Fire/Ice/Poison integer damage from actual caster fields, bounded native Fire/Poison pool settling, every retained fixed control/quality trial, real native projectiles/HP/crit/clip. Original invalid finite-time ratio failures remain historical evidence.",
+      "final_revision_runtime_status": "PASS (scoped)",
+      "final_run": "20261022-090522-qa-firearms-orb-variants-missiles-lab",
+      "runner_assertions_passed": 12,
+      "teardown_clean": true,
+      "evidence": [
+        "gamelab/results/20261022-090522-qa-firearms-orb-variants-missiles-lab/run.json",
+        "gamelab/results/20261022-090522-qa-firearms-orb-variants-missiles-lab/inner.json",
+        "gamelab/results/20261022-090522-qa-firearms-orb-variants-missiles-lab/bot-results.jsonl"
+      ],
+      "final_revision_basis": "Root accepts this passing family regression across the later Arcane-consumer-only Python edit; relevant Firearms gameplay and harness sources remain unchanged. This does not assert an identical global fingerprint.",
+      "recorded_run_seconds": 504.6
+    }
+  ],
+  "optional_integration_neighbor": {
+    "scenario": "plan-specs",
+    "path": "gamelab/scenarios/plan-specs.json",
+    "scenario_sha256": "79eb7f9b4191d5f172da385da451bb73d0913c6052fbbbcc346508807765554f",
+    "timeout_seconds": 720,
+    "mods": [
+      "core",
+      "classes",
+      "specs"
+    ],
+    "mod_count": 3,
+    "bots": [
+      {
+        "bot": "plan_specs",
+        "kwargs": {
+          "sections": "winddancer"
+        },
+        "expected_count": 12,
+        "expected": {
+          "wind_char": true,
+          "wind_learned": true,
+          "wind_pg_cast": true,
+          "wind_pg_buff": true,
+          "wind_evade_chance": true,
+          "wind_sw_heal": true,
+          "wind_sw_timeout": true,
+          "wind_orb_binds": true,
+          "wind_lasting_gale": true,
+          "wind_tailwind": true,
+          "wind_lingering_breeze": true,
+          "wind_share_not_self": true
+        }
+      },
+      {
+        "bot": "plan_specs",
+        "kwargs": {
+          "sections": "bannerlord"
+        },
+        "expected_count": 10,
+        "expected": {
+          "banner_char": true,
+          "banner_learned": true,
+          "banner_raise": true,
+          "banner_dr_intensity": true,
+          "banner_feared_crest": true,
+          "banner_war_drum": true,
+          "banner_provisions": true,
+          "banner_plant": true,
+          "banner_plant_free": true,
+          "banner_plant_doubled": true
+        }
+      },
+      {
+        "bot": "plan_specs",
+        "kwargs": {
+          "sections": "invocation"
+        },
+        "expected_count": 11,
+        "expected": {
+          "inv_char": true,
+          "inv_learned": true,
+          "inv_tt_cast": true,
+          "inv_tt_spread": true,
+          "inv_orb_binds": true,
+          "inv_sc_cast": true,
+          "inv_sc_timer": true,
+          "inv_conduit": true,
+          "inv_release": true,
+          "inv_static_channel": true,
+          "inv_tt_orbs": true
+        }
+      },
+      {
+        "bot": "plan_specs",
+        "kwargs": {
+          "sections": "stormbringer"
+        },
+        "expected_count": 12,
+        "expected": {
+          "storm_char": true,
+          "storm_learned": true,
+          "storm_ec_cast": true,
+          "storm_ec_hits": true,
+          "storm_ec_return": true,
+          "storm_orb_binds": true,
+          "storm_gw_stack": true,
+          "storm_gw_expiry": true,
+          "storm_gw_cap": true,
+          "storm_gale_force": true,
+          "storm_wind_ward": true,
+          "storm_catch": true
+        }
+      },
+      {
+        "bot": "plan_specs",
+        "kwargs": {
+          "sections": "branding"
+        },
+        "expected_count": 23,
+        "expected": {
+          "brand_char": true,
+          "brand_learned": true,
+          "brand_cast": true,
+          "brand_ready": true,
+          "brand_feed": true,
+          "brand_claw": true,
+          "brand_refund": true,
+          "brand_expire": true,
+          "brand_transfer": true,
+          "brand_lone_cd": true,
+          "brand_orb_binds": true,
+          "brand_ee_max": true,
+          "brand_prolif_time": true,
+          "brand_combustion": true,
+          "brand_proliferation": true,
+          "brand_essence_twice": true,
+          "brand_essence_setup": true,
+          "brand_essence_target": true,
+          "brand_released_setup": true,
+          "brand_released": true,
+          "brand_empowerment": true,
+          "brand_magic": true,
+          "brand_magic_twice": true
+        }
+      },
+      {
+        "bot": "plan_specs",
+        "kwargs": {
+          "sections": "arcane"
+        },
+        "expected_count": 20,
+        "expected": {
+          "arc_char": true,
+          "arc_learned": true,
+          "arc_max_mana": true,
+          "arc_hp_mirror": true,
+          "arc_heal_converts": true,
+          "arc_loss_drains": true,
+          "arc_hit_drains": true,
+          "arc_floor": true,
+          "arc_blink": true,
+          "arc_blink_damage": true,
+          "arc_recast": true,
+          "arc_no_dash": true,
+          "arc_orb_binds": true,
+          "arc_far_step": true,
+          "arc_feedback": true,
+          "arc_feedback_blink": true,
+          "arc_conduit_solo": true,
+          "arc_void_barrier": true,
+          "arc_regen": true,
+          "arc_lethal": true
+        }
+      }
+    ],
+    "bot_expected_count": 88,
+    "scope": "Existing six-section fourth-spec integration checks; fixture/debug-only subcases retain their individual limits.",
+    "final_revision_runtime_status": "UNTESTED",
+    "final_run": null
+  },
+  "required_totals": {
+    "scenarios": 14,
+    "timeout_seconds": 6780,
+    "bot_expected_keys": 136
+  },
+  "with_optional_totals": {
+    "scenarios": 15,
+    "timeout_seconds": 7500,
+    "bot_expected_keys": 224
+  },
+  "fixed_trial_counts": {
+    "qa-specs-static-native": 3,
+    "qa-specs-static-overlap": 3,
+    "qa-specs-return": {
+      "ordinary": 3,
+      "close_wall": 3
+    }
+  },
+  "limits": [
+    "No true multiplayer/co-op proof.",
+    "Static delayed non-TT critical attribution remains outside TT-specific repair.",
+    "Rank/orb sweeps and ordinary HoH2 runs remain separately classified.",
+    "Compilation/load does not establish native gameplay behavior for all31 modules.",
+    "Fourteen required scopes now include the eighth Dragon gameplay repair and shared native-area/missile oracle neighbors. Deadline admission and actual serial runs remain root-owned; timeout totals are not elapsed-runtime predictions. Metadata alone proves no final-codePASS."
+  ],
+  "runtime_progress": {
+    "required_scoped_pass": 14,
+    "required_unverified": 0,
+    "complete": true,
+    "completion_scope": "The fourteen declared required regression scenarios only. All original failures and per-feature coverage limits remain.",
+    "overnight_goal_complete": false
+  },
+  "runtime_updated_at_utc": "2026-10-22T15:14:21.144309+00:00",
+  "time_basis": "recorded_run_seconds copies run.json seconds: elapsed wall time for that native-game run, including its run setup/teardown; it is not engine scene milliseconds.",
+  "post_verification_read_only_harness_change": {
+    "changed_file": "mods/gamelab-probe/scripts/GameLab/Probe.as",
+    "file_sha256": "e68e00a51ec7506944ea7c66225013635732ccf8ca576e26eb4a62fa73e1c3a2",
+    "change": "Three added lines expose existing record.mana*float(record.MaxMana()) as manaExact only when local actor is null and record is dead. No gameplay mutations or assertion changes.",
+    "root_reported_new_global_source_prefix": "d60d37c0dd92d0da",
+    "relevant_production_source_unchanged": true,
+    "basis": "Root reviewed exact three-line diff/hash and reports every production file and packaged archive unchanged. Independent peer review confirmed mutually exclusive live/dead serialization and existing record null guard.",
+    "all_fourteen_rerun_after_change": false,
+    "global_source_fingerprint_identical": false,
+    "compile_evidence": "gamelab/results/20261022-100030-qa-specs-arcane-barrier-lab/run.json",
+    "compile_result": "All3nativepasses exit0; full31mods enabled; no script errors. Barrier scenario FAILS geometry before any effect trial, so new dead-state field remains runtime-unexercised.",
+    "qualification": "Latest full31mod-all rerun passes on post-Probe d60d source. The other13 scoped production regressions retain explicit unchanged-relevant-production basis; all14 are not claimed rerun on this global harness fingerprint.",
+    "latest_final_as_full_stack_load_run": "20261022-100827-mod-all-lab",
+    "latest_full_stack_load_pass": true,
+    "latest_full_stack_load_guards": 14,
+    "dead_state_field_runtime_exercised": true,
+    "dead_state_field_validation": {
+      "run_id": "20261022-101134-qa-dead-state-precision-lab",
+      "runtime_status": "PASS (telemetry only)",
+      "evidence": [
+        "gamelab/results/20261022-101134-qa-dead-state-precision-lab/run.json",
+        "gamelab/results/20261022-101134-qa-dead-state-precision-lab/bot-results.jsonl",
+        "docs/generated/qa_dead_state_precision.json"
+      ],
+      "runner_assertions_passed": 12,
+      "native_effect_flags": 8,
+      "scope": "Controlled native fatal Player.Damage: same-frame live exact mana12.375, direct damage reply raw mana12.375, then dead/unspawned state manaExact12.375 versus truncated integer12, equal MaxMana. Independently validated every original precision gate and underlying batch fields.",
+      "limits": "Read-only dead-record telemetry contract only; no VoidBarrier/ability/ordinary-run/orb coverage credit. Controlled mana setter and enemy clear are explicitly fixture setup.",
+      "source_sha256": "85b04b38bdbd5b565c86bc880e571a48f03557fdd71709356d76ea8961a69739",
+      "source_files": 1167,
+      "source_delta_basis": "Root confirms only newQA bot+scenario after100827; production and sharedAS unchanged, Probe E68E hash remains."
+    },
+    "subsequent_qa_only_source_extension": {
+      "source_sha256": "85b04b38bdbd5b565c86bc880e571a48f03557fdd71709356d76ea8961a69739",
+      "files": 1167,
+      "delta": "New telemetry Python bot and full31 scenario only; all production/sharedAS/packaged archives unchanged.",
+      "mod_all_row_remains_actual_100827_d60d": true
+    }
+  }
+}

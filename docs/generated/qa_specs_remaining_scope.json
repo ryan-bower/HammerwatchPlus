@@ -1,0 +1,627 @@
+{
+  "status": "SOURCE_REMAINING_SCOPE_NATIVE_INCOMPLETE",
+  "authority": "Prioritize19 solo shared-behavior branches. Source identity-set counts are admissibility diagnostics, not a repeated Cartesian runtimequota and never nativePASS. Independently measured coefficients justify source-equivalent noninteracting selections only with explicit limits.",
+  "source_legality": {
+    "native_menu": "gamecode/sdk/hoh2/scripts/GUI/Menus/GiveSkillSphereMenu.as38-80,167-196,265-291",
+    "required": "learned reqSkills; no learned blockerSkills; parent learned before recurse; orb below authored levelSkillCost length; actual sphere menu pick for acquisition",
+    "same_offer_limit": "PickSkill excludes another choice from the same parent only within one three-card offer; does not prohibit later ownership across spheres",
+    "global_equip_limit": "No global equipped-orb count check in inspected FillPossibleSkills/GetAllSkillSpheres/PickSkill path. Counts remain source-admissible pending native UI selection evidence; do not infer from glorb setter acceptance.",
+    "built_exclusion_review": "Existing generated source inventory reports Specs built exclusions empty; independently recheck authored/native defs before per-set acquisition claims."
+  },
+  "class_diagnostics": [
+    {
+      "class": "ranger",
+      "spec": "Deadeye",
+      "authored_orbs": [
+        "hwp_ran_ec_charged_boomerang",
+        "hwp_ran_ec_lightning_rod",
+        "hwp_ran_ec_tailwind_catch",
+        "hwp_ran_gw_gale_force",
+        "hwp_ran_gw_wind_ward"
+      ],
+      "nonempty_identity_sets": 31,
+      "multi_identity_sets": 26
+    },
+    {
+      "class": "rogue",
+      "spec": "Winddancer",
+      "authored_orbs": [
+        "hwp_rog_pg_lasting_gale",
+        "hwp_rog_pg_tailwind",
+        "hwp_rog_sw_lingering_breeze",
+        "hwp_rog_sw_shared_breath"
+      ],
+      "nonempty_identity_sets": 15,
+      "multi_identity_sets": 11
+    },
+    {
+      "class": "sorcerer",
+      "spec": "Arcane",
+      "authored_orbs": [
+        "hwp_sor_bl_void_barrier",
+        "hwp_sor_bl_far_step",
+        "hwp_sor_lm_arcane_feedback",
+        "hwp_sor_lm_mana_conduit"
+      ],
+      "nonempty_identity_sets": 15,
+      "multi_identity_sets": 11
+    },
+    {
+      "class": "warlock",
+      "spec": "Branding",
+      "authored_orbs": [
+        "hwp_wlk_pb_combustion",
+        "hwp_wlk_pb_proliferation",
+        "hwp_wlk_ee_essence_empowerment",
+        "hwp_wlk_ee_released_essence"
+      ],
+      "nonempty_identity_sets": 15,
+      "multi_identity_sets": 11
+    },
+    {
+      "class": "warrior",
+      "spec": "Bannerlord",
+      "authored_orbs": [
+        "hwp_war_bs_feared_crest",
+        "hwp_war_bs_martyrs_banner",
+        "hwp_war_rc_war_drum",
+        "hwp_war_rc_shared_provisions"
+      ],
+      "nonempty_identity_sets": 15,
+      "multi_identity_sets": 11
+    },
+    {
+      "class": "wizard",
+      "spec": "Aerotheurge",
+      "authored_orbs": [
+        "hwp_wiz_tt_overcharge",
+        "hwp_wiz_tt_lightning_rod",
+        "hwp_wiz_tt_lingering_storm",
+        "hwp_wiz_tt_thunderclap",
+        "hwp_wiz_sc_static_channel",
+        "hwp_wiz_sc_conduit"
+      ],
+      "nonempty_identity_sets": 63,
+      "multi_identity_sets": 57
+    }
+  ],
+  "runtime_branch_counts": {
+    "all": 21,
+    "solo": 19,
+    "true_ally_blocked": 2
+  },
+  "prepared_next": [
+    {
+      "scenario": "qa-specs-essence-cadence",
+      "timeout": 900,
+      "manifest": "gamelab/results/qa-specs-drafts/resumed-essence-cadence/manifest.json",
+      "status": "SOURCE_PEER_READY_NATIVE_UNSTARTED_AFTER_PRIOR_TRANSPORT_ERROR",
+      "discriminates": "All5 EE time coefficients via faster actual native main-weapon cadence; original normal-cadence rank2/3 and4/5 aliases preserved.",
+      "limits": "Nmain165634 setup transportGameError stopped wrapper before thiscase. No nativecadence result."
+    },
+    {
+      "scenario": "qa-specs-static-mm-neighbor",
+      "timeout": 600,
+      "manifest": "gamelab/results/qa-specs-drafts/resumed-static-native-neighbor/manifest.json",
+      "status": "NATIVE_SETUP_TRANSPORT_FAIL_NO_ABILITY_VERDICT",
+      "discriminates": "Delayed old native MM crit after newerTT cast, actual HP/numeric! and3vs4staticstacks; tooltip/global-once interpretation remains explicit.",
+      "evidence": "docs/generated/qa_specs_static_mm_native.json",
+      "correction": "Source-only transport subbatch stage10c048e0; peer/native retest pending; no guard or global timeout relaxation."
+    },
+    {
+      "scenario": "qa-specs-branding-essence-boundaries",
+      "timeout": 600,
+      "manifest": "gamelab/results/qa-specs-drafts/resumed-branding-boundaries/manifest.json",
+      "status": "SOURCE_PEER_READY_NATIVE_UNTESTED",
+      "discriminates": "Three actual1 andthree9 Essence two-Claw casts; native ConvertStat pool260/300; same anchored cost/refund/source HP/spend/CD. Native ActorBuffStack intensity source verified477-482."
+    },
+    {
+      "scenario": "qa-specs-arcane-barrier-feedback-q1",
+      "timeout": 600,
+      "manifest": "gamelab/results/qa-specs-drafts/resumed-arcane-barrier-feedback/manifest.json",
+      "status": "SOURCE_PEER_READY_NATIVE_UNTESTED",
+      "discriminates": "Real protected loss vs incoming overkill bank; normal next elemental consumption/targetHP, expiry and true lethal post-Barrier control."
+    },
+    {
+      "scenario": "qa-specs-arcane-barrier-feedback-q2",
+      "timeout": 600,
+      "manifest": "gamelab/results/qa-specs-drafts/resumed-arcane-barrier-feedback/manifest.json",
+      "status": "SOURCE_PEER_READY_NATIVE_UNTESTED",
+      "discriminates": "Real protected loss vs incoming overkill bank; normal next elemental consumption/targetHP, expiry and true lethal post-Barrier control."
+    },
+    {
+      "scenario": "qa-specs-arcane-barrier-feedback-q3",
+      "timeout": 600,
+      "manifest": "gamelab/results/qa-specs-drafts/resumed-arcane-barrier-feedback/manifest.json",
+      "status": "SOURCE_PEER_READY_NATIVE_UNTESTED",
+      "discriminates": "Real protected loss vs incoming overkill bank; normal next elemental consumption/targetHP, expiry and true lethal post-Barrier control."
+    },
+    {
+      "scenario": "qa-specs-arcane-feedback-blink",
+      "timeout": 900,
+      "manifest": "gamelab/results/qa-specs-drafts/resumed-arcane-interactions/manifest.json",
+      "status": "SOURCE_PEER_READY_NATIVE_UNTESTED_DEFERRED_AT_USER_WRAP",
+      "discriminates": "Real damage-earned bank survives normal Blink/legal echo and waits for next actual elemental cast, then expires without reuse.",
+      "manifest_sha256": "24e8003fbacfd97266edbe58a563014f8c5e4c8d87261ab7c8e500293c57f8d9",
+      "limits": "Only Blink bank preservation and subsequent actual elemental use; no definite echo hit/count/amplitude or cursor-controller credit."
+    }
+  ],
+  "shared_branches": [
+    {
+      "id": "deadeye_return_lone_chain",
+      "spec": "Deadeye",
+      "skill_ids": [
+        "hwp_ran_electric_circuit"
+      ],
+      "orb_ids": [
+        "hwp_ran_ec_charged_boomerang",
+        "hwp_ran_ec_lightning_rod"
+      ],
+      "native_shared_branch": "Returning damage multiplier, lone-target fallback and per-hit lightning target count/radius share each outbound/return contact.",
+      "required_behavioral_selection": "BothBoomerang x all3Rod qualities; lone,one-neighbor,cap/excess and radiusinside/outside; isolate outgoing/return HP and strike targets.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Stormbringer.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "UNTESTED (specific interacting settings/branches)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "deadeye_catch_flight",
+      "spec": "Deadeye",
+      "skill_ids": [
+        "hwp_ran_electric_circuit",
+        "hwp_ran_gathering_winds"
+      ],
+      "orb_ids": [
+        "hwp_ran_ec_tailwind_catch",
+        "hwp_ran_ec_charged_boomerang",
+        "hwp_ran_ec_lightning_rod"
+      ],
+      "native_shared_branch": "Catch must preserve outbound/return hits and grant Tailwind once for the relevant real returning flight.",
+      "required_behavioral_selection": "Catch with bothBoomerang andRodbounds; wallclose/maxrange/owner-move/collision; actualHP +flight +catch +earnedstacks.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Stormbringer.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "PARTIAL (dedicated return repair baseline/regression; combined qualities not all isolated)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "deadeye_shared_tailwind_orbs",
+      "spec": "Deadeye",
+      "skill_ids": [
+        "hwp_ran_electric_circuit",
+        "hwp_ran_gathering_winds"
+      ],
+      "orb_ids": [
+        "hwp_ran_ec_tailwind_catch",
+        "hwp_ran_gw_gale_force",
+        "hwp_ran_gw_wind_ward"
+      ],
+      "native_shared_branch": "Catch/kill-earned Tailwind drives Gale extra projectiles and WardDR from shared expiring stack records.",
+      "required_behavioral_selection": "Actualcatch orkill earning; Gale2 x Ward2 at1..5stacks; rollingexpiry; initial Ward refresh blending; actual fanHP/projectiles and incomingHP.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Stormbringer.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "UNTESTED (specific interacting settings/branches)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "wind_gale_duration_speed",
+      "spec": "Winddancer",
+      "skill_ids": [
+        "hwp_rog_protective_gale"
+      ],
+      "orb_ids": [
+        "hwp_rog_pg_lasting_gale",
+        "hwp_rog_pg_tailwind"
+      ],
+      "native_shared_branch": "Lasting changes the same Gale lifetime that carries Tailwind movement.",
+      "required_behavioral_selection": "Allindividual coefficients +compatible identity sets; representative combined duration/speed boundaries justified from unchanged multiplicative fields, actualwalk and expiry.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Winddancer.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "UNTESTED (specific interacting settings/branches)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "wind_evade_heal_breeze",
+      "spec": "Winddancer",
+      "skill_ids": [
+        "hwp_rog_protective_gale",
+        "hwp_rog_second_wind"
+      ],
+      "orb_ids": [
+        "hwp_rog_sw_lingering_breeze"
+      ],
+      "native_shared_branch": "Gale evade can trigger SecondWind cooldown/heal and Breeze timed heals.",
+      "required_behavioral_selection": "Realnativeevade underGale, nohealwhileSWcooling; heal-cap, first/lastBreezetick and four-second expiry; Galeall5/SWall5 coefficient evidence remainsseparate.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Winddancer.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "UNTESTED (specific interacting settings/branches)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "wind_shared_breath",
+      "spec": "Winddancer",
+      "skill_ids": [
+        "hwp_rog_protective_gale",
+        "hwp_rog_second_wind"
+      ],
+      "orb_ids": [
+        "hwp_rog_sw_shared_breath",
+        "hwp_rog_pg_lasting_gale",
+        "hwp_rog_pg_tailwind",
+        "hwp_rog_sw_lingering_breeze"
+      ],
+      "native_shared_branch": "Actual teammate receives shared effects with local lifetime/heal constraints.",
+      "required_behavioral_selection": "Real secondplayer/hostclient, inside/outside range, removal/death/transition; never substitute NPCorPlayerRecord.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Winddancer.as"
+      ],
+      "true_ally_required": true,
+      "runtime_status": "BLOCKED (no true second-player runtime)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "arcane_incoming_barrier_feedback",
+      "spec": "Arcane",
+      "skill_ids": [
+        "hwp_sor_blink",
+        "hwp_sor_living_mana"
+      ],
+      "orb_ids": [
+        "hwp_sor_bl_void_barrier",
+        "hwp_sor_lm_arcane_feedback"
+      ],
+      "native_shared_branch": "Same nativeLivingHit computes actual lostmana, lethalbarrier cap and Feedbackbank.",
+      "required_behavioral_selection": "All3Feedback qualities withBarrier active vs expired; nonlethal/lethal; exactactual lostmana/cap/bank/HP; normalnextspellconsumption anddamage.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Arcane.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "UNTESTED (specific interacting settings/branches)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "arcane_blink_farstep_barrier",
+      "spec": "Arcane",
+      "skill_ids": [
+        "hwp_sor_blink"
+      ],
+      "orb_ids": [
+        "hwp_sor_bl_far_step",
+        "hwp_sor_bl_void_barrier"
+      ],
+      "native_shared_branch": "Same actual Blink creates protection and determines destination/landing AoE.",
+      "required_behavioral_selection": "All3FarStep: blocked/free endpoint and landingradius underBarrier; observed native movement/damage plus1000ms boundary.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Arcane.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "UNTESTED (specific interacting settings/branches)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "arcane_feedback_blink_skip",
+      "spec": "Arcane",
+      "skill_ids": [
+        "hwp_sor_blink",
+        "hwp_sor_living_mana"
+      ],
+      "orb_ids": [
+        "hwp_sor_lm_arcane_feedback"
+      ],
+      "native_shared_branch": "Blink must not consume Feedback reserved for next damaging spell.",
+      "required_behavioral_selection": "Bank from actualdamage, normalBlink, subsequent elementalcast consumes once; delayedprojectile/expiry/noempty-bank bonus.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Arcane.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "UNTESTED (specific interacting settings/branches)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "arcane_true_ally_conduit",
+      "spec": "Arcane",
+      "skill_ids": [
+        "hwp_sor_blink",
+        "hwp_sor_living_mana"
+      ],
+      "orb_ids": [
+        "hwp_sor_lm_mana_conduit",
+        "hwp_sor_bl_void_barrier",
+        "hwp_sor_lm_arcane_feedback"
+      ],
+      "native_shared_branch": "Lostmana and conversion interact with real ally ManaConduit.",
+      "required_behavioral_selection": "All3Conduit qualities/realally; range/caps/zero-loss/Barrierlethalcap/multipleallies/hostclient.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Arcane.as"
+      ],
+      "true_ally_required": true,
+      "runtime_status": "BLOCKED (no true second-player runtime)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "branding_combust_empower_spend",
+      "spec": "Branding",
+      "skill_ids": [
+        "hwp_wlk_pyrebrand",
+        "hwp_wlk_essence_extraction"
+      ],
+      "orb_ids": [
+        "hwp_wlk_pb_combustion",
+        "hwp_wlk_ee_essence_empowerment"
+      ],
+      "native_shared_branch": "Per-claw amount/radius uses sharedEssence, fire multiplier uses currentEssence, then firstclaw spends before nextbrand.",
+      "required_behavioral_selection": "3x3 interacting qualities; 0/1/9/10stack boundaries; onelegalrecast/twoisolatedbrands; firstclaw getscurrentamp, laterclawzeroamp; fullysettledHPmodel.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Branding.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "PARTIAL:7of9 quality couplings at0/10Essence nativePASS,42fixedtrials; c2/e2 andc3/e2 lane-only setupFAIL/zeroabilitytrials.1/9boundaries staged/nativeUNTESTED.",
+      "selection_is_source_inference": true,
+      "evidence": [
+        "docs/generated/qa_specs_branding_combo_original.json",
+        "docs/generated/qa_specs_branding_combo_fixed.json",
+        "docs/generated/qa_specs_branding_quality_pairs_native.json"
+      ]
+    },
+    {
+      "id": "branding_spread_combust_shared_pool",
+      "spec": "Branding",
+      "skill_ids": [
+        "hwp_wlk_pyrebrand",
+        "hwp_wlk_essence_extraction"
+      ],
+      "orb_ids": [
+        "hwp_wlk_pb_proliferation",
+        "hwp_wlk_pb_combustion"
+      ],
+      "native_shared_branch": "One dying brand fans stored value to multiple livebrands; each laterclaw shares oneEssencepool.",
+      "required_behavioral_selection": "Spreadall3 x Combustall3 meaningfulradius/countbounds; preservedstoredHP; MAX_BRANDS20 and no doublecount/expiredcompound.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Branding.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "UNTESTED (specific interacting settings/branches)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "branding_release_spread_empower",
+      "spec": "Branding",
+      "skill_ids": [
+        "hwp_wlk_pyrebrand",
+        "hwp_wlk_essence_extraction"
+      ],
+      "orb_ids": [
+        "hwp_wlk_ee_released_essence",
+        "hwp_wlk_pb_proliferation",
+        "hwp_wlk_pb_combustion",
+        "hwp_wlk_ee_essence_empowerment"
+      ],
+      "native_shared_branch": "Claw elitekills schedule Essence payout; it must respect sharedspend and later dynamicfire/cap.",
+      "required_behavioral_selection": "BothReleased qualities withcompatible authoredsets; lethal/nonlethal/otherkiller/windowexpiry/multiplevictims/cap9-10 and postpayoutfire. Existing10controlledkillcases scope separately.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Branding.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "PARTIAL: historical stale-FireFAIL140751 fixed byc9ac and identical-QA142518PASS, unchangedReleased10killcasesL143358PASS. Seven nonlethal spread/two-Claw quality couplings M nativePASS; elite payout+spend/cap/otherkiller/timewindow branches remain open.",
+      "selection_is_source_inference": true,
+      "evidence": [
+        "docs/generated/qa_specs_branding_combo_original.json",
+        "docs/generated/qa_specs_branding_combo_fixed.json",
+        "docs/generated/qa_specs_branding_quality_pairs_native.json"
+      ]
+    },
+    {
+      "id": "banner_carry_plant_crest_martyr",
+      "spec": "Bannerlord",
+      "skill_ids": [
+        "hwp_war_battlefield_standard"
+      ],
+      "orb_ids": [
+        "hwp_war_bs_feared_crest",
+        "hwp_war_bs_martyrs_banner"
+      ],
+      "native_shared_branch": "Carried/planted Standard states jointly define selfDR, allyDR and hostile aura.",
+      "required_behavioral_selection": "Allindividualqualities withbothidentityset; actualenemyHP/vulnerability and selfincomingHP inbothstates; radius/expiry; trueally extra remainsblocked.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Bannerlord.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "UNTESTED (specific interacting settings/branches)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "banner_warcry_drum_standard",
+      "spec": "Bannerlord",
+      "skill_ids": [
+        "hwp_war_battlefield_standard",
+        "hwp_war_righteous_crusade"
+      ],
+      "orb_ids": [
+        "hwp_war_rc_war_drum"
+      ],
+      "native_shared_branch": "Standard and Warcry state feed native WarDrum increment/cap/expiry and outgoingdamage.",
+      "required_behavioral_selection": "Raises/plant/recast/Warcry refresh sequence; capfirst/laststack; actual normalattack targetHP while buffsactive andreversion.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Bannerlord.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "UNTESTED (specific interacting settings/branches)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "banner_provisions_positive_hud",
+      "spec": "Bannerlord",
+      "skill_ids": [
+        "hwp_war_battlefield_standard",
+        "hwp_war_righteous_crusade"
+      ],
+      "orb_ids": [
+        "hwp_war_rc_shared_provisions",
+        "hwp_war_rc_war_drum",
+        "hwp_war_bs_martyrs_banner",
+        "hwp_war_bs_feared_crest"
+      ],
+      "native_shared_branch": "PositiveHUDbuff filtering determines Provisionsstacks/CDR as Standard/Warcry and other authored effects come/go.",
+      "required_behavioral_selection": "All3quality CDR coefficients pluseligible/debuff/nonHUD counts, capedge, carry/plant/Warcryduration transition; preserve actualnativeCD.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Bannerlord.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "UNTESTED (specific interacting settings/branches)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "wizard_focal_rod_targets",
+      "spec": "Invocation",
+      "skill_ids": [
+        "hwp_wiz_tempest_torrent"
+      ],
+      "orb_ids": [
+        "hwp_wiz_tt_overcharge",
+        "hwp_wiz_tt_lightning_rod"
+      ],
+      "native_shared_branch": "Focal changes period/target selection while Rod changes actual bolt count/radius on same persistent orb.",
+      "required_behavioral_selection": "Focal0control plus both authoredqualities1/2 x all3Rod qualities; lone/multiple/nearest/least-zapped/cap/radiusboundaries, actual targetHP and fullperiodtimestamps. Thunderclap separately has one builtquality.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Invocation.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "UNTESTED (specific interacting settings/branches)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "wizard_lingering_periodic_history",
+      "spec": "Invocation",
+      "skill_ids": [
+        "hwp_wiz_tempest_torrent"
+      ],
+      "orb_ids": [
+        "hwp_wiz_tt_lingering_storm",
+        "hwp_wiz_tt_overcharge",
+        "hwp_wiz_tt_lightning_rod"
+      ],
+      "native_shared_branch": "Longerorb lifetime changes number/history of periodic zaps under Focal/Rod.",
+      "required_behavioral_selection": "BothLingering qualities withFocal/Rod branchboundaries; first/lastperiod, expiry/noextra, targetredistribution and actualHP.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Invocation.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "UNTESTED (specific interacting settings/branches)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "wizard_thunderclap_terminal",
+      "spec": "Invocation",
+      "skill_ids": [
+        "hwp_wiz_tempest_torrent"
+      ],
+      "orb_ids": [
+        "hwp_wiz_tt_thunderclap",
+        "hwp_wiz_tt_lingering_storm",
+        "hwp_wiz_tt_lightning_rod"
+      ],
+      "native_shared_branch": "TerminalThunderclap follows persistentorb expiry and can overlap last periodicdamage.",
+      "required_behavioral_selection": "ClapwithbothLingering andRod bounds; oneactualterminalAoE, inside/outside target andnoearly/doubleblast.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Invocation.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "UNTESTED (specific interacting settings/branches)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "wizard_font_conduit_release",
+      "spec": "Invocation",
+      "skill_ids": [
+        "hwp_wiz_tempest_torrent",
+        "hwp_wiz_static_charge"
+      ],
+      "orb_ids": [
+        "hwp_wiz_sc_static_channel",
+        "hwp_wiz_sc_conduit"
+      ],
+      "native_shared_branch": "Same released Staticcharges determine mana refund and temporary castspeed.",
+      "required_behavioral_selection": "2x2 coupledqualities,0..5charge boundaries, actualpaidspell/refund/nativecastingtimeline/expiry; max5individual controls exist but combination not inferred.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Invocation.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "UNTESTED (specific interacting settings/branches)",
+      "selection_is_source_inference": true
+    },
+    {
+      "id": "wizard_persistent_cast_charge_identity",
+      "spec": "Invocation",
+      "skill_ids": [
+        "hwp_wiz_tempest_torrent",
+        "hwp_wiz_static_charge"
+      ],
+      "orb_ids": [
+        "hwp_wiz_tt_lingering_storm",
+        "hwp_wiz_tt_overcharge"
+      ],
+      "native_shared_branch": "Each actual cast may earn one first-critbonus; oldorb crit cannot borrow or rearm a newer casttoken.",
+      "required_behavioral_selection": "ExistingTT->MM andTT->TT originalFAIL/fixedPASS; reverseoldMM/newTT and delayednonTTsamecastsplit plus multiplepersistentorbs/expiry required.",
+      "source_paths": [
+        "mods/specs/scripts/HWP/Specs/Invocation.as"
+      ],
+      "true_ally_required": false,
+      "runtime_status": "PARTIAL (TT->MM andTT->TT fixednativePASS; generic nonTT delayedattribution remainsUNTESTED)",
+      "selection_is_source_inference": true
+    }
+  ],
+  "remaining_common_axes": {
+    "rank0": "Natural absent-skill/pre-specialization controls or source N/A for mandatory level1; no fabricated debug unlearn effect credit. Exact ordinary UI reachability required.",
+    "stack_boundaries": "0/1/cap-1/cap/excess; rollingexpiry; overlapping cast identity; no rearming old damage",
+    "cadence": "Native timestamps and source callback/order bounds, no wall-clock fitted thresholds; specific pendingEE and persistent-zap cases",
+    "acquisition_and_ui": "Native sphere contract before six class quality batches, exact eligibility/blockers/quality/multi-parent acquisition; rendered widget/screenshot inspection and actual skill/orb level increments. Ordinary enemy drop remains distinct.",
+    "lifecycle": "Learn/equip/respec transitions; save/cleanrestart; death/revive; mission/town/scene; ordinary native casts and effects in six prepared legal classes. Record real reachability and exact persisted state.",
+    "co_op": "SharedBreath1 andManaConduit3 qualities plus host/client/range/lifecycle require real second player. No NPC/record substitute. Banner/Martyr/Warcry true-ally shared-effect axes also remain separate blocked/untested limits despite scoped self-effect qualityPASS.",
+    "ordinary_skill_types": "Allsix built specs have one active plus one passive. Native inputs only for EC/Gale/Blink/Pyrebrand/Standard/Tempest; GatheringWinds/SecondWind/LivingMana/EssenceExtraction/RighteousCrusade/StaticCharge require actual natural triggers/state. No fabricated passive binding."
+  },
+  "quality_correction": {
+    "focal_coil": {
+      "id": "hwp_wiz_tt_overcharge",
+      "authored_qualities": [
+        1,
+        2
+      ],
+      "binds": [
+        0.04,
+        0.07
+      ]
+    },
+    "thunderclap": {
+      "id": "hwp_wiz_tt_thunderclap",
+      "authored_qualities": [
+        1
+      ],
+      "binds": [
+        1.5
+      ]
+    },
+    "basis": "Exact built_rank_binds/rank_range in source inventory; native trialcount is distinct."
+  },
+  "wrap_checkpoint": {
+    "reason": "User requested wrap at next natural stopping point for remote PR. Root chose terminal/clean Nmain boundary; no further coverage or native execution.",
+    "installed_source": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+    "installed_files": 1290,
+    "nmain": "15/17 terminal, all teardowns clean and source stable; StaticMM transportGameError stopped queue, EEcadence and Gladiator UNSTARTED.",
+    "counts_scope": "60/60 positive skill ranks scopedPASS;61/65 orb qualities scopedPASS and4 real-ally effects BLOCKED. This is not full mechanic/acquisition/lifecycle completion.",
+    "native_acquisition": "One WindWard1 native sphere acquisition and actual rendered menu verified163415; otherqualities/six full UI batches still unrun.",
+    "quality_couplings": "Brand Combustion?Empowerment7/9 pairs at0/10Essence:42fixedtrials/84nativecasts. c2/e2 andc3/e2 lane-only setupFAIL, no gameplay verdict.1/9 boundaries unrun.",
+    "repairs": "Return/catch and TT cast-identity scoped native regressions passed; Branding post-spend stat refresh verified by identical-QA140751FAIL?142518PASS and L neighbors. Generic nonTT delayed attribution remains open.",
+    "pending_plan": "O-v2 reviewed/read-only validated21 QA files. plan12c24378234a9accbb759da848bbe4d05b8adb716aeb5339f0dfea1185ed6113/script715ad659652b94de3857ff7a7738778e099297e7c9e7feaa330094d53d596ad4 remainUNAPPLIED.",
+    "scope_note": "No new Wind interaction files were written. Arcane394a plus3JSON and nav10c remain frozen in unapplied O-v2; Feedback?Blink44382 source-peer receipt reconciled only, separate future boundary.",
+    "remaining": "19solo shared behavior branches and2true-ally branches remain scoped per matrix; ordinary6-spec lifecycle/own-active use, acquisition/UI/rendered menus, rank0/stack/cadence/boundaries/respec/save/death/transition and authored interacting controls remain incomplete. No SourcePeerReady result is nativePASS."
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "name": "qa-classes-vanish-all-ranks",
+  "about": "Vanish all5positive ranks:120fixed godoff trueStrike Player.Damage hits per rank, actual Cloak birth/timer/HUD/nativeEvade/actual evasion, >=2procs and8000ms lockout plus natural expiry/reversion. Explicit survival HP refill fixture; no exact probability/movement coefficient/ordinary-play credit.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 900,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_proc_ranks",
+      "kwargs": {
+        "sections": "vanish"
+      },
+      "expect": {
+        "vanish_god_off": true,
+        "vanish_r1_actual_hurt_cloak": true,
+        "vanish_r2_actual_hurt_cloak": true,
+        "vanish_r3_actual_hurt_cloak": true,
+        "vanish_r4_actual_hurt_cloak": true,
+        "vanish_r5_actual_hurt_cloak": true,
+        "vanish_observed": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

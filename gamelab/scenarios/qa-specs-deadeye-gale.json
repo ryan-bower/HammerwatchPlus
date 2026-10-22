@@ -1,0 +1,66 @@
+{
+  "name": "qa-specs-deadeye-gale",
+  "about": "Ignored draft: two fixed trials perquality0/1/2, actual native25kills earn5Tailwind, native bow projectileangles and actualHP damage. No positive stack setter.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "classes",
+    "specs"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_specs_deadeye_gale_ward",
+      "kwargs": {
+        "section": "gale"
+      },
+      "expect": {
+        "galeqa_char": true,
+        "galeqa_learned": true,
+        "galeqa_lane": true,
+        "galeqa_arrow_input_own_button": true,
+        "galeqa_native_bow": true,
+        "galeqa_restored": true,
+        "gale_q0_equipped": true,
+        "gale_q0_t1_earned": true,
+        "gale_q0_t1_setup": true,
+        "gale_q0_t1_projectiles": true,
+        "gale_q0_t1_actual_hp": true,
+        "gale_q0_t2_earned": true,
+        "gale_q0_t2_setup": true,
+        "gale_q0_t2_projectiles": true,
+        "gale_q0_t2_actual_hp": true,
+        "gale_q1_equipped": true,
+        "gale_q1_t1_earned": true,
+        "gale_q1_t1_setup": true,
+        "gale_q1_t1_projectiles": true,
+        "gale_q1_t1_actual_hp": true,
+        "gale_q1_t2_earned": true,
+        "gale_q1_t2_setup": true,
+        "gale_q1_t2_projectiles": true,
+        "gale_q1_t2_actual_hp": true,
+        "gale_q2_equipped": true,
+        "gale_q2_t1_earned": true,
+        "gale_q2_t1_setup": true,
+        "gale_q2_t1_projectiles": true,
+        "gale_q2_t1_actual_hp": true,
+        "gale_q2_t2_earned": true,
+        "gale_q2_t2_setup": true,
+        "gale_q2_t2_projectiles": true,
+        "gale_q2_t2_actual_hp": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

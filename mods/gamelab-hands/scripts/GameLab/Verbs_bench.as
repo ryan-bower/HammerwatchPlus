@@ -62,6 +62,10 @@ namespace GameLab
 					continue;
 				if (units[i].GetDebugName().findFirst(BENCH_FILTER) < 0)
 					continue;
+				// FetchAllUnits returns broad-phase candidates; enforce the authored
+				// bench radius before Centre chooses the actual input aim.
+				if (dist(c, xy(units[i].GetPosition())) > m_radius)
+					continue;
 				m_dummies.insertLast(units[i]);
 				m_hp0.insertLast(a.GetHealth());
 			}
@@ -620,13 +624,17 @@ namespace GameLab
 		Json@ j = Reply(id, true);
 		j.Str("class", rec.playerClass is null ? "" : rec.playerClass.m_id).Int("level", rec.level)
 			.Int("str", int(st.Str)).Int("dex", int(st.Dex)).Int("int", int(st.Int)).Int("foc", int(st.Foc)).Int("vit", int(st.Vit))
-			.Int("mana", int(st.Mana)).Num("manaRegen", float(st.ManaRegen)).Int("spellPower", int(st.SpellPower))
+			.Int("mana", int(st.Mana)).Num("manaRegen", float(st.ManaRegen)).Raw("manaGain", formatFloat(float(st.ManaGain), "", 0, 9)).Int("spellPower", int(st.SpellPower))
 			.Int("attackPower", int(st.AttackPower)).Num("damageMul", float(st.DamageMul)).Num("castSpeed", float(st.CastSpeed))
 			.Num("spellCrit", float(st.SpellCritChance)).Num("spellCritDmg", float(st.SpellCritDamage))
 			.Int("mhPhys", int(mh.DamagePhysical)).Int("mhFire", int(mh.DamageFire)).Int("mhIce", int(mh.DamageIce))
 			.Int("mhLight", int(mh.DamageLightning)).Int("mhPoison", int(mh.DamagePoison))
 			.Num("mhCrit", float(mh.CritChance)).Num("mhCritDmg", float(mh.CritDamage)).Num("mhSpeed", float(mh.AttackSpeed))
-			.Int("ohPhys", int(oh.DamagePhysical)).Num("armorPen", float(st.ArmorPenetration));
+			.Int("ohPhys", int(oh.DamagePhysical)).Num("armorPen", float(st.ArmorPenetration))
+			.Int("health", int(st.Health)).Int("armor", int(st.Armor)).Num("moveSpeed", float(st.MoveSpeed))
+			.Num("evade", float(st.EvadeChance)).Int("thorns", int(st.Thorns))
+			.Int("resFire", int(st.ResistanceFire)).Int("resIce", int(st.ResistanceIce))
+			.Int("resLightning", int(st.ResistanceLightning)).Int("resPoison", int(st.ResistancePoison));
 		Emit(j);
 	}
 }

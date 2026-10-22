@@ -1,0 +1,204 @@
+{
+  "name": "qa-classes-thief-hoh2-run",
+  "about": "All31 content modules enabled. Separately labeled matched legal level20/common class weapon, all native base skills at rank1, five ordinary1x god-off Bandit Keep floors, naturally spawned boss with HP/defeat flag, actual equipment reward, unlocked town portal, exact gear/ranks/flag save-load, and separately controlled lethal damage/town/save-load. No teleport/cull/direct kills/god/HP setters during ordinary phase. Armor fixture uses four legal rare seeded ilvl20 pieces (quality4/two mods each), an explicitly empty back slot, and57primary. Native back_2b at10 actually requiresVit11; it is excluded from this matched fixture instead of adding off-stats. Melee ports use native approach-and-attack at22px with28px travel fire; ranged WitchHunter keeps90px kite/160px fire.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 2400,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_boss",
+      "kwargs": {
+        "cls": "hwp_thief",
+        "section": "prepare"
+      },
+      "expect": {
+        "prepared": true,
+        "fresh_starting_weapon": true,
+        "legal_level20_gear": true,
+        "primary57": true,
+        "potion5": true,
+        "fresh_boss_flag_absent": true,
+        "prepared_level20": true
+      }
+    },
+    {
+      "do": "restart",
+      "readback": {
+        "phase": "town",
+        "player.class": "hwp_thief",
+        "player.name": "QAThiefRun",
+        "player.level": 20,
+        "player.dead": false
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_boss",
+      "kwargs": {
+        "cls": "hwp_thief",
+        "section": "verify"
+      },
+      "expect": {
+        "verified": true,
+        "class_record": true,
+        "base_ranks": true,
+        "gear_persisted": true,
+        "primary_persisted": true,
+        "boss_flag_persisted": true,
+        "god_off": true,
+        "bag_persisted": true,
+        "reward_persisted": true
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_boss",
+      "kwargs": {
+        "cls": "hwp_thief",
+        "section": "ordinary"
+      },
+      "expect": {
+        "ordinary_god_off": true,
+        "ordinary_floors": true,
+        "boss_level": true,
+        "natural_boss": true,
+        "boss_actual_damage": true,
+        "boss_defeated": true,
+        "boss_reward_spawned": true,
+        "boss_reward_window": true,
+        "boss_reward_taken": true,
+        "natural_town_return": true,
+        "ordinary_class_survives": true,
+        "ordinary_gear_unchanged": true,
+        "ordinary_1x": true,
+        "ordinary_fresh_boss": true,
+        "ordinary_finishes_1x": true,
+        "ordinary_valid_prepared_fixture": true
+      }
+    },
+    {
+      "do": "restart",
+      "readback": {
+        "phase": "town",
+        "player.class": "hwp_thief",
+        "player.name": "QAThiefRun",
+        "player.level": {
+          "between": [
+            20,
+            2147483647
+          ]
+        },
+        "player.dead": false
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_boss",
+      "kwargs": {
+        "cls": "hwp_thief",
+        "section": "verify"
+      },
+      "expect": {
+        "verified": true,
+        "class_record": true,
+        "base_ranks": true,
+        "gear_persisted": true,
+        "primary_persisted": true,
+        "boss_flag_persisted": true,
+        "god_off": true,
+        "bag_persisted": true,
+        "reward_persisted": true
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_boss",
+      "kwargs": {
+        "cls": "hwp_thief",
+        "section": "death"
+      },
+      "expect": {
+        "death_damage_path": true,
+        "death_town_return": true
+      }
+    },
+    {
+      "do": "restart",
+      "readback": {
+        "phase": "town",
+        "player.class": "hwp_thief",
+        "player.name": "QAThiefRun",
+        "player.level": {
+          "between": [
+            20,
+            2147483647
+          ]
+        },
+        "player.dead": false
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_boss",
+      "kwargs": {
+        "cls": "hwp_thief",
+        "section": "verify"
+      },
+      "expect": {
+        "verified": true,
+        "class_record": true,
+        "base_ranks": true,
+        "gear_persisted": true,
+        "primary_persisted": true,
+        "boss_flag_persisted": true,
+        "god_off": true,
+        "bag_persisted": true,
+        "reward_persisted": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

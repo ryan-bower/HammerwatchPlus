@@ -1,0 +1,30 @@
+{
+  "name": "qa-module-chatlinks-native-standalone",
+  "about": "Solo native item-link commands/default/empty-off and inventory-context events. Real screenshots require independent visual review before persistent HWP chat text/slot/ilvl/colour credit. Controlled ilvl1 equipment fixture, no multiplayer claim.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "chatlinks"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_chatlinks_native",
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

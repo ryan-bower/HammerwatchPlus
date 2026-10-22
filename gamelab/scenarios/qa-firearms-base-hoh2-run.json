@@ -1,0 +1,206 @@
+{
+  "name": "qa-firearms-base-hoh2-run",
+  "about": "Legal level20 Firearms base build with all built class skills rank1, native requirements enabled, common20 rifle/four seeded legal rare20 armor/emptyback/dex57. Five actual1x god-off native Bandit Keep floors, mandatory encounter gates, real20000HP boss/reward/portal, exact gear/bag/rank/class persistence through town/save/load and separately controlled death. No ordinary teleport/cull/kills/HP/resource setters. Native Pilot primary combat proves run compatibility; per-active ordinary cast use remains separately recorded as unverified. First prepared restart is exactlylevel20; subsequent restart level gate admits legal native integer gains, then the bot requires exact equality to the persisted post-run level.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 2400,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_firearms_ordinary",
+      "kwargs": {
+        "cls": "hwp_firearms",
+        "section": "prepare"
+      },
+      "expect": {
+        "prepared": true,
+        "fresh_starting_weapon": true,
+        "legal_level20_gear": true,
+        "primary57": true,
+        "potion5": true,
+        "fresh_boss_flag_absent": true,
+        "native_requirements_enabled": true,
+        "prepared_level20": true
+      }
+    },
+    {
+      "do": "restart",
+      "readback": {
+        "phase": "town",
+        "player.class": "hwp_firearms",
+        "player.name": "QAFirearmsRun",
+        "player.level": 20,
+        "player.dead": false
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_firearms_ordinary",
+      "kwargs": {
+        "cls": "hwp_firearms",
+        "section": "verify"
+      },
+      "expect": {
+        "verified": true,
+        "class_record": true,
+        "base_ranks": true,
+        "gear_persisted": true,
+        "primary_persisted": true,
+        "boss_flag_persisted": true,
+        "god_off": true,
+        "bag_persisted": true,
+        "reward_persisted": true
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_firearms_ordinary",
+      "kwargs": {
+        "cls": "hwp_firearms",
+        "section": "ordinary"
+      },
+      "expect": {
+        "ordinary_god_off": true,
+        "ordinary_floors": true,
+        "boss_level": true,
+        "natural_boss": true,
+        "boss_actual_damage": true,
+        "boss_defeated": true,
+        "boss_reward_spawned": true,
+        "boss_reward_window": true,
+        "boss_reward_taken": true,
+        "natural_town_return": true,
+        "ordinary_class_survives": true,
+        "ordinary_gear_unchanged": true,
+        "ordinary_1x": true,
+        "ordinary_fresh_boss": true,
+        "ordinary_finishes_1x": true,
+        "ordinary_valid_prepared_fixture": true,
+        "ordinary_native_requirements": true
+      }
+    },
+    {
+      "do": "restart",
+      "readback": {
+        "phase": "town",
+        "player.class": "hwp_firearms",
+        "player.name": "QAFirearmsRun",
+        "player.level": {
+          "between": [
+            20,
+            2147483647
+          ]
+        },
+        "player.dead": false
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_firearms_ordinary",
+      "kwargs": {
+        "cls": "hwp_firearms",
+        "section": "verify"
+      },
+      "expect": {
+        "verified": true,
+        "class_record": true,
+        "base_ranks": true,
+        "gear_persisted": true,
+        "primary_persisted": true,
+        "boss_flag_persisted": true,
+        "god_off": true,
+        "bag_persisted": true,
+        "reward_persisted": true
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_firearms_ordinary",
+      "kwargs": {
+        "cls": "hwp_firearms",
+        "section": "death"
+      },
+      "expect": {
+        "death_damage_path": true,
+        "death_town_return": true
+      }
+    },
+    {
+      "do": "restart",
+      "readback": {
+        "phase": "town",
+        "player.class": "hwp_firearms",
+        "player.name": "QAFirearmsRun",
+        "player.level": {
+          "between": [
+            20,
+            2147483647
+          ]
+        },
+        "player.dead": false
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_firearms_ordinary",
+      "kwargs": {
+        "cls": "hwp_firearms",
+        "section": "verify"
+      },
+      "expect": {
+        "verified": true,
+        "class_record": true,
+        "base_ranks": true,
+        "gear_persisted": true,
+        "primary_persisted": true,
+        "boss_flag_persisted": true,
+        "god_off": true,
+        "bag_persisted": true,
+        "reward_persisted": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

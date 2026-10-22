@@ -194,11 +194,16 @@ namespace GameLab
 		int level = record.level;
 		int64 xp = record.experience;
 		p.Int("level", level).Int("xp", xp);
+		// Native earned and additional skill points; read-only fixture checks.
+		p.Int("skillFree", record.GetFreeSkillPoints()).Int("bonusSkillPoints", record.bonusSkillPts);
 		p.Int("hp", record.CurrentHealth()).Int("hpMax", record.MaxHealth());
 		p.Int("mana", record.CurrentMana()).Int("manaMax", record.MaxMana());
 		p.Bool("dead", record.IsDead());
 		auto plr = GetLocalPlayer();
 		p.Bool("spawned", plr !is null);
+		// Death removes the actor, but its record retains the same unrounded mana.
+		if (plr is null && record.IsDead())
+			p.Num("manaExact", record.mana * float(record.MaxMana()));
 		if (plr !is null)
 		{
 			vec3 pos = plr.m_unit.GetPosition();
@@ -310,7 +315,8 @@ namespace GameLab
 		e.Bool("usable", cast<IUsable>(b) !is null);
 		auto actor = cast<Actor>(b);
 		if (actor !is null)
-			e.Num("hp", actor.GetHealth()).Bool("dead", actor.IsDead());
+			e.Num("hp", actor.GetHealth()).Int("hpMax", actor.GetMaxHp())
+				.Num("hpExact", double(actor.GetHealth()) * double(actor.GetMaxHp())).Bool("dead", actor.IsDead());
 		e.Num("x", pos.x).Num("y", pos.y).Num("dist", dist(from, xy(pos)));
 		return e.Close();
 	}
@@ -319,6 +325,7 @@ namespace GameLab
 
 	// near [radius] [filter]: units within radius (default 200) of the player,
 	// nearest first, capped at NEAR_CAP; "truncated" reports how many were left out
+	// Actor hp stays a fraction; hpMax and hpExact report native maximum and current HP units.
 	void VerbNear(const string &in id, array<string>@ args)
 	{
 		auto plr = GetLocalPlayer();

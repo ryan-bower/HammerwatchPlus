@@ -1,0 +1,85 @@
+{
+  "name": "qa-keys-native-payload-all",
+  "about": "Controlled native CanUse false-to-true key gate, exact native key consumption, and independently observed legendary equipment / epic equipment / epic trinket payloads. Forced settings and spawn/teleport are fixtures. Does not prove negative button input, natural drop/lock chances, ordinary acquisition, co-op instancing or persistence.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "sleep",
+      "seconds": 1
+    },
+    {
+      "do": "bot",
+      "bot": "qa_keys_native_payload",
+      "kwargs": {},
+      "expect": {
+        "ok": true,
+        "mission_started": true,
+        "bronze_spawned": true,
+        "bronze_zero_keys": true,
+        "bronze_native_refusal": true,
+        "bronze_refusal_unchanged": true,
+        "bronze_key_ready": true,
+        "bronze_opened": true,
+        "bronze_key_consumed": true,
+        "bronze_native_gear": true,
+        "legendary_spawned": true,
+        "legendary_key_ready": true,
+        "legendary_opened": true,
+        "legendary_key_consumed": true,
+        "legendary_native_bonus": true,
+        "legendary_native_base": true,
+        "epic_spawned": true,
+        "epic_key_ready": true,
+        "epic_opened": true,
+        "epic_key_consumed": true,
+        "epic_native_bonus": true,
+        "epic_native_base": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

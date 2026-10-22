@@ -23,8 +23,8 @@
 		<array name="modifiers">
 			<array>
 				<dict>
-					<string name="class">Modifiers::Thorns</string>
-					<string name="physical-bind">thorns</string>
+					<string name="class">Modifiers::AddThorns</string>
+					<string name="thorns-bind">thorns</string>
 				</dict>
 			</array>
 		</array>

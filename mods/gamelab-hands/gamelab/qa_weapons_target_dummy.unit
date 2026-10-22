@@ -1,0 +1,56 @@
+<!-- GameLab endgame weapon QA only: stationary hostile target; 150000 HP; no defenses or buff immunities; vanilla dummy visuals/collision; no MP/NG+ scaling. Verify runtime max HP before measurements. -->
+<unit slot="doodad">
+	<behavior class="CompositeActorBehavior">
+		<int name="hp">150000</int>
+		<string name="type" />
+		<int name="res-poison">0</int>
+		<int name="res-lightning">0</int>
+		<int name="res-ice">0</int>
+		<int name="res-fire">0</int>
+		<int name="armor">0</int>
+		<bool name="targetable">true</bool>
+		<string name="team">enemy</string>
+		<bool name="targeting">false</bool>
+		<float name="mp-scale-fact">0</float>
+		<float name="ngp-scale">0</float>
+		<bool name="hide-health">false</bool>
+		<bool name="hide-damage-flash">false</bool>
+		<bool name="hide-damage-numbers">false</bool>
+		<array name="tags">
+			<string>target_dummy</string>
+		</array>
+		<dict name="movement">
+			<string name="class">PassiveMovement</string>
+			<string name="anim-idle">idle</string>
+		</dict>
+		<array name="skills" />
+	</behavior>
+	<scenes outlook="outlook" pop="pop">
+		<scene name="outlook">
+			<sprite origin="12 20" looping="true" texture="doodads/generic/target_dummy.png" material="system/default.mats:default-noxray">
+				<frame>24 0 24 23</frame>
+			</sprite>
+			<shadow>
+				<sprite origin="3 9" texture="doodads/generic/target_dummy.png">
+					<frame>84 0 10 12</frame>
+				</sprite>
+			</shadow>
+			<collision static="true">
+				<circle offset="0 0" radius="5" />
+			</collision>
+		</scene>
+		<scene name="pop">
+			<sprite origin="10 19" looping="true" texture="doodads/generic/target_dummy.png" material="system/default.mats:default-noxray">
+				<frame>21 23 21 22</frame>
+			</sprite>
+			<shadow>
+				<sprite origin="-1 8" texture="doodads/generic/target_dummy.png">
+					<frame>100 0 6  11</frame>
+				</sprite>
+			</shadow>
+			<collision static="true">
+				<circle offset="0 -1" radius="4" />
+			</collision>
+		</scene>
+	</scenes>
+</unit>

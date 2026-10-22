@@ -1,0 +1,536 @@
+{
+  "recorded_utc": "2026-10-22T19:32:28.440855+00:00",
+  "scope": "Minimum declared dependency contexts; exact original source assertions and native notes. These are scoped feature observations, not whole-module completion.",
+  "records": [
+    {
+      "scenario": "qa-module-gambler-standalone",
+      "run_id": "20261022-134219-qa-module-gambler-standalone-lab",
+      "verdict": "PASS",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "4b884e9e7983038f460853e0f4c06343ab04cc43467eb8c1b4ad4707358dcca1",
+        "files": 1225,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "runner_assertions": 14,
+      "clean": true,
+      "required": [
+        "rare_equipped",
+        "gambler_open",
+        "reroll_cost",
+        "reroll_changed",
+        "reroll_poor_refused",
+        "reroll_poor_message",
+        "reroll_message",
+        "token_poor_message",
+        "token_reroll",
+        "token_poor_refused",
+        "legendary_refused",
+        "bets_open",
+        "bets_affordable_enabled",
+        "bets_unaffordable_not_selected",
+        "bets_affordable_selected",
+        "bets_flip_animates",
+        "bets_gold_matches_result",
+        "bets_reshuffle_resets",
+        "bets_poor_flip_refused"
+      ],
+      "flags": {
+        "rare_equipped": true,
+        "gambler_open": true,
+        "reroll_cost": true,
+        "reroll_changed": true,
+        "reroll_poor_refused": true,
+        "reroll_poor_message": true,
+        "reroll_message": true,
+        "token_poor_message": true,
+        "token_reroll": true,
+        "token_poor_refused": true,
+        "legendary_refused": true,
+        "bets_open": true,
+        "bets_affordable_enabled": true,
+        "bets_unaffordable_not_selected": true,
+        "bets_affordable_selected": true,
+        "bets_flip_animates": true,
+        "bets_gold_matches_result": true,
+        "bets_reshuffle_resets": true,
+        "bets_poor_flip_refused": true
+      },
+      "failed_flags": [],
+      "native_notes": [
+        "rare_equipped: ilvl 3",
+        "gambler_open: HWPGamblerMenu",
+        "reroll_message: \\c00ff00Rerolled Mighty Ball Mace!\\d Check your new modifiers.",
+        "reroll_cost: gold 300000 -> 294000, ilvl 3",
+        "reroll_changed: [2, 2120585621, 0.35315, 3, 0, 1735200281, 199060290, -1096464197] -> [2, 2120585621, 0.35315, 3, 0, 1735200281, 199060290, -343358309]",
+        "reroll_poor_refused: gold 100 -> 100",
+        "reroll_poor_message: \\cff0000Not enough gold\\d - a reroll costs 6000 (2000 per item level).",
+        "token_reroll: tokens 3 -> 2, cost 1",
+        "token_poor_refused: tokens 0 -> 0",
+        "token_poor_message: \\cff0000Not enough bet tokens\\d - this reroll costs 1 (1 per 5 item levels). Fish sell for tokens.",
+        "legendary_refused: quality 16, gold 100100 -> 100100",
+        "bets_open: HWPGamblerMenu",
+        "bets_affordable_enabled: 5000 gold: [True, True, False, False, False]",
+        "bets_unaffordable_not_selected: '100 gold' -> '100 gold'",
+        "bets_affordable_selected: 1K gold",
+        "bets_flip_animates: 'Drawing'->'...\\n\\\\cff0000-1000 Gold\\\\d' d-1000; 'Drawing'->'...\\n\\\\cff0000-1000 Gold\\\\d' d-1000; 'Drawing'->'...\\n\\\\cff0000-1000 Gold\\\\d' d-1000; 'Drawing'->'...\\n\\\\cff0000-1000 Gold\\\\d' d-1000",
+        "bets_gold_matches_result: 'Drawing'->'...\\n\\\\cff0000-1000 Gold\\\\d' d-1000; 'Drawing'->'...\\n\\\\cff0000-1000 Gold\\\\d' d-1000; 'Drawing'->'...\\n\\\\cff0000-1000 Gold\\\\d' d-1000; 'Drawing'->'...\\n\\\\cff0000-1000 Gold\\\\d' d-1000",
+        "bets_poor_flip_refused: '\\\\cff0000Not enough gold\\\\d to cover that bet - pick a smaller one.', buttons [True, True, False, False, False]"
+      ],
+      "sections": [
+        "gambler",
+        "bets"
+      ]
+    },
+    {
+      "scenario": "qa-module-keys-standalone",
+      "run_id": "20261022-134342-qa-module-keys-standalone-lab",
+      "verdict": "PASS",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "4b884e9e7983038f460853e0f4c06343ab04cc43467eb8c1b4ad4707358dcca1",
+        "files": 1225,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "runner_assertions": 12,
+      "clean": true,
+      "required": [
+        "bag_slot_bought",
+        "bag_slot_paid",
+        "bag_slot_price_rises",
+        "bag_slot_full_greyed",
+        "bag_slot_full_refused",
+        "mission_started",
+        "silver_unlocked",
+        "ace_legendary_unlocked",
+        "ace_legendary_given",
+        "ace_epic_unlocked",
+        "ace_epic_no_legendary",
+        "floor_all_locked",
+        "floor_no_key_nothing",
+        "floor_key_opens",
+        "floor_loot_spawned"
+      ],
+      "flags": {
+        "bag_slot_bought": true,
+        "bag_slot_paid": true,
+        "bag_slot_price_rises": true,
+        "bag_slot_full_greyed": true,
+        "bag_slot_full_refused": true,
+        "mission_started": true,
+        "silver_unlocked": true,
+        "ace_legendary_unlocked": true,
+        "ace_legendary_given": true,
+        "ace_epic_unlocked": true,
+        "ace_epic_no_legendary": true,
+        "floor_all_locked": true,
+        "floor_no_key_nothing": true,
+        "floor_key_opens": true,
+        "floor_loot_spawned": true
+      },
+      "failed_flags": [],
+      "native_notes": [
+        "bag_slot_bought: cap ['24'] -> ['25']",
+        "bag_slot_paid: gold 300000 -> 299000, price 1000",
+        "bag_slot_price_rises: 1000 -> 2000",
+        "bag_slot_full_greyed: {'id': 'hwp_bag_slot', 'title': 'Bag Slot', 'gold': 0, 'available': False, 'icon': True, 'sub': 'Your bag is full size (32 slots)'}, cap ['32']",
+        "bag_slot_full_refused: cap ['32'], gold 5234000 -> 5234000",
+        "floor_all_locked: floor 0: locked 2, chests 2: ['chest_bronze_trinket.unit']",
+        "floor_no_key_nothing: failed: top usable is not the target",
+        "floor keygive: [HWP] +1 bronze key(s)",
+        "floor keys:  Lock chance 1, ace chance 0; party pool bronze 0 silver 0 gold 0 ace 0; locked chests this level: 2 bronze 2 silver 0 gold 0 ace 0; budget (left/total) bronze 1/1 silver 0/0 gold 0/0 ace 0/0, party 1",
+        "floor usables: {\"id\": \"c39\", \"ok\": true, \"usables\": [{\"unit\": {\"unit\": 29378, \"name\": \"items/chests/chest_bronze_trinket.unit\", \"behavior\": \"HWPChest\", \"usable\": true, \"x\": -528.0, \"y\": 352.0, \"dist\": 19.777}, \"canUse\": true, \"top\": true}], \"_t\": 58.386}",
+        "floor_key_opens: items/chests/chest_bronze_trinket.unit: done: used (no longer usable)",
+        "floor_loot_spawned: units within 80: 1 -> 2",
+        "silver_unlocked: done: used (no longer usable)",
+        "silver scan before: {\"id\": \"c46\", \"ok\": true, \"radius\": 300, \"x\": -528.0, \"y\": -48.0, \"level\": \"levels/generated.lvl\", \"place\": \"bandit_keep/keep_1\", \"enemyCount\": 0, \"usableCount\": 11, \"exitCount\": 1, \"enemies\": [], \"usables\": [{\"unit\": 27220, \"name\": \"items/skill_sphere.unit\", \"type\": \"SkillSphere\", \"x\": 272.0, \"y\": -440.0, \"dist\": 890.878, \"canUse\": true}, {\"unit\": 27935, \"name\": \"UseTrigger\", \"type\": \"UseTrigger\"",
+        "silver scan after: {\"id\": \"c49\", \"ok\": true, \"radius\": 300, \"x\": -451.968, \"y\": -48.0, \"level\": \"levels/generated.lvl\", \"place\": \"bandit_keep/keep_1\", \"enemyCount\": 0, \"usableCount\": 13, \"exitCount\": 1, \"enemies\": [], \"usables\": [{\"unit\": 27220, \"name\": \"items/skill_sphere.unit\", \"type\": \"SkillSphere\", \"x\": 272.0, \"y\": -440.0, \"dist\": 823.282, \"canUse\": true}, {\"unit\": 27935, \"name\": \"UseTrigger\", \"type\": \"UseTrigge",
+        "ace legendary chest at +90,45",
+        "ace_legendary_unlocked: done: used (no longer usable)",
+        "ace epic chest at +45,60",
+        "ace_epic_unlocked: done: used (no longer usable)"
+      ],
+      "sections": [
+        "merchant",
+        "mission",
+        "floor_chests",
+        "chests"
+      ]
+    },
+    {
+      "scenario": "qa-module-farming-standalone",
+      "run_id": "20261022-135031-qa-module-farming-standalone-lab",
+      "verdict": "FAIL",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "4b884e9e7983038f460853e0f4c06343ab04cc43467eb8c1b4ad4707358dcca1",
+        "files": 1225,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "runner_assertions": 12,
+      "clean": true,
+      "required": [
+        "well_no_can",
+        "farmer_open",
+        "can_bought",
+        "seed_bought",
+        "plots_found",
+        "planted",
+        "sprouts_shown",
+        "watered",
+        "wet_soil_shown",
+        "already_watered",
+        "well_refills",
+        "well_moved",
+        "abort_grows_nothing",
+        "failed_run_grows",
+        "dry_bigger_sprout",
+        "watered_shows_wet",
+        "dry_ready_after_two",
+        "watered_ready_after_one"
+      ],
+      "flags": {
+        "well_no_can": true,
+        "farmer_open": true,
+        "can_bought": true,
+        "seed_bought": true,
+        "plots_found": true,
+        "planted": true,
+        "sprouts_shown": true,
+        "watered": true,
+        "wet_soil_shown": true,
+        "already_watered": true,
+        "well_refills": true,
+        "well_moved": true,
+        "abort_grows_nothing": true,
+        "failed_run_grows": true,
+        "dry_bigger_sprout": false,
+        "watered_shows_wet": true,
+        "dry_ready_after_two": true,
+        "watered_ready_after_one": true
+      },
+      "failed_flags": [
+        "dry_bigger_sprout"
+      ],
+      "native_notes": [
+        "farm status: Farm: on, 4 plot(s) (patches) at -560,1040, 0 run(s) counted. Planted: - / No watering can. No seeds. The farmer sells them.",
+        "well_no_can: ['You need a watering can. The farmer sells one.']",
+        "npc_misc_farmer_man: not in this town, spawned beside the player",
+        "farmer_open: HWPFarmMenu",
+        "can_bought: 'No watering can' -> 'Mahogany Watering Can: 4/4 water', gold 5000 -> 4800",
+        "seed_bought: gold 4800 -> 4780, ['Bought a Mahogany Watering Can! It holds 4 water.', 'Bought a Cabbage seed (1).']",
+        "plots_found: 4 plot units",
+        "planted: window 'Empty soil. Plant one of your seeds:', then ; planted ['4: Cabbage (0/2)']",
+        "sprouts_shown: visuals ['0'] -> ['3']",
+        "watered: ['Watered the Cabbage (3/4 water left).']; ['4: Cabbage (0/2, watered)']",
+        "wet_soil_shown: visuals ['3'] -> ['6']",
+        "already_watered: 'Already watered since the last run.' ['Already watered since the last run.', 'Already watered since the last run.']",
+        "well_refills: ['Watering can filled (4).']",
+        "well_moved: ['well moved to -290,1044 (saved).\\n[NFO] [13:51:08] [menu] Refreshing keybind strings\\n[NFO] [13:51:08] Refreshing keybind strings\\n[NFO] [13:51:08] [GL] {\"ev\":\"hb\",\"n\":27,\"frames\":837,\"phase\":\"town\",\"window\":\"\",\"paused\":false,\"cmds\":28,\"exceptions\":0}\\n'], near [{'unit': -8, 'name': 'doodads/hwp/farm_well.unit', 'behavior': 'HWPLocalNPC', 'usable': True, 'hp': 1.0, 'hpMax': 100000, 'hpExact': 100000.0, 'dead': False, 'x': -290.0, 'y': 1044.0, 'dist': 0.0}]",
+        "before: 0 run(s), planted 4: Cabbage (0/2, watered)",
+        "aborted: town True, 0 run(s), planted 4: Cabbage (0/2, watered), ['the run was not finished (state 4): the crops do not grow']",
+        "failed: town True, 1 run(s), planted 4: Cabbage ready, ['a run finished: 1 counted']",
+        "abort_grows_nothing: 0 -> 0 runs, '4: Cabbage (0/2, watered)' -> '4: Cabbage (0/2, watered)'",
+        "failed_run_grows: 0 -> 1 runs, '4: Cabbage (0/2, watered)' -> '4: Cabbage ready'",
+        "npc_misc_farmer_man: not in this town, spawned beside the player",
+        "after one run (dry): ['crops/cabbage'], 4: Cabbage ready; new plot ['crops/cabbage'] -> watered ['crops/cabbage', 'farm_sprout', 'farm_wet'], 3: Cabbage (0/2, watered) | 4: Cabbage ready",
+        "after the next run: dry ['crops/cabbage'], watered ['crops/cabbage'], 3: Cabbage ready | 4: Cabbage ready",
+        "dry_bigger_sprout: ['crops/cabbage'] 4: Cabbage ready",
+        "watered_shows_wet: ['crops/cabbage', 'farm_sprout', 'farm_wet'] 3: Cabbage (0/2, watered) | 4: Cabbage ready",
+        "dry_ready_after_two: ['crops/cabbage']",
+        "watered_ready_after_one: ['crops/cabbage'] 3: Cabbage ready | 4: Cabbage ready"
+      ],
+      "sections": [
+        "farm",
+        "farm_abort",
+        "farm_cycle"
+      ]
+    },
+    {
+      "scenario": "qa-module-fishing-traps-standalone",
+      "run_id": "20261022-135256-qa-module-fishing-traps-standalone-lab",
+      "verdict": "PASS",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "4b884e9e7983038f460853e0f4c06343ab04cc43467eb8c1b4ad4707358dcca1",
+        "files": 1225,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "runner_assertions": 12,
+      "clean": true,
+      "required": [
+        "traps_prices",
+        "traps_fourth_refused",
+        "traps_listed"
+      ],
+      "flags": {
+        "traps_prices": true,
+        "traps_fourth_refused": true,
+        "traps_listed": true
+      },
+      "failed_flags": [],
+      "native_notes": [
+        "traps_prices: paid [500, 1000, 2000, 0]",
+        "traps_fourth_refused: Ye've 3 traps in the water already, matey. Any more an' the fish'll unionise.",
+        "traps_listed: ] [GL] {\"ev\":\"hb\",\"n\":13,\"frames\":403,\"phase\":\"town\",\"window\":\"\",\"paused\":false,\"cmds\":11,\"exceptions\":0}\n[NFO] [13:53:19] [menu] Refreshing keybind strings\n[NFO] [13:53:19] Refreshing keybind strings"
+      ],
+      "sections": [
+        "traps"
+      ]
+    },
+    {
+      "scenario": "qa-module-pets-standalone",
+      "run_id": "20261022-135321-qa-module-pets-standalone-lab",
+      "verdict": "PASS",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "4b884e9e7983038f460853e0f4c06343ab04cc43467eb8c1b4ad4707358dcca1",
+        "files": 1225,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "runner_assertions": 12,
+      "clean": true,
+      "required": [
+        "petshop_open",
+        "petshop_hoh1_listed",
+        "petshop_bought",
+        "pet_out",
+        "pet_picks_gold",
+        "pet_gold_off_ignores",
+        "pet_gold_on_picks",
+        "pet_follows"
+      ],
+      "flags": {
+        "petshop_open": true,
+        "petshop_hoh1_listed": true,
+        "petshop_bought": true,
+        "pet_out": true,
+        "pet_picks_gold": true,
+        "pet_gold_off_ignores": true,
+        "pet_gold_on_picks": true,
+        "pet_follows": true
+      },
+      "failed_flags": [],
+      "native_notes": [
+        "npc_pets: not in this town, spawned beside the player",
+        "petshop_open: PetsShopWindow, 28 entries",
+        "petshop_hoh1_listed: 25 HoH1-looking: Curiosity the Cat, Toucan Danger, Blackwing Raven, Ruby Scarab, Elf Imp, Ninja Imp, Ladybug, Glowing Scarab, Parrot, Toucan, Lemon Cat, Snow Cat, Nyan Cat, Border Collie, Corgi, Hound, Ice Wyrm, Fire Wyrm, Jade Wyrm, Festive Wyrm, Squire Adam, Squire Ron, Squire Jonas, Squire Roman",
+        "petshop_bought: Elf Imp: 60000 -> 56250, price 3750",
+        "pet_out: [{'unit': -2, 'name': 'players/pets/hwp/imp_elf.unit', 'behavior': 'HWPMiniPetWalking', 'usable': False, 'x': 1985.773, 'y': 596.038, 'dist': 2.645}]; ] [13:53:40] Refreshing keybind strings\n[NFO] [13:53:40] [GL] {\"ev\":\"hb\",\"n\":10,\"frames\":309,\"phase\":\"town\",\"window\":\"\",\"paused\":false,\"cmds\":13,\"exceptions\":0}",
+        "pet_picks_gold: 1 drop(s) at (-106, 106) -> 0 left, gold 0 -> 25, pet [{'unit': -1, 'name': 'players/pets/hwp/imp_elf.unit', 'behavior': 'HWPMiniPetWalking', 'usable': False, 'x': -240.0, 'y': -48.0, 'dist': 0.0}]",
+        "pet_gold_off_ignores: 1 -> 1 left, gold 25 -> 25; pets [[(-240, -48, -2)], [(-240, -48, -2)], [(-240, -48, -2)], [(-240, -48, -2)], [(-240, -48, -2)], [(-240, -48, -2)], [(-240, -48, -2)], [(-240, -48, -2)]]",
+        "pet_gold_on_picks: 0 left, gold 25 -> 50",
+        "pet_follows: walked 213 px; pet 2.816 px from the player after"
+      ],
+      "sections": [
+        "petshop",
+        "petgold"
+      ]
+    },
+    {
+      "scenario": "qa-module-goldpet-standalone",
+      "run_id": "20261022-135411-qa-module-goldpet-standalone-lab",
+      "verdict": "PASS",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "4b884e9e7983038f460853e0f4c06343ab04cc43467eb8c1b4ad4707358dcca1",
+        "files": 1225,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "runner_assertions": 12,
+      "clean": true,
+      "required": [
+        "vendor_spawned",
+        "goldpet_poor_refused",
+        "goldpet_bought",
+        "goldpet_tier2_gated",
+        "goldpet_in_run",
+        "goldpet_picks_gold",
+        "goldpet_after_floor_change"
+      ],
+      "flags": {
+        "vendor_spawned": true,
+        "goldpet_poor_refused": true,
+        "goldpet_bought": true,
+        "goldpet_tier2_gated": true,
+        "goldpet_in_run": true,
+        "goldpet_picks_gold": true,
+        "goldpet_after_floor_change": true
+      },
+      "failed_flags": [],
+      "native_notes": [
+        "vendor_spawned: build True, vendor [{'unit': 883, 'name': 'actors/npcs/town/hwp_pet_vendor.unit', 'behavior': 'CompositeActorBehaviorNPC', 'usable': True, 'hp': 1.0, 'hpMax': 150, 'hpExact': 150.0, 'dead': False, 'x': 1036.0, 'y': 728.002, 'dist': 956.872}]",
+        "goldpet_poor_refused: 'Need 10,000 gold', gold 9000 -> 9000",
+        "goldpet_bought: button {'d': 3, 'type': 'ScalableSpriteButtonWidget', 'id': 'buy-tier1', 'visible': True, 'w': 80, 'h': 18, 'enabled': True}, gold 10000 -> 0, cat [{'unit': 884, 'name': 'actors/pets/hwp_gold_collector_pet.unit', 'behavior': 'HWPGoldCollectorPet', 'usable': False, 'hp': 1.0, 'hpMax': 100, 'hpExact': 100.0, 'dead': False, 'x': 1984.008, 'y': 598.003, 'dist': 0.009}]",
+        "goldpet_tier2_gated: 'Requires Hunter Lodge Tier 2', button {'d': 3, 'type': 'ScalableSpriteButtonWidget', 'id': 'buy-tier2', 'visible': True, 'w': 80, 'h': 18, 'enabled': True}, gold 60000 -> 60000",
+        "goldpet_in_run: [{'unit': 29412, 'name': 'actors/pets/hwp_gold_collector_pet.unit', 'behavior': 'HWPGoldCollectorPet', 'usable': False, 'hp': 1.0, 'hpMax': 100, 'hpExact': 100.0, 'dead': False, 'x': -502.042, 'y': -33.782, 'dist': 29.596}]",
+        "goldpet_picks_gold: 1 -> 0 left, gold 0 -> 25",
+        "goldpet_after_floor_change: [{'unit': 6532, 'name': 'actors/pets/hwp_gold_collector_pet.unit', 'behavior': 'HWPGoldCollectorPet', 'usable': False, 'hp': 1.0, 'hpMax': 100, 'hpExact': 100.0, 'dead': False, 'x': -241.095, 'y': -55.062, 'dist': 7.146}]"
+      ],
+      "sections": [
+        "goldpet",
+        "goldpet_run"
+      ]
+    },
+    {
+      "scenario": "qa-module-campaign-portal-standalone",
+      "run_id": "20261022-135503-qa-module-campaign-portal-standalone-lab",
+      "verdict": "PASS",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "4b884e9e7983038f460853e0f4c06343ab04cc43467eb8c1b4ad4707358dcca1",
+        "files": 1225,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "runner_assertions": 12,
+      "clean": true,
+      "required": [
+        "portal_in_town",
+        "portal_locked_says_why",
+        "portal_offers_tower",
+        "portal_offers_hoh1"
+      ],
+      "flags": {
+        "portal_in_town": true,
+        "portal_locked_says_why": true,
+        "portal_offers_tower": true,
+        "portal_offers_hoh1": true
+      },
+      "failed_flags": [],
+      "native_notes": [
+        "portal_in_town: [{'unit': 868, 'name': 'doodads/hwp/forsaken_portal.unit', 'behavior': 'CompositeActorBehaviorNPC', 'usable': True, 'hp': 1.0, 'hpMax': 100000, 'hpExact': 100000.0, 'dead': False, 'x': 984.0, 'y': -232.0, 'dist': 1299.577}]",
+        "portal_locked_says_why: use {'id': 'c6', 'ok': True, 'unit': 'doodads/hwp/forsaken_portal.unit', 'window': '', '_t': 14.464}, window ''",
+        "portal_offers_tower: WindowMission: [('The Forsaken Tower', '18 floors'), ('The Forsaken Tower (HoH1 levels)', '18 floors')]",
+        "portal_offers_hoh1: 2 missions"
+      ],
+      "sections": [
+        "portal"
+      ]
+    },
+    {
+      "scenario": "qa-module-wave-standalone",
+      "run_id": "20261022-135524-qa-module-wave-standalone-lab",
+      "verdict": "PASS",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "4b884e9e7983038f460853e0f4c06343ab04cc43467eb8c1b4ad4707358dcca1",
+        "files": 1225,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "runner_assertions": 12,
+      "clean": true,
+      "required": [
+        "statue_open",
+        "statue_loadout",
+        "wave_ngp5",
+        "clock_kills",
+        "rank_up_absent",
+        "rank_unchanged"
+      ],
+      "flags": {
+        "statue_open": true,
+        "statue_loadout": true,
+        "wave_ngp5": true,
+        "clock_kills": true,
+        "rank_up_absent": true,
+        "rank_unchanged": true
+      },
+      "failed_flags": [],
+      "native_notes": [
+        "statue_open: WindowSurvivalMission: [('Wave Arena', '')]",
+        "statue_loadout: window MissionLoadoutMenu, ngp-text 'hello'",
+        "wave_ngp5: phase mission, level levels/generated.lvl, ngp 5.0",
+        "dead after 37 s real at 16x (~9 game min), window DeadMenu",
+        "clock_kills: dead True after 37 s",
+        "rank_unchanged: rank 2 -> 2, town True"
+      ],
+      "sections": [
+        "waverank",
+        "wave_timeout"
+      ]
+    },
+    {
+      "scenario": "qa-module-summons-standalone",
+      "run_id": "20261022-135645-qa-module-summons-standalone-lab",
+      "verdict": "PASS",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "4b884e9e7983038f460853e0f4c06343ab04cc43467eb8c1b4ad4707358dcca1",
+        "files": 1225,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "runner_assertions": 12,
+      "clean": true,
+      "required": [
+        "crusader_setup",
+        "summons_follow",
+        "summons_keep_hp",
+        "dead_summons_stay",
+        "no_summons_in_town"
+      ],
+      "flags": {
+        "crusader_setup": true,
+        "summons_follow": true,
+        "summons_keep_hp": true,
+        "dead_summons_stay": true,
+        "no_summons_in_town": true
+      },
+      "failed_flags": [],
+      "native_notes": [
+        "crusader_setup: {'id': 'c6', 'ok': True, 'class': 'priest_crusader', '_t': 15.319} {'id': 'c7', 'ok': True, 'skill': 'call_crusaders', 'raised': 1, 'level': 2, '_t': 17.136}",
+        "before exit: 2 crusader(s) ['crusader_pikeman.unit', 'crusader_pikeman.unit'] hp [0.5, 0.5]",
+        "summons_follow: HWP restored 0, on arrival 2 hp [0.5, 0.5], 3 s later 2",
+        "summons_keep_hp: hp before [0.5, 0.5] on arrival [0.5, 0.5]",
+        "status on floor 2: ng keybind strings\n[NFO] [13:57:23] [GL] {\"ev\":\"hb\",\"n\":5,\"frames\":153,\"phase\":\"mission\",\"window\":\"\",\"paused\":false,\"cmds\":3,\"exceptions\":0}",
+        "dead_summons_stay: killed 2 hp [0.26, 0.218], fresh before the exit 0 hp [], on arrival 2 hp [1.0, 1.0], restore lines [], frames\":92,\"phase\":\"mission\",\"window\":\"\",\"paused\":false,\"cmds\":2,\"exceptions\":0}",
+        "no_summons_in_town: town True, crusaders on arrival 0 [], 6] [menu] Refreshing keybind strings\n[NFO] [13:57:36] Refreshing keybind strings"
+      ],
+      "sections": [
+        "summons"
+      ]
+    },
+    {
+      "scenario": "qa-module-groupcombo-solo-standalone",
+      "run_id": "20261022-135738-qa-module-groupcombo-solo-standalone-lab",
+      "verdict": "PASS",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "4b884e9e7983038f460853e0f4c06343ab04cc43467eb8c1b4ad4707358dcca1",
+        "files": 1225,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "runner_assertions": 12,
+      "clean": true,
+      "required": [
+        "solo_in_combo",
+        "solo_no_group_buff"
+      ],
+      "flags": {
+        "solo_in_combo": true,
+        "solo_no_group_buff": true
+      },
+      "failed_flags": [],
+      "native_notes": [
+        "combo skill {'id': 'c8', 'ok': True, 'skill': 'combo_kills', 'raised': 1, 'level': 1, '_t': 20.698}",
+        "combo verb {'id': 'c9', 'ok': True, 'combo': True, '_t': 20.989}, buffs seen [], status Group combo: 1/1 players in combo, unity cooldown 0s, enabled yes",
+        "solo_in_combo: {'id': 'c9', 'ok': True, 'combo': True, '_t': 20.989}",
+        "solo_no_group_buff: group buffs [], Group combo: 1/1 players in combo, unity cooldown 0s, enabled yes"
+      ],
+      "sections": [
+        "solo_combo"
+      ]
+    }
+  ],
+  "limits": {
+    "gambler": "Four sampled bets all lost; native gold matched each result. Winning/jackpot payout coefficients and distribution remain open. Declared rare-item fixture and actual modifier/Gold/token changes observed; no UI layout or saved reroll state claim.",
+    "keys": "Old zero-key test never reached the chest as top usable; that flag is uncredited. Old Ace bonus flags were log-based. Stronger fresh chest/key/type/quality evidence is separately recorded in qa_keys_native_payload_evidence.json.",
+    "farming": "Only basic shop/plant/water/well controls are independently credited here. Prior watering invalidated the later dry-growth precondition; fresh12+6 scenario split installed but native rerun pending.",
+    "fishing": "Only trap purchase prices500/1000/2000 and fourth refusal/list cap3. No trap production, payout, persistence or natural fishing coverage.",
+    "pets": "28 shop rows,25 heuristic HoH1-looking titles/icons; one actual ElfImp purchase3750. Gold25?50 through on/off/on and213px walk with pet2.816px away. This does not prove every authored pet ID, icon, dye, attack or model.",
+    "goldpet": "Controlled Hunter Lodge tier1 and currency:9000 refused,10000 purchase, tier2 refused; actual collector and coin pickup across forced floor selection. No tier2/3, ordinary acquisition, all-town geometry or reload proof.",
+    "campaign": "Actual native mission list contains The Forsaken Tower18floors and The Forsaken Tower(HoH1 levels)18floors after controlled intro flag; pre-intro refuses. No mission traversal/boss/reward proof.",
+    "wavemode": "Native NG+5 entry; separate rank2 timeout died after37real seconds at16x, rank2 retained. No exact native600000ms boundary, wave advancement/victory or boss/reward proof.",
+    "summons": "Two native Crusaders retained0.5HP across exit without duplication. HWP restored0; stock-engine carry compatibility is proved, positive HWP shortfall restoration remains open. Dead wounded units absent after next exit; fresh passive summons at fullHP and initial town absence distinguished.",
+    "groupcombo": "Controlled solo combo active across repeated samples with1/1 status and no group buff. Actual ally/host/client behavior remains blocked without a real second participant."
+  }
+}

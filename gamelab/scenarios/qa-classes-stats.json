@@ -1,0 +1,24 @@
+{
+  "name": "qa-classes-stats",
+  "about": "Live applied stats at every rank1-5 for10 HoH1 passives: Sidestep,ViciousCuts,QuickHands,ArenaMastery,Riposte,TridentMastery,Zeal,Brand,SilverBolts,Tracker. Includes native remaining-chance combination for evade/crit. Proc and ordinary combat coverage is separate.",
+  "fixture": "town-paladin",
+  "mods": ["core", "classes"],
+  "timeout": 600,
+  "steps": [
+    {"do": "console", "line": "e_cheats 1"},
+    {"do": "console", "line": "show_chat"},
+    {"do": "bot", "bot": "qa_class_stats", "expect": {
+      "sidestep_all_ranks": true,
+      "vicious_cuts_all_ranks": true,
+      "quick_hands_all_ranks": true,
+      "arena_mastery_all_ranks": true,
+      "riposte_all_ranks": true,
+      "trident_mastery_all_ranks": true,
+      "zeal_all_ranks": true,
+      "brand_all_ranks": true,
+      "silver_bolts_all_ranks": true,
+      "tracker_all_ranks": true
+    }},
+    {"do": "log_clean"}
+  ]
+}

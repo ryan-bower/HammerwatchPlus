@@ -1,0 +1,63 @@
+{
+  "name": "qa-classes-witchhunter-base-ranks",
+  "about": "Full31-module controlled low/max base effects. Knives/Gladius use ordinary unique bound-button input with separate empty-field native trajectory and actual targetHP damage (noncrit fixture restored). Position Smoke/Net/Ward use explicit controlled native activation with center/outside controls and collider-aware low/max radius-discriminating point; Ward requires actual damage scaling. Pyre requires owned HP200/600, native repeated burns and8s unit lifetime with damage stopping after expiry. No exhaustive exact radius-boundary or normal cursor-targeting claim. Native reused Grappling Hook has only1rank and remains covered by baseline movement.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 700,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_base",
+      "kwargs": {
+        "family": "witchhunter"
+      },
+      "expect": {
+        "pyre_low_max": true,
+        "ward_low_max": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

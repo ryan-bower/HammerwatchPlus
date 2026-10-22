@@ -38,6 +38,7 @@
 				<dict>
 					<string name="class">Modifiers::SkillTriggerEffect</string>
 					<string name="trigger">criticalhit</string>
+					<bool name="override-skill-info">true</bool>
 					<string name="skill-type">spell</string>
 					<string name="not-skill-id">hwp_wiz_static_charge</string>
 					<vec2 name="chance">1 1</vec2>
@@ -49,6 +50,7 @@
 				<dict>
 					<string name="class">Modifiers::SkillTriggerEffect</string>
 					<string name="trigger">castspell</string>
+					<bool name="override-skill-info">true</bool>
 					<string name="skill-type">spell</string>
 					<vec2 name="chance">1 1</vec2>
 					<bool name="target-self">true</bool>

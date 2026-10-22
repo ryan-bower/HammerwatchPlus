@@ -1,0 +1,68 @@
+{
+  "name": "qa-specs-deadeye-ward",
+  "about": "Ignored draft: two fixed trials perquality0/1/2, actual native25kills earn5Tailwind, native hostilePure200 Player.Damage actualHP185/170 plus noorb200 and naturalexpiryreversion. No positive stack setter.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "classes",
+    "specs"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_specs_deadeye_gale_ward",
+      "kwargs": {
+        "section": "ward"
+      },
+      "expect": {
+        "galeqa_char": true,
+        "galeqa_learned": true,
+        "galeqa_lane": true,
+        "galeqa_arrow_input_own_button": true,
+        "galeqa_native_bow": true,
+        "galeqa_restored": true,
+        "ward_god_off": true,
+        "ward_q0_equipped": true,
+        "ward_q0_t1_earned": true,
+        "ward_q0_t1_native_dr": true,
+        "ward_q0_t1_expires_reverts": true,
+        "ward_q0_t2_earned": true,
+        "ward_q0_t2_native_dr": true,
+        "ward_q0_t2_expires_reverts": true,
+        "ward_q1_equipped": true,
+        "ward_q1_t1_earned": true,
+        "ward_q1_t1_native_dr": true,
+        "ward_q1_t1_expires_reverts": true,
+        "ward_q1_t2_earned": true,
+        "ward_q1_t2_native_dr": true,
+        "ward_q1_t2_expires_reverts": true,
+        "ward_q2_equipped": true,
+        "ward_q2_t1_earned": true,
+        "ward_q2_t1_native_dr": true,
+        "ward_q2_t1_expires_reverts": true,
+        "ward_q2_t2_earned": true,
+        "ward_q2_t2_native_dr": true,
+        "ward_q2_t2_expires_reverts": true,
+        "ward_health_pool": true,
+        "ward_q0_t1_setup": true,
+        "ward_q0_t2_setup": true,
+        "ward_q1_t1_setup": true,
+        "ward_q1_t2_setup": true,
+        "ward_q2_t1_setup": true,
+        "ward_q2_t2_setup": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

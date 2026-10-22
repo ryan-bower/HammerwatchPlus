@@ -444,7 +444,11 @@ class Checks(Base):
         s, waited = self.summon_wait(wolf, 30)
         self.flag("hound_arrives", sk.get("level") == 1 and s is not None, f"skill level {sk.get('level')}, hound after {waited:.1f} s")
         if s:
-            ok, note = self.follows(s["unit"], wolf, self.open_dirs()[0][1])
+            # Its native producer uses a200px forced-return threshold and60px
+            # idle-target tolerance. The previous97px obstructed walk did not
+            # exercise that branch. Read live config and track one longer walk.
+            from gamelab.bots.qa_hound_follow import observe
+            ok, note = observe(self, s["unit"], wolf)
             self.flag("hound_follows", ok, note)
         self.to_town()
 

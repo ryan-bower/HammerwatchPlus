@@ -42,10 +42,20 @@ namespace HWP
 			return 8;
 		}
 
-		// a weapon's family from its id: mainhand_mace_01 -> mace
+		// Weapon ids normally use token1: mainhand_mace_01 -> mace.
+		// Typed HWP ids add a namespace before the slot: hwp_mh_frostbrand.
 		string Family(Equipment::Item@ item)
 		{
 			auto parts = item.baseItem.m_id.split("_");
+			if (parts.length() > 2 && parts[0] == "hwp")
+			{
+				auto slot = item.GetSlot();
+				if ((parts[1] == "mh" && slot == Equipment::Slot::MainHand)
+					|| (parts[1] == "oh" && slot == Equipment::Slot::OffHand)
+					|| (parts[1] == "2h" && slot == Equipment::Slot::TwoHanded))
+					return parts[2];
+			}
+			// hwp_rifle_01 and other untyped ids keep their existing family.
 			return parts.length() > 1 ? parts[1] : item.baseItem.m_id;
 		}
 

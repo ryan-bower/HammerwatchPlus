@@ -1,0 +1,54 @@
+{
+  "name": "qa-module-gambler-standalone",
+  "about": "Standalone functional subset with only required modules. Native rerolls, actual gold/tokens/item changes, affordability/refusals and bet animation/payout arithmetic. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
+  "fixture": "town-tavern",
+  "mods": [
+    "core",
+    "gambler"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_modules_checks",
+      "kwargs": {
+        "sections": "gambler,bets",
+        "required_flags": [
+          "rare_equipped",
+          "gambler_open",
+          "reroll_cost",
+          "reroll_changed",
+          "reroll_poor_refused",
+          "reroll_poor_message",
+          "reroll_message",
+          "token_poor_message",
+          "token_reroll",
+          "token_poor_refused",
+          "legendary_refused",
+          "bets_open",
+          "bets_affordable_enabled",
+          "bets_unaffordable_not_selected",
+          "bets_affordable_selected",
+          "bets_flip_animates",
+          "bets_gold_matches_result",
+          "bets_reshuffle_resets",
+          "bets_poor_flip_refused"
+        ]
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

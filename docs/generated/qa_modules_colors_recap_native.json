@@ -1,0 +1,78 @@
+{
+  "generated_utc": "2026-10-22T19:48:33.174029+00:00",
+  "run_id": "20261022-134109-plan-ui-b-lab",
+  "scenario": "plan-ui-b",
+  "verdict": "PASS",
+  "runner_assertions": 14,
+  "code_fingerprint": {
+    "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+    "source_sha256": "4b884e9e7983038f460853e0f4c06343ab04cc43467eb8c1b4ad4707358dcca1",
+    "files": 1225,
+    "fingerprint_scope": "mods+gamelab+tools-v2"
+  },
+  "checks": [
+    {
+      "LabTint_run": true,
+      "contrast_set": true,
+      "own_shots_bluish": true,
+      "enemy_shots_reddish": true,
+      "tint_logged": true,
+      "beams_tinted": true,
+      "rays_tinted": true
+    },
+    {
+      "option_row": true,
+      "option_switches": true,
+      "option_command_agrees": true,
+      "option_tints_now": true
+    },
+    {
+      "hazard_death": true,
+      "recap_hazards": true,
+      "recap_cmd_hazards": true
+    }
+  ],
+  "native_notes": [
+    [
+      "LabTint_run: phase mission",
+      "contrast_set: se\":\"mission\",\"window\":\"\",\"paused\":false,\"cmds\":5,\"exceptions\":0}\n[NFO] [13:41:39] [menu] Refreshing keybind strings\n[NFO] [13:41:39] Refreshing keybind strings",
+      "tintwatch: 14 projectiles [('arrow.unit', 'HWPNewProjectile', True, (0.45, 0.8, 1.0)), ('crossbow_bolt.unit', 'HWPRayProjectile', False, (1.0, 0.35, 0.35)), ('arrow.unit', 'HWPNewProjectile', True, (0.45, 0.8, 1.0)), ('arrow.unit', 'HWPNewProjectile', True, (0.45, 0.8, 1.0)), ('arrow.unit', 'HWPNewProjectile', True, (0.45, 0.8, 1.0)), ('arrow.unit', 'HWPNewProjectile', True, (0.45, 0.8, 1.0)), ('arrow.unit', 'HWPNewProjectile', True, (0.45, 0.8, 1.0)), ('marked_shot_arrow.unit', 'HWPNewProjectile', True, (0.45, 0.8, 1.0)), ('arrow.unit', 'HWPNewProjectile', True, (0.45, 0.8, 1.0)), ('arrow.unit', 'HWPNewProjectile', True, (0.45, 0.8, 1.0))]",
+      "own_shots_bluish: 11 friendly",
+      "enemy_shots_reddish: 3 enemy",
+      "tint_logged: ['[HWP:colors] tinted players/projectiles/arrow.unit friendly #73ccff']",
+      "beams_tinted: {'beam_enemy': ('HWPBeamProjectile', {'r': 1.0, 'g': 0.35, 'b': 0.35, 'a': 1.0}), 'beam_own': ('HWPBeamProjectile', {'r': 0.45, 'g': 0.8, 'b': 1.0, 'a': 1.0})}",
+      "rays_tinted: {'ray_enemy': ('HWPRayProjectile', {'r': 1.0, 'g': 0.35, 'b': 0.35, 'a': 1.0}), 'ray_own': ('HWPRayProjectile', {'r': 0.45, 'g': 0.8, 'b': 1.0, 'a': 1.0})}"
+    ],
+    [
+      "option_row: tab HWPOptionsTab, texts 'Projectile colors | High contrast', error None",
+      "option_switches: 'High contrast' -> 'Deuteranopia', log ['Deuteranopia']",
+      "option_command_agrees: hwp colors: ['Projectile colours: preset deuteranopia, enemy #ff991a, friendly #4d99ff']",
+      "option_tints_now: enemy {'r': 1.0, 'g': 0.6, 'b': 0.1, 'a': 1.0}, friendly {'r': 0.3, 'g': 0.6, 'b': 1.0, 'a': 1.0} for deuteranopia"
+    ],
+    [
+      "hazard_death: [('LabTint', 'Hazards 100% ', ' 135 damage in 10s - 0% physical, 100% elemental')]; cht_god 0.0, (hp, x) over time [(0, 0)]",
+      "recap_hazards: Hazards 100%",
+      "recap_cmd_hazards: hwp recap: ['Last death: Hazards 100% | 135 damage in 10s - 0% physical, 100% elemental']"
+    ]
+  ],
+  "visuals": [
+    {
+      "path": "gamelab/results/20261022-134109-plan-ui-b-lab/shots/ui-colors-contrast.png",
+      "sha256": "1628888372b442113cf9a8d905e989373d8629dc1424fa7f075d64668e703801",
+      "root_visually_reviewed": true,
+      "scope": "Scene visible; frame does not clearly capture projectile colors. Native RGB readbacks support color claims."
+    },
+    {
+      "path": "gamelab/results/20261022-134109-plan-ui-b-lab/shots/ui-recap-hazards.png",
+      "sha256": "ddfd39678c675a252e30c16bfdee3fb858a0447410d2fb0ff22ad1adeeaf6765",
+      "root_visually_reviewed": true,
+      "scope": "Native DeathRecap window readable above DeadMenu at lab resolution; Hazards100% visible. Exact numerical135/10s/0physical/100elemental comes from native text readback."
+    }
+  ],
+  "limits": [
+    "Controlled native projectile/beam/ray creation and hazard fixture, English640x360 only.",
+    "Highcontrast/deuteranopia/off only; remaining presets, boundary config, persistence, all projectile families and true co-op untested.",
+    "Color screenshot alone does not establish visible tint; actual native RGB fields independently measured.",
+    "Hazards-only death; multiple enemy aggregation, exact10s cutoff, collapse/expand and town cleanup still required."
+  ]
+}

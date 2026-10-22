@@ -44,13 +44,27 @@
 			</dict>
 		<array name="land-effects">
 			<dict>
-				<string name="class">Damage</string>
-				<string name="physical-bind">strike-dmg</string>
-			</dict>
-			<dict>
-				<string name="class">ApplyBuff</string>
-				<string name="buff">tweak/buffs/status_effects.sval:stun_minor</string>
-				<float name="chance">1.0</float>
+				<string name="class">Explode</string>
+				<int name="radius">40</int>
+				<int name="min-radius">8</int>
+				<float name="dist-scaling">1000</float>
+				<bool name="hit-self">false</bool>
+				<bool name="hit-same-team">false</bool>
+				<bool name="hit-different-team">true</bool>
+				<array name="effects">
+					<dict>
+						<bool name="only-actors">true</bool>
+					</dict>
+					<dict>
+						<string name="class">Damage</string>
+						<string name="physical-bind">strike-dmg</string>
+					</dict>
+					<dict>
+						<string name="class">ApplyBuff</string>
+						<string name="buff">tweak/buffs/status_effects.sval:stun_minor</string>
+						<float name="chance">1.0</float>
+					</dict>
+				</array>
 			</dict>
 			<dict>
 				<string name="class">PlaySound</string>

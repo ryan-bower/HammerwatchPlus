@@ -1,0 +1,195 @@
+{
+  "name": "qa-classes-gladiator-mastery-save",
+  "about": "All31 content modules enabled. Separately labeled matched legal level20 fixture. For each of this hidden HoH1 port?s3 native mastery IDs: native selection, all base+3mastery skills at1, exact selectedclass/name/level/skills/gear/pickedstats snapshot, save, runner WM_CLOSE/restart, read-only exact verification. No charflag writes or ordinary full-run claim.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 900,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_mastery_save",
+      "kwargs": {
+        "cls": "hwp_gladiator",
+        "section": "prepare_masteries"
+      },
+      "expect": {
+        "matrix_prepared": true
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_mastery_save",
+      "kwargs": {
+        "cls": "hwp_gladiator",
+        "section": "select",
+        "mastery": "hwp_gladiator_champion"
+      },
+      "expect": {
+        "mastery_selected": true,
+        "selected_record": true,
+        "mastery_ranks": true,
+        "selection_keeps_gear": true,
+        "saved": true
+      }
+    },
+    {
+      "do": "restart",
+      "readback": {
+        "phase": "town",
+        "player.class": "hwp_gladiator_champion",
+        "player.name": "QAGladiatorRun",
+        "player.level": 20,
+        "player.dead": false
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_mastery_save",
+      "kwargs": {
+        "cls": "hwp_gladiator",
+        "section": "verify_mastery",
+        "mastery": "hwp_gladiator_champion"
+      },
+      "expect": {
+        "mastery_verified": true,
+        "selected_mastery_persisted": true,
+        "available_ranks_persisted": true,
+        "exact_gear_persisted": true,
+        "picked_stats_persisted": true,
+        "loaded_god_off": true,
+        "exact_bag_persisted": true
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_mastery_save",
+      "kwargs": {
+        "cls": "hwp_gladiator",
+        "section": "select",
+        "mastery": "hwp_gladiator_beastmaster"
+      },
+      "expect": {
+        "mastery_selected": true,
+        "selected_record": true,
+        "mastery_ranks": true,
+        "selection_keeps_gear": true,
+        "saved": true
+      }
+    },
+    {
+      "do": "restart",
+      "readback": {
+        "phase": "town",
+        "player.class": "hwp_gladiator_beastmaster",
+        "player.name": "QAGladiatorRun",
+        "player.level": 20,
+        "player.dead": false
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_mastery_save",
+      "kwargs": {
+        "cls": "hwp_gladiator",
+        "section": "verify_mastery",
+        "mastery": "hwp_gladiator_beastmaster"
+      },
+      "expect": {
+        "mastery_verified": true,
+        "selected_mastery_persisted": true,
+        "available_ranks_persisted": true,
+        "exact_gear_persisted": true,
+        "picked_stats_persisted": true,
+        "loaded_god_off": true,
+        "exact_bag_persisted": true
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_mastery_save",
+      "kwargs": {
+        "cls": "hwp_gladiator",
+        "section": "select",
+        "mastery": "hwp_gladiator_retiarius"
+      },
+      "expect": {
+        "mastery_selected": true,
+        "selected_record": true,
+        "mastery_ranks": true,
+        "selection_keeps_gear": true,
+        "saved": true
+      }
+    },
+    {
+      "do": "restart",
+      "readback": {
+        "phase": "town",
+        "player.class": "hwp_gladiator_retiarius",
+        "player.name": "QAGladiatorRun",
+        "player.level": 20,
+        "player.dead": false
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_mastery_save",
+      "kwargs": {
+        "cls": "hwp_gladiator",
+        "section": "verify_mastery",
+        "mastery": "hwp_gladiator_retiarius"
+      },
+      "expect": {
+        "mastery_verified": true,
+        "selected_mastery_persisted": true,
+        "available_ranks_persisted": true,
+        "exact_gear_persisted": true,
+        "picked_stats_persisted": true,
+        "loaded_god_off": true,
+        "exact_bag_persisted": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

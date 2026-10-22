@@ -1,0 +1,136 @@
+{
+  "started_utc": "2026-10-22T22:41:26.585839+00:00",
+  "scope": "Existing non-native test suite and source consistency only; no game launched. Doctor/save tests use their own original fake C:/tmp/claude trees and verify real paths untouched.",
+  "earlier_attempt": "Workspace-relocated wrapper interrupted while its original nested saves-selftest lacked process/filesystem permissions. No PASS claimed for that attempt. Verified own process chain stopped before this native-permission retry.",
+  "checks": [
+    {
+      "name": "compiler",
+      "command": "python tools/compiler_selftest.py",
+      "exit": 0,
+      "status": "PASS",
+      "output_tail": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.022s\n\nOK\n"
+    },
+    {
+      "name": "saves",
+      "command": "python tools/saves_selftest.py",
+      "exit": 0,
+      "status": "PASS",
+      "output_tail": "backed up 3 files to saves-backup/2026-10-22T17-41-26\nPASS backup writes one backup\nreal saves match 2026-10-22T17-41-26\nPASS verify green right after backup\nreal saves differ from 2026-10-22T17-41-26: ['cloud/slot_0.hps', 'cloud/slot_1.hps']\nPASS verify red after a slot changed\nbacked up 4 files to saves-backup/2026-10-22T17-41-27\nrestored 2026-10-22T17-41-26\nreal saves match 2026-10-22T17-41-26\nPASS restore returns green\nPASS restored slot has the backed-up bytes\nPASS file absent from the backup is removed\nPASS pre-restore state was backed up first\nPASS intact backup reports nothing\nPASS unconfirmed machine is reported\nPASS confirmed machine reports nothing\nPASS damaged backup copy is reported\nPASS damaged confirmed backup is reported\nREFUSED: backup 2026-10-22T17-41-27 is damaged, restoring it would lose data: ['cloud/slot_0.hps']\nPASS restore refuses a damaged backup\nREFUSED: saves-backup/ is 0.0 MB and this backup adds 0.0 MB, over the 0 MB cap declared in README.md. Prune old backups, then run again.\nPASS backup refuses past the cap (exit 4)\nsaves selftest: green\n"
+    },
+    {
+      "name": "doctor",
+      "command": "python tools/doctor_selftest.py",
+      "exit": 0,
+      "status": "PASS",
+      "output_tail": "anly): `python -m gamelab reset`\n  [..] reset: ok\nPASS smoke teardown: doctor's own failed run -> gamelab reset\nPASS smoke teardown: another run's dirty teardown is left alone\nPASS smoke teardown: a held lock is left alone\n  [..] 16 cores (GameLab gets 14); GPU: AMD Radeon RX 9070 XT, AMD Radeon(TM) Graphics\n  [NO] smoke boot: null-payload in lab mode  -- never passed on this machine: --fix boots it once (~15-60 s)\nPASS smoke report: never passed -> NO, says --fix boots it\n--- pet dyes\nPASS pet dyes: nothing made -> missing\npet units: 0 HoH1 imports pointed at the HWP classes\npet dyes: 2 pets, 2 sheets x 3 variants -> C:\\tmp\\claude\\dyes-k7nvzedc\\pets\\players\\pets\\hwp\\dye\nPASS pet dyes: after main -> complete and current\nPASS pet dyes: the stamp never packs (dotfile)\nPASS pet dyes: a copy deleted -> missing\npet units: 0 HoH1 imports pointed at the HWP classes\npet dyes: 2 pets, 2 sheets x 3 variants -> C:\\tmp\\claude\\dyes-k7nvzedc\\pets\\players\\pets\\hwp\\dye\nPASS pet dyes: generator changed -> stale\npet units: 0 HoH1 imports pointed at the HWP classes\npet dyes: 2 pets, 2 sheets x 3 variants -> C:\\tmp\\claude\\dyes-k7nvzedc\\pets\\players\\pets\\hwp\\dye\nPASS pet dyes: a source unit changed -> stale\npet units: 0 HoH1 imports pointed at the HWP classes\npet dyes: 2 pets, 2 sheets x 3 variants -> C:\\tmp\\claude\\dyes-k7nvzedc\\pets\\players\\pets\\hwp\\dye\nPASS pet dyes: a new pet's source appeared (HoH1 import) -> stale\npet units: 0 HoH1 imports pointed at the HWP classes\npet dyes: 3 pets, 3 sheets x 3 variants -> C:\\tmp\\claude\\dyes-k7nvzedc\\pets\\players\\pets\\hwp\\dye\nPASS pet dyes: regenerated -> current again\nPASS pet dyes: the real PetDyeParts.as untouched\ndoctor selftest: green (78 checks)\n"
+    },
+    {
+      "name": "qa_oracles",
+      "command": "python -m unittest discover -s gamelab/tests -q",
+      "exit": 0,
+      "status": "PASS",
+      "output_tail": "----------------------------------------------------------------------\nRan 34 tests in 0.010s\n\nOK\n"
+    },
+    {
+      "name": "runner_isolation",
+      "command": "python -m unittest gamelab.test_runner_restart gamelab.test_res_snapshot -q",
+      "exit": 0,
+      "status": "PASS",
+      "output_tail": "[PASS] fixture readback \n[PASS] enabled mods are exactly the fixture's + the scenario's enabled=['core']\n[PASS] lab profile loaded (2 cvars) (muted, low graphics) \n[PASS] fixture readback \n[FAIL] enabled mods are exactly the fixture's + the scenario's enabled=['core', 'unexpected']\n[FAIL] lab profile loaded (2 cvars) (muted, low graphics) snd_volume=1 (profile 0.0)\n[FAIL] fixture readback player.class: want 'hwp_firearms', got 'wrong'\n[PASS] enabled mods are exactly the fixture's + the scenario's enabled=['core']\n[PASS] lab profile loaded (2 cvars) (muted, low graphics) \n[FAIL] fixture readback magazine: clip: want 12, got 11\n[PASS] enabled mods are exactly the fixture's + the scenario's enabled=['core']\n[PASS] lab profile loaded (2 cvars) (muted, low graphics) \n[PASS] fixture readback \n[PASS] enabled mods are exactly the fixture's + the scenario's enabled=['core']\n[PASS] lab profile loaded (2 cvars) (muted, low graphics) \n----------------------------------------------------------------------\nRan 18 tests in 0.133s\n\nOK (skipped=2)\n"
+    },
+    {
+      "name": "verbs",
+      "command": "python tools/list_verbs.py --check",
+      "exit": 0,
+      "status": "PASS",
+      "output_tail": "docs/generated/verbs.md is current\n"
+    },
+    {
+      "name": "overrides",
+      "command": "python tools/build.py --check",
+      "exit": 0,
+      "status": "PASS",
+      "output_tail": "override check: OK\n"
+    },
+    {
+      "name": "whitespace",
+      "command": "git -c core.safecrlf=false diff --check",
+      "exit": 0,
+      "status": "PASS",
+      "output_tail": ""
+    }
+  ],
+  "status": "PASS",
+  "finished_utc": "2026-10-22T22:41:37.171174+00:00",
+  "post_validation_formatting": {
+    "scope": "Nine newly added source files only. Exact native literals/directives or PythonAST unchanged; no gameplay changes. Historicalpatchdata preserved without byte loss.",
+    "changes": [
+      {
+        "path": "gamelab/bots/qa_firearms_ranks.py",
+        "before_sha256": "cd5d27c10a9b39a0ae6c56b8c98ebab830bfbae8eaab7d8911083156652abdb5",
+        "after_sha256": "b625d85c19df5197e1bdf429a43840f366184b46b6e07671f24709133afd5185",
+        "proof": "Exact staged Python AST preserved; EOF blankline only"
+      },
+      {
+        "path": "mods/classes/players/hwp/gladiator/projectiles/gladius.unit",
+        "before_sha256": "f87efae791a5b92f68d6024f2073ad2127018e508580528d49f10b45bf8c5bce",
+        "after_sha256": "4b9669645c7d5c8cc404a0698a3646916cab9f9dcbc6f1f2af1f298112a88518",
+        "proof": "Exact nonblank native directive/XML tokens, scalar contents and quoted literals preserved; insignificant formatting/line endings only"
+      },
+      {
+        "path": "mods/gamelab-hands/gamelab/qa_firearms_target_dummy_armor.unit",
+        "before_sha256": "1ab3dcec4d528244ad98a4eb7d80295435edada2036c10e8874abca9e0489329",
+        "after_sha256": "9c55d4b7cc184896b9c0fac7948fc8082bd13b9c34d422cebf74baed7edcfcb0",
+        "proof": "Exact nonblank native directive/XML tokens, scalar contents and quoted literals preserved; insignificant formatting/line endings only"
+      },
+      {
+        "path": "mods/gamelab-hands/gamelab/qa_firearms_target_dummy_resist_tough.unit",
+        "before_sha256": "8287b8de026a0e915ce5eb4be03a6d8fe53418f7fe39f1ba75bc4ca1d3443c3d",
+        "after_sha256": "9edb28cdba11a90d2557611f7d23e08c1f733a6dd0194895d791b66c0ffc02bb",
+        "proof": "Exact nonblank native directive/XML tokens, scalar contents and quoted literals preserved; insignificant formatting/line endings only"
+      },
+      {
+        "path": "mods/gamelab-hands/gamelab/qa_released_boss.unit",
+        "before_sha256": "fa0ffcd8525b865f8d459e27a1dcf132e2cba77e42af7e00162d7692a1fb2739",
+        "after_sha256": "579b5d2b0b39eaaf89b7e25f92fd32d5a6933b05104e621c4915d815ef5f36c7",
+        "proof": "Exact nonblank native directive/XML tokens, scalar contents and quoted literals preserved; insignificant formatting/line endings only"
+      },
+      {
+        "path": "mods/gamelab-hands/gamelab/qa_released_elite.unit",
+        "before_sha256": "ecca805da88db893340d98cf734574df1a0b004c670b103bb863c572057eb543",
+        "after_sha256": "0aabfef8cca9eb550cbb1ac9051461685c12fa50a1d043c57cc8ab371617a7d6",
+        "proof": "Exact nonblank native directive/XML tokens, scalar contents and quoted literals preserved; insignificant formatting/line endings only"
+      },
+      {
+        "path": "mods/gamelab-hands/gamelab/qa_released_ordinary.unit",
+        "before_sha256": "78662762f9f28b43506661f716f5c926503150ef913adad11bd9eee9ce2ab5fb",
+        "after_sha256": "291dc6e5958f5ec4c4c194e6b1b22f981d90a03fc4c637d217867683dfa57b9d",
+        "proof": "Exact nonblank native directive/XML tokens, scalar contents and quoted literals preserved; insignificant formatting/line endings only"
+      },
+      {
+        "path": "mods/gamelab-hands/gamelab/qa_specs_fragile_target_dummy.unit",
+        "before_sha256": "e1c6a79fefd7e084c3ac69a89aaeb151f7681d56b04061661216a347bca214f2",
+        "after_sha256": "6366cd56a1c6a278379064304b641d119cab2d607428e27ee376a7bbf88f20b1",
+        "proof": "Exact nonblank native directive/XML tokens, scalar contents and quoted literals preserved; insignificant formatting/line endings only"
+      },
+      {
+        "path": "mods/gamelab-probe/gamelab/qa_firearms_target_dummy_damage.unit",
+        "before_sha256": "e9abe781fb1cba3c726f901dcc19546e0ba0a5bd79823f0cdc9457679981440c",
+        "after_sha256": "c3f61ff456ad6d8602be36c8d7094dca7d12599ff904b0b224c5ccb6ca3e8de9",
+        "proof": "Exact nonblank native directive/XML tokens, scalar contents and quoted literals preserved; insignificant formatting/line endings only"
+      }
+    ],
+    "archived_patches": 8
+  },
+  "complete_staged_checks": {
+    "recorded_utc": "2026-10-22T22:59:21.082093+00:00",
+    "whitespace_command": "git -c core.safecrlf=false diff --cached --check",
+    "whitespace_status": "PASS",
+    "json_parse": "PASS",
+    "python_ast_parse": "PASS",
+    "files": 429,
+    "json": 265,
+    "python": 101,
+    "scope": "All staged additions and modifications; not only previously tracked unstaged files."
+  }
+}
