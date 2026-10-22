@@ -146,8 +146,8 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
   Sacrificial Penance, the form Necrotic Resurrection takes at max Divine Favor, has its own
   planner entry (new `alt_of` field): mana 50, sharing Necrotic Resurrection's cooldown. Its
   icons are in the picker (`tools/icon_art/sp_pri.py`, then `sp_pri2.py`): the second pass on
-  the user's picks, plus the emblem, four orbs and the eating status; 10 of 11 settled; the Heresy
-  5+ status is in round 4, `sp_pri4.py`). Penance consumes the Favor. Not built yet.
+  the user's picks, plus the emblem, four orbs and the eating status; all 11 settled in
+  `art/specs/override/`). Penance consumes the Favor. Not built yet.
 - Designed in the planner, not built, and parked for later: an "Echoes of Hammerwatch I"
   (formerly "HoH1 Remastered") 5th spec for every vanilla class (the Rogue's from the HoH1
   Thief, the Warrior's from the Gladiator), one active and one passive of HoH1's that HoH2

@@ -2587,4 +2587,4 @@ Planner only, nothing built:
 - Round 3's picks: Call of Heresy a, Pyre Sacrifice b, Heresy below 5 a and the eating status b,
   now in `art/specs/override/` (`sp_pri4.py --finals`). Round 4 (`sp_pri4.py`, ids
   `specsP4.<name>`) is only the Heresy 5+ status: the kept round-1 pick with the eye's purple
-  round swapped for the green, at three shades. 10 of the spec's 11 icons are settled.
+  round swapped for the green, at three shades; the user took b. All 11 icons are settled.
