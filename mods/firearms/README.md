@@ -64,7 +64,8 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
   - Dual pistols share a 20-round clip. Left click alternates muzzles with a
     small spread (±2.5°), one round every 300 ms (a 600 ms cycle; a held trigger
     restarts it in the same frame, so the gaps are even); right click fires both at once with a wide spread (2
-    rounds, not on 1). Every round is 80 % of its own gun's damage.
+    rounds when available; the last single shared round still fires). Every round is
+    80 % of its own gun's damage.
   - Pistol rounds leave the gun 6 px off the aim line and are angled to cross it
     100 px out (`converge`); parallel, a lone pistol hit a target dummy with 8 of
     ~26 rounds (probe-pistol 20261020-002514), 22 after.
@@ -104,8 +105,11 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
     flamer took 90 to 73.4 mana over a 2 s hold, its 20 less the regen).
 - **Base kit:** Reload and the Frag Grenade (targeted lob, `GroundBouncing` +
   `Explode` on landing, armor penetration, radius 64: half the old 128, and
-  the Incendiary and Gas areas match it). The two base passives are still to
-  be designed; Scavenger and Steady Hands hold their places for now.
+  the Incendiary and Gas areas match it). **Elemental Bullets** (the Scavenger ID)
+  gives each gun shot a 10-50 % chance to deal its weapon damage as an element.
+  **Extended Clip Crit** (the Steady Hands ID) adds 10-50 % magazine capacity and
+  2 % crit damage per round remaining in each gun's own magazine. The native ammo
+  pool stays shared; unequal pistol/cannon firing retains separate bonus counts.
   - Reload orbs: **Dodge Reload Skip** (a dodge during the automatic reload
     finishes it), **Explosive Reload** (the old magazine is thrown 100 out and
     blows up for 5/8/12 per round left; dual pistols throw one magazine,
@@ -115,7 +119,7 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
     health bar; with Over-Reload the gold sits at a random point in its
     second half. One try a reload: Reload or a fresh left click while the
     bar is in the gold. A hit finishes the reload at once and gives
-    +6/9/12 rounds, never stacking, until the clip runs dry or a reload
+    +5/10/15 rounds, never stacking, until the clip runs dry or a reload
     isn't perfect; a miss turns the white red until the reload ends).
   - Frag orbs, mutually exclusive: **Stun Grenade** (lightning, stun and slow
     1/2/3 s), **Incendiary** (a burning, blinding fire patch), **Gas** (a
@@ -134,7 +138,8 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
   Boy (slow heavy rocket, poison, blind), Magic Missile (ice then fire), Quad
   Missile Chambers (4 small missiles), Elemental Shrapnel, Overpacked.
 - **Assault:** Double Barrel Burst (two shotgun shells of 150 physical: x1.5/2/2.5/3/3.5
-  damage up close), Adrenaline (damage taken down, kills refill ammo); orbs include
+  damage up close), Adrenaline (kills build stacks; taking damage spends them to
+  restore health); orbs include
   Triple Barrel and Dragon's Breath.
 - **Engineer:** Deploy Turret (placed where aimed, rounds at 1x weapon damage every 0.6-0.2 s,
   wears down over 30 s; orbs
@@ -153,7 +158,7 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
     `projectiles/rounds.png` and writes one effect per sprite. The rifle/turret
     round is `round_rifle`; the pistol round is the same idea a little smaller,
     `round_pistol`. Each comes in `_fire`, `_ice`, `_lightning` and `_poison`
-    variants for Elemental Bullets, which has no units yet. The rest are
+    variants used by Elemental Bullets' built projectile units. The rest are
     `gl_shell` (the launcher's 40 mm shell) and `missile_rocket`, `_fatboy`,
     `_magic` and `_quad`. Edit the tool, not its output.
   - Ground sprites: `items/hwp/firearms_drops.unit`, one scene per gun and tier
@@ -178,12 +183,12 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
     orbs, plus a picker page that shows them beside the current icon. A picked
     one goes into `art/firearms/override/` (tools/icon_art/README.md).
 
-Next, from the class planner (`python -m planner`, `planner/README.md`): the two
-base passives and final icons. See `docs/design/firearms.md`.
+The class planner (`python -m planner`, `planner/README.md`) records the skill
+design. Final icons remain an art task. See `docs/design/firearms.md`.
 
 ## Test checklist
 
-1. `python -m gamelab run mod-firearms --mode lab`: `[HWP:firearms] class registered with 3 subclass(es)`, no
+1. `python -m gamelab run mod-firearms --mode lab`: `[HWP:firearms] class registered with 4 subclass(es)`, no
    "missing item/unit" lines, no script or sval errors.
 2. Create a character: Firearms Specialist is in the class list with the
    round icon; the character spawns with a Service Pistol in the main hand.
@@ -204,8 +209,8 @@ base passives and final icons. See `docs/design/firearms.md`.
    reload, and the saved-rank move for skills that start at rank 1
    (`hwp firearms startranks`).
 7. Over-Reload by hand: empty the clip, watch the bar above the health bar,
-   press Reload (or left click) in the gold; the clip shows +6. Then Reload
-   with rounds left and press Reload again in the gold: still +6, not +12.
+   press Reload (or left click) in the gold; rank 1 adds 5 rounds. Then Reload
+   with rounds left and press Reload again in the gold: the bonus stays +5.
    Miss it: the white turns red and a second press does nothing. Without the
    orb the white bar still fills on every reload.
 8. Ordinance Hoarder by hand: wait 8 s with the rocket ready, fire twice in a

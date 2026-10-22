@@ -449,6 +449,7 @@ namespace Modules
 			if (paused)
 				return;
 			HWP::Firearms::UpdateFill(ms);
+			HWP::Firearms::UpdateMagazine();
 			HWP::Firearms::UpdateEmptyTrigger(gameInput);
 			HWP::Firearms::UpdateCombat(ms);
 			HWP::Firearms::UpdatePistols(ms);

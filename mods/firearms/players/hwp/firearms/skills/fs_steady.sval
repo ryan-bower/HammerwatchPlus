@@ -3,8 +3,8 @@
 	Extended Clip Crit (base passive; the file and id keep Steady Hands' name, which it
 	replaced). Each gun's magazine holds clip-pct more rounds (HWPFirearmsExtendedClip,
 	Elemental.as: per gun, rounded, so dual pistols gain per pistol), and every round left in
-	the clip is +2% critical damage for everything (injected into the clip stack, whose
-	intensity is its rounds, as sniper_focus.sval does for focus).
+	each gun's magazine is +2% critical damage for that gun. The shared clip still
+	governs firing/reloads, and its total remains the bonus for spells and non-gun hands.
 	Orb: Extended Crit Chance, a crit roll at crit chance per round left (HWPFirearmsStackCrit).
 -->
 <dict>
@@ -40,7 +40,7 @@
 					<string name="buff">players/hwp/firearms/stacks_firearms.sval:clip</string>
 					<array name="modifiers">
 						<dict>
-							<string name="class">Modifiers::CritDamage</string>
+							<string name="class">Modifiers::HWPFirearmsMagazineCrit</string>
 							<vec2 name="attack-crit-dmg">0 0.02</vec2>
 							<vec2 name="spell-crit-dmg">0 0.02</vec2>
 						</dict>

@@ -145,7 +145,11 @@ namespace HWP
 					@skill = FindSkill(plr, m_ids[i]);
 				m_progress = -1;
 				if (def is null || skill is null)
+				{
+					// Hide an unavailable weapon skill without consuming its bank.
+					Show(plr, skill, 0, 0);
 					return;
+				}
 				m_skillId = skill.m_skillId;
 				int mx = ClipMax(plr, def);
 				int have = plr.GetStacks(def);
@@ -977,6 +981,18 @@ namespace Modifiers
 			if (player is null || def is null)
 				return 0;
 			int stacks = player.GetStacks(def);
+			if (m_buff == HWP::Firearms::CLIP && skill !is null)
+			{
+				uint main = HWP::Firearms::MagazineHandSkill(player, false);
+				uint off = HWP::Firearms::MagazineHandSkill(player, true);
+				if (off != 0 && skill.m_skillId == off)
+					stacks = HWP::Firearms::MagazineRounds(player, true);
+				else if ((main != 0 && skill.m_skillId == main)
+					|| skill.m_skillId == HashString("hwp_attack_rifle")
+					|| skill.m_skillId == HashString("hwp_attack_rifle_epic")
+					|| skill.m_skillId == HashString("hwp_attack_autofire"))
+					stacks = HWP::Firearms::MagazineRounds(player, false);
+			}
 			return (stacks > 0 && roll_chance(player, lerp(m_chance, intensity) * stacks)) ? 1 : 0;
 		}
 	}

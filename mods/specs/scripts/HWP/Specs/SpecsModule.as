@@ -110,6 +110,7 @@ namespace Modules
 			HWP::Specs::g_conduitC = 0;
 			HWP::Specs::g_channelMana = 0;
 			HWP::Specs::ClearTailwind();
+			HWP::Specs::ClearStatic();
 			HWP::Specs::g_circuitReturns = 0;
 			HWP::Specs::g_circuitCatches = 0;
 			HWP::Specs::g_circuitBackHits = 0;

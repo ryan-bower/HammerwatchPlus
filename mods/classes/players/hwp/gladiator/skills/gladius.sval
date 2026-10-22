@@ -52,7 +52,7 @@
 				</dict>
 				<dict>
 					<string name="class">ShootProjectile</string>
-					<string name="projectile">players/warrior/projectiles/whirling_axe_right.unit</string>
+					<string name="projectile">players/hwp/gladiator/projectiles/gladius.unit</string>
 					<int name="dist">8</int>
 				</dict>
 				<dict>

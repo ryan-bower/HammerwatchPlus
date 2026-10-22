@@ -116,6 +116,8 @@ class HWPSpecsReturn : ProjectileModifier
 	float m_mul;
 	bool m_catch;
 	vec2 m_home;
+	int m_turnAt = -1;
+	vec2 m_turnPos;
 
 	HWPSpecsReturn(UnitPtr unit, SValue& params) {}
 
@@ -132,6 +134,8 @@ class HWPSpecsReturn : ProjectileModifier
 	void Turn()
 	{
 		m_back = true;
+		m_turnAt = int(g_scene.GetTime());
+		m_turnPos = m_proj.m_pos;
 		HWP::Specs::g_circuitReturns++;
 		m_proj.m_lastCollision = UnitPtr();
 		m_proj.m_intensity *= m_mul;
@@ -153,8 +157,20 @@ class HWPSpecsReturn : ProjectileModifier
 				Turn();
 			return;
 		}
+		// NewProjectile raycasts the entire outbound step before calling Update.
+		// Its OnBounce can already have turned us during that step. That segment
+		// is still outbound and must not catch the ranger or end a return at home.
+		vec2 step = to - from;
+		if (m_turnAt == int(g_scene.GetTime()) || dot(step, m_proj.m_dir) <= 0)
+			return;
 		auto owner = cast<PlayerBase>(m_proj.m_owner);
-		if (owner !is null && !owner.IsDead() && dist(to, xy(owner.m_unit.GetPosition())) <= 12)
+		vec2 nearest = to;
+		if (owner !is null && dot(step, step) > 0.0001f)
+		{
+			vec2 at = xy(owner.m_unit.GetPosition());
+			nearest = from + step * clamp(dot(at - from, step) / dot(step, step), 0.0f, 1.0f);
+		}
+		if (owner !is null && !owner.IsDead() && dist(nearest, xy(owner.m_unit.GetPosition())) <= 12)
 		{
 			if (m_catch && !m_proj.m_husk && HWP::Specs::IsLocal(owner))
 			{
@@ -180,10 +196,24 @@ class HWPSpecsReturn : ProjectileModifier
 
 	void OnBounce(UnitPtr unit, vec2 pos, vec2 normal) override
 	{
+		if (m_back && m_turnAt == int(g_scene.GetTime()))
+		{
+			// More hits from the same native raycast are still the old outbound
+			// segment, including a second fixture on the wall we just reached.
+			// Keep the first turn point and direction instead of ending the arrow.
+			m_proj.m_bounces++;
+			m_proj.m_pos = m_turnPos;
+			m_proj.m_lastCollision = UnitPtr();
+			vec2 home = m_home - m_turnPos;
+			if (length(home) > 0.1f)
+				m_proj.SetDirection(normalize(home));
+			return;
+		}
 		if (cast<IProjectile>(unit.GetScriptBehavior()) !is null)
 		{
 			m_proj.m_bounces++;
-			m_proj.SetDirection(m_proj.m_dir * -1.0f);
+			// Native reflection is its own inverse, including oblique collisions.
+			m_proj.SetDirection(m_proj.m_dir - normal * (2 * dot(m_proj.m_dir, normal)));
 			return;
 		}
 		if (!m_back)

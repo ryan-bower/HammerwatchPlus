@@ -69,8 +69,9 @@ slots, trinkets for the next run) and red legendaries.
   HWP save data (`keys.trinket_stock`, `keys.trinket_packed`,
   `keys.trinket_stale`).
 - **Legendaries.** `tweak/hwp/legendaries.sval` ports the seven HoH1 red items
-  with HoH2 modifiers (meteor on hit, gold-scaled damage, slowing gaze,
-  nova on attack, invulnerability on hurt, kill-same-type, chaos bolts),
+  with HoH2 modifiers (meteor on hit, gold and damage bonuses, a slowing gaze
+  with melee retaliation, an attack-triggered fireball, invulnerability on
+  hurt, kill-same-type, and periodic magic bolts),
   quality `Legendary`, drop-rate 0 so they only come from ace chests.
 - All `keys.*` settings are host-authoritative: clients read the host's
   values (core `settings.sync`), so every machine rolls the same locks.

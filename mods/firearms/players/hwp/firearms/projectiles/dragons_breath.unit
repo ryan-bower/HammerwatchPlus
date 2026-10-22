@@ -4,7 +4,7 @@
 	deals breath-tick as fire: per second, the share breath-dmg adds to a hit.
 -->
 <unit>
-	<behavior class="DangerAreaBehaviorP">
+	<behavior class="HWPFirearmsBreathArea">
 		<int name="freq">500</int>
 		<string name="ttl-bind">breath-ttl</string>
 

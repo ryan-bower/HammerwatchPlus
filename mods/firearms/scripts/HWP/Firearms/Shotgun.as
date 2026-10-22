@@ -107,3 +107,21 @@ class HWPFirearmsShotgun : Explode
 		return true;
 	}
 }
+
+// Each shell authors six simultaneous burning-ground areas. Keep the native
+// owned-area lifecycle, but exempt this producer from the ordinary one-summon
+// replacement policy through Player.Update's existing producer exemptions.
+class HWPFirearmsBreathArea : DangerAreaBehaviorP
+{
+	HWPFirearmsBreathArea(UnitPtr unit, SValue& params)
+	{
+		super(unit, params);
+		auto producer = unit.GetUnitProducer();
+		if (producer is null)
+			return;
+		for (uint i = 0; i < infiniteSummons.length(); i++)
+			if (infiniteSummons[i] is producer)
+				return;
+		infiniteSummons.insertLast(producer);
+	}
+}

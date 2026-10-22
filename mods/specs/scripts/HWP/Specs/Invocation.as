@@ -18,12 +18,33 @@ namespace HWP
 	namespace Specs
 	{
 		const uint STATIC_CHARGE = HashString("hwp_wiz_static_charge");
+		const uint THUNDER_ORB = HashString("hwp_wiz_tempest_torrent");
 		const int STATIC_MAX = 5;
 
 		// spell casts counted on the wizard's own client, and the one whose crit last added a
 		// stack: a cast's crits add one stack between them
 		int g_scCast = 0;
 		int g_scCritCast = -1;
+
+		// A Thunder Orb's periodic and destroyed effects retain the token of the
+		// actual cast that created them. Newer casts cannot rearm an older orb,
+		// or consume an older orb's still-unused first-critical bonus.
+		class StaticSpellCast
+		{
+			int serial;
+			bool critical = false;
+			StaticSpellCast(int sequence) { serial = sequence; }
+		}
+		StaticSpellCast@ g_scTorrentCast;
+		StaticSpellCast@ g_scDamageCast;
+
+		void ClearStatic()
+		{
+			g_scCast = 0;
+			g_scCritCast = -1;
+			@g_scTorrentCast = null;
+			@g_scDamageCast = null;
+		}
 
 		// Charged Font's mana, given g_channelC ms after the release: the castspell trigger
 		// runs before the cast pays its cost (Player.as:841, at the castpoint), so mana given at
@@ -77,6 +98,7 @@ class HWPSpecsZap : IEffect
 	string m_beamFx;
 	string m_hitFx;
 	SoundEvent@ m_sound;
+	HWP::Specs::StaticSpellCast@ m_staticCast;
 	dictionary m_zapped;   // unit id -> zaps by this instance (one per projectile)
 
 	HWPSpecsZap(UnitPtr unit, SValue& params)
@@ -97,7 +119,11 @@ class HWPSpecsZap : IEffect
 	}
 
 	CanEvade IsEvadable(Actor@ attacker) { return CanEvade::Neither; }
-	void SetWeaponInformation(uint weapon) { PropagateWeaponInformation(m_effects, weapon); }
+	void SetWeaponInformation(uint weapon)
+	{
+		PropagateWeaponInformation(m_effects, weapon);
+		@m_staticCast = weapon == HWP::Specs::THUNDER_ORB ? HWP::Specs::g_scTorrentCast : null;
+	}
 	bool CanApply(Actor@ owner, UnitPtr target, vec2 pos, vec2 dir, float intensity) override { return owner !is null && m_mul > 0; }
 
 	int Zapped(Actor@ a)
@@ -114,7 +140,12 @@ class HWPSpecsZap : IEffect
 		dictionary ps = { { "angle", atan(d.y, d.x) }, { "length", length(d) } };
 		PlayEffect(m_beamFx, from, ps);
 		PlayEffect(m_hitFx, to);
+		// Native DamageActor/CriticalHit dispatch remains synchronous and intact.
+		// A nested effect restores the previous context when its own work ends.
+		auto previous = HWP::Specs::g_scDamageCast;
+		@HWP::Specs::g_scDamageCast = m_staticCast;
 		ApplyEffects(m_effects, owner, a.m_unit, to, normalize(d), intensity, husk);
+		@HWP::Specs::g_scDamageCast = previous;
 	}
 
 	bool Apply(Actor@ owner, UnitPtr target, vec2 pos, vec2 dir, float intensity, bool husk)
@@ -166,6 +197,7 @@ class HWPSpecsZap : IEffect
 class HWPSpecsStaticRelease : IEffect
 {
 	HWPSpecsZap@ m_zap;
+	uint m_castSkill;
 	float m_channel;
 	SoundEvent@ m_sound;
 
@@ -180,7 +212,13 @@ class HWPSpecsStaticRelease : IEffect
 	}
 
 	CanEvade IsEvadable(Actor@ attacker) { return CanEvade::Neither; }
-	void SetWeaponInformation(uint weapon) { m_zap.SetWeaponInformation(weapon); }
+	void SetWeaponInformation(uint weapon)
+	{
+		m_castSkill = weapon;
+		// The native trigger passes the casting skill for its token. Release
+		// damage keeps Static Charge attribution and its own-critical exclusion.
+		m_zap.SetWeaponInformation(HWP::Specs::STATIC_CHARGE);
+	}
 	bool CanApply(Actor@ owner, UnitPtr target, vec2 pos, vec2 dir, float intensity) override { return owner !is null; }
 
 	bool Apply(Actor@ owner, UnitPtr target, vec2 pos, vec2 dir, float intensity, bool husk)
@@ -191,7 +229,11 @@ class HWPSpecsStaticRelease : IEffect
 			return false;
 		bool own = !husk && !owner.IsHusk();
 		if (own)
+		{
 			HWP::Specs::g_scCast++;
+			if (m_castSkill == HWP::Specs::THUNDER_ORB)
+				@HWP::Specs::g_scTorrentCast = HWP::Specs::StaticSpellCast(HWP::Specs::g_scCast);
+		}
 		if (plr.GetStacks(def) < HWP::Specs::STATIC_MAX)
 		{
 			if (own)
@@ -222,19 +264,37 @@ class HWPSpecsStaticRelease : IEffect
 // the first crit since the last spell cast only. Its own client.
 class HWPSpecsStaticCrit : IEffect
 {
+	uint m_hitSkill;
 	HWPSpecsStaticCrit(UnitPtr unit, SValue& params) {}
 
 	CanEvade IsEvadable(Actor@ attacker) { return CanEvade::Neither; }
-	void SetWeaponInformation(uint weapon) {}
+	void SetWeaponInformation(uint weapon) { m_hitSkill = weapon; }
 	bool CanApply(Actor@ owner, UnitPtr target, vec2 pos, vec2 dir, float intensity) override { return owner !is null; }
 
 	bool Apply(Actor@ owner, UnitPtr target, vec2 pos, vec2 dir, float intensity, bool husk)
 	{
 		auto plr = cast<PlayerBase>(owner);
 		auto def = HWP::Specs::Stack("static_charge");
-		if (husk || plr is null || def is null || plr.IsHusk() || HWP::Specs::g_scCritCast == HWP::Specs::g_scCast)
+		if (husk || plr is null || def is null || plr.IsHusk())
 			return false;
-		HWP::Specs::g_scCritCast = HWP::Specs::g_scCast;
+		auto token = HWP::Specs::g_scDamageCast;
+		if (m_hitSkill == HWP::Specs::THUNDER_ORB && token !is null)
+		{
+			if (token.critical)
+				return false;
+			token.critical = true;
+			if (token.serial == HWP::Specs::g_scCast)
+				HWP::Specs::g_scCritCast = token.serial;
+		}
+		else
+		{
+			// Native spells do not expose a projectile cast token here. Preserve
+			// their existing trigger behavior; their delayed/overlap attribution
+			// remains a separate verification gap, not covered by the orb fix.
+			if (HWP::Specs::g_scCritCast == HWP::Specs::g_scCast)
+				return false;
+			HWP::Specs::g_scCritCast = HWP::Specs::g_scCast;
+		}
 		if (plr.GetStacks(def) >= HWP::Specs::STATIC_MAX)
 			return false;
 		plr.AddStacks(plr, def, 1);

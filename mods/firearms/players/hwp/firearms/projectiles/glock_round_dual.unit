@@ -19,7 +19,7 @@
 
 		<array name="hit-effects">
 			<dict>
-				<string name="class">PlayerDamage</string>
+				<string name="class">HWPFirearmsGunDamage</string>
 				<bool name="off-hand">false</bool>
 				<float name="mul">0.8</float>
 				<bool name="shield-blockable">true</bool>
