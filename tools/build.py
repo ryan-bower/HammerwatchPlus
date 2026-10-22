@@ -7,6 +7,7 @@ build.py - package HammerwatchPlus modules into HoH2 mod .bin files.
     build.py --check         # compare our wholesale overrides against gamecode/sdk/hoh2/ (docs/modules.md, rule 1)
     build.py --no-all        # skip the all-in-one package
     build.py --with-local    # also pack `local` content (your own install only)
+    build.py --beta          # fold every `beta_into` module into its host's .bin (a beta build, never published)
 
 Each module is `mods/<id>/` with an `info.xml` (author/name/description read
 from it) and an optional `module.json`:
@@ -21,7 +22,12 @@ from it) and an optional `module.json`:
                                        # packed only with --with-local, never released
       "local_overlay": "hoh1art/",     # local too, but packed in place of the committed file
                                        # at the same path without the prefix (hoh1art/x.png -> x.png)
-      "dev": false                     # true: development harness, never packaged
+      "dev": false,                    # true: development harness, never packaged
+      "local_only": false,             # true: built only when named together with --with-local,
+                                       # never in the all-in-one package (a machine-local testing aid)
+      "beta_into": "core"              # with --beta, this (local_only) module's files are packed into
+                                       # HWP-core.bin instead of a .bin of its own, so beta testers
+                                       # enable nothing extra; a build without --beta never carries them
     }
 """
 from __future__ import annotations
@@ -62,6 +68,10 @@ def load_module(mod_dir: Path) -> dict:
         cfg["local_overlay"] = cfg["local_overlay"].rstrip("/") + "/"
         cfg["local"].append(cfg["local_overlay"])
     cfg.setdefault("dev", False)
+    cfg.setdefault("local_only", False)
+    cfg.setdefault("beta_into", "")
+    if cfg["beta_into"] and not cfg["local_only"]:
+        sys.exit(f"{cfg_path}: beta_into needs local_only true (a beta-only module is never released on its own)")
     cfg["dir"] = mod_dir
     # overrides tools/class_units.py remakes from gamecode/sdk/hoh2/ on every build (no .orig needed)
     cfg["generated"] = class_units.units_for(cfg["class_swaps"]) if paths.BASE_HOH2.is_dir() else []
@@ -184,12 +194,29 @@ def main(argv=None):
     ap.add_argument("--with-local", action="store_true",
                     help="also pack module.json `local` content (converted HoH1 levels); for your own "
                          "install only, never publish such a package")
+    ap.add_argument("--beta", action="store_true",
+                    help="a beta build: every module.json `beta_into` module is packed into its host's .bin "
+                         "(holylocal into HWP-core.bin); never publish such a package")
     args = ap.parse_args(argv)
 
     mods = [load_module(d) for d in paths.module_dirs()]
     if args.check:
         sys.exit(1 if check_overrides(mods) else 0)
     mods = [m for m in mods if not m["dev"]]     # dev harnesses are only ever linked (deploy.py --env gamelab)
+    # --beta: the beta_into modules ride inside their hosts and are never built on their own
+    beta = [m for m in mods if m["beta_into"]] if args.beta else []
+    for m in beta:
+        if m["beta_into"] not in {x["id"] for x in mods}:
+            sys.exit(f"{m['id']}: beta_into names an unknown module {m['beta_into']!r}")
+        if m["id"] in args.modules:
+            sys.exit(f"{m['id']} rides inside HWP-{m['beta_into']}.bin with --beta; do not name it as well")
+    mods = [m for m in mods if m not in beta]
+    if not args.modules:
+        mods = [m for m in mods if not m["local_only"]]   # local-only modules are built by name, with --with-local
+    elif not args.with_local:
+        for m in mods:
+            if m["local_only"] and m["id"] in args.modules:
+                sys.exit(f"{m['id']} is local_only: build it with --with-local (and never publish it)")
     known = {m["id"] for m in mods}
     for m in mods:
         for req in m["requires"]:
@@ -225,6 +252,17 @@ def main(argv=None):
         entries = module_entries(cfg, args.store, args.with_local)
         if args.with_local and any(is_local(cfg, rel) for rel, _fp in module_files(cfg, True)):
             print(f"  note: HWP-{cfg['id']}.bin contains locally generated content; do not publish it")
+        for rider in beta:
+            if rider["beta_into"] != cfg["id"]:
+                continue
+            # the rider's `local` content is the point of it, so it packs as if --with-local
+            riding = module_entries(rider, args.store, True)
+            taken = {e.path for e in entries}
+            clash = sorted(e.path for e in riding if e.path in taken)
+            if clash:
+                sys.exit(f"--beta: {rider['id']} and {cfg['id']} both pack {clash[0]}")
+            entries += riding
+            print(f"  beta: HWP-{cfg['id']}.bin carries {rider['id']} ({len(riding)} files); do not publish it")
         write_package(PACKAGE_PREFIX + cfg["id"], cfg["meta"], entries, args.store)
         for e in entries:
             if e.path in all_entries and all_entries[e.path].blob != e.blob:

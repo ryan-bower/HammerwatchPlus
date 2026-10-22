@@ -57,6 +57,14 @@ each one that plays differently from the skill's top level is an orb idea,
 the games shipped commented out (Remedy's ally aura, Vicious Cuts on skill hits, Flurry of
 Blades' extra strikes).
 
+## Alternate forms
+
+A skill that turns into another for a while (the Priest's Necrotic Resurrection becomes
+Sacrificial Penance at max Divine Favor) has that form as a skill record of its own, with
+`alt_of` (the skill it replaces) and `alt_when` (when). The form is drawn inside its skill's
+card and is left out of every count: the spec's active and passive tally, the budget meters,
+the overview and the orb lists.
+
 ## Status and the class dots
 
 A record's status runs idea, designed, built, tested, finished. The dot on a class's tab sums
@@ -78,3 +86,7 @@ placeholders) by
 which the server sends instead. A record with `hoh1_icon` (`"<cls>/<skill>"`, a key of
 `HOH1_REMASTERED_ICONS` in `tools/import_hoh1.py`) takes its icon from the HoH1 Remastered (now Echoes of Hammerwatch I)
 sheet, `mods/classes/players/hwp/remastered/icons.png`; `hoh1_file` names its HoH1 sval.
+A doctrine, skill or orb with `icon_art` (a name in `art/specs/override/`, e.g. `pri_rot_bloom`)
+takes that drawn icon instead, before the spec is in the game; a doctrine's shows beside its
+name. A skill's `hud_art` (`[[label, name], ...]`, 14x14 statuses from the same folder) lists
+its buff icons under "Status icons" on its card.

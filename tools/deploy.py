@@ -4,6 +4,8 @@
     deploy.py gamelab [mod ...]          # junction repo mods into the GameLab game dir, verify
     deploy.py modded-prod [mod ...]      # pack (tools/build.py) and copy .bin files to <install>/mods
     deploy.py modded-prod --dry-run      # list what would be written, write nothing
+    deploy.py modded-prod --beta         # a beta build: build.py --beta folds the `beta_into` modules
+                                         # (holylocal, the Priest without the DLC) into their hosts' .bin
     deploy.py vanilla                    # refuses: vanilla declares no mods
 
 gamelab: mods are directory junctions into mods/<id>/, so an edit in the repo *is* the
@@ -50,7 +52,7 @@ def deploy_gamelab(mods: list[str]) -> int:
     return 1 if problems else 0
 
 
-def deploy_prod(mods: list[str], dry_run: bool) -> int:
+def deploy_prod(mods: list[str], dry_run: bool, beta: bool = False) -> int:
     decl = env.environments()["modded-prod"]
     forbidden = decl.get("forbidden_mods", [])
     wanted = mods or decl["mods"]
@@ -62,14 +64,15 @@ def deploy_prod(mods: list[str], dry_run: bool) -> int:
     plan = [(gamepaths.DIST / f"HWP-{m}.bin", target / f"HWP-{m}.bin") for m in wanted]
     if dry_run:
         for src, dst in plan:
-            print(f"would build {src.relative_to(gamepaths.REPO)} and copy it to {dst}")
+            print(f"would build {src.relative_to(gamepaths.REPO)}{' (--beta)' if beta else ''} and copy it to {dst}")
         print(RELOAD)
         return 0
     unconfirmed = saves.confirmation_problems()
     if unconfirmed:
         print("REFUSED: modded-prod runs on the player's real saves; " + "; ".join(unconfirmed))
         return 2
-    r = subprocess.run([sys.executable, str(gamepaths.TOOLS / "build.py"), "--no-all", *wanted])
+    flags = ["--no-all"] + (["--beta"] if beta else [])
+    r = subprocess.run([sys.executable, str(gamepaths.TOOLS / "build.py"), *flags, *wanted])
     if r.returncode:
         return r.returncode
     target.mkdir(exist_ok=True)
@@ -85,13 +88,14 @@ def main(argv=None) -> int:
     ap.add_argument("env", choices=["gamelab", "modded-prod", "vanilla"])
     ap.add_argument("mods", nargs="*")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--beta", action="store_true", help="modded-prod: build with build.py --beta (never publish those .bin files)")
     a = ap.parse_args(argv)
     if a.env == "vanilla":
         print("REFUSED: the vanilla environment declares no mods")
         return 2
     if a.env == "gamelab":
         return deploy_gamelab(a.mods)
-    return deploy_prod(a.mods, a.dry_run)
+    return deploy_prod(a.mods, a.dry_run, a.beta)
 
 
 if __name__ == "__main__":

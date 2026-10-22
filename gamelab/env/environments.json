@@ -36,7 +36,8 @@
       "summons",
       "campaign",
       "wavemode",
-      "classes"
+      "classes",
+      "specs"
     ],
     "forbidden_mods": [
       "gamelab-*"

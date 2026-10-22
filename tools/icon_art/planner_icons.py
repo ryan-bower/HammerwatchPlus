@@ -9,6 +9,9 @@ A class skill with `hoh1_rect` (the HoH1 row) gets that cell too: the Remastered
 HoH1's gui/icons_skills.png copied whole, so only icons.local.png shows those (the committed
 placeholder has shapes only in the Remastered cells).
 An orb record on such a skill, unbuilt, shows its skill's icon (HoH1 had no orbs).
+A record not built yet whose icon is picked has `icon_art` (art/specs/override/<name>.png,
+keyed by the record's file name), and a skill's `hud_art` ([[label, name], ...]) adds its
+status icons (keyed by name); a 14x14 status icon sits centred in its 24x24 cell.
 The HoH1 classes' atlases are committed placeholders; when the local HoH1 art is imported
 (mods/classes/hoh1art/), the same sheet cut from it is written as icons.local.png
 (git-ignored), which the planner serves instead.
@@ -22,7 +25,8 @@ S = Path(sys.argv[1]) if len(sys.argv) > 1 else REPO / "planner/data"
 SVALS = [REPO / "gamecode/sdk/hoh2/players", REPO / "mods/firearms/players", REPO / "mods/classes/players",
          REPO / "mods/specs/players"]
 # a texture path resolves in the first package that has it, as the game's do
-BASES = [REPO / "mods/classes", REPO / "mods/firearms", REPO / "mods/specs", REPO / "gamecode/sdk/hoh2"]
+BASES = [REPO / "mods/classes", REPO / "mods/firearms", REPO / "mods/specs", REPO / "gamecode/sdk/hoh2", REPO]
+ART = "art/specs/override/"
 OVERLAY = REPO / "mods/classes/hoh1art"
 REMASTERED = "players/hwp/remastered/icons.png"
 sys.path.insert(0, str(REPO / "tools"))
@@ -65,6 +69,18 @@ for coll in ("skills", "mods"):
             want.add(key)
             icons[key] = (REMASTERED, (*HOH1_REMASTERED_ICONS[cls][sk], 24, 24))
 
+# picked art for records not built yet
+for coll in ("doctrines", "skills", "mods"):
+    for f in glob.glob(str(S / f"{coll}/*.json")):
+        d = json.load(open(f, encoding="utf-8")); d = d.get("data", d)
+        for key, name in ([(Path(f).stem, d["icon_art"])] if d.get("icon_art") else []) + [(n, n) for _, n in d.get("hud_art", [])]:
+            art = REPO / ART / f"{name}.png"
+            if not art.is_file():   # a typo or a renamed file in one record must not sink the whole sheet
+                print(f"warning: {Path(f).relative_to(REPO)}: no art {ART}{name}.png, skipped", file=sys.stderr)
+                continue
+            im = Image.open(art)
+            want.add(key); icons[key] = (ART + name + ".png", (0, 0, *im.size))
+
 # an orb record (mods/*.json) on an HoH1 skill has no art of its own (HoH1 had no orbs): it
 # shows its skill's icon until it is built
 for f in glob.glob(str(S / "mods/*.json")):
@@ -98,9 +114,12 @@ def sheet(overlay):
         path = texture(rel, overlay)
         im = tex.setdefault(path, Image.open(path).convert("RGBA"))
         cut = im.crop((x, y, x + w, y + h))
-        if (w, h) != (24, 24):
+        ox = oy = 0
+        if rel.startswith(ART) and (w, h) != (24, 24):   # a status icon: centred, not stretched
+            ox, oy = (24 - w) // 2, (24 - h) // 2
+        elif (w, h) != (24, 24):
             cut = cut.resize((24, 24), Image.NEAREST)
-        out.paste(cut, ((n % COLS) * 24, (n // COLS) * 24))
+        out.paste(cut, ((n % COLS) * 24 + ox, (n // COLS) * 24 + oy))
     return out
 
 

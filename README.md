@@ -16,7 +16,7 @@ needs `pets`.
 | Module | What it does |
 |---|---|
 | `firearms` | The **Firearms Specialist**, a new class. Guns fire from a clip that counts down per shot and reloads (automatically at 0, or with the Reload skill, which a dodge cancels); mana pays for gadgets. A rifle (30 rounds, 3-round bursts; the Grenade Launching Rifle has an under-barrel grenade launcher, the Flamethrower Rifle a mana-fed flamethrower held on right click, the Full Auto Rifle a wild full-auto spray) or pistols, one or two (10 rounds each, 20 dual), or Hand Cannons (half a pistol's rate, 1.5 times its damage, 6 rounds; with a pistol, a pistol-cannon-pistol burst). Base kit: Reload and Frag Grenade, whose orbs give Explosive Reload, Over-Reload's timed perfect reload, and Stun, Incendiary or Gas grenades. Four specializations, each with orbs: **Marksman** (Snipe, Critical Aim), **Demolitionist** (Rocket Launcher, Ordinance Hoarder), **Assault** (Double Barrel Burst, Adrenaline) and **Engineer** (Deploy Turret, My Turret!). New characters start with a Service Pistol. Details: `mods/firearms/README.md`; design: `docs/design/firearms.md`. |
-| `specs` | A **4th specialization** for six vanilla classes, one active and one passive each, with orbs: **Deadeye** Ranger (Lightning Arrow, Gathering Winds), **Aerotheurge** Wizard (Thunder Orb, Static Charge), **Arcane** Sorcerer (Blink, Living Mana), **Winddancer** Rogue (Protective Gale, Second Wind), **Bannerlord** Warrior (Battlefield Standard, Righteous Crusade) and **Branding** Warlock (Pyrebrand, Essence Extraction). Icons and sounds are the user's picks (`art/specs/`). |
+| `specs` | A **4th specialization** for six vanilla classes, one active and one passive each, with orbs: **Deadeye** Ranger (Lightning Arrow, Gathering Winds), **Aerotheurge** Wizard (Thunder Orb, Static Charge), **Arcane** Sorcerer (Blink, Living Mana), **Winddancer** Rogue (Protective Gale, Second Wind), **Bannerlord** Warrior (Battlefield Standard, Righteous Crusade), **Branding** Warlock (Pyrebrand, Essence Extraction) and the **Devil Forgemaster** Priest (Necrotic Resurrection, Call of Heresy: raise the enemies that fall with their body intact, bosses included, as summons that keep their own skills; Sacrificial Penance at max Divine Favor). Icons and sounds are the user's picks (`art/specs/`). The Forgemaster's risen and body units are generated from the base game by `tools/make_forgemaster_risen.py` (gitignored; `doctor --fix` makes them). |
 | `classes` | The HoH1 classes HoH2 lacks: **Thief**, **Gladiator** and **Witch Hunter**, three masteries each. The Thief's extra actives cast on core's Skill 4 key. The real HoH1 art comes from your own HoH1 install (`tools/import_hoh1.py classes`). |
 | `weapons` | Twelve new endgame weapons (ilvl 35, four per slot) with new modifier profiles on vanilla visuals and attacks. |
 | `weaponswap` | A second weapon set on a hotkey (default X): a 2 s channel standing still, cancelled by a dodge or a second press. |
@@ -134,13 +134,52 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
   a stack per spell cast, plus one on its first crit, and a new Lightning Rod orb). The ids are kept, so
   saves still work. `plan-specs` passes (run `20261021-212606`, 17 checks). The crit stack is not
   tested, because the lab can't force a crit.
-  The Paladin's and Priest's 4th specs are still being designed.
+  The Paladin's 4th spec is still being designed.
 - 2026-10-21: the Warlock's **Essence Extraction** now matches the planner (the user's version of
   Colin's design). Magic weapon hits (every arcane-tagged weapon) gain Essence once per 2 to 1 s, and
   Essence from a Pyrebranded enemy counts twice (two stacks; Drain Essence's bleed, health and mana
   twice). The old +max Essence and the melee-on-branded-elites gain are gone. Reading "trigger twice"
   that way is assumed. `plan-specs` passes (run `20261021-232748`). Known flaky: Lightning Arrow's
   Tailwind Catch caught 0 to 3 of 3 returning arrows across five runs (`storm_catch` failed twice).
+- 2026-10-22: the Priest's 4th spec, the **Devil Forgemaster**, is fully designed in the planner
+  (Necrotic Resurrection, Call of Heresy, Heresy as its own stack, which bosses can be raised).
+  Sacrificial Penance, the form Necrotic Resurrection takes at max Divine Favor, has its own
+  planner entry (new `alt_of` field): mana 50, sharing Necrotic Resurrection's cooldown. Its
+  icons are in the picker (`tools/icon_art/sp_pri.py`, then `sp_pri2.py`): the second pass on
+  the user's picks, plus the emblem, four orbs and the eating status; all 11 settled in
+  `art/specs/override/`, and shown in the planner). Penance consumes the Favor.
+- 2026-10-22: the **Devil Forgemaster** is built (`mods/specs`, `Forgemaster.as`). Any enemy death on
+  the floor rolls an intact body (green glow on the Forgemaster's own screen); Necrotic Resurrection
+  channels on it (3 s, 5 s elite, 10 s boss) and raises a copy of that enemy on your team with its own
+  skills at 50-100% health and damage (at least 120 health), up to 2-4 at once, decaying and never
+  healing, leash-teleporting
+  like other summons. Heresy +1/+2/+3 per raise, refused at 5; at max Divine Favor the same key is
+  Sacrificial Penance (50 mana, removes the level's 1-3 plus 1 for an elite body and 2 for a boss body).
+  The four orbs are in. The risen come from `tools/make_forgemaster_risen.py`: one risen and one body
+  unit per raisable enemy of the base game (141 units, the 10 non-final bosses included, at 3000-8000
+  health with their arena-only skills stripped and their player-only targeting opened up), checked for
+  well-formed XML and regenerated by `doctor --fix`. Tested by `plan-forgemaster` (run `20261022-102006`:
+  all 141 units raised, attack, follow and leash-teleport, seven of them support units that only buff;
+  the forge, Penance, Heresy and decay steps pass; that run's lunge and bosses steps failed on chance,
+  0 lunges in 25 bodies at 16% and the Face's first spew after its 15 s window) and
+  `plan-forgemaster-bosses` (run `20261022-084131`: Penance, Heresy, the lunge, all ten bosses raised,
+  attack, follow and leash). The fair-die check, the 40 bodies and the 25 s boss window pass in the
+  valid re-run `20261022-144616` (after a `/code-review medium`: Heresy and the cooldown come with
+  the host's answer to a raise, the cost is spent when the channel completes). The lunge now dodges
+  (the Dash skill) to just under the body, faces up and eats it bobbing 1 px with blood flying out;
+  a Penance dodges there too and a golden light grows out of the body as it channels
+  (`plan-forgemaster-eat 20261022-154317`). Balance is a first pass.
+- 2026-10-22: the **beta build** for testers without the Celestial Ruins DLC:
+  `python tools/deploy.py modded-prod --beta` folds `mods/holylocal` (the Priest and its weapons
+  with the `dlc has holy` conditional removed, local_only, used with the dev team's permission)
+  into HWP-core.bin, so only HWP-core and HWP-specs are enabled. A plain build never carries it.
+  Verified: with it the create-character list offers the Priest and "create" makes one
+  (`mod-holylocal-priest 20261022-163957`); without it there is no Priest
+  (`mod-holylocal-priest-control 20261022-164029`). **Remove `mods/holylocal/` before publishing.**
+- 2026-10-22: core overrides `GUI/PlayerMenu/Modifications.as` (one line) so the HWP skill
+  descriptions' `%param%` tokens are filled in the main menu's create-character tooltips, where
+  no player actor exists yet (assumed from the code, not run). The install's hidden-classes and
+  Firearms-figure complaints were a stale 10-19 deploy: redeploy with `deploy.py modded-prod --beta`.
 - Designed in the planner, not built, and parked for later: an "Echoes of Hammerwatch I"
   (formerly "HoH1 Remastered") 5th spec for every vanilla class (the Rogue's from the HoH1
   Thief, the Warrior's from the Gladiator), one active and one passive of HoH1's that HoH2

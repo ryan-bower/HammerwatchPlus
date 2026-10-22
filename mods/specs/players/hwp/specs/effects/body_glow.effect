@@ -1,0 +1,38 @@
+<effect looping="true" layer="-1">
+<!-- Devil Forgemaster: the green glow on an intact body, played on the Forgemaster's own screen
+     only (Forgemaster.as UpdateBodies). Hand-written: the gale_buff sparkles, slower, in green,
+     over a soft green light. -->
+	<sprite looping="true" origin="24 24" layer="-4" texture="effects/spritesheets/effects.png" material="system/default.mats:default-simple"
+			scale-x="(0.1+0.15*rand(i+16))+sin((t+l)*pi*0.5-i/4)*0.06"
+			scale-y="(0.1+0.15*rand(i+16))+sin((t+l)*pi*0.5-i/4)*0.06"
+			color-a="0.22+0.1*sin((t+l)*pi*2+i)"
+			color-r="0.35"
+			color-g="1"
+			color-b="0.45"
+			angle="((pi*2)/5)*i+((t+l)*pi)"
+			num-sprites="5"
+
+			pos-x="(-6+12*rand(8+i))+sin((t+l)*pi*0.7+i)*4"
+			pos-y="(-8+8*rand(6+i))-7*(1+sin((t+l)*pi*0.6+i))"
+			>
+			<frame time="250" x="365" y="768" w="48" h="48" />
+			<frame time="250" x="414" y="768" w="48" h="48" />
+			<frame time="250" x="463" y="768" w="48" h="48" />
+	</sprite>
+	<light>
+		<sprite texture="system/default_L.png">
+			<frame time="550">0 0 128 128</frame>
+		</sprite>
+		<looping value="true" />
+		<length value="2000" />
+		<cast-shadows value="false" />
+		<shadow-cast-pos-x value="0" />
+		<shadow-cast-pos-y value="0" />
+		<shadow-cast-pos-jitter value="0 0 0 0" />
+		<size value="48+6*sin(t*pi*2)" />
+		<color-r value="0.1"/>
+		<color-g value="0.45"/>
+		<color-b value="0.15"/>
+		<color-a value="0.0"/>
+	</light>
+</effect>

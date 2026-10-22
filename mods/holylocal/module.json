@@ -1,0 +1,13 @@
+{
+  "id": "holylocal",
+  "requires": [],
+  "local_only": true,
+  "beta_into": "core",
+  "local": ["players/", "tweak/"],
+  "overrides": [
+    "players/priest/class_priest.sval",
+    "tweak/items/equipment/equipment_weapons_mainhand.sval",
+    "tweak/items/equipment/equipment_weapons_offhand.sval"
+  ],
+  "exclude": ["README.md"]
+}
