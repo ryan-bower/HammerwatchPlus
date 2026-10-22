@@ -1,0 +1,25 @@
+{
+  "built": "",
+  "cls": "priest",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "+8% chance of elite intact body"
+    },
+    {
+      "q": "rare",
+      "text": "+15% chance of elite intact body"
+    },
+    {
+      "q": "epic",
+      "text": "+30% chance of BOSS intact body"
+    }
+  ],
+  "name": "Deeper Depravity",
+  "notes": "bosses will be able to be summoned and used by the player, but with a smaller model to fit through hallways, much less health, ability to move/follow you. Health decays slower than other summons.",
+  "order": null,
+  "skill": "priest-spec4-passive",
+  "status": "idea",
+  "summary": "Increase chance of elite and boss intact bodies"
+}

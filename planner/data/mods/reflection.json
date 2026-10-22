@@ -1,0 +1,25 @@
+{
+  "built": "",
+  "cls": "paladin",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "15% chance to reflect blocked projectile"
+    },
+    {
+      "q": "uncommon",
+      "text": "25% chance to reflect blocked projectile"
+    },
+    {
+      "q": "rare",
+      "text": "35% chance to reflect blocked projectile"
+    }
+  ],
+  "name": "Shield Reflection",
+  "notes": "",
+  "order": null,
+  "skill": "paladin-hoh1-shield",
+  "status": "idea",
+  "summary": "You have a chance to reflect projectiles you blocked back at the enemy"
+}

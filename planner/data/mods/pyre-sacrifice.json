@@ -1,0 +1,21 @@
+{
+  "built": "",
+  "cls": "priest",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "common",
+      "text": "Reduces heresy by 2"
+    },
+    {
+      "q": "uncommon",
+      "text": "Reduces heresy by 4"
+    }
+  ],
+  "name": "Pyre Sacrifice",
+  "notes": "",
+  "order": null,
+  "skill": "priest-spec4-active",
+  "status": "idea",
+  "summary": "Using pyre reduces you heresy"
+}

@@ -1,7 +1,7 @@
 {
   "built": "",
   "cls": "priest",
-  "cooldown": "",
+  "cooldown": "20",
   "group": "priest-spec4",
   "kind": "active",
   "levels": [
@@ -11,12 +11,12 @@
     "Up to 3 summons, 85% of the risen enemy's health and damage",
     "Up to 4 summons, 100% of the risen enemy's health and damage"
   ],
-  "mana": "",
+  "mana": "70",
   "name": "Necrotic Resurrection",
-  "notes": "Each cast costs 3 Favor; at fewer than 3 Favor the rest goes into Heresy (e.g. 1 Favor -> 2 Heresy). Risen summons can't be healed: the Lantern's Holy Light and other ally heals skip them (vanilla PlayerHeal heals any actor on your team, so the build has to exclude them). Level numbers are a first pass. Open questions: cast on the body nearest your aim or all bodies in an area; do summons last until killed or have a duration; what happens past the summon cap (oldest dies?); can elites and bosses leave bodies.",
+  "notes": "Each cast costs 3 Favor; at fewer than 3 Favor the rest goes into Heresy (e.g. 1 Favor -> 2 Heresy). Risen summons can't be healed: the Lantern's Holy Light and other ally heals skip them (vanilla PlayerHeal heals any actor on your team, so the build has to exclude them). Level numbers are a first pass. Cast on the body you aim at, takes 3 seconds to complete, 5 seconds for an elite, 10 for a boss.; last until killed or decay. they lose 1% health every 3 seconds, boss loses it every 9 seconds; past the summon cap oldest dies; boss resurection must be unlocked through a certain orb mod",
   "order": 0,
   "role": "",
   "status": "idea",
-  "summary": "Reanimate an intact body left by Call of Heresy as a loyal summon that fights for you. Each raise costs 3 Favor stacks.",
-  "unlock": "bought"
+  "summary": "Reanimate an intact body left by Call of Heresy as a loyal summon that fights for you. Their health decays slowly over time. Each summon reduces your favor by 3 stacks and can bring you into negative standing.",
+  "unlock": "free"
 }

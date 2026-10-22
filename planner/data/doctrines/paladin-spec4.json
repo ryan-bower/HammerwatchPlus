@@ -1,9 +1,10 @@
 {
   "blurb": "Placeholder: not designed yet.",
   "cls": "paladin",
-  "name": "Placeholder",
+  "name": "Palor's Disciple",
   "notes": "",
   "order": 4,
+  "owner": "",
   "spec4": true,
   "status": "idea"
 }

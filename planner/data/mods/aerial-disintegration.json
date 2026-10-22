@@ -1,0 +1,17 @@
+{
+  "built": "",
+  "cls": "priest",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "rare",
+      "text": "Smites all projectiles in range"
+    }
+  ],
+  "name": "Smite True",
+  "notes": "",
+  "order": null,
+  "skill": "priest-hoh1-smite",
+  "status": "idea",
+  "summary": "Deals true damage instead of hybrid, ignoring all armor and resistances"
+}

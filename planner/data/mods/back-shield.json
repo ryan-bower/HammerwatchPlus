@@ -1,0 +1,25 @@
+{
+  "built": "",
+  "cls": "paladin",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "30 degree back shield"
+    },
+    {
+      "q": "uncommon",
+      "text": "45 degree back shield"
+    },
+    {
+      "q": "rare",
+      "text": "60 degree back shield"
+    }
+  ],
+  "name": "Back Shield",
+  "notes": "",
+  "order": null,
+  "skill": "paladin-hoh1-shield",
+  "status": "idea",
+  "summary": "Your back is now shielded in a small range"
+}

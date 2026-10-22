@@ -1,0 +1,25 @@
+{
+  "built": "",
+  "cls": "priest",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Smite the undead"
+    },
+    {
+      "q": "rare",
+      "text": "Smite the arcane"
+    },
+    {
+      "q": "epic",
+      "text": "SMITE ALL"
+    }
+  ],
+  "name": "Smite the Unforgiven",
+  "notes": "undead is all undead monsters that are skeleton like or zombies. arcane are any wizards, casters, magical folk. all is all enemies.",
+  "order": null,
+  "skill": "priest-hoh1-smite",
+  "status": "idea",
+  "summary": "Deal double damage to certain mob types, including elites and bosses"
+}
