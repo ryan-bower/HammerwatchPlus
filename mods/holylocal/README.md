@@ -13,13 +13,16 @@ conditional removed, nothing else (the `.orig` copies are the pristine base file
 `<a><s>dlc</s><s>has</s><s>holy</s></a>` (one in the class, four in each weapon table), and refresh the
 `.orig` copies.
 
-It is `local_only` (module.json): `tools/build.py` skips it unless it is named with `--with-local`,
-and it is never part of the all-in-one package, so a release build cannot carry it by accident.
+It is `local_only` with `beta_into: "core"` (module.json): a beta build folds its three files into
+HWP-core.bin, so a tester enables only HWP-core and HWP-specs as usual, and a build without `--beta`
+never carries them (`tools/build.py` refuses to build it by name without `--with-local`, and it is never
+in the all-in-one package).
 
-    python tools/build.py --with-local holylocal
-    copy dist\HWP-holylocal.bin "<install>\mods\"
+    python tools/deploy.py modded-prod --beta      # build.py --beta, then the .bin files into <install>/mods
+    python tools/build.py --beta --no-all core      # just the bin: "beta: HWP-core.bin carries holylocal"
 
-Enable HWP-holylocal with HWP-core and HWP-specs on the save. Other `dlc has holy` gates (the chapel
-boons, the holy pets and trinkets, the heaven mission set, which `MissionGameMode` checks in code) are
-left alone. Not yet booted in the lab: the override check passes (`tools/build.py --check`), the
-in-game effect is assumed until a tester reports.
+Other `dlc has holy` gates (the chapel boons, the holy pets and trinkets, the heaven mission set, which
+`MissionGameMode` checks in code) are left alone. Verified in the lab, whose game has no Celestial Ruins
+DLC: with holylocal the create-character list offers the Priest, "select priest" shows its title and
+"create" makes a Priest standing in town (`mod-holylocal-priest`); with core alone the list has no
+Priest (`mod-holylocal-priest-control`). The run ids are in `docs/RE_NOTES.md`.

@@ -2822,3 +2822,17 @@ its run (`plan-forgemaster-smoke` and `plan-forgemaster`, `gamelab/results/`):
   `ilvl` and `tags` now. The gun arm stays pinned while shooting (`plan-firearms-arm 20261022-142503`,
   8/8); `mod-firearms 20261022-142427` and `mod-fishing 20261022-143232` (no rod sprites on the beach)
   pass. The Firearms class-picker showcase PNG is in place but not seen in a shot (assumed).
+- **The beta build: the Priest without the Celestial Ruins DLC.** `mods/holylocal` (local_only,
+  `beta_into: "core"`) holds the class and its weapon tables with the one `dlc has holy` conditional
+  removed. `tools/build.py --beta` (and `deploy.py modded-prod --beta`) folds its three files into
+  HWP-core.bin, so a tester enables only HWP-core and HWP-specs; a plain build never carries them
+  (`build.py --no-all core`: no `players/priest/class_priest.sval` in the bin; `--beta`: 44 files, the
+  packed class has no `dlc` conditional; naming holylocal as well as `--beta` is refused). Verified in
+  the lab, whose game has no Celestial Ruins DLC: with core+holylocal the create-character class list
+  is warrior, wizard, paladin, priest, ranger, `func select priest` shows the title "Priest" and `func
+  name-random` + `func create` makes a level 1 Priest standing in town (`mod-holylocal-priest
+  20261022-163957`, shots `with_priest_selected`, `with_priest_in_town`); with core alone the list is
+  warrior, wizard, paladin, ranger (`mod-holylocal-priest-control 20261022-164029`). The bot
+  (`gamelab/bots/holylocal_priest.py`) reads the list as the children of the `class-list` widget,
+  whose ids are the class ids (`CreateCharacterClass.as`). holylocal is for the private beta only,
+  with the dev team's permission; remove it before publishing.

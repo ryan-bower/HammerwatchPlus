@@ -169,6 +169,13 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
   (the Dash skill) to just under the body, faces up and eats it bobbing 1 px with blood flying out;
   a Penance dodges there too and a golden light grows out of the body as it channels
   (`plan-forgemaster-eat 20261022-154317`). Balance is a first pass.
+- 2026-10-22: the **beta build** for testers without the Celestial Ruins DLC:
+  `python tools/deploy.py modded-prod --beta` folds `mods/holylocal` (the Priest and its weapons
+  with the `dlc has holy` conditional removed, local_only, used with the dev team's permission)
+  into HWP-core.bin, so only HWP-core and HWP-specs are enabled. A plain build never carries it.
+  Verified: with it the create-character list offers the Priest and "create" makes one
+  (`mod-holylocal-priest 20261022-163957`); without it there is no Priest
+  (`mod-holylocal-priest-control 20261022-164029`). **Remove `mods/holylocal/` before publishing.**
 - Designed in the planner, not built, and parked for later: an "Echoes of Hammerwatch I"
   (formerly "HoH1 Remastered") 5th spec for every vanilla class (the Rogue's from the HoH1
   Thief, the Warrior's from the Gladiator), one active and one passive of HoH1's that HoH2

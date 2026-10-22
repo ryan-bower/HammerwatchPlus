@@ -83,6 +83,14 @@ with `--with-local`, `hoh1art/players/hwp/thief/icons.png` is packed as
 `players/hwp/thief/icons.png` instead of the committed placeholder. Without
 it (and in unpacked dev links) the placeholders are used.
 
+**Beta-only content.** A `local_only` module with `beta_into: "<host>"` (the
+`holylocal` module, the Priest without the Celestial Ruins DLC, into `core`)
+is never built on its own: `build.py --beta` (`deploy.py modded-prod --beta`)
+packs its files into the host's `.bin`, so a beta tester enables only the
+usual modules, and a build without `--beta` never carries them. Verified by
+`mod-holylocal-priest` (the Priest offered, selected and created in character
+creation with holylocal) and `mod-holylocal-priest-control` (no Priest without).
+
 The main menu loads the town level and constructs every `Modules::Module` subclass,
 but only gameplay modes tick `UpdateFrame` (measured 2026-10-17, `docs/RE_NOTES.md`).
 Put boot-time self-checks in the module constructor; a `log_has` step sees them.
