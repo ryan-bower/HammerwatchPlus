@@ -2566,5 +2566,15 @@ Planner only, nothing built:
   purple; 5+ is red hot, each idea the same letter's motif gone too far, so the two read apart.
   The planner shows no icon for them until they are built (`planner_icons.py` cuts icons from
   the game's atlases only).
-- How the 5+ icon swaps in game is not settled. Two stacks (one per icon) or a script swapping
-  the buff's icon are both possible; neither is checked against the engine yet.
+- The 5+ icon swaps on the one Heresy stack (the user's call: not two stacks). How to swap a
+  buff's icon in script is not checked against the engine yet.
+- Penance (the user's rules): mana 50, no cooldown of its own. It shares Necrotic Resurrection's,
+  so it can't be used while that is on cooldown. Using it starts no cooldown and switches the
+  skill back to Necrotic Resurrection, ready to cast. Assumed: the skill stays Necrotic
+  Resurrection until Favor next reaches its max.
+- Round 2 (`tools/icon_art/sp_pri2.py`, ids `specsP2.<name>`, same picker). The user's round-1
+  picks were Necrotic Resurrection a, Sacrificial Penance a, Call of Heresy c ("but replace the
+  sigil with an eye") and Heresy b at both levels. This round has three refinements of each pick,
+  with the pick beside them, plus first ideas for the six icons round 1 left out: the spec emblem
+  (`pri_class`), the four orbs (Ravenous Lunge, Rot Bloom, Pyre Sacrifice, Deeper Depravity) and
+  `hud_devouring`, the status shown during the 3 s lunge-and-eat channel.
