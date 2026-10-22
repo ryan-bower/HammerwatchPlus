@@ -14,7 +14,7 @@
     }
   ],
   "name": "Ravenous Lunge",
-  "notes": "In game (hwp_pri_coh_ravenous_lunge, tested): the lunge hits enemies within 50 of the landing for 100/150% of the main hand's damage; rare knocks back. plan-forgemaster-bosses 20261022-084131 (the forced lunge hits the brute beside the body; 25 bodies at a 16% chance). First-pass draft by Claude for the Devil Forgemaster; numbers and names are placeholders. The 3 s channel and the ability lockout stay; this only makes the lunge itself hit.",
+  "notes": "In game (hwp_pri_coh_ravenous_lunge, tested): the lunge hits enemies within 50 of the landing for 100/150% of the main hand's damage; rare knocks back. plan-forgemaster-bosses 20261022-144616 (the forced lunge hits a target dummy 30 px past the body; 40 bodies at a 16% chance).",
   "order": null,
   "skill": "priest-spec4-passive",
   "status": "tested",

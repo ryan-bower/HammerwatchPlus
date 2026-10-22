@@ -195,7 +195,7 @@ def main(argv=None):
     mods = [m for m in mods if not m["dev"]]     # dev harnesses are only ever linked (deploy.py --env gamelab)
     if not args.modules:
         mods = [m for m in mods if not m["local_only"]]   # local-only modules are built by name, with --with-local
-    elif not args.with_local and not args.check:
+    elif not args.with_local:
         for m in mods:
             if m["local_only"] and m["id"] in args.modules:
                 sys.exit(f"{m['id']} is local_only: build it with --with-local (and never publish it)")

@@ -1,0 +1,203 @@
+class EquipmentSellerShopContent : AShopContent
+{
+	array<float> m_priceRate;
+	array<int> m_maxILvl;
+
+	array<Equipment::Equipment@> m_eqipmentChoices;
+
+	bool m_armory;
+
+
+	EquipmentSellerShopContent(float priceRate, int maxILvl)
+	{
+		m_priceRate.insertLast(priceRate);
+		m_maxILvl.insertLast(maxILvl);
+	}
+
+	EquipmentSellerShopContent(UnitPtr u, SValue& params)
+	{
+		super(u, params);
+		
+		m_armory = GetParamBool(u, params, "armory", false, false);
+		
+		auto rateArr = GetParamArray(u, params, "price-rate", true);
+		if (rateArr !is null)
+		{
+			for (uint i = 0; i < rateArr.length(); i++)
+				m_priceRate.insertLast(rateArr[i].GetFloat());
+		}
+		
+		if (m_priceRate.length() <= 0)
+			m_priceRate.insertLast(3.0f);
+		
+		
+		auto ilvlArr = GetParamArray(u, params, "max-ilvl", true);
+		if (ilvlArr !is null)
+		{
+			for (uint i = 0; i < ilvlArr.length(); i++)
+				m_maxILvl.insertLast(ilvlArr[i].GetInteger());
+		}
+		
+		if (m_maxILvl.length() <= 0)
+			m_maxILvl.insertLast(10);
+	}
+
+	string GetName() override { return ".npc.shop.equip.buy"; }
+
+	bool Buy(const string &in func, uint hash, IShopItem@ item) override
+	{
+		if (func != "buy")
+			return false;
+		
+		auto equipmentItem = cast<EquipmentSellerShopContentItem>(item).m_item;
+		m_player.GiveItem(equipmentItem);
+		
+		for (uint i = 0; i < m_eqipmentChoices.length(); i++)
+		{
+			if (m_eqipmentChoices[i] is equipmentItem)
+			{
+				m_eqipmentChoices.removeAt(i);
+				break;
+			}
+		}
+		
+		return true;
+	}
+
+	void FillEquipmentChoices(int ilvl)
+	{
+		Equipment::Generator gen;
+		//gen.m_slots = Equipment::Slot(~(uint(Equipment::Slot::MainHand) & uint(Equipment::Slot::OffHand) & uint(Equipment::Slot::TwoHanded)));
+		gen.m_slots = Equipment::Slot(
+			uint(Equipment::Slot::Head) | 
+			uint(Equipment::Slot::Chest) | 
+			uint(Equipment::Slot::Feet) | 
+			uint(Equipment::Slot::Hands) | 
+			uint(Equipment::Slot::Back) | 
+			uint(Equipment::Slot::MainHand) | 
+			uint(Equipment::Slot::OffHand) | 
+			uint(Equipment::Slot::TwoHanded)
+		);
+		
+		gen.m_qualities = Item::Quality::Uncommon;
+		
+		while (m_eqipmentChoices.length() < 8)
+		{
+			gen.m_ilvl = max(1, ilvl - randi(2));
+			auto newItem = gen.GenerateKindItem(m_player);
+			
+			bool duplicate = false;				
+			auto bItem = cast<Equipment::Item>(newItem);
+
+			if(bItem !is null && !CheckGlobalConditionals(bItem.baseItem.m_conditionals))
+			{
+				continue;
+			}
+
+			for (uint i = 0; i < m_eqipmentChoices.length(); i++)
+			{
+				auto aItem = cast<Equipment::Item>(m_eqipmentChoices[i]);
+				
+				if (aItem !is null && bItem !is null && aItem.baseItem is bItem.baseItem)
+				{
+					duplicate = true;
+					break;
+				}
+			}
+			
+			if (duplicate)
+				continue;
+			
+			m_eqipmentChoices.insertLast(newItem);
+		}
+	}
+
+	void FillEquipmentChoicesArmory(int ilvl)
+	{
+		m_eqipmentChoices.removeRange(0, m_eqipmentChoices.length());
+		
+		Equipment::Generator gen;
+		gen.m_qualities = Item::Quality::Common;
+		gen.m_ilvl = ilvl;
+		
+		auto tag = HashString("armory");
+		for (uint i = 0; i < Equipment::BaseItem::Instances.length(); i++)
+		{
+			auto baseItem = Equipment::BaseItem::Instances[i];
+			bool foundTag = false;
+			
+			for (uint t = 0; t < baseItem.supportedTags.length(); t++)
+			{
+				if (baseItem.supportedTags[t] == tag)
+				{
+					foundTag = true;
+					break;
+				}
+			}
+			
+			if (!foundTag)
+				continue;
+				
+			if(!CheckGlobalConditionals(baseItem.m_conditionals))
+				continue;
+			
+			m_eqipmentChoices.insertLast(cast<Equipment::Item>(gen.GenerateItem(baseItem)));
+		}
+	}
+
+	array<IShopItem@> GetItems() override
+	{
+		if (m_eqipmentChoices.length() <= 0)
+		{
+			int ilvl = max(1, min(m_player.level - 1, m_maxILvl[min(m_shopLevel, m_maxILvl.length() - 1)]));
+			if (m_armory)
+				FillEquipmentChoicesArmory(ilvl);
+			else
+				FillEquipmentChoices(ilvl);
+		}
+		
+		float priceRate = m_priceRate[min(m_shopLevel, m_priceRate.length() - 1)];
+		array<IShopItem@> ret;
+		for (uint i = 0; i < m_eqipmentChoices.length(); i++)
+			ret.insertLast(EquipmentSellerShopContentItem(this, m_eqipmentChoices[i], i, ShopCost(MaterialType::Gold, int(m_eqipmentChoices[i].GetPrice() * priceRate))));
+		return ret;
+	}
+
+}
+
+class EquipmentSellerShopContentItem : IShopItem
+{
+	AShopContent@ m_shop;
+	Equipment::Equipment@ m_item;
+	uint m_index;
+	ShopCost@ m_cost;
+
+	EquipmentSellerShopContentItem(AShopContent@ shop, Equipment::Equipment@ item, uint index, ShopCost@ cost)
+	{
+		@m_shop = shop;
+		@m_item = item;
+		m_index = index;
+		@m_cost = cost;
+	}
+
+	string GetID() { return m_index; }
+	uint GetIDHash() { return m_index; }
+	string GetTitle() { return "\\c" + Item::QualityColorString(m_item.GetQuality()) + m_item.GetName(); }
+	string GetSubTitle() { return Resources::GetString(".tooltip.equipment.ilvl", {{"ilvl", m_item.GetItemLevelText()}}); }
+	string GetDescription() { return ""; }
+	ScriptSprite@ GetIcon() { return m_item.GetIcon(); }
+	Sprite@ GetBackground() { return GetQualitySprite(m_item.GetQuality()); }
+	ShopCost@ GetCost() { return m_cost; }
+	bool AutoSpendCost() { return true; }
+	string OnFunc() { return "buy"; }
+	//bool IsAvailable(PlayerRecord@ player) { return CheckConditionals(m_mission.m_conditionals, player); }
+	bool IsAvailable(PlayerRecord@ player) { return true; } // Already checked
+	
+	void ShowTooltip(WindowManager@ manager, bool compare)
+	{
+		auto tt = Item::BuildItemTooltip(m_item, 0, 1, false);
+		manager.SetTooltip(tt, true);
+	}
+
+	Item::Item@ GetItem() { return m_item; }
+}

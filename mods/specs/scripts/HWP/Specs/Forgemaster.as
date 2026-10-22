@@ -13,12 +13,21 @@
 //   x (1 + Heresy x coh-dmg), unhealable, decaying 1% every 3 s (a boss 9 s).
 // - HWPSpecsResurrection: the skill. It needs a body within RAISE_RANGE and Heresy below 5;
 //   its cast starts a channel on the caster's client (the raising buff: 3 s, elite 5 s, boss
-//   10 s), and UpdateForgemaster finishes it: Heresy +1/+2/+3 and the host raises the body
-//   (specs.raise request). At max Divine Favor it is Sacrificial Penance: 3 s, 50 mana, Heresy
-//   -(nr-penance + 1 elite + 2 boss), Divine Favor spent, no cooldown.
+//   10 s), and UpdateForgemaster finishes it: the skill's mana and cooldown are spent then (a
+//   cancelled channel costs nothing) and the host raises the body (specs.raise request) and
+//   answers specs.raised, which adds Heresy +1/+2/+3 on the caster's client; a body that was
+//   gone when the host looked (another Forgemaster's raise, its time up) answers
+//   specs.raise_denied: no Heresy, the cooldown given back. At max Divine Favor it is
+//   Sacrificial Penance: 3 s, 50 mana, Heresy -(nr-penance + 1 elite + 2 boss), Divine Favor
+//   spent, no cooldown.
 // - The Heresy lunge: once per body, the first time the Forgemaster is within LUNGE_RANGE,
-//   chance Heresy x coh-lunge: the priest jumps to the body, eats it (devouring buff 3 s) and
-//   Ravenous Lunge hits the enemies around it.
+//   chance Heresy x coh-lunge: the priest dodges (its own Dash skill, so the dodge animation,
+//   dust and sound) to EAT_BELOW px under the body, faces up and eats it (devouring buff 3 s:
+//   rooted, rotation locked, a 1 px bob every EAT_BOB_MS, blood out of the body every
+//   EAT_BLOOD_MS; the body goes when the eating ends), and Ravenous Lunge hits the enemies
+//   around the body. A Penance channel dodges to the same spot, faces up and stands still while
+//   a golden light pulses out of the body (penance_light.effect every PEN_LIGHT_MS), brighter
+//   as the channel runs (the user, 2026-10-22).
 // - HWPSpecsRisenCap lifts the vanilla one-per-unit summon cap for risen producers; the owner's
 //   client keeps the total at nr-count, the oldest going first (EnforceCap, as Player.as does).
 // - HWPSpecsPyre (class swap of PyreUnitBehavior): Pyre Sacrifice lowers Heresy on use.
@@ -38,6 +47,12 @@ namespace HWP
 		const int RAISE_RANGE = 150;
 		const int LUNGE_RANGE = 40;
 		const int LUNGE_HIT_RADIUS = 50;
+		const int EAT_BELOW = 10;        // px under the body's origin the priest stands to eat or channel
+		const int EAT_BOB_MS = 250;      // half period of the eating bob (1 px up, 1 px down)
+		const int EAT_BLOOD_MS = 300;    // blood out of the body while eating
+		const int PEN_LIGHT_MS = 150;    // the golden light's pulses during a Penance channel
+		const int DODGE_MAX_MS = 600;    // a dodge to the body that takes longer is snapped there
+		const uint DASH = HashString("dash_skill");
 		const int BLOOM_RADIUS = 60;
 		const int PENANCE_MANA = 50;
 		const int CHANNEL_NORMAL = 3000;
@@ -57,7 +72,36 @@ namespace HWP
 			bool m_penance;
 			int m_left;
 			int m_total;
+			HWPSpecsResurrection@ m_skill;   // null for a channel the console forced
+			PointCost@ m_cost;               // spent when the channel completes
+			// a Penance: the dodge to under the body on the first frame, then the light
+			bool m_dodge;
+			bool m_dodging;
+			int m_dodgeC;
+			vec2 m_spot;
+			int m_lightC;
 		}
+
+		// the priest eating a body after a lunge (the Forgemaster's own client)
+		class Eating
+		{
+			PlayerBase@ m_plr;
+			UnitPtr m_body;
+			vec2 m_spot;
+			bool m_dodging;
+			int m_dodgeC;
+			bool m_up;
+			int m_bobC;
+			int m_bloodC;
+			int m_bobs;
+			int m_bloods;
+		}
+		Eating@ g_eat;
+		// the last eating's and Penance stance's measurements, kept after they end so a slow reader
+		// (the test bot after a screenshot) still sees them: the facing in degrees (up is -90) and the
+		// priest's offset from the body, recorded at each bob and each light pulse after the landing
+		int g_eatBobs, g_eatBloods, g_eatFacing = 999;
+		int g_penLights, g_penFacing = 999, g_penBeside = 999, g_penUnder = 999;
 
 		array<HWPSpecsBody@> g_bodies;
 		RaiseChannel@ g_channel;
@@ -322,9 +366,12 @@ namespace HWP
 		{
 			auto u = g_scene.GetUnit(HWP::SV::Int(data, "body", 0));
 			auto body = BodyOf(u);
+			int bodyId = HWP::SV::Int(data, "body", 0);
 			if (body is null)
 			{
-				LogError("specs", "raise: body " + HWP::SV::Int(data, "body", 0) + " is gone");
+				// another Forgemaster's raise got there first, or the body's time ran out
+				Log("specs", "raise: body " + bodyId + " is gone, denied for peer " + peer);
+				RaiseAnswer(peer, "specs.raise_denied", bodyId, 0);
 				return;
 			}
 			auto rec = GetPlayerRecordByPeer(peer);
@@ -334,6 +381,7 @@ namespace HWP
 			if (prod is null)
 			{
 				LogError("specs", "raise: no risen unit " + body.m_source);
+				RaiseAnswer(peer, "specs.raise_denied", bodyId, 0);
 				return;
 			}
 			vec2 pos = xy(u.GetPosition());
@@ -346,11 +394,44 @@ namespace HWP
 			g_lastRaise = body.m_source.substr(RISEN_DIR.length());
 			Log("specs", "raised " + g_lastRaise + " for peer " + peer + " unit " + (Alive(risen) ? risen.GetId() : -1)
 				+ (body.m_boss ? " boss" : body.m_elite ? " elite" : ""));
+			RaiseAnswer(peer, "specs.raised", bodyId, body.m_boss ? 3 : body.m_elite ? 2 : 1);
+		}
+
+		void RaiseAnswer(uint8 peer, const string &in name, int bodyId, int heresy)
+		{
+			SValueBuilder b;
+			b.PushDictionary();
+			b.PushInteger("body", bodyId);
+			b.PushInteger("heresy", heresy);
+			b.PopDictionary();
+			HWP::Net::Send(peer, name, b.Build());
+		}
+
+		// the caster's client: the host raised the body, Heresy +1 (+2 elite, +3 boss)
+		void OnRaised(SValue@ data)
+		{
+			auto plr = cast<PlayerBase>(GetLocalPlayer());
+			if (plr !is null)
+				AddHeresy(plr, HWP::SV::Int(data, "heresy", 1));
+		}
+
+		// the caster's client: no body to raise when the host looked: no Heresy, and the cooldown
+		// the completed channel started is given back
+		void OnRaiseDenied(SValue@ data)
+		{
+			auto plr = cast<PlayerBase>(GetLocalPlayer());
+			if (plr is null)
+				return;
+			auto sk = FindSkill(plr, NR);
+			if (sk !is null)
+				sk.ResetCooldown();
+			Log("specs", "raise denied: body " + HWP::SV::Int(data, "body", 0) + " was gone");
 		}
 
 		// --- the channel (the caster's client) -------------------------------------------------
 
-		void StartChannel(PlayerBase@ plr, HWPSpecsBody@ body, bool penance, int duration = -1)
+		void StartChannel(PlayerBase@ plr, HWPSpecsBody@ body, bool penance, int duration = -1,
+			HWPSpecsResurrection@ skill = null, PointCost@ cost = null)
 		{
 			if (plr is null || body is null)
 				return;
@@ -362,9 +443,15 @@ namespace HWP
 			c.m_penance = penance;
 			c.m_left = duration;
 			c.m_total = duration;
+			@c.m_skill = skill;
+			@c.m_cost = cost;
+			c.m_dodge = penance && duration > 0;
+			c.m_spot = EatSpot(body.m_unit);
 			@g_channel = c;
 			if (duration > 0)
 				Give(plr, plr, Buff("raising"), 1.0f, duration);
+			if (c.m_dodge)
+				Give(plr, plr, Buff("penance_stance"), 1.0f, duration);
 			Log("specs", (penance ? "penance" : "raise") + " channel " + duration + " ms on " + body.m_unit.GetId());
 		}
 
@@ -386,6 +473,11 @@ namespace HWP
 			auto plr = c.m_plr;
 			if (body is null || plr is null || plr.IsDead())
 				return;
+			// the skill's cost and cooldown, now that the channel has run its course
+			if (c.m_cost !is null)
+				plr.UsePoints(true, true, c.m_cost);
+			if (!c.m_penance && c.m_skill !is null)
+				c.m_skill.StartRaiseCooldown();
 			if (c.m_penance)
 			{
 				int rm = BindI(plr, NR, "nr-penance", 1) + (body.m_elite ? 1 : 0) + (body.m_boss ? 2 : 0);
@@ -402,7 +494,7 @@ namespace HWP
 			}
 			else
 			{
-				AddHeresy(plr, body.m_boss ? 3 : body.m_elite ? 2 : 1);
+				// Heresy comes with the host's answer (OnRaised / OnRaiseDenied)
 				SValueBuilder b;
 				b.PushDictionary();
 				b.PushInteger("body", c.m_body.GetId());
@@ -432,9 +524,177 @@ namespace HWP
 				CancelChannel("the raising buff ended early");
 				return;
 			}
+			if (c.m_penance && c.m_total > 0)
+				UpdatePenanceStance(c, ms);
 			c.m_left -= ms;
 			if (c.m_left <= 0)
 				CompleteChannel();
+		}
+
+		// the Penance stance: the first frame dodges to under the body (not from inside the skill's
+		// own NetActivate), the landing faces up, and the body shines gold, brighter as the channel runs
+		void UpdatePenanceStance(RaiseChannel@ c, int ms)
+		{
+			auto plr = c.m_plr;
+			if (c.m_dodge)
+			{
+				c.m_dodge = false;
+				c.m_dodging = DodgeTo(plr, c.m_spot);
+				c.m_dodgeC = DODGE_MAX_MS;
+				if (!c.m_dodging)
+					FaceUp(plr);
+			}
+			if (c.m_dodging)
+			{
+				c.m_dodgeC -= ms;
+				if (DodgeDone(plr) || c.m_dodgeC <= 0)
+				{
+					c.m_dodging = false;
+					Land(plr, c.m_spot);
+				}
+			}
+			c.m_lightC -= ms;
+			if (c.m_lightC <= 0)
+			{
+				c.m_lightC += PEN_LIGHT_MS;
+				float t = 1.0f - float(c.m_left) / float(max(1, c.m_total));   // 0 at the start, 1 at the end
+				dictionary ps = { { 'scale', 0.3f + 1.2f * t } };
+				vec2 at = xy(c.m_body.GetPosition());
+				PlayEffect(FX + "penance_light.effect", at, ps);
+				g_penLights++;
+				if (!c.m_dodging)
+				{
+					vec2 pp = xy(plr.m_unit.GetPosition());
+					g_penFacing = Rounded(plr.m_dirAngle * 180 / PI);
+					g_penBeside = Rounded(pp.x - at.x);
+					g_penUnder = Rounded(pp.y - at.y);
+				}
+			}
+		}
+
+		// --- the dodge to a body, shared by the lunge and the Penance -----------------------------
+
+		vec2 EatSpot(UnitPtr body)
+		{
+			vec2 p = xy(body.GetPosition());
+			return vec2(p.x, p.y + EAT_BELOW);
+		}
+
+		// the player's own Dash (Skills::Charge) for exactly the distance to the spot: the dodge
+		// animation, dust and sound, seen by every peer (Activate sends PlayerActiveSkillActivate).
+		// False, and the priest is put on the spot, when the dash can't go (no dash charge).
+		bool DodgeTo(PlayerBase@ plr, vec2 spot)
+		{
+			vec2 from = xy(plr.m_unit.GetPosition());
+			vec2 d = spot - from;
+			float len = length(d);
+			if (len >= 2)
+			{
+				auto dash = cast<Skills::Charge>(FindSkill(plr, DASH));
+				if (dash !is null)
+				{
+					// the dash's castpoint is 0, which Activate makes 1 ms: NetDoActivate copies m_dist into
+					// m_distC on the next frame, so the shortened m_dist stays until the landing restores it
+					// (eat 20261022-152706: restored at once, the dash ran its full 90 px after the snap)
+					if (g_dashKeep < 0)
+						g_dashKeep = dash.m_dist;
+					dash.m_dist = int(len + 0.5f);
+					dash.ResetCooldown();
+					if (dash.Activate(d / len, 1.0f))
+						return true;
+					RestoreDash(dash);
+				}
+			}
+			auto p = plr.m_unit.GetPosition();
+			plr.m_unit.SetPosition(spot.x, spot.y, p.z);
+			return false;
+		}
+
+		int g_dashKeep = -1;   // the dash's own m_dist while a dodge borrows it
+
+		void RestoreDash(Skills::Charge@ dash)
+		{
+			if (dash !is null && g_dashKeep >= 0)
+				dash.m_dist = g_dashKeep;
+			g_dashKeep = -1;
+		}
+
+		int Rounded(float v) { return int(v + (v < 0 ? -0.5f : 0.5f)); }
+
+		bool DodgeDone(PlayerBase@ plr)
+		{
+			auto dash = cast<Skills::Charge>(FindSkill(plr, DASH));
+			// not before the cast fired (m_castingC, 1 ms) and the distance is used up
+			return dash is null || (dash.m_castingC <= 0 && dash.m_distC <= 0);
+		}
+
+		// facing the body: up the screen (-y); the devouring and penance_stance buffs lock the rotation
+		void FaceUp(PlayerBase@ plr)
+		{
+			plr.SetAngle(-PI / 2);
+		}
+
+		void Land(PlayerBase@ plr, vec2 spot)
+		{
+			auto dash = cast<Skills::Charge>(FindSkill(plr, DASH));
+			if (dash !is null && dash.m_distC > 0)
+				dash.CancelCharge();   // the 600 ms fallback: a dash still running would carry on past the spot
+			RestoreDash(dash);
+			auto p = plr.m_unit.GetPosition();
+			plr.m_unit.SetPosition(spot.x, spot.y, p.z);
+			FaceUp(plr);
+		}
+
+		// the eating: the landing, then the bob and the blood until the devouring buff ends or the
+		// body is gone (another Forgemaster's raise, its time up); the body goes when the eating ends
+		void UpdateEating(int ms)
+		{
+			if (g_eat is null)
+				return;
+			auto e = g_eat;
+			auto plr = e.m_plr;
+			if (plr is null || plr.IsDead())
+			{
+				@g_eat = null;
+				return;
+			}
+			if (e.m_dodging)
+			{
+				e.m_dodgeC -= ms;
+				if (!DodgeDone(plr) && e.m_dodgeC > 0)
+					return;
+				e.m_dodging = false;
+				Land(plr, e.m_spot);
+			}
+			auto dv = Buff("devouring");
+			if (dv is null || !plr.HasBuff(dv.m_pathHash) || !Alive(e.m_body))
+			{
+				if (Alive(e.m_body))
+					RequestBodyGone(e.m_body);
+				Log("specs", "eaten: " + e.m_bobs + " bobs, " + e.m_bloods + " bloods");
+				g_eatBobs = e.m_bobs;
+				g_eatBloods = e.m_bloods;
+				@g_eat = null;
+				return;
+			}
+			e.m_bobC -= ms;
+			if (e.m_bobC <= 0)
+			{
+				e.m_bobC += EAT_BOB_MS;
+				e.m_up = !e.m_up;
+				e.m_bobs++;
+				g_eatFacing = Rounded(plr.m_dirAngle * 180 / PI);
+				auto p = plr.m_unit.GetPosition();
+				plr.m_unit.SetPosition(e.m_spot.x, e.m_spot.y - (e.m_up ? 1 : 0), p.z);
+			}
+			e.m_bloodC -= ms;
+			if (e.m_bloodC <= 0)
+			{
+				e.m_bloodC += EAT_BLOOD_MS;
+				e.m_bloods++;
+				dictionary ps = { { 'scale', 0.8f } };
+				PlayEffect("effects/gore/blood/hit_blood.effect", xy(e.m_body.GetPosition()), ps);
+			}
 		}
 
 		// --- the lunge (the Forgemaster's client) ----------------------------------------------
@@ -442,9 +702,17 @@ namespace HWP
 		void Lunge(PlayerBase@ plr, HWPSpecsBody@ body)
 		{
 			vec2 pos = xy(body.m_unit.GetPosition());
-			auto p = plr.m_unit.GetPosition();
-			plr.m_unit.SetPosition(pos.x, pos.y, p.z);
 			Give(plr, plr, Buff("devouring"), 1.0f, -1);
+			auto e = Eating();
+			@e.m_plr = plr;
+			e.m_body = body.m_unit;
+			e.m_spot = EatSpot(body.m_unit);
+			e.m_dodging = DodgeTo(plr, e.m_spot);
+			e.m_dodgeC = DODGE_MAX_MS;
+			e.m_bobC = EAT_BOB_MS;
+			if (!e.m_dodging)
+				FaceUp(plr);
+			@g_eat = e;
 			float rl = BindF(plr, COH, "rl-dmg", 0);
 			if (rl > 0)
 			{
@@ -466,12 +734,15 @@ namespace HWP
 			}
 			g_lunges++;
 			Log("specs", "lunge at " + body.m_unit.GetId() + (rl > 0 ? " hitting for " + int(rl * WeaponDamage(plr)) : ""));
-			RequestBodyGone(body.m_unit);
 		}
 
+		// The roll is the Forgemaster's own client's, like the channel (its position and buffs are
+		// its client's to set, and the hit's damage goes through the summon damage path). Two
+		// Forgemasters can each lunge the same body: the host destroys it once (OnBodyGone) and
+		// both get their devouring buff, which is harmless.
 		void UpdateLunge(PlayerBase@ plr)
 		{
-			if (plr is null || plr.IsDead() || g_channel !is null)
+			if (plr is null || plr.IsDead() || g_channel !is null || g_eat !is null)
 				return;
 			int heresy = Heresy(plr);
 			float per = BindF(plr, COH, "coh-lunge", 0);
@@ -560,20 +831,6 @@ namespace HWP
 			nm.Initialize(unit, b);
 			g_movesSwapped++;
 			return nm;
-		}
-
-		// the level flags a boss's skills are gated on (CondFlag reads g_flags), which its arena's
-		// script sets during the fight: a risen boss asserts them itself (RisenFlags). The face's
-		// skills want boss_skills, a totem pole's totem_skills, the bandit's its last room's room_4.
-		string FightFlags(const string &in res)
-		{
-			if (res.findFirst("bosses/boss_face/") >= 0)
-				return "boss_skills";
-			if (res.findFirst("bosses/boss_totempole/") >= 0)
-				return "totem_skills";
-			if (res.findFirst("bosses/boss_bandit/") >= 0)
-				return "room_4";
-			return "";
 		}
 
 		bool DangerousSpawn(SpawnUnit@ su)
@@ -696,7 +953,28 @@ namespace HWP
 			if (plr is null || !Learned(plr, NR))
 				return;
 			int cap = BindI(plr, NR, "nr-count", 2);
+			auto risen = RisenUnits(plr);
+			while (int(risen.length()) > cap)
+			{
+				uint oldest = 0;
+				for (uint i = 1; i < risen.length(); i++)
+				{
+					if (RisenSeq(risen[i]) < RisenSeq(risen[oldest]))
+						oldest = i;
+				}
+				DestroyRisen(risen[oldest]);
+				risen.removeAt(oldest);
+				g_capKills++;
+				Log("specs", "cap " + cap + ": the oldest risen is gone");
+			}
+		}
+
+		// the player's living risen: the summons of the risen producers (RISEN_DIR)
+		array<IOwnedUnit@> RisenUnits(PlayerBase@ plr)
+		{
 			array<IOwnedUnit@> risen;
+			if (plr is null || plr.m_record is null)
+				return risen;
 			auto@ summons = plr.m_record.summons;
 			for (uint i = 0; i < summons.length(); i++)
 			{
@@ -709,23 +987,16 @@ namespace HWP
 						risen.insertLast(u);
 				}
 			}
-			while (int(risen.length()) > cap)
-			{
-				uint oldest = 0;
-				for (uint i = 1; i < risen.length(); i++)
-				{
-					if (RisenSeq(risen[i]) < RisenSeq(risen[oldest]))
-						oldest = i;
-				}
-				auto u = risen[oldest];
-				if (Network::IsServer())
-					u.Destroy();
-				else
-					(Network::Message("UnitDestroyed") << u.GetUnit()).SendToHost();
-				risen.removeAt(oldest);
-				g_capKills++;
-				Log("specs", "cap " + cap + ": the oldest risen is gone");
-			}
+			return risen;
+		}
+
+		// a risen's end, from any peer (a client asks the host, as Player.as does for its summons)
+		void DestroyRisen(IOwnedUnit@ u)
+		{
+			if (Network::IsServer())
+				u.Destroy();
+			else
+				(Network::Message("UnitDestroyed") << u.GetUnit()).SendToHost();
 		}
 
 		int RisenCount(PlayerBase@ plr)
@@ -813,6 +1084,7 @@ namespace HWP
 				return;
 			}
 			UpdateChannel(ms);
+			UpdateEating(ms);
 			UpdateLunge(fm);
 			UpdateHeresyHud(fm);
 			auto sk = cast<HWPSpecsResurrection>(FindSkill(fm, NR));
@@ -945,16 +1217,13 @@ namespace HWP
 				// hwp forge decay <ms>: every risen's decay clock runs ahead by that much
 				int add = int(parseInt(args[1]));
 				int n = 0;
-				auto@ summons = plr.m_record.summons;
-				for (uint i = 0; i < summons.length(); i++)
+				auto risen = RisenUnits(plr);
+				for (uint i = 0; i < risen.length(); i++)
 				{
-					for (uint j = 0; j < summons[i].m_units.length(); j++)
-					{
-						auto r = cast<HWPSpecsRisen>(summons[i].m_units[j]);
-						if (r !is null) { r.m_decayAhead += add; n++; }
-						auto s = cast<HWPSpecsRisenState>(summons[i].m_units[j]);
-						if (s !is null) { s.m_decayAhead += add; n++; }
-					}
+					auto r = cast<HWPSpecsRisen>(risen[i]);
+					if (r !is null) { r.m_decayAhead += add; n++; }
+					auto s = cast<HWPSpecsRisenState>(risen[i]);
+					if (s !is null) { s.m_decayAhead += add; n++; }
 				}
 				HWP::Commands::Reply("forge: decay +" + add + " ms on " + n + " risen");
 				return;
@@ -968,24 +1237,10 @@ namespace HWP
 			}
 			if (sub == "cull")
 			{
-				int n = 0;
-				auto@ summons = plr.m_record.summons;
-				for (uint i = 0; i < summons.length(); i++)
-				{
-					if (summons[i].m_prod is null || summons[i].m_prod.GetResourceName().findFirst(RISEN_DIR) != 0)
-						continue;
-					for (uint j = 0; j < summons[i].m_units.length(); j++)
-					{
-						auto u = summons[i].m_units[j];
-						if (u is null || !Alive(u.GetUnit()))
-							continue;
-						if (Network::IsServer())
-							u.Destroy();
-						else
-							(Network::Message("UnitDestroyed") << u.GetUnit()).SendToHost();
-						n++;
-					}
-				}
+				auto risen = RisenUnits(plr);
+				for (uint i = 0; i < risen.length(); i++)
+					DestroyRisen(risen[i]);
+				int n = int(risen.length());
 				for (uint i = 0; i < g_bodies.length(); i++)
 					if (Alive(g_bodies[i].m_unit) && Network::IsServer())
 						g_bodies[i].m_unit.Destroy();
@@ -994,19 +1249,10 @@ namespace HWP
 			}
 			if (sub == "risen")
 			{
-				string ret = "forge risen " + RisenCount(plr) + ":";
-				auto@ summons = plr.m_record.summons;
-				for (uint i = 0; i < summons.length(); i++)
-				{
-					if (summons[i].m_prod is null || summons[i].m_prod.GetResourceName().findFirst(RISEN_DIR) != 0)
-						continue;
-					for (uint j = 0; j < summons[i].m_units.length(); j++)
-					{
-						auto u = summons[i].m_units[j];
-						if (u !is null && Alive(u.GetUnit()))
-							ret += " | " + RisenLine(u, plr);
-					}
-				}
+				auto risen = RisenUnits(plr);
+				string ret = "forge risen " + risen.length() + ":";
+				for (uint i = 0; i < risen.length(); i++)
+					ret += " | " + RisenLine(risen[i], plr);
 				HWP::Commands::Reply(ret);
 				return;
 			}
@@ -1033,6 +1279,11 @@ namespace HWP
 				+ "; decay deaths " + g_decayDeaths + "; moves swapped " + g_movesSwapped + " actions stripped " + g_actionsStripped
 				+ "; channel " + (g_channel is null ? "none" : (g_channel.m_penance ? "penance " : "raise ") + g_channel.m_left + " ms")
 				+ "; hud " + (g_hudHeresyHigh ? "high" : "low")
+				+ "; eat " + (g_eat is null ? "none" : (g_eat.m_dodging ? "dodging" : "eating")) + " bobs " + (g_eat is null ? g_eatBobs : g_eat.m_bobs)
+				+ " bloods " + (g_eat is null ? g_eatBloods : g_eat.m_bloods) + " facing " + g_eatFacing
+				+ " lift " + (g_eat is null ? 0 : Rounded(plr.m_unit.GetPosition().y - g_eat.m_spot.y))
+				+ "; pen lights " + g_penLights + " shine " + g_penFacing + " beside " + g_penBeside + " under " + g_penUnder
+				+ "; angle " + Rounded(plr.m_dirAngle * 180 / PI)
 				+ "; cd " + (FindSkill(plr, NR) !is null ? cast<Skills::PlayerSkill>(FindSkill(plr, NR)).m_cooldownC : -1)
 				+ "; mana " + int(ManaPts(plr) + 0.5f) + "/" + plr.m_record.MaxMana();
 			HWP::Commands::Reply(ret);
@@ -1089,8 +1340,6 @@ mixin class HWPSpecsRisenImpl
 	int m_decayC = 0;
 	int m_decayAhead = 0;
 	uint m_seq = 0;
-	string m_fightFlags;
-	int m_flagC = 0;
 	int m_traceC = 0;
 	array<bool> m_wasCasting;
 
@@ -1108,7 +1357,6 @@ mixin class HWPSpecsRisenImpl
 		m_risenBoss = HWP::Specs::HasActorTag(this, "boss");
 		m_decayC = m_risenBoss ? HWP::Specs::DECAY_BOSS : HWP::Specs::DECAY_NORMAL;
 		m_seq = ++HWP::Specs::g_risenSeq;
-		m_fightFlags = HWP::Specs::FightFlags(m_unit.GetUnitProducer().GetResourceName());
 		m_props.m_hpRegenTime = 0;
 		m_hp = 1.0f;
 	}
@@ -1212,24 +1460,6 @@ mixin class HWPSpecsRisenImpl
 		}
 	}
 
-	// the arena flags the boss's skills need, set again every second on every peer (a floor
-	// change clears the level flags; the risen comes along)
-	void RisenFlags(int dt)
-	{
-		if (m_fightFlags.isEmpty())
-			return;
-		m_flagC -= dt;
-		if (m_flagC > 0)
-			return;
-		m_flagC = 1000;
-		auto flags = m_fightFlags.split(" ");
-		for (uint i = 0; i < flags.length(); i++)
-		{
-			if (!g_flags.IsSet(flags[i]))
-				g_flags.Set(flags[i], FlagState::Level);
-		}
-	}
-
 	// Rot Bloom: poison for rb-dmg x weapon damage around the dying risen (the host, as for any
 	// damage a summon deals: FilterHuskDamage)
 	void RisenBloom()
@@ -1307,7 +1537,6 @@ class HWPSpecsRisen : PlayerOwnedActor, HWPSpecsRisenImpl
 		if (!IsDead() && !m_unit.IsDestroyed())
 		{
 			RisenDecay(dt);
-			RisenFlags(dt);
 			RisenTrace(dt);
 		}
 	}
@@ -1381,7 +1610,6 @@ class HWPSpecsRisenState : PlayerOwnedStateActor, HWPSpecsRisenImpl
 		if (!IsDead() && !m_unit.IsDestroyed())
 		{
 			RisenDecay(dt);
-			RisenFlags(dt);
 			RisenTrace(dt);
 		}
 	}
@@ -1461,17 +1689,20 @@ class HWPSpecsResurrection : Skills::PlayerSkillDirectional
 		if (plr !is null && HWP::Specs::IsLocal(plr))
 		{
 			// the engine spends a skill's cost at its castpoint (PlayerSkillDirectional::Update), which
-			// the raising buff's silence never lets this cast reach: spend it here (CanActivate has
-			// already checked it can be paid)
-			plr.UsePoints(true, true, GetCost());
+			// the raising buff's silence never lets this cast reach: the channel spends it, and starts
+			// a raise's cooldown, when it completes (CompleteChannel), so a cancelled channel costs
+			// nothing (CanActivate has checked the cost can be paid)
 			auto body = HWP::Specs::PickBody(plr, target);
 			if (body !is null)
-				HWP::Specs::StartChannel(plr, body, m_penanceCast);
+				HWP::Specs::StartChannel(plr, body, m_penanceCast, -1, this, GetCost());
 		}
-		// the raising buff silences the priest, which ends this cast before its castpoint (the
-		// targeting helper's block), so a raise starts its cooldown here, not in Deactivate
-		if (!m_penanceCast)
-			m_cooldownC = int(m_cooldown * m_modCooldownMul);
+	}
+
+	// a raise's cooldown, from the completed channel: the raising buff's silence ends the cast
+	// before the castpoint where the engine would start it
+	void StartRaiseCooldown()
+	{
+		m_cooldownC = int(m_cooldown * m_modCooldownMul);
 	}
 
 	// a Penance starts no cooldown

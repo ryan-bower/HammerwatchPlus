@@ -163,10 +163,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
   the forge, Penance, Heresy and decay steps pass; that run's lunge and bosses steps failed on chance,
   0 lunges in 25 bodies at 16% and the Face's first spew after its 15 s window) and
   `plan-forgemaster-bosses` (run `20261022-084131`: Penance, Heresy, the lunge, all ten bosses raised,
-  attack, follow and leash). The later fair-die check, the 40 bodies and the 25 s boss window passed in
-  runs `20261022-114918` and `20261022-120742`, both INVALID under the focus rule (a Razer notification
-  window took the foreground), so they are measured but not citable; a valid re-run is pending. Balance
-  is a first pass.
+  attack, follow and leash). The fair-die check, the 40 bodies and the 25 s boss window pass in the
+  valid re-run `20261022-144616` (after a `/code-review medium`: Heresy and the cooldown come with
+  the host's answer to a raise, the cost is spent when the channel completes). The lunge now dodges
+  (the Dash skill) to just under the body, faces up and eats it bobbing 1 px with blood flying out;
+  a Penance dodges there too and a golden light grows out of the body as it channels
+  (`plan-forgemaster-eat 20261022-154317`). Balance is a first pass.
 - Designed in the planner, not built, and parked for later: an "Echoes of Hammerwatch I"
   (formerly "HoH1 Remastered") 5th spec for every vanilla class (the Rogue's from the HoH1
   Thief, the Warrior's from the Gladiator), one active and one passive of HoH1's that HoH2

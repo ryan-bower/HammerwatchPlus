@@ -21,6 +21,10 @@ REPO = Path(__file__).resolve().parents[1]
 VANILLA = REPO / "gamecode/sdk/hoh2/players/icons_skills.png"
 OVERRIDE = REPO / "art/specs/override"
 OUT = REPO / "mods/specs/players/hwp/specs/icons.png"
+# the cells the mod's code cuts from the sheet by hand, as `vec4(x, y, w, h)`: --check keeps them in
+# step with ROWS (the Penance icon the skill swaps in, the Heresy 5+ HUD icon)
+CODE_RECTS = [("pri_sacrificial_penance", "mods/specs/scripts/HWP/Specs/Forgemaster.as"),
+              ("hud_heresy_5", "mods/specs/scripts/HWP/Specs/Forgemaster.as")]
 
 # spec row: tint, then (name, column or hud x, vanilla cell (x, y) for the placeholder)
 ROWS = [
@@ -96,12 +100,40 @@ def build():
     return buf.getvalue(), used
 
 
+def cell_rect(name):
+    """(x, y, w, h) of a named cell on the sheet."""
+    for row, (tint, icons) in enumerate(ROWS):
+        for n, col, cell in icons:
+            if n == name:
+                hud = name.startswith("hud_")
+                size = 14 if hud else 24
+                return ((col if hud else col * 24), row * 24, size, size)
+    sys.exit(f"{name}: not in ROWS")
+
+
+def code_rects_stale():
+    """The CODE_RECTS whose vec4 the named script no longer holds."""
+    stale = []
+    for name, rel in CODE_RECTS:
+        x, y, w, h = cell_rect(name)
+        if f"vec4({x}, {y}, {w}, {h})" not in (REPO / rel).read_text(encoding="utf-8"):
+            stale.append(f"{rel}: wants vec4({x}, {y}, {w}, {h}) for {name}")
+    return stale
+
+
 def main():
     data, used = build()
     if "--check" in sys.argv:
+        bad = code_rects_stale()
         if not OUT.exists() or Image.open(OUT).tobytes() != Image.open(io.BytesIO(data)).tobytes():
-            print("stale:", OUT.relative_to(REPO)); sys.exit(1)
+            bad.append("stale: " + OUT.relative_to(REPO).as_posix())
+        for line in bad:
+            print(line)
+        if bad:
+            sys.exit(1)
         return
+    for line in code_rects_stale():
+        print("WARNING", line)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_bytes(data)
     print("wrote", OUT.relative_to(REPO), f"({len(used)} painted, the rest placeholders)")

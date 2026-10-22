@@ -74,7 +74,11 @@ for coll in ("doctrines", "skills", "mods"):
     for f in glob.glob(str(S / f"{coll}/*.json")):
         d = json.load(open(f, encoding="utf-8")); d = d.get("data", d)
         for key, name in ([(Path(f).stem, d["icon_art"])] if d.get("icon_art") else []) + [(n, n) for _, n in d.get("hud_art", [])]:
-            im = Image.open(REPO / ART / f"{name}.png")
+            art = REPO / ART / f"{name}.png"
+            if not art.is_file():   # a typo or a renamed file in one record must not sink the whole sheet
+                print(f"warning: {Path(f).relative_to(REPO)}: no art {ART}{name}.png, skipped", file=sys.stderr)
+                continue
+            im = Image.open(art)
             want.add(key); icons[key] = (ART + name + ".png", (0, 0, *im.size))
 
 # an orb record (mods/*.json) on an HoH1 skill has no art of its own (HoH1 had no orbs): it

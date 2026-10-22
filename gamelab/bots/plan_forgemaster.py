@@ -31,6 +31,7 @@ COH = "hwp_pri_call_of_heresy"
 SUB = "hwp_priest_forgemaster"
 STACKS = "players/hwp/specs/stacks_specs.sval:"
 RISEN = "forgemaster/risen"
+TARGET = "doodads/generic/target_dummy_breakable.unit"  # 500 hp, stands still, enemy team
 # skill classes that are not attacks: retargeting, buffs for friends, death and damage triggers
 PASSIVE_SKILLS = {"CompositeActorUtilitySkill", "CompositeActorFriendlySkill", "CompositeActorTriggeredSkill"}
 ROOT = Path(__file__).resolve().parents[2]
@@ -45,7 +46,9 @@ def risen_rels():
     rels = re.findall(r'"([^"]+\.unit)"', block[:block.find("};")])
     out = {}
     for rel in rels:
-        body = (BODIES / rel).read_text(encoding="utf-8") if (BODIES / rel).exists() else ""
+        if not (BODIES / rel).is_file():   # a generator bug, never a quiet "not elite, not boss"
+            raise FileNotFoundError(f"no body unit for {rel}: run tools/make_forgemaster_risen.py")
+        body = (BODIES / rel).read_text(encoding="utf-8")
         out[rel] = ('<bool name="elite">true</bool>' in body, '<bool name="boss">true</bool>' in body)
     return out
 
@@ -88,6 +91,7 @@ class Checks(Base):
     def cull(self):
         self.hwp("forge cull", 0.3, until="forge:")
         self.gl("kill", 900, DUMMY)
+        self.gl("kill", 900, "target_dummy")
         time.sleep(0.3)
 
     def origin(self):
@@ -114,6 +118,19 @@ class Checks(Base):
     def dummies(self, r=400):
         """The brutes within r: the vanilla unit only, never a risen bandit brute."""
         return [u for u in self.gl("near", r, DUMMY).get("units") or [] if RISEN not in u.get("name", "")]
+
+    def targets(self, r=400):
+        """The breakable target dummies within r (hp, dead)."""
+        return self.gl("near", r, "target_dummy").get("units") or []
+
+    def target_hit(self, before):
+        """Did a target dummy alive in `before` lose HP or die."""
+        now = {u["unit"]: u for u in self.targets()}
+        for u in before:
+            v = now.get(u["unit"])
+            if v is None or v.get("dead") or v.get("hp", 1) < u.get("hp", 1) - 0.001:
+                return True
+        return False
 
     def errors_since(self, mark):
         new = self.g.read_log()[mark:]
@@ -392,22 +409,43 @@ class Checks(Base):
         # last, right before the press: Divine Favor loses a stack every 5 s (stacks_priest.sval
         # timer), and 5 s of setup once turned a Penance into a raise (bosses 20261022-052506)
         self.set_stacks(fav, 5)
+        lights0 = self.fnum(self.forge_status(), "lights") or 0
         presses, spent, button = self.cast_skill(tag, NR, 50, done=lambda: self.has("raising")["raising"].get("on"))
         time.sleep(0.3)
+        rb = self.has("raising")["raising"]
+        if tag == "pen_normal":
+            self.g.shot("penance_light", settle=False)   # the stance and the golden light, 1-2 s into the channel
+        # the cost lands when the channel completes (CompleteChannel, the review's fix), so god mode stays
+        # off until then (the arena is empty) and the drop is read across the moment the raising buff ends
+        # (mana first, then the buff: a read is a round trip, and the channel once completed between
+        # a "still raising" check and the mana read after it, eat 20261022-151923, "spent -2")
+        m_pre = m1 = m0
+        for _ in range(60):
+            m = self.mana_exact()
+            if not self.has("raising")["raising"].get("on"):
+                break
+            m_pre = m
+            time.sleep(0.1)
         m1 = self.mana_exact()
         self.hwp("god", 0.2)
-        rb = self.has("raising")["raising"]
-        time.sleep(3.5)
+        time.sleep(0.5)
         h = self.heresy()
         st = self.forge_status()
         favor = self.fnum(st, "favor")
         cd1 = self.skill_cd(NR)
         bodies = self.fnum(st, "bodies")
+        if tag == "pen_normal":
+            # the stance, from the status's record at each light pulse after the landing: the priest 10 px
+            # under the body facing up (-90), a pulse every 150 ms of the 3 s channel
+            beside = self.fnum(st, "beside")   # 0 is a measurement ("or 99" read it as 99, eat 20261022-153545)
+            self.flag("pen_faces_up", abs((self.fnum(st, "shine") or 0) + 90) <= 10 and beside is not None and abs(beside) < 6 and 4 <= (self.fnum(st, "under") or 0) <= 16,
+                      f"facing {self.fnum(st, 'shine')} (up is -90), {self.fnum(st, 'beside')} px beside and {self.fnum(st, 'under')} px under the body at the light pulses")
+            self.flag("pen_light", (self.fnum(st, "lights") or 0) - lights0 >= 12, f"{(self.fnum(st, 'lights') or 0) - lights0} light pulses (150 ms each) over the 3 s channel")
         ok = presses > 0 and h == max(0, heresy - want_removed) and (favor or 0) == 0 and bodies == 0 and (cd1 or 0) <= (cd0 or 0) + 100
-        self.flag(tag, ok, f"heresy {heresy} -> {h} (want -{want_removed}), favor {favor}, mana {m0:.0f} -> {m1:.0f} (spent {m0 - m1:.0f}), "
+        self.flag(tag, ok, f"heresy {heresy} -> {h} (want -{want_removed}), favor {favor}, mana {m0:.0f} -> {m_pre:.0f} in the channel -> {m1:.0f} at its end (spent {m_pre - m1:.0f}), "
                            f"cooldown {cd0} -> {cd1}, raising {rb.get('on')} left {rb.get('left')}, bodies left {bodies}, presses {presses}")
         self.cull()
-        return m0 - m1
+        return m_pre - m1
 
     def penance(self):
         self.setup_forge("pen")
@@ -488,20 +526,33 @@ class Checks(Base):
         # the forced lunge: the priest lands on the body, eats it (devouring), the brute beside it is hit
         x0, y0 = self.pos()
         self.body("humans/bandits/bandit_brute.unit", 120, 0)
-        self.gl("spawn", DUMMY, 150, 0)
+        # a breakable target dummy 30 px past the body (LUNGE_HIT_RADIUS 50): it stands still, where a
+        # brute walks at the priest and once stood 140 px from the body when the lunge landed
+        # (plan-forgemaster-bosses 20261022-122738: "hitting for 60" logged, nothing in reach)
+        self.gl("spawn", TARGET, 150, 0)
         time.sleep(0.6)
-        before = [u for u in self.dummies(400) if not u.get("dead")]
+        before = [u for u in self.targets(400) if not u.get("dead")]
         self.hwp("forge lunge", 0.3, until="forge:")
         time.sleep(0.4)
         x1, y1 = self.pos()
         dv = self.has("devouring")["devouring"]
-        hit = self.dummy_hit(before)
+        hit = self.target_hit(before)
         st = self.forge_status()
-        self.flag("lunge_jump", abs(x1 - (x0 + 120)) < 25 and abs(y1 - y0) < 25, f"priest {x0:.0f},{y0:.0f} -> {x1:.0f},{y1:.0f} (body at +120)")
-        self.flag("lunge_devour", bool(dv.get("on")) and (dv.get("left") or 0) > 500 and self.fnum(st, "bodies") == 0,
-                  f"devouring {dv}, bodies left {self.fnum(st, 'bodies')}")
-        self.flag("lunge_hit", hit, f"the brute beside the body hit by Ravenous Lunge: {hit}")
-        time.sleep(3.2)
+        # the priest stands EAT_BELOW (10) px under the body, facing up (-90), the body still there
+        self.flag("lunge_jump", abs(x1 - (x0 + 120)) < 8 and 4 <= y1 - y0 <= 16, f"priest {x0:.0f},{y0:.0f} -> {x1:.0f},{y1:.0f} (body at +120, the priest 10 under it)")
+        self.flag("lunge_devour", bool(dv.get("on")) and (dv.get("left") or 0) > 500 and self.fnum(st, "bodies") == 1,
+                  f"devouring {dv}, bodies on the floor {self.fnum(st, 'bodies')} (the body stays while it is eaten)")
+        self.flag("lunge_hit", hit, f"the target dummy 30 px past the body hit by Ravenous Lunge: {hit}")
+        self.flag("lunge_lift", (self.fnum(st, "lift") or 0) in (0, -1), f"while eating the priest is 0 or 1 px above its spot: lift {self.fnum(st, 'lift')}")
+        # the shot lands 1-2 s into the eating (a shot is slow); the counters below are read after the
+        # devouring ends, from the status's record of the last eating (facing at each bob, up is -90)
+        self.g.shot("eating", settle=False)   # the pose: under the body, facing up, blood out of it
+        time.sleep(2.5)
+        st = self.forge_status()
+        self.flag("lunge_faces_up", abs((self.fnum(st, "facing") or 0) + 90) <= 10, f"facing {self.fnum(st, 'facing')} at the bobs (up is -90)")
+        self.flag("lunge_bobs", (self.fnum(st, "bobs") or 0) >= 6, f"{self.fnum(st, 'bobs')} bobs (1 px every 250 ms over the 3 s devouring, after the dodge)")
+        self.flag("lunge_blood", (self.fnum(st, "bloods") or 0) >= 5, f"{self.fnum(st, 'bloods')} blood bursts (300 ms each)")
+        self.flag("lunge_body_eaten", self.fnum(st, "bodies") == 0 and "eat none" in st, f"after the devouring: bodies {self.fnum(st, 'bodies')}, eat state {'none' if 'eat none' in st else 'still on'}")
         self.cull()
         # the die itself: randf() under 0.16, 20000 throws in one frame (15-17% expected; 14-18 passes)
         r = self.hwp("forge roll 20000 0.16", 0.3, until="forge:")

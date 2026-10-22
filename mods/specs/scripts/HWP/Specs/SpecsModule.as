@@ -106,6 +106,8 @@ namespace Modules
 			HWP::Commands::Register("forge", "  Devil Forgemaster: status | body <unit> [dx dy] | raise|penance [now] | heresy <n> | lunge | decay <ms> | cull | risen | bodies | trace [on|off]", HWP::Commands::Handler(HWP::Specs::CmdForge));
 			HWP::Net::OnRequest("specs.raise", HWP::Net::RequestHandler(HWP::Specs::OnRaise));
 			HWP::Net::OnRequest("specs.body_gone", HWP::Net::RequestHandler(HWP::Specs::OnBodyGone));
+			HWP::Net::OnEvent("specs.raised", HWP::Net::EventHandler(HWP::Specs::OnRaised));
+			HWP::Net::OnEvent("specs.raise_denied", HWP::Net::EventHandler(HWP::Specs::OnRaiseDenied));
 			GameEvents::Subscribe(this);
 		}
 

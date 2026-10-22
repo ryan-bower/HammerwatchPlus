@@ -180,6 +180,11 @@ def clamp_circles(text):
 
 
 PLAYER_TARGET_RE = re.compile(r"<(s|string)>tag</(?:s|string)>\s*<(?:s|string)>has</(?:s|string)>\s*<a>\s*<(?:s|string)>player</(?:s|string)>\s*</a>")
+# a boss skill's `flag is <arena flag>` conditional line (CondFlag on the floor's flags, which the
+# arena's script sets: boss_skills by the Face's fight, totem_skills by the totem poles', room_4 by
+# the Bandit King's last room). Its own line in every boss file; a `<a>...</a>` transition is not matched.
+ARENA_FLAG_RE = re.compile(r"^[ \t]*<(?:s|string)>flag</(?:s|string)>\s*<(?:s|string)>is</(?:s|string)>\s*"
+                           r"<(?:s|string)>(?:boss_skills|totem_skills|room_4)</(?:s|string)>[ \t]*\r?\n", re.M)
 
 
 def tags_of(text):
@@ -220,8 +225,14 @@ def risen_unit(rel, text):
     # 31 attack skills in 15 units (the Face's spews, the Bandit King's, the Judges', the Spider
     # Queen's, the necromancers' ...) demand a player-tagged target, which a risen's enemy targets
     # never are: they aim at anything that isn't a player instead (bosses 20261022-052506: the
-    # risen Face kept its target and never attacked)
+    # risen Face kept its target and never attacked). The two effect-level `conditional`s with the
+    # same check (Dace Arden's chain link, the Spider Queen's spew_web, both `cond-target-self`
+    # false: tested on the unit the effect hits) flip too, so the risen's link and web take the
+    # non-players they hit; a skill-level `conditional` never asks this of the caster itself.
     text = PLAYER_TARGET_RE.sub(lambda mm: "<{0}>tag</{0}><{0}>hasnt</{0}><a><{0}>player</{0}></a>".format(mm.group(1)), text)
+    # the arena flags go: a risen fights wherever its owner is, with no arena script to set them.
+    # The boss's own phase flags (stage2, boss_dead ...) stay: its kept SetFlag effects set them.
+    text = ARENA_FLAG_RE.sub("", text)
     if '<array name="movements">' not in text and IMMOBILE_RE.search(text):
         text = MIN_RANGE_RE.sub("", text)
     return clamp_circles(text)

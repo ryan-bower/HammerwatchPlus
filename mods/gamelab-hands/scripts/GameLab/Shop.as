@@ -118,13 +118,24 @@ namespace GameLab
 			// title and subtitle cut to SHOP_TEXT chars: a pet shop's 40 entries stay under the reply cap
 			e.Str("id", it.GetID()).Str("title", Cut(it.GetTitle())).Int("gold", cost is null ? 0 : cost.GetCost(MaterialType::Gold))
 				.Bool("available", it.IsAvailable(rec)).Bool("icon", it.GetIcon() !is null).Str("sub", Cut(it.GetSubTitle()));
+			// a gear entry adds its base item: id, slot (Equipment::Slot, MainHand 1 / OffHand 2 / TwoHanded 4 ...)
+			// and supported tags as HashString values (gamelab/hps.py hashes a tag name the same way)
+			auto gear = cast<Equipment::Item>(it.GetItem());
+			if (gear !is null && gear.baseItem !is null)
+			{
+				array<string> tags;
+				for (uint t = 0; t < gear.baseItem.supportedTags.length(); t++)
+					tags.insertLast("" + gear.baseItem.supportedTags[t]);
+				e.Str("base", gear.baseItem.name).Int("slot", int(gear.baseItem.slot)).Int("ilvl", gear.baseItem.ilvl).Raw("tags", RawArray(tags));
+			}
 			items.insertLast(e.Close());
 		}
 		return RawArray(items);
 	}
 
-	// shop [buy <index>]: the open shop's entries (id, title, gold price, IsAvailable, icon, subtitle); buy presses
-	// entry <index> the way a click does (ShopWindow.OnFunc "buy")
+	// shop [buy <index>]: the open shop's entries (id, title, gold price, IsAvailable, icon, subtitle; a gear entry
+	// adds its base item's name key, slot (Equipment::Slot value), ilvl and supported tags as HashString values);
+	// buy presses entry <index> the way a click does (ShopWindow.OnFunc "buy")
 	void VerbShop(const string &in id, array<string>@ args)
 	{
 		auto shop = TopShop(id);

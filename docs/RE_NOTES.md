@@ -2641,10 +2641,14 @@ its run (`plan-forgemaster-smoke` and `plan-forgemaster`, `gamelab/results/`):
   sets with `SetFlag` effects (`g_flags.Set(name, FlagState::Level)`, Behaviors/Effects/SetFlag.as)
   and a floor change clears. The Face's skills want `boss_skills`, the totem poles' `totem_skills`,
   the Bandit King's last room `room_4`; the Harbingers, Arista and the Bone Serpent run on `isnt
-  disable_*` flags and states alone. A risen boss sets its own flags every second
-  (`FightFlags`/`RisenFlags`), on every peer. `SetFlag` is no longer stripped from a risen's skills
-  (a boss's phase flags are these level flags); `TargetRandomPlayer` (an IEffect that retargets the
-  actor at a random player) is, since on a summon it aims the boss at its owner.
+  disable_*` flags and states alone. Until 2026-10-22 a risen boss set those three flags itself every
+  second on every peer (`FightFlags`/`RisenFlags`), a floor-wide side effect for the sake of one
+  summon; now the generator drops the `flag is boss_skills|totem_skills|room_4` conditional lines
+  from the risen's skills (`ARENA_FLAG_RE`: the 11 Face skills, 12 totem pole skills and the Bandit
+  King's three dash attacks), and the risen asserts nothing. `SetFlag` is no longer stripped from a
+  risen's skills (a boss's phase flags, `stage2`, `stage5`, `boss_dead`, are level flags its own
+  skills set and read, and stay); `TargetRandomPlayer` (an IEffect that retargets the actor at a
+  random player) is, since on a summon it aims the boss at its owner.
 - **`StateActorBehavior` picks its state every 150-300 ms** (StateActorBehavior.as:252): the first
   state in file order whose `transitions` and `target-` conditionals pass wins; a state with
   `state-charges` 0 is skipped (`m_charges == 0`), one on its `state-cooldown` too. The totem pole's
@@ -2661,7 +2665,9 @@ its run (`plan-forgemaster-smoke` and `plan-forgemaster`, `gamelab/results/`):
   player's own buff silences before that frame is free: Necrotic Resurrection's raising buff did exactly
   that, so raises and Penances cost nothing with god mode off too (`plan-forgemaster-bosses
   20261022-052506`, pen_mana "226 -> 226"; the earlier "spent 0" of `20261022-022037` was blamed on
-  god mode). The skill now spends `GetCost()` itself in `NetActivate`, on the local player.
+  god mode). The skill spent `GetCost()` itself in `NetActivate` from then; since the review of
+  2026-10-22 the channel spends it when it completes (`CompleteChannel`), so a cancelled channel costs
+  nothing, and a raise's cooldown starts there too (`StartRaiseCooldown`).
 - **Divine Favor loses a stack every 5 s.** `stacks_priest.sval`'s DivineFavor block has a `timer`
   of 5000 ms with `add-stack -1`, reset by any gain. A test that sets 5 stacks with `givestacks` and
   then spends 5 s on setup casts a raise, not a Penance (`20261022-052506`: "raise channel", favor 3
@@ -2752,3 +2758,67 @@ its run (`plan-forgemaster-smoke` and `plan-forgemaster`, `gamelab/results/`):
   unexplained`). The user's own switches to the terminal, Discord and the browser are `cause: user` and
   do not count. Neither run is cited as verified; a valid re-run is pending (quiet Razer's
   notifications while the lab runs).
+
+## Devil Forgemaster: review fixes, the eating stance; firearms shops (2026-10-22, later)
+
+- **The valid bosses re-run.** `plan-forgemaster-bosses 20261022-144616` is not INVALID (Razer's
+  notifications quiet): Penance, Heresy, the lunge (5 of 40 bodies at 16%, die 0.16 of 20000), all ten
+  bosses raised, attacking within 25 s, following and leash-teleporting, no script errors, the 10 s
+  boss channel. Its one failed flag was `pen_mana`, a measurement: the review moved the Penance's 50
+  mana to the channel's end and the bot still read mana 0.3 s after the cast with god mode back on.
+  The bot now keeps god mode off through the channel and reads the drop across the frame the raising
+  buff ends (`plan-forgemaster-eat 20261022-154317`).
+- **`/code-review medium` on the Forgemaster, 10 findings, all fixed** (`plan-forgemaster-smoke
+  20261022-144455`, the bosses run above): Heresy for a raise is added on the host's answer
+  (`specs.raised` / `specs.raise_denied`, `HWP::Net::Send` to the caster; the denied answer gives the
+  cooldown back), not on the client that asked; the cost and cooldown are spent when the channel
+  completes; `OnRaise` reads the body id once and answers "denied" when the body is gone or no risen
+  unit exists for it; `RisenUnits`/`DestroyRisen` replace four copies of the owned-unit walk;
+  `FightFlags`/`RisenFlags` are gone (the generator strips the arena flag conditionals, above); the
+  bot's `risen_rels` fails loudly on a missing body unit; `make_specs_icons.py --check` fails when
+  a vec4 the code reads has moved (`CODE_RECTS`). The lunge hit check uses a breakable target dummy
+  30 px past the body instead of a walking brute, which once stood 140 px away when the lunge landed
+  (`20261022-122738`, "hitting for 60" with nothing in reach).
+- **The eating stance (the user's words: the dodge animation towards the body, standing just below it
+  facing up, bobbing 1 px, blood flying out; the Penance the same with no bob and a golden light
+  brighter as it channels).** `Lunge` and a Penance's first `UpdateChannel` frame call `DodgeTo`: the
+  player's own `dash_skill` (`Skills::Charge`) with `m_dist` set to the distance to the spot 10 px
+  under the body for that one `Activate(dir, 1.0f)` (restored right after: `NetDoActivate` has copied
+  it into `m_distC`), so every peer sees the dodge animation, its dust and sound through
+  `PlayerActiveSkillActivate`. `ActiveSkill.Activate` checks only the cooldown and the dash charge
+  (ActiveSkill.as:139-150), not silence: the silence check is the input path's
+  (PlayerTargetingHelper.as:464), so a dash under the devouring or raising buff goes; `Charge.DoUpdate`
+  runs from `ActiveSkill.Update` unconditionally and `GetMoveDir` carries the player under
+  lock-movement. No charge, or under 2 px to go: the priest is put on the spot. The landing (dash
+  `m_distC <= 0`, or 600 ms) snaps to the spot and `SetAngle(-PI/2)`; `devouring` and the new
+  `penance_stance` buff have `lock-rotation` (Player.as:1213 keeps `m_dirAngle` as the aim then), so
+  the priest keeps facing the body. Eating: `SetPosition` 1 px up and back every 250 ms,
+  `effects/gore/blood/hit_blood.effect` (scale 0.8) at the body every 300 ms, the body kept until the
+  devouring buff ends (then `RequestBodyGone`); a lunge roll waits while one is eaten. Penance: no
+  bob, `penance_light.effect` (new, `scale` param, a gold sparkle over a warm light, 270 ms) at the
+  body every 150 ms with scale 0.3 → 1.5 over the channel, so the overlapping pulses grow. `hwp forge`
+  reports `eat`, `bobs`, `bloods`, `lights`, `angle` (degrees, up is -90) and `dy`. Measured by
+  `plan-forgemaster-eat 20261022-154317` (shots `eating` and `penance_light`): lunge_jump (the priest from -240,-48 to -120,-38, the body at +120), lunge_faces_up (facing -90 at every bob), lunge_bobs 11, lunge_blood 10, lunge_lift 0, lunge_body_eaten (bodies 0 after the devouring), lunge_hit (the dummy), pen_faces_up (facing -90, 5 px beside and 7 px under the body at the pulses), pen_light 21 pulses over the 3 s, pen_mana 48 (spent at the channel's end).
+- **A skill with castpoint 0 still activates a frame late.** `ActiveSkill.Activate` sets `m_castingC =
+  max(1, castpoint)` and `DoActivate` (for the dash, `NetDoActivate`: `m_distC = m_dist`) runs in the
+  next `Update` when it reaches 0 (ActiveSkill.as:159-160, 292-308). A dodge that borrowed the dash by
+  setting `m_dist` and restoring it right after `Activate` ran the dash's own 90 px, and a "done" check
+  on `m_distC <= 0` passed before the dash had begun, so the landing snapped the priest to the spot and
+  the dash then carried it 90 px past it (`plan-forgemaster-eat 20261022-152706`: the Penance stance
+  102 px beside the body; the eating hid it because every bob re-snaps the position). The borrowed
+  `m_dist` now stays until the landing (`g_dashKeep`), done is `m_castingC <= 0 && m_distC <= 0`, and
+  the landing cancels a dash still running.
+- **A bot's two reads are two frames.** The Penance's mana was read 0.3 s after the cast (the cost now
+  lands at the channel's end, `20261022-144616` pen_mana "226 -> 226"), then across the channel's end
+  with "is the raising buff still on" read before the mana, which let the completion fall between the
+  two round trips (`20261022-151923`, "spent -2"). Mana first, then the buff: the mana read while the
+  buff was still on is the pre-completion value. And the stance's facing and offsets are recorded by
+  the mod at each bob and light pulse (`hwp forge`: `facing`, `shine`, `beside`, `under`) because a
+  screenshot takes long enough that the status read after it came after the 3 s eating or channel had
+  ended, with the counters cleared and the rotation lock lapsed (`20261022-150819`).
+- **Firearms: the seller sells guns to a Firearms Specialist** (`mod-firearms-shop 20261022-143058`,
+  `mods/firearms/README.md` for the offers): the Paladin gets no gun in 8 offers, a fresh Specialist's
+  weapons are all guns and a gun is back after buying them out. `gl shop` reports gear `base`, `slot`,
+  `ilvl` and `tags` now. The gun arm stays pinned while shooting (`plan-firearms-arm 20261022-142503`,
+  8/8); `mod-firearms 20261022-142427` and `mod-fishing 20261022-143232` (no rod sprites on the beach)
+  pass. The Firearms class-picker showcase PNG is in place but not seen in a shot (assumed).

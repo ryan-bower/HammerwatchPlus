@@ -1,6 +1,9 @@
 {
   "id": "firearms",
   "requires": ["core"],
-  "overrides": [],
+  "overrides": [
+    "scripts/ShopContent/EquipmentShopShopContent.as",
+    "scripts/Town/EquipmentSeller.as"
+  ],
   "exclude": []
 }

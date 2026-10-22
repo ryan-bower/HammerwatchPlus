@@ -40,7 +40,7 @@ Send one as `gl <id> <verb> args` (a `{"do": "gl", "verb": ...}` scenario step, 
 | `charcreate` |  | charcreate: open the create-character window (the class list), as PickCharacterWindow's "new character" button does |
 | `use` | `<filter>` | use <filter>: IUsable.Use of the nearest usable unit whose unit path or behaviour matches, from wherever the player stands |
 | `shoplevel` | `<filter> <level>` | shoplevel <filter> <level>: sets ShopLevel on every NPC within 3000 px whose unit or behaviour name contains filter, as a town building's placement does (the [Editable] field of CompositeActorBehaviorNPC / StateActorBehaviorNPC, NPCBehavior.as:244/431, which NPCBehavior passes to Interact). A spawned Skill Trainer starts at 0: tier 0 only (WindowSkillTrainer.as:192); 4 opens every tier. |
-| `shop` | `[buy <index>]` | shop [buy <index>]: the open shop's entries (id, title, gold price, IsAvailable, icon, subtitle); buy presses entry <index> the way a click does (ShopWindow.OnFunc "buy") |
+| `shop` | `[buy <index>]` | shop [buy <index>]: the open shop's entries (id, title, gold price, IsAvailable, icon, subtitle; a gear entry adds its base item's name key, slot (Equipment::Slot value), ilvl and supported tags as HashString values); buy presses entry <index> the way a click does (ShopWindow.OnFunc "buy") |
 | `trinkets` |  | trinkets: the local character's run trinkets, by id |
 | `prefab` | `<file> <dx> <dy>` | prefab <file> <dx> <dy>: Prefab.Fabricate at the player + (dx, dy) |
 | `ws` | `<type> [commentPrefix]` | ws <type> [commentPrefix]: every world script of that type whose comment starts with the prefix: comment, enabled, trigger times, position, value (Variables) |
