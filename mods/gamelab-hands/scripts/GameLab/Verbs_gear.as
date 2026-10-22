@@ -308,6 +308,7 @@ namespace GameLab
 				owner = "me";
 			Json e;
 			e.Int("unit", units[i].GetId()).Str("item", b.m_item.GetName()).Str("quality", Item::QualityToString(b.m_item.GetQuality()))
+				.Bool("equipment", cast<Equipment::Equipment>(b.m_item) !is null).Bool("trinket", cast<Item::Trinket>(b.m_item) !is null).Str("item_type", Reflect::GetTypeName(b.m_item))
 				.Str("owner", owner).Bool("picked", b.m_picked).Bool("hidden", units[i].IsHidden()).Int("anim", b.m_dropAnimC)
 				.Num("dist", d);
 			items.insertLast(e.Close());

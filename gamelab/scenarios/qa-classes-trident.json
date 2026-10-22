@@ -1,0 +1,23 @@
+{
+  "name": "qa-classes-trident",
+  "about": "Bounded trident diagnostics on original class data: three fresh input trials and three settled input/direct-activation trials each, with raw geometry/HP/floating text and loaded weapon stats. All outcomes retained.",
+  "fixture": "town-paladin",
+  "mods": ["core", "classes"],
+  "timeout": 300,
+  "steps": [
+    {"do": "console", "line": "e_cheats 1"},
+    {"do": "console", "line": "show_chat"},
+    {"do": "bot", "bot": "qa_classes", "kwargs": {"sections": "trident"}, "expect": {
+      "trident_attack_loaded": true,
+      "trident_damage_available": true,
+      "trident_open_floor": true,
+      "trident_settled_input_hits": true,
+      "trident_settled_input_narrow": true,
+      "trident_settled_input_500_hits": true,
+      "trident_settled_input_500_narrow": true,
+      "trident_settled_cast_hits": true,
+      "trident_settled_cast_narrow": true
+    }},
+    {"do": "log_clean"}
+  ]
+}

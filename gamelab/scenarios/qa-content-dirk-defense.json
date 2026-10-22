@@ -1,0 +1,59 @@
+{
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 900,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_content_dirk",
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ],
+  "name": "qa-content-dirk-defense",
+  "about": "Parrying Dirk native engine-parsed skill/item table readback, actual common-item equip and24 fixed controlled frontal melee hits versus24 unequipped controls. Same-frame native Parry floating text and exact HP plus raw stats-run counters. No new attack/helper, no ordinary AI-combat claim."
+}

@@ -1,6 +1,6 @@
 // gamelab-hands: verbs for the 4th specializations' checks (plan_specs). hasbuff, bind and dmgmuls only
 // read; evade rolls the local player's real evade; mana sets the mana; buffnear buffs enemies;
-// damageme hurts the local player through the real damage path.
+// damageme and damagefrom hurt the local player through the real damage path.
 namespace GameLab
 {
 	const uint SPECS_CAP = 16;
@@ -32,7 +32,7 @@ namespace GameLab
 			}
 			j.Bool("on", found !is null);
 			if (found !is null)
-				j.Int("left", found.m_duration).Int("dur", found.m_def.m_duration).Num("intensity", found.m_intensity)
+				j.Int("left", found.m_duration).Int("dur", found.m_def.m_duration).Raw("intensity", formatFloat(found.m_intensity, "", 0, 9))
 					.Bool("hud", found.m_def.m_hud !is null);
 			items.insertLast(j.Close());
 		}
@@ -209,6 +209,63 @@ namespace GameLab
 			.Num("mana", plr.m_record.mana * maxm).Int("max", int(maxm)).Bool("dead", plr.IsDead()));
 	}
 
+	// damagefrom <attackerUnitId> <amount> <melee|ranged|spell>: one real Player.Damage
+	// call with a nearby live, non-player Actor on a different team as attacker. Mirrors
+	// Player/Player.as Damage, including its melee-only currStats.Thorns branch; never calls
+	// a modifier callback directly. Pure damage isolates melee/ranged reflection, FireDamage
+	// marks a spell. TrueStrike removes block randomness. This is controlled measurement,
+	// not evidence that an enemy naturally chose or executed an attack. Same-frame health
+	// readbacks prevent regeneration between observations. Keep normalized health for
+	// compatibility and emit HP units before JSON rounding for small reflection amounts.
+	void VerbDamageFrom(const string &in id, array<string>@ args)
+	{
+		auto plr = cast<Player>(GetLocalPlayer());
+		if (plr is null || plr.IsDead() || args.length() != 3)
+		{
+			Fail(id, "usage: damagefrom <attackerUnitId> <amount> <melee|ranged|spell>; needs a live local player");
+			return;
+		}
+		int unitId = int(parseInt(args[0]));
+		int amount = int(parseInt(args[1]));
+		string mode = args[2];
+		if (amount < 1 || amount > 1000 || (mode != "melee" && mode != "ranged" && mode != "spell"))
+		{
+			Fail(id, "amount must be 1..1000 and mode melee, ranged or spell");
+			return;
+		}
+		auto unit = g_scene.GetUnit(unitId);
+		if (!unit.IsValid() || unit.IsDestroyed())
+		{
+			Fail(id, "attacker unit is not live");
+			return;
+		}
+		auto attacker = cast<Actor>(unit.GetScriptBehavior());
+		if (attacker is null || attacker.IsDead() || cast<PlayerBase>(attacker) !is null
+			|| attacker.Team == plr.Team || dist(xy(unit.GetPosition()), xy(plr.m_unit.GetPosition())) > 256.0f)
+		{
+			Fail(id, "attacker must be a live non-player actor on another team within 256px");
+			return;
+		}
+		int hp0 = plr.m_record.CurrentHealth();
+		float attackerHp0 = attacker.GetHealth();
+		int attackerMaxHp = attacker.GetMaxHp();
+		float thorns = float(plr.m_record.currStats.Thorns);
+		DamageInfo dmg(attacker);
+		if (mode == "spell")
+			dmg.FireDamage = uint(amount);
+		else
+			dmg.PureDamage = uint(amount);
+		dmg.Melee = mode == "melee";
+		dmg.TrueStrike = true;
+		int took = plr.Damage(dmg, xy(plr.m_unit.GetPosition()), vec2(0, -1));
+		Emit(Reply(id, true).Int("amount", amount).Str("mode", mode).Int("took", took)
+			.Int("hp0", hp0).Int("hp", plr.m_record.CurrentHealth()).Num("thorns", thorns)
+			.Int("attacker_unit", unitId).Num("attacker_hp0", attackerHp0).Num("attacker_hp", attacker.GetHealth())
+			.Num("attacker_hp0_exact", double(attackerHp0) * double(attackerMaxHp))
+			.Num("attacker_hp_exact", double(attacker.GetHealth()) * double(attackerMaxHp))
+			.Int("attacker_hpMax", attackerMaxHp).Bool("attacker_dead", attacker.IsDead()));
+	}
+
 	void Register_specs()
 	{
 		RegisterVerb("mana", "<n>", Verb(VerbMana));
@@ -218,5 +275,10 @@ namespace GameLab
 		RegisterVerb("dmgmuls", "", Verb(VerbDmgMuls));
 		RegisterVerb("buffnear", "<radius> <filter> <buffPath> [ms]", Verb(VerbBuffNear));
 		RegisterVerb("damageme", "<amount> [dot]", Verb(VerbDamageMe));
+		RegisterVerb("damagefrom", "<attackerUnitId> <amount> <melee|ranged|spell>", Verb(VerbDamageFrom));
+		Register_qa_crit();
+		Register_qa_static_observe();
+		Register_qa_spec_impact();
+		Register_qa_observe();
 	}
 }

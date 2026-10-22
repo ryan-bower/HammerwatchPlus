@@ -1,0 +1,64 @@
+{
+  "name": "qa-content-stash-families",
+  "about": "Four explicit common HWP warhammer/frostbrand items alternate family and ilvl. Natural Sort button must group actual weapon families, preserve every item and be idempotent. Original prefix-only Family source is expected to expose interleaving; fixture readbacks required.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "sleep",
+      "seconds": 1
+    },
+    {
+      "do": "bot",
+      "bot": "qa_content_stash_families",
+      "kwargs": {},
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

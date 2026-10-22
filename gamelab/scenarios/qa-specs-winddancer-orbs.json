@@ -1,0 +1,17 @@
+{
+  "name": "qa-specs-winddancer-orbs",
+  "about": "Lasting Gale all3 native8/10/12s expiries; Tailwind all3 exact live movement multipliers plus actual ordinary/buffed travel and reversion; Lingering Breeze all3 actual2/4/6-heal texts and HP, four1s ticks and stop. Natural expiry separates each orb rank. Shared Breath true teammate behavior remains BLOCKED outside this single-player case.",
+  "fixture": "town-paladin",
+  "mods": ["core", "specs"],
+  "timeout": 600,
+  "steps": [
+    {"do": "console", "line": "e_cheats 1"},
+    {"do": "console", "line": "show_chat"},
+    {"do": "bot", "bot": "qa_winddancer", "kwargs": {"sections": "lasting,tailwind,breeze"}, "expect": {
+      "lasting_all_ranks": true,
+      "tailwind_all_ranks": true,
+      "breeze_all_ranks": true
+    }},
+    {"do": "log_clean"}
+  ]
+}

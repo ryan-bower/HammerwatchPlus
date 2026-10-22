@@ -1,0 +1,78 @@
+{
+  "name": "qa-classes-torch-all-ranks",
+  "about": "All5positive torch ranks through fixed normal held-main native benches, actual targetHP and native damage attribution. Proc ranks each30s fixed; PlannedAttack each10s plus exact independent native damageMul readback. PoisonedBlades rank0 negative control. No fitted exact proc probability, exact native HP-ratio/cadence, cooldown or ordinary/co-op claim. Independent actual native instantiated nominal chance/raw elemental payload at every tested rank; no fitted stochastic mean-damage assertion.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 900,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_passive_ranks",
+      "kwargs": {
+        "sections": "torch"
+      },
+      "expect": {
+        "torch_r1_actual_hits": true,
+        "torch_r1_proc": true,
+        "torch_r2_actual_hits": true,
+        "torch_r2_proc": true,
+        "torch_r3_actual_hits": true,
+        "torch_r3_proc": true,
+        "torch_r4_actual_hits": true,
+        "torch_r4_proc": true,
+        "torch_r5_actual_hits": true,
+        "torch_r5_proc": true,
+        "torch_observed": true,
+        "torch_instantiated_rank_tables": true,
+        "torch_r1_native_payload": true,
+        "torch_r2_native_payload": true,
+        "torch_r3_native_payload": true,
+        "torch_r4_native_payload": true,
+        "torch_r5_native_payload": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

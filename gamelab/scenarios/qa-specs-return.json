@@ -1,0 +1,29 @@
+{
+  "name": "qa-specs-return",
+  "about": "Bounded three-trial Lightning Arrow catch and return-damage regression. Normal flight measures target HP on both legs; accelerated close-wall flight stresses endpoint catch misses and premature outbound catches. Measurement-only: isolated character, god mode, teleport, timescale. Retains every trial; never retries until green.",
+  "fixture": "town-paladin",
+  "mods": ["core", "classes", "specs"],
+  "timeout": 600,
+  "steps": [
+    {"do": "console", "line": "e_cheats 1"},
+    {"do": "console", "line": "show_chat"},
+    {"do": "bot", "bot": "qa_specs_return", "kwargs": {"trials": 3}, "expect": {
+      "returnqa_char": true,
+      "returnqa_learned": true,
+      "returnqa_orb": true,
+      "returnqa_input_own_button": true,
+      "returnqa_normal_geometry": true,
+      "returnqa_close_geometry": true,
+      "normal_1_setup": true, "normal_1_ready": true, "normal_1_damage": true, "normal_1_returned": true, "normal_1_caught": true,
+      "normal_1_outgoing_damage": true, "normal_1_return_damage": true,
+      "normal_2_setup": true, "normal_2_ready": true, "normal_2_damage": true, "normal_2_returned": true, "normal_2_caught": true,
+      "normal_2_outgoing_damage": true, "normal_2_return_damage": true,
+      "normal_3_setup": true, "normal_3_ready": true, "normal_3_damage": true, "normal_3_returned": true, "normal_3_caught": true,
+      "normal_3_outgoing_damage": true, "normal_3_return_damage": true,
+      "close_1_setup": true, "close_1_ready": true, "close_1_damage": true, "close_1_returned": true, "close_1_caught": true,
+      "close_2_setup": true, "close_2_ready": true, "close_2_damage": true, "close_2_returned": true, "close_2_caught": true,
+      "close_3_setup": true, "close_3_ready": true, "close_3_damage": true, "close_3_returned": true, "close_3_caught": true
+    }},
+    {"do": "log_clean"}
+  ]
+}

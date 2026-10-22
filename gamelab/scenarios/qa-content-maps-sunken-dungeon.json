@@ -1,0 +1,62 @@
+{
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 900,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_content_maps",
+      "kwargs": {
+        "mission": "hwp_sunken_dungeon"
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ],
+  "name": "qa-content-maps-sunken-dungeon",
+  "about": "Direct native loads of all4 added mission floors, independent actual mission/floor identity, procedural live hostile/exit presence and exact pinned boss scene. God protects observer; no cull. Drop rolls, unlock eligibility, natural traversal and boss defeat remain unverified."
+}

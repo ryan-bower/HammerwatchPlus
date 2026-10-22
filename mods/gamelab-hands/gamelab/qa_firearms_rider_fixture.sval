@@ -1,0 +1,25 @@
+<svals>
+    <!-- Controlled caster fixture only. Natural input still traverses the real
+         gun action, RollElement, elemental projectile and BulletRider. At native
+         Scavenger5 chance.5, add.5 makes it1; -1 zeroes other base weights. -->
+    <dict name="only_poison">
+        <bool name="debuff">false</bool><int name="duration">30000</int>
+        <bool name="ignore-buff-scaling">true</bool>
+        <array name="modifiers">
+            <dict><string name="class">Modifiers::CustomStat</string><string name="name">hwp-ele-chance</string><vec2 name="add">0.5 0.5</vec2></dict>
+            <dict><string name="class">Modifiers::CustomStat</string><string name="name">hwp-ele-fire</string><vec2 name="add">-1 -1</vec2></dict>
+            <dict><string name="class">Modifiers::CustomStat</string><string name="name">hwp-ele-ice</string><vec2 name="add">-1 -1</vec2></dict>
+            <dict><string name="class">Modifiers::CustomStat</string><string name="name">hwp-ele-lightning</string><vec2 name="add">-1 -1</vec2></dict>
+        </array>
+    </dict>
+    <dict name="only_ice">
+        <bool name="debuff">false</bool><int name="duration">30000</int>
+        <bool name="ignore-buff-scaling">true</bool>
+        <array name="modifiers">
+            <dict><string name="class">Modifiers::CustomStat</string><string name="name">hwp-ele-chance</string><vec2 name="add">0.5 0.5</vec2></dict>
+            <dict><string name="class">Modifiers::CustomStat</string><string name="name">hwp-ele-fire</string><vec2 name="add">-1 -1</vec2></dict>
+            <dict><string name="class">Modifiers::CustomStat</string><string name="name">hwp-ele-lightning</string><vec2 name="add">-1 -1</vec2></dict>
+            <dict><string name="class">Modifiers::CustomStat</string><string name="name">hwp-ele-poison</string><vec2 name="add">-1 -1</vec2></dict>
+        </array>
+    </dict>
+</svals>

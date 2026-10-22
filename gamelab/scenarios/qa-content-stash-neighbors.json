@@ -1,0 +1,64 @@
+{
+  "name": "qa-content-stash-neighbors",
+  "about": "Original four custom Frostbrand/Warhammer entries plus four ordinary hwp_rifle_01/hwp_autorifle_01 entries at legal ilvl15..20. Native Sort must preserve class/slot order, separate all four families before descending ilvl, preserve all8 items and be idempotent. Guards against generic hwp namespace stripping.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "sleep",
+      "seconds": 1
+    },
+    {
+      "do": "bot",
+      "bot": "qa_content_stash_neighbors",
+      "kwargs": {},
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

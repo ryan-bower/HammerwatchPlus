@@ -1,0 +1,66 @@
+{
+  "name": "qa-firearms-magazine-real-damage",
+  "about": "Per-magazine regression: predict natural mixed-burst damage from independently measured normal pistol and forced-critical off-hand cannon controls. Cleared fixture floor; fixed sample counts, no retries.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 1500,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "sleep",
+      "seconds": 1
+    },
+    {
+      "do": "bot",
+      "bot": "qa_firearms_magazine_edges",
+      "kwargs": {
+        "section": "real_damage"
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

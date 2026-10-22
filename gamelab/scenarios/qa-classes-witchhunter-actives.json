@@ -1,0 +1,41 @@
+{
+  "name": "qa-classes-witchhunter-actives",
+  "about": "Controlled missing HoH1 mastery active damage/debuff behavior at ranks1/5; no natural-run or multiplayer claim.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "classes"
+  ],
+  "timeout": 480,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_classes",
+      "kwargs": {
+        "sections": "crows"
+      },
+      "expect": {
+        "crows_r1_rank": true,
+        "crows_r1_target": true,
+        "crows_r1_damage": true,
+        "crows_r5_rank": true,
+        "crows_r5_target": true,
+        "crows_r5_damage": true,
+        "crows_r1_debuff": true,
+        "crows_r5_debuff": true,
+        "crows_damage_scales": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

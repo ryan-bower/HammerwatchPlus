@@ -1,0 +1,64 @@
+{
+  "name": "qa-firearms-burst-cancel",
+  "about": "All5Burst ranks: matched fixed full2shell and first-shell/native-dash cancel1shell; actualHP+unconditionalshelllogcount/nativefirst-v-second timing/full sourceManaCost/no-refund prefixconservation/unchangedCLIP/nativeinput_done/release and normalwalk return. Cleared fixture, no direct activation/cancel.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "sleep",
+      "seconds": 1
+    },
+    {
+      "do": "bot",
+      "bot": "qa_firearms_burst_cancel",
+      "kwargs": {},
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

@@ -82,6 +82,31 @@ namespace GameLab
 
 	const uint TRACK_CAP = 24;
 
+	// Numeric snapshots only: never retain owned units/behavior handles after a frame.
+	// Sixteen changes cover the bounded 1/3s Dragon areas; overflow stays explicit.
+	const uint TRACK_AREA_CHANGES_CAP = 16;
+	class TrackDangerState
+	{
+		bool seen = false;
+		string type;
+		int ttl0;
+		int ttl1;
+		int freq0;
+		int freq1;
+		int time0;
+		int time1;
+		int scene0;
+		int scene1;
+		int owner0 = -1;
+		int owner1 = -1;
+		bool exempt0 = false;
+		bool exempt1 = false;
+		int cap0 = -1;
+		int cap1 = -1;
+		int truncated = 0;
+		array<string> transitions;
+	}
+
 	// one track sample set per unit: first and last sight, distance from the player
 	class TrackTask : QueuedTasks::UpdatingTask
 	{
@@ -109,6 +134,65 @@ namespace GameLab
 		array<int> m_tMax;
 		array<float> m_dMinAfter;
 		array<float> m_dLast;
+		array<TrackDangerState@> m_areas;
+
+		void ObserveDanger(uint index, UnitPtr unit)
+		{
+			ref@ behavior = unit.GetScriptBehavior();
+			auto area = cast<DangerAreaBehavior>(behavior);
+			if (area is null)
+				return;
+			auto state = m_areas[index];
+			int scene = int(g_scene.GetTime());
+			int ownerId = -1;
+			bool exempt = false;
+			int cap = -1;
+			auto owner = area.GetOwner();
+			if (owner !is null && owner.m_unit.IsValid() && !owner.m_unit.IsDestroyed())
+				ownerId = owner.m_unit.GetId();
+			auto producer = unit.GetUnitProducer();
+			if (producer !is null)
+				for (uint i = 0; i < infiniteSummons.length(); i++)
+					if (infiniteSummons[i] is producer)
+					{
+						exempt = true;
+						break;
+					}
+			auto player = GetPlayerOwner(owner);
+			if (player !is null)
+				for (uint i = 0; i < player.m_record.summons.length(); i++)
+					if (player.m_record.summons[i].m_prod is producer)
+					{
+						cap = player.m_record.summons[i].m_maxSummons;
+						break;
+					}
+			if (!state.seen)
+			{
+				state.type = Reflect::GetTypeName(behavior);
+				state.ttl0 = area.m_ttl;
+				state.freq0 = area.m_freq;
+				state.time0 = area.m_time;
+				state.scene0 = scene;
+				state.owner0 = ownerId;
+				state.exempt0 = exempt;
+				state.cap0 = cap;
+			}
+			if (!state.seen || state.ttl1 != area.m_ttl)
+			{
+				if (state.transitions.length() < TRACK_AREA_CHANGES_CAP)
+					state.transitions.insertLast("[" + scene + "," + area.m_ttl + "]");
+				else
+					state.truncated++;
+			}
+			state.seen = true;
+			state.ttl1 = area.m_ttl;
+			state.freq1 = area.m_freq;
+			state.time1 = area.m_time;
+			state.scene1 = scene;
+			state.owner1 = ownerId;
+			state.exempt1 = exempt;
+			state.cap1 = cap;
+		}
 
 		bool UpdateFrame(int ms) override
 		{
@@ -162,8 +246,10 @@ namespace GameLab
 						m_tMax.insertLast(m_t);
 						m_dMinAfter.insertLast(d);
 						m_dLast.insertLast(d);
+						m_areas.insertLast(TrackDangerState());
 						k = int(m_ids.length()) - 1;
 					}
+					ObserveDanger(uint(k), units[i]);
 					m_t1[k] = m_t;
 					m_n[k] = m_n[k] + 1;
 					m_p1[k] = p;
@@ -191,6 +277,20 @@ namespace GameLab
 					.Num("x0", m_p0[i].x).Num("y0", m_p0[i].y).Num("x1", m_p1[i].x).Num("y1", m_p1[i].y)
 					.Num("px0", m_from0[i].x).Num("py0", m_from0[i].y)
 					.Num("dmax", m_dMax[i]).Int("tmax", m_tMax[i]).Num("dminafter", m_dMinAfter[i]).Num("dlast", m_dLast[i]);
+				auto state = m_areas[i];
+				if (state.seen)
+				{
+					Json area;
+					area.Str("type", state.type).Int("ttl0", state.ttl0).Int("ttl1", state.ttl1)
+						.Int("freq0", state.freq0).Int("freq1", state.freq1)
+						.Int("time0", state.time0).Int("time1", state.time1)
+						.Int("scene0", state.scene0).Int("scene1", state.scene1)
+						.Int("owner0", state.owner0).Int("owner1", state.owner1)
+						.Bool("producer_exempt0", state.exempt0).Bool("producer_exempt1", state.exempt1)
+						.Int("summon_cap0", state.cap0).Int("summon_cap1", state.cap1)
+						.Raw("ttl_transitions", RawArray(state.transitions)).Int("truncated", state.truncated);
+					e.Raw("area", area.Close());
+				}
 				items.insertLast(e.Close());
 			}
 			Json j;
@@ -206,6 +306,8 @@ namespace GameLab
 	// and last sight (time, position), samples, its greatest distance from the player and the
 	// least after it, the last. One {"ev":"track","tag":...} event when the time is up (a
 	// QueuedTasks updating task, so only while a gameplay module ticks). Capped at TRACK_CAP units.
+	// DangerArea units also expose bounded read-only counter/owner/producer snapshots;
+	// ttl0 is first live observed TTL, never an inferred configured value.
 	void VerbTrack(const string &in id, array<string>@ args)
 	{
 		if (args.length() < 4)
@@ -266,10 +368,15 @@ namespace GameLab
 			dists.insertAt(at, d);
 		}
 		array<string> items;
+		uint stacksKept = 0;
+		int stacksTruncated = 0;
 		for (uint i = 0; i < keep.length() && i < ACTORBUFFS_CAP; i++)
 		{
 			auto actor = keep[i];
 			array<string> buffs;
+			array<string> stacks;
+			int stackCount = 0;
+			int stackTruncated = 0;
 			auto list = actor.GetBuffList();
 			if (list !is null)
 			{
@@ -289,15 +396,44 @@ namespace GameLab
 						.Bool("debuff", buff.m_def.m_debuff);
 					buffs.insertLast(bj.Close());
 				}
+				for (uint j = 0; j < list.m_stacks.length(); j++)
+				{
+					auto buffstack = list.m_stacks[j];
+					if (buffstack is null || buffstack.m_def is null || buffstack.m_stacks <= 0)
+						continue;
+					stackCount++;
+					if (stacksKept >= ACTORBUFFS_CAP)
+					{
+						stackTruncated++;
+						stacksTruncated++;
+						continue;
+					}
+					array<string> tags;
+					if (buffstack.m_def.m_buffDef !is null)
+					{
+						for (uint t = 0; t < g_actorBuffTags.m_tags.length(); t++)
+						{
+							if ((buffstack.m_def.m_buffDef.m_tags & ApplyTag(0, t + 1)) != 0)
+								tags.insertLast(g_actorBuffTags.m_tags[t]);
+						}
+					}
+					Json sj;
+					sj.Str("name", buffstack.m_def.m_name).Int("id", int(buffstack.m_def.m_idHash))
+						.Int("count", buffstack.m_stacks).Int("left", buffstack.m_timerTickC).Raw("tags", StrArray(tags));
+					stacks.insertLast(sj.Close());
+					stacksKept++;
+				}
 			}
 			vec3 pos = actor.m_unit.GetPosition();
 			Json e;
 			e.Int("unit", actor.m_unit.GetId()).Str("name", actor.m_unit.GetDebugName()).Num("hp", actor.GetHealth())
-				.Num("x", pos.x).Num("y", pos.y).Num("dist", dists[i]).Raw("buffs", RawArray(buffs));
+				.Int("hpMax", int(actor.GetMaxHp())).Num("hpExact", double(actor.GetHealth()) * double(actor.GetMaxHp()))
+				.Num("x", pos.x).Num("y", pos.y).Num("dist", dists[i]).Raw("buffs", RawArray(buffs))
+				.Int("stackCount", stackCount).Int("stackTruncated", stackTruncated).Raw("stacks", RawArray(stacks));
 			items.insertLast(e.Close());
 		}
 		int truncated = keep.length() > ACTORBUFFS_CAP ? int(keep.length() - ACTORBUFFS_CAP) : 0;
-		Emit(Reply(id, true).Int("count", keep.length()).Int("truncated", truncated).Raw("actors", RawArray(items)));
+		Emit(Reply(id, true).Int("count", keep.length()).Int("truncated", truncated).Int("stacksTruncated", stacksTruncated).Raw("actors", RawArray(items)));
 	}
 
 	// skilltip <skillId> [level]: read-only. The skill's tooltip text as the skill tree and
@@ -333,6 +469,7 @@ namespace GameLab
 
 	void Register_classesa()
 	{
+		Register_qa_rays();
 		RegisterVerb("castat", "<skillId> <dx> <dy> [nocd]", Verb(VerbCastAt));
 		RegisterVerb("track", "<tag> <ms> <radius> <filter>", Verb(VerbTrack));
 		RegisterVerb("actorbuffs", "[radius] [filter]", Verb(VerbActorBuffs));

@@ -1,0 +1,26 @@
+{
+  "name": "qa-specs-static-native",
+  "about": "Three fixed1x native-input Static Charge observations. Requires actual native targetHP/maxHP, newly created numeric critical text, real TT/MM cooldown activation, same old live orb, and per-frame stack history. No damage/event hooks; bounded crit setup outside observation.",
+  "fixture": "town-paladin",
+  "mods": ["core", "classes", "specs"],
+  "timeout": 600,
+  "steps": [
+    {"do": "console", "line": "e_cheats 1"},
+    {"do": "console", "line": "show_chat"},
+    {"do": "bot", "bot": "qa_specs_static_native", "expect": {
+      "staticnative_char": true, "staticnative_learned": true,
+      "staticnative_tt_own_button": true, "staticnative_mm_own_button": true,
+      "staticnative_lifetime_setup": true,
+      "native_1_ready": true, "native_1_complete": true, "native_1_setup": true,
+      "native_1_first_crit": true, "native_1_later_crits": true, "native_1_other_cast": true,
+      "native_1_old_orb_critical": true, "native_1_overlap_one_bonus": true, "native_1_restored": true,
+      "native_2_ready": true, "native_2_complete": true, "native_2_setup": true,
+      "native_2_first_crit": true, "native_2_later_crits": true, "native_2_other_cast": true,
+      "native_2_old_orb_critical": true, "native_2_overlap_one_bonus": true, "native_2_restored": true,
+      "native_3_ready": true, "native_3_complete": true, "native_3_setup": true,
+      "native_3_first_crit": true, "native_3_later_crits": true, "native_3_other_cast": true,
+      "native_3_old_orb_critical": true, "native_3_overlap_one_bonus": true, "native_3_restored": true
+    }},
+    {"do": "log_clean"}
+  ]
+}

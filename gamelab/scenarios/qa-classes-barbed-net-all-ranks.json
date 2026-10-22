@@ -1,0 +1,103 @@
+{
+  "name": "qa-classes-barbed-net-all-ranks",
+  "about": "Full31 modules; all5 positive ranks through original controlled actual effect/HP/debuff/outside/scaling controls. Riposte includes rank0 plus all5 x melee/ranged/spell x incoming2/5, raw attacker HP. Position/leap casts are controlled native Skill.Activate; ordinary cursor/UI/co-op and mana/CD boundary behavior are separate. No gameplay changes. Known stationary15k hostile actor with exact initialHP guards prevents rank damage saturation/movement confounds; real enemyAI and ordinary-play separate.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 900,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_ranks",
+      "kwargs": {
+        "sections": "barbed_net"
+      },
+      "expect": {
+        "barbed_net_r1_rank": true,
+        "barbed_net_r1_target": true,
+        "barbed_net_r1_damage": true,
+        "barbed_net_r5_rank": true,
+        "barbed_net_r5_target": true,
+        "barbed_net_r5_damage": true,
+        "barbed_net_r1_debuff": true,
+        "barbed_net_r5_debuff": true,
+        "barbed_net_r1_bleed": true,
+        "barbed_net_r5_bleed": true,
+        "barbed_net_damage_scales": true,
+        "barbed_net_r2_rank": true,
+        "barbed_net_r2_target": true,
+        "barbed_net_r2_damage": true,
+        "barbed_net_r2_debuff": true,
+        "barbed_net_r2_bleed": true,
+        "barbed_net_r3_rank": true,
+        "barbed_net_r3_target": true,
+        "barbed_net_r3_damage": true,
+        "barbed_net_r3_debuff": true,
+        "barbed_net_r3_bleed": true,
+        "barbed_net_r4_rank": true,
+        "barbed_net_r4_target": true,
+        "barbed_net_r4_damage": true,
+        "barbed_net_r4_debuff": true,
+        "barbed_net_r4_bleed": true,
+        "barbed_net_r1_cooldown_ready": true,
+        "barbed_net_r2_cooldown_ready": true,
+        "barbed_net_r3_cooldown_ready": true,
+        "barbed_net_r4_cooldown_ready": true,
+        "barbed_net_r5_cooldown_ready": true,
+        "barbed_net_r1_noncritical_fixture": true,
+        "barbed_net_r2_noncritical_fixture": true,
+        "barbed_net_r3_noncritical_fixture": true,
+        "barbed_net_r4_noncritical_fixture": true,
+        "barbed_net_r5_noncritical_fixture": true,
+        "barbed_net_crit_restored": true,
+        "barbed_net_r1_target_hp": true,
+        "barbed_net_r2_target_hp": true,
+        "barbed_net_r3_target_hp": true,
+        "barbed_net_r4_target_hp": true,
+        "barbed_net_r5_target_hp": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

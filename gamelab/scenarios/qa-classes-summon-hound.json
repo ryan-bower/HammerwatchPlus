@@ -1,0 +1,34 @@
+{
+  "name": "qa-classes-summon-hound",
+  "about": "Controlled native passive summon ownership/HP at all5 ranks and actual natural target HP loss with player idle; Pack cases additionally require exact roster caps2,2,2,3,3 stable through a complete20s native spawn interval. No direct summon spawns. Per-hit configured damage is retained for review, not quantitatively claimed.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "classes",
+    "summons"
+  ],
+  "timeout": 900,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_summons",
+      "kwargs": {
+        "sections": "hound"
+      },
+      "expect": {
+        "hound_all_ranks": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

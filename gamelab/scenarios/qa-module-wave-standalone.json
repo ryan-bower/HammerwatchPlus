@@ -1,0 +1,41 @@
+{
+  "name": "qa-module-wave-standalone",
+  "about": "Standalone functional subset with only required modules. Native arena UI/start/NG+5 and controlled accelerated clock expiry/death without rank reward. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "wavemode"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_modules_checks",
+      "kwargs": {
+        "sections": "waverank,wave_timeout",
+        "required_flags": [
+          "statue_open",
+          "statue_loadout",
+          "wave_ngp5",
+          "clock_kills",
+          "rank_up_absent",
+          "rank_unchanged"
+        ]
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

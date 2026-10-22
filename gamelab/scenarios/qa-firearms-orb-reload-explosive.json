@@ -1,0 +1,66 @@
+{
+  "name": "qa-firearms-orb-reload-explosive",
+  "about": "Explosive Reload ranks1?3 natural rifle burst spends3 rounds then natural reload throws the27 remaining rounds; real native target HP damage ratios5:8:12 and per-frame magazine tracking.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 420,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "sleep",
+      "seconds": 1
+    },
+    {
+      "do": "bot",
+      "bot": "qa_firearms_reload_orbs",
+      "kwargs": {
+        "section": "explosive"
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

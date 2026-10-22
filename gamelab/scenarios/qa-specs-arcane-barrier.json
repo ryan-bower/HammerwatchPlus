@@ -1,0 +1,19 @@
+{
+  "name": "qa-specs-arcane-barrier",
+  "about": "DRAFT, unrun: Void Barrier1 native Blink movement and exact clock window, real nonlethal pure5 mana drain, lethal pure1000 capped to1 mana/alive, next-frame HP mirror, actual death after natural expiry. Controlled fixture, not ordinary play or exact1ms boundary coverage.",
+  "fixture": "town-paladin",
+  "mods": ["core", "abyss", "architect", "bufftips", "campaign", "chatlinks", "classes", "colors", "deathrecap", "droptrade", "farming", "firearms", "fishing", "gambler", "goldpet", "groupcombo", "keys", "laststats", "legacy", "maps", "mercenary", "pets", "puzzles", "specs", "stash", "strongbox", "summons", "valuables", "wavemode", "weapons", "weaponswap"],
+  "timeout": 240,
+  "steps": [
+    {"do": "console", "line": "e_cheats 1"},
+    {"do": "console", "line": "show_chat"},
+    {"do": "bot", "bot": "qa_specs_arcane_orbs", "kwargs": {"section": "barrier"}, "expect": {
+      "arc_orb_fresh": true, "arc_orb_lane": true, "arc_orb_controls": true,
+      "arc_barrier_blink_own_button": true, "barrier_setup": true,
+      "barrier_native_window": true, "barrier_nonlethal_drain": true,
+      "barrier_lethal_saved": true, "barrier_expiry_lethal": true,
+      "barrier_all_effects": true
+    }},
+    {"do": "log_clean"}
+  ]
+}

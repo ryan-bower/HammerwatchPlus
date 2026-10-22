@@ -1,0 +1,21 @@
+{
+  "name": "qa-specs-crit-contract",
+  "about": "Normal-speed harness contract only: native skill crit query/set, independent critprobe readback, unrelated native orb/skill modifier rebuild, then restore/query original. Does not claim gameplay damage or critical-hit behavior coverage.",
+  "fixture": "town-paladin",
+  "mods": ["core", "classes", "specs"],
+  "timeout": 240,
+  "steps": [
+    {"do": "console", "line": "e_cheats 1"},
+    {"do": "console", "line": "show_chat"},
+    {"do": "bot", "bot": "qa_specs_static", "kwargs": {"contract_only": true}, "expect": {
+      "staticqa_char": true,
+      "staticqa_learned": true,
+      "staticqa_input_own_button": true,
+      "staticqa_helper_query": true,
+      "staticqa_helper_set": true,
+      "staticqa_helper_rebuild": true,
+      "staticqa_helper_restore": true
+    }},
+    {"do": "log_clean"}
+  ]
+}

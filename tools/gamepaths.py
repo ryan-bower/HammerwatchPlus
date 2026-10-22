@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import os
 import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -29,6 +30,27 @@ SCREENSHOTS = REPO / ".screenshots"
 HOH2_APPID = "619820"
 HOH1_APPID = "677120"
 STEAMID64_BASE = 76561197960265728
+
+
+def find_gcc() -> str | None:
+    """Prefer PATH, then a portable compiler in GameLab's gitignored local cache."""
+    gcc = shutil.which("gcc")
+    if gcc:
+        return gcc
+    toolchain = REPO / "gamelab" / "fixtures" / "cache" / "toolchain"
+    for name in ("mingw64", "w64devkit"):
+        candidate = toolchain / name / "bin" / "gcc.exe"
+        if candidate.is_file():
+            return str(candidate)
+    return None
+
+
+def gcc_environment(gcc: str) -> dict[str, str]:
+    """Let compiler children find companion executables/DLLs without changing our PATH."""
+    env = os.environ.copy()
+    compiler_bin = str(Path(gcc).resolve().parent)
+    env["PATH"] = compiler_bin + os.pathsep + env.get("PATH", "")
+    return env
 
 
 def steam_root() -> Path | None:

@@ -120,6 +120,10 @@ def _run(scenario_path: Path, scenario_name: str, scenario: dict, mode: str, dri
     config = gamepaths.real_config()
     config_before = sha(config)
     res_before = env.install_res_snapshot()
+    # Preserve the exact observation if the isolation gate later fails. A bare
+    # entry name cannot distinguish directory metadata drift from a file write.
+    res_evidence = {"before": res_before}
+    (results / "isolation-res.json").write_text(json.dumps(res_evidence, indent=1), encoding="utf-8")
     saves_before = saves.snapshot()
     cmd = [sys.executable, "-m", "gamelab.runner", str(scenario_path), str(results), "--mode", mode]
     timeout = scenario.get("timeout", 300) * 3          # fixture passes + the run itself
@@ -147,6 +151,11 @@ def _run(scenario_path: Path, scenario_name: str, scenario: dict, mode: str, dri
 
     outer("user config unchanged", sha(config) == config_before, str(config))
     res_after = env.install_res_snapshot()
+    res_evidence["after"] = res_after
+    res_evidence["changed"] = {k: {"before": res_before.get(k), "after": res_after.get(k)}
+                               for k in sorted(set(res_before) | set(res_after))
+                               if res_before.get(k) != res_after.get(k)}
+    (results / "isolation-res.json").write_text(json.dumps(res_evidence, indent=1), encoding="utf-8")
     outer("install res/ unchanged", res_after == res_before,
           ", ".join(sorted(k for k in set(res_before) | set(res_after) if res_before.get(k) != res_after.get(k))))
     changed = saves.diff(saves_before, saves.snapshot())

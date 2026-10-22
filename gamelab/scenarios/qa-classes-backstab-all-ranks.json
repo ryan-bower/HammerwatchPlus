@@ -1,0 +1,76 @@
+{
+  "name": "qa-classes-backstab-all-ranks",
+  "about": "Controlled Backstab all5positive ranks plus rank0critical/eight fixed rank5 unforced-physical controls classified by actual critical versus ordinary numeric text: legal common1 one-swing shortsword; actual focused held main input, exactly one attributed native hit, fresh numeric critical text, exact targetHP and bleeding0/2/3/4/5/6. Bench resource/CD reset is fixture setup. Skillcrit0 only zeros selected skill/spell contributions, not global physical chance; >=1 actual noncrit is required and every actual crit must still apply6bleed. No direct damage/modifier callbacks, no starting-daggers or ordinary-run claim.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_backstab",
+      "expect": {
+        "backstab_clean_one_swing_weapon": true,
+        "backstab_all_ranks_actual": true,
+        "backstab_input_fixture_restored": true,
+        "backstab_observed_noncrit_control": true,
+        "backstab_r0_crit_actual_effect": true,
+        "backstab_r1_crit_actual_effect": true,
+        "backstab_r2_crit_actual_effect": true,
+        "backstab_r3_crit_actual_effect": true,
+        "backstab_r4_crit_actual_effect": true,
+        "backstab_r5_crit_actual_effect": true,
+        "backstab_r5_unforced_0_actual_effect": true,
+        "backstab_r5_unforced_1_actual_effect": true,
+        "backstab_r5_unforced_2_actual_effect": true,
+        "backstab_r5_unforced_3_actual_effect": true,
+        "backstab_r5_unforced_4_actual_effect": true,
+        "backstab_r5_unforced_5_actual_effect": true,
+        "backstab_r5_unforced_6_actual_effect": true,
+        "backstab_r5_unforced_7_actual_effect": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

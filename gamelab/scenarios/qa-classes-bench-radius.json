@@ -1,0 +1,63 @@
+{
+  "name": "qa-classes-bench-radius",
+  "about": "Harness regression: requested native bench radius200 includes one known26px target and excludes a live600px foreign target; actual focused main hits/localHP and unchanged foreignHP required. Explicit cleared-floor setup; no class-rank credit.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 300,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_class_bench_radius",
+      "expect": {
+        "bench_radius_two_real_fixtures": true,
+        "bench_radius_native_target_count": true,
+        "bench_radius_actual_local_damage": true,
+        "bench_radius_foreign_untouched": true,
+        "bench_radius_observed": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

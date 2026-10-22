@@ -1,0 +1,41 @@
+{
+  "name": "qa-module-farming-cycle-standalone",
+  "about": "Minimum core+farming on a fresh profile: plant a dry crop, aborted run leaves it unchanged, failed run grows once, then compare dry second-run growth with a separately watered crop. All original six growth/refusal assertions retained.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "farming"
+  ],
+  "timeout": 900,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_modules_checks",
+      "kwargs": {
+        "sections": "farm_abort,farm_cycle",
+        "required_flags": [
+          "abort_grows_nothing",
+          "failed_run_grows",
+          "dry_bigger_sprout",
+          "watered_shows_wet",
+          "dry_ready_after_two",
+          "watered_ready_after_one"
+        ]
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

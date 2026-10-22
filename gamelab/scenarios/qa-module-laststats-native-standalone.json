@@ -1,0 +1,109 @@
+{
+  "name": "qa-module-laststats-native-standalone",
+  "about": "Actual native aborted and lethal-damage failed run: compare every visible native end-screen value with serialized LastStats, normal noticeboard interaction, one-player wrap, save/restart and two town rebuilds. Controlled1x walking/god fixture, no stat setters. No success/co-op/large-list/locales claim.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "laststats"
+  ],
+  "timeout": 900,
+  "steps": [
+    {
+      "do": "bot",
+      "bot": "qa_laststats_native",
+      "kwargs": {
+        "section": "prepare"
+      },
+      "expect": {
+        "fresh_character": true,
+        "fresh_no_snapshot": true,
+        "fresh_one_board": true,
+        "fresh_normal_use": true,
+        "fresh_empty_ui": true,
+        "fresh_close_unpauses": true,
+        "snapshot_replaced": true,
+        "prepared": true,
+        "native_save": true,
+        "aborted_entered": true,
+        "aborted_controlled_fixture": true,
+        "aborted_native_movement": true,
+        "aborted_native_finish": true,
+        "aborted_end_window": true,
+        "aborted_native_snapshot_equal": true,
+        "aborted_end_close": true,
+        "aborted_one_board": true,
+        "aborted_normal_use": true,
+        "aborted_metadata": true,
+        "aborted_all_values": true,
+        "aborted_prev_wrap": true,
+        "aborted_next_wrap": true,
+        "aborted_close_unpauses": true,
+        "failed_entered": true,
+        "failed_controlled_fixture": true,
+        "failed_native_movement": true,
+        "failed_native_finish": true,
+        "failed_end_window": true,
+        "failed_native_snapshot_equal": true,
+        "failed_end_close": true,
+        "failed_one_board": true,
+        "failed_normal_use": true,
+        "failed_metadata": true,
+        "failed_all_values": true,
+        "failed_prev_wrap": true,
+        "failed_next_wrap": true,
+        "failed_close_unpauses": true,
+        "fresh_input_release": true,
+        "aborted_input_release": true,
+        "failed_input_release": true
+      }
+    },
+    {
+      "do": "restart",
+      "readback": {
+        "phase": "town",
+        "player.name": "QALastStats",
+        "player.dead": false
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "qa_laststats_native",
+      "kwargs": {
+        "section": "verify"
+      },
+      "expect": {
+        "reload_record": true,
+        "reload_snapshot_exact": true,
+        "reload_one_board": true,
+        "reload_normal_use": true,
+        "reload_metadata": true,
+        "reload_all_values": true,
+        "reload_prev_wrap": true,
+        "reload_next_wrap": true,
+        "reload_close_unpauses": true,
+        "rebuild1_one_board": true,
+        "rebuild1_normal_use": true,
+        "rebuild1_metadata": true,
+        "rebuild1_all_values": true,
+        "rebuild1_prev_wrap": true,
+        "rebuild1_next_wrap": true,
+        "rebuild1_close_unpauses": true,
+        "rebuild2_one_board": true,
+        "rebuild2_normal_use": true,
+        "rebuild2_metadata": true,
+        "rebuild2_all_values": true,
+        "rebuild2_prev_wrap": true,
+        "rebuild2_next_wrap": true,
+        "rebuild2_close_unpauses": true,
+        "rebuild1_snapshot_exact": true,
+        "rebuild2_snapshot_exact": true,
+        "reload_input_release": true,
+        "rebuild1_input_release": true,
+        "rebuild2_input_release": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

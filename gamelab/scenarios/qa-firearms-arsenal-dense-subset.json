@@ -1,0 +1,75 @@
+{
+  "name": "qa-firearms-arsenal-dense-subset",
+  "about": "Bounded eight-path regression of the four retained original HP-zero misses plus solo pistol/cannon and dual pistol/cannon controls. Five overlapping radius5 dummies at45px, actual target centers/HP and wall/tile rays retained. Gun, timing, cost, ammo and damage rules unchanged; no random retry. Original72 observations remain retained.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 900,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "sleep",
+      "seconds": 1
+    },
+    {
+      "do": "bot",
+      "bot": "qa_firearms_arsenal",
+      "expect": {
+        "ok": true
+      },
+      "kwargs": {
+        "selected": [
+          "cannon_pistol_secondary_1_common",
+          "pistol_solo_primary_2_common",
+          "pistol_solo_primary_3_common",
+          "pistol_cannon_secondary_3_common",
+          "pistol_solo_primary_1_common",
+          "cannon_solo_primary_1_common",
+          "pistol_dual_primary_1_common",
+          "cannon_dual_primary_1_common"
+        ]
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

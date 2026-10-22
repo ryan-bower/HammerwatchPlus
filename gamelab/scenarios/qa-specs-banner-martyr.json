@@ -1,0 +1,45 @@
+{
+  "name": "qa-specs-banner-martyr",
+  "about": "All3 Martyr qualities: native Standard control reduces actual incoming Player.Damage; bearer loses DR under each orb and native standard expiry is observed. Real ally effect BLOCKED.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "classes",
+    "specs"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_specs_banner_orbs",
+      "kwargs": {
+        "section": "martyr"
+      },
+      "expect": {
+        "martyr_god_off": true,
+        "martyr_lane": true,
+        "martyr_char": true,
+        "martyr_learned": true,
+        "martyr_target": true,
+        "martyr_ordinary_standard_dr": true,
+        "martyr_control_expires": true,
+        "martyr_r1_equipped": true,
+        "martyr_r1_self_loss": true,
+        "martyr_r1_expires": true,
+        "martyr_r2_equipped": true,
+        "martyr_r2_self_loss": true,
+        "martyr_r2_expires": true,
+        "martyr_r3_equipped": true,
+        "martyr_r3_self_loss": true,
+        "martyr_r3_expires": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "name": "qa-dead-state-precision",
+  "about": "One controlled real fatal Player.Damage with atomic mana12.375/live state/damage/dead state. Confirms exact dead telemetry against damageme raw record reply and distinguishes truncated integer mana. No Barrier, ability, ordinary-play or persistence credit.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 120,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "cht_god 0"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_dead_state_precision",
+      "expect": {
+        "precision_fixture": true,
+        "precision_mission": true,
+        "precision_controls": true,
+        "precision_fractional_setup": true,
+        "precision_native_death": true,
+        "precision_dead_exact_present": true,
+        "precision_dead_matches_raw": true,
+        "precision_distinguishes_integer": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

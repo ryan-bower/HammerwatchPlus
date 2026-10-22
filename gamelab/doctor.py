@@ -100,10 +100,11 @@ def process_running(image: str) -> bool:
 
 
 def gcc_target() -> str | None:
-    gcc = shutil.which("gcc")
+    gcc = gamepaths.find_gcc()
     if not gcc:
         return None
-    return subprocess.run([gcc, "-dumpmachine"], capture_output=True, text=True).stdout.strip() or None
+    return subprocess.run([gcc, "-dumpmachine"], env=gamepaths.gcc_environment(gcc),
+                          capture_output=True, text=True).stdout.strip() or None
 
 
 def other_steam_accounts() -> list[str]:
@@ -613,7 +614,8 @@ def diagnose(fix: bool, force_smoke: bool = False) -> Report:
 
     tgt = gcc_target()
     gcc_ok = r.check("gcc mingw-w64 x86_64 (builds the capture shim)", bool(tgt) and "x86_64" in tgt and "mingw" in tgt,
-                     tgt or "not on PATH: install mingw-w64 (e.g. `choco install mingw`), then reopen the shell")
+                     tgt or "not on PATH or in the local toolchain cache: install mingw-w64 "
+                     "(e.g. `choco install mingw`), then reopen the shell")
     same_vol = os.stat(REPO).st_dev == os.stat(game).st_dev
     r.check("repo on the same volume as the install", same_vol,
             hint="GameLab hard-links res/assets.bin from the install; clone the repo onto the Steam library's drive")

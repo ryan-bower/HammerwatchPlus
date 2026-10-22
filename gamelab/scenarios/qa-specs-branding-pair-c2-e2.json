@@ -1,0 +1,82 @@
+{
+  "name": "qa-specs-branding-pair-c2-e2",
+  "about": "Three fixed zero/ten-Essence native-button controls for interacting Combustion2/Empowerment2, Proliferation3/Released2; independent Raw9 f32 Fire direct+settled pool model, exact source payment and all original strict geometry/input/crit/CD controls. Controlled prerequisite acquisition;1/9Essence boundaries, other identity sets and lifecycle remain separate.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_specs_branding_quality_pairs",
+      "expect": {
+        "native_brand_combo_lane": true,
+        "native_combo_orb_setup": true,
+        "native_pb5_rank": true,
+        "native_ee5_rank": true,
+        "native_combo_all_trials": true,
+        "native-brand-1-e0_setup": true,
+        "native-brand-1-e0_fully_settled_damage": true,
+        "native-brand-1-e0_spend_full_cd": true,
+        "native-brand-1-e10_setup": true,
+        "native-brand-1-e10_fully_settled_damage": true,
+        "native-brand-1-e10_spend_full_cd": true,
+        "native-brand-2-e0_setup": true,
+        "native-brand-2-e0_fully_settled_damage": true,
+        "native-brand-2-e0_spend_full_cd": true,
+        "native-brand-2-e10_setup": true,
+        "native-brand-2-e10_fully_settled_damage": true,
+        "native-brand-2-e10_spend_full_cd": true,
+        "native-brand-3-e0_setup": true,
+        "native-brand-3-e0_fully_settled_damage": true,
+        "native-brand-3-e0_spend_full_cd": true,
+        "native-brand-3-e10_setup": true,
+        "native-brand-3-e10_fully_settled_damage": true,
+        "native-brand-3-e10_spend_full_cd": true,
+        "quality_binds": true
+      },
+      "kwargs": {
+        "combust_rank": 2,
+        "empower_rank": 2
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

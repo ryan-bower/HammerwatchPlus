@@ -1,0 +1,47 @@
+{
+  "name": "qa-module-farming-standalone",
+  "about": "Minimum core+farming native shop, planting, watering, visual and well controls. Crop growth/refusal runs use a separate fresh profile to retain the dry control.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "farming"
+  ],
+  "timeout": 900,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_modules_checks",
+      "kwargs": {
+        "sections": "farm",
+        "required_flags": [
+          "well_no_can",
+          "farmer_open",
+          "can_bought",
+          "seed_bought",
+          "plots_found",
+          "planted",
+          "sprouts_shown",
+          "watered",
+          "wet_soil_shown",
+          "already_watered",
+          "well_refills",
+          "well_moved"
+        ]
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

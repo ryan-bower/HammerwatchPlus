@@ -1,0 +1,87 @@
+{
+  "name": "qa-specs-static-mm-neighbor",
+  "about": "Three original-code actualMMfirstcrit thenactualnoncritTT andlateoldMMcritical attribution trials; native setup mustprove realinputs/ownedproducers/HP/crit/CD, no directdamage/event setters.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "goldpet",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_specs_static_mm",
+      "expect": {
+        "staticmm_char": true,
+        "staticmm_learned": true,
+        "staticmm_tt_own_button": true,
+        "staticmm_mm_own_button": true,
+        "static_mm_lane_certified": true,
+        "mm_1_ready": true,
+        "mm_1_complete": true,
+        "mm_1_setup": true,
+        "mm_1_one_mm": true,
+        "mm_1_actual_tt": true,
+        "mm_1_late_old_critical": true,
+        "mm_1_one_bonus_per_cast": true,
+        "mm_1_restored": true,
+        "mm_2_ready": true,
+        "mm_2_complete": true,
+        "mm_2_setup": true,
+        "mm_2_one_mm": true,
+        "mm_2_actual_tt": true,
+        "mm_2_late_old_critical": true,
+        "mm_2_one_bonus_per_cast": true,
+        "mm_2_restored": true,
+        "mm_3_ready": true,
+        "mm_3_complete": true,
+        "mm_3_setup": true,
+        "mm_3_one_mm": true,
+        "mm_3_actual_tt": true,
+        "mm_3_late_old_critical": true,
+        "mm_3_one_bonus_per_cast": true,
+        "mm_3_restored": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

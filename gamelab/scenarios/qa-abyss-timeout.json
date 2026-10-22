@@ -1,0 +1,17 @@
+{
+  "name": "qa-abyss-timeout",
+  "about": "Standalone Abyss dependency closure: real first wave and living frozen pack, native two-minute timeout, actual crack disappearance and no new loot. Controlled god/cull/timescale measurement only.",
+  "fixture": "town-paladin",
+  "mods": ["core", "abyss"],
+  "timeout": 300,
+  "steps": [
+    {"do": "console", "line": "e_cheats 1"},
+    {"do": "bot", "bot": "qa_event_timeouts", "kwargs": {"kind": "abyss"}, "expect": {
+      "mission_ready": true, "open_floor": true, "disabled_no_natural_event": true,
+      "live_sample": true, "one_event": true, "event_started_with_live_pack": true,
+      "timescale_readback": true, "event_expired": true, "real_timeout_elapsed": true,
+      "pack_still_alive": true, "no_reward": true
+    }},
+    {"do": "log_clean"}
+  ]
+}

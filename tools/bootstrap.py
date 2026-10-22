@@ -136,15 +136,17 @@ def build_shim(force: bool) -> None:
     src_sha = hashlib.sha256(SHIM_SRC.read_bytes()).hexdigest()
     if not force and SHIM_DLL.is_file() and stamp.is_file() and json.loads(stamp.read_text())["source_sha256"] == src_sha:
         return
-    gcc = shutil.which("gcc")
+    gcc = gamepaths.find_gcc()
     if not gcc:
         sys.exit("gcc (mingw-w64, x86_64) is required to build tools/bin/hwr2_capture.dll")
+    compiler_env = gamepaths.gcc_environment(gcc)
     gamepaths.TOOLS_BIN.mkdir(parents=True, exist_ok=True)
     r = subprocess.run([gcc, "-shared", "-O2", "-Wall", "-o", str(SHIM_DLL), str(SHIM_SRC),
-                        "-lgdi32", "-lopengl32", "-lole32"])
+                        "-lgdi32", "-lopengl32", "-lole32"], env=compiler_env)
     if r.returncode:
         sys.exit("building hwr2_capture.dll failed")
-    version = subprocess.run([gcc, "-dumpfullversion"], capture_output=True, text=True).stdout.strip()
+    version = subprocess.run([gcc, "-dumpfullversion"], env=compiler_env,
+                             capture_output=True, text=True).stdout.strip()
     stamp.write_text(json.dumps({"source_sha256": src_sha, "gcc": version}, indent=1) + "\n")
     step(f"built tools/bin/hwr2_capture.dll (gcc {version})")
 
