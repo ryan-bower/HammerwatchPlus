@@ -3226,3 +3226,16 @@ its run (`plan-forgemaster-smoke` and `plan-forgemaster`, `gamelab/results/`):
   them ("Dragon085158"), fixed here by inserting the space (46 in RE_NOTES, 92 in QA_OVERNIGHT);
   "all12", "Full31"-style glued counts remain. The new res/ isolation snapshot hashes every file
   under the install's `res/` (118 files) before and after each run, a second or so each.
+
+
+## Agent-compatible QA handoff (2026-10-22)
+
+AGENTS.md now leads to the GameLab quickstart, regression selection/known-failure
+map and detailed skill. CLAUDE.md delegates to the same committed instructions.
+The skill documents completed bot returns, partial/outer verdict checks and the
+separate source-fingerprint journal. `tools/qa_batch.py` replaces reliance on the
+local date-specific queue wrapper with a portable, fail-fast serial CLI and dry-run.
+The 49 deferred text drafts/control/plan files are committed in a hash-indexed,
+unapplied bundle; old installers must be rebased/reviewed before use. README/ledger
+historical sections are clearly separated from current status. No gameplay source
+or native-coverage claim changes in this follow-up.
