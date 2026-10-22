@@ -11,6 +11,9 @@ tool makes (a tinted vanilla icon). Icon ideas for picking can go through the pi
 (`tools/icon_art/picker.py`) the way the Firearms ones did: three ideas each, written to
 `tools/icon_art/out/specs/`. Only the picked one goes to `override/`.
 
+**Status (2026-10-21):** delivered. All 49 icons were picked over two rounds of the picker:
+round 1 was `sp.py`, round 2 (`sp_r2.py`) redid the noted picks and the Ranger and Wizard sets.
+
 Sizes: **24x24** for skills and orbs (the skill bar, trainer and orb picker), **14x14** for
 HUD status icons (the buff bar above the health bar).
 

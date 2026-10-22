@@ -2480,3 +2480,12 @@ passes, 17 checks.
   binds (`targets-bind tt-zaps`, `radius-bind tt-radius`, base 3 and 70). Thunderclap's radius uses the
   same bind. At rare, the orb sets 5 zaps within 95. Verified: `inv_orb_binds`.
 
+## 4th-spec icons picked (2026-10-21)
+
+The user picked all 49 spec icons over two rounds of the picker
+(https://claude.ai/artifact/PSk1d9NwASasB5zqmnccNq, db collection `picks`; round 1 ids are `specs.<name>`,
+round 2 ids `specs2.<name>`). Round 2 redid the 13 picks that had notes, every Deadeye icon and
+every Aerotheurge icon. Three picks were "keep" (the round-1 icon stays): Gathering Winds, Wind
+Ward, Mana Conduit. `make_specs_icons.py` now paints all 49 with no placeholders. The atlas cells
+are unchanged, so no new run was made; the icons are not yet seen in game.
+
