@@ -1,7 +1,8 @@
 {
-  "built": "",
+  "built": "hwp_pri_nr_rot_bloom",
   "cls": "priest",
   "exclusive": "",
+  "icon_art": "pri_rot_bloom",
   "levels": [
     {
       "q": "uncommon",
@@ -13,9 +14,9 @@
     }
   ],
   "name": "Rot Bloom",
-  "notes": "First-pass draft by Claude for the Devil Forgemaster; numbers and names are placeholders. The burst leaves no intact body. Heresy's summon damage bonus would also raise the burst, if wanted.",
+  "notes": "In game (hwp_pri_nr_rot_bloom, tested): a risen's death bursts for 60/120% of the main hand's damage as poison within 60. plan-forgemaster 20261022-102006.",
   "order": null,
   "skill": "priest-spec4-active",
-  "status": "idea",
+  "status": "tested",
   "summary": "When a risen summon dies, its body bursts, dealing poison damage to enemies around it."
 }

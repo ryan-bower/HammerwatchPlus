@@ -2887,3 +2887,309 @@ Current normal packaging now passes:32archives,956all-in-one entries, everydecod
 
 
 Final PR verification: full-stack `20261022-175415-mod-all-lab` passes all 14 assertions at source `f242a80b25e8c4bdbd048ccf40f0fd7c97a7ce46bdc482c86a6508785878fe19` with clean teardown. The preceding `175056` bootstrap-shutdown access violation is retained; only isolated GameLab saves/appdata were reset before the successful recheck. Nine new source files received formatting-only cleanup, with native tokens/scalars or Python AST preserved. Final normal packaging verifies all 32 archives and 956 all-in-one payloads at this source; SHA256 `87bcb72411b57255c616a905a041464601022f2de75b4b6b170b7befce48d419`. Historical patch contents are preserved byte-for-byte in `docs/generated/qa_historical_patch_artifacts.json`. This adds no ability-coverage credit and does not complete the paused sweep.
+
+## Devil Forgemaster: Penance as an alternate form, icon ideas (2026-10-22)
+
+Planner only, nothing built:
+- Sacrificial Penance has its own record (`planner/data/skills/priest-spec4-penance.json`) with
+  `alt_of: priest-spec4-active` and `alt_when`. `mine("skills")` leaves alternate forms out, so
+  the spec still counts 1 active and 1 passive; the page draws the form inside Necrotic
+  Resurrection's card (checked in a headless Edge screenshot of `#priest`). Necrotic
+  Resurrection's levels no longer carry the Penance numbers; Penance's own levels do (1/1/2/2/3).
+- Icon ideas (`tools/icon_art/sp_pri.py`, picker ids `specsP.<name>`, published to the picker
+  https://claude.ai/artifact/PSk1d9NwASasB5zqmnccNq): Necrotic Resurrection, Sacrificial
+  Penance, Call of Heresy (24x24) and the Heresy stack below 5 and at 5+ (14x14). Below 5 is
+  purple; 5+ is red hot, each idea the same letter's motif gone too far, so the two read apart.
+  The planner shows no icon for them until they are built (`planner_icons.py` cuts icons from
+  the game's atlases only).
+- The 5+ icon swaps on the one Heresy stack (the user's call: not two stacks). How to swap a
+  buff's icon in script is not checked against the engine yet.
+- Penance (the user's rules): mana 50, no cooldown of its own. It shares Necrotic Resurrection's,
+  so it can't be used while that is on cooldown. Using it consumes your Divine Favor and starts no
+  cooldown, so the skill is Necrotic Resurrection again, ready to cast.
+- Round 2 (`tools/icon_art/sp_pri2.py`, ids `specsP2.<name>`, same picker). The user's round-1
+  picks were Necrotic Resurrection a, Sacrificial Penance a, Call of Heresy c ("but replace the
+  sigil with an eye") and Heresy b at both levels. This round has three refinements of each pick,
+  with the pick beside them, plus first ideas for the six icons round 1 left out: the spec emblem
+  (`pri_class`), the four orbs (Ravenous Lunge, Rot Bloom, Pyre Sacrifice, Deeper Depravity) and
+  `hud_devouring`, the status shown during the 3 s lunge-and-eat channel.
+- Round 3 (`tools/icon_art/sp_pri3.py`, ids `specsP3.<name>`, same picker). These six were settled
+  in round 2 and are in `art/specs/override/` (`sp_pri3.py --finals`): Necrotic Resurrection
+  (round-1 a), Sacrificial Penance (round-2 c), the emblem (c), Deeper Depravity (a), Ravenous
+  Lunge (b) and Rot Bloom (a). Round 3 redoes five of them per the user's notes: Call of Heresy and
+  Pyre Sacrifice in necrotic green, both Heresy eyes green (below 5 from round-2 a, 5+ from the
+  kept round-1 pick), and the eating status's maw with defined teeth and lips. The icons go into
+  the specs sheet when the spec is built (`tools/make_specs_icons.py` has no Priest row yet).
+- Round 3's picks: Call of Heresy a, Pyre Sacrifice b, Heresy below 5 a and the eating status b,
+  now in `art/specs/override/` (`sp_pri4.py --finals`). Round 4 (`sp_pri4.py`, ids
+  `specsP4.<name>`) is only the Heresy 5+ status: the kept round-1 pick with the eye's purple
+  round swapped for the green, at three shades; the user took b. All 11 icons are settled.
+- They are in the planner: records name them with `icon_art` (the emblem, the three skills, the
+  four orbs) and Call of Heresy's `hud_art` (the three statuses), which `planner_icons.py` cuts
+  from `art/specs/override/` (14x14 ones centred in the 24x24 cell). Checked in a headless Edge
+  screenshot of `#priest`.
+
+## Devil Forgemaster: what building the risen taught (2026-10-22)
+
+The Priest's 4th spec is in `mods/specs` (`scripts/HWP/Specs/Forgemaster.as`, the units made by
+`tools/make_forgemaster_risen.py`). Facts measured on the pinned build while building it, each with
+its run (`plan-forgemaster-smoke` and `plan-forgemaster`, `gamelab/results/`):
+
+- **`="./x"` resource paths resolve against the unit being loaded, not the file that says it.**
+  An enemy's `.inc` (horde_soldier.inc: `./horde_soldier/...`) copied into another folder needs
+  the paths absolute, so the generator inlines the `%include "actors/..."` lines and rewrites
+  `="./` to the enemy's folder. One include left un-inlined (the generator's regex wanted a
+  newline after it and a file ended on its include line) **hung the game at boot** after the
+  script compile, with no `[ERR]` line: the harness killed it at 120 s (smoke `20261022-020916`).
+- **Effect expressions have no `%` operator**: `pos-y="...%..."` gives
+  `[ERR] Effect expression error: Unknown identifier: %` (same run). `rand(i)`, `sin`, `t`, `l`,
+  `i` are what the sparkle effects use (`body_glow.effect` is written with them).
+- **`ActorBuffList.HasBuff(uint)` matches the def's `m_pathHash`**, not a name hash: the raise
+  channel's "is the raising buff still on" check cancelled at once until it passed
+  `Buff("raising").m_pathHash` (smoke `20261022-021542`, "channel cancelled: the raising buff ended
+  early"; `20261022-021807` after).
+- **`PlayerSkillDirectional.Deactivate` starts the cooldown only when the cast passed its
+  castpoint** (`m_castingT >= m_castpoint`). A buff with `silence` applied by the cast itself ends
+  the cast before that (PlayerTargetingHelper.as:464), so a skill that silences its caster must set
+  `m_cooldownC` itself in `NetActivate` (smoke `20261022-021807`: cooldown left 0 after the raise;
+  `plan-forgemaster 20261022-022037`: 12116 ms left once set there).
+- **Vanilla Divine Protection ships a null aura.** `pri_divine_protection.sval` has a
+  `Modifiers::Aura` with `aura-buff` "null" and `aura-range` 1 at its base rank (an upgrade fills
+  them in). `Aura::Update` applies `ActorBuff(player, null, ...)` to every friendly actor within 1 of
+  the priest, and `CompositeActorBehavior::ApplyBuff` reads `buff.m_def.m_tags` (line 514):
+  `Script exception: Null pointer access`. A vanilla priest never has a friendly actor on its own
+  position; a summon that has just leash-teleported onto it does, so every leash teleport of a risen
+  threw once (`20261022-022037`, "Last script exception repeated" 1-10, each right after a
+  `teleport` back). The risen classes override `ApplyBuff` and drop a buff with no def.
+- **A unit the XML parser rejects crashes the game.** `Failed to parse XML tree: invalid closing tag
+  name, near "</scene>"` on loading a body unit, then the process exited with code 1 (no further log
+  line; `20261022-022037`, the raise_all table died at its 4th unit). The cause was in the generator:
+  `phantom_rogue.unit` has a commented-out `<!-- <behavior class="StateActorBehavior"> -->` before
+  the real one, which the class detection and the body's behavior swap matched, leaving an unclosed
+  comment that swallowed the next 10 lines. The generator now strips XML comments first and refuses
+  to write when a unit's tags do not nest (`well_formed`: `%defblock` bodies pasted at their `%block`
+  lines, every other `%` line dropped, the game's lenient attributes allowed). 237 of 282 units fail
+  a strict XML parse for reasons the game accepts: a bare `&` in `effect?a=1&b=2` paths, attributes
+  with no space between them (`origin="55 52"layer="-10"`), a repeated attribute (boss_face's
+  `face_spawn=` twice) and `%%PARAM%%` in block bodies.
+- **Boss skills are gated on level flags.** The `flag is X` skill conditional is `CondFlag`
+  (Utils/Conditional.as:398): `g_flags.IsSet(name)`, the floor's flags, which the arena's script
+  sets with `SetFlag` effects (`g_flags.Set(name, FlagState::Level)`, Behaviors/Effects/SetFlag.as)
+  and a floor change clears. The Face's skills want `boss_skills`, the totem poles' `totem_skills`,
+  the Bandit King's last room `room_4`; the Harbingers, Arista and the Bone Serpent run on `isnt
+  disable_*` flags and states alone. Until 2026-10-22 a risen boss set those three flags itself every
+  second on every peer (`FightFlags`/`RisenFlags`), a floor-wide side effect for the sake of one
+  summon; now the generator drops the `flag is boss_skills|totem_skills|room_4` conditional lines
+  from the risen's skills (`ARENA_FLAG_RE`: the 11 Face skills, 12 totem pole skills and the Bandit
+  King's three dash attacks), and the risen asserts nothing. `SetFlag` is no longer stripped from a
+  risen's skills (a boss's phase flags, `stage2`, `stage5`, `boss_dead`, are level flags its own
+  skills set and read, and stay); `TargetRandomPlayer` (an IEffect that retargets the actor at a
+  random player) is, since on a summon it aims the boss at its owner.
+- **`StateActorBehavior` picks its state every 150-300 ms** (StateActorBehavior.as:252): the first
+  state in file order whose `transitions` and `target-` conditionals pass wins; a state with
+  `state-charges` 0 is skipped (`m_charges == 0`), one on its `state-cooldown` too. The totem pole's
+  `state_start`, `state_inactive_*` and `state_*_fall` all have charges 0, so a totem reaches
+  `state_active` 200 ms after it spawns on its own; the arena drives the inactive states through
+  `SetActorState` effects.
+- **The lunge roll at exactly the range.** `distsq <= LUNGE_RANGE^2` includes a body spawned 40
+  away, which is where the test bot put every body: at high Heresy the roll ate the Harbinger
+  heavy's body before the raise (24% at Heresy 12, `20261022-022037`), and the elite's in the
+  Penance test. The bot now spawns test bodies at 60-70 and resets Heresy before each.
+- **A skill spends its mana at its castpoint, not when it activates.** `PlayerSkillDirectional::Update`
+  calls `UsePoints(true, ...)` the frame `m_castingT` crosses `castpoint` (PlayerSkillDirectional.as:95);
+  `CanActivate` only checks it can be paid (`UsePoints(false, ...)`, PlayerSkill.as:352). A cast the
+  player's own buff silences before that frame is free: Necrotic Resurrection's raising buff did exactly
+  that, so raises and Penances cost nothing with god mode off too (`plan-forgemaster-bosses
+  20261022-052506`, pen_mana "226 -> 226"; the earlier "spent 0" of `20261022-022037` was blamed on
+  god mode). The skill spent `GetCost()` itself in `NetActivate` from then; since the review of
+  2026-10-22 the channel spends it when it completes (`CompleteChannel`), so a cancelled channel costs
+  nothing, and a raise's cooldown starts there too (`StartRaiseCooldown`).
+- **Divine Favor loses a stack every 5 s.** `stacks_priest.sval`'s DivineFavor block has a `timer`
+  of 5000 ms with `add-stack -1`, reset by any gain. A test that sets 5 stacks with `givestacks` and
+  then spends 5 s on setup casts a raise, not a Penance (`20261022-052506`: "raise channel", favor 3
+  by the status). The bot sets the stacks last, right before the press.
+- **31 enemy attack skills in 15 units aim only at a player-tagged target** (`target-conditional`
+  `tag has player`: the Face's spews, the Bandit King's, the Judges', the Spider Queen's, the horde
+  necromancer's and sorcerer's, the doomsayer's, the boars', the troll ruler's). A risen's targets are
+  enemies, which never carry `player`, so the risen Face kept its target and never attacked
+  (`20261022-052506`, boss_face "lost 0.0, target 27577"). The generator rewrites those to `hasnt
+  player` (anything that isn't a player); the vanilla `hasnt player` conditionals (the retargeting
+  skills) stay as they are, with their `TargetRandomPlayer` gone.
+- **`DebugLog` prints nothing in the shipped game.** The `DebugLog` action every boss skill carries
+  (`PrintTrace("DebugLog: ...")`, Behaviors/Effects/DebugLog.as:39) never reaches the log, so skill
+  activity is invisible. The risen have their own trace instead: `hwp forge trace on` logs
+  `risen <id> casts skill <i> <class>` the frame a skill's `IsCasting()` turns on, and every 2 s a line
+  of each skill's class, `m_restrictions.IsAvailable()` and `m_cooldownC` (`RisenTrace`, read through
+  `CompositeActorBehavior.m_skills`). It showed that a boss that "did nothing" for 15 s was casting:
+  the fire totem's `ChannelingSweepSpewSkill` fired twice and swept past a lone brute 102 away, Arista
+  cast her spike fans and seeds at a brute 16 away, the Face its eye lasers at one 7 away, while the
+  Judge caster killed its brute with the dark orb (`plan-forgemaster-bosses 20261022-062616`). The
+  test counts a cast attack skill (any class but Utility, Friendly and Triggered) as attacking and
+  records the damage separately; the brute is a real enemy and fights back (a risen Face lost 60% of
+  its health to one in 15 s). A brute that vanishes from `near` is a kill: nothing else removes one
+  from the emptied arena, and the wisps' spew, the court elites' bolts and the Judge caster's dark orb
+  one-shot it before the first 1 s sample (`plan-forgemaster 20261022-064242`).
+- **The test arena's origin must not drift.** The first full table (`plan-forgemaster
+  20261022-064242`) froze from its 47th unit to its 101st: fifty risen of every kind sat 13 px above
+  the body spot with no target for the whole window while the brute hugged the god-mode priest at full
+  health, then the undead worked again. Not a targeting bug: the bot re-read the priest's position
+  before every unit, the walk and the teleport back moved it a pixel or two each time, and after 46
+  units the body spot 60 px to the right had wandered 24 px down onto a level pillar. The risen spawned
+  on it was pushed off, and its must-see aim ray to the brute hit the pillar first
+  (`CompositeActorBehavior::TargetValue`, RaycastType::Aim): the trace's `foes:` field, which lists
+  each enemy within 300 and what the ray hits, showed a fire tower's ray stopped at 8% by a level unit
+  4 px away (`plan-forgemaster-occlude 20261022-083736`, section now named `near_priest`); the
+  `terrain` grid at the mission start has a 10 px block 40 px right of the player, nothing else within
+  110 (`plan-forgemaster-bosses 20261022-084131`). The bot now puts the priest back on the mission
+  start before every unit and logs the grid once per table. An enemy standing on the priest is found
+  and fought by a risen beside them (the wolf and the cult brother at 083736), and `must-see-target`
+  stays on as in the vanilla summons (crusader_pikeman.unit, spider_hatchling_player.unit).
+- **`Session.read_log()` returns one string, not lines.** The first cast counting sliced it and joined
+  the characters with newlines, so no `casts skill` line ever matched and every row said `casts []`
+  although the log had them (`20261022-064242`). `errors_since` had it right (`splitlines`).
+- **A weak risen dies to the brute before a leash check that follows the fight.** Bats (50 health),
+  beetles (20-40), goblins and the horde crawler (100) were at 8% after 3 s against the brute and dead
+  before the leash teleport, so 12 of them "failed" the leash at `20261022-064242`; two more were
+  risen bandit brutes that the cleanup's `kill 600 bandit_brute` killed, its filter being a substring
+  of the risen's path too. The leash and the walk now come first, while the risen is whole, and the
+  brute filter is the vanilla unit's full path (`actors/humans/bandits/bandit_brute.unit`).
+- **Four units have nothing to attack with.** The bannermen's skills are a `CompositeActorTriggeredSkill`
+  and a `CompositeActorAuraSkill` each (the banner's aura is the whole unit); a risen bannerman
+  follows and buffs and never casts at the brute. The table lists a unit whose skills are all Utility,
+  Friendly, Triggered or Aura as support instead of failing it.
+- **A summon that cannot move must not have a minimum range.** The heavy ballista's one shot wants
+  its target 30+ away (`min-range` 30); the brute walked up to the risen ballista and stood at 16, so
+  the skill was never available while the ballista lost a quarter of its health to it
+  (`plan-forgemaster 20261022-085643`, the trace's `no cd -13`). The generator now drops `min-range`
+  from a risen whose only movement is `PassiveMovement` (the ballista is the one such unit that had
+  any); the shades and the followers keep theirs. The risen ballista fired twice and took 54% off the
+  brute at `plan-forgemaster-units 20261022-101700`.
+- **A 60-health risen is a body for nothing.** The yellow jacket (60 health at rank 5's 100%) died to
+  the brute two seconds after it spawned, before its sting came off cooldown (`20261022-085643`). A
+  risen now has at least `RISEN_MIN_HP` 120 health (times the summon health stats; bosses excepted),
+  and the table writes the risen's health fraction back to 1 every second of the attack window (`kill
+  600 forgemaster/risen 1.0`), since the question there is whether it attacks; the decay section
+  measures health on its own.
+- **The full table passes; two chance steps did not.** `plan-forgemaster 20261022-102006` (73 min): all 141
+  raisable units raised, attacked (the seven support units listed, not failed), teleported after the
+  priest and walked with it, no script errors. The same run's lunge step saw 0 lunges in 25 bodies at
+  16% and its bosses step saw no spew from the risen Face within 15 s, so the scenario as a whole
+  reads FAIL; the two are below.
+- **The lunge die is fair; 25 bodies were too few.** Three runs gave 2, 3 and 0 lunges in 25 bodies at
+  16% (064242, 085643, 102006): 5 of 75 where 12 were expected, about a 2% event, enough to check the
+  die. `hwp forge roll <n> <chance>` throws `randf()` n times in one frame: 0.1626 and 0.1627 of 20000
+  throws landed under 0.16 (`plan-forgemaster-bosses 20261022-114918` and `20261022-120742`, both
+  INVALID under the focus rule, below: measured, not citable), so `randf() < chance` is a fair roll and
+  every body rolls exactly once (the `lunge roll on` lines). The step now checks the die (14-18% of
+  20000) and walks 40 bodies (none in 40 at 16%: 0.09%); those two runs lunged 5 and 9 of 40.
+- **The risen Face needs more than 15 s.** The brute spawns after the leash and the walk, so the Face
+  (immobile, spew cooldown 6-8 s) found it 10 s after the raise in both runs, at the same 22, 6 and 8
+  px (the brute walks the same path onto it), and spewed 3 s later at 084131 but not within the window
+  at 102006. The boss attack window is 25 s now (the other units keep 6 s); the Face spewed three times
+  from 13 s after the raise at 114918 and from 8 s at 120742 (the two INVALID runs below).
+- **A notification window invalidates a run, whatever passed.** `plan-forgemaster-bosses
+  20261022-114918` and `20261022-120742` passed every step (lunge 5 and 9 of 40, die 0.1626 and
+  0.1627, all ten bosses within 25 s) and are INVALID: in each, Razer Synapse's `RazerAppEngine.exe`
+  `Notification-manager` window took the foreground once, after about 60 s of user idle (`cause:
+  unexplained`). The user's own switches to the terminal, Discord and the browser are `cause: user` and
+  do not count. Neither run is cited as verified; a valid re-run is pending (quiet Razer's
+  notifications while the lab runs).
+
+## Devil Forgemaster: review fixes, the eating stance; firearms shops (2026-10-22, later)
+
+- **The valid bosses re-run.** `plan-forgemaster-bosses 20261022-144616` is not INVALID (Razer's
+  notifications quiet): Penance, Heresy, the lunge (5 of 40 bodies at 16%, die 0.16 of 20000), all ten
+  bosses raised, attacking within 25 s, following and leash-teleporting, no script errors, the 10 s
+  boss channel. Its one failed flag was `pen_mana`, a measurement: the review moved the Penance's 50
+  mana to the channel's end and the bot still read mana 0.3 s after the cast with god mode back on.
+  The bot now keeps god mode off through the channel and reads the drop across the frame the raising
+  buff ends (`plan-forgemaster-eat 20261022-154317`).
+- **`/code-review medium` on the Forgemaster, 10 findings, all fixed** (`plan-forgemaster-smoke
+  20261022-144455`, the bosses run above): Heresy for a raise is added on the host's answer
+  (`specs.raised` / `specs.raise_denied`, `HWP::Net::Send` to the caster; the denied answer gives the
+  cooldown back), not on the client that asked; the cost and cooldown are spent when the channel
+  completes; `OnRaise` reads the body id once and answers "denied" when the body is gone or no risen
+  unit exists for it; `RisenUnits`/`DestroyRisen` replace four copies of the owned-unit walk;
+  `FightFlags`/`RisenFlags` are gone (the generator strips the arena flag conditionals, above); the
+  bot's `risen_rels` fails loudly on a missing body unit; `make_specs_icons.py --check` fails when
+  a vec4 the code reads has moved (`CODE_RECTS`). The lunge hit check uses a breakable target dummy
+  30 px past the body instead of a walking brute, which once stood 140 px away when the lunge landed
+  (`20261022-122738`, "hitting for 60" with nothing in reach).
+- **The eating stance (the user's words: the dodge animation towards the body, standing just below it
+  facing up, bobbing 1 px, blood flying out; the Penance the same with no bob and a golden light
+  brighter as it channels).** `Lunge` and a Penance's first `UpdateChannel` frame call `DodgeTo`: the
+  player's own `dash_skill` (`Skills::Charge`) with `m_dist` set to the distance to the spot 10 px
+  under the body for that one `Activate(dir, 1.0f)` (restored right after: `NetDoActivate` has copied
+  it into `m_distC`), so every peer sees the dodge animation, its dust and sound through
+  `PlayerActiveSkillActivate`. `ActiveSkill.Activate` checks only the cooldown and the dash charge
+  (ActiveSkill.as:139-150), not silence: the silence check is the input path's
+  (PlayerTargetingHelper.as:464), so a dash under the devouring or raising buff goes; `Charge.DoUpdate`
+  runs from `ActiveSkill.Update` unconditionally and `GetMoveDir` carries the player under
+  lock-movement. No charge, or under 2 px to go: the priest is put on the spot. The landing (dash
+  `m_distC <= 0`, or 600 ms) snaps to the spot and `SetAngle(-PI/2)`; `devouring` and the new
+  `penance_stance` buff have `lock-rotation` (Player.as:1213 keeps `m_dirAngle` as the aim then), so
+  the priest keeps facing the body. Eating: `SetPosition` 1 px up and back every 250 ms,
+  `effects/gore/blood/hit_blood.effect` (scale 0.8) at the body every 300 ms, the body kept until the
+  devouring buff ends (then `RequestBodyGone`); a lunge roll waits while one is eaten. Penance: no
+  bob, `penance_light.effect` (new, `scale` param, a gold sparkle over a warm light, 270 ms) at the
+  body every 150 ms with scale 0.3 → 1.5 over the channel, so the overlapping pulses grow. `hwp forge`
+  reports `eat`, `bobs`, `bloods`, `lights`, `angle` (degrees, up is -90) and `dy`. Measured by
+  `plan-forgemaster-eat 20261022-154317` (shots `eating` and `penance_light`): lunge_jump (the priest from -240,-48 to -120,-38, the body at +120), lunge_faces_up (facing -90 at every bob), lunge_bobs 11, lunge_blood 10, lunge_lift 0, lunge_body_eaten (bodies 0 after the devouring), lunge_hit (the dummy), pen_faces_up (facing -90, 5 px beside and 7 px under the body at the pulses), pen_light 21 pulses over the 3 s, pen_mana 48 (spent at the channel's end).
+- **A skill with castpoint 0 still activates a frame late.** `ActiveSkill.Activate` sets `m_castingC =
+  max(1, castpoint)` and `DoActivate` (for the dash, `NetDoActivate`: `m_distC = m_dist`) runs in the
+  next `Update` when it reaches 0 (ActiveSkill.as:159-160, 292-308). A dodge that borrowed the dash by
+  setting `m_dist` and restoring it right after `Activate` ran the dash's own 90 px, and a "done" check
+  on `m_distC <= 0` passed before the dash had begun, so the landing snapped the priest to the spot and
+  the dash then carried it 90 px past it (`plan-forgemaster-eat 20261022-152706`: the Penance stance
+  102 px beside the body; the eating hid it because every bob re-snaps the position). The borrowed
+  `m_dist` now stays until the landing (`g_dashKeep`), done is `m_castingC <= 0 && m_distC <= 0`, and
+  the landing cancels a dash still running.
+- **A bot's two reads are two frames.** The Penance's mana was read 0.3 s after the cast (the cost now
+  lands at the channel's end, `20261022-144616` pen_mana "226 -> 226"), then across the channel's end
+  with "is the raising buff still on" read before the mana, which let the completion fall between the
+  two round trips (`20261022-151923`, "spent -2"). Mana first, then the buff: the mana read while the
+  buff was still on is the pre-completion value. And the stance's facing and offsets are recorded by
+  the mod at each bob and light pulse (`hwp forge`: `facing`, `shine`, `beside`, `under`) because a
+  screenshot takes long enough that the status read after it came after the 3 s eating or channel had
+  ended, with the counters cleared and the rotation lock lapsed (`20261022-150819`).
+- **Firearms: the seller sells guns to a Firearms Specialist** (`mod-firearms-shop 20261022-143058`,
+  `mods/firearms/README.md` for the offers): the Paladin gets no gun in 8 offers, a fresh Specialist's
+  weapons are all guns and a gun is back after buying them out. `gl shop` reports gear `base`, `slot`,
+  `ilvl` and `tags` now. The gun arm stays pinned while shooting (`plan-firearms-arm 20261022-142503`,
+  8/8); `mod-firearms 20261022-142427` and `mod-fishing 20261022-143232` (no rod sprites on the beach)
+  pass. The Firearms class-picker showcase PNG is in place but not seen in a shot (assumed).
+- **The beta build: the Priest without the Celestial Ruins DLC.** `mods/holylocal` (local_only,
+  `beta_into: "core"`) holds the class and its weapon tables with the one `dlc has holy` conditional
+  removed. `tools/build.py --beta` (and `deploy.py modded-prod --beta`) folds its three files into
+  HWP-core.bin, so a tester enables only HWP-core and HWP-specs; a plain build never carries them
+  (`build.py --no-all core`: no `players/priest/class_priest.sval` in the bin; `--beta`: 44 files, the
+  packed class has no `dlc` conditional; naming holylocal as well as `--beta` is refused). Verified in
+  the lab, whose game has no Celestial Ruins DLC: with core+holylocal the create-character class list
+  is warrior, wizard, paladin, priest, ranger, `func select priest` shows the title "Priest" and `func
+  name-random` + `func create` makes a level 1 Priest standing in town (`mod-holylocal-priest
+  20261022-163957`, shots `with_priest_selected`, `with_priest_in_town`); with core alone the list is
+  warrior, wizard, paladin, ranger (`mod-holylocal-priest-control 20261022-164029`). The bot
+  (`gamelab/bots/holylocal_priest.py`) reads the list as the children of the `class-list` widget,
+  whose ids are the class ids (`CreateCharacterClass.as`). holylocal is for the private beta only,
+  with the dev team's permission; remove it before publishing.
+- **The install still showed the Thief, Gladiator and Witch Hunter and the old Firearms class
+  figure: a stale deploy, not the code.** The install's `mods/HWP-core.bin`, `HWP-classes.bin` and
+  `HWP-firearms.bin` were dated 2026-10-19 20:56, before the hide (f32dfe8, 10-21) and the showcase
+  figure (f97a942, 10-20); read back with `tools/hwr_archive.py`, the deployed core's
+  `CreateCharacterClass.as` has no `IsClassHidden`, the deployed classes module no `HideClass`, and the
+  deployed `class_showcase.png` entry is the 237-byte ring (dist's is the 682-byte figure).
+  `HammerwatchPlus-All.bin` in the install is 10-19 as well and `deploy.py modded-prod` never rebuilds
+  it, so it must not be the enabled one. Only `HWP-specs.bin` and `HWP-holylocal.bin` were deployed on
+  10-22. The user redeploys (`deploy.py modded-prod --beta`); not re-run here (the user asked for no
+  GameLab runs on the character creation).
+- **Raw `%damage%` tokens in the create-character skill tooltips (main menu).** The skill tooltip ends
+  in `AppendSkillDesc` (GUI/PlayerMenu/Modifications.as:1028), which fills the description's `%param%`
+  tokens from `description-params` only through the unit overload of `Resources::GetString` when the
+  record has a live actor; with no player (the main menu's create-character window, record null or not
+  yet spawned) it appends the bare string. Vanilla descriptions carry no tokens (the params are listed
+  under the text), so only the HWP ones (Firearms, the HoH1 classes: 43 strings) showed it, and only
+  there: in town a player exists, which is why the lab's from-town `charcreate` never showed it. Core
+  now overrides `Modifications.as` with one line in that branch: `GetString(m_description,
+  g_bookColors, descParams)` (the `(string, dictionary, dictionary)` overload is in the API strings;
+  `descParams` already holds the level 1 value per token). Assumed, not run: the user asked for no
+  GameLab runs here; a script error in that file would show in the game log as `Modifications.as`.

@@ -1,0 +1,1271 @@
+<loader>Equipment::BaseItem::LoadMultiple</loader>
+<array>
+
+%//SHIELDS
+	%//SHIELDT1
+	<dict>
+		<string name="id">offhand_shield_01</string>
+		<string name="name">.equipment.offhand.shield.1a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>384 192 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/paladin_shields.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_heatershield_t1_a.model</string>
+		<string name="color">wood_t1</string>
+		<string name="color-secondary">metal_t1</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-str">10 20</ivec2>
+		
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_shield</string>
+		</array>
+		
+		<string name="skill">attack_offhand_shield_bash</string>
+		<string name="skill-epic">attack_offhand_shield_bash_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::ArmorAdd</string>
+				<ivec2 name="armor">5 15</ivec2>
+			</dict>
+			<dict>
+				<string name="description">.skills.attacks.offhand.shield.block.desc?amnt=30</string>
+				<string name="class">Modifiers::Block</string>
+				<float name="chance">1</float>
+				<int name="any">30</int>
+				
+				<int name="timeout">0</int>
+				<int name="arc">180</int>
+				<string name="fx">players/paladin/effects/paladin_shield_block.effect</string>
+				<bool name="only-melee">false</bool>
+				<bool name="only-projectile">false</bool>
+				<bool name="shield-block">true</bool>
+			</dict>
+		</array>
+	</dict>
+	%//SHIELDT2
+	<dict>
+		<string name="id">offhand_shield_02</string>
+		<string name="name">.equipment.offhand.shield.2a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>456 192 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/paladin_shields.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_heatershield_t2_a.model</string>
+		<string name="color">wood_t2</string>
+		<string name="color-secondary">metal_t2</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-str">15 30</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_shield</string>
+		</array>
+		
+		<string name="skill">attack_offhand_shield_bash</string>
+		<string name="skill-epic">attack_offhand_shield_bash_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::ArmorAdd</string>
+				<ivec2 name="armor">10 20</ivec2>
+			</dict>
+			<dict>
+				<string name="description">.skills.attacks.offhand.shield.block.desc?amnt=40</string>
+				<string name="class">Modifiers::Block</string>
+				<float name="chance">1</float>
+				<int name="any">40</int>
+				
+				<int name="timeout">0</int>
+				<int name="arc">180</int>
+				<string name="fx">players/paladin/effects/paladin_shield_block.effect</string>
+				<bool name="only-melee">false</bool>
+				<bool name="only-projectile">false</bool>
+				<bool name="shield-block">true</bool>
+			</dict>
+		</array>
+	</dict>
+	%//SHIELDT3
+	<dict>
+		<string name="id">offhand_shield_03</string>
+		<string name="name">.equipment.offhand.shield.3a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>168 216 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/paladin_shields.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_heatershield_t3_a.model</string>
+		<string name="color">metal_t3</string>
+		<string name="color-secondary">metal_t3</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">50</int>
+		<ivec2 name="req-str">20 40</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_shield</string>
+		</array>
+		
+		<string name="skill">attack_offhand_shield_bash</string>
+		<string name="skill-epic">attack_offhand_shield_bash_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::ArmorAdd</string>
+				<ivec2 name="armor">15 25</ivec2>
+			</dict>
+			<dict>
+				<string name="description">.skills.attacks.offhand.shield.block.desc?amnt=50</string>
+				<string name="class">Modifiers::Block</string>
+				<float name="chance">1</float>
+				<int name="any">50</int>
+				
+				<int name="timeout">0</int>
+				<int name="arc">180</int>
+				<string name="fx">players/paladin/effects/paladin_shield_block.effect</string>
+				<bool name="only-melee">false</bool>
+				<bool name="only-projectile">false</bool>
+				<bool name="shield-block">true</bool>
+			</dict>
+		</array>
+	</dict>
+	%//SHIELDT4
+	<dict>
+		<string name="id">offhand_shield_04</string>
+		<string name="name">.equipment.offhand.shield.4a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>288 216 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/paladin_shields.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_heatershield_t4_a.model</string>
+		<string name="color">metal_t4</string>
+		<string name="color-secondary">metal_t4</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">30</int>
+		<ivec2 name="req-str">25 50</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_shield</string>
+		</array>
+		
+		<string name="skill">attack_offhand_shield_bash</string>
+		<string name="skill-epic">attack_offhand_shield_bash_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::ArmorAdd</string>
+				<ivec2 name="armor">20 30</ivec2>
+			</dict>
+			<dict>
+				<string name="description">.skills.attacks.offhand.shield.block.desc?amnt=60</string>
+				<string name="class">Modifiers::Block</string>
+				<float name="chance">1</float>
+				<int name="any">60</int>
+				
+				<int name="timeout">0</int>
+				<int name="arc">180</int>
+				<string name="fx">players/paladin/effects/paladin_shield_block.effect</string>
+				<bool name="only-melee">false</bool>
+				<bool name="only-projectile">false</bool>
+				<bool name="shield-block">true</bool>
+			</dict>
+		</array>
+	</dict>
+
+
+
+%//DIRKS
+	%//DIRKT1
+<!-- 	<dict>
+		<string name="id">offhand_dirk_01</string>
+		<string name="name">.equipment.offhand.dirk.1a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>72 384 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/rogue_knives.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_dirk_t1_a.model</string>
+		<string name="color">leather_t1</string>
+		<string name="color-secondary">metal_t1</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-dex">2 12</ivec2>
+		
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_offhand</string>
+		</array>
+		
+		<string name="skill">attack_offhand_dirk</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">20 40</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.3</vec2>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">offhand_dirk_02</string>
+		<string name="name">.equipment.offhand.dirk.2a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>96 384 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/rogue_knives.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_dirk_t2_a.model</string>
+		<string name="color">leather_t2</string>
+		<string name="color-secondary">metal_t2</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-dex">7 22</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+		</array>
+		
+		<string name="skill">attack_offhand_dirk</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">25 45</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.3</vec2>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">offhand_dirk_03</string>
+		<string name="name">.equipment.offhand.dirk.3a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>120 384 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/rogue_knives.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_dirk_t3_a.model</string>
+		<string name="color">leather_t3</string>
+		<string name="color-secondary">metal_t3</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">50</int>
+		<ivec2 name="req-dex">12 32</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+		</array>
+		
+		<string name="skill">attack_offhand_dirk</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">30 50</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.3</vec2>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">offhand_dirk_04</string>
+		<string name="name">.equipment.offhand.dirk.4a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>144 384 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/rogue_knives.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_dirk_t4_a.model</string>
+		<string name="color">leather_t4</string>
+		<string name="color-secondary">metal_t4</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">30</int>
+		<ivec2 name="req-dex">17 42</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+		</array>
+		
+		<string name="skill">attack_offhand_dirk</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">35 55</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.3</vec2>
+			</dict>
+		</array>
+	</dict> -->
+
+%//HAND CROSSBOW
+%// CHANGE ID TO TIER 2 AT SOME POINT
+	<dict>
+		<string name="id">offhand_crossbow_01</string>
+		<string name="name">.equipment.offhand.crossbow.2a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>96 504 24 24</vec4> <!-- t-3 -->
+		</array>
+		
+		<string name="graphic">items/equipment/oh_crossbows.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_handcrossbow_t3_a.model</string>
+		<string name="color">wood_t1</string>
+		<string name="color-secondary">leather_t1</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-dex">10 25</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_ranged</string>
+		</array>
+		
+		<string name="skill">attack_offhand_crossbow</string>
+		<string name="skill-epic">attack_offhand_crossbow_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">45 55</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.1</float>
+				<string name="type">physical</string>
+				<string name="stat">dex</string>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<string name="id">offhand_crossbow_03</string>
+		<string name="name">.equipment.offhand.crossbow.3a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>240 504 24 24</vec4> <!-- t-3 -->
+		</array>
+		
+		<string name="graphic">items/equipment/oh_crossbows.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_handcrossbow_t3_a.model</string>
+		<string name="color">wood_t3</string>
+		<string name="color-secondary">leather_t3</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">50</int>
+		<ivec2 name="req-dex">15 35</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_ranged</string>
+		</array>
+		
+		<string name="skill">attack_offhand_crossbow</string>
+		<string name="skill-epic">attack_offhand_crossbow_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">50 60</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.125</float>
+				<string name="type">physical</string>
+				<string name="stat">dex</string>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<string name="id">offhand_crossbow_04</string>
+		<string name="name">.equipment.offhand.crossbow.4a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>120 504 24 24</vec4> <!-- t-4 -->
+		</array>
+		
+		<string name="graphic">items/equipment/oh_crossbows.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_handcrossbow_t3_a.model</string>
+		<string name="color">wood_t4</string>
+		<string name="color-secondary">leather_t4</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">30</int>
+		<ivec2 name="req-dex">20 45</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_ranged</string>
+		</array>
+		
+		<string name="skill">attack_offhand_crossbow</string>
+		<string name="skill-epic">attack_offhand_crossbow_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">55 65</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.15</float>
+				<string name="type">physical</string>
+				<string name="stat">dex</string>
+			</dict>
+		</array>
+	</dict>
+
+%//FIRETOMES
+	%//T1
+	<dict>
+		<string name="id">offhand_tome_fire_01</string>
+		<string name="name">.equipment.offhand.tome.fire.1a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>216 0 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/wiz_books.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_tome_t1_a.model</string>
+		<string name="color">leather_t2</string>
+		<string name="color-secondary">cloth_trim_t1</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-int">8 18</ivec2>
+		
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_offhand_tome_fire</string>
+		<string name="skill-epic">attack_offhand_tome_fire_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="fire">40 50</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_fire.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_fire_area.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+		</array>
+	</dict>
+	%//T2
+	<dict>
+		<string name="id">offhand_tome_fire_02</string>
+		<string name="name">.equipment.offhand.tome.fire.2a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>216 0 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/wiz_books.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_tome_t2_a.model</string>
+		<string name="color">leather_t2</string>
+		<string name="color-secondary">cloth_trim_t2</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-int">13 28</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_offhand_tome_fire</string>
+		<string name="skill-epic">attack_offhand_tome_fire_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="fire">45 55</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_fire.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_fire_area.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.15</float>
+				<string name="type">fire</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+	%//T3
+	<dict>
+		<string name="id">offhand_tome_fire_03</string>
+		<string name="name">.equipment.offhand.tome.fire.3a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>216 0 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/wiz_books.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_tome_t3_a.model</string>
+		<string name="color">leather_t3</string>
+		<string name="color-secondary">cloth_trim_t3</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">50</int>
+		<ivec2 name="req-int">18 38</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_offhand_tome_fire</string>
+		<string name="skill-epic">attack_offhand_tome_fire_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="fire">50 60</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_fire.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_fire_area.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.175</float>
+				<string name="type">fire</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+	%//T4
+	<dict>
+		<string name="id">offhand_tome_fire_04</string>
+		<string name="name">.equipment.offhand.tome.fire.4a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>216 0 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/wiz_books.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_tome_t4_a.model</string>
+		<string name="color">leather_t4</string>
+		<string name="color-secondary">cloth_trim_t4</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">30</int>
+		<ivec2 name="req-int">23 48</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_offhand_tome_fire</string>
+		<string name="skill-epic">attack_offhand_tome_fire_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="fire">55 65</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_fire.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_fire_area.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.20</float>
+				<string name="type">fire</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+
+%//ICETOMES
+	%//T1
+	<dict>
+		<string name="id">offhand_tome_ice_01</string>
+		<string name="name">.equipment.offhand.tome.ice.1a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>360 0 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/wiz_books.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_tome_t1_a.model</string>
+		<string name="color">leather_t2</string>
+		<string name="color-secondary">cloth_trim_t1</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-int">8 18</ivec2>
+		
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_offhand_tome_ice</string>
+		<string name="skill-epic">attack_offhand_tome_ice_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="ice">40 50</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_ice.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_ice_bomb.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+		</array>
+	</dict>
+	%//T2
+	<dict>
+		<string name="id">offhand_tome_ice_02</string>
+		<string name="name">.equipment.offhand.tome.ice.2a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>360 0 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/wiz_books.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_tome_t2_a.model</string>
+		<string name="color">leather_t2</string>
+		<string name="color-secondary">cloth_trim_t2</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-int">13 28</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_offhand_tome_ice</string>
+		<string name="skill-epic">attack_offhand_tome_ice_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="ice">45 55</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_ice.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_ice_bomb.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.15</float>
+				<string name="type">ice</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+	%//T3
+	<dict>
+		<string name="id">offhand_tome_ice_03</string>
+		<string name="name">.equipment.offhand.tome.ice.3a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>360 0 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/wiz_books.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_tome_t3_a.model</string>
+		<string name="color">leather_t3</string>
+		<string name="color-secondary">cloth_trim_t3</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">50</int>
+		<ivec2 name="req-int">18 38</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_offhand_tome_ice</string>
+		<string name="skill-epic">attack_offhand_tome_ice_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="ice">50 60</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_ice.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_ice_bomb.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.175</float>
+				<string name="type">ice</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+	%//T4
+	<dict>
+		<string name="id">offhand_tome_ice_04</string>
+		<string name="name">.equipment.offhand.tome.ice.4a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>360 0 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/wiz_books.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_tome_t4_a.model</string>
+		<string name="color">leather_t4</string>
+		<string name="color-secondary">cloth_trim_t4</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">30</int>
+		<ivec2 name="req-int">23 48</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_offhand_tome_ice</string>
+		<string name="skill-epic">attack_offhand_tome_ice_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="ice">55 65</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_ice.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_ice_bomb.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.20</float>
+				<string name="type">ice</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+
+%//LIGHTNING TOMES
+	%//T1
+	<dict>
+		<string name="id">offhand_tome_lightning_01</string>
+		<string name="name">.equipment.offhand.tome.lightning.1a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>264 0 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/wiz_books.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_tome_t1_a.model</string>
+		<string name="color">leather_t2</string>
+		<string name="color-secondary">cloth_trim_t1</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-int">8 18</ivec2>
+		
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_offhand_tome_lightning</string>
+		<string name="skill-epic">attack_offhand_tome_lightning_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="lightning">40 50</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_lightning.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_lightning_bomb.unit</string>
+				<int name="add-max-num">9</int>
+			</dict>
+		</array>
+	</dict>
+	%//T2
+	<dict>
+		<string name="id">offhand_tome_lightning_02</string>
+		<string name="name">.equipment.offhand.tome.lightning.2a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>264 0 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/wiz_books.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_tome_t2_a.model</string>
+		<string name="color">leather_t2</string>
+		<string name="color-secondary">cloth_trim_t2</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-int">13 28</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_offhand_tome_lightning</string>
+		<string name="skill-epic">attack_offhand_tome_lightning_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="lightning">45 55</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_lightning.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_lightning_bomb.unit</string>
+				<int name="add-max-num">9</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.15</float>
+				<string name="type">lightning</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+	%//T3
+	<dict>
+		<string name="id">offhand_tome_lightning_03</string>
+		<string name="name">.equipment.offhand.tome.lightning.3a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>264 0 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/wiz_books.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_tome_t3_a.model</string>
+		<string name="color">leather_t3</string>
+		<string name="color-secondary">cloth_trim_t3</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">50</int>
+		<ivec2 name="req-int">18 38</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_offhand_tome_lightning</string>
+		<string name="skill-epic">attack_offhand_tome_lightning_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="lightning">50 60</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_lightning.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_lightning_bomb.unit</string>
+				<int name="add-max-num">9</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.175</float>
+				<string name="type">lightning</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+	%//T4
+	<dict>
+		<string name="id">offhand_tome_lightning_04</string>
+		<string name="name">.equipment.offhand.tome.lightning.4a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>264 0 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/wiz_books.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_tome_t4_a.model</string>
+		<string name="color">leather_t4</string>
+		<string name="color-secondary">cloth_trim_t4</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">30</int>
+		<ivec2 name="req-int">23 48</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_offhand_tome_lightning</string>
+		<string name="skill-epic">attack_offhand_tome_lightning_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="lightning">55 65</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_lightning.unit</string>
+				<int name="add-max-num">3</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::ModifySummons</string>
+				<string name="unit">players/projectiles/glyph_lightning_bomb.unit</string>
+				<int name="add-max-num">9</int>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.20</float>
+				<string name="type">lightning</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+
+%//LANTERNS
+	<dict>
+		<string name="id">offhand_lantern_01</string>
+		<string name="name">.equipment.offhand.lantern.1a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>192 528 24 24</vec4>
+		</array>
+		
+		<array name="conditionals">
+			<a><s>dlc</s><s>has</s><s>holy</s></a>
+		</array> 
+
+		<string name="graphic">items/equipment/priest_lanterns.unit:ap1</string>
+		<string name="model">players/models/equipment/oh_lantern_t1_a.model</string>
+		<string name="color">metal_t1</string>
+		<string name="color-secondary">metal_t1</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-foc">2 10</ivec2>
+		
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_offhand_lantern</string>
+		<string name="skill-epic">attack_offhand_lantern_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="fire">40 50</ivec2>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">offhand_lantern_02</string>
+		<string name="name">.equipment.offhand.lantern.2a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>216 528 24 24</vec4>
+		</array>
+		
+		<array name="conditionals">
+			<a><s>dlc</s><s>has</s><s>holy</s></a>
+		</array> 
+
+		<string name="graphic">items/equipment/priest_lanterns.unit:ad1</string>
+		<string name="model">players/models/equipment/oh_lantern_t2_a.model</string>
+		<string name="color">metal_t2</string>
+		<string name="color-secondary">metal_t2</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-foc">6 18</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_offhand_lantern</string>
+		<string name="skill-epic">attack_offhand_lantern_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="fire">45 55</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.15</float>
+				<string name="type">fire</string>
+				<string name="stat">foc</string>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">offhand_lantern_03</string>
+		<string name="name">.equipment.offhand.lantern.3a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>240 528 24 24</vec4>
+		</array>
+		
+		<array name="conditionals">
+			<a><s>dlc</s><s>has</s><s>holy</s></a>
+		</array> 
+
+		<string name="graphic">items/equipment/priest_lanterns.unit:ex1</string>
+		<string name="model">players/models/equipment/oh_lantern_t3_a.model</string>
+		<string name="color">metal_t3</string>
+		<string name="color-secondary">metal_t3</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">50</int>
+		<ivec2 name="req-foc">10 26</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_offhand_lantern</string>
+		<string name="skill-epic">attack_offhand_lantern_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="fire">50 60</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.175</float>
+				<string name="type">fire</string>
+				<string name="stat">foc</string>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">offhand_lantern_04</string>
+		<string name="name">.equipment.offhand.lantern.4a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>264 528 24 24</vec4>
+		</array>
+		
+		<array name="conditionals">
+			<a><s>dlc</s><s>has</s><s>holy</s></a>
+		</array> 
+
+		<string name="graphic">items/equipment/priest_lanterns.unit:ma1</string>
+		<string name="model">players/models/equipment/oh_lantern_t4_a.model</string>
+		<string name="color">metal_t4</string>
+		<string name="color-secondary">metal_t4</string>
+		
+		<string name="slot">offhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">30</int>
+		<ivec2 name="req-foc">14 34</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_offhand</string>
+			<string>mods_weapon_offhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_offhand_lantern</string>
+		<string name="skill-epic">attack_offhand_lantern_epic</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="fire">55 65</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.20</float>
+				<string name="type">fire</string>
+				<string name="stat">foc</string>
+			</dict>
+		</array>
+	</dict>
+
+
+</array>

@@ -1,11 +1,12 @@
-// The specs module: the self-check (the six subclasses and their stacks are loaded), the
+// The specs module: the self-check (the seven subclasses and their stacks are loaded), the
 // `hwp specs` status command and the per-frame updates of the scripted skill parts.
 namespace HWP
 {
 	namespace Specs
 	{
 		const array<string> SUBCLASSES = { "hwp_ranger_stormbringer", "hwp_wizard_invocation",
-			"hwp_sorcerer_arcane", "hwp_rogue_winddancer", "hwp_warrior_bannerlord", "hwp_warlock_branding" };
+			"hwp_sorcerer_arcane", "hwp_rogue_winddancer", "hwp_warrior_bannerlord", "hwp_warlock_branding",
+			"hwp_priest_forgemaster" };
 
 		bool g_checked = false;
 
@@ -30,7 +31,7 @@ namespace HWP
 			}
 			Log("specs", found + " of " + SUBCLASSES.length() + " subclasses registered");
 
-			array<string> stacks = { "provisions", "static_charge", "tailwind" };
+			array<string> stacks = { "provisions", "static_charge", "tailwind", HERESY };
 			for (uint i = 0; i < stacks.length(); i++)
 			{
 				if (Stack(stacks[i]) is null)
@@ -38,7 +39,7 @@ namespace HWP
 			}
 
 			// the buffs the scripts load by name (the svals' own are checked when they load)
-			array<string> buffs = { "standard_dr", "standard_dr_planted", "crusade_5", "gale_share_20_0", "gale_share_60_3", "conduit_1_1", "conduit_2_5", "tailwind_1_1", "tailwind_5_5", "wind_ward", "pyrebrand" };
+			array<string> buffs = { "standard_dr", "standard_dr_planted", "crusade_5", "gale_share_20_0", "gale_share_60_3", "conduit_1_1", "conduit_2_5", "tailwind_1_1", "tailwind_5_5", "wind_ward", "pyrebrand", "raising", "devouring" };
 			for (uint i = 0; i < buffs.length(); i++)
 			{
 				if (Buff(buffs[i]) is null)
@@ -66,6 +67,7 @@ namespace HWP
 				ret += "; tailwind " + (tw !is null ? plr.GetStacks(tw) : -1);
 				auto ess = Stack(ESSENCE);
 				ret += "; essence " + (ess !is null ? plr.GetStacks(ess) : -1);
+				ret += "; heresy " + Heresy(plr) + " risen " + RisenCount(plr) + " bodies " + g_bodies.length() + " raises " + g_raises;
 			}
 			ret += "; circuit returns " + g_circuitReturns + " back hits " + g_circuitBackHits + " catches " + g_circuitCatches
 				+ "; gale arrows " + g_galeArrows + "; tailwind kills " + g_twKills;
@@ -92,7 +94,7 @@ namespace HWP
 
 namespace Modules
 {
-	class HWPSpecsModule : Module, HWP::ModuleStart
+	class HWPSpecsModule : Module, HWP::ModuleStart, IEventActorDestroyed
 	{
 		HWPSpecsModule()
 		{
@@ -101,6 +103,18 @@ namespace Modules
 			HWP::Specs::SelfCheck();
 			HWP::Net::OnRequest("specs.conduit", HWP::Net::RequestHandler(HWP::Specs::OnConduit));
 			HWP::Net::OnEvent("specs.conduit_mana", HWP::Net::EventHandler(HWP::Specs::OnConduitMana));
+			HWP::Commands::Register("forge", "  Devil Forgemaster: status | body <unit> [dx dy] | raise|penance [now] | heresy <n> | lunge | decay <ms> | cull | risen | bodies | trace [on|off]", HWP::Commands::Handler(HWP::Specs::CmdForge));
+			HWP::Net::OnRequest("specs.raise", HWP::Net::RequestHandler(HWP::Specs::OnRaise));
+			HWP::Net::OnRequest("specs.body_gone", HWP::Net::RequestHandler(HWP::Specs::OnBodyGone));
+			HWP::Net::OnEvent("specs.raised", HWP::Net::EventHandler(HWP::Specs::OnRaised));
+			HWP::Net::OnEvent("specs.raise_denied", HWP::Net::EventHandler(HWP::Specs::OnRaiseDenied));
+			GameEvents::Subscribe(this);
+		}
+
+		// every enemy death on the floor: the host rolls a Forgemaster's intact body
+		void OnEventActorDestroyed(Actor@ destroyed)
+		{
+			HWP::Specs::OnActorDestroyed(destroyed);
 		}
 
 		void Start(StartMode sMode)
@@ -117,6 +131,7 @@ namespace Modules
 			HWP::Specs::g_galeArrows = 0;
 			HWP::Specs::ClearBrands();
 			HWP::Specs::ClearArcane();
+			HWP::Specs::ClearForgemaster();
 		}
 
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
@@ -129,6 +144,7 @@ namespace Modules
 			HWP::Specs::UpdateTailwind(ms);
 			HWP::Specs::UpdateBrands(ms);
 			HWP::Specs::UpdateArcane(ms);
+			HWP::Specs::UpdateForgemaster(ms);
 		}
 	}
 }

@@ -1,0 +1,118 @@
+%include "players/skills_cost.inc"
+<!--
+	Call of Heresy (Devil Forgemaster passive), the planner's priest-spec4-passive. While a
+	Forgemaster is on the floor, every enemy that dies (whoever killed it) rolls coh-body for an
+	intact body (HWPSpecsBody, players/hwp/specs/forgemaster/bodies/<unit>: the enemy gray on its
+	side, 60 s, green glow on the Forgemaster's own screen; the host rolls, Forgemaster.as
+	OnActorDestroyed). Heresy (stacks_specs.sval:heresy) comes from Necrotic Resurrection: each
+	stack adds coh-dmg to the risen's damage, and coh-lunge to the chance, rolled once per body
+	when the priest first comes within 40 of it, that the priest lunges at the body and eats it:
+	3 s of the devouring buff (silenced, disarmed, rooted, +50 health regeneration a second),
+	the body gone. Heresy carries from floor to floor and resets in town; only Sacrificial
+	Penance and Pyre Sacrifice lower it. Picking the spec gives Divine Favor level 1 for free
+	(the PlayerInitialize hook).
+	Planner numbers: 3/4/6/8/10% body, +8/10/12/14/16% damage and +2/2/3/3/3% lunge a stack.
+	Orbs: Deeper Depravity (dd-elite: +8/15% for an elite's body; dd-boss: the epic one makes
+	a boss's body possible, 30%), Ravenous Lunge (rl-dmg: the lunge hits enemies within 50 of
+	the body for 100/150% weapon damage, rl-knock: the rare one knocks them back).
+-->
+<dict>
+	<string name="name">.hwp.specs.call_of_heresy.name</string>
+	<string name="type-name">.skills.type.passive</string>
+	<string name="description">.hwp.specs.call_of_heresy.desc</string>
+
+	<array name="description-params">
+		<array><s>body</s><s>.hwp.specs.param.body_chance</s><s>3%</s><s>4%</s><s>6%</s><s>8%</s><s>10%</s></array>
+		<array><s>damage</s><s>.hwp.specs.param.per_heresy_damage</s><s>8%</s><s>10%</s><s>12%</s><s>14%</s><s>16%</s></array>
+		<array><s>lunge</s><s>.hwp.specs.param.per_heresy_lunge</s><s>2%</s><s>2%</s><s>3%</s><s>3%</s><s>3%</s></array>
+	</array>
+
+	<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>48 144 24 24</vec4></array>
+
+	<string name="id">hwp_pri_call_of_heresy</string>
+	<array name="tags"><s>passive</s></array>
+	<int name="starting-level">1</int>
+
+	<dict name="skill">
+		<int name="skill-cost">SKILLCOSTMASTERYLEVEL_1</int>
+		<string name="class">Skills::PassiveSkill</string>
+		<dict name="binds">
+			<float name="coh-body">0.03</float>
+			<float name="coh-dmg">0.08</float>
+			<float name="coh-lunge">0.02</float>
+			<float name="dd-elite">0</float>
+			<float name="dd-boss">0</float>
+			<float name="rl-dmg">0</float>
+			<int name="rl-knock">0</int>
+		</dict>
+	</dict>
+
+	<array name="upgrades">
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
+			<dict name="binds"><float name="coh-body">0.04</float><float name="coh-dmg">0.10</float><float name="coh-lunge">0.02</float></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
+			<dict name="binds"><float name="coh-body">0.06</float><float name="coh-dmg">0.12</float><float name="coh-lunge">0.03</float></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
+			<dict name="binds"><float name="coh-body">0.08</float><float name="coh-dmg">0.14</float><float name="coh-lunge">0.03</float></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
+			<dict name="binds"><float name="coh-body">0.10</float><float name="coh-dmg">0.16</float><float name="coh-lunge">0.03</float></dict>
+		</dict>
+	</array>
+
+	<array name="modifier-skills">
+		<dict>
+			<string name="name">.hwp.specs.deeper_depravity.name</string>
+			<string name="description">.hwp.specs.deeper_depravity.desc</string>
+			<array name="description-params">
+				<array><s>elite</s><s>.hwp.specs.param.elite_body_chance</s><s>+8%</s><s>+15%</s><s>+15%</s></array>
+				<array><s>boss</s><s>.hwp.specs.param.boss_body_chance</s><s>0%</s><s>0%</s><s>30%</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>72 144 24 24</vec4></array>
+			<array name="tags"><s>passive</s></array>
+			<string name="id">hwp_pri_coh_deeper_depravity</string>
+			<string name="quality">uncommon</string>
+			<int name="starting-level">0</int>
+			<dict name="skill">
+				<dict name="binds"><float name="dd-elite">0.08</float></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><float name="dd-elite">0.15</float></dict>
+				</dict>
+				<dict>
+					<string name="quality">epic</string>
+					<dict name="binds"><float name="dd-elite">0.15</float><float name="dd-boss">0.30</float></dict>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<string name="name">.hwp.specs.ravenous_lunge.name</string>
+			<string name="description">.hwp.specs.ravenous_lunge.desc</string>
+			<array name="description-params">
+				<array><s>damage</s><s>.hwp.specs.param.weapon_damage</s><s>100%</s><s>150%</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>144 144 24 24</vec4></array>
+			<array name="tags"><s>passive</s></array>
+			<string name="id">hwp_pri_coh_ravenous_lunge</string>
+			<string name="quality">uncommon</string>
+			<int name="starting-level">0</int>
+			<dict name="skill">
+				<dict name="binds"><float name="rl-dmg">1.0</float></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><float name="rl-dmg">1.5</float><int name="rl-knock">1</int></dict>
+				</dict>
+			</array>
+		</dict>
+	</array>
+</dict>

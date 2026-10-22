@@ -1,0 +1,28 @@
+{
+ "name": "plan-forgemaster-bosses",
+ "about": "The quick half of plan-forgemaster (the Devil Forgemaster, Priest 4th spec): the penance, heresy_rules, lunge and bosses sections of the plan_forgemaster bot, without the 141-unit raise_all table (that one takes over two hours). Same flags as plan-forgemaster's steps.",
+ "fixture": "town-paladin",
+ "mods": ["core", "classes", "specs"],
+ "timeout": 1200,
+ "steps": [
+  {"do": "log_has", "pattern": "\\[HWP:specs\\] 7 of 7 subclasses registered", "timeout": 30},
+  {"do": "console", "line": "e_cheats 1"},
+  {"do": "console", "line": "show_chat"},
+  {"do": "sleep", "seconds": 1},
+  {"do": "bot", "bot": "plan_forgemaster", "kwargs": {"sections": "penance"}, "name": "penance",
+   "expect": {"pen_char": true, "pen_learned": true, "pen_normal": true, "pen_mana": true, "pen_elite": true, "pen_boss": true,
+              "pen_faces_up": true, "pen_light": true,
+              "pen_rank5_bind": true, "pen_boss_rank5": true, "pen_elite_rank5": true, "pen_needs_max_favor": true}},
+  {"do": "bot", "bot": "plan_forgemaster", "kwargs": {"sections": "heresy_rules"}, "name": "heresy",
+   "expect": {"her_char": true, "her_learned": true, "her_block": true, "her_overshoot": true, "her_hud": true,
+              "her_carry": true, "her_risen_follow": true, "her_town_reset": true}},
+  {"do": "bot", "bot": "plan_forgemaster", "kwargs": {"sections": "lunge"}, "name": "lunge",
+   "expect": {"lunge_char": true, "lunge_learned": true, "lunge_jump": true, "lunge_devour": true, "lunge_hit": true,
+              "lunge_lift": true, "lunge_faces_up": true, "lunge_bobs": true, "lunge_blood": true, "lunge_body_eaten": true,
+              "lunge_rng": true, "lunge_rolls": true, "lunge_chance": true, "lunge_none_at_zero": true}},
+  {"do": "bot", "bot": "plan_forgemaster", "kwargs": {"sections": "bosses"}, "name": "bosses",
+   "expect": {"boss_char": true, "boss_learned": true, "boss_raised": true, "boss_attack": true, "boss_leash": true,
+              "boss_no_errors": true, "boss_channel": true}},
+  {"do": "log_clean"}
+ ]
+}

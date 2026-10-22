@@ -37,6 +37,20 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
   keeps the rifle's icon). Dex-gated, crossbow anim set, tag `hwp_firearm`. The t1
   rifle sits in the armory pool. A new character starts with one Service
   Pistol (`hwp_glock_mh_01`) in the main hand. Every weapon type is allowed.
+- **Shops** (`scripts/HWP/Firearms/Shops.as`; overrides of the town equipment
+  seller `Town/EquipmentSeller.as` and the wagon's "Buy new equipment"
+  `ShopContent/EquipmentShopShopContent.as`, the added lines marked HWP): both
+  roll their stock by slot and the buyer's stats, so a Specialist was offered
+  bows and crossbows and a Ranger could draw a rifle. Now a Firearms Specialist's
+  weapon offers are guns only, the stock always holds at least one gun (a saved
+  stock gets one in place of its last non-weapon offer when the shop opens), and
+  no other class is offered a gun. The armory list is untouched. Measured by
+  `mod-firearms-shop 20261022-143058` (the `firearms_shop` bot): the fixture's
+  Paladin got 8 offers and no gun; a fresh Specialist got 8 offers whose two
+  weapons were a Service Pistol and a rifle, and after she bought both out the
+  reopened stock held a Full Auto Rifle in place of a non-weapon offer. The
+  wagon's `EquipmentShopShopContent` has no unit in the base game's data
+  (`grep` of `gamecode/sdk/hoh2`), so that override waits for a level that uses it.
 - **Flamethrower Rifles** `hwp_flamerifle_01/02/03`: the same rifle (30 rounds,
   the three-round burst) with a flamethrower under the barrel in place of the
   launcher (`hwp_attack_flamer`, the game's `PlayerSkillDirectionalChannelling`).
@@ -84,8 +98,12 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
   right click fires about 15 % more.
   - An off-hand pistol with another main-hand weapon fires one round on right
     click.
-  - After a rifle, pistol or cannon shot the arm stays raised until 1 s without a shot
-    (or a dodge or reload).
+  - While a rifle, pistol or cannon fires the gun is pinned at the shot
+    animation's first frame (arm out), and it stays raised until 1 s without a
+    shot, or a dodge or a reload, then comes down (`Combat.as` AimHold). Until
+    2026-10-22 only the pause after a shot was held, so the gun came down and up
+    again with every burst (the user). Rifle and pistols held, down after 1 s,
+    on a dodge and on a reload: `plan-firearms-arm 20261022-142503`.
 - **Hand Cannons** `hwp_hcannon_mh_01/02/03` (off-hand twins `hwp_hcannon_oh_0N`,
   the same hand swap as the pistols, `Pistols.as`), 6 rounds each. Each round is
   1.5 times a pistol round (`hcannon_round*.unit`, mul 1.2 against the
@@ -148,7 +166,11 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
   an elemental chance).
 - The orb scripts (Focus, Headshot, Exposure, Hoarder charges, the reload
   bar and Over-Reload, the magazine throw) are in `scripts/HWP/Firearms/Combat.as`.
-- **Art:** portrait piece and hero title reuse the ranger assets.
+- **Art:** portrait piece and hero title reuse the ranger assets. The
+  character-select figure (`players/hwp/firearms/class_showcase.png`, 32x32) is
+  the vanilla Ranger figure with the bow taken out and the t1 rifle held at port
+  arms, made by `tools/icon_art/firearms_showcase.py` (a normal character with a
+  gun, the user's call on 2026-10-22, in place of the hooded figure).
   - Held guns: voxel meshes in `players/models/equipment/` (`hwp_rifle`, with
     the under-barrel launcher; `hwp_glock_mh` on the right hand bone,
     `hwp_glock_oh` on the left). They sample vanilla `character.tif`: the

@@ -1,7 +1,8 @@
 {
-  "built": "",
+  "built": "hwp_pri_coh_deeper_depravity",
   "cls": "priest",
   "exclusive": "",
+  "icon_art": "pri_deeper_depravity",
   "levels": [
     {
       "q": "uncommon",
@@ -17,9 +18,9 @@
     }
   ],
   "name": "Deeper Depravity",
-  "notes": "bosses will be able to be summoned and used by the player, but with a smaller model to fit through hallways, much less health, ability to move/follow you. Health decays slower than other summons.",
+  "notes": "In game (hwp_pri_coh_deeper_depravity, tested): +8/+15% on an elite's body roll, +30% on a boss's at epic. plan-forgemaster 20261022-102006.",
   "order": null,
   "skill": "priest-spec4-passive",
-  "status": "idea",
+  "status": "tested",
   "summary": "Increase chance of elite and boss intact bodies"
 }

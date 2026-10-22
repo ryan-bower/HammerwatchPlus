@@ -1,0 +1,14 @@
+{
+ "name": "mod-holylocal-priest",
+ "about": "mods/holylocal (the Priest without the Celestial Ruins DLC, beta testers only): with it enabled the create-character class list offers the Priest, 'select priest' shows its title, and 'create' makes a Priest character that stands in town. The control is mod-holylocal-priest-control (no holylocal: no Priest in the list, since the lab's game has no DLC).",
+ "fixture": "town-paladin",
+ "mods": ["core", "holylocal"],
+ "timeout": 200,
+ "steps": [
+  {"do": "wait_phase", "phase": "town", "timeout": 60},
+  {"do": "sleep", "seconds": 2},
+  {"do": "bot", "bot": "holylocal_priest", "kwargs": {"tag": "with", "want": true}, "name": "priest with holylocal",
+   "expect": {"with_window": true, "with_priest_listed": true, "with_priest_selected": true, "with_priest_created": true}},
+  {"do": "log_clean"}
+ ]
+}

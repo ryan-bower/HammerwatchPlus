@@ -7,7 +7,9 @@ and fish that sell for the Gambler's bet tokens or fight as swords.
 - **Coast spots.** Six `doodads/hwp/fishing_spot.unit` along the town's west
   coast (the `water_coastline` pieces of `prefabs/town/segments/base.lvl`).
   Every machine spawns its own copies (`netsync="none"`), so each player fishes
-  locally. Interacting opens the minigame: **Cast** (costs one of the bait on
+  locally. A spot shows only its two swimming fish; the rod sprite that stood on
+  the sand went on 2026-10-22 (the user's call), the rod stays as the interact
+  icon. Interacting opens the minigame: **Cast** (costs one of the bait on
   your hook; the **Bait** button cycles the kinds you have), wait
   0.8-3 s for a bite, then press **Reel** (button, Enter or gamepad confirm)
   while the sweeping marker is inside the green zone. The zone shrinks and the

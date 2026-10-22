@@ -1,0 +1,25 @@
+{
+  "alt_of": "priest-spec4-active",
+  "alt_when": "while Divine Favor is at its max (5 to 8 stacks, by Divine Favor's level)",
+  "built": "hwp_pri_necrotic_resurrection",
+  "cls": "priest",
+  "cooldown": "none of its own; shares Necrotic Resurrection's",
+  "group": "priest-spec4",
+  "icon_art": "pri_sacrificial_penance",
+  "kind": "active",
+  "levels": [
+    "Removes 1 Heresy",
+    "Removes 1 Heresy",
+    "Removes 2 Heresy",
+    "Removes 2 Heresy",
+    "Removes 3 Heresy"
+  ],
+  "mana": "50",
+  "name": "Sacrificial Penance",
+  "notes": "In game (hwp_pri_necrotic_resurrection at max Divine Favor, tested): the same key; 3 s channel on an intact body, mana 50, removes 1/1/2/2/3 Heresy plus 1 for an elite's body and 2 for a boss's (rank 5 on a boss body: 5), spends all Divine Favor, starts no cooldown. Below max Favor the cast is a raise. The priest dodges to just under the body and faces it while a golden light grows out of the body as the channel runs; the mana is spent when it completes. plan-forgemaster-bosses 20261022-144616, plan-forgemaster-eat 20261022-154317. Assumed: the elite/boss bonus is added to the level's number (the user's call).",
+  "order": 0.5,
+  "role": "",
+  "status": "tested",
+  "summary": "Channel for 3 seconds on an intact body to sacrifice it and wash away Heresy. Consumes your Divine Favor.",
+  "unlock": "bought"
+}

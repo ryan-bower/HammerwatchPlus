@@ -689,11 +689,12 @@ namespace HWP
 				g_epipenSnd.SetVolume(1.0f - float(g_epipenMs - EPIPEN_FADE_FROM) / float(EPIPEN_FADE_TO - EPIPEN_FADE_FROM));
 		}
 
-		// The raised gun: after a rifle or pistol shot the shot's upper-body animation is
-		// played again on the skill layer (1) from its start and frozen there (speed FROZEN,
-		// AnimationLoopType::Hold; PlayerBase.SetUnitScene's call otherwise). The wand shot's
-		// first frame has the arm out and its last is the rest pose, so the arm stays up
-		// between shots instead of dropping to idle. It lets go after HOLD_MS without a gun
+		// The raised gun: while a rifle, pistol or cannon fires, and for HOLD_MS after, the shot's
+		// upper-body animation is played on the skill layer (1) from its start and frozen there
+		// (speed FROZEN, AnimationLoopType::Hold; PlayerBase.SetUnitScene's call otherwise),
+		// every frame while the trigger is held. The shot animations' first frame has the arm
+		// out and their last is the rest pose, so the gun stays up through a burst and between
+		// shots instead of dropping to idle each cycle. It lets go after HOLD_MS without a gun
 		// shot, or at once when the clip reloads or another skill (a dodge, Reload, a spell)
 		// starts: the animation then runs on from the frozen frame at full speed, unheld, so
 		// the arm comes down the shot's own way and the layer is free.
@@ -758,8 +759,14 @@ namespace HWP
 				{
 					if (plr.m_animSet !is null)
 						@m_anim = plr.m_animSet.GetAnimation(shooting.m_animation);
+					// pinned at the shot's first frame for as long as the trigger is held: left to
+					// itself the shot's animation ran on to its rest pose every cycle, so the gun
+					// came down and up again with every burst (the user, 2026-10-22)
+					Play(plr, true, AnimationLoopType::Hold, FROZEN);
+					if (!m_holding)
+						HWP::Log("firearms", "gun arm: held");
 					m_leftMs = HOLD_MS;
-					m_holding = false;
+					m_holding = true;
 					m_wasShooting = true;
 					return;
 				}
@@ -771,10 +778,8 @@ namespace HWP
 				}
 				if (m_wasShooting && m_leftMs > 0)
 				{
-					// the shot just ended: back to its first frame, frozen
+					// the trigger was let go: the pinned frame stays for HOLD_MS
 					Play(plr, true, AnimationLoopType::Hold, FROZEN);
-					if (!m_holding)
-						HWP::Log("firearms", "gun arm: held");
 					m_holding = true;
 					m_wasShooting = false;
 				}

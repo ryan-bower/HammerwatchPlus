@@ -1,0 +1,14 @@
+{
+ "name": "mod-holylocal-priest-control",
+ "about": "The control for mod-holylocal-priest: with core alone the create-character class list has no Priest, because the lab's game has no Celestial Ruins DLC (the class carries `dlc has holy`). Proves that mod-holylocal-priest's Priest comes from holylocal.",
+ "fixture": "town-paladin",
+ "mods": ["core"],
+ "timeout": 200,
+ "steps": [
+  {"do": "wait_phase", "phase": "town", "timeout": 60},
+  {"do": "sleep", "seconds": 2},
+  {"do": "bot", "bot": "holylocal_priest", "kwargs": {"tag": "without", "want": false}, "name": "no priest without holylocal",
+   "expect": {"without_window": true, "without_priest_listed": true}},
+  {"do": "log_clean"}
+ ]
+}

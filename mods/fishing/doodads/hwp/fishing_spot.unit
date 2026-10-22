@@ -1,7 +1,7 @@
 <!-- A coast fishing spot (interact class HWPFishingSpot: the fishing minigame, a cast costs a
      bait). Spawned locally on every machine along the town's west coast, so it is not netsynced.
-     The rod is the tradeware icon on the beach, the fish (vanilla pond fish, doodads/terrain/fish.png)
-     swim in the sea to the west. -->
+     The fish (vanilla pond fish, doodads/terrain/fish.png) swim in the sea to the west; the rod is
+     only the interact icon (the one on the sand went on 2026-10-22). -->
 <unit slot="doodad" netsync="none">
 	<behavior class="HWPLocalNPC">
 		<int name="hp">100000</int>
@@ -35,9 +35,8 @@
 			<collision>
 				<rect sensor="true">-40 -20 64 40</rect>
 			</collision>
-			<sprite origin="8 14" texture="items/tradeware/base.png" material="items/items.mats:item">
-				<frame>64 0 16 16</frame>
-			</sprite>
+			<!-- no rod on the sand (the user's call, 2026-10-22): the swimming fish mark the spot, the rod
+			     stays as the interact icon -->
 			<sprite origin="42 7" texture="doodads/terrain/fish.png" material="doodads/terrain/terrain.mats:fish">
 				<frame time="150">0 0 19 20</frame> <frame time="150">19 0 19 20</frame> <frame time="150">38 0 19 20</frame> <frame time="150">57 0 19 20</frame> <frame time="150">76 0 19 20</frame> <frame time="150">0 20 19 20</frame> <frame time="150">19 20 19 20</frame> <frame time="150">38 20 19 20</frame> <frame time="150">57 20 19 20</frame> <frame time="150">76 20 19 20</frame>
 			</sprite>
