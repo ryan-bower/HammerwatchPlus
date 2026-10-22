@@ -2514,3 +2514,40 @@ are wired, every event checked against the banks' own list (`fmod.py list`):
   (`Expected expression value`, run `20261021-224619`).
 - The lab is muted, so a run only shows that nothing errors, not how anything sounds.
 
+## Essence Extraction reworked to the planner (2026-10-21)
+
+The planner's warlock-spec4-passive (the user's edit, b081110): "Magic weapon attacks now also
+count towards gaining stacks of Essence, with 2 second cooldown. Essence stacks gained from
+branded enemies have their effects trigger twice." Built in `branding/essence_extraction.sval`
+and `Branding.as` (HWPSpecsEssenceHit, GainEssence). Passed in run `20261021-232748`.
+- Vanilla Drain Essence (`players/warlock/skills/drain_essence.sval`): a SkillTriggerEffect
+  on hit and spellhit with skill-tags melee and timeout 250. Its effects are the stack, the Drain
+  Blood bleed (bleeding-stacks, bleeding-chance), the PlaySound, `gain_essence.effect`,
+  HPBasedHeal (drain-life-amount x max HP) and GivePercentageMana (drain-energy-amount x max mana).
+  Binds belong to their own skill, so GainEssence reads Drain Essence's through BindF and BindI
+  (`PrepareSkillFetchData`) and does the same things in script.
+- Magic weapons: every arcane-tagged weapon attack (`players/attacks/*.sval`). That is staff,
+  wand and tome (fire, ice or lightning), plus the Holy DLC scepter and lantern (`holy_weapon`).
+  No melee, ranged or shield attack has the tag. The class check in `EquippedItems.as` MayEquip
+  is commented out, so any class equips any of them.
+  - Holy DLC gear has the conditional `dlc has holy`. GenerateItem returns null for it in the lab
+    (`equip mainhand_scepter_01`, run `20261021-230738`).
+  - The hit trigger is weapon damage only, main and off hand (`PlayerBase.as:869/881`).
+  - The warlock's off-hand tome casts a glyph at its own feet (SpawnUnit, no target), so a dummy
+    away from it is never hit.
+- TriggerEffect starts its timeout on every matching hit, whether or not the effect then applies
+  (`TriggerEffect.as:157-169`). So the melee trigger with the same tags and the same 250 ms
+  timeout fires on the same hits as Drain Essence's own.
+- "Trigger twice" is read as two gains (assumed). The project-plan session asked the user and got
+  no detail. Measured: 4 Demon's Tails on a branded elite gave 4 second gains and 8 Essence. Wand
+  hits gave 2 gains in 3.3 s at ee-cd 1750, and 2 gains on a branded dummy gave 4 Essence. The max
+  stays 10.
+- Test fallout: with the doubled Essence, the old Released Essence step's elite died to the
+  tails' own brand claw early (Essence Empowerment +24% fire; run `20261021-230738`), so the step
+  now spawns a fresh elite. Proliferation's 3 s brand ran out inside the 2 s of wand hits, so it is
+  taken off first.
+- Lightning Arrow's Tailwind Catch is flaky: catches out of 3 returning arrows were 1, 3, 2, 0 and 3.
+  `storm_catch` also read the catches and the Tailwind count in two status reads a second apart,
+  which can straddle the 4 s expiry; it now takes one read. A swept-segment catch test
+  (from-to segment within 12 px) caught 3 of 3, but the back hits went from 1 to 0, so it was
+  reverted. The cause is not understood yet.

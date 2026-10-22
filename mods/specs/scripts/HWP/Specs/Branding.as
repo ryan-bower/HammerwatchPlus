@@ -10,9 +10,10 @@
 //   Combustion (pb-combust): the claw spends every Essence stack for that much more damage and
 //   radius each. Proliferation (pb-spread): the brand lasts half as long and a dying brand goes
 //   to every enemy within pb-spread, each with the whole stored damage.
-// - Essence Extraction (branding/essence_extraction.sval): +ee-add max Essence; a melee hit on
-//   a branded elite or boss gives an Essence stack, once per ee-cd ms (HWPSpecsEssenceHit).
-//   Essence Empowerment (ee-emp, HWPSpecsEssenceFire): + ee-emp x the physical damage
+// - Essence Extraction (branding/essence_extraction.sval): a magic weapon hit (arcane-tagged:
+//   staff, wand, tome, scepter, lantern) is an Essence gain too, once per ee-cd ms, and a gain from a Pyrebranded enemy runs
+//   twice: the magic one, and Drain Essence's own melee one (HWPSpecsEssenceHit). A gain is
+//   what Drain Essence's hit effects do (GainEssence). Essence Empowerment (ee-emp, HWPSpecsEssenceFire): + ee-emp x the physical damage
 //   multiplier to the fire damage multiplier per Essence stack. Released Essence (ee-released):
 //   an elite or boss killed by the claw gives that many stacks.
 // The brands are the warlock's own client's; the other peers see the pyrebrand debuff (kept
@@ -24,6 +25,7 @@ namespace HWP
 		const uint PYREBRAND = HashString("hwp_wlk_pyrebrand");
 		const uint ESSENCE_EXTRACTION = HashString("hwp_wlk_essence_extraction");
 		const string ESSENCE = "players/warlock/stacks_warlock.sval:essence";
+		const uint DRAIN_ESSENCE = HashString("drain_essence");
 
 		// assumed numbers (not in the design): the brand's time, its search cone and range, the
 		// claw's radius, the transfer range and the most brands at once
@@ -61,6 +63,7 @@ namespace HWP
 		int g_lastClaw = 0;
 		int g_transfers = 0;
 		int g_essenceHits = 0;
+		int g_essenceTwice = 0;
 		int g_released = 0;
 
 		void ClearBrands()
@@ -75,7 +78,7 @@ namespace HWP
 			g_brandsUp = false;
 			g_clawVictims.removeRange(0, g_clawVictims.length());
 			g_clawVictimC = 0;
-			g_claws = g_clawHits = g_lastClaw = g_transfers = g_essenceHits = g_released = 0;
+			g_claws = g_clawHits = g_lastClaw = g_transfers = g_essenceHits = g_essenceTwice = g_released = 0;
 		}
 
 		Brand@ BrandOn(Actor@ a)
@@ -211,6 +214,30 @@ namespace HWP
 			}
 			g_transfers += passed;
 			Log("specs", "pyrebrand: target died, " + int(b.m_stored + 0.5f) + " stored passed to " + passed);
+		}
+
+		// one Essence gain, what Drain Essence's hit effects do (players/warlock/skills/
+		// drain_essence.sval): a stack, Drain Blood's bleed on the enemy, Life and Energy Siphon's
+		// health and mana, the sound and the gain effect. Its binds are read off Drain Essence.
+		void GainEssence(PlayerBase@ plr, Actor@ enemy)
+		{
+			auto ess = Stack(ESSENCE);
+			if (ess is null)
+				return;
+			plr.AddStacks(plr, ess, 1);
+			auto bleed = Stack("tweak/buffs/stacks_actors.sval:bleeding");
+			int bleeds = BindI(plr, DRAIN_ESSENCE, "bleeding-stacks");
+			if (bleed !is null && bleeds > 0 && enemy !is null && !enemy.IsDead()
+				&& randf() <= BindF(plr, DRAIN_ESSENCE, "bleeding-chance"))
+				enemy.AddStacks(plr, bleed, bleeds);
+			float life = BindF(plr, DRAIN_ESSENCE, "drain-life-amount");
+			if (life > 0 && plr.GetHealth() < 1.0f)
+				plr.Heal(int(life * plr.GetMaxHp()), false);
+			float mana = BindF(plr, DRAIN_ESSENCE, "drain-energy-amount");
+			if (mana > 0)
+				plr.GiveMana(int(mana * plr.GetMaxMana()), false);
+			PlaySound3D(Resources::GetSoundEvent("event:/sfx/player/classes/warlock/drain_essence/drain_essence"), plr.m_unit.GetPosition());
+			PlayEffect("players/warlock/effects/gain_essence.effect", xy(plr.m_unit.GetPosition()));
 		}
 
 		void UpdateBrands(int ms)
@@ -401,11 +428,18 @@ class HWPSpecsBrandFeed : Modifiers::TriggerEffectBase
 	}
 }
 
-// Essence Extraction, on a melee hit (SkillTriggerEffect hit, skill-tags melee): a branded elite
-// or boss gives an Essence stack, once per ee-cd ms
+// Essence Extraction (SkillTriggerEffect). "magic" (an arcane-tagged weapon's hit): an Essence
+// gain once per ee-cd ms, two from a Pyrebranded enemy. Otherwise (a melee hit or melee spell
+// hit, on Drain Essence's own 250 ms timeout, whose trigger gives the first gain): one more
+// gain from a Pyrebranded enemy.
 class HWPSpecsEssenceHit : IEffect
 {
-	HWPSpecsEssenceHit(UnitPtr unit, SValue& params) { }
+	bool m_magic;
+
+	HWPSpecsEssenceHit(UnitPtr unit, SValue& params)
+	{
+		m_magic = GetParamBool(unit, params, "magic", false, false);
+	}
 
 	CanEvade IsEvadable(Actor@ attacker) { return CanEvade::Neither; }
 	void SetWeaponInformation(uint weapon) { }
@@ -415,15 +449,26 @@ class HWPSpecsEssenceHit : IEffect
 	{
 		auto plr = cast<PlayerBase>(owner);
 		auto a = cast<Actor>(target.GetScriptBehavior());
-		if (plr is null || a is null || husk || !HWP::Specs::IsLocal(owner) || HWP::Specs::g_essenceC > 0)
+		if (plr is null || a is null || husk || !HWP::Specs::IsLocal(owner) || a.Team == owner.Team)
 			return false;
-		if (HWP::Specs::BrandOn(a) is null || !HWP::Specs::IsEliteOrBoss(a))
+		bool branded = HWP::Specs::BrandOn(a) !is null;
+		if (!m_magic)
+		{
+			if (!branded)
+				return false;
+			HWP::Specs::GainEssence(plr, a);
+			HWP::Specs::g_essenceTwice++;
+			return true;
+		}
+		if (HWP::Specs::g_essenceC > 0)
 			return false;
-		auto ess = HWP::Specs::Stack(HWP::Specs::ESSENCE);
-		if (ess is null)
-			return false;
-		plr.AddStacks(plr, ess, 1);
-		HWP::Specs::g_essenceC = HWP::Specs::BindI(plr, HWP::Specs::ESSENCE_EXTRACTION, "ee-cd", 1500);
+		HWP::Specs::GainEssence(plr, a);
+		if (branded)
+		{
+			HWP::Specs::GainEssence(plr, a);
+			HWP::Specs::g_essenceTwice++;
+		}
+		HWP::Specs::g_essenceC = HWP::Specs::BindI(plr, HWP::Specs::ESSENCE_EXTRACTION, "ee-cd", 2000);
 		HWP::Specs::g_essenceHits++;
 		return true;
 	}
@@ -431,7 +476,7 @@ class HWPSpecsEssenceHit : IEffect
 
 // Essence Empowerment, put into the Essence stack (InjectModifiersIntoStack): the fire damage
 // multiplier + per-stack x the physical damage multiplier for each stack. The stack's own
-// intensity is (stacks - 1) / (max - 1), and Essence Extraction moves the max, so this counts
+// intensity is (stacks - 1) / (max - 1), and Essence Harvester moves the max, so this counts
 // the stacks itself. The stack's DummyModifier refreshes the modifiers on every change.
 class HWPSpecsEssenceFire : Modifiers::ConvertStat
 {

@@ -1,10 +1,15 @@
 %include "players/skills_cost.inc"
 <!--
-	Essence Extraction (Branding passive). +ee-add maximum Essence (the vanilla warlock stack,
-	players/warlock/stacks_warlock.sval:essence, max 10). A melee hit on a Pyrebranded elite or
-	boss gives an Essence stack, once per ee-cd ms (HWPSpecsEssenceHit,
-	scripts/HWP/Specs/Branding.as). A melee hit: a melee weapon's (the hit trigger, main and off
-	hand only) or a melee-tagged spell's such as Demon's Tail (spellhit; counting these is assumed). Planner numbers: max 11..15, cooldown 1.5/1.3/1.1/0.9/0.75 s.
+	Essence Extraction (Branding passive), the planner's warlock-spec4-passive: Colin's "spell
+	skills also count towards Essence" with magic weapons instead. A hit by an arcane-tagged
+	weapon (staff, wand, tome, and the holy scepter and lantern: every class may equip them, the
+	class check in EquippedItems.as MayEquip is commented out; the hit trigger is weapon attacks
+	only, main and off hand) is an Essence gain, once per ee-cd ms (2/1.75/1.5/1.25/1
+	s). An Essence gain from a Pyrebranded enemy has its effects trigger twice: read as two gains
+	(two stacks, and Drain Essence's on-gain bleed, health and mana twice; assumed, the design
+	gives no detail). For Drain Essence's own melee gain the second one comes from the hit and
+	spellhit triggers below, on its 250 ms timeout. HWPSpecsEssenceHit and GainEssence,
+	scripts/HWP/Specs/Branding.as. The max Essence stays the vanilla 10.
 	Orbs: Essence Empowerment (ee-emp: the fire damage multiplier + 1/2/3% of the physical
 	damage multiplier per stack, assumed; HWPSpecsEssenceFire in the Essence stack), Released
 	Essence (ee-released: an elite or boss killed by the Hellfire Claw gives 3/6 stacks).
@@ -15,8 +20,7 @@
 	<string name="description">.hwp.specs.essence_extraction.desc</string>
 
 	<array name="description-params">
-		<array><s>cooldown</s><s>.skills.desc.params.cooldown</s><s>1.5s</s><s>1.3s</s><s>1.1s</s><s>0.9s</s><s>0.75s</s></array>
-		<array><s>stacks</s><s>.hwp.specs.param.max_stacks</s><s>11</s><s>12</s><s>13</s><s>14</s><s>15</s></array>
+		<array><s>cooldown</s><s>.skills.desc.params.cooldown</s><s>2s</s><s>1.75s</s><s>1.5s</s><s>1.25s</s><s>1s</s></array>
 	</array>
 
 	<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>48 120 24 24</vec4></array>
@@ -29,23 +33,30 @@
 		<int name="skill-cost">SKILLCOSTMASTERYLEVEL_1</int>
 		<string name="class">Skills::PassiveSkill</string>
 		<dict name="binds">
-			<int name="ee-add">1</int>
-			<int name="ee-cd">1500</int>
+			<int name="ee-cd">2000</int>
 			<float name="ee-emp">0</float>
 			<int name="ee-released">0</int>
 		</dict>
 		<array name="modifiers">
 			<array>
 				<dict>
-					<string name="class">Modifiers::ModifyStack</string>
-					<string name="buff">players/warlock/stacks_warlock.sval:essence</string>
-					<string name="add-max-bind">ee-add</string>
+					<string name="class">Modifiers::SkillTriggerEffect</string>
+					<string name="trigger">hit</string>
+					<array name="skill-tags"><s>arcane</s></array>
+					<vec2 name="chance">1 1</vec2>
+					<array name="effects">
+						<dict>
+							<string name="class">HWPSpecsEssenceHit</string>
+							<bool name="magic">true</bool>
+						</dict>
+					</array>
 				</dict>
 				<dict>
 					<string name="class">Modifiers::SkillTriggerEffect</string>
 					<string name="trigger">hit</string>
 					<array name="skill-tags"><s>melee</s></array>
 					<vec2 name="chance">1 1</vec2>
+					<int name="timeout">250</int>
 					<array name="effects">
 						<dict>
 							<string name="class">HWPSpecsEssenceHit</string>
@@ -57,6 +68,7 @@
 					<string name="trigger">spellhit</string>
 					<array name="skill-tags"><s>melee</s></array>
 					<vec2 name="chance">1 1</vec2>
+					<int name="timeout">250</int>
 					<array name="effects">
 						<dict>
 							<string name="class">HWPSpecsEssenceHit</string>
@@ -84,19 +96,19 @@
 	<array name="upgrades">
 		<dict>
 			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
-			<dict name="binds"><int name="ee-add">2</int><int name="ee-cd">1300</int></dict>
+			<dict name="binds"><int name="ee-cd">1750</int></dict>
 		</dict>
 		<dict>
 			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
-			<dict name="binds"><int name="ee-add">3</int><int name="ee-cd">1100</int></dict>
+			<dict name="binds"><int name="ee-cd">1500</int></dict>
 		</dict>
 		<dict>
 			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
-			<dict name="binds"><int name="ee-add">4</int><int name="ee-cd">900</int></dict>
+			<dict name="binds"><int name="ee-cd">1250</int></dict>
 		</dict>
 		<dict>
 			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
-			<dict name="binds"><int name="ee-add">5</int><int name="ee-cd">750</int></dict>
+			<dict name="binds"><int name="ee-cd">1000</int></dict>
 		</dict>
 	</array>
 

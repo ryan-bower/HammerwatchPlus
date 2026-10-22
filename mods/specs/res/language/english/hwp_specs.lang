@@ -19,7 +19,6 @@
 	<string name="hwp.specs.param.extra_strikes">Lightning Strikes:</string>
 	<string name="hwp.specs.param.speed_per_stack">Action Speed per Stack:</string>
 	<string name="hwp.specs.param.extra_zaps">Extra Zaps per Tick:</string>
-	<string name="hwp.specs.param.max_stacks">Maximum Stacks:</string>
 	<string name="hwp.specs.param.extra_arrows">Extra Arrows:</string>
 	<string name="hwp.specs.param.dr_per_stack">Damage Reduction per Stack:</string>
 	<string name="hwp.specs.param.brand_stored">Damage Stored:</string>
@@ -106,7 +105,7 @@
 	<string name="hwp.specs.proliferation.name">Proliferation</string>
 	<string name="hwp.specs.proliferation.desc">When a branded enemy dies, the brand spreads with all of its stored damage to every enemy within %radius%. Brands last half as long.</string>
 	<string name="hwp.specs.essence_extraction.name">Essence Extraction</string>
-	<string name="hwp.specs.essence_extraction.desc">Your melee hits on Pyrebranded elites and bosses grant a stack of Essence, once every %cooldown%. You can hold up to %stacks% Essence.</string>
+	<string name="hwp.specs.essence_extraction.desc">Your magic weapon attacks now also gain stacks of Essence, once every %cooldown%. Essence gained from Pyrebranded enemies has its effects trigger twice.</string>
 	<string name="hwp.specs.essence_empowerment.name">Essence Empowerment</string>
 	<string name="hwp.specs.essence_empowerment.desc">Each stack of Essence adds %per-stack% of your Physical damage multiplier to your Fire damage. Hellfire Claw gains this before Combustion consumes the stacks.</string>
 	<string name="hwp.specs.released_essence.name">Released Essence</string>

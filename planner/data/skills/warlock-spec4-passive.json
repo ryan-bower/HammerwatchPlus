@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_wlk_essence_extraction",
   "cls": "warlock",
   "cooldown": "2 second",
   "group": "warlock-spec4",
@@ -13,10 +13,10 @@
   ],
   "mana": "",
   "name": "Essence Extraction",
-  "notes": "",
+  "notes": "In game (hwp_wlk_essence_extraction, tested, run 20261021-232748): a hit by a magic weapon is an Essence gain, once per the cooldown. Magic weapons = every arcane-tagged weapon: staff, wand, tome, and the Holy DLC scepter and lantern (assumed reading; any class can equip them). Drain Essence's own melee gain stays. \"Effects trigger twice\" is read as: a gain from a Pyrebranded enemy counts twice (two stacks, and Drain Essence's bleed, health and mana twice), for the magic and the melee gain alike (assumed). The old +max Essence and the melee-on-branded-elites gain are gone; the max is the vanilla 10. Not measured: the scepter and lantern (Holy DLC gear does not generate in the lab) and the off hand (the tome's glyph lands at the warlock's feet).",
   "order": 1,
   "role": "",
-  "status": "idea",
+  "status": "tested",
   "summary": "Magic weapon attacks now also count towards gaining stacks of Essence, with 2 second cooldown. Essence stacks gained from branded enemies have their effects trigger twice.",
   "unlock": "bought"
 }

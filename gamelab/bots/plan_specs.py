@@ -329,8 +329,10 @@ class Checks(Base):
             time.sleep(0.5)
         self.cast_skill("storm_ec2", ec, 40, aim=(fx, fy))
         time.sleep(2.0)
-        c1 = self.status_num("catches")
-        n = self.status_num("tailwind")
+        # one status line: the stacks last 4 s, so two reads a second apart can straddle the end
+        st = self.specs()
+        num = lambda label: (lambda m: int(m[-1]) if m else None)(re.findall(re.escape(label) + r" (-?\d+)", st))
+        c1, n = num("catches"), num("tailwind")
         self.flag("storm_catch", c1 is not None and c1 - c0 >= 1 and (n or 0) >= 1,
                   f"catches {c0} -> {c1}, tailwind {n}")
         self.to_town()
@@ -535,13 +537,13 @@ class Checks(Base):
             self.gl("orb", orb, n)
         time.sleep(0.5)
         binds = {k: self.bind(s_, k) for s_, k in ((pb, "pb-combust"), (pb, "pb-spread"), (ee, "ee-emp"), (ee, "ee-released"),
-                                                    (ee, "ee-add"), (ee, "ee-cd"))}
+                                                    (ee, "ee-cd"))}
         lv = max(1, min(5, self.lvl[ee]))
         self.flag("brand_orb_binds", binds == {"pb-combust": "0.04", "pb-spread": "100", "ee-emp": "0.03", "ee-released": "6",
-                                               "ee-add": str(lv), "ee-cd": str((1500, 1300, 1100, 900, 750)[lv - 1])}, f"{binds}")
+                                               "ee-cd": str((2000, 1750, 1500, 1250, 1000)[lv - 1])}, f"{binds}")
         self.set_stacks(ess, 30)
         n = self.status_num("essence")
-        self.flag("brand_ee_max", n == 10 + lv, f"30 Essence given: {n} kept (10 + {lv})")
+        self.flag("brand_ee_max", n == 10, f"30 Essence given: {n} kept (the vanilla 10: the passive no longer raises it)")
 
         # Essence Empowerment: + 3% of the physical multiplier to fire, per stack
         self.set_stacks(ess, 0)
@@ -587,8 +589,9 @@ class Checks(Base):
                   f"transfers {t0} -> {num(st, 'transfers')}, brands {num(st, 'brands')} (3 dummies within 100)")
         time.sleep(3.0)
 
-        # Essence Extraction: a melee hit (Demon's Tail is tagged melee) on a branded elite.
-        # Combustion off first: the brand's own claw would spend the stacks before the read
+        # Essence Extraction: Drain Essence's own melee gain (Demon's Tail is tagged melee) runs
+        # twice on a branded enemy. Combustion off first: the brand's own claw would spend the
+        # stacks before the read
         for _ in range(3):
             self.gl("orb", "hwp_wlk_pb_combustion", "down")
         self.gl("kill", 400, "target_dummy")
@@ -600,17 +603,24 @@ class Checks(Base):
         time.sleep(0.7)
         self.set_stacks(ess, 0)
         st = self.specs()
-        h0 = num(st, "essence hits") or 0
+        w0 = num(st, "twice") or 0
         self.brand_cast(pb, fx, fy)
         self.tails(4, fx, fy)
         st = self.specs()
-        h1, n = num(st, "essence hits"), num(st, "essence")
-        cdms = int(self.bind(ee, "ee-cd") or 0)
-        self.flag("brand_essence_hit", 1 <= (h1 or 0) - h0 <= 2 and (n or 0) >= (h1 or 0) - h0,
-                  f"4 tails in 1.6 s on a branded elite: essence hits {h0} -> {h1} (once per {cdms} ms), essence {n}")
+        w1, n = num(st, "twice"), num(st, "essence")
+        d = (w1 or 0) - w0
+        self.flag("brand_essence_twice", d >= 2 and n == 2 * d,
+                  f"4 tails on a branded elite: second gains {w0} -> {w1}, essence {n} (2 a gain: Drain Essence's and ours)")
 
-        # Released Essence: the elite dies to the claw
+        # Released Essence: a fresh elite dies to the claw (with the doubled Essence the tails'
+        # brand's own claw can kill the last one: run 20261021-230738)
         time.sleep(3.0)
+        self.gl("kill", 400, "bandit_brute_elite")
+        self.gl("spawn", "actors/humans/bandits/bandit_brute_elite.unit", round(45 * fx, 1), round(45 * fy, 1))
+        time.sleep(0.3)
+        self.gl("buffnear", 200, "bandit_brute_elite", "tweak/buffs/status_effects.sval:stun_greater", 20000)
+        time.sleep(0.7)
+        r0 = num(self.specs(), "released") or 0
         self.brand_cast(pb, fx, fy)
         self.set_stacks(ess, 0)
         self.gl("kill", 400, "bandit_brute_elite", 0.001)
@@ -618,7 +628,41 @@ class Checks(Base):
         time.sleep(0.4)   # the kill is watched for (UpdateBrands), not read in the claw's frame
         st = self.specs()
         r, n = num(st, "released"), num(st, "essence")
-        self.flag("brand_released", (r or 0) >= 6 and (n or 0) >= 6, f"{line[-120:]!r}: released {r}, essence {n} (6 an elite)")
+        self.flag("brand_released", (r or 0) - r0 >= 6 and (n or 0) >= 6, f"{line[-120:]!r}: released {r0} -> {r}, essence {n} (6 an elite)")
+
+        # Essence Extraction, magic weapons: a wand's hits are an Essence gain once per ee-cd ms,
+        # and two on a branded enemy. Proliferation off: its 3 s brand ends inside the 2 s of hits
+        for _ in range(3):
+            self.gl("orb", "hwp_wlk_pb_proliferation", "down")
+        cdms = int(self.bind(ee, "ee-cd") or 0)
+        self.gl("kill", 400, "target_dummy")
+        self.gl("spawn", TARGET, round(50 * fx, 1), round(50 * fy, 1))
+        r = self.gl("equip", "mainhand_wand_fire_01", 1, 1)
+        self.notes.append(f"brand: wand: {r}")
+        time.sleep(1.0)
+        self.set_stacks(ess, 0)
+        st = self.specs()
+        h0, w0 = num(st, "essence hits") or 0, num(st, "twice") or 0
+        self.gl("input", 3300, 0, 0, fx, fy, "main")
+        time.sleep(3.6)
+        st = self.specs()
+        h1, w1, n = num(st, "essence hits") or 0, num(st, "twice") or 0, num(st, "essence")
+        self.flag("brand_magic", 1 <= h1 - h0 <= 3300 // max(1, cdms) + 1 and w1 == w0 and n == h1 - h0,
+                  f"3.3 s of wand attacks: gains {h0} -> {h1} (once per {cdms} ms), second gains {w0} -> {w1}, essence {n}")
+        self.set_stacks(ess, 0)
+        time.sleep(cdms / 1000)
+        self.brand_cast(pb, fx, fy)
+        st = self.specs()
+        h0, w0 = num(st, "essence hits") or 0, num(st, "twice") or 0
+        self.gl("input", 2000, 0, 0, fx, fy, "main")
+        time.sleep(2.2)
+        st = self.specs()
+        h1, w1, n = num(st, "essence hits") or 0, num(st, "twice") or 0, num(st, "essence")
+        self.flag("brand_magic_twice", h1 - h0 >= 1 and w1 - w0 == h1 - h0 and n == 2 * (h1 - h0),
+                  f"2 s of wand attacks on a branded dummy: gains {h0} -> {h1}, second gains {w0} -> {w1}, essence {n}")
+        # not checked here: the holy scepter and lantern (arcane-tagged too, but Holy DLC gear:
+        # GenerateItem returns null in the lab) and the off hand (the warlock's tome drops a glyph
+        # at its feet; an off-hand weapon hit fires the same Hit trigger, PlayerBase.as:881)
         self.to_town()
 
     # --- Arcane

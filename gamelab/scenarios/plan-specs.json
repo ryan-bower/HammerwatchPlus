@@ -129,9 +129,11 @@
     "brand_prolif_time": true,
     "brand_combustion": true,
     "brand_proliferation": true,
-    "brand_essence_hit": true,
+    "brand_essence_twice": true,
     "brand_released": true,
-    "brand_empowerment": true
+    "brand_empowerment": true,
+    "brand_magic": true,
+    "brand_magic_twice": true
    }
   },
   {
