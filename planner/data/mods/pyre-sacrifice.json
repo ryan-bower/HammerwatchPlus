@@ -5,11 +5,11 @@
   "levels": [
     {
       "q": "common",
-      "text": "Reduces heresy by 2"
+      "text": "Reduces heresy by 1"
     },
     {
       "q": "uncommon",
-      "text": "Reduces heresy by 4"
+      "text": "Reduces heresy by 3"
     }
   ],
   "name": "Pyre Sacrifice",
