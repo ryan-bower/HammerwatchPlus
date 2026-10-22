@@ -86,3 +86,7 @@ placeholders) by
 which the server sends instead. A record with `hoh1_icon` (`"<cls>/<skill>"`, a key of
 `HOH1_REMASTERED_ICONS` in `tools/import_hoh1.py`) takes its icon from the HoH1 Remastered (now Echoes of Hammerwatch I)
 sheet, `mods/classes/players/hwp/remastered/icons.png`; `hoh1_file` names its HoH1 sval.
+A doctrine, skill or orb with `icon_art` (a name in `art/specs/override/`, e.g. `pri_rot_bloom`)
+takes that drawn icon instead, before the spec is in the game; a doctrine's shows beside its
+name. A skill's `hud_art` (`[[label, name], ...]`, 14x14 statuses from the same folder) lists
+its buff icons under "Status icons" on its card.

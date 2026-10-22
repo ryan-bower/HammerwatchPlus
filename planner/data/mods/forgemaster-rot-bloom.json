@@ -2,6 +2,7 @@
   "built": "",
   "cls": "priest",
   "exclusive": "",
+  "icon_art": "pri_rot_bloom",
   "levels": [
     {
       "q": "uncommon",

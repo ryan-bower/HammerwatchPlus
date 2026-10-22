@@ -2588,3 +2588,7 @@ Planner only, nothing built:
   now in `art/specs/override/` (`sp_pri4.py --finals`). Round 4 (`sp_pri4.py`, ids
   `specsP4.<name>`) is only the Heresy 5+ status: the kept round-1 pick with the eye's purple
   round swapped for the green, at three shades; the user took b. All 11 icons are settled.
+- They are in the planner: records name them with `icon_art` (the emblem, the three skills, the
+  four orbs) and Call of Heresy's `hud_art` (the three statuses), which `planner_icons.py` cuts
+  from `art/specs/override/` (14x14 ones centred in the 24x24 cell). Checked in a headless Edge
+  screenshot of `#priest`.

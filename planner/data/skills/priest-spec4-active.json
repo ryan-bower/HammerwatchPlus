@@ -3,6 +3,7 @@
   "cls": "priest",
   "cooldown": "20",
   "group": "priest-spec4",
+  "icon_art": "pri_necrotic_resurrection",
   "kind": "active",
   "levels": [
     "Up to 2 summons, 50% of the risen enemy's health and damage",

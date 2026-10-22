@@ -147,7 +147,7 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
   planner entry (new `alt_of` field): mana 50, sharing Necrotic Resurrection's cooldown. Its
   icons are in the picker (`tools/icon_art/sp_pri.py`, then `sp_pri2.py`): the second pass on
   the user's picks, plus the emblem, four orbs and the eating status; all 11 settled in
-  `art/specs/override/`). Penance consumes the Favor. Not built yet.
+  `art/specs/override/`, and shown in the planner). Penance consumes the Favor. Not built yet.
 - Designed in the planner, not built, and parked for later: an "Echoes of Hammerwatch I"
   (formerly "HoH1 Remastered") 5th spec for every vanilla class (the Rogue's from the HoH1
   Thief, the Warrior's from the Gladiator), one active and one passive of HoH1's that HoH2

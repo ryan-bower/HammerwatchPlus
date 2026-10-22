@@ -24,7 +24,7 @@ through `art/firearms/override/` and `tools/make_firearms_icons.py`.
 | sp_pri3.py | its round 3: the five noted round-2 picks redone in necrotic green (and the eating status's teeth), ids `specsP3.<name>`; `--finals` writes the six settled ones to `art/specs/override/` |
 | sp_pri4.py | its round 4: the Heresy 5+ status with its purple swapped for the green, ids `specsP4.<name>`; `--finals` writes round 3's four picks |
 | sp_fx.py | their four world sprites: frame strips on a transparent ground to `art/specs/fx/`, 4x GIF previews in `out/specs/fx/` |
-| planner_icons.py | the class planner's icon sheet (`planner/web/`), cut from the game's atlases |
+| planner_icons.py | the class planner's icon sheet (`planner/web/`), cut from the game's atlases (and `art/specs/override/` for records with `icon_art`/`hud_art`) |
 | orb_groups.py | the picker's per-class orb lists, from the planner's data |
 | render.py, rorb.py | write the ideas and comparison sheets |
 | picker.py, picker_tpl.html | the picker page (every idea, the current icon beside it) |
