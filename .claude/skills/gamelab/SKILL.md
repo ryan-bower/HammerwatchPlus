@@ -10,6 +10,12 @@ known character (a fixture), runs a JSON scenario against the live game and writ
 verdict. Purpose: claims about the game are measured on the pinned build and cited by
 run dir, never assumed.
 
+This is a committed workflow for any agent, not a Claude-only API. First read the
+[canonical agent rules](../../../AGENTS.md), [GameLab quickstart](../../../gamelab/README.md),
+and [regression guide](../../../docs/qa/REGRESSIONS.md). They provide the portable
+entry point, current evidence index, test selection, and known prerequisite failures.
+Use this skill for the detailed scenario and engine-command reference.
+
 ## First: is this machine ready? (`doctor`)
 
 A fresh clone lacks everything gitignored: `.venv`, `gamecode/` (the game's scripts and
@@ -26,6 +32,10 @@ python -m gamelab doctor --hoh1 "<dir>" --fix   # the user told you where HoH1 i
 python -m gamelab doctor --no-hoh1               # the user does not own HoH1
 python -m gamelab doctor --smoke                 # boot null-payload again now, whatever the stamp says
 ```
+
+After setup creates `.venv`, use `uv run python` or `.\.venv\Scripts\python.exe`
+instead of bare `python`, as explained in the quickstart, so the project dependencies
+are available.
 
 **HoH1: ask, never guess.** doctor finds Heroes of Hammerwatch (1) through Steam (any
 library), a path the user gave earlier (`tools/paths.local.json`, gitignored), or a search
@@ -66,7 +76,7 @@ reports it and leaves it alone. Ask the user before moving it.
 - `--fix` also runs `tools/class_units.py` when its gitignored unit copies in
   `mods/keys/` and `mods/pets/` are missing or stale (made from `gamecode/sdk/hoh2/`).
 - `--fix` runs `tools/make_pet_dyes.py` (the dye-ready pet copies in
-  `mods/pets/players/pets/hwp/dye/`) last among the content steps, because it needs the
+  `mods/pets/players/pets/hwp/dye/`) after the HoH1 content steps, because it needs the
   HoH1 pet import too. Its stamp (`.hwp-generated.json`) holds the generator's and every
   source's hash, so a new HoH1 import, an edited pet unit or a changed generator marks it
   stale and the next `--fix` remakes it (`python tools/make_pet_dyes.py --verify` checks).
@@ -121,6 +131,11 @@ it overwrites their real saves (it backs up the current state first).
 The first scenario run on a new machine also builds the fixtures (cache is per build
 and recipe), so it does two extra boots. A slow first run is normal.
 
+Doctor also generates Forgemaster risen/body units through
+`tools/make_forgemaster_risen.py`. These generated game-derived prerequisites are
+local setup outputs; use doctor to refresh them. `mod-all` covers the 31 normal-release
+modules; the optional `holylocal` module is local-only and outside that stack.
+
 ## Hard rules
 
 - `--mode lab`, always. The default is `watch`, which puts the game window on the
@@ -132,6 +147,15 @@ and recipe), so it does two extra boots. A slow first run is normal.
   `SetForegroundWindow`, `bring_to_front`). Input is the `key` step (PostMessage) or
   `gl input`. Never PrintWindow: it is blank on the hidden desktop.
 - One run at a time, machine-wide (one shared game dir, `gamelab/lock.py`).
+- Designate one runtime owner for a serial queue. The machine lock does not prevent
+  source edits: freeze installed gameplay, harness, bots, scenarios, and tools until
+  the queue reaches a clean boundary. Stage independent drafts under ignored
+  `gamelab/results/`; review and install them between runs, then compile/load before
+  dependent effect tests. The deliberate scenario-owned `write_*_file` steps below
+  are restored measurement tests, not permission for concurrent ad hoc edits.
+- Gate dependent cases on successful setup/controller/observer contracts. After a
+  transport error, inspect what completed before retrying; after dirty teardown,
+  stop launches until the cause is known and the refused state is safely resolved.
 
 ## Running and exit codes
 
@@ -151,7 +175,15 @@ python -m gamelab run <scenario> --mode lab
 | 6 | TIMEOUT | what was collected is kept |
 
 Results in `gamelab/results/<YYYYmmdd-HHMMSS>-<scenario>-lab/`:
-- `run.json`: verdict, assertions, `error`, `teardown`.
+- `run.json`: outer launcher verdict, assertions, `error`, `teardown`, build, and
+  isolation evidence. This is the final run verdict, not just the bot's aggregate.
+- `inner.json`: runner observations/assertions, pass/live verification state, and
+  references to completed bot results. It is rewritten after assertions; `partial`
+  indicates that it is not a final runner result.
+- `bot-results.jsonl`: full returned observations from completed bot steps, appended
+  before their expectations are scored. Assertion summaries are intentionally short;
+  read these records to inspect individual trials. A bot that raises before returning
+  may leave no completed record, so use the error, telemetry, and logs too.
 - `runner.out.txt`: runner stdout and traceback.
 - `gl.jsonl`: telemetry.
 - `logs/pass<N>.HWR2.exe.log`: game log; the scenario is the last pass.
@@ -159,6 +191,24 @@ Results in `gamelab/results/<YYYYmmdd-HHMMSS>-<scenario>-lab/`:
 - `boundaries.md`: when the scenario has `boundaries`.
 
 Cite a result as `<scenario> <YYYYmmdd-HHMMSS>`.
+
+A clean native PASS requires exit 0, outer `run.json` verdict `PASS`, no error,
+`teardown.clean: true`, `build_drift: false`, and final `inner.json` with
+`partial: false`. A successful bot aggregate alone is insufficient.
+
+Record the tested source revision/fingerprint alongside the pinned build and run ID.
+Neither `run.json` nor `inner.json` contains a global source fingerprint; the launcher
+records build/mod and isolation facts. A serial workflow must separately record and
+compare its source epoch. Do not assume the machine lock proves source
+stability, or that an earlier pass covers later source changes. Keep before/after
+failures, fixed trial counts, expected-source anchors, and actual effects. Source-only
+review, controlled setup, and ordinary play are separate scopes. Bindings, counters,
+or successful debug setters alone do not prove gameplay effects.
+
+Raw run directories are ignored/local. Use the regression guide's committed checkpoint,
+inventories, and compact evidence records for a portable handoff. A manifest for an
+ignored/unapplied draft is not the draft itself and is not a native PASS; revalidate
+its baseline/pins after a commit, rebase, or other source change before applying it.
 
 ## Scenario file (`gamelab/scenarios/<name>.json`)
 
@@ -230,7 +280,10 @@ hash; the first run after a change does two extra boots.
 
 ## gl verbs
 
-61 verbs across the three gamelab-* mods: `docs/generated/verbs.md`, or `gl help` at runtime.
+The current registered verbs and doc comments are in the
+[generated catalog](../../../docs/generated/verbs.md), or `gl help` at runtime.
+Use `python tools/list_verbs.py --check` to verify that the catalog matches source;
+do not rely on a fixed verb count in this skill.
 
 - Read: `state`, `scan`, `near`, `usables`, `ui`, `overlays`, `widgets`, `inv`,
   `buildings`, `cvars`, `mods`, `clock`, `terrain`, `pathfind`, `reachmap`.
