@@ -17,6 +17,7 @@ through `art/firearms/override/` and `tools/make_firearms_icons.py`.
 | fa_r2.py | round 2 of those: three ideas per icon built on the round-1 pick and note (`out/picks_r1.json`); the 14x14 buff-bar icons at their own size |
 | vo_<class>.py | each vanilla class's orb icons |
 | sp.py | the six 4th specializations' icons (`art/specs/REQUESTS.md`): three ideas each, their picker page, and `--pick` to write the chosen ones to `art/specs/override/` |
+| sp_r2.py | round 2 of those: three ideas per noted round-1 pick (`out/specs/picks_r1.json`) and for every Deadeye and Aerotheurge icon, with the pick beside them, and their picker (ids `specs2.<name>`) |
 | sp_fx.py | their four world sprites: frame strips on a transparent ground to `art/specs/fx/`, 4x GIF previews in `out/specs/fx/` |
 | planner_icons.py | the class planner's icon sheet (`planner/web/`), cut from the game's atlases |
 | orb_groups.py | the picker's per-class orb lists, from the planner's data |
@@ -35,6 +36,7 @@ python tools/icon_art/orb_groups.py           # out/orbs/<cls>.json
 python tools/icon_art/picker.py [r1]           # out/picker.html (Firearms round 2, or round 1 with r1)
 python tools/icon_art/sp.py --picker           # the 4th specs' ideas -> out/specs/, sheet_<spec>.png, picker.html
 python tools/icon_art/sp.py --pick picks.json  # the chosen ones -> art/specs/override/<name>.png
+python tools/icon_art/sp_r2.py --picker        # round 2 -> out/specs/r2/, sheet_<spec>.png, picker.html
 python tools/icon_art/sp_fx.py                 # the world sprite strips -> art/specs/fx/, previews out/specs/fx/
 ```
 
