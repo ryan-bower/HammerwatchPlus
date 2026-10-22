@@ -16,7 +16,7 @@ needs `pets`.
 | Module | What it does |
 |---|---|
 | `firearms` | The **Firearms Specialist**, a new class. Guns fire from a clip that counts down per shot and reloads (automatically at 0, or with the Reload skill, which a dodge cancels); mana pays for gadgets. A rifle (30 rounds, 3-round bursts; the Grenade Launching Rifle has an under-barrel grenade launcher, the Flamethrower Rifle a mana-fed flamethrower held on right click, the Full Auto Rifle a wild full-auto spray) or pistols, one or two (10 rounds each, 20 dual), or Hand Cannons (half a pistol's rate, 1.5 times its damage, 6 rounds; with a pistol, a pistol-cannon-pistol burst). Base kit: Reload and Frag Grenade, whose orbs give Explosive Reload, Over-Reload's timed perfect reload, and Stun, Incendiary or Gas grenades. Four specializations, each with orbs: **Marksman** (Snipe, Critical Aim), **Demolitionist** (Rocket Launcher, Ordinance Hoarder), **Assault** (Double Barrel Burst, Adrenaline) and **Engineer** (Deploy Turret, My Turret!). New characters start with a Service Pistol. Details: `mods/firearms/README.md`; design: `docs/design/firearms.md`. |
-| `specs` | A **4th specialization** for six vanilla classes, one active and one passive each, with orbs: **Stormbringer** Ranger (Electric Circuit, Gathering Winds), **Invocation** Wizard (Tempest Torrent, Static Charge), **Arcane** Sorcerer (Blink, Living Mana), **Winddancer** Rogue (Protective Gale, Second Wind), **Bannerlord** Warrior (Battlefield Standard, Righteous Crusade) and **Branding** Warlock (Pyrebrand, Essence Extraction). Icons and sounds are placeholders for now (`art/specs/`). |
+| `specs` | A **4th specialization** for six vanilla classes, one active and one passive each, with orbs: **Deadeye** Ranger (Lightning Arrow, Gathering Winds), **Aerotheurge** Wizard (Thunder Orb, Static Charge), **Arcane** Sorcerer (Blink, Living Mana), **Winddancer** Rogue (Protective Gale, Second Wind), **Bannerlord** Warrior (Battlefield Standard, Righteous Crusade) and **Branding** Warlock (Pyrebrand, Essence Extraction). Icons and sounds are placeholders for now (`art/specs/`). |
 | `classes` | The HoH1 classes HoH2 lacks: **Thief**, **Gladiator** and **Witch Hunter**, three masteries each. The Thief's extra actives cast on core's Skill 4 key. The real HoH1 art comes from your own HoH1 install (`tools/import_hoh1.py classes`). |
 | `weapons` | Twelve new endgame weapons (ilvl 35, four per slot) with new modifier profiles on vanilla visuals and attacks. |
 | `weaponswap` | A second weapon set on a hotkey (default X): a 2 s channel standing still, cancelled by a dodge or a second press. |
@@ -127,6 +127,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
   allies, Martyr's Banner, Mana Conduit). The world sprites (brand sigil, Hellfire Claw, the standard, the
   Tempest orb) are in. Still to do: balance, final icons (to pick in the icon picker,
   `art/specs/REQUESTS.md`) and sounds (pick them in the audio picker, `art/specs/AUDIO.md`).
+- 2026-10-21: the Ranger's and Wizard's 4th specs now match Noah's PR #4 version in the planner:
+  **Deadeye** (Lightning Arrow; Gathering Winds gives a Tailwind stack every 5 kills, each lasting
+  4 s on its own, +2-4% Action Speed a stack) and **Aerotheurge** (Thunder Orb; Static Charge gains
+  a stack per spell cast, plus one on its first crit, and a new Lightning Rod orb). The ids are kept, so
+  saves still work. `plan-specs` passes (run `20261021-212606`, 17 checks). The crit stack is not
+  tested, because the lab can't force a crit.
   The Paladin's and Priest's 4th specs are still being designed.
 - Designed in the planner, not built, and parked for later: an "Echoes of Hammerwatch I"
   (formerly "HoH1 Remastered") 5th spec for every vanilla class (the Rogue's from the HoH1

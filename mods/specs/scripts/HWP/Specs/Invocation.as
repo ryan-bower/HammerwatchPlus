@@ -1,17 +1,18 @@
-// Invocation (Wizard): Tempest Torrent and Static Charge.
-// - Tempest Torrent (invocation/tempest_torrent.sval, the orb invocation/torrent.unit): a slow
+// Aerotheurge (Wizard; the ids keep the build's invocation name): Thunder Orb and Static Charge.
+// - Thunder Orb (invocation/tempest_torrent.sval, the orb invocation/torrent.unit): a slow
 //   NewProjectile that passes through enemies and stops at a wall (bounce speed 0). Its
-//   PeriodicEffect runs HWPSpecsZap every 250 ms: 3 zaps on the enemies in range, the ones
-//   this orb has zapped least first, so a pack is swept and a lone target takes all three.
-//   Overcharge (tt-overcharge): each zap on an enemy deals more for every earlier zap of this
-//   orb on it, up to 10. Thunderclap (tt-clap): the orb's destroyed-effects zap every enemy
-//   in range once at tt-clap x the damage.
-// - Static Charge (invocation/static_charge.sval): a spell crit adds a stack (static_charge,
-//   max 5; the trigger's 400 ms timeout stands in for "once per cast"). The next spell cast at
-//   5 releases it (HWPSpecsStaticRelease): 3 strikes split over up to 3 enemies around the
-//   wizard, x1.5 when all three hit one. Static Channel (sc-channel: max mana restored),
-//   Conduit (sc-conduit-lvl: conduit_<lvl>_<stacks>, cast speed per stack, kept on by
-//   UpdateConduit).
+//   PeriodicEffect runs HWPSpecsZap every 250 ms: tt-zaps zaps on the enemies within
+//   tt-radius, the ones this orb has zapped least first, so a pack is swept and a lone target
+//   takes them all. Focal Point (tt-overcharge): each zap on an enemy deals more for every
+//   earlier zap of this orb on it, up to 10. Lightning Rod: tt-zaps and tt-radius up.
+//   Thunderclap (tt-clap): the orb's destroyed-effects zap every enemy in range once at
+//   tt-clap x the damage.
+// - Static Charge (invocation/static_charge.sval): every spell cast adds a stack
+//   (static_charge, max 5, 10 s reset by each new one) and its first crit one more
+//   (HWPSpecsStaticCrit, g_scCast). The next spell cast at 5 releases it
+//   (HWPSpecsStaticRelease): 3 strikes split over up to 3 enemies around the wizard, x1.5 when
+//   all three hit one. Charged Font (sc-channel: max mana restored), Conduit (sc-conduit-lvl:
+//   conduit_<lvl>_<stacks>, cast speed per stack, kept on by UpdateConduit).
 namespace HWP
 {
 	namespace Specs
@@ -19,7 +20,12 @@ namespace HWP
 		const uint STATIC_CHARGE = HashString("hwp_wiz_static_charge");
 		const int STATIC_MAX = 5;
 
-		// Static Channel's mana, given g_channelC ms after the release: the castspell trigger
+		// spell casts counted on the wizard's own client, and the one whose crit last added a
+		// stack: a cast's crits add one stack between them
+		int g_scCast = 0;
+		int g_scCritCast = -1;
+
+		// Charged Font's mana, given g_channelC ms after the release: the castspell trigger
 		// runs before the cast pays its cost (Player.as:841, at the castpoint), so mana given at
 		// once is lost to the cap when the wizard is near full
 		int g_channelMana = 0;
@@ -146,8 +152,8 @@ class HWPSpecsZap : IEffect
 	}
 }
 
-// Static Charge's release, on a spell cast (castspell trigger in static_charge.sval): at 5
-// stacks the stacks go, HWPSpecsZap (the child "zap" dict) strikes from the wizard and
+// Static Charge on a spell cast (castspell trigger in static_charge.sval): under 5 stacks the
+// cast adds one; at 5 the stacks go, HWPSpecsZap (the child "zap" dict) strikes from the wizard and
 // sc-channel of max mana comes back (UpdateConduit gives it, after the cast's cost). Decided on the wizard's own client; the other peers
 // get the trigger with husk set and only draw it while they still see 5 stacks.
 class HWPSpecsStaticRelease : IEffect
@@ -170,8 +176,17 @@ class HWPSpecsStaticRelease : IEffect
 	{
 		auto plr = cast<PlayerBase>(owner);
 		auto def = HWP::Specs::Stack("static_charge");
-		if (plr is null || def is null || plr.GetStacks(def) < HWP::Specs::STATIC_MAX)
+		if (plr is null || def is null)
 			return false;
+		bool own = !husk && !owner.IsHusk();
+		if (own)
+			HWP::Specs::g_scCast++;
+		if (plr.GetStacks(def) < HWP::Specs::STATIC_MAX)
+		{
+			if (own)
+				plr.AddStacks(plr, def, 1);
+			return own;
+		}
 		vec2 at = xy(owner.m_unit.GetPosition());
 		m_zap.m_zapped.deleteAll();
 		bool hit = m_zap.Apply(owner, owner.m_unit, at, dir, intensity, husk);
@@ -186,6 +201,30 @@ class HWPSpecsStaticRelease : IEffect
 		}
 		HWP::Log("specs", "static charge: released" + (hit ? "" : " (no enemy near)")
 			+ (m_channel > 0 ? ", " + int(m_channel * 100 + 0.5f) + "% mana" : ""));
+		return true;
+	}
+}
+
+// Static Charge's crit stack (criticalhit trigger in static_charge.sval): one more stack, for
+// the first crit since the last spell cast only. Its own client.
+class HWPSpecsStaticCrit : IEffect
+{
+	HWPSpecsStaticCrit(UnitPtr unit, SValue& params) {}
+
+	CanEvade IsEvadable(Actor@ attacker) { return CanEvade::Neither; }
+	void SetWeaponInformation(uint weapon) {}
+	bool CanApply(Actor@ owner, UnitPtr target, vec2 pos, vec2 dir, float intensity) override { return owner !is null; }
+
+	bool Apply(Actor@ owner, UnitPtr target, vec2 pos, vec2 dir, float intensity, bool husk)
+	{
+		auto plr = cast<PlayerBase>(owner);
+		auto def = HWP::Specs::Stack("static_charge");
+		if (husk || plr is null || def is null || plr.IsHusk() || HWP::Specs::g_scCritCast == HWP::Specs::g_scCast)
+			return false;
+		HWP::Specs::g_scCritCast = HWP::Specs::g_scCast;
+		if (plr.GetStacks(def) >= HWP::Specs::STATIC_MAX)
+			return false;
+		plr.AddStacks(plr, def, 1);
 		return true;
 	}
 }

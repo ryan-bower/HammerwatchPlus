@@ -1,14 +1,14 @@
 %include "players/skills_cost.inc"
 <!--
-	Tempest Torrent (Invocation active). Shoots invocation/torrent.unit along the aim: a slow
-	lightning orb that passes through enemies, stops at a wall and every 250 ms zaps 3 times
-	(HWPSpecsZap, scripts/HWP/Specs/Invocation.as): new targets first, so a pack is swept and
-	a lone target takes all three.
-	Planner numbers: 5/6/7/8/10 per zap, 2/2.5/2.5/3/3 s, mana 40/50/50/60/60, cooldown 12 s.
-	Assumed: the zap range 70, the orb's speed (about 50 px/s).
-	Orbs: Overcharge (tt-overcharge: +4/7% per earlier zap of the orb on that enemy, up to 10),
-	Lingering Storm (tt-ttl-add: +1/2 s), Thunderclap (tt-clap: on expiry every enemy within
-	70 takes 150% of a zap).
+	Thunder Orb (Aerotheurge active). Shoots invocation/torrent.unit along the aim: a slow
+	lightning orb that passes through enemies, stops at a wall and every 250 ms zaps tt-zaps
+	times within tt-radius (HWPSpecsZap, scripts/HWP/Specs/Invocation.as): new targets first,
+	so a pack is swept and a lone target takes them all.
+	Planner numbers: 5/6/7/8/10 per zap, 2/2.5/2.5/3/3 s, mana 40/50/50/60/60, cooldown 12 s,
+	3 zaps within 70, the orb about 50 px/s.
+	Orbs: Focal Point (tt-overcharge: +4/7% per earlier zap of the orb on that enemy, up to 10),
+	Lightning Rod (tt-zaps 4/4/5, tt-radius 77/84/95: +10/20/35%), Lingering Storm (tt-ttl-add:
+	+1/2 s), Thunderclap (tt-clap: on expiry every enemy within tt-radius takes 150% of a zap).
 	Sound: a placeholder until the audio picker (art/specs/AUDIO.md).
 -->
 <dict>
@@ -52,6 +52,8 @@
 			<int name="tt-ttl-add">0</int>
 			<float name="tt-overcharge">0</float>
 			<float name="tt-clap">0</float>
+			<int name="tt-zaps">3</int>
+			<int name="tt-radius">70</int>
 		</dict>
 
 		<dict name="actions">
@@ -98,9 +100,9 @@
 
 	<array name="modifier-skills">
 		<dict>
-			<string name="name">.hwp.specs.overcharge.name</string>
+			<string name="name">.hwp.specs.focal_point.name</string>
 			<string name="type-name">.skills.type.spell.upgrade</string>
-			<string name="description">.hwp.specs.overcharge.desc</string>
+			<string name="description">.hwp.specs.focal_point.desc</string>
 			<array name="description-params">
 				<array><s>per-zap</s><s>.hwp.specs.param.dmg_per_zap</s><s>+4%</s><s>+7%</s></array>
 			</array>
@@ -114,6 +116,31 @@
 				<dict>
 					<string name="quality">rare</string>
 					<dict name="binds"><float name="tt-overcharge">0.07</float></dict>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<string name="name">.hwp.specs.lightning_rod_orb.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.lightning_rod_orb.desc</string>
+			<array name="description-params">
+				<array><s>zaps</s><s>.hwp.specs.param.extra_zaps</s><s>+1</s><s>+1</s><s>+2</s></array>
+				<array><s>range</s><s>.skills.desc.params.radius</s><s>+10%</s><s>+20%</s><s>+35%</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>216 24 24 24</vec4></array>
+			<string name="id">hwp_wiz_tt_lightning_rod</string>
+			<string name="quality">common</string>
+			<dict name="skill">
+				<dict name="binds"><int name="tt-zaps">4</int><int name="tt-radius">77</int></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds"><int name="tt-zaps">4</int><int name="tt-radius">84</int></dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><int name="tt-zaps">5</int><int name="tt-radius">95</int></dict>
 				</dict>
 			</array>
 		</dict>

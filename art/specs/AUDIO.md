@@ -7,20 +7,20 @@ game's own FMOD (read only, from the install) into `tools/audio_pick/out/picker.
 is published as an artifact with a shared store; the picks are read back from it and wired
 in at the hook named. Options are in `tools/audio_pick/slots.py`.
 
-## Stormbringer
+## Deadeye (was Stormbringer)
 
 | slot | moment | hook | now | options |
 |---|---|---|---|---|
-| `ran_ec_shot` | **Electric Circuit: the shot**<br>The fan of three arrows leaving the bow. | stormbringer/electric_circuit.sval (PlaySound) | `player/attacks/twohanded/shortbow_quick_shot` | a: `player/attacks/twohanded/shortbow_charged_shot`<br>b: `actors/undead/court/court_sniper/court_sniper_bow_arrow_lightning`<br>c: `player/classes/ranger/marked_shot/marked_shot_cast` |
-| `ran_ec_strike` | **Electric Circuit: lightning strike**<br>An arrow's hit calling lightning onto an enemy nearby (up to 2 a hit: plays often). | stormbringer/circuit.unit (PlaySound) | `player/classes/ranger/rain_of_arrows/rain_of_arrows_lightning` | a: `player/attacks/mainhand/lightning_bolt_zap`<br>b: `player/classes/sorcerer/static_discharge/static_discharge_hit`<br>c: `actors/bosses/boss_totempole/lightning/lightning_strike/lightning_strike_strike` |
+| `ran_ec_shot` | **Lightning Arrow: the shot**<br>The fan of three arrows leaving the bow. | stormbringer/electric_circuit.sval (PlaySound) | `player/attacks/twohanded/shortbow_quick_shot` | a: `player/attacks/twohanded/shortbow_charged_shot`<br>b: `actors/undead/court/court_sniper/court_sniper_bow_arrow_lightning`<br>c: `player/classes/ranger/marked_shot/marked_shot_cast` |
+| `ran_ec_strike` | **Lightning Arrow: lightning strike**<br>An arrow's hit calling lightning onto an enemy nearby (up to 2 a hit: plays often). | stormbringer/circuit.unit (PlaySound) | `player/classes/ranger/rain_of_arrows/rain_of_arrows_lightning` | a: `player/attacks/mainhand/lightning_bolt_zap`<br>b: `player/classes/sorcerer/static_discharge/static_discharge_hit`<br>c: `actors/bosses/boss_totempole/lightning/lightning_strike/lightning_strike_strike` |
 
-## Invocation
+## Aerotheurge (was Invocation)
 
 | slot | moment | hook | now | options |
 |---|---|---|---|---|
-| `wiz_tt_cast` | **Tempest Torrent: cast**<br>Throwing the lightning orb. | invocation/tempest_torrent.sval (PlaySound) | `player/classes/wizard/magic_missiles/magic_missiles_cast` | a: `player/classes/sorcerer/lightning_ball/lightning_ball_cast`<br>b: `player/classes/sorcerer/elemental_orb/elemental_orb_cast_lightning`<br>c: `actors/bosses/boss_totempole/lightning/lightning_ball/lightning_ball_cast` |
-| `wiz_tt_loop` | **Tempest Torrent: the orb (loop)**<br>The orb crackling while it drifts (2-5 s; a loop, cut at 3 s here). | invocation/torrent.unit (new: a looping sound on the unit) | none | a: `player/classes/sorcerer/lightning_ball/lightning_ball_static_loop`<br>b: `player/classes/sorcerer/elemental_orb/elemental_orb_loop_lightning`<br>c: `actors/bosses/boss_totempole/lightning/lightning_ball/lightning_ball_loop` |
-| `wiz_tt_zap` | **Tempest Torrent: a zap**<br>One zap from the orb (3 every 250 ms: wants to be short and quiet). | scripts/HWP/Specs/Invocation.as HWPSpecsZap (new) | none | a: `player/classes/sorcerer/lightning_ball/lightning_ball_static_zap`<br>b: `player/attacks/mainhand/lightning_bolt_zap`<br>c: `player/classes/rogue/artificer_suit/artificer_suit_zap` |
+| `wiz_tt_cast` | **Thunder Orb: cast**<br>Throwing the lightning orb. | invocation/tempest_torrent.sval (PlaySound) | `player/classes/wizard/magic_missiles/magic_missiles_cast` | a: `player/classes/sorcerer/lightning_ball/lightning_ball_cast`<br>b: `player/classes/sorcerer/elemental_orb/elemental_orb_cast_lightning`<br>c: `actors/bosses/boss_totempole/lightning/lightning_ball/lightning_ball_cast` |
+| `wiz_tt_loop` | **Thunder Orb: the orb (loop)**<br>The orb crackling while it drifts (2-5 s; a loop, cut at 3 s here). | invocation/torrent.unit (new: a looping sound on the unit) | none | a: `player/classes/sorcerer/lightning_ball/lightning_ball_static_loop`<br>b: `player/classes/sorcerer/elemental_orb/elemental_orb_loop_lightning`<br>c: `actors/bosses/boss_totempole/lightning/lightning_ball/lightning_ball_loop` |
+| `wiz_tt_zap` | **Thunder Orb: a zap**<br>One zap from the orb (3 every 250 ms: wants to be short and quiet). | scripts/HWP/Specs/Invocation.as HWPSpecsZap (new) | none | a: `player/classes/sorcerer/lightning_ball/lightning_ball_static_zap`<br>b: `player/attacks/mainhand/lightning_bolt_zap`<br>c: `player/classes/rogue/artificer_suit/artificer_suit_zap` |
 | `wiz_sc_release` | **Static Charge: release**<br>Five stacks released as three strikes on the next spell. | scripts/HWP/Specs/Invocation.as HWPSpecsStaticRelease (new) | none | a: `player/classes/sorcerer/static_discharge/static_discharge_cast`<br>b: `player/classes/paladin/judgement/judgement_lightning`<br>c: `player/classes/ranger/rain_of_arrows/rain_of_arrows_thunder` |
 | `wiz_tt_thunderclap` | **Thunderclap (orb)**<br>The orb bursting when it expires. | scripts/HWP/Specs/Invocation.as (new) | none | a: `player/attacks/twohanded/lightning_blast`<br>b: `actors/bosses/boss_judges/caster/boss_judges_caster_lightning_blast_explode`<br>c: `doodads/thunderbird/thunderbird_lightning` |
 

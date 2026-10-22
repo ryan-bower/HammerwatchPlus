@@ -1,6 +1,6 @@
 <lang name="English" official="false">
-	<string name="hwp.specs.stormbringer.name">Stormbringer</string>
-	<string name="hwp.specs.invocation.name">Invocation</string>
+	<string name="hwp.specs.stormbringer.name">Deadeye</string>
+	<string name="hwp.specs.invocation.name">Aerotheurge</string>
 	<string name="hwp.specs.arcane.name">Arcane</string>
 	<string name="hwp.specs.winddancer.name">Winddancer</string>
 	<string name="hwp.specs.bannerlord.name">Bannerlord</string>
@@ -17,6 +17,8 @@
 	<string name="hwp.specs.param.cast_speed_per_stack">Cast Speed per Stack:</string>
 	<string name="hwp.specs.param.return_damage">Return Damage:</string>
 	<string name="hwp.specs.param.extra_strikes">Lightning Strikes:</string>
+	<string name="hwp.specs.param.speed_per_stack">Action Speed per Stack:</string>
+	<string name="hwp.specs.param.extra_zaps">Extra Zaps per Tick:</string>
 	<string name="hwp.specs.param.max_stacks">Maximum Stacks:</string>
 	<string name="hwp.specs.param.extra_arrows">Extra Arrows:</string>
 	<string name="hwp.specs.param.dr_per_stack">Damage Reduction per Stack:</string>
@@ -59,41 +61,43 @@
 	<string name="hwp.specs.shared_breath.name">Shared Breath</string>
 	<string name="hwp.specs.shared_breath.desc">Teammates under your Protective Gale release your healing gust when they evade an attack.</string>
 
-	<!-- Stormbringer -->
-	<string name="hwp.specs.electric_circuit.name">Electric Circuit</string>
-	<string name="hwp.specs.electric_circuit.desc">Fire three arrows in a fan that pierce every enemy for %damage% Physical and Lightning damage. Each enemy hit calls lightning down on up to 2 other enemies nearby for %strike% damage. At the end of their range, or at a wall, the arrows fly back to where you shot them, hitting everything again.</string>
-	<string name="hwp.specs.charged_boomerang.name">Charged Boomerang</string>
-	<string name="hwp.specs.charged_boomerang.desc">Returning arrows deal %return% damage. An enemy with no other enemies nearby is struck by the lightning itself.</string>
-	<string name="hwp.specs.lightning_rod.name">Lightning Rod</string>
-	<string name="hwp.specs.lightning_rod.desc">Each arrow hit calls %strikes% more lightning strikes, in a %radius% larger radius.</string>
+	<!-- Deadeye (the ids keep stormbringer) -->
+	<string name="hwp.specs.electric_circuit.name">Lightning Arrow</string>
+	<string name="hwp.specs.electric_circuit.desc">Fire a volley of three arrows in a V that pierce every enemy in their path for %damage% Physical and Lightning damage. Each enemy hit calls lightning down on up to 2 other nearby enemies for %strike% damage. When an arrow reaches its range or hits a wall, it returns to where you fired it from, hitting everything along the way again.</string>
+	<string name="hwp.specs.boomerang.name">Boomerang</string>
+	<string name="hwp.specs.boomerang.desc">The returning arrow deals %return% increased damage. When it hits an enemy with no other enemies nearby, the lightning strikes that enemy instead.</string>
+	<string name="hwp.specs.storm_arrow.name">Storm Arrow</string>
+	<string name="hwp.specs.storm_arrow.desc">Each arrow hit calls lightning on %strikes% more enemies, in a %radius% larger radius.</string>
 	<string name="hwp.specs.tailwind_catch.name">Tailwind Catch</string>
-	<string name="hwp.specs.tailwind_catch.desc">Catching a returning arrow grants a stack of Tailwind (Gathering Winds).</string>
+	<string name="hwp.specs.tailwind_catch.desc">Catching your returning arrow grants a stack of Tailwind (Gathering Winds).</string>
 	<string name="hwp.specs.gathering_winds.name">Gathering Winds</string>
-	<string name="hwp.specs.gathering_winds.desc">Your two-handed bow and crossbow secondary attacks grant a stack of Tailwind for 5 seconds, up to %stacks%. Each stack increases your Movement, Attack and Cast Speed by 1%, and each new stack resets the timer.</string>
+	<string name="hwp.specs.gathering_winds.desc">Every 5 kills grants a stack of Tailwind for 4 seconds, up to 5 stacks. Each stack increases your Action Speed (Movement, Skill and Weapon Speed) by %speed%.</string>
 	<string name="hwp.specs.gale_force.name">Gale Force</string>
-	<string name="hwp.specs.gale_force.desc">At maximum Tailwind, your bow and crossbow attacks fire %arrows% more arrows.</string>
+	<string name="hwp.specs.gale_force.desc">At max Tailwind stacks, your Bow and Crossbow skills fire %arrows% additional projectiles.</string>
 	<string name="hwp.specs.wind_ward.name">Wind Ward</string>
 	<string name="hwp.specs.wind_ward.desc">Each stack of Tailwind reduces the damage you take by %dr%.</string>
 	<string name="hwp.specs.stack.tailwind.name">Tailwind</string>
-	<string name="hwp.specs.stack.tailwind.desc">1% more Movement, Attack and Cast Speed per stack.</string>
+	<string name="hwp.specs.stack.tailwind.desc">More Movement, Skill and Weapon Speed per stack (Gathering Winds).</string>
 
-	<!-- Invocation -->
-	<string name="hwp.specs.tempest_torrent.name">Tempest Torrent</string>
-	<string name="hwp.specs.tempest_torrent.desc">Launch a slow orb of lightning that passes through enemies for %duration%. Every 0.25 seconds it zaps 3 times for %damage% Lightning damage, seeking out enemies it has not zapped yet. A wall stops it, but it keeps zapping.</string>
-	<string name="hwp.specs.overcharge.name">Overcharge</string>
-	<string name="hwp.specs.overcharge.desc">Each zap on an enemy deals %per-zap% more damage for every earlier zap on it, up to 10 times.</string>
+	<!-- Aerotheurge (the ids keep invocation) -->
+	<string name="hwp.specs.tempest_torrent.name">Thunder Orb</string>
+	<string name="hwp.specs.tempest_torrent.desc">Launch a slow-moving orb of lightning that passes through enemies for %duration%. Every 0.25 seconds it zaps up to 3 enemies in range for %damage% Lightning damage, preferring enemies it hasn't zapped yet. If it hits a wall, it stops there and keeps zapping until it runs out.</string>
+	<string name="hwp.specs.focal_point.name">Focal Point</string>
+	<string name="hwp.specs.focal_point.desc">Each consecutive zap on the same enemy deals %per-zap% more damage, stacking up to 10 times.</string>
+	<string name="hwp.specs.lightning_rod_orb.name">Lightning Rod</string>
+	<string name="hwp.specs.lightning_rod_orb.desc">Tempest Orb zaps %zaps% more enemies per tick and has %range% increased range.</string>
 	<string name="hwp.specs.lingering_storm.name">Lingering Storm</string>
-	<string name="hwp.specs.lingering_storm.desc">Tempest Torrent lasts %duration% longer.</string>
+	<string name="hwp.specs.lingering_storm.desc">Increases Tempest Orb's duration by %duration%.</string>
 	<string name="hwp.specs.thunderclap.name">Thunderclap</string>
-	<string name="hwp.specs.thunderclap.desc">When Tempest Torrent ends it bursts, dealing %burst% of its zap damage to every nearby enemy.</string>
+	<string name="hwp.specs.thunderclap.desc">When Tempest Orb expires, it bursts, dealing %burst% of its zap damage as Lightning damage to all nearby enemies.</string>
 	<string name="hwp.specs.static_charge.name">Static Charge</string>
-	<string name="hwp.specs.static_charge.desc">Your spell critical hits build Static Charge, once per cast. At 5 charges your next spell releases 3 lightning strikes of %damage% damage, split between up to 3 nearby enemies. If all three strike one enemy, they deal 50% more damage.</string>
-	<string name="hwp.specs.static_channel.name">Static Channel</string>
-	<string name="hwp.specs.static_channel.desc">Releasing Static Charge restores %mana% of your maximum Mana.</string>
+	<string name="hwp.specs.static_charge.desc">Each spell you cast grants 1 stack of Static Charge, or 2 if it Crits, for 10 seconds; each new stack resets the timer. At 5 stacks, your next spell releases a lightning strike of %damage% damage that splits between up to 3 nearby enemies. If it hits only one enemy, it deals 50% more damage.</string>
+	<string name="hwp.specs.charged_font.name">Charged Font</string>
+	<string name="hwp.specs.charged_font.desc">Releasing Static Charge restores %mana% of your max Mana.</string>
 	<string name="hwp.specs.conduit.name">Conduit</string>
 	<string name="hwp.specs.conduit.desc">Each Static Charge increases your Cast Speed by %cast-speed%.</string>
 	<string name="hwp.specs.stack.static_charge.name">Static Charge</string>
-	<string name="hwp.specs.stack.static_charge.desc">At 5, your next spell releases lightning strikes.</string>
+	<string name="hwp.specs.stack.static_charge.desc">At 5, your next spell releases lightning strikes. Each new stack resets the 10 second timer.</string>
 	<!-- Branding -->
 	<string name="hwp.specs.pyrebrand.name">Pyrebrand</string>
 	<string name="hwp.specs.pyrebrand.desc">Brand the enemy you aim at with a demonic sigil for 6 seconds. %pct% of the damage you deal to it feeds the brand. Use Pyrebrand again, for free, or let the brand run out, and a Hellfire Claw tears up through the victim, dealing %base% Fire damage plus the stored damage to it and the enemies beside it. If the victim dies first, the brand passes to the nearest enemy with its stored damage.</string>

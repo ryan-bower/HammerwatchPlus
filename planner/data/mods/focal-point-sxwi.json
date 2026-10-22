@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_wiz_tt_overcharge",
   "cls": "wizard",
   "exclusive": "",
   "levels": [
@@ -13,9 +13,9 @@
     }
   ],
   "name": "Focal Point",
-  "notes": "",
+  "notes": "In game (hwp_wiz_tt_overcharge, built): +4/7% damage per earlier zap of the same orb on that enemy, up to 10. Only the orb's numbers are checked in game.",
   "order": null,
   "skill": "wizard-spec4-active",
-  "status": "idea",
+  "status": "built",
   "summary": "Each consecutive zap on the same enemy deals more damage, stacking up to 10 times. "
 }

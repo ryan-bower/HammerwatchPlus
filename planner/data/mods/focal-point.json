@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_wiz_tt_lightning_rod",
   "cls": "wizard",
   "exclusive": "",
   "levels": [
@@ -17,9 +17,9 @@
     }
   ],
   "name": "Lightning Rod",
-  "notes": "",
+  "notes": "In game (hwp_wiz_tt_lightning_rod, built): zaps 4/4/5 per tick within 77/84/95. Only the orb's numbers are checked in game. Icon: a placeholder until the icon picker.",
   "order": null,
   "skill": "wizard-spec4-active",
-  "status": "idea",
+  "status": "built",
   "summary": "Tempest Orb zaps more enemies per tick and has increased range."
 }

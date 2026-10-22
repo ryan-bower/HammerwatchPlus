@@ -38,7 +38,7 @@ namespace HWP
 			}
 
 			// the buffs the scripts load by name (the svals' own are checked when they load)
-			array<string> buffs = { "standard_dr", "standard_dr_planted", "crusade_5", "gale_share_20_0", "gale_share_60_3", "conduit_1_1", "conduit_2_5", "wind_ward", "pyrebrand" };
+			array<string> buffs = { "standard_dr", "standard_dr_planted", "crusade_5", "gale_share_20_0", "gale_share_60_3", "conduit_1_1", "conduit_2_5", "tailwind_1_1", "tailwind_5_5", "wind_ward", "pyrebrand" };
 			for (uint i = 0; i < buffs.length(); i++)
 			{
 				if (Buff(buffs[i]) is null)
@@ -68,7 +68,7 @@ namespace HWP
 				ret += "; essence " + (ess !is null ? plr.GetStacks(ess) : -1);
 			}
 			ret += "; circuit returns " + g_circuitReturns + " back hits " + g_circuitBackHits + " catches " + g_circuitCatches
-				+ "; gale arrows " + g_galeArrows;
+				+ "; gale arrows " + g_galeArrows + "; tailwind kills " + g_twKills;
 			float stored = 0;
 			for (uint i = 0; i < g_brands.length(); i++)
 				stored += g_brands[i].m_stored;
@@ -109,7 +109,7 @@ namespace Modules
 			HWP::Specs::g_provisionsC = 0;
 			HWP::Specs::g_conduitC = 0;
 			HWP::Specs::g_channelMana = 0;
-			HWP::Specs::g_wardC = 0;
+			HWP::Specs::ClearTailwind();
 			HWP::Specs::g_circuitReturns = 0;
 			HWP::Specs::g_circuitCatches = 0;
 			HWP::Specs::g_circuitBackHits = 0;
@@ -125,7 +125,7 @@ namespace Modules
 			HWP::Specs::UpdateStandards(ms);
 			HWP::Specs::UpdateProvisions(ms);
 			HWP::Specs::UpdateConduit(ms);
-			HWP::Specs::UpdateWindWard(ms);
+			HWP::Specs::UpdateTailwind(ms);
 			HWP::Specs::UpdateBrands(ms);
 			HWP::Specs::UpdateArcane(ms);
 		}

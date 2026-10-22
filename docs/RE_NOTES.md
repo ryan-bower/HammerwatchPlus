@@ -2450,3 +2450,33 @@ with the vanilla flag's 32 x 125 ms frames gone (about 1 s left), showed nothing
 its ring (tmp runs `20261021-172055` and `-172204`). The vanilla effect minus only the shadow
 still drew (`-172421`). An invisible 4000 ms sprite brought back both the ring and the flag
 (`-172522`), so `make_specs_fx.py` writes one.
+
+## Deadeye and Aerotheurge: Noah's PR #4 version in game (2026-10-21)
+
+The Ranger's and Wizard's 4th specs now follow the planner after Noah's PR #4 answers. Only the names and
+lang keys changed: the skill, orb and subclass ids are kept (`hwp_ranger_stormbringer`,
+`hwp_wiz_tempest_torrent`, ...) so saves still load. Run `20261021-212606-plan-specs-lab`
+passes, 17 checks.
+
+- **Gathering Winds** now gains its stacks from kills. A `Modifiers::TriggerEffect` with
+  `trigger "kill"` fires from `Player.KilledActor` on the killer's own client. The gl verb `kill <r> <filter> me`
+  makes the local player the killer, which is how the lab tests it. Every 5th kill
+  (`HWPSpecsKillTailwind`) adds a stack. Noah wants each stack to expire on its own, 4 s after its kill,
+  so `Stormbringer.as` keeps one expiry per stack. The stack def's 4100 ms timer is only a backstop.
+  - Verified: `storm_gw_stack` (stack 0 after 4 kills, 1 after 5).
+  - Verified: `storm_gw_expiry` (two stacks 2 s apart: 1 left at 4.4 s, 0 at 6.6 s).
+  - Verified: `storm_gw_cap` (35 kills stop at 5 stacks).
+- **Level-scaled Action Speed** follows the Conduit pattern: 25 buffs `tailwind_<lvl>_<n>` in
+  category `hwp_tailwind`, each with category-level n and SpeedMul on move, attack and cast speed of
+  1 + pct x n. The buff is re-applied every 250 ms for 600 ms. Verified: `tailwind_2_5` is on
+  at 5 stacks.
+- **Static Charge** gains a stack on every spell cast, via the `castspell` trigger, which runs before the cost.
+  A cast counter limits the crit's extra stack to once per cast (`HWPSpecsStaticCrit`).
+  The 10 s timer is reset by each new stack.
+  - Verified: `inv_sc_cast` (two casts give 1, then 2).
+  - Verified: `inv_sc_timer` (three stacks held 11.5 s after the second cast, all gone 10.5 s after the third).
+  - Assumed, not tested: the crit stack, because the lab can't force a crit.
+- **Lightning Rod** (`hwp_wiz_tt_lightning_rod`): the torrent's zap count and radius now come from
+  binds (`targets-bind tt-zaps`, `radius-bind tt-radius`, base 3 and 70). Thunderclap's radius uses the
+  same bind. At rare, the orb sets 5 zaps within 95. Verified: `inv_orb_binds`.
+

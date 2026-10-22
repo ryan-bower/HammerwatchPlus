@@ -4,7 +4,8 @@ python tools/make_specs_icons.py [--check]
 
 One 24 px row per spec (SPECS order in tools/make_specs_classes.py): col 0 the class icon,
 col 1 the active, col 2 the passive, cols 3-5 the active's orbs, cols 6-7 the passive's orbs,
-and the 14x14 HUD icons at x 192, 208, 224 (y = the row's top). The cells are what the svals
+and the 14x14 HUD icons at x 192, 208, 224 (y = the row's top). A fourth orb on the active
+goes in col 9 (x 216, clear of the HUD icons): the Wizard's Lightning Rod. The cells are what the svals
 reference (mods/specs/players/hwp/specs/<spec>/*.sval, buffs_specs.sval, stacks_specs.sval).
 
 Each icon is art/specs/override/<name>.png when it exists (the art requests in
@@ -32,7 +33,7 @@ ROWS = [
                        ("wiz_static_charge", 2, (0, 216)), ("wiz_tt_overcharge", 3, (144, 168)),
                        ("wiz_tt_lingering_storm", 4, (144, 168)), ("wiz_tt_thunderclap", 5, (144, 168)),
                        ("wiz_sc_static_channel", 6, (0, 216)), ("wiz_sc_conduit", 7, (0, 216)),
-                       ("hud_static_charge", 192, (0, 216))]),
+                       ("hud_static_charge", 192, (0, 216)), ("wiz_tt_lightning_rod", 9, (144, 168))]),
     ((190, 110, 255), [("sor_class", 0, (24, 216)), ("sor_blink", 1, (0, 192)),
                        ("sor_living_mana", 2, (24, 216)), ("sor_bl_void_barrier", 3, (0, 192)),
                        ("sor_bl_far_step", 4, (0, 192)), ("sor_lm_arcane_feedback", 6, (24, 216)),

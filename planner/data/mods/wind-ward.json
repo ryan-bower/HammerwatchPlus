@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_ran_gw_wind_ward",
   "cls": "ranger",
   "exclusive": "",
   "levels": [
@@ -13,9 +13,9 @@
     }
   ],
   "name": "Wind Ward",
-  "notes": "",
+  "notes": "In game (hwp_ran_gw_wind_ward, tested): 1.5/3% less damage taken per Tailwind stack.",
   "order": null,
   "skill": "ranger-spec4-passive",
-  "status": "idea",
+  "status": "tested",
   "summary": "Each stack of Tailwind reduces the damage you take."
 }

@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_wiz_static_charge",
   "cls": "wizard",
   "cooldown": "",
   "group": "wizard-spec4",
@@ -13,10 +13,10 @@
   ],
   "mana": "",
   "name": "Static Charge",
-  "notes": "Proposed numbers: the released strike reaches enemies within 120.",
+  "notes": "Proposed numbers: the released strike reaches enemies within 120.\n\nIn game (hwp_wiz_static_charge, tested): every spell cast adds a stack and its first crit one more; 10 s, reset by each new stack; at 5 the next spell releases 3 strikes over up to 3 enemies within 120, x1.5 when all three hit one. The crit's extra stack is not checked in game (a crit can't be forced).",
   "order": 1,
   "role": "",
-  "status": "idea",
+  "status": "tested",
   "summary": "Each spell you cast grants 1 stack of Static Charge, or 2 if it Crits (once per cast). Stacks last 10s, and each new stack resets the timer. At 5 stacks, your next spell releases a lightning strike that splits between up to 3 nearby enemies. If it hits only one enemy, it deals 50% more damage.",
   "unlock": "bought"
 }

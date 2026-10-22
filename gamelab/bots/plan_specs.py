@@ -264,35 +264,62 @@ class Checks(Base):
             self.gl("orb", orb, n)
         time.sleep(0.5)
         binds = {k: self.bind(s_, k) for s_, k in ((ec, "ec-return-mul"), (ec, "ec-lone"), (ec, "ec-strikes"), (ec, "ec-radius"),
-                                                    (ec, "ec-catch"), (gw, "gw-gale"), (gw, "gw-ward"), (gw, "gw-max"))}
-        cap = int(binds.get("gw-max") or 0)
+                                                    (ec, "ec-catch"), (gw, "gw-gale"), (gw, "gw-ward"), (gw, "gw-lvl"))}
+        lvl = max(1, min(5, self.lvl[gw]))
         self.flag("storm_orb_binds", binds == {"ec-return-mul": "1.4", "ec-lone": "1", "ec-strikes": "5", "ec-radius": "84",
-                                               "ec-catch": "1", "gw-gale": "2", "gw-ward": "0.02",
-                                               "gw-max": str((5, 7, 9, 12, 15)[max(1, min(5, self.lvl[gw])) - 1])}, f"{binds}")
+                                               "ec-catch": "1", "gw-gale": "2", "gw-ward": "0.03", "gw-lvl": str(lvl)}, f"{binds}")
 
-        # Gathering Winds: the shortbow's secondary adds a stack, up to the level's cap
+        # Gathering Winds: every 5 kills of the ranger's give a stack (kill ... me: the ranger is the killer)
         tw = "players/hwp/specs/stacks_specs.sval:tailwind"
+        self.gl("kill", 600, "target_dummy")
+        time.sleep(0.5)
         self.set_stacks(tw, 0)
-        sec = "attack_2h_shortbow_secondary"
-        for _ in range(3):
-            self.gl("castat", sec, 1, 0, "nocd")
-            time.sleep(0.5)
+        time.sleep(0.3)
+
+        def kills(n):
+            for _ in range(n):
+                self.gl("spawn", DUMMY, -60, 0)
+            time.sleep(0.6)
+            self.gl("kill", 400, "bandit_brute", "me")
+            time.sleep(0.4)
+
+        k0 = self.status_num("tailwind kills") or 0
+        short = 5 - k0 % 5
+        if short > 1:
+            kills(short - 1)
+        n0 = self.status_num("tailwind")
+        kills(1)
+        n1 = self.status_num("tailwind")
+        k1 = self.status_num("tailwind kills")
+        self.flag("storm_gw_stack", n0 == 0 and n1 == 1 and k1 == k0 + short,
+                  f"kills {k0} -> {k1}: tailwind {n0} after {short - 1}, {n1} after {short}")
+        # each stack ends 4 s after its own kill
+        time.sleep(2.0)
+        kills(5)
+        time.sleep(2.4)  # the first stack's 4 s are over, the second's are not
+        n2 = self.status_num("tailwind")
+        time.sleep(2.2)
         n3 = self.status_num("tailwind")
-        self.flag("storm_gw_stack", n3 == 3, f"3 x {sec}: tailwind {n3}")
-        for _ in range(cap + 2 - 3):
-            self.gl("castat", sec, 1, 0, "nocd")
-            time.sleep(0.45)
+        self.flag("storm_gw_expiry", n2 == 1 and n3 == 0, f"two stacks 2 s apart: {n2} at 4.4 s, {n3} at 6.6 s")
+        kills(35)
         ncap = self.status_num("tailwind")
-        self.flag("storm_gw_cap", ncap == cap, f"{cap + 2} secondaries: tailwind {ncap}, cap {cap}")
+        sp = self.wait_buff(f"tailwind_{lvl}_5", 1.5)
+        self.flag("storm_gw_cap", ncap == 5 and bool(sp.get("on")), f"35 kills: tailwind {ncap} (cap 5); tailwind_{lvl}_5 {sp}")
+        # the stacks last 4 s: a fresh 5 for each of the next two checks
+        self.set_stacks(tw, 5)
+        ww = self.wait_buff("wind_ward", 1.5)
+        want = round(0.03 * 5, 3)
+        self.flag("storm_wind_ward", bool(ww.get("on")) and abs(float(ww.get("intensity", 0)) - want) < 0.001,
+                  f"wind_ward {ww} (want intensity {want}: 3% x 5)")
+        self.set_stacks(tw, 0)
+        self.set_stacks(tw, 5)
+        time.sleep(0.3)
+        sec = "attack_2h_shortbow_secondary"
         g0 = self.status_num("gale arrows") or 0
         self.gl("castat", sec, 1, 0, "nocd")
         time.sleep(0.5)
         g1 = self.status_num("gale arrows")
         self.flag("storm_gale_force", g1 is not None and g1 - g0 == 2, f"at the cap a secondary: gale arrows {g0} -> {g1} (+2)")
-        ww = self.wait_buff("wind_ward", 1.5)
-        want = round(0.02 * cap, 3)
-        self.flag("storm_wind_ward", bool(ww.get("on")) and abs(float(ww.get("intensity", 0)) - want) < 0.001,
-                  f"wind_ward {ww} (want intensity {want}: 2% x {cap})")
 
         # Tailwind Catch: the arrows come back to the ranger standing still
         self.set_stacks(tw, 0)
@@ -334,15 +361,35 @@ class Checks(Base):
                   f"dummies hp before {hp0}, after {hp1}: {len(hit)} of {len(hp0)} zapped")
 
         for orb, n in (("hwp_wiz_tt_overcharge", 2), ("hwp_wiz_tt_lingering_storm", 2), ("hwp_wiz_tt_thunderclap", 1),
-                       ("hwp_wiz_sc_static_channel", 2), ("hwp_wiz_sc_conduit", 2)):
+                       ("hwp_wiz_tt_lightning_rod", 3), ("hwp_wiz_sc_static_channel", 2), ("hwp_wiz_sc_conduit", 2)):
             self.gl("orb", orb, n)
         time.sleep(0.5)
-        binds = {k: self.bind(s_, k) for s_, k in ((tt, "tt-overcharge"), (tt, "tt-ttl-add"), (tt, "tt-clap"),
-                                                    (sc, "sc-channel"), (sc, "sc-conduit-lvl"))}
-        self.flag("inv_orb_binds", binds == {"tt-overcharge": "0.07", "tt-ttl-add": "2000", "tt-clap": "1.5",
-                                             "sc-channel": "0.2", "sc-conduit-lvl": "2"}, f"{binds}")
+        binds = {k: self.bind(s_, k) for s_, k in ((tt, "tt-overcharge"), (tt, "tt-ttl-add"), (tt, "tt-clap"), (tt, "tt-zaps"),
+                                                    (tt, "tt-radius"), (sc, "sc-channel"), (sc, "sc-conduit-lvl"))}
+        self.flag("inv_orb_binds", binds == {"tt-overcharge": "0.07", "tt-ttl-add": "2000", "tt-clap": "1.5", "tt-zaps": "5",
+                                             "tt-radius": "95", "sc-channel": "0.2", "sc-conduit-lvl": "2"}, f"{binds}")
 
+        # Static Charge: every spell cast adds a stack (no enemy left to crit on), 10 s, reset by each new one
         path = "players/hwp/specs/stacks_specs.sval:static_charge"
+        self.gl("kill", 600, "bandit_brute")
+        time.sleep(1.0)
+        self.set_stacks(path, 0)
+        mm = "wiz_magic_missiles"
+        self.gl("castat", mm, -1, 0, "nocd")
+        time.sleep(0.5)
+        c1 = self.status_num("static charge")
+        self.gl("castat", mm, -1, 0, "nocd")
+        time.sleep(0.5)
+        c2 = self.status_num("static charge")
+        self.flag("inv_sc_cast", c1 == 1 and c2 == 2, f"two {mm} casts with no enemy: static charge {c1}, {c2}")
+        time.sleep(7.0)
+        self.gl("castat", mm, -1, 0, "nocd")
+        time.sleep(4.0)  # 11.5 s after the second cast, 4 s after the third: the reset kept them
+        c3 = self.status_num("static charge")
+        time.sleep(6.5)
+        c4 = self.status_num("static charge")
+        self.flag("inv_sc_timer", c3 == 3 and c4 == 0, f"a third cast 7.5 s later: {c3} 4 s after it, {c4} 10.5 s after it")
+
         self.set_stacks(path, 3)
         cb = self.wait_buff("conduit_2_3", 1.5)
         self.flag("inv_conduit", bool(cb.get("on")), f"3 charges, Conduit 2: conduit_2_3 {cb} (+24% cast speed)")
@@ -364,7 +411,7 @@ class Checks(Base):
         m1 = self.mana_exact()
         log = self.g.read_log()[mark:]
         st = self.specs()
-        # the torrent's own zaps can crit and start the count again: 0 or 1 after the release
+        # the release cast adds none; the torrent's own zaps can crit once: 0 or 1 after the release
         left = re.findall(r"static charge (\d+)", st)
         self.flag("inv_release", "static charge: released" in log and bool(left) and int(left[-1]) < 2,
                   f"log {[l for l in log.splitlines() if 'static charge' in l][-2:]}; {st.strip()[-120:]}")

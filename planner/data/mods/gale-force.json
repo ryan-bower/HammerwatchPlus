@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_ran_gw_gale_force",
   "cls": "ranger",
   "exclusive": "",
   "levels": [
@@ -13,9 +13,9 @@
     }
   ],
   "name": "Gale Force",
-  "notes": "",
+  "notes": "In game (hwp_ran_gw_gale_force, tested): at 5 Tailwind stacks, bow and crossbow attacks shoot extra vanilla arrows at half the weapon's damage (assumed).",
   "order": null,
   "skill": "ranger-spec4-passive",
-  "status": "idea",
+  "status": "tested",
   "summary": "At max Tailwind stacks, your Bow & Crossbow skills fire additional projectiles."
 }

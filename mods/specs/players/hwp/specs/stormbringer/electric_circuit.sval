@@ -1,13 +1,13 @@
 %include "players/skills_cost.inc"
 <!--
-	Electric Circuit (Stormbringer active). A fan of 3 stormbringer/circuit.unit arrows (30
+	Lightning Arrow (Deadeye active). A fan of 3 stormbringer/circuit.unit arrows (30
 	degrees): through every enemy, back from their range or a wall to where they were shot
 	(HWPSpecsReturn, scripts/HWP/Specs/Stormbringer.as), each hit calling lightning on up to 2
 	other enemies nearby (HWPSpecsStrike).
-	Planner numbers: 20/25/30/35/40 a hit (half physical, half lightning: assumed), strikes
-	12/14/16/18/20, mana 40, cooldown 6 s. Assumed: the 30 degree fan, the strike radius 60.
-	Orbs: Charged Boomerang (ec-return-mul 1.2/1.4 on the way back; ec-lone: a lone enemy takes
-	the strikes), Lightning Rod (ec-strikes 3/4/5, ec-radius 69/75/84), Tailwind Catch
+	Planner numbers: 20/25/30/35/40 a hit (half physical, half lightning), strikes
+	12/14/16/18/20, mana 40, cooldown 6 s, the 30 degree fan, the strike radius 60.
+	Orbs: Boomerang (ec-return-mul 1.2/1.4 on the way back; ec-lone: a lone enemy takes
+	the strikes), Storm Arrow (ec-strikes 3/4/5, ec-radius 69/75/84), Tailwind Catch
 	(ec-catch: catching an arrow adds a Tailwind stack, with Gathering Winds).
 	Sound: placeholders until the audio picker (art/specs/AUDIO.md).
 -->
@@ -99,9 +99,9 @@
 
 	<array name="modifier-skills">
 		<dict>
-			<string name="name">.hwp.specs.charged_boomerang.name</string>
+			<string name="name">.hwp.specs.boomerang.name</string>
 			<string name="type-name">.skills.type.spell.upgrade</string>
-			<string name="description">.hwp.specs.charged_boomerang.desc</string>
+			<string name="description">.hwp.specs.boomerang.desc</string>
 			<array name="description-params">
 				<array><s>return</s><s>.hwp.specs.param.return_damage</s><s>+20%</s><s>+40%</s></array>
 			</array>
@@ -119,9 +119,9 @@
 			</array>
 		</dict>
 		<dict>
-			<string name="name">.hwp.specs.lightning_rod.name</string>
+			<string name="name">.hwp.specs.storm_arrow.name</string>
 			<string name="type-name">.skills.type.spell.upgrade</string>
-			<string name="description">.hwp.specs.lightning_rod.desc</string>
+			<string name="description">.hwp.specs.storm_arrow.desc</string>
 			<array name="description-params">
 				<array><s>strikes</s><s>.hwp.specs.param.extra_strikes</s><s>+1</s><s>+2</s><s>+3</s></array>
 				<array><s>radius</s><s>.skills.desc.params.radius</s><s>+15%</s><s>+25%</s><s>+40%</s></array>

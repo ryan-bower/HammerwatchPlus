@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_ran_ec_lightning_rod",
   "cls": "ranger",
   "exclusive": "",
   "levels": [
@@ -17,9 +17,9 @@
     }
   ],
   "name": "Storm Arrow",
-  "notes": "",
+  "notes": "In game (hwp_ran_ec_lightning_rod, built): strikes 3/4/5, strike radius 69/75/84 (60 x 1.15/1.25/1.4). Only the orb's numbers are checked in game.",
   "order": null,
   "skill": "ranger-spec4-active",
-  "status": "idea",
+  "status": "built",
   "summary": "Each arrow hit calls lightning on more enemies, in a larger radius."
 }

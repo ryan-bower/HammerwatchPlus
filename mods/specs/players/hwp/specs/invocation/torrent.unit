@@ -1,10 +1,11 @@
 <unit netsync="none">
 	<!--
-		Tempest Torrent's orb (invocation/tempest_torrent.sval, HWPSpecsZap in
+		Thunder Orb's orb (invocation/tempest_torrent.sval, HWPSpecsZap in
 		scripts/HWP/Specs/Invocation.as). Slow (1.6 px a tick, about 50 px/s), through enemies
 		(penetration 999, no hit effects), stopped by a wall (bounce speed 0: it stays and keeps
-		zapping). Every 250 ms: 3 zaps of tt-dmg lightning within 70. Binds: tt-ttl (+tt-ttl-add,
-		Lingering Storm), tt-overcharge (Overcharge), tt-clap (Thunderclap, on the way out).
+		zapping). Every 250 ms: tt-zaps zaps of tt-dmg lightning within tt-radius (3 and 70; Lightning Rod
+		raises both). Binds: tt-ttl (+tt-ttl-add, Lingering Storm), tt-overcharge (Focal Point),
+		tt-clap (Thunderclap, on the way out).
 	-->
 	<behavior class="NewProjectile">
 		<string name="anim">default</string>
@@ -30,8 +31,8 @@
 				<array name="effects">
 					<dict>
 						<string name="class">HWPSpecsZap</string>
-						<int name="targets">3</int>
-						<int name="radius">70</int>
+						<string name="targets-bind">tt-zaps</string>
+						<string name="radius-bind">tt-radius</string>
 						<string name="overcharge-bind">tt-overcharge</string>
 						<int name="max-overcharge">10</int>
 						<array name="effects">
@@ -49,7 +50,7 @@
 			<dict>
 				<string name="class">HWPSpecsZap</string>
 				<bool name="all">true</bool>
-				<int name="radius">70</int>
+				<string name="radius-bind">tt-radius</string>
 				<string name="mul-bind">tt-clap</string>
 				<string name="hit-fx">effects/generic/explosions/lightning_explosion_1.effect</string>
 				<array name="effects">

@@ -1,12 +1,13 @@
 %include "players/skills_cost.inc"
 <!--
-	Static Charge (Invocation passive). A spell crit adds a static_charge stack
-	(stacks_specs.sval, max 5); the 400 ms timeout stands in for "once per cast". At 5 stacks
-	the next spell cast releases it (HWPSpecsStaticRelease, scripts/HWP/Specs/Invocation.as):
-	3 strikes of sc-dmg lightning split over up to 3 enemies within 120 of the wizard, x1.5
-	when all three hit one. The strikes are this skill's damage, so they never add a stack.
-	Planner numbers: 50/70/90/120/150 a strike. Assumed: the range 120, the 400 ms.
-	Orbs: Static Channel (sc-channel: 10/20% of max mana back on a release), Conduit
+	Static Charge (Aerotheurge passive). Every spell cast adds a static_charge stack
+	(stacks_specs.sval, max 5, 10 s, reset by each new stack) and its first crit one more
+	(HWPSpecsStaticCrit). At 5 stacks the next spell cast releases it (HWPSpecsStaticRelease,
+	scripts/HWP/Specs/Invocation.as): 3 strikes of sc-dmg lightning split over up to 3 enemies
+	within 120 of the wizard, x1.5 when all three hit one. The strikes are this skill's damage,
+	so their crits never add a stack.
+	Planner numbers: 50/70/90/120/150 a strike, the range 120.
+	Orbs: Charged Font (sc-channel: 10/20% of max mana back on a release), Conduit
 	(sc-conduit-lvl: +4/8% cast speed per stack, conduit_<lvl>_<stacks> kept on by the module).
 -->
 <dict>
@@ -40,15 +41,9 @@
 					<string name="skill-type">spell</string>
 					<string name="not-skill-id">hwp_wiz_static_charge</string>
 					<vec2 name="chance">1 1</vec2>
-					<ivec2 name="timeout">400 400</ivec2>
 					<bool name="target-self">true</bool>
 					<array name="effects">
-						<dict>
-							<string name="class">AddStacks</string>
-							<string name="buff">players/hwp/specs/stacks_specs.sval:static_charge</string>
-							<int name="stacks">1</int>
-							<bool name="target-self">true</bool>
-						</dict>
+						<dict><string name="class">HWPSpecsStaticCrit</string></dict>
 					</array>
 				</dict>
 				<dict>
@@ -101,8 +96,8 @@
 
 	<array name="modifier-skills">
 		<dict>
-			<string name="name">.hwp.specs.static_channel.name</string>
-			<string name="description">.hwp.specs.static_channel.desc</string>
+			<string name="name">.hwp.specs.charged_font.name</string>
+			<string name="description">.hwp.specs.charged_font.desc</string>
 			<array name="description-params">
 				<array><s>mana</s><s>.skills.desc.params.restore.mana.max</s><s>10%</s><s>20%</s></array>
 			</array>

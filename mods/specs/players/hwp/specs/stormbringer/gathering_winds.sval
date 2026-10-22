@@ -1,11 +1,10 @@
 %include "players/skills_cost.inc"
 <!--
-	Gathering Winds (Stormbringer passive). A two-handed bow's or crossbow's secondary attack
-	adds a Tailwind stack (stacks_specs.sval tailwind: +1% move, attack and cast speed each,
-	5 s, reset by every add), up to gw-max (HWPSpecsTailwind, scripts/HWP/Specs/Stormbringer.as;
-	the off-hand crossbow does not count). Planner numbers: max 5/7/9/12/15.
-	Orbs: Gale Force (gw-gale: at max stacks, bow and crossbow attacks shoot +1/+2 arrows, the
-	vanilla arrow at half the weapon's damage, assumed), Wind Ward (gw-ward: 1/2% less damage
+	Gathering Winds (Deadeye passive). Every 5 kills add a Tailwind stack (HWPSpecsKillTailwind,
+	scripts/HWP/Specs/Stormbringer.as), up to 5, each lasting 4 s on its own. Each stack is
+	gw-lvl's tailwind_<lvl>_<n> buff: 2/2.5/3/3.5/4% move, attack and cast speed per stack.
+	Orbs: Gale Force (gw-gale: at 5 stacks, bow and crossbow attacks shoot +1/+2 arrows, the
+	vanilla arrow at half the weapon's damage, assumed), Wind Ward (gw-ward: 1.5/3% less damage
 	taken per stack, wind_ward kept on by the module).
 -->
 <dict>
@@ -14,7 +13,7 @@
 	<string name="description">.hwp.specs.gathering_winds.desc</string>
 
 	<array name="description-params">
-		<array><s>stacks</s><s>.hwp.specs.param.max_stacks</s><s>5</s><s>7</s><s>9</s><s>12</s><s>15</s></array>
+		<array><s>speed</s><s>.hwp.specs.param.speed_per_stack</s><s>2%</s><s>2.5%</s><s>3%</s><s>3.5%</s><s>4%</s></array>
 	</array>
 
 	<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>48 0 24 24</vec4></array>
@@ -27,28 +26,19 @@
 		<int name="skill-cost">SKILLCOSTMASTERYLEVEL_1</int>
 		<string name="class">Skills::PassiveSkill</string>
 		<dict name="binds">
-			<int name="gw-max">5</int>
+			<int name="gw-lvl">1</int>
 			<int name="gw-gale">0</int>
 			<float name="gw-ward">0</float>
 		</dict>
 		<array name="modifiers">
 			<array>
 				<dict>
-					<string name="class">Modifiers::SkillTriggerEffect</string>
-					<string name="trigger">attack</string>
-					<bool name="override-skill-info">true</bool>
-					<string name="skill-type">offhand</string>
+					<string name="class">Modifiers::TriggerEffect</string>
+					<string name="trigger">kill</string>
 					<vec2 name="chance">1 1</vec2>
 					<bool name="target-self">true</bool>
 					<array name="effects">
-						<dict>
-							<string name="class">HWPSpecsTailwind</string>
-							<array name="skills">
-								<s>attack_2h_shortbow_secondary</s><s>attack_2h_shortbow_secondary_epic</s>
-								<s>attack_2h_longbow_secondary</s><s>attack_2h_longbow_secondary_epic</s>
-								<s>attack_2h_crossbow_secondary</s><s>attack_2h_crossbow_secondary_epic</s>
-							</array>
-						</dict>
+						<dict><string name="class">HWPSpecsKillTailwind</string></dict>
 					</array>
 				</dict>
 				<dict>
@@ -74,19 +64,19 @@
 	<array name="upgrades">
 		<dict>
 			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
-			<dict name="binds"><int name="gw-max">7</int></dict>
+			<dict name="binds"><int name="gw-lvl">2</int></dict>
 		</dict>
 		<dict>
 			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
-			<dict name="binds"><int name="gw-max">9</int></dict>
+			<dict name="binds"><int name="gw-lvl">3</int></dict>
 		</dict>
 		<dict>
 			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
-			<dict name="binds"><int name="gw-max">12</int></dict>
+			<dict name="binds"><int name="gw-lvl">4</int></dict>
 		</dict>
 		<dict>
 			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
-			<dict name="binds"><int name="gw-max">15</int></dict>
+			<dict name="binds"><int name="gw-lvl">5</int></dict>
 		</dict>
 	</array>
 
@@ -116,7 +106,7 @@
 			<string name="name">.hwp.specs.wind_ward.name</string>
 			<string name="description">.hwp.specs.wind_ward.desc</string>
 			<array name="description-params">
-				<array><s>dr</s><s>.hwp.specs.param.dr_per_stack</s><s>1%</s><s>2%</s></array>
+				<array><s>dr</s><s>.hwp.specs.param.dr_per_stack</s><s>1.5%</s><s>3%</s></array>
 			</array>
 			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>168 0 24 24</vec4></array>
 			<array name="tags"><s>passive</s></array>
@@ -124,12 +114,12 @@
 			<string name="quality">uncommon</string>
 			<int name="starting-level">0</int>
 			<dict name="skill">
-				<dict name="binds"><float name="gw-ward">0.01</float></dict>
+				<dict name="binds"><float name="gw-ward">0.015</float></dict>
 			</dict>
 			<array name="upgrades">
 				<dict>
 					<string name="quality">rare</string>
-					<dict name="binds"><float name="gw-ward">0.02</float></dict>
+					<dict name="binds"><float name="gw-ward">0.03</float></dict>
 				</dict>
 			</array>
 		</dict>

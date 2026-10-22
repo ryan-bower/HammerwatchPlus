@@ -1,10 +1,11 @@
 {
   "blurb": "Wizarc lightning magus with the shocking fingertips of Palpatine himself",
+  "built": "hwp_wizard_invocation",
   "cls": "wizard",
   "name": "Aerotheurge",
-  "notes": "",
+  "notes": "In game (hwp_wizard_invocation, tested; the ids keep the old Invocation name): the subclass in mods/specs, Noah's PR #4 version. Checked by plan-specs 20261021-211807. Not balanced yet.",
   "order": 4,
   "owner": "Noah",
   "spec4": true,
-  "status": "idea"
+  "status": "tested"
 }

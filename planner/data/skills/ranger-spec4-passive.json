@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_ran_gathering_winds",
   "cls": "ranger",
   "cooldown": "",
   "group": "ranger-spec4",
@@ -13,10 +13,10 @@
   ],
   "mana": "",
   "name": "Gathering Winds",
-  "notes": "Proposed numbers: the max stays 5 stacks at every level. +20% at level 5 matches vanilla Rhythm's top attack speed (ran_rhythm, 0.2).",
+  "notes": "Proposed numbers: the max stays 5 stacks at every level. +20% at level 5 matches vanilla Rhythm's top attack speed (ran_rhythm, 0.2).\n\nIn game (hwp_ran_gathering_winds, tested): every 5 kills by the ranger add a Tailwind stack, up to 5, each ending 4 s after its own kill; the speed is the tailwind_<level>_<stacks> buff.",
   "order": 1,
   "role": "",
-  "status": "idea",
+  "status": "tested",
   "summary": "Every 5 kills grants a stack of Tailwind for 4s, up to 5 stacks. Each stack increases your Action Speed (Movement, Skill and Weapon Speed) by 2%.",
   "unlock": "bought"
 }

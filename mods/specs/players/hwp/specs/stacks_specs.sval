@@ -22,31 +22,39 @@
 			</array>
 		</dict>
 	</dict>
-	<!-- Invocation, Static Charge: a stack per spell crit (once per cast), released at 5 by the
-	     next spell (Invocation.as HWPSpecsStaticRelease). No timer: they wait for the release. -->
+	<!-- Aerotheurge, Static Charge: a stack per spell cast and one more for its first crit
+	     (Invocation.as HWPSpecsStaticRelease / HWPSpecsStaticCrit), released at 5 by the next
+	     spell. 10 s, every new stack resets the timer. -->
 	<dict>
 		<string name="id">static_charge</string>
 		<string name="name">.hwp.specs.stack.static_charge.name</string>
 		<string name="description">.hwp.specs.stack.static_charge.desc</string>
 		<int name="max">5</int>
+		<bool name="display-timer-radius">true</bool>
+		<dict name="timer">
+			<int name="time">10000</int>
+			<int name="add-stack">-999</int>
+			<bool name="gain-set">true</bool>
+			<bool name="add-set">true</bool>
+			<bool name="gain-reset">true</bool>
+			<bool name="add-reset">true</bool>
+		</dict>
 		<dict name="buff">
 			<bool name="debuff">false</bool>
 			<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>192 24 14 14</vec4></array>
 		</dict>
 	</dict>
-	<!-- Stormbringer, Gathering Winds: +1% move, attack and cast speed per stack (intensity is the
-	     count), 5 s, every add resets the timer; the level's cap is kept by the script
-	     (Stormbringer.as AddTailwind), the def's max is the top level's 15. -->
+	<!-- Deadeye, Gathering Winds: a stack per 5 kills, each one 4 s on its own (Stormbringer.as
+	     g_twExp; this timer, a little longer, only catches a stalled script and shows the
+	     newest). The speed is the tailwind_<lvl>_<n> buff (buffs_specs.sval), not the stack. -->
 	<dict>
 		<string name="id">tailwind</string>
 		<string name="name">.hwp.specs.stack.tailwind.name</string>
 		<string name="description">.hwp.specs.stack.tailwind.desc</string>
-		<int name="max">15</int>
-		<bool name="refresh-on-max">true</bool>
+		<int name="max">5</int>
 		<bool name="display-timer-radius">true</bool>
-		<bool name="extrapolate-intensity">true</bool>
 		<dict name="timer">
-			<int name="time">5000</int>
+			<int name="time">4100</int>
 			<int name="add-stack">-999</int>
 			<bool name="gain-set">true</bool>
 			<bool name="add-set">true</bool>
@@ -58,14 +66,6 @@
 		<dict name="buff">
 			<bool name="debuff">false</bool>
 			<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>192 0 14 14</vec4></array>
-			<array name="modifiers">
-				<dict>
-					<string name="class">Modifiers::SpeedMul</string>
-					<vec2 name="move-speed">1 1.01</vec2>
-					<vec2 name="attack-speed">1 1.01</vec2>
-					<vec2 name="cast-speed">1 1.01</vec2>
-				</dict>
-			</array>
 		</dict>
 	</dict>
 </array>
