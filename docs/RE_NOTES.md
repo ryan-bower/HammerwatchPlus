@@ -2569,12 +2569,18 @@ Planner only, nothing built:
 - The 5+ icon swaps on the one Heresy stack (the user's call: not two stacks). How to swap a
   buff's icon in script is not checked against the engine yet.
 - Penance (the user's rules): mana 50, no cooldown of its own. It shares Necrotic Resurrection's,
-  so it can't be used while that is on cooldown. Using it starts no cooldown and switches the
-  skill back to Necrotic Resurrection, ready to cast. Assumed: the skill stays Necrotic
-  Resurrection until Favor next reaches its max.
+  so it can't be used while that is on cooldown. Using it consumes your Divine Favor and starts no
+  cooldown, so the skill is Necrotic Resurrection again, ready to cast.
 - Round 2 (`tools/icon_art/sp_pri2.py`, ids `specsP2.<name>`, same picker). The user's round-1
   picks were Necrotic Resurrection a, Sacrificial Penance a, Call of Heresy c ("but replace the
   sigil with an eye") and Heresy b at both levels. This round has three refinements of each pick,
   with the pick beside them, plus first ideas for the six icons round 1 left out: the spec emblem
   (`pri_class`), the four orbs (Ravenous Lunge, Rot Bloom, Pyre Sacrifice, Deeper Depravity) and
   `hud_devouring`, the status shown during the 3 s lunge-and-eat channel.
+- Round 3 (`tools/icon_art/sp_pri3.py`, ids `specsP3.<name>`, same picker). These six were settled
+  in round 2 and are in `art/specs/override/` (`sp_pri3.py --finals`): Necrotic Resurrection
+  (round-1 a), Sacrificial Penance (round-2 c), the emblem (c), Deeper Depravity (a), Ravenous
+  Lunge (b) and Rot Bloom (a). Round 3 redoes five of them per the user's notes: Call of Heresy and
+  Pyre Sacrifice in necrotic green, both Heresy eyes green (below 5 from round-2 a, 5+ from the
+  kept round-1 pick), and the eating status's maw with defined teeth and lips. The icons go into
+  the specs sheet when the spec is built (`tools/make_specs_icons.py` has no Priest row yet).

@@ -15,10 +15,10 @@
   ],
   "mana": "50",
   "name": "Sacrificial Penance",
-  "notes": "Necrotic Resurrection's alternate form: same key, own name, icon and effect; it levels with Necrotic Resurrection (1/1/2/2/3 is a first pass for 'depending on level'). Mana 50. No cooldown of its own: it shares Necrotic Resurrection's, so it can't be used while Necrotic Resurrection is still on cooldown. Using it puts no cooldown on anything; it just switches the skill back to Necrotic Resurrection, ready to cast. Assumed, not yet decided: the skill stays Necrotic Resurrection until Favor next reaches its max (so it doesn't flip straight back while Favor is still full). Penance and the Pyre Sacrifice orb are the only ways Heresy goes down. Icon: the user's pick from the picker (tools/icon_art/sp_pri.py, sp_pri2.py).",
+  "notes": "Necrotic Resurrection's alternate form: same key, own name, icon and effect; it levels with Necrotic Resurrection (1/1/2/2/3 is a first pass for 'depending on level'). Mana 50. No cooldown of its own: it shares Necrotic Resurrection's, so it can't be used while Necrotic Resurrection is still on cooldown. Using it consumes your Divine Favor (all of it) and puts no cooldown on anything: with Favor no longer at its max, the skill is Necrotic Resurrection again, ready to cast. Penance and the Pyre Sacrifice orb are the only ways Heresy goes down. Icon: the user's pick from the picker (tools/icon_art/sp_pri.py, sp_pri2.py).",
   "order": 0.5,
   "role": "",
   "status": "idea",
-  "summary": "Channel for 3 seconds on an intact body to sacrifice it and wash away Heresy.",
+  "summary": "Channel for 3 seconds on an intact body to sacrifice it and wash away Heresy. Consumes your Divine Favor.",
   "unlock": "bought"
 }
