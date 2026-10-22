@@ -1,0 +1,1757 @@
+<loader>Equipment::BaseItem::LoadMultiple</loader>
+<array>
+
+%//MACES
+	<dict>
+		<string name="id">mainhand_mace_01</string>
+		<string name="name">.equipment.mainhand.mace.1a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>240 168 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/paladin_maces.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_mace_t1_a.model</string>
+		<string name="anim-set">swing-1h</string>
+		<string name="color">leather_t1</string>
+		<string name="color-secondary">metal_t1</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-str">8 18</ivec2>
+		
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_mace</string>
+		<string name="skill-epic">attack_swing_mace_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">40 50</ivec2>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">mainhand_mace_02</string>
+		<string name="name">.equipment.mainhand.mace.2a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>312 168 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/paladin_maces.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_mace_t2_a.model</string>
+		<string name="anim-set">swing-1h</string>
+		<string name="color">leather_t2</string>
+		<string name="color-secondary">metal_t2</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-str">13 28</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_mace</string>
+		<string name="skill-epic">attack_swing_mace_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">45 55</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.1</float>
+				<string name="type">physical</string>
+				<string name="stat">str</string>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">mainhand_mace_03</string>
+		<string name="name">.equipment.mainhand.mace.3a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>384 168 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/paladin_maces.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_mace_t3_a.model</string>
+		<string name="anim-set">swing-1h</string>
+		<string name="color">leather_t3</string>
+		<string name="color-secondary">metal_t3</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">50</int>
+		<ivec2 name="req-str">18 38</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_mace</string>
+		<string name="skill-epic">attack_swing_mace_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">50 60</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.125</float>
+				<string name="type">physical</string>
+				<string name="stat">str</string>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">mainhand_mace_04</string>
+		<string name="name">.equipment.mainhand.mace.4a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>144 192 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/paladin_maces.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_mace_t4_a.model</string>
+		<string name="anim-set">swing-1h</string>
+		<string name="color">leather_t4</string>
+		<string name="color-secondary">metal_t4</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">30</int>
+		<ivec2 name="req-str">23 48</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_mace</string>
+		<string name="skill-epic">attack_swing_mace_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">55 65</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.15</float>
+				<string name="type">physical</string>
+				<string name="stat">str</string>
+			</dict>
+		</array>
+	</dict>
+
+%//LONGSWORDS
+	<dict>
+		<string name="id">mainhand_longsword_01</string>
+		<string name="name">.equipment.mainhand.longsword.1a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>408 72 24 24</vec4> <!-- t-1 -->
+		</array>
+
+		<string name="graphic">items/equipment/long_swords.unit:ad1</string>
+		<string name="model">players/models/equipment/mh_longsword_t2_a.model</string>
+		<string name="anim-set">swing-1h</string>
+		<string name="color">metal_t1</string>
+		<string name="color-secondary">metal_t1</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-str">8 18</ivec2>
+		
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_longsword</string>
+		<string name="skill-epic">attack_swing_longsword_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">40 50</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.2</vec2>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<string name="id">mainhand_longsword_02</string>
+		<string name="name">.equipment.mainhand.longsword.2a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>432 72 24 24</vec4> <!-- t-2 -->
+		</array>
+
+		<string name="graphic">items/equipment/long_swords.unit:ad1</string>
+		<string name="model">players/models/equipment/mh_longsword_t2_a.model</string>
+		<string name="anim-set">swing-1h</string>
+		<string name="color">metal_t2</string>
+		<string name="color-secondary">metal_t2</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-str">13 28</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_longsword</string>
+		<string name="skill-epic">attack_swing_longsword_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">45 55</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.2</vec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.1</float>
+				<string name="type">physical</string>
+				<string name="stat">str</string>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<string name="id">mainhand_longsword_03</string>
+		<string name="name">.equipment.mainhand.longsword.3a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>456 72 24 24</vec4> <!-- t-3 -->
+		</array>
+
+		<string name="graphic">items/equipment/long_swords.unit:ad1</string>
+		<string name="model">players/models/equipment/mh_longsword_t2_a.model</string>
+		<string name="anim-set">swing-1h</string>
+		<string name="color">metal_t3</string>
+		<string name="color-secondary">metal_t3</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">50</int>
+		<ivec2 name="req-str">18 38</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_longsword</string>
+		<string name="skill-epic">attack_swing_longsword_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">50 60</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.2</vec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.125</float>
+				<string name="type">physical</string>
+				<string name="stat">str</string>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<string name="id">mainhand_longsword_04</string>
+		<string name="name">.equipment.mainhand.longsword.4a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>480 72 24 24</vec4> <!-- t-4 -->
+		</array>
+
+		<string name="graphic">items/equipment/long_swords.unit:ad1</string>
+		<string name="model">players/models/equipment/mh_longsword_t2_a.model</string>
+		<string name="anim-set">swing-1h</string>
+		<string name="color">metal_t4</string>
+		<string name="color-secondary">metal_t4</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">30</int>
+		<ivec2 name="req-str">23 48</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_longsword</string>
+		<string name="skill-epic">attack_swing_longsword_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">55 65</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.2</vec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.15</float>
+				<string name="type">physical</string>
+				<string name="stat">str</string>
+			</dict>
+		</array>
+	</dict>
+
+%//SHORTSWORDS
+	<dict>
+		<string name="id">mainhand_shortsword_01</string>
+		<string name="name">.equipment.mainhand.shortsword.1a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>384 96 24 24</vec4> 	<!-- t-1 -->
+		</array>
+
+		<string name="graphic">items/equipment/ranger_swords.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_shortsword_t2_a.model</string>
+		<string name="anim-set">swing-1h</string>
+		<string name="color">metal_t1</string>
+		<string name="color-secondary">metal_t1</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-dex">6 16</ivec2>
+		
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_shortsword</string>
+		<string name="skill-epic">attack_swing_shortsword_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">40 50</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.2</vec2>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<string name="id">mainhand_shortsword_02</string>
+		<string name="name">.equipment.mainhand.shortsword.2a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>408 96 24 24</vec4> <!-- t-2 -->
+		</array>
+
+		<string name="graphic">items/equipment/ranger_swords.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_shortsword_t2_a.model</string>
+		<string name="anim-set">swing-1h</string>
+		<string name="color">metal_t2</string>
+		<string name="color-secondary">metal_t2</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-dex">11 26</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_shortsword</string>
+		<string name="skill-epic">attack_swing_shortsword_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">45 55</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.2</vec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.1</float>
+				<string name="type">physical</string>
+				<string name="stat">dex</string>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<string name="id">mainhand_shortsword_03</string>
+		<string name="name">.equipment.mainhand.shortsword.3a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>432 96 24 24</vec4> <!-- t-3 -->
+		</array>
+
+		<string name="graphic">items/equipment/ranger_swords.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_shortsword_t2_a.model</string>
+		<string name="anim-set">swing-1h</string>
+		<string name="color">metal_t3</string>
+		<string name="color-secondary">metal_t3</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">50</int>
+		<ivec2 name="req-dex">16 36</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_shortsword</string>
+		<string name="skill-epic">attack_swing_shortsword_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">50 60</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.2</vec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.125</float>
+				<string name="type">physical</string>
+				<string name="stat">dex</string>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<string name="id">mainhand_shortsword_04</string>
+		<string name="name">.equipment.mainhand.shortsword.4a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>456 96 24 24</vec4> <!-- t-4 -->
+		</array>
+
+		<string name="graphic">items/equipment/ranger_swords.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_shortsword_t2_a.model</string>
+		<string name="anim-set">swing-1h</string>
+		<string name="color">metal_t4</string>
+		<string name="color-secondary">metal_t4</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">30</int>
+		<ivec2 name="req-dex">21 46</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_shortsword</string>
+		<string name="skill-epic">attack_swing_shortsword_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">55 65</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.2</vec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.15</float>
+				<string name="type">physical</string>
+				<string name="stat">dex</string>
+			</dict>
+		</array>
+	</dict>
+
+%//DAGGERS
+	<dict>
+		<string name="id">mainhand_dagger_01</string>
+		<string name="name">.equipment.mainhand.dagger.1a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>360 360 24 24</vec4> <!-- t-1 -->
+		</array>
+
+		<string name="graphic">items/equipment/warlock_daggers.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_dagger_t2_a.model</string>
+		<string name="anim-set">stab-1h</string>
+		<string name="color">leather_t1</string>
+		<string name="color-secondary">metal_t1</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-dex">2 12</ivec2>
+		
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_dagger</string>
+		<string name="skill-epic">attack_swing_dagger_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">40 50</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.3</vec2>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<string name="id">mainhand_dagger_02</string>
+		<string name="name">.equipment.mainhand.dagger.2a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>384 360 24 24</vec4> <!-- t-2 -->
+		</array>
+
+		<string name="graphic">items/equipment/warlock_daggers.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_dagger_t2_a.model</string>
+		<string name="anim-set">stab-1h</string>
+		<string name="color">leather_t2</string>
+		<string name="color-secondary">metal_t2</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-dex">7 22</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_dagger</string>
+		<string name="skill-epic">attack_swing_dagger_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">45 55</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.3</vec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.1</float>
+				<string name="type">physical</string>
+				<string name="stat">dex</string>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<string name="id">mainhand_dagger_03</string>
+		<string name="name">.equipment.mainhand.dagger.3a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>408 360 24 24</vec4> <!-- t-3 -->
+		</array>
+
+		<string name="graphic">items/equipment/warlock_daggers.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_dagger_t2_a.model</string>
+		<string name="anim-set">stab-1h</string>
+		<string name="color">leather_t3</string>
+		<string name="color-secondary">metal_t3</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">50</int>
+		<ivec2 name="req-dex">12 32</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_dagger</string>
+		<string name="skill-epic">attack_swing_dagger_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">50 60</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.3</vec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.125</float>
+				<string name="type">physical</string>
+				<string name="stat">dex</string>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<string name="id">mainhand_dagger_04</string>
+		<string name="name">.equipment.mainhand.dagger.4a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>432 360 24 24</vec4> <!-- t-4 -->
+		</array>
+
+		<string name="graphic">items/equipment/warlock_daggers.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_dagger_t2_a.model</string>
+		<string name="anim-set">stab-1h</string>
+		<string name="color">leather_t1</string>
+		<string name="color-secondary">metal_t1</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">30</int>
+		<ivec2 name="req-dex">17 42</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_dagger</string>
+		<string name="skill-epic">attack_swing_dagger_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">55 65</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.3</vec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.15</float>
+				<string name="type">physical</string>
+				<string name="stat">dex</string>
+			</dict>
+		</array>
+	</dict>
+
+%//BATTLEAXES
+	<dict>
+		<string name="id">mainhand_battleaxe_01</string>
+		<string name="name">.equipment.mainhand.axe.1a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>96 480 24 24</vec4> <!-- t-1 -->
+		</array>
+		
+		<string name="graphic">items/equipment/battle_axes.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_battleaxe_t3_a.model</string>
+		<string name="anim-set">swing-1h</string>
+		<string name="color">leather_t1</string>
+		<string name="color-secondary">metal_t1</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-str">6 16</ivec2>
+		
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_axe</string>
+		<string name="skill-epic">attack_swing_axe_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">40 50</ivec2>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<string name="id">mainhand_battleaxe_02</string>
+		<string name="name">.equipment.mainhand.axe.2a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>120 480 24 24</vec4>	<!-- t-2 -->
+		</array>
+		
+		<string name="graphic">items/equipment/battle_axes.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_battleaxe_t3_a.model</string>
+		<string name="anim-set">swing-1h</string>
+		<string name="color">leather_t2</string>
+		<string name="color-secondary">metal_t2</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-str">11 26</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_axe</string>
+		<string name="skill-epic">attack_swing_axe_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">45 55</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.1</float>
+				<string name="type">physical</string>
+				<string name="stat">str</string>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<string name="id">mainhand_battleaxe_03</string>
+		<string name="name">.equipment.mainhand.axe.3a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>144 480 24 24</vec4> <!-- t-3 -->
+		</array>
+		
+		<string name="graphic">items/equipment/battle_axes.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_battleaxe_t3_a.model</string>
+		<string name="anim-set">swing-1h</string>
+		<string name="color">leather_t3</string>
+		<string name="color-secondary">metal_t3</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">50</int>
+		<ivec2 name="req-str">16 36</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_axe</string>
+		<string name="skill-epic">attack_swing_axe_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">50 60</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.125</float>
+				<string name="type">physical</string>
+				<string name="stat">str</string>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<string name="id">mainhand_battleaxe_04</string>
+		<string name="name">.equipment.mainhand.axe.4a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>168 480 24 24</vec4> <!-- t-4 -->
+		</array>
+		
+		<string name="graphic">items/equipment/battle_axes.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_battleaxe_t3_a.model</string>
+		<string name="anim-set">swing-1h</string>
+		<string name="color">leather_t4</string>
+		<string name="color-secondary">metal_t4</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">30</int>
+		<ivec2 name="req-str">21 46</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_swing_axe</string>
+		<string name="skill-epic">attack_swing_axe_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">55 65</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.15</float>
+				<string name="type">physical</string>
+				<string name="stat">str</string>
+			</dict>
+		</array>
+	</dict>
+
+%//FIREWANDS
+	%//T1
+	<dict>
+		<string name="id">mainhand_wand_fire_01</string>
+		<string name="name">.equipment.mainhand.wand.fire.1a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>432 24 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/wiz_wands.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_firewand_t1_a.model</string>
+		<string name="anim-set">wand-1h</string>
+		<string name="color">wood_t1</string>
+		<string name="color-secondary">fire_gem</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-int">8 18</ivec2>
+		
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_wand_fire</string>
+		<string name="skill-epic">attack_wand_fire_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="fire">40 50</ivec2>
+			</dict>
+		</array>
+	</dict>
+	%//T2
+	<dict>
+		<string name="id">mainhand_wand_fire_02</string>
+		<string name="name">.equipment.mainhand.wand.fire.2a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>72 48 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/wiz_wands.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_firewand_t2_a.model</string>
+		<string name="anim-set">wand-1h</string>
+		<string name="color">metal_t2</string>
+		<string name="color-secondary">fire_gem</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-int">13 28</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_wand_fire</string>
+		<string name="skill-epic">attack_wand_fire_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="fire">45 55</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.15</float>
+				<string name="type">fire</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+	%//T3
+	<dict>
+		<string name="id">mainhand_wand_fire_03</string>
+		<string name="name">.equipment.mainhand.wand.fire.3a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>168 48 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/wiz_wands.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_firewand_t3_a.model</string>
+		<string name="anim-set">wand-1h</string>
+		<string name="color">metal_t3</string>
+		<string name="color-secondary">fire_gem</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">50</int>
+		<ivec2 name="req-int">18 38</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_wand_fire</string>
+		<string name="skill-epic">attack_wand_fire_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="fire">50 60</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.175</float>
+				<string name="type">fire</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+	%//T4
+	<dict>
+		<string name="id">mainhand_wand_fire_04</string>
+		<string name="name">.equipment.mainhand.wand.fire.4a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>288 48 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/wiz_wands.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_firewand_t4_a.model</string>
+		<string name="anim-set">wand-1h</string>
+		<string name="color">metal_t4</string>
+		<string name="color-secondary">fire_gem</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">30</int>
+		<ivec2 name="req-int">23 48</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_wand_fire</string>
+		<string name="skill-epic">attack_wand_fire_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="fire">55 65</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.20</float>
+				<string name="type">fire</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+
+%//ICEWANDS
+	%//T1
+	<dict>
+		<string name="id">mainhand_wand_ice_01</string>
+		<string name="name">.equipment.mainhand.wand.ice.1a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>408 24 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/wiz_wands.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_icewand_t1_a.model</string>
+		<string name="anim-set">wand-1h</string>
+		<string name="color">wood_t1</string>
+		<string name="color-secondary">ice_gem</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-int">8 18</ivec2>
+		
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_wand_ice</string>
+		<string name="skill-epic">attack_wand_ice_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="ice">40 50</ivec2>
+			</dict>
+		</array>
+	</dict>
+	%//T2
+	<dict>
+		<string name="id">mainhand_wand_ice_02</string>
+		<string name="name">.equipment.mainhand.wand.ice.2a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>48 48 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/wiz_wands.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_icewand_t2_a.model</string>
+		<string name="anim-set">wand-1h</string>
+		<string name="color">metal_t2</string>
+		<string name="color-secondary">ice_gem</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-int">13 28</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_wand_ice</string>
+		<string name="skill-epic">attack_wand_ice_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="ice">45 55</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.15</float>
+				<string name="type">ice</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+	%//T3
+	<dict>
+		<string name="id">mainhand_wand_ice_03</string>
+		<string name="name">.equipment.mainhand.wand.ice.3a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>120 48 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/wiz_wands.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_icewand_t3_a.model</string>
+		<string name="anim-set">wand-1h</string>
+		<string name="color">metal_t3</string>
+		<string name="color-secondary">ice_gem</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">50</int>
+		<ivec2 name="req-int">18 38</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_wand_ice</string>
+		<string name="skill-epic">attack_wand_ice_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="ice">50 60</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.175</float>
+				<string name="type">ice</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+	%//T4
+	<dict>
+		<string name="id">mainhand_wand_ice_04</string>
+		<string name="name">.equipment.mainhand.wand.ice.4a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>240 48 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/wiz_wands.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_icewand_t4_a.model</string>
+		<string name="anim-set">wand-1h</string>
+		<string name="color">metal_t4</string>
+		<string name="color-secondary">ice_gem</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">30</int>
+		<ivec2 name="req-int">23 48</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_wand_ice</string>
+		<string name="skill-epic">attack_wand_ice_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="ice">55 65</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.20</float>
+				<string name="type">ice</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+
+%//LIGHTNINGWANDS
+	%//T1
+	<dict>
+		<string name="id">mainhand_wand_lightning_01</string>
+		<string name="name">.equipment.mainhand.wand.lightning.1a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>456 24 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/wiz_wands.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_lightningrod_t1_a.model</string>
+		<string name="anim-set">wand-1h</string>
+		<string name="color">wood_t1</string>
+		<string name="color-secondary">lightning_gem</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-int">8 18</ivec2>
+		
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_wand_lightning</string>
+		<string name="skill-epic">attack_wand_lightning_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="lightning">40 50</ivec2>
+			</dict>
+		</array>
+	</dict>
+	%//T2
+	<dict>
+		<string name="id">mainhand_wand_lightning_02</string>
+		<string name="name">.equipment.mainhand.wand.lightning.2a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>96 48 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/wiz_wands.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_lightningrod_t2_a.model</string>
+		<string name="anim-set">wand-1h</string>
+		<string name="color">metal_t2</string>
+		<string name="color-secondary">lightning_gem</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-int">13 28</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_wand_lightning</string>
+		<string name="skill-epic">attack_wand_lightning_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="lightning">45 55</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.15</float>
+				<string name="type">lightning</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+	%//T3
+	<dict>
+		<string name="id">mainhand_wand_lightning_03</string>
+		<string name="name">.equipment.mainhand.wand.lightning.3a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>336 48 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/wiz_wands.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_lightningrod_t3_a.model</string>
+		<string name="anim-set">wand-1h</string>
+		<string name="color">metal_t3</string>
+		<string name="color-secondary">lightning_gem</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">50</int>
+		<ivec2 name="req-int">18 38</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_wand_lightning</string>
+		<string name="skill-epic">attack_wand_lightning_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="lightning">50 60</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.175</float>
+				<string name="type">lightning</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+	%//T4
+	<dict>
+		<string name="id">mainhand_wand_lightning_04</string>
+		<string name="name">.equipment.mainhand.wand.lightning.4a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>336 48 24 24</vec4>
+		</array>
+		
+		<string name="graphic">items/equipment/wiz_wands.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_lightningrod_t4_a.model</string>
+		<string name="anim-set">wand-1h</string>
+		<string name="color">metal_t4</string>
+		<string name="color-secondary">lightning_gem</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">30</int>
+		<ivec2 name="req-int">23 48</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_arcane</string>
+		</array>
+		
+		<string name="skill">attack_wand_lightning</string>
+		<string name="skill-epic">attack_wand_lightning_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="lightning">55 65</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.20</float>
+				<string name="type">lightning</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+
+
+
+
+
+
+
+
+
+
+
+<!-- NEW INT DIRK -->
+
+	<dict>
+		<string name="id">mainhand_dirk_01</string>
+		<string name="name">.equipment.offhand.dirk.1a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>72 384 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/warlock_daggers.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_dagger_t2_a.model</string>
+		<string name="anim-set">stab-1h</string>
+		<string name="color">leather_t1</string>
+		<string name="color-secondary">metal_t1</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-int">2 12</ivec2>
+		
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_stab_dirk</string>
+		<string name="skill-epic">attack_stab_dirk_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">20 25</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="poison">20 25</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.3</vec2>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<string name="id">mainhand_dirk_02</string>
+		<string name="name">.equipment.offhand.dirk.2a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>96 384 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/warlock_daggers.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_dagger_t2_a.model</string>
+		<string name="anim-set">stab-1h</string>
+		<string name="color">leather_t2</string>
+		<string name="color-secondary">metal_t2</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-int">7 22</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_stab_dirk</string>
+		<string name="skill-epic">attack_stab_dirk_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">23 28</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="poison">23 28</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.3</vec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.1</float>
+				<string name="type">poison</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<string name="id">mainhand_dirk_03</string>
+		<string name="name">.equipment.offhand.dirk.3a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>120 384 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/warlock_daggers.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_dagger_t2_a.model</string>
+		<string name="anim-set">stab-1h</string>
+		<string name="color">leather_t3</string>
+		<string name="color-secondary">metal_t3</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">50</int>
+		<ivec2 name="req-int">12 32</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_stab_dirk</string>
+		<string name="skill-epic">attack_stab_dirk_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">25 30</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="poison">25 30</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.3</vec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.125</float>
+				<string name="type">poison</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<string name="id">mainhand_dirk_04</string>
+		<string name="name">.equipment.offhand.dirk.4a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>144 384 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/equipment/warlock_daggers.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_dagger_t2_a.model</string>
+		<string name="anim-set">stab-1h</string>
+		<string name="color">leather_t1</string>
+		<string name="color-secondary">metal_t1</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">30</int>
+		<ivec2 name="req-int">17 42</ivec2>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_melee</string>
+		</array>
+		
+		<string name="skill">attack_stab_dirk</string>
+		<string name="skill-epic">attack_stab_dirk_epic</string>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">33 38</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="poison">33 38</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::Parry</string>
+				<vec2 name="chance">0.3</vec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.15</float>
+				<string name="type">poison</string>
+				<string name="stat">int</string>
+			</dict>
+		</array>
+	</dict>
+
+%//SCEPTERS
+	<dict>
+		<string name="id">mainhand_scepter_01</string>
+		<string name="name">.equipment.mainhand.scepter.1a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>96 528 24 24</vec4>
+		</array>
+		
+		
+		<string name="graphic">items/equipment/priest_scepters.unit:ap1</string>
+		<string name="model">players/models/equipment/mh_scepter_t1_a.model</string>
+		<string name="anim-set">scepter-1h</string>
+		<string name="color">fire_gem</string>
+		<string name="color-secondary">wood_t1</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">20</int>
+		<ivec2 name="req-foc">2 10</ivec2>
+		
+		<string name="skill">attack_holy_scepter</string>
+		<string name="skill-epic">attack_holy_scepter_epic</string>
+		
+		<array name="tags">
+			<string>armory</string>
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_arcane</string>
+		</array>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">40 50</ivec2>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">mainhand_scepter_02</string>
+		<string name="name">.equipment.mainhand.scepter.2a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>120 528 24 24</vec4>
+		</array>
+		
+		
+		<string name="graphic">items/equipment/priest_scepters.unit:ad1</string>
+		<string name="model">players/models/equipment/mh_scepter_t2_a.model</string>
+		<string name="anim-set">scepter-1h</string>
+		<string name="color">fire_gem</string>
+		<string name="color-secondary">metal_t2</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">10</int>
+		<int name="ilvl-max">30</int>
+		<ivec2 name="req-foc">6 18</ivec2>
+		
+		<string name="skill">attack_holy_scepter</string>
+		<string name="skill-epic">attack_holy_scepter_epic</string>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_arcane</string>
+		</array>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">45 55</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.15</float>
+				<string name="type">physical</string>
+				<string name="stat">foc</string>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">mainhand_scepter_03</string>
+		<string name="name">.equipment.mainhand.scepter.3a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>144 528 24 24</vec4>
+		</array>
+		
+		
+		<string name="graphic">items/equipment/priest_scepters.unit:ex1</string>
+		<string name="model">players/models/equipment/mh_scepter_t3_a.model</string>
+		<string name="anim-set">scepter-1h</string>
+		<string name="color">fire_gem</string>
+		<string name="color-secondary">metal_t3</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">20</int>
+		<int name="ilvl-max">50</int>
+		<ivec2 name="req-foc">10 26</ivec2>
+		
+		<string name="skill">attack_holy_scepter</string>
+		<string name="skill-epic">attack_holy_scepter_epic</string>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_arcane</string>
+		</array>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">50 60</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.175</float>
+				<string name="type">physical</string>
+				<string name="stat">foc</string>
+			</dict>
+		</array>
+	</dict>
+
+	<dict>
+		<string name="id">mainhand_scepter_04</string>
+		<string name="name">.equipment.mainhand.scepter.4a</string>
+
+		<array name="icon">
+			<string>items/icons_equipment.png</string>
+			<int>100</int><vec4>168 528 24 24</vec4>
+		</array>
+		
+		
+		<string name="graphic">items/equipment/priest_scepters.unit:ma1</string>
+		<string name="model">players/models/equipment/mh_scepter_t4_a.model</string>
+		<string name="anim-set">scepter-1h</string>
+		<string name="color">fire_gem</string>
+		<string name="color-secondary">metal_t4</string>
+		
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">30</int>
+		<ivec2 name="req-foc">14 34</ivec2>
+		
+		<string name="skill">attack_holy_scepter</string>
+		<string name="skill-epic">attack_holy_scepter_epic</string>
+		
+		<array name="tags">
+			<string>mods_weapon_mainhand</string>
+			<string>mods_weapon_mainhand_arcane</string>
+		</array>
+		
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::DamageAdd</string>
+				<ivec2 name="physical">55 65</ivec2>
+			</dict>
+			<dict>
+				<string name="class">Modifiers::StatBasedDamage</string>
+				<float name="amount">0.20</float>
+				<string name="type">physical</string>
+				<string name="stat">foc</string>
+			</dict>
+		</array>
+	</dict>
+
+</array>

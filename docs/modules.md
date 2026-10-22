@@ -6,7 +6,7 @@ mod (`info.xml` at the root). `tools/build.py` packs it to `dist/HWP-<id>.bin`.
 ```
 mods/<id>/
   info.xml                      name / author / description
-  module.json                   build metadata: requires, overrides, exclude
+  module.json                   build metadata: requires, overrides, exclude, local, local_only
   README.md                     the feature spec: what it does, how to test it
   scripts/HWP/<Feature>/*.as    all code under scripts/HWP/ to avoid base collisions
   res/language/english/hwp_<id>.lang

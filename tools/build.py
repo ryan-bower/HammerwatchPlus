@@ -21,7 +21,9 @@ from it) and an optional `module.json`:
                                        # packed only with --with-local, never released
       "local_overlay": "hoh1art/",     # local too, but packed in place of the committed file
                                        # at the same path without the prefix (hoh1art/x.png -> x.png)
-      "dev": false                     # true: development harness, never packaged
+      "dev": false,                    # true: development harness, never packaged
+      "local_only": false              # true: built only when named together with --with-local,
+                                       # never in the all-in-one package (a machine-local testing aid)
     }
 """
 from __future__ import annotations
@@ -62,6 +64,7 @@ def load_module(mod_dir: Path) -> dict:
         cfg["local_overlay"] = cfg["local_overlay"].rstrip("/") + "/"
         cfg["local"].append(cfg["local_overlay"])
     cfg.setdefault("dev", False)
+    cfg.setdefault("local_only", False)
     cfg["dir"] = mod_dir
     # overrides tools/class_units.py remakes from gamecode/sdk/hoh2/ on every build (no .orig needed)
     cfg["generated"] = class_units.units_for(cfg["class_swaps"]) if paths.BASE_HOH2.is_dir() else []
@@ -190,6 +193,12 @@ def main(argv=None):
     if args.check:
         sys.exit(1 if check_overrides(mods) else 0)
     mods = [m for m in mods if not m["dev"]]     # dev harnesses are only ever linked (deploy.py --env gamelab)
+    if not args.modules:
+        mods = [m for m in mods if not m["local_only"]]   # local-only modules are built by name, with --with-local
+    elif not args.with_local and not args.check:
+        for m in mods:
+            if m["local_only"] and m["id"] in args.modules:
+                sys.exit(f"{m['id']} is local_only: build it with --with-local (and never publish it)")
     known = {m["id"] for m in mods}
     for m in mods:
         for req in m["requires"]:
