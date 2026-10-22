@@ -5,15 +5,15 @@
   "levels": [
     {
       "q": "common",
-      "text": "+10% range"
+      "text": "+1 zap per tick / +10% range"
     },
     {
       "q": "uncommon",
-      "text": "+20% range"
+      "text": "+1 zap per tick / +20% range"
     },
     {
       "q": "rare",
-      "text": "+35% range"
+      "text": "+2 zaps per tick / +35% range"
     }
   ],
   "name": "Lightning Rod",

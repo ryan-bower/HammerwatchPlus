@@ -9,7 +9,7 @@
     }
   ],
   "name": "Thunderclap",
-  "notes": "",
+  "notes": "Proposed numbers: the burst hits every enemy within 70 (the orb's zap range), for 150% of one zap.",
   "order": null,
   "skill": "wizard-spec4-active",
   "status": "idea",

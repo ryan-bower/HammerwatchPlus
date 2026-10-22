@@ -4,10 +4,16 @@
   "cooldown": "",
   "group": "ranger-spec4",
   "kind": "passive",
-  "levels": [],
+  "levels": [
+    "+2% Action Speed per stack (+10% at 5 stacks)",
+    "+2.5% Action Speed per stack (+12.5% at 5 stacks)",
+    "+3% Action Speed per stack (+15% at 5 stacks)",
+    "+3.5% Action Speed per stack (+17.5% at 5 stacks)",
+    "+4% Action Speed per stack (+20% at 5 stacks)"
+  ],
   "mana": "",
   "name": "Gathering Winds",
-  "notes": "",
+  "notes": "Proposed numbers: the max stays 5 stacks at every level. +20% at level 5 matches vanilla Rhythm's top attack speed (ran_rhythm, 0.2).",
   "order": 1,
   "role": "",
   "status": "idea",

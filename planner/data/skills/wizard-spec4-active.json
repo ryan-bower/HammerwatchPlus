@@ -13,7 +13,7 @@
   ],
   "mana": "40/50/50/60/60",
   "name": "Thunder Orb",
-  "notes": "",
+  "notes": "Proposed numbers: the orb travels at about 50 px/s and zaps enemies within 70.",
   "order": 0,
   "role": "weapon",
   "status": "idea",

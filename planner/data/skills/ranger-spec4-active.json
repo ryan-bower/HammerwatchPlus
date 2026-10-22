@@ -1,13 +1,19 @@
 {
   "built": "",
   "cls": "ranger",
-  "cooldown": "",
+  "cooldown": "6",
   "group": "ranger-spec4",
   "kind": "active",
-  "levels": [],
-  "mana": "",
+  "levels": [
+    "20 damage per arrow pass (10 physical + 10 lightning), 12 damage lightning strikes",
+    "25 damage per arrow pass (13 physical + 12 lightning), 14 damage lightning strikes",
+    "30 damage per arrow pass (15 physical + 15 lightning), 16 damage lightning strikes",
+    "35 damage per arrow pass (18 physical + 17 lightning), 18 damage lightning strikes",
+    "40 damage per arrow pass (20 physical + 20 lightning), 20 damage lightning strikes"
+  ],
+  "mana": "40",
   "name": "Lightning Arrow",
-  "notes": "",
+  "notes": "Proposed numbers: the 3 arrows fan over 30 degrees, and the lightning strikes reach enemies within 60 of the one hit.",
   "order": 0,
   "role": "",
   "status": "idea",
