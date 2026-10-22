@@ -281,4 +281,32 @@
 		<string name="fx">players/hwp/specs/effects/branded_sigil.effect</string>
 		<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>192 120 14 14</vec4></array>
 	</dict>
+	<!-- Devil Forgemaster: the Necrotic Resurrection / Sacrificial Penance channel (3 s, an
+	     elite's body 5 s, a boss's 10 s; the duration is given by the script) -->
+	<dict name="raising">
+		<bool name="debuff">false</bool>
+		<int name="duration">3000</int>
+		<bool name="ignore-buff-scaling">true</bool>
+		<bool name="silence">true</bool>
+		<bool name="disarm">true</bool>
+		<bool name="lock-movement">true</bool>
+		<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>24 144 14 14</vec4></array>
+	</dict>
+	<!-- Devil Forgemaster: eating an intact body after a Heresy lunge: 3 s rooted, silenced and
+	     disarmed, +50 health regeneration a second -->
+	<dict name="devouring">
+		<bool name="debuff">true</bool>
+		<int name="duration">3000</int>
+		<bool name="ignore-buff-scaling">true</bool>
+		<bool name="silence">true</bool>
+		<bool name="disarm">true</bool>
+		<bool name="lock-movement">true</bool>
+		<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>224 144 14 14</vec4></array>
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::AttribAdd</string>
+				<vec2 name="health-regen">50 50</vec2>
+			</dict>
+		</array>
+	</dict>
 </svals>

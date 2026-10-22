@@ -1,0 +1,151 @@
+%include "players/skills_cost.inc"
+<!--
+	Necrotic Resurrection (Devil Forgemaster active), the planner's priest-spec4-active. Cast on an
+	intact body (a Call of Heresy drop: HWPSpecsBody) within 150 of the priest, the one nearest
+	the aim: a channel (HWPSpecsResurrection, scripts/HWP/Specs/Forgemaster.as) of 3 s, 5 s for
+	an elite's body, 10 s for a boss's; then the host raises the enemy as a summon
+	(players/hwp/specs/forgemaster/risen/<unit>, HWPSpecsRisen / HWPSpecsRisenState) with nr-hp-pct
+	of its health and nr-dmg-pct of its damage, and the priest gains Heresy: 1, 2 for an elite,
+	3 for a boss. At 5 or more Heresy no raise is possible (a raise below 5 may overshoot).
+	At most nr-count risen at a time, the oldest dies past it. They lose 1% health every 3 s
+	(a boss every 9 s), can't be healed, follow the priest (a teleport leash of 350) and come
+	along to the next floor like any summon.
+	At max Divine Favor the skill is Sacrificial Penance: a 3 s channel on a body that removes
+	nr-penance Heresy, +1 for an elite's body, +2 for a boss's, spends every Divine Favor stack,
+	costs 50 mana and starts no cooldown (it shares this skill's).
+	Planner numbers: mana 70, cooldown 20 s, 50/60/70/85/100%, 2/2/3/3/4 risen, penance
+	1/1/2/2/3. Assumed: the 150 range, nr-dmg-base (the risen's damage, enemy numbers tuned for
+	hurting players, times this before the level's percentage: balanced in GameLab).
+	Orbs: Pyre Sacrifice (ps-reduce: using a Pyre removes 1/3 Heresy; HWPSpecsPyre), Rot Bloom
+	(rb-dmg: a risen that dies bursts for 60/120% weapon damage as poison within 60).
+-->
+<dict>
+	<string name="name">.hwp.specs.necrotic_resurrection.name</string>
+	<string name="type-name">.skills.type.spell</string>
+	<string name="description">.hwp.specs.necrotic_resurrection.desc</string>
+
+	<array name="description-params">
+		<array><s>count</s><s>.hwp.specs.param.risen_count</s><s>2</s><s>2</s><s>3</s><s>3</s><s>4</s></array>
+		<array><s>pct</s><s>.hwp.specs.param.risen_pct</s><s>50%</s><s>60%</s><s>70%</s><s>85%</s><s>100%</s></array>
+		<array><s>penance</s><s>.hwp.specs.param.penance</s><s>1</s><s>1</s><s>2</s><s>2</s><s>3</s></array>
+		<array><s>mana-cost</s><b>t</b><s>.skills.desc.params.mana_cost</s><s>70</s></array>
+		<array><s>cooldown</s><b>t</b><s>.skills.desc.params.cooldown</s><s>20s</s></array>
+	</array>
+
+	<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>24 144 24 24</vec4></array>
+
+	<string name="id">hwp_pri_necrotic_resurrection</string>
+	<string name="type">spell</string>
+	<array name="tags"><s>spell</s><s>summon</s></array>
+	<int name="starting-level">1</int>
+
+	<dict name="skill">
+		<int name="skill-cost">SKILLCOSTMASTERYLEVEL_1</int>
+		<string name="class">HWPSpecsResurrection</string>
+		<string name="anim">attack</string>
+		<int name="anim-length">400</int>
+
+		<int name="cooldown">20000</int>
+		<int name="castpoint">200</int>
+		<float name="cast-speed-mul">1</float>
+		<float name="move-speed-mul">0</float>
+		<ivec2 name="move-speed">0 400</ivec2>
+		<ivec2 name="blocking">0 400</ivec2>
+		<ivec2 name="update-aim">0 0</ivec2>
+		<bool name="repeating">false</bool>
+		<int name="mana-cost">70</int>
+
+		<dict name="binds">
+			<float name="nr-hp-pct">0.5</float>
+			<float name="nr-dmg-pct">0.5</float>
+			<float name="nr-dmg-base">1</float>
+			<int name="nr-count">2</int>
+			<int name="nr-penance">1</int>
+			<int name="ps-reduce">0</int>
+			<float name="rb-dmg">0</float>
+		</dict>
+
+		<array name="modifiers">
+			<array>
+				<dict>
+					<string name="class">HWPSpecsRisenCap</string>
+				</dict>
+			</array>
+		</array>
+
+		<dict name="actions">
+			<array name="cast">
+				<dict>
+					<string name="class">PlaySound</string>
+					<string name="sound">event:/sfx/player/shadow_curse</string>
+				</dict>
+			</array>
+		</dict>
+
+		<array name="timeline">
+			<i>200</i><s>cast</s>
+		</array>
+	</dict>
+
+	<array name="upgrades">
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
+			<dict name="binds"><float name="nr-hp-pct">0.6</float><float name="nr-dmg-pct">0.6</float><int name="nr-count">2</int><int name="nr-penance">1</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
+			<dict name="binds"><float name="nr-hp-pct">0.7</float><float name="nr-dmg-pct">0.7</float><int name="nr-count">3</int><int name="nr-penance">2</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
+			<dict name="binds"><float name="nr-hp-pct">0.85</float><float name="nr-dmg-pct">0.85</float><int name="nr-count">3</int><int name="nr-penance">2</int></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
+			<dict name="binds"><float name="nr-hp-pct">1</float><float name="nr-dmg-pct">1</float><int name="nr-count">4</int><int name="nr-penance">3</int></dict>
+		</dict>
+	</array>
+
+	<array name="modifier-skills">
+		<dict>
+			<string name="name">.hwp.specs.pyre_sacrifice.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.pyre_sacrifice.desc</string>
+			<array name="description-params">
+				<array><s>reduce</s><s>.hwp.specs.param.heresy_removed</s><s>1</s><s>3</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>96 144 24 24</vec4></array>
+			<string name="id">hwp_pri_nr_pyre_sacrifice</string>
+			<string name="quality">common</string>
+			<dict name="skill">
+				<dict name="binds"><int name="ps-reduce">1</int></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds"><int name="ps-reduce">3</int></dict>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<string name="name">.hwp.specs.rot_bloom.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.rot_bloom.desc</string>
+			<array name="description-params">
+				<array><s>damage</s><s>.hwp.specs.param.weapon_damage</s><s>60%</s><s>120%</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>168 144 24 24</vec4></array>
+			<string name="id">hwp_pri_nr_rot_bloom</string>
+			<string name="quality">uncommon</string>
+			<dict name="skill">
+				<dict name="binds"><float name="rb-dmg">0.6</float></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><float name="rb-dmg">1.2</float></dict>
+				</dict>
+			</array>
+		</dict>
+	</array>
+</dict>

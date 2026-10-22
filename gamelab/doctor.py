@@ -14,8 +14,9 @@ tools/bin/ (the patched PACKAGER is a copy there, not in the install), env_link 
 gamelab/env/userdata/, tools/class_units.py writes the class-swapped base units into
 mods/keys/ and mods/pets/, and tools/import_hoh1.py (pets, levels, campaign, classes; only
 the ones whose output is missing, never --force) writes the HoH1 content into mods/ and
-hoh1_import/, and tools/make_pet_dyes.py the dye-ready pet copies into mods/pets/. All of
-those are gitignored.
+hoh1_import/, tools/make_pet_dyes.py the dye-ready pet copies into mods/pets/, and
+tools/make_forgemaster_risen.py the Devil Forgemaster's risen and body units into mods/specs/.
+All of those are gitignored.
 
 Last, the smoke boot: once everything it needs is green, --fix runs the null-payload
 scenario in lab mode and turns a failure into its plain cause (antivirus blocking the shim,
@@ -337,6 +338,7 @@ def local_content(r: Report, fix: bool, hoh1: tuple[str, Path | None, str]) -> N
 
     hoh1_imports(r, fix, hoh1, base_ok)
     pet_dyes(r, fix, base_ok)
+    forgemaster_units(r, fix, base_ok)
 
 
 def pet_dyes(r: Report, fix: bool, base_ok: bool) -> None:
@@ -358,6 +360,29 @@ def pet_dyes(r: Report, fix: bool, base_ok: bool) -> None:
         v = run_py([script, "--verify"])
     detail = (v.stdout.strip().splitlines() or [v.stderr.strip()[-300:]])[-1]
     r.check(label, v.returncode == 0, detail, hint=f"{detail.removeprefix('pet dyes: ')}; `python tools/make_pet_dyes.py`")
+
+
+def forgemaster_units(r: Report, fix: bool, base_ok: bool) -> None:
+    """tools/make_forgemaster_risen.py: the Devil Forgemaster's risen and body units (one pair per
+    raisable enemy of gamecode/sdk/hoh2/actors/) in mods/specs/players/hwp/specs/forgemaster/,
+    plus the unit list the script reads (Forgemaster_Units.as). --check exits 1 while any of
+    them is missing or differs from what the generator would write."""
+    label = "Devil Forgemaster risen/body units (make_forgemaster_risen.py)"
+    if not base_ok:
+        r.check(label, False, hint="needs gamecode/sdk/hoh2/ first (bootstrap.py, above)")
+        return
+    script = str(REPO / "tools" / "make_forgemaster_risen.py")
+    v = run_py([script, "--check"])
+    if v.returncode and fix:
+        r.info(f"running tools/make_forgemaster_risen.py ({len(v.stdout.strip().splitlines())} unit(s) missing or stale)")
+        c = run_py([script])
+        r.info(f"make_forgemaster_risen.py exit {c.returncode}: {' | '.join(c.stdout.strip().splitlines()[:2])}")
+        if c.returncode:
+            print(c.stdout[-2000:] + c.stderr[-2000:])
+        v = run_py([script, "--check"])
+    stale = v.stdout.strip().splitlines()
+    detail = "complete and current" if v.returncode == 0 else f"{len(stale)} unit(s) missing or stale (first: {stale[:1]})"
+    r.check(label, v.returncode == 0, detail, hint=f"{detail}; `python tools/make_forgemaster_risen.py`")
 
 
 def hoh1_imports(r: Report, fix: bool, hoh1: tuple[str, Path | None, str], base_ok: bool) -> None:

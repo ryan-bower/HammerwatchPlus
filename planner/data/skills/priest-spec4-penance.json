@@ -1,7 +1,7 @@
 {
   "alt_of": "priest-spec4-active",
   "alt_when": "while Divine Favor is at its max (5 to 8 stacks, by Divine Favor's level)",
-  "built": "",
+  "built": "hwp_pri_necrotic_resurrection",
   "cls": "priest",
   "cooldown": "none of its own; shares Necrotic Resurrection's",
   "group": "priest-spec4",
@@ -16,10 +16,10 @@
   ],
   "mana": "50",
   "name": "Sacrificial Penance",
-  "notes": "Necrotic Resurrection's alternate form: same key, own name, icon and effect; it levels with Necrotic Resurrection (1/1/2/2/3 is a first pass for 'depending on level'). Mana 50. No cooldown of its own: it shares Necrotic Resurrection's, so it can't be used while Necrotic Resurrection is still on cooldown. Using it consumes your Divine Favor (all of it) and puts no cooldown on anything: with Favor no longer at its max, the skill is Necrotic Resurrection again, ready to cast. Penance and the Pyre Sacrifice orb are the only ways Heresy goes down. Icon: the user's pick from the picker (tools/icon_art/sp_pri.py, sp_pri2.py).",
+  "notes": "In game (hwp_pri_necrotic_resurrection at max Divine Favor, tested): the same key; 3 s channel on an intact body, mana 50, removes 1/1/2/2/3 Heresy plus 1 for an elite's body and 2 for a boss's (rank 5 on a boss body: 5), spends all Divine Favor, starts no cooldown. Below max Favor the cast is a raise. plan-forgemaster-bosses 20261022-084131. Assumed: the elite/boss bonus is added to the level's number (the user's call). Necrotic Resurrection's alternate form: same key, own name, icon and effect; it levels with Necrotic Resurrection (1/1/2/2/3 is a first pass for 'depending on level'). Mana 50. No cooldown of its own: it shares Necrotic Resurrection's, so it can't be used while Necrotic Resurrection is still on cooldown. Using it consumes your Divine Favor (all of it) and puts no cooldown on anything: with Favor no longer at its max, the skill is Necrotic Resurrection again, ready to cast. Penance and the Pyre Sacrifice orb are the only ways Heresy goes down. Icon: the user's pick from the picker (tools/icon_art/sp_pri.py, sp_pri2.py).",
   "order": 0.5,
   "role": "",
-  "status": "idea",
+  "status": "tested",
   "summary": "Channel for 3 seconds on an intact body to sacrifice it and wash away Heresy. Consumes your Divine Favor.",
   "unlock": "bought"
 }

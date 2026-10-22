@@ -346,6 +346,12 @@ class Run:
             p = pilotlib.Pilot(game, self.results.name, explore=bool(self.scenario.get("explore")))
             got = pilotlib.load_bot(s["bot"]).run(p, **s.get("kwargs", {}))
             got["intents"] = [{"intent": r.intent, "result": r.result, "reason": r.reason, "tick": r.tick} for r in p.log]
+            # the whole result, for tables the 3000-char assertion detail cuts (bot-<name>.json)
+            label = re.sub(r"[^A-Za-z0-9_.-]+", "_", s.get("name", f"bot {s['bot']}"))
+            try:
+                (self.results / f"bot-{label}.json").write_text(json.dumps(got, indent=1, default=str), encoding="utf-8")
+            except (OSError, TypeError, ValueError) as e:
+                print(f"[note] bot result not saved: {e}", flush=True)
             if "save_as" in s:
                 saved[s["save_as"]] = got
             bad = check(got, s.get("expect", {}))

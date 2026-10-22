@@ -68,4 +68,18 @@
 			<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>192 0 14 14</vec4></array>
 		</dict>
 	</dict>
+	<!-- Devil Forgemaster, Heresy: a stack per Necrotic Resurrection (1, elite 2, boss 3;
+	     Forgemaster.as). No timer: it carries from floor to floor and resets in town. Max 8: a
+	     raise below 5 may overshoot (a boss at 4 makes 7). Lowered only by Sacrificial Penance
+	     and the Pyre Sacrifice orb. The icon swaps to hud_heresy_5 at 5+ (UpdateForgemaster). -->
+	<dict>
+		<string name="id">heresy</string>
+		<string name="name">.hwp.specs.stack.heresy.name</string>
+		<string name="description">.hwp.specs.stack.heresy.desc</string>
+		<int name="max">8</int>
+		<dict name="buff">
+			<bool name="debuff">true</bool>
+			<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>192 144 14 14</vec4></array>
+		</dict>
+	</dict>
 </array>

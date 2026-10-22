@@ -1,6 +1,7 @@
 {
   "id": "specs",
   "requires": ["core"],
+  "class_swaps": {"PyreUnitBehavior": "HWPSpecsPyre"},
   "overrides": [],
   "exclude": []
 }

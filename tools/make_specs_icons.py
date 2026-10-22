@@ -53,6 +53,12 @@ ROWS = [
                       ("wlk_essence_extraction", 2, (24, 168)), ("wlk_pb_combustion", 3, (0, 144)),
                       ("wlk_pb_proliferation", 4, (0, 144)), ("wlk_ee_essence_empowerment", 6, (24, 168)),
                       ("wlk_ee_released_essence", 7, (24, 168)), ("hud_pyrebrand", 192, (0, 144))]),
+    ((120, 220, 110), [("pri_class", 0, (48, 240)), ("pri_necrotic_resurrection", 1, (48, 240)),
+                       ("pri_call_of_heresy", 2, (48, 240)), ("pri_deeper_depravity", 3, (48, 240)),
+                       ("pri_pyre_sacrifice", 4, (48, 240)), ("pri_sacrificial_penance", 5, (48, 240)),
+                       ("pri_ravenous_lunge", 6, (48, 240)), ("pri_rot_bloom", 7, (48, 240)),
+                       ("hud_heresy", 192, (48, 240)), ("hud_heresy_5", 208, (48, 240)),
+                       ("hud_devouring", 224, (48, 240))]),
 ]
 
 

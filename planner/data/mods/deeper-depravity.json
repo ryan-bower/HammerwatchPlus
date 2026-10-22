@@ -1,5 +1,5 @@
 {
-  "built": "",
+  "built": "hwp_pri_coh_deeper_depravity",
   "cls": "priest",
   "exclusive": "",
   "icon_art": "pri_deeper_depravity",
@@ -18,9 +18,9 @@
     }
   ],
   "name": "Deeper Depravity",
-  "notes": "Bosses can be raised and used by the player as new lite units: the boss's sprite at a smaller size (to fit through hallways), much less health, normal follow/attack AI and one or two of the boss's own attacks (each boss's real AI is scripted around its arena). Health decays slower than other summons. A boss's intact body is a gray version of the boss, upright (not lying on its side like other bodies). Raisable: the Harbingers (each judge), the roaming Bandit King (Bandit Keep floors 3-5), the Bone Serpent, the Face, Arista and the four totem poles: the bosses with floors left after them. Arista and the totem poles can't walk: once in a while they slide toward you like a lunge, with fast acceleration and slow deceleration. The Face floats after you. Left out: the mission-final bosses (Spider Queen, Dace Arden, the Avatar, the Bandit King's final fight and his mirror clones, the five Heaven Spirits), since the next stop is town; and the bell ghost shooter in Dace Arden's arena (a prop tagged as a boss).",
+  "notes": "In game (hwp_pri_coh_deeper_depravity, tested): +8/+15% on an elite's body roll, +30% on a boss's at epic. plan-forgemaster 20261022-102006. Bosses can be raised and used by the player as new lite units: the boss's sprite at a smaller size (to fit through hallways), much less health, normal follow/attack AI and one or two of the boss's own attacks (each boss's real AI is scripted around its arena). Health decays slower than other summons. A boss's intact body is a gray version of the boss, upright (not lying on its side like other bodies). Raisable: the Harbingers (each judge), the roaming Bandit King (Bandit Keep floors 3-5), the Bone Serpent, the Face, Arista and the four totem poles: the bosses with floors left after them. Arista and the totem poles can't walk: once in a while they slide toward you like a lunge, with fast acceleration and slow deceleration. The Face floats after you. Left out: the mission-final bosses (Spider Queen, Dace Arden, the Avatar, the Bandit King's final fight and his mirror clones, the five Heaven Spirits), since the next stop is town; and the bell ghost shooter in Dace Arden's arena (a prop tagged as a boss).",
   "order": null,
   "skill": "priest-spec4-passive",
-  "status": "idea",
+  "status": "tested",
   "summary": "Increase chance of elite and boss intact bodies"
 }
