@@ -1,8 +1,8 @@
 {
-  "blurb": "Turn from the light: the fallen rise again at your call, and every heresy you commit makes them stronger, and you hungrier.",
+  "blurb": "Turn from the light: the fallen rise again at your call, and every heresy you commit makes them stronger, and you hungrier. Only penance, paid in bodies, washes it away.",
   "cls": "priest",
   "name": "Devil Forgemaster",
-  "notes": "Built on Divine Favor: raising the dead spends Favor, and Favor can go below zero as Heresy stacks. Positive Favor is the base passive's damage bonus; negative Favor (Heresy) powers your summons and risks a flesh-eating lunge.",
+  "notes": "Heresy is its own stack, separate from Divine Favor. Raising the dead adds Heresy (normal +1, elite +2, boss +3); at 5 Heresy you can no longer raise. Heresy powers your summons and risks a flesh-eating lunge. At 5 Divine Favor, Necrotic Resurrection becomes Sacrificial Penance (its own name, icon and effect): sacrifice an intact body to remove Heresy. Choosing this spec gives Divine Favor level 1 for free.",
   "order": 4,
   "owner": "Ryan",
   "spec4": true,

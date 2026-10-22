@@ -13,10 +13,10 @@
   ],
   "mana": "",
   "name": "Call of Heresy",
-  "notes": "Heresy is Favor below zero (Divine Favor's stacks can now go negative). Lunge: you suddenly lunge at a nearby body on the ground and consume its flesh, a 3 s channel that cancels whatever you're casting and blocks all abilities until it ends. It uses up the body. While you eat, your health regeneration rises by 50 per second. Level numbers are a first pass. Heresy stacks only decrease through Favor gains; bodies stay on the ground for 60s.",
+  "notes": "Heresy is its own stack, not negative Favor: normal raise +1, elite +2, boss +3; at 5 Heresy you can't raise. It goes down only through Sacrificial Penance (Necrotic Resurrection at 5 Favor) and the Pyre Sacrifice orb. Lunge: rolled once per intact body, the first time you come within range of it. You suddenly lunge at it and consume its flesh: a 3 s channel that cancels whatever you're casting and blocks all abilities until it ends, and uses up the body. While you eat, your health regeneration rises by 50 per second. Choosing the spec gives Divine Favor level 1 for free. Bodies stay on the ground for 60 s. Level numbers are a first pass.",
   "order": 1,
   "role": "",
   "status": "idea",
-  "summary": "Slain enemies have a chance to fall with their body intact, ready for Necrotic Resurrection. Favor can now drop below zero as Heresy stacks: each one makes your summons stronger, but raises the chance that you lunge at a body and consume its flesh, a 3 s channel that cancels and blocks all your abilities but gives +50 health regeneration per second while it lasts.",
+  "summary": "Slain enemies have a chance to fall with their body intact, ready for Necrotic Resurrection. Heresy, gained by raising the dead, stacks up: each stack makes your summons stronger, but raises the chance that you lunge at an intact body you come near and consume its flesh, a 3 s channel that cancels and blocks all your abilities but gives +50 health regeneration per second while it lasts.",
   "unlock": "free"
 }
