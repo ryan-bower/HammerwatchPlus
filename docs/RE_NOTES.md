@@ -2628,16 +2628,16 @@ preserving the bank (030527). Original failures and exact source fingerprints re
 in docs/QA_OVERNIGHT.md and the per-batch JSONL journals. These scoped passes do not
 prove the outstanding middle ranks, new arsenal/orb cases or save transitions.
 
-Full mod-all032859 and all31 individual mod-ID cases pass, mostly load/self-check
+Full mod-all 032859 and all31 individual mod-ID cases pass, mostly load/self-check
 scope. Expanded54 legacy all-content scenarios from the old29-module set to all31,
 including specs and valuables, without removing assertions. Global/per-skill zero
-crit control032933 passes, and Lingering Tempest033415 passes native HP/lifetime
-observations. All three Lasting Gale, Tailwind and Lingering Breeze ranks031218 pass
+crit control 032933 passes, and Lingering Tempest 033415 passes native HP/lifetime
+observations. All three Lasting Gale, Tailwind and Lingering Breeze ranks 031218 pass
 their observed duration/movement/expiry effects. Shared Breath ally behavior remains
 blocked without a second real client.
 
-Return033153 still loses an outer fan arrow at a wall before its turn, consistently
-in all3 ordinary trials. Static033017 native phase events show an old Thunder Orb
+Return 033153 still loses an outer fan arrow at a wall before its turn, consistently
+in all3 ordinary trials. Static 033017 native phase events show an old Thunder Orb
 critical hit adding an extra stack after a new noncritical MagicMissile cast. Its
 15745-character final event exceeds GameLab's15000-character print limit; retained
 phase events establish gameplay independently. Repairs are staged pending the next
@@ -2656,21 +2656,21 @@ and no full-sweep completion is claimed. See the ledger for the remaining queue.
 Thunder Orb now keeps a shared token for each actual cast, including periodic and
 destroyed effects, so a newer spell cannot rearm an older orb or consume another
 orb's first-critical bonus. Native DamageActor/CriticalHit paths remain intact;
-release damage retains Static Charge attribution/exclusion. Original042233 and
-042350 preserve valid TT?MM and TT?TT failures. Scoped TT?MM repair042809 passes;
+release damage retains Static Charge attribution/exclusion. Original 042233 and
+042350 preserve valid TT?MM and TT?TT failures. Scoped TT?MM repair 042809 passes;
 its same-TT neighbor is queued. Non-TT delayed projectile attribution is unverified.
 
 Returning arrows now protect the first wall turn from duplicate native callbacks,
 undo oblique projectile reflection through the same normal, and sweep only actual
-returning movement for the catch. Valid044257 passes all3 ordinary and all3 coarse6x
-stress cases with damage and actual3 Tailwind stacks. Earlier042925 remains INVALID
+returning movement for the catch. Valid 044257 passes all3 ordinary and all3 coarse6x
+stress cases with damage and actual3 Tailwind stacks. Earlier 042925 remains INVALID
 because res/editor metadata differed; its historical before/after values are unknown.
 Five later directory/content snapshots were stable, and the bounded diagnostic run
 retains identical full res dictionaries. Added exact isolation-res.json diagnostics;
 no isolation comparison or other gate was relaxed and no installation file was edited.
 
-All5 Standard self-DR/free-plant/expiry ranks040543 and Righteous self-duration/
-movement/attack/reversion ranks040406 pass. Firearms magazine edge040044 passes23
+All5 Standard self-DR/free-plant/expiry ranks 040543 and Righteous self-duration/
+movement/attack/reversion ranks 040406 pass. Firearms magazine edge 040044 passes23
 retained bot rows (21 unique, repeated controls preserved). Native save/resume,
 arsenal and wider rank/orb cases remain pending. Seven shared restart tests pass.
 
@@ -2683,9 +2683,9 @@ UI/settings, persistence, failure or multiplayer coverage. The full goal remains
 ## Overnight QA checkpoint (2026-10-22, after 06:35 Central; incomplete)
 
 Stash sorting mixed Frostbrand and Warhammer by item level because both custom IDs
-were classified as `mh`. The original four-item failure061238 is retained. A narrow
+were classified as `mh`. The original four-item failure 061238 is retained. A narrow
 slot-matched `hwp_mh_`/`hwp_oh_`/`hwp_2h_` family correction passes the original
-reproduction063606 and an eight-item vanilla/Firearms/custom neighbor063629,
+reproduction 063606 and an eight-item vanilla/Firearms/custom neighbor 063629,
 including item conservation and repeated-sort idempotence. Untyped IDs retain their
 old family rule. Complete31-module load063532 passes on the same source fingerprint.
 
@@ -2699,22 +2699,22 @@ symlink-privilege skips; actual Windows junction traversal, retarget and cycle t
 pass. Earlier INVALID runs retain that verdict. Later native runs pass all isolation
 checks. This is a harness repair, separate from the seven gameplay repairs.
 
-Firearms054758 passes actual own-hand critical damage controls and055033 passes
-unequal magazine/factor preservation across a native floor transition. Resume055214
+Firearms 054758 passes actual own-hand critical damage controls and 055033 passes
+unequal magazine/factor preservation across a native floor transition. Resume 055214
 failed fixture materialization because its recipe used nonnative mod aliases; the
-corrected fixture is queued. Arsenal055606 completed all72 cases:68 damage paths
+corrected fixture is queued. Arsenal 055606 completed all72 cases:68 damage paths
 passed and4 dealt zero target damage despite valid equipment/ammo. A bounded eight
 path regression uses denser target geometry; all original outcomes remain. No weapon
 gameplay fix is inferred from the four misses yet.
 
-Gale050230 verifies all5 ranks with complete native timed observations. Arcane050619
+Gale 050230 verifies all5 ranks with complete native timed observations. Arcane 050619
 verifies plain Blink at all5 ranks; Far Step clipping required a certified destination
-fixture, and Living Mana coefficient coverage remains partial. Deadeye050849 stalled
+fixture, and Living Mana coefficient coverage remains partial. Deadeye 050849 stalled
 on a missing QA texture; that fixture dependency and masked-first-error cleanup were
 corrected after cause inspection and one isolated lab reset. Corrected cases remain
 unverified until their new native runs finish.
 
-Class runs061712/061850/062027 cleanly rejected the same invalid cloak fixture before
+Class runs 061712/061850/062027 cleanly rejected the same invalid cloak fixture before
 ordinary combat. Native Equipment.as computes back_2b10's requirement as Vit11,
 not the previously assumed5. The corrected matched fixture explicitly checks an empty
 back, four legal seeded rare20 armor pieces, common20 class weapon and57 earned
@@ -2728,9 +2728,9 @@ skill/orb, module functional, transition and multiplayer coverage remains open.
 
 ## Overnight native checkpoint (2026-10-22, after07:17 Central; incomplete)
 
-Cold Firearms resume064827 and dense eight-path arsenal065040 pass their scoped native effects; original failures remain. Static same-TT065338, corrected Arcane065457 and Deadeye065727 pass their declared cases with exact coefficient/cadence/lifecycle gaps retained in the granular Specs inventory.
+Cold Firearms resume 064827 and dense eight-path arsenal 065040 pass their scoped native effects; original failures remain. Static same-TT 065338, corrected Arcane 065457 and Deadeye 065727 pass their declared cases with exact coefficient/cadence/lifecycle gaps retained in the granular Specs inventory.
 
-Class070416/070724/071026 each validates two ordinary native floor transitions with normal path/use. Full runs remain FAIL: floor3 mandatory Bandit encounter/closed-door objective is not handled by the driver; death/no-route outcomes do not establish a class defect. Boss/reward/town completion remains unverified. The Python-only exit adapter derives prefab rotation, verifies the actual unique physics sensor and native top usable, then requires a real live-floor change; it never executes the exit script or sets transition flags.
+Class 070416/070724/071026 each validates two ordinary native floor transitions with normal path/use. Full runs remain FAIL: floor3 mandatory Bandit encounter/closed-door objective is not handled by the driver; death/no-route outcomes do not establish a class defect. Boss/reward/town completion remains unverified. The Python-only exit adapter derives prefab rotation, verifies the actual unique physics sensor and native top usable, then requires a real live-floor change; it never executes the exit script or sets transition flags.
 
 Priority-v runs36 prepared Firearms/Specs cases serially under unchanged isolation gates and frozen queued source. No full-coverage completion is claimed; see QA_OVERNIGHT and the four inventories for exact scopes, fingerprints, gaps and the deadline.
 
@@ -2791,25 +2791,25 @@ Eight gameplay repairs retain passing native reproductions: Shadow Strike, Ripos
 per-hand magazine crit, Hoarder HUD cleanup, Static Charge cast attribution,
 returning-arrow catches, typed weapon-family Stash sorting and Dragon's Breath
 patch persistence. The required final14 regression scopes all passed at their
-recorded fingerprints. Final magazine093247, Hoarder093432, Riposte093528 and
-Shadow093637 join the final native Static/Return/Stash/variant proofs. Later changes
+recorded fingerprints. Final magazine 093247, Hoarder 093432, Riposte 093528 and
+Shadow 093637 join the final native Static/Return/Stash/variant proofs. Later changes
 only extend read-only GameLab dead-player mana telemetry; relevant production and
 release payloads remain unchanged. The manifest explicitly separates these epochs.
 
 Granular fourth-spec coverage is55/60 scoped skill-rank PASS and5 LivingMana PARTIAL.
 Orb qualities are47 PASS,3 PARTIAL,11 UNTESTED and4 ally BLOCKED out of65. Font/Conduit
 093729 passes independent primary/cast timelines and exact mana refunds; Provisions
-094004 passes earned caps, exclusions, source-CD deltas and expiry; Feedback094540
+094004 passes earned caps, exclusions, source-CD deltas and expiry; Feedback 094540
 passes all9 real-input casts, bank caps, consumption, multipliers and reversion.
 Ward proves actual185/170 incoming HP loss and expiry200, but native Refresh averages
 old/new intensities while stacks ramp, so exact settled coefficients remain PARTIAL.
-Barrier proves protection, mana drain and expiry death in094732, but its precise
-post-death assertion was unavailable. The new read-only field compiled in100030;
+Barrier proves protection, mana drain and expiry death in 094732, but its precise
+post-death assertion was unavailable. The new read-only field compiled in 100030;
 that fresh Barrier run failed geometry before any effect trial and grants no credit.
 Branding/Gale lane failures likewise executed zero ability trials. All originals stay.
 
 Firearms has10/60 skill ranks scoped PASS,10 PARTIAL and40 UNTESTED; orb qualities
-are42/75 scoped PASS,32 UNTESTED and1 true-co-op BLOCKED. Elements095401 retains
+are42/75 scoped PASS,32 UNTESTED and1 true-co-op BLOCKED. Elements 095401 retains
 340000 native distribution rolls across five base ranks and12 weighted qualities,
 plus real gunfire/HP at every base rank. Orb-specific natural projectile frequencies
 and damage amplitude are separate gaps. Frag cooling-refusal trials were issued
@@ -2817,7 +2817,7 @@ only after native cooldown zero; Focus's additive chance expectation contradicte
 native complementary-probability stacking. Both five-rank sets stay PARTIAL with
 all raw FAILs retained. They are not additional gameplay defects or balance changes.
 
-Bloodlust/Judgement095729 adds all10 controlled native kill-hook rank effects:
+Bloodlust/Judgement 095729 adds all10 controlled native kill-hook rank effects:
 health gains10/20/30/40/50 and mana3/4/5/6/7. The HoH1 matrix is now4/39 skills and
 14/191 positive-rank slots scoped PASS;35 skills,177 rank slots and9 selected-mastery
 save combinations remain untested. Every ordinary full31 class run still fails
@@ -2826,9 +2826,9 @@ floor3 Bandit encounter/unlock objective remains necessary before claiming ordin
 boss, reward, natural town-return or acquired-reward persistence coverage.
 
 Additional functional scopes pass: settings search and two-tab stash save/restart
-095605 (24 runner assertions), Architect native picker/pricing100154, controlled
-Strongbox/Abyss no-reward timeouts100238/100326, gun-arm100414 and native town object
-rebuilding100615. Fresh standalone dependency/load cases100507/100522/100537/100552
+095605 (24 runner assertions), Architect native picker/pricing 100154, controlled
+Strongbox/Abyss no-reward timeouts 100238/100326, gun-arm 100414 and native town object
+rebuilding 100615. Fresh standalone dependency/load cases 100507/100522/100537/100552
 pass for all four repaired modules. Module axes retain uncovered UI/tooltips,
 settings, successful rewards, persistence, interactions and true-co-op limits.
 
@@ -2845,7 +2845,7 @@ No parked classes, planner-only designs, IDs or balance contracts were changed.
 The complete sweep is not achieved. QA_OVERNIGHT and the four granular inventories
 are the resumable record; time exhaustion is a stop condition, not completion.
 
-Final native mod-all100827 passes the exact31 stack after the read-only Probe change.
+Final native mod-all 100827 passes the exact31 stack after the read-only Probe change.
 The focused101134 case then verifies fractional dead mana12.375 against independent
 raw record telemetry and integer12; all8 gates/12 runner assertions pass. This adds
 no Barrier ability credit. Module inventory now retains217 axes:31standalonePASS,
@@ -2859,7 +2859,7 @@ counts and the32-archive hash are in docs/generated/qa_overnight_summary.json.
 
 The user removed the original overnight deadline and activated the goal again. Work remains in progress; the original deadline/final-hour notes below are historical. Verified scoped coverage now includes60/60 fourth-spec rank cases,49/65orb qualities (nine fresh Branding qualities awaiting granular audit; maximum combo failed),20/60 Firearms ranks,42/75orb qualities,62/191HoH1positive ranks and9/9mastery save/reload combinations. Native stat-only scopes remain separate from combat/cadence/mitigation.
 
-Fresh full-stack `mod-all 20261022-111422` and minimal `null-payload 111454` compile/load checks passed with the read-only per-frame resource observer. `qa-firearms-ranks-base 111509` and `qa-specs-living-mana-coefficients 111830` passed; exact per-run hashes are in the ledger/journals. `qa-specs-branding-orbs 113033` now obtains strict fine-grid/native-ray geometry through normal walking but fails the maximum-combination check. `qa-classes-gladiator-hoh2-run 112028` reached Keep3 and died during objective travel; no class/encounter bug is inferred. Controlled endgame weapon tests112325/112427 failed native equip requirements before attack/parry testing: ilvl35 requirements use unbounded vector interpolation at34/9, not the high endpoint at level10. A QA fixture correction is staged; no production change is inferred from these setup failures.
+Fresh full-stack `mod-all 20261022-111422` and minimal `null-payload 111454` compile/load checks passed with the read-only per-frame resource observer. `qa-firearms-ranks-base 111509` and `qa-specs-living-mana-coefficients 111830` passed; exact per-run hashes are in the ledger/journals. `qa-specs-branding-orbs 113033` now obtains strict fine-grid/native-ray geometry through normal walking but fails the maximum-combination check. `qa-classes-gladiator-hoh2-run 112028` reached Keep3 and died during objective travel; no class/encounter bug is inferred. Controlled endgame weapon tests 112325/112427 failed native equip requirements before attack/parry testing: ilvl35 requirements use unbounded vector interpolation at34/9, not the high endpoint at level10. A QA fixture correction is staged; no production change is inferred from these setup failures.
 
 The source is frozen during each serial GameLab batch. Remaining ranks/orbs, legal interactions, ordinary run lifecycles, UI/acquisition and module functional/persistence/failure paths remain required. See `docs/QA_OVERNIGHT.md` and `docs/generated/qa_overnight_summary.json`; previous repair regressions and all failures are retained.
 
@@ -3193,3 +3193,36 @@ its run (`plan-forgemaster-smoke` and `plan-forgemaster`, `gamelab/results/`):
   g_bookColors, descParams)` (the `(string, dictionary, dictionary)` overload is in the API strings;
   `descParams` already holds the level 1 value per token). Assumed, not run: the user asked for no
   GameLab runs here; a script error in that file would show in the game log as `Modifications.as`.
+  Compiled since: `mod-all 20261022-193227` (below) loads core with the override and reports no
+  script errors; the tooltip's text itself is still unseen.
+
+## PR #9 merged with main: the QA sweep's fixes on top of the Forgemaster (2026-10-22, evening)
+
+- **The merge** (`0f22a6a` on `qa/native-sweep-fixes-20261022`): three textual conflicts, all in
+  files both branches appended to. README's specs status line keeps the sweep's crit note and
+  main's "the Priest's 4th spec is built"; RE_NOTES keeps both branches' sections; runner.py keeps
+  both bot-result writers (`bot-results.jsonl` from the sweep, `bot-<name>.json` from main). The
+  AngelScript merged without conflicts (SpecsModule.as, Combat.as, Hands.as auto-merged).
+- **Verified on the merged tree:** `mod-all 20261022-193227` PASS, all 31 modules enabled, town
+  reached, no script errors in our files, clean teardown; the sweep's Python tests (57 passed,
+  2 skipped: `gamelab/tests`, `test_res_snapshot.py`, `test_runner_restart.py`,
+  `tools/compiler_selftest.py`); `build.py --check`, `list_verbs.py --check`. Not re-run here: the
+  sweep's gameplay reproductions (its own run ids are in `docs/QA_OVERNIGHT.md`).
+- **Review of the gameplay changes (read against the decompiled source):** `riposte.sval`'s old
+  `Modifiers::Thorns` does not exist in the game (no such class in StatModifier.as), so Riposte
+  had no thorns at all; `Modifiers::AddThorns` with `thorns-bind` is the real class (its
+  `thorns` vec2 resolves through the `-bind` convention like Damage's `physical`). Shadow Strike's
+  landing goes through `Explode` (Actions/Explode.as params `min-radius`, `dist-scaling`,
+  `hit-*`), the way the Warrior's charge lands. The Firearms rounds' `off-hand` flags agree with
+  the `_off` name test `HWPFirearmsGunShot` uses for the magazine debit (`glock_round_dual` is
+  the main pistol's round in both the main attack's mixes and the off-hand attack's burst).
+  `HWPFirearmsBreathArea` appends the patch producer to the game's global `infiniteSummons`
+  (Player.as:1), the list the mercenaries use, so `Player.Update` caps those areas at 1000
+  instead of 1. `HWPFirearmsMagazineCrit : CritDamage` uses CritDamage's `m_role`,
+  `m_attackCritDmg`, `m_spellCritDmg`. The magazine split (`Magazine.as`) is bonus-only state
+  in core's save bag (`firearms.mag.*`) and never touches the native clip.
+- **Left as is, flagged:** `docs/generated/qa_*.json` adds about 4.5 MB of QA evidence to the
+  repo (the five largest 260 KB to 940 KB); the sweep's notes glued run times to the word before
+  them ("Dragon085158"), fixed here by inserting the space (46 in RE_NOTES, 92 in QA_OVERNIGHT);
+  "all12", "Full31"-style glued counts remain. The new res/ isolation snapshot hashes every file
+  under the install's `res/` (118 files) before and after each run, a second or so each.

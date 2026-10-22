@@ -63,11 +63,11 @@ Retain all flaky outcomes and bounded trial counts. Restart after script changes
 
 | Area | Current scoped evidence | Remaining limits |
 | --- | --- | --- |
-| Doctor and full31 stack | Native-visibility final doctor is green. Full31 mod-all100827 passes. All14 required repaired-behavior/control scopes pass at their recorded fingerprints. Later Probe E68E adds only read-only dead-player mana precision; full31 compile and all four changed modules' standalone dependency/load checks pass afterward. | Regression scope completion is separate from the incomplete overnight goal. Final14 metadata identifies the later QA-only change and unchanged relevant production sources; do not claim one common fingerprint for all14. |
+| Doctor and full31 stack | Native-visibility final doctor is green. Full31 mod-all 100827 passes. All14 required repaired-behavior/control scopes pass at their recorded fingerprints. Later Probe E68E adds only read-only dead-player mana precision; full31 compile and all four changed modules' standalone dependency/load checks pass afterward. | Regression scope completion is separate from the incomplete overnight goal. Final14 metadata identifies the later QA-only change and unchanged relevant production sources; do not claim one common fingerprint for all14. |
 | Six built fourth specs |60 skill-rank rows:55 scopedPASS,5 LivingMana PARTIAL.65 orb-quality rows:47 scopedPASS,3PARTIAL,11UNTESTED,4allyBLOCKED. Fresh Pyrebrand/Essence, Font/Conduit, Provisions and Feedback native effects pass. | Ward2 qualities prove whole-HP DR/expiry but not settled exact intensity; native refresh averages old/new intensity. Barrier1 proves protection/drain/expiry death but its precise dead mana assertion remains unverified. Branding/Gale geometry fails before effects. Other cadence, combination, lifecycle and co-op gaps remain. |
-| Firearms |60 skill-rank rows:10 scopedPASS,10PARTIAL,40UNTESTED.75 orb-quality rows:42 scopedPASS,32UNTESTED,1co-opBLOCKED. Final Shotgun085158, Grenades085345, Missiles090522, magazine093247 and Hoarder093432 pass; Elements095401 adds five base ranks and twelve weighted qualities, with native-function scope explicit. Arm100414 and standalone100507 pass. | Frag's cooling-refusal test waited past expiry; Focus's additive-chance oracle ignored native complementary-probability stacking. Both sets of five remainPARTIAL with original suiteFAILs retained. Full ranks/affixes/combinations and orb-specific natural damage/frequency remain incomplete. |
-| Three hidden HoH1 ports | Four of39 skills and14 of191 positive-rank slots have scopedPASS: Shadow/Riposte ranks1/5, plus Bloodlust/Judgement all5 via controlled real kill hooks095729. Final Shadow093637/Riposte093528 pass. All3 ordinary full31 cases complete two real floor transitions. | All3 full runs remainFAIL before final boss: native floor3 encounter/unlock objective is absent from driver. Boss/reward/natural-town/reward-persistence,9mastery saves and35 other skills remain unverified. Controlled kill hooks do not prove ordinary attack kills. |
-| Other content modules | All31 standalone dependency/load cases pass. UI/settings and two-tab stash save/restart095605, Architect picker/pricing100154, Strongbox/Abyss controlled no-reward timeouts100238/100326 and town object rebuilding100615 pass their declared scopes. | Individual functional/UI/settings/persistence/failure/interaction axes remain incomplete. The module inventory records narrow evidence and partial axes; successful event rewards, full UI/tooltips and real co-op are unverified. |
+| Firearms |60 skill-rank rows:10 scopedPASS,10PARTIAL,40UNTESTED.75 orb-quality rows:42 scopedPASS,32UNTESTED,1co-opBLOCKED. Final Shotgun 085158, Grenades 085345, Missiles 090522, magazine 093247 and Hoarder 093432 pass; Elements 095401 adds five base ranks and twelve weighted qualities, with native-function scope explicit. Arm 100414 and standalone 100507 pass. | Frag's cooling-refusal test waited past expiry; Focus's additive-chance oracle ignored native complementary-probability stacking. Both sets of five remainPARTIAL with original suiteFAILs retained. Full ranks/affixes/combinations and orb-specific natural damage/frequency remain incomplete. |
+| Three hidden HoH1 ports | Four of39 skills and14 of191 positive-rank slots have scopedPASS: Shadow/Riposte ranks1/5, plus Bloodlust/Judgement all5 via controlled real kill hooks 095729. Final Shadow 093637/Riposte 093528 pass. All3 ordinary full31 cases complete two real floor transitions. | All3 full runs remainFAIL before final boss: native floor3 encounter/unlock objective is absent from driver. Boss/reward/natural-town/reward-persistence,9mastery saves and35 other skills remain unverified. Controlled kill hooks do not prove ordinary attack kills. |
+| Other content modules | All31 standalone dependency/load cases pass. UI/settings and two-tab stash save/restart 095605, Architect picker/pricing 100154, Strongbox/Abyss controlled no-reward timeouts 100238/100326 and town object rebuilding 100615 pass their declared scopes. | Individual functional/UI/settings/persistence/failure/interaction axes remain incomplete. The module inventory records narrow evidence and partial axes; successful event rewards, full UI/tooltips and real co-op are unverified. |
 
 ## Findings and fixes
 
@@ -80,10 +80,10 @@ Retain all flaky outcomes and bounded trial counts. Restart after script changes
 Eight scoped gameplay repairs have passing reproductions at their recorded working-tree
 fingerprints: Shadow Strike, Riposte, per-hand magazine crit, Hoarder HUD, Static
 first-crit attribution, returning arrows, Stash family ordering, and Dragon's Breath
-owned-area replacement. Dragon085158 preserves all12 actual authored ground areas,
+owned-area replacement. Dragon 085158 preserves all12 actual authored ground areas,
 checks native initialized TTL/countdown/owner/producer-exemption state and actual
 HP effects. The native producer exemption preserves ownership, binds and authored
-expiry. Grenades085345 also passes all9 qualities after stronger read-only native
+expiry. Grenades 085345 also passes all9 qualities after stronger read-only native
 TTL observation; its observer/oracle corrections are not a ninth gameplay repair.
 OriginalFAILs, fixture/oracle failures, bounded flaky trials and historicalINVALIDs
 remain retained. These separate fingerprints do not establish final-code regression.
@@ -94,7 +94,7 @@ remain retained. These separate fingerprints do not establish final-code regress
 | Winddancer |10 scopedPASS|9 scopedPASS;1allyBLOCKED|050230: Gale all5 native lifetime/evasion. SecondWind all5 actual heals/lock/recovery.031218: Lasting3/Tailwind3/Breeze3 scoped effects/expiry. SharedBreath true ally remainsBLOCKED; full cast/attack cadence is unproved. |
 | Arcane |5 scopedPASS;5PARTIAL|3 scopedPASS;4UNTESTED;3allyBLOCKED|065457: Blink5 damage/distance/radius and FarStep3 distance. LivingMana conversion/recovery/mirror is observed; exact rank regen coefficients remainPARTIAL. Barrier setup failed; Feedback bank/cap/multiplier state passed but its actual cast/damage measurement did not. Corrected native-input/fresh-target and normal-walk setup are pending. Conduit3 true alliesBLOCKED. |
 | Branding |10UNTESTED|2 scopedPASS;9UNTESTED|083312: both Released qualities,10 native recast-claw kill controls/trials, actual ordinary/elite/boss-tag payouts3/6, cap and Combustion spend-before-payout. ControlledHP1 is not a full boss fight. Original rank/rate sweeps retain heterogeneous-target/Fire-pool/brand-expiry measurement failures; new source-predicted homogeneous-target and ice-wand native-input measurements await retest. Wide-orb original failure attempted zero qualities; bounded ordinary walking preserves the full footprint for its retest. |
-| Bannerlord |10 scopedPASS|9 scopedPASS;3UNTESTED|040543/040406: Standard selfDR and Righteous duration/selfmove/main-speed. Crest3 actual target vulnerability/attack damage, Martyr3 bearerDR-loss, Drum3 native tier/cap/expiry pass084110/084439/084314. Stronger Martyr allyDR remainsBLOCKED; Drum actual enemy outgoing damage isUNTESTED. Provisions original counts/CD oracle failed; natural fixture expiry and source12000ms CD-delta correction awaits retest. |
+| Bannerlord |10 scopedPASS|9 scopedPASS;3UNTESTED|040543/040406: Standard selfDR and Righteous duration/selfmove/main-speed. Crest3 actual target vulnerability/attack damage, Martyr3 bearerDR-loss, Drum3 native tier/cap/expiry pass 084110/084439/084314. Stronger Martyr allyDR remainsBLOCKED; Drum actual enemy outgoing damage isUNTESTED. Provisions original counts/CD oracle failed; natural fixture expiry and source12000ms CD-delta correction awaits retest. |
 | Aerotheurge |10 scopedPASS|8 scopedPASS;4UNTESTED|080551: TT/Static all5 actual rank damage, real5-cast charge/release and Rod3 target counts/radii.081952: FocalTWO qualities with3trials each plus3controls; ThunderclapONE quality with3trials.033415: Lingering2 native lifetime/HP. Font/Conduit each have2qualities plus zero-orb controls; corrected native cast/payment/timeline observation awaits retest. Generic delayed non-TT critical attribution remains unresolved. |
 
 Totals are45 scopedPASS+5PARTIAL+10UNTESTED skill-rank rows and37 scopedPASS+
@@ -122,7 +122,7 @@ plan-specs remains a separate budget-dependent integration neighbor.
 The three ordinary HoH1 full-runFAILs retain real two-floor transitions. Keep3 needs
 the native Bandit encounter objective before unlock_exit; the driver omits that step.
 This is an ordinary-driver coverage gap, not a class gameplay bug verdict. Natural
-boss/reward/return completion remains unverified. Trident064644 is23/24 actualHP hits.
+boss/reward/return completion remains unverified. Trident 064644 is23/24 actualHP hits.
 All31 standalone loads do not prove each module's functional/persistence/UI effects.
 
 Root remains the sole serial runtime owner. Do not infer completion from this
@@ -131,24 +131,24 @@ regression/handoff begins09:20:52 Central; the deadline remains10:20:52.
 
 ## Historical checkpoint (04:55 Central)
 
-- Valid scoped fixes: Shadow030624, Riposte021550, Firearms magazine030332,
-  Hoarder030527, Thunder-Orb-to-MagicMissile first-crit attribution042809, and
-  returning arrows044257. Original FAILs, bounded trials and042925INVALID remain.
-- Original corrected Static042233 failed ONLY all3 old-orb bonus assertions; native
-  setup/crit/HP/retention passed. Original same-TT overlap042350 failed ONLY all3
+- Valid scoped fixes: Shadow 030624, Riposte 021550, Firearms magazine 030332,
+  Hoarder 030527, Thunder-Orb-to-MagicMissile first-crit attribution 042809, and
+  returning arrows 044257. Original FAILs, bounded trials and042925INVALID remain.
+- Original corrected Static 042233 failed ONLY all3 old-orb bonus assertions; native
+  setup/crit/HP/retention passed. Original same-TT overlap 042350 failed ONLY all3
   independent-first-crit bonuses; both actual casts and each orb's real crits passed.
   Installed shared per-actual-TT-cast tokens, preserving native damage/CriticalHit.
   Delayed non-TT projectile attribution remains an explicit unverified gap.
 - Return repair preserves collision damage, handles duplicate wall callbacks and
   oblique reflection, and tests only true returning movement for swept catches.
-  Valid044257 passes all3 ordinary +all3 coarse6x stress trials, outgoing and return
+  Valid 044257 passes all3 ordinary +all3 coarse6x stress trials, outgoing and return
   damage and actual3 Tailwind stacks.042925 had the same behavioral observations
   but is INVALID due installres/editor metadata and earns no validPASS credit.
 - Investigated that isolation failure with no game/editor process remaining and
   five matching read-only directory/content snapshots. Historical before/after
   metadata was not recorded, so its cause remains unknown. Added exact pre/post
   isolation-res.json diagnostics, preserving the same equality assertion. One
-  bounded diagnostic repeat044257 passed with identical full res dictionaries;
+  bounded diagnostic repeat 044257 passed with identical full res dictionaries;
   later runs retain all original config/save/res/focus/build/lock gates.
 - Native Wizard first-impact helper installed and143verbs generated; source-reviewed
  1x Wizard ranks replace fractional-timescale console polling. Compile gate running.
@@ -170,19 +170,19 @@ regression/handoff begins09:20:52 Central; the deadline remains10:20:52.
 ## Historical checkpoint (03:55 Central)
 
 - Breadth-g session4126 is terminal, exit1, all36 teardowns clean: 34PASS and
-  twoFAIL (Static/Return). Full mod-all032859 and global-zero crit contract032933
+  twoFAIL (Static/Return). Full mod-all 032859 and global-zero crit contract 032933
   pass. All31 individual modules pass; do not infer full module effect coverage.
-- Static033017 retains valid native phase events in all three trials: TT first
+- Static 033017 retains valid native phase events in all three trials: TT first
   crit grants2 stacks and actual11HP target damage; later TT crits stay2. After
   actual noncritical MagicMissile input, old TT crits raise stacks to4 instead
   of3. Its final aggregate exceeds the native15000-character print limit, so
   source-reviewed gameplay and bounded observation repairs are being staged.
-- Return033153 repeats ordinary2/3 catches and close6x1/3 outcomes (earlier024139 close trials were0/3; retain both runs).
+- Return 033153 repeats ordinary2/3 catches and close6x1/3 outcomes (earlier 024139 close trials were0/3; retain both runs).
   Tracks identify an outer fan arrow terminating at its first wall before the
  600ms turn. The other two arrows return, and the center deals both27HP hits.
   Diagnose native duplicate-wall-callback ordering before changing collision code.
-- Lingering Tempest033415 passes actual target HP/lifetime observations at
-  no-orb/rank1/rank2. Wind rank030837 passed all five Second Wind heal/lockout/
+- Lingering Tempest 033415 passes actual target HP/lifetime observations at
+  no-orb/rank1/rank2. Wind rank 030837 passed all five Second Wind heal/lockout/
   recovery observations; Gale failed invalid ready==0 and Sidestep setup assumptions.
   Corrected test awaits a fresh result; no Gale gameplay change was made.
 - Four scoped gameplay repairs now have passing reproductions: Shadow Strike,
@@ -464,8 +464,8 @@ regression/handoff begins09:20:52 Central; the deadline remains10:20:52.
 
 - Runtime batch pilot-i: **PASS** qa-specs-banner-ranks, run `20261022-040543-qa-specs-banner-ranks-lab`, 99.1 s, source SHA256 `246b70810e30acaafe0dff48b880980251a7a8d383729e4202c04100ba4a697e`; 12 assertions, 0 failed. Details: `gamelab\results\qa-20261022-pilot-i.jsonl`.
 
-- Pilot-i is terminal, all3 PASS/clean: MagazineEdges040044; Righteous040406 all5 native8.8?12s durations, move+.1 and raw benchstats attack+.2 with natural reversion; Standard040543 all5 actual carried/planted damage ratios and expiry/free plant. Full bot results and post-hoc native attack oracle retained in qa-20261022-banner-rank-evidence.json. Ally/orb effects remain separate.
-- Shared restart selftest: all7 cases PASS, preserving defaulttown and explicitresume identity/probe/exactmods/mutedprofile checks and rejecting missingrun/invalidchoice. Pilot-h Thief failure was an unchanged fixture readback after character replacement, not a gameplay defect; class agent correcting scenario expectations. Gale035035 all5 evasion amounts/reversions PASS; rank1 lifetime unresolved due a2805ms observation gap, not a measured lifetime defect.
+- Pilot-i is terminal, all3 PASS/clean: MagazineEdges 040044; Righteous 040406 all5 native8.8?12s durations, move+.1 and raw benchstats attack+.2 with natural reversion; Standard 040543 all5 actual carried/planted damage ratios and expiry/free plant. Full bot results and post-hoc native attack oracle retained in qa-20261022-banner-rank-evidence.json. Ally/orb effects remain separate.
+- Shared restart selftest: all7 cases PASS, preserving defaulttown and explicitresume identity/probe/exactmods/mutedprofile checks and rejecting missingrun/invalidchoice. Pilot-h Thief failure was an unchanged fixture readback after character replacement, not a gameplay defect; class agent correcting scenario expectations. Gale 035035 all5 evasion amounts/reversions PASS; rank1 lifetime unresolved due a2805ms observation gap, not a measured lifetime defect.
 
 - Runtime batch native-j: **PASS** mod-all, run `20261022-042115-mod-all-lab`, 32.2 s, source SHA256 `000f6afc8b0d53a8b7d9bcd8d5c1409be64b94dba5f0ccc053ae56e66d4e2961`; 16 assertions, 0 failed. Details: `gamelab\results\qa-20261022-native-j.jsonl`.
 
@@ -483,7 +483,7 @@ regression/handoff begins09:20:52 Central; the deadline remains10:20:52.
 
 - Runtime batch repair-k: **INVALID** qa-specs-return, run `20261022-042925-qa-specs-return-lab`, 143.1 s, source SHA256 `53f664e894ed0deddd9d2121a4855d527ec833c4af38dd24d2a3c0520cd45da1`; 12 assertions, 1 failed. Details: `gamelab\results\qa-20261022-repair-k.jsonl`.
 
-- Repair-k46031 terminal: valid Static042809 PASS all3 TT?MM regressions; full stack042709/critcontract042725 PASS. Return042925 behavioral checks allPASS but overallINVALID5 solely installres/editor metadata; do not credit runtimePASS. Userconfig/saves/focus unchanged and teardownclean. No live game/editor process found afterward; five read-only snapshots retain editor dir(size4096,mtime1767921281376516100) and25 identical file hashes. Exact historical before/after values were not recorded. Added isolation-res.json before/after metadata retention without changing the equality gate; one bounded diagnostic-l Return repeat is running. No reset or install/config/save writes.
+- Repair-k46031 terminal: valid Static 042809 PASS all3 TT?MM regressions; full stack 042709/critcontract 042725 PASS. Return 042925 behavioral checks allPASS but overallINVALID5 solely installres/editor metadata; do not credit runtimePASS. Userconfig/saves/focus unchanged and teardownclean. No live game/editor process found afterward; five read-only snapshots retain editor dir(size4096,mtime1767921281376516100) and25 identical file hashes. Exact historical before/after values were not recorded. Added isolation-res.json before/after metadata retention without changing the equality gate; one bounded diagnostic-l Return repeat is running. No reset or install/config/save writes.
 - Branding source review fixed untested oracle issues: generic observer target_hpExact field, native QueryCircle circle5 outer margins+8, and3.2s actual branded wand input for repeated2s-cooldown gains with brand-claw exclusion. Five native-rate synthetic positive/negative controls pass; new3 scenarios remain UNTESTED.
 
 - Runtime batch diagnostic-l: **PASS** qa-specs-return, run `20261022-044257-qa-specs-return-lab`, 145.7 s, source SHA256 `79d2877a570f940e022a6314e4e4d0a52bc0839e167a3680aaee749e1a98c141`; 12 assertions, 0 failed. Details: `gamelab\results\qa-20261022-diagnostic-l.jsonl`.
@@ -500,12 +500,12 @@ regression/handoff begins09:20:52 Central; the deadline remains10:20:52.
 
 - Runtime batch broad-n: **FAIL** qa-specs-deadeye, run `20261022-050849-qa-specs-deadeye-lab`, 151.0 s, source SHA256 `d9456f01b3a83d3183c6bda3594a182d31238984c651620b3803b6f25984e1c4`; 9 assertions, 1 failed. Details: `gamelab\results\qa-20261022-broad-n.jsonl`.
 
-- Broad-m is terminal after 3 cases: full stack and crit contract PASS; overlap045409 FAIL retains actual final4 stacks in all3 trials but fails strict newer-orb-outside85px isolation (both orbs trapped near the same wall). No renewed token-bug claim from this geometry failure. The remaining53 planned cases did not run. The test-only lane correction retains the strict isolation/damage oracle and awaits native calibration.
-- Broad-n is terminal after 3 cases: Gale050230 PASS; Arcane050619 FAIL; Deadeye050849 FAIL with dirty teardown. Later9 cases did not run. Gale all5 ranks have complete native observer events (5stored/5seen,0dropped) with on/off6006 scene-ms apart for6000ms buffs and exact evade reversion. Arcane plain Blink+Living Mana all5 ranks pass; Far Step endpoints are clipped by the fixture geometry, so radius/distance failure is not yet a production defect. Preserve the original result and certify the destination before recalibration.
-- Deadeye050849 root cause: native log c42 `spawn gamelab/qa_specs_fragile_target_dummy.unit` reports missing texture `gamelab/target_dummy.png`; the spawn no-reply is masked by a finally cleanup restore no-reply. Harness killed the stalled lab process after30s, exit1, dirty teardown. Userconfig/res/saves/focus guards PASS. Root verified no HWR2/HWR/PACKAGER processes remain; no reset/run launched before cause inspection. Correcting only the new QA asset before one documented lab reset. No evidence for a Deadeye gameplay defect from this run.
+- Broad-m is terminal after 3 cases: full stack and crit contract PASS; overlap 045409 FAIL retains actual final4 stacks in all3 trials but fails strict newer-orb-outside85px isolation (both orbs trapped near the same wall). No renewed token-bug claim from this geometry failure. The remaining53 planned cases did not run. The test-only lane correction retains the strict isolation/damage oracle and awaits native calibration.
+- Broad-n is terminal after 3 cases: Gale 050230 PASS; Arcane 050619 FAIL; Deadeye 050849 FAIL with dirty teardown. Later9 cases did not run. Gale all5 ranks have complete native observer events (5stored/5seen,0dropped) with on/off6006 scene-ms apart for6000ms buffs and exact evade reversion. Arcane plain Blink+Living Mana all5 ranks pass; Far Step endpoints are clipped by the fixture geometry, so radius/distance failure is not yet a production defect. Preserve the original result and certify the destination before recalibration.
+- Deadeye 050849 root cause: native log c42 `spawn gamelab/qa_specs_fragile_target_dummy.unit` reports missing texture `gamelab/target_dummy.png`; the spawn no-reply is masked by a finally cleanup restore no-reply. Harness killed the stalled lab process after30s, exit1, dirty teardown. Userconfig/res/saves/focus guards PASS. Root verified no HWR2/HWR/PACKAGER processes remain; no reset/run launched before cause inspection. Correcting only the new QA asset before one documented lab reset. No evidence for a Deadeye gameplay defect from this run.
 - After the confirmed QA asset cause, one documented GameLab reset completed (killed nothing; only lab saves/appdata scratch cleared). The corrected fragile fixture uses rooted pinned-native textures/materials and preserves HP1, collision, native damage/death and kill-credit fields; optional QA cosmetic dependencies removed. First-error checkpoints prevent finally cleanup from hiding the original error. Corrected Deadeye remains UNTESTED.
 - Pilot-o052354 is terminal **INVALID**, clean teardown, user config/saves/focus unchanged: matched preparation rejected the back-slot requirement; a separate ordinary diagnostic died on floor0; the controlled death menu accepted Enter before its native1500ms input gate. The intended boss/reward coverage remains UNTESTED. Narrow fixture corrections use four rare20/twomod armor pieces, common20 class weapon and legal common back_2b10, preserve57 primary allocation, fail fast on invalid preparation, and honor the native DeathMenu input gate. Melee driver source review found ranged kite/reflex assumptions; class-only native attack adaptation is being prepared, without gameplay edits or ordinary-phase setters.
-- Second isolation forensic now identifies the exact052354 mismatch: ONLY directory `res/editor` size4096Ã¢â€ â€™0, identical mtime1767921281376516100. All25 file sizes/mtimes/hashes still match the earlier forensic; see `qa-20261022-res-editor-second-forensic.json`. Microsoft WIN32_FILE_ATTRIBUTE_DATA documents directory size fields as undefined: https://learn.microsoft.com/en-us/windows/win32/api/fileapi/ns-fileapi-win32_file_attribute_data . Do not retroactively credit INVALID runs; the earlier042925 exact values remain unknown.
+- Second isolation forensic now identifies the exact 052354 mismatch: ONLY directory `res/editor` size4096Ã¢â€ â€™0, identical mtime1767921281376516100. All25 file sizes/mtimes/hashes still match the earlier forensic; see `qa-20261022-res-editor-second-forensic.json`. Microsoft WIN32_FILE_ATTRIBUTE_DATA documents directory size fields as undefined: https://learn.microsoft.com/en-us/windows/win32/api/fileapi/ns-fileapi-win32_file_attribute_data . Do not retroactively credit INVALID runs; the earlier 042925 exact values remain unknown.
 - Strengthened `env.install_res_snapshot`: recursive file byte-SHA256/size/mtime and directory path/type/mtime, explicit link targets, bounded cycle traversal, fresh metadata and fail-closed read/race checks. Undefined directory size is excluded; file equality and the outer before/after equality assertion remain enforced. Three read-only full manifests are identical (132entries,0.21Ã¢â‚¬â€œ0.30s); artifact `qa-20261022-res-recursive-readonly.json`. Focused mutation/race/link negative tests are pending before resuming native launches. This is an isolation-harness repair, separate from the six runtime-reproduced gameplay fixes.
 
 - Runtime batch pilot-o: **INVALID** qa-classes-thief-hoh2-run, run `20261022-052354-qa-classes-thief-hoh2-run-lab`, 321.0 s, source SHA256 `3221948728142f925a75007ce73c71239e70d4b61fd22d91fb9d7410f1180e5b`; 31 assertions, 4 failed. Details: `gamelab\results\qa-20261022-pilot-o.jsonl`.
@@ -538,8 +538,8 @@ regression/handoff begins09:20:52 Central; the deadline remains10:20:52.
 
 - Runtime batch class-s: **FAIL** qa-classes-gladiator-hoh2-run, run `20261022-063922-qa-classes-gladiator-hoh2-run-lab`, 183.5 s, source SHA256 `356d1ce5873080a5123dae02f079e3eca103f7af03ba5f7bde6209c4fd846e52`; 29 assertions, 1 failed. Details: `gamelab\results\qa-20261022-class-s.jsonl`.
 
-- Checkpoint after class-s startup: Stash original061238 FAIL repaired with slot-matched typed HWP family parsing; original063606 and eight-item neighbor063629 PASS, all31 mod-all063532 PASS, stable aggregate source356d1ce5873080a5123dae02f079e3eca103f7af03ba5f7bde6209c4fd846e52. Seven scoped gameplay repairs now have passing reproductions; full coverage remains open.
-- Isolation manifest negative controls:9 PASS/2 symlink privilege SKIP, actual Windows junction/hash/retarget/cycle controls PASS; native subsequent isolation assertions PASS. Earlier042925/052354 INVALID verdicts unchanged.
+- Checkpoint after class-s startup: Stash original 061238 FAIL repaired with slot-matched typed HWP family parsing; original 063606 and eight-item neighbor 063629 PASS, all31 mod-all 063532 PASS, stable aggregate source356d1ce5873080a5123dae02f079e3eca103f7af03ba5f7bde6209c4fd846e52. Seven scoped gameplay repairs now have passing reproductions; full coverage remains open.
+- Isolation manifest negative controls:9 PASS/2 symlink privilege SKIP, actual Windows junction/hash/retarget/cycle controls PASS; native subsequent isolation assertions PASS. Earlier 042925/052354 INVALID verdicts unchanged.
 - Class-r three clean setup FAILs are caused by back_2b10 Vit11, native Equipment.as146; old Vit5 assumption corrected. class-s explicitly checks emptyback, four rare20/two-mod pieces, common20 classweapon,57 earned primary points. No ordinary/boss/reward credit from class-r; empty reward-set persistence is vacuous.
 - Released Essence controlled10-trial suite staged actors installed at the clean boundary; strict native recast log plus HP death/complete stack observer required. Nonlethal tagged-target and unrelated post-Claw killer windows remain UNTESTED; no real boss/co-op claim.
 
@@ -579,17 +579,17 @@ cannot be credited as runtime verification. Final hour09:20:52; deadline10:20:52
 Seven scoped gameplay repairs have valid passing reproductions, including the new
 Stash fix (original061238FAIL, original063606PASS, eight-item neighbor063629PASS).
 Full31mod load063532PASS is separate from functional coverage. Firearms native
-cold-resume064827 preserves exact7+5 counts/factors, next real burst5+4/111HP.
-Arsenal055606 retained68/72 damage paths and four misses; dense8 regression065040
+cold-resume 064827 preserves exact7+5 counts/factors, next real burst5+4/111HP.
+Arsenal 055606 retained68/72 damage paths and four misses; dense8 regression 065040
 passes all four earlier misses plus four controls. Composite72 distinct paths is
 54common+18legal-epic rifle-family cases across two target fixtures, not all
 qualities/affixes and not a single72-case rerun. OverReload071705 now passes three
 early controls and nine fixed gold-window trials, exact30 to35/40/45 ammo.
 
-Static065338 passes all three same-TT overlap trials with strict orb isolation,
-fresh real crit/HP and complete native traces. Arcane065457 passes Blink5/FarStep3
+Static 065338 passes all three same-TT overlap trials with strict orb isolation,
+fresh real crit/HP and complete native traces. Arcane 065457 passes Blink5/FarStep3
 native damage/distance/radius checks; exact LivingMana regeneration remains partial.
-Deadeye065727 passes observed five-rank combined-flight damage, speed factors/expiry,
+Deadeye 065727 passes observed five-rank combined-flight damage, speed factors/expiry,
 Boomerang2 and StormArrow3 scoped effects. These do not prove exact separate damage
 components or action cadence. Before priority-v: Specs60rank rows are35scopedPASS,
 5PARTIAL(LivingMana),20UNTESTED;65orb-quality rows are20scopedPASS,41UNTESTED,
@@ -603,7 +603,7 @@ sensor route; WitchHunter died during retries. Native keep3 closed-exit prefab
 requires the Bandit encounter objective; current driver does not handle it. This
 is a harness objective gap, not a class gameplay bug verdict. Finalboss/reward/
 natural town/acquired-reward persistence remain UNTESTED. Earlier base reload and
-controlled death/town scopes stay separate. Trident064644 core/classes diagnostic
+controlled death/town scopes stay separate. Trident 064644 core/classes diagnostic
 passes23/24 actual HP trials; one immobilized-brute input26px/+12Y miss remains
 retained despite pre-input ray overlap, with no unproved attack-source fix.
 
@@ -669,7 +669,7 @@ module functional/UI/settings/persistence/failure/interactions remain broad desp
 ## Runtime checkpoint after 09:05 Central
 
 - Final verification phase began early. Hard deadline remains 10:20:52 Central / 15:20:52 UTC. Native owner=root; all launches remain isolated GameLab lab mode.
-- Eight scoped production repairs now have native passing reproductions. Dragon's Breath 085158 passes all12 patch timers/countdowns/owner/producer/radius/HP gates; original074304 and first repair081400 failures retained. Grenades085345 passes all9 ranks with exact native TTL traces, actual HP/tags/expiry and CLIP conservation.
+- Eight scoped production repairs now have native passing reproductions. Dragon's Breath 085158 passes all12 patch timers/countdowns/owner/producer/radius/HP gates; original 074304 and first repair 081400 failures retained. Grenades 085345 passes all9 ranks with exact native TTL traces, actual HP/tags/expiry and CLIP conservation.
 - Default build completed in6.2s at clean boundary. All32 release archives were verified against every source payload; All contains955 entries, SHA256 `8d42ca89b379f7bb4ada76085fa6cc1e5ec3c28d6aacbdd4970393c0ecf01274`. Exact artifact evidence: `gamelab/results/qa-20261022-dist-build-manifest.json`. No harness/local-only assets packaged.
 - Native final-ab2107 is terminal and held before Missile. Sourcefd5f2ca3 was stable across both PASS runs. New final-ac12786 is the sole live native run: qa-firearms-orb-variants-missiles, launched about09:05, source2075a42408927587, explicit stop-before15:20:52UTC. Journal `gamelab/results/qa-20261022-final-ac.jsonl` appears at terminal.
 - New test-only navigation/Branding/GaleWard and Provisions corrections are installed, source-reviewed and not yet credited as native PASS. Wizard bounded cast trace and9-decimal intensity serialization compiled in final-ab. All production archive sources remain unchanged.
@@ -714,13 +714,13 @@ three-times scenario budget plus a minute fits. Sources remain frozen at
 Final manifest: 10/14 scoped reproductions passed at this checkpoint, including
 all three Firearms variant sweeps, full31 stack, crit contract, both Static Charge
 cases, Return and both Stash cases. The four remaining entries are queued, not
-credited. Missile090522 passed all nine rows/21 fixed trials with independent
+credited. Missile 090522 passed all nine rows/21 fixed trials with independent
 native damage predictions, full settling and same-frame blindness sampling.
-Final Static091916/092036 and Return092156 pass their retained bounded trials.
-Stash092457/092519 pass conservation, ordering, idempotence and neighbor controls.
+Final Static 091916/092036 and Return 092156 pass their retained bounded trials.
+Stash 092457/092519 pass conservation, ordering, idempotence and neighbor controls.
 
-Essence091641 and Pyrebrand092934 now pass their respective five-rank scoped native
-measurements. Rank-base Firearms092541 retains its overall FAIL: five Reload rows
+Essence091641 and Pyrebrand 092934 now pass their respective five-rank scoped native
+measurements. Rank-base Firearms 092541 retains its overall FAIL: five Reload rows
 and all paid Frag/low-mana observations pass, but all five cooldown-refusal trials
 were scheduled after the authored cooldown had expired. Exact command timestamps
 and explicit pre-confirmation cooldown zero establish a test-timing defect; this
@@ -789,11 +789,11 @@ terminal run data. This checkpoint does not establish full sweep completion.
 ## Handoff prepared before the 10:20:52 Central deadline
 
 The sweep is INCOMPLETE. Native runtime ended cleanly at10:11:59; the final focused
-case101134 passes all8 precise-dead-state gates and12 runner assertions. Live and
+case 101134 passes all8 precise-dead-state gates and12 runner assertions. Live and
 actually dead/unspawned manaExact are both12.375, independent damageme raw mana is
 12.375, integer mana is12, and MaxMana is preserved. This verifies only the new
 read-only telemetry branch; it does not convert Barrier's geometry failure into
-an ability pass. Fresh final mod-all100827 passes14 guards with all31 modules.
+an ability pass. Fresh final mod-all 100827 passes14 guards with all31 modules.
 Production source and the verified32 release archives remain unchanged.
 
 The final source fingerprint is85b04b38bdbd5b565c86bc880e571a48f03557fdd71709356d76ea8961a69739
@@ -880,7 +880,7 @@ cleanup proofs remain in the final batch journals and native run directories.
 
 The user removed the original overnight deadline and activated the goal again. Work remains in progress; the original deadline/final-hour notes below are historical. Verified scoped coverage now includes60/60 fourth-spec rank cases,49/65orb qualities (nine fresh Branding qualities awaiting granular audit; maximum combo failed),20/60 Firearms ranks,42/75orb qualities,62/191HoH1positive ranks and9/9mastery save/reload combinations. Native stat-only scopes remain separate from combat/cadence/mitigation.
 
-Fresh full-stack `mod-all 20261022-111422` and minimal `null-payload 111454` compile/load checks passed with the read-only per-frame resource observer. `qa-firearms-ranks-base 111509` and `qa-specs-living-mana-coefficients 111830` passed; exact per-run hashes are in the ledger/journals. `qa-specs-branding-orbs 113033` now obtains strict fine-grid/native-ray geometry through normal walking but fails the maximum-combination check. `qa-classes-gladiator-hoh2-run 112028` reached Keep3 and died during objective travel; no class/encounter bug is inferred. Controlled endgame weapon tests112325/112427 failed native equip requirements before attack/parry testing: ilvl35 requirements use unbounded vector interpolation at34/9, not the high endpoint at level10. A QA fixture correction is staged; no production change is inferred from these setup failures.
+Fresh full-stack `mod-all 20261022-111422` and minimal `null-payload 111454` compile/load checks passed with the read-only per-frame resource observer. `qa-firearms-ranks-base 111509` and `qa-specs-living-mana-coefficients 111830` passed; exact per-run hashes are in the ledger/journals. `qa-specs-branding-orbs 113033` now obtains strict fine-grid/native-ray geometry through normal walking but fails the maximum-combination check. `qa-classes-gladiator-hoh2-run 112028` reached Keep3 and died during objective travel; no class/encounter bug is inferred. Controlled endgame weapon tests 112325/112427 failed native equip requirements before attack/parry testing: ilvl35 requirements use unbounded vector interpolation at34/9, not the high endpoint at level10. A QA fixture correction is staged; no production change is inferred from these setup failures.
 
 The source is frozen during each serial GameLab batch. Remaining ranks/orbs, legal interactions, ordinary run lifecycles, UI/acquisition and module functional/persistence/failure paths remain required. See `docs/QA_OVERNIGHT.md` and `docs/generated/qa_overnight_summary.json`; previous repair regressions and all failures are retained.
 
@@ -948,7 +948,7 @@ Current serial queue: resume-g, no wall-clock cutoff. App goal status is active.
 
 ### Resumed checkpoint: reviewed harness and native radius gate (resume-h)
 
-At 2026-10-22T17:44:14.217794+00:00 the unlimited sweep remains active. Resume-h completed12native cases:8PASS and4retained orb fixture failures; every teardown clean and source stable a3f53e9005b08fffd4174556f0468104a1f09be8419fe433299c961e569a6c9b. Compile/startup, exact-radius isolated bench, Cloak/Shield, Gale/Barrier and all-rank Backstab passed. DodgeSkip/Rocket lane/charge and Blind/Slow missing calibration target setups require corrected fixtures; none establishes a new production bug. Stop request was observed only between cases, after Backstab123128. Resume-i installed22independently reviewed QA files and is running on de80c5d1ff63d4c0; Branding123510 failed geometry before any trial, class base failures are under raw audit. Scoped counts now Specs60/60rank,58/65qualityPASS(3PARTIAL,4allyBLOCKED); HoH120/39skills,91/191ranks; Firearms40/60ranks and42/75qualities, with20ranks/32qualities still untested and1allyblocked. These counters do not establish all mechanics, normal acquisition or ordinary lifecycle completion.
+At 2026-10-22T17:44:14.217794+00:00 the unlimited sweep remains active. Resume-h completed12native cases:8PASS and4retained orb fixture failures; every teardown clean and source stable a3f53e9005b08fffd4174556f0468104a1f09be8419fe433299c961e569a6c9b. Compile/startup, exact-radius isolated bench, Cloak/Shield, Gale/Barrier and all-rank Backstab passed. DodgeSkip/Rocket lane/charge and Blind/Slow missing calibration target setups require corrected fixtures; none establishes a new production bug. Stop request was observed only between cases, after Backstab123128. Resume-i installed22independently reviewed QA files and is running on de80c5d1ff63d4c0; Branding 123510 failed geometry before any trial, class base failures are under raw audit. Scoped counts now Specs60/60rank,58/65qualityPASS(3PARTIAL,4allyBLOCKED); HoH120/39skills,91/191ranks; Firearms40/60ranks and42/75qualities, with20ranks/32qualities still untested and1allyblocked. These counters do not establish all mechanics, normal acquisition or ordinary lifecycle completion.
 
 - Runtime batch resume-i: **PASS** qa-firearms-passive-steady, run `20261022-124157-qa-firearms-passive-steady-lab`, 436.6 s, source SHA256 `de80c5d1ff63d4c0696e108b5ea9bffb4384f3141d0b4d10716ba53018fc43a0`; 12 assertions, 0 failed. Details: `gamelab\results\qa-20261022-resume-i.jsonl`.
 
@@ -1051,7 +1051,7 @@ At 2026-10-22T17:44:14.217794+00:00 the unlimited sweep remains active. Resume-h
 
 Resume-l checkpoint 2026-10-22T19:48:33.174029+00:00
 
-Branding stale EssenceFire cache fix verified: identical normal-input regression secondhit81->62 after10Essence consumed; first113 unchanged. All7 required load/rank/orb/Essence regressions PASS, stable1243-file source bd82865baecab25c5c9cfdc8a4b050d4190763050a6cf0848d1099131b9faf7d, clean teardown. Exact installer/unchanged harness pins in gamelab/results/qa-20261022-resume-l-branding-install.json. Gladius remains confirmedzeroHP original141031 pending reviewed five-rank repair. Root audited native Colors/Deuteranopia and Hazards DeathRecap UIb134109; exact RGB/text/readbacks and visually reviewed limits in docs/generated/qa_modules_colors_recap_native.json. Full sweep remains ACTIVE_NO_TIME_LIMIT; broad module axes {'PASS': 31, 'PARTIAL': 78, 'UNTESTED': 108}. Historical archives now need rebuilding after gameplay repairs.
+Branding stale EssenceFire cache fix verified: identical normal-input regression secondhit81->62 after10Essence consumed; first113 unchanged. All7 required load/rank/orb/Essence regressions PASS, stable1243-file source bd82865baecab25c5c9cfdc8a4b050d4190763050a6cf0848d1099131b9faf7d, clean teardown. Exact installer/unchanged harness pins in gamelab/results/qa-20261022-resume-l-branding-install.json. Gladius remains confirmedzeroHP original 141031 pending reviewed five-rank repair. Root audited native Colors/Deuteranopia and Hazards DeathRecap UIb 134109; exact RGB/text/readbacks and visually reviewed limits in docs/generated/qa_modules_colors_recap_native.json. Full sweep remains ACTIVE_NO_TIME_LIMIT; broad module axes {'PASS': 31, 'PARTIAL': 78, 'UNTESTED': 108}. Historical archives now need rebuilding after gameplay repairs.
 
 - Runtime batch resume-m: **PASS** mod-all, run `20261022-145021-mod-all-lab`, 33.5 s, source SHA256 `f8b0ed7e57fb4ebf8055c650c7ec4c1fadb0b26bf402b870602a99e61929b00b`; 16 assertions, 0 failed. Details: `gamelab\results\qa-20261022-resume-m.jsonl`.
 
@@ -1071,7 +1071,7 @@ Branding stale EssenceFire cache fix verified: identical normal-input regression
 
 - Runtime batch resume-m: **FAIL** qa-firearms-orb-reload-explosive-aim, run `20261022-150821-qa-firearms-orb-reload-explosive-aim-lab`, 97.0 s, source SHA256 `f8b0ed7e57fb4ebf8055c650c7ec4c1fadb0b26bf402b870602a99e61929b00b`; 12 assertions, 1 failed. Details: `gamelab\results\qa-20261022-resume-m.jsonl`.
 
-- Gladius repair verified 20261022-145123-qa-classes-gladius-collision-lab: all5ranks actual normalcast/owned projectile/first-only contact/payload/preciseHP predictions PASS. Original141031 zeroHP failure retained; new class-local nativeaxe PlayerDamage uses authored120..200%hand. Source f8b0ed7e57fb4ebf8055c650c7ec4c1fadb0b26bf402b870602a99e61929b00b; independent raw Scope audit. No exact8mana/CDduration/laterhitgrowth/ordinaryboss claim. M continues on frozen source.
+- Gladius repair verified 20261022-145123-qa-classes-gladius-collision-lab: all5ranks actual normalcast/owned projectile/first-only contact/payload/preciseHP predictions PASS. Original 141031 zeroHP failure retained; new class-local nativeaxe PlayerDamage uses authored120..200%hand. Source f8b0ed7e57fb4ebf8055c650c7ec4c1fadb0b26bf402b870602a99e61929b00b; independent raw Scope audit. No exact8mana/CDduration/laterhitgrowth/ordinaryboss claim. M continues on frozen source.
 
 - Runtime batch resume-m: **FAIL** qa-content-weapons-native-standalone, run `20261022-150959-qa-content-weapons-native-standalone-lab`, 114.1 s, source SHA256 `f8b0ed7e57fb4ebf8055c650c7ec4c1fadb0b26bf402b870602a99e61929b00b`; 12 assertions, 1 failed. Details: `gamelab\results\qa-20261022-resume-m.jsonl`.
 
@@ -1112,7 +1112,7 @@ Branding stale EssenceFire cache fix verified: identical normal-input regression
 
 ### Resume M terminal checkpoint
 
-All26 cases terminated with20 PASS/6 FAIL; every teardown is clean and all1268 source files retain fingerprint f8b0ed7e57fb4ebf8055c650c7ec4c1fadb0b26bf402b870602a99e61929b00b. Required Sphere contract154912 failed native acquisition, so its six dependent quality sweeps remain gated. Other failures: Reload idle-timer guard, two Grimoire target-distance fixtures and two Branding clear-lane setups. Original results remain; no completion or blanket gameplay failure claim.
+All26 cases terminated with20 PASS/6 FAIL; every teardown is clean and all1268 source files retain fingerprint f8b0ed7e57fb4ebf8055c650c7ec4c1fadb0b26bf402b870602a99e61929b00b. Required Sphere contract 154912 failed native acquisition, so its six dependent quality sweeps remain gated. Other failures: Reload idle-timer guard, two Grimoire target-distance fixtures and two Branding clear-lane setups. Original results remain; no completion or blanket gameplay failure claim.
 
 - Runtime batch resume-maps: **PASS** qa-content-maps-high-court, run `20261022-155154-qa-content-maps-high-court-lab`, 131.1 s, source SHA256 `f8b0ed7e57fb4ebf8055c650c7ec4c1fadb0b26bf402b870602a99e61929b00b`; 12 assertions, 0 failed. Details: `gamelab\results\qa-20261022-resume-maps.jsonl`.
 
@@ -1125,7 +1125,7 @@ All26 cases terminated with20 PASS/6 FAIL; every teardown is clean and all1268 s
 
 ### Added maps native generation
 
-High Court155154, Sunken Dungeon155405 and Goblin Warrens155613 pass at unchanged f8b0 source, with clean isolated teardown. Independent source/native-reply audit matches all12 authored floor identities, live-hostile and enabled-exit presence on nine procedural floors, and allthree exact boss scenes. The32-hostile scan cap limits this to presence. Directmission/god-protected observer does not establish natural drops/unlock, path reachability/traversal, boss combat/rewards, UI or persistence. Evidence: docs/generated/qa_maps_floor_generation_native.json.
+High Court 155154, Sunken Dungeon 155405 and Goblin Warrens 155613 pass at unchanged f8b0 source, with clean isolated teardown. Independent source/native-reply audit matches all12 authored floor identities, live-hostile and enabled-exit presence on nine procedural floors, and allthree exact boss scenes. The32-hostile scan cap limits this to presence. Directmission/god-protected observer does not establish natural drops/unlock, path reachability/traversal, boss combat/rewards, UI or persistence. Evidence: docs/generated/qa_maps_floor_generation_native.json.
 
 - Runtime batch resume-hoh1-a: **FAIL** qa-classes-caltrops-all-ranks, run `20261022-160125-qa-classes-caltrops-all-ranks-lab`, 90.7 s, source SHA256 `f8b0ed7e57fb4ebf8055c650c7ec4c1fadb0b26bf402b870602a99e61929b00b`; 12 assertions, 1 failed. Details: `gamelab\results\qa-20261022-resume-hoh1-a.jsonl`.
 
@@ -1138,7 +1138,7 @@ High Court155154, Sunken Dungeon155405 and Goblin Warrens155613 pass at unchange
 
 ### N prerequisite compiler failure retained
 
-Root installed32 reviewed QA files from frozen N v2 plan26f770, plus one source-reviewed Sphere sensor-contact consumer54485. Verb index154 and diff checks passed. Native mod-all161802 halted the prerequisite queue on the new QA Static-MM helper121:73 unsupported vector opNeg; all teardown/isolation/source-stability guards pass at279d5559 (1287files). No ability trial or other prerequisite ran. A minimal source-supported operator correction is under review. At this clean/drained boundary root separately installed finite exact-HP comparison39823; original Caltrops160125/Whirl160511 failures remain. Native reruns required.
+Root installed32 reviewed QA files from frozen N v2 plan26f770, plus one source-reviewed Sphere sensor-contact consumer54485. Verb index154 and diff checks passed. Native mod-all 161802 halted the prerequisite queue on the new QA Static-MM helper121:73 unsupported vector opNeg; all teardown/isolation/source-stability guards pass at279d5559 (1287files). No ability trial or other prerequisite ran. A minimal source-supported operator correction is under review. At this clean/drained boundary root separately installed finite exact-HP comparison39823; original Caltrops 160125/Whirl 160511 failures remain. Native reruns required.
 
 - Runtime batch resume-n-prereq2: **PASS** mod-all, run `20261022-162545-mod-all-lab`, 33.3 s, source SHA256 `e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0`; 16 assertions, 0 failed. Details: `gamelab\results\qa-20261022-resume-n-prereq2.jsonl`.
 
@@ -1155,7 +1155,7 @@ Root installed32 reviewed QA files from frozen N v2 plan26f770, plus one source-
 
 ### Corrected N load/input gates and independent continuation
 
-Root replaced only unsupported Static-MM vector unary negation with vec2 component construction54d44?5713f07c; original161802 compiler failure remains. The exact1290-file e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0 epoch includes finite HP comparison39823, peer-reviewed chat consumer a8a091 and source-reviewed Sphere physical contact54485. Native mod-all162545, null162619, Firearms162634 and inputsequence162648 pass cleanly. New inputtarget contract162753 fails122.8s before valid native cast/payment/effect; geometry/rank/binding/readbacks/release pass. Scope owns first causal protocol audit; no production inference or identical retry. Independent Sphere/originalc657 Firearms/precision/LastStats/weapons/chat/StaticMM/EE/Gladiator pilot cases continue as17-case resume-n-main; installed source frozen throughout.
+Root replaced only unsupported Static-MM vector unary negation with vec2 component construction54d44?5713f07c; original 161802 compiler failure remains. The exact1290-file e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0 epoch includes finite HP comparison39823, peer-reviewed chat consumer a8a091 and source-reviewed Sphere physical contact54485. Native mod-all 162545, null 162619, Firearms 162634 and inputsequence162648 pass cleanly. New inputtarget contract 162753 fails122.8s before valid native cast/payment/effect; geometry/rank/binding/readbacks/release pass. Scope owns first causal protocol audit; no production inference or identical retry. Independent Sphere/originalc657 Firearms/precision/LastStats/weapons/chat/StaticMM/EE/Gladiator pilot cases continue as17-case resume-n-main; installed source frozen throughout.
 
 - Runtime batch resume-n-main: **PASS** qa-firearms-orb-reload-explosive-aim, run `20261022-163506-qa-firearms-orb-reload-explosive-aim-lab`, 97.9 s, source SHA256 `e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0`; 12 assertions, 0 failed. Details: `gamelab\results\qa-20261022-resume-n-main.jsonl`.
 
