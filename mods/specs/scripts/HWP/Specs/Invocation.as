@@ -62,7 +62,8 @@ namespace HWP
 // from pos to each. targets: zaps per apply, spread over the enemies this instance has zapped
 // least; all: every enemy in range once instead. mul (bindable, <= 0 does nothing) and
 // overcharge (bindable: + per earlier zap on the same enemy, up to max-overcharge) scale the
-// intensity; lone-mul when only one enemy is in range and it takes every zap.
+// intensity; lone-mul when only one enemy is in range and it takes every zap. sound: played once
+// per apply that zaps anything.
 class HWPSpecsZap : IEffect
 {
 	EffectList@ m_effects;
@@ -75,6 +76,7 @@ class HWPSpecsZap : IEffect
 	float m_loneMul;
 	string m_beamFx;
 	string m_hitFx;
+	SoundEvent@ m_sound;
 	dictionary m_zapped;   // unit id -> zaps by this instance (one per projectile)
 
 	HWPSpecsZap(UnitPtr unit, SValue& params)
@@ -89,6 +91,9 @@ class HWPSpecsZap : IEffect
 		m_loneMul = GetParamFloat(unit, params, "lone-mul", false, 1.0f);
 		m_beamFx = GetParamString(unit, params, "beam-fx", false, "effects/generic/raycast/rogue_lightning_beam_1.effect");
 		m_hitFx = GetParamString(unit, params, "hit-fx", false, "effects/generic/impacts/lightning_impact_2.effect");
+		string snd = GetParamString(unit, params, "sound", false, "");
+		if (snd != "")
+			@m_sound = Resources::GetSoundEvent(snd);
 	}
 
 	CanEvade IsEvadable(Actor@ attacker) { return CanEvade::Neither; }
@@ -119,6 +124,8 @@ class HWPSpecsZap : IEffect
 		auto enemies = HWP::Specs::EnemiesNear(pos, m_radius, owner.Team);
 		if (enemies.length() == 0)
 			return false;
+		if (m_sound !is null)
+			PlaySound3D(m_sound, xyz(pos));
 		if (m_all)
 		{
 			for (uint i = 0; i < enemies.length(); i++)
@@ -160,12 +167,16 @@ class HWPSpecsStaticRelease : IEffect
 {
 	HWPSpecsZap@ m_zap;
 	float m_channel;
+	SoundEvent@ m_sound;
 
 	HWPSpecsStaticRelease(UnitPtr unit, SValue& params)
 	{
 		auto zap = GetParamDictionary(unit, params, "zap", true);
 		@m_zap = HWPSpecsZap(unit, zap);
 		m_channel = GetParamFloat(unit, params, "channel", false, 0.0f);
+		string snd = GetParamString(unit, params, "sound", false, "");
+		if (snd != "")
+			@m_sound = Resources::GetSoundEvent(snd);
 	}
 
 	CanEvade IsEvadable(Actor@ attacker) { return CanEvade::Neither; }
@@ -194,6 +205,8 @@ class HWPSpecsStaticRelease : IEffect
 			return hit;
 		plr.AddStacks(plr, def, -plr.GetStacks(def));
 		PlayEffect("effects/generic/explosions/lightning_explosion_discharge_medium_2.effect", at);
+		if (m_sound !is null)
+			PlaySound3D(m_sound, xyz(at));
 		if (m_channel > 0)
 		{
 			HWP::Specs::g_channelMana = int(plr.m_record.MaxMana() * m_channel + 0.5f);

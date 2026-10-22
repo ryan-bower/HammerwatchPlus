@@ -43,7 +43,7 @@
 			</dict>
 			<dict>
 				<string name="class">PlaySound</string>
-				<string name="sound">event:/sfx/player/classes/ranger/rain_of_arrows/rain_of_arrows_lightning</string>
+				<string name="sound">event:/sfx/player/classes/sorcerer/static_discharge/static_discharge_hit</string>
 			</dict>
 			<dict>
 				<bool name="only-actors">true</bool>

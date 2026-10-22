@@ -145,7 +145,7 @@ namespace HWP
 			PlayEffect("players/warlock/effects/demon_tail_impact.effect", at);
 			dictionary ps = { { "radius", radius } };
 			PlayEffect("players/warlock/effects/war_ritual.effect", at, ps);
-			PlaySound3D(Resources::GetSoundEvent("event:/sfx/player/classes/warlock/dark_ritual/dark_ritual_fire_explode"), xyz(at));
+			PlaySound3D(Resources::GetSoundEvent("event:/sfx/actors/aberrations/wisps/wisp_fire/wisp_fire_explode"), xyz(at));
 
 			bool released = BindI(plr, ESSENCE_EXTRACTION, "ee-released") > 0;
 			auto enemies = EnemiesNear(at, radius, plr.Team);

@@ -9,7 +9,7 @@
 	Orbs: Focal Point (tt-overcharge: +4/7% per earlier zap of the orb on that enemy, up to 10),
 	Lightning Rod (tt-zaps 4/4/5, tt-radius 77/84/95: +10/20/35%), Lingering Storm (tt-ttl-add:
 	+1/2 s), Thunderclap (tt-clap: on expiry every enemy within tt-radius takes 150% of a zap).
-	Sound: a placeholder until the audio picker (art/specs/AUDIO.md).
+	Sound: picked in the audio picker (art/specs/AUDIO.md).
 -->
 <dict>
 	<string name="name">.hwp.specs.tempest_torrent.name</string>
@@ -60,7 +60,7 @@
 			<array name="cast">
 				<dict>
 					<string name="class">PlaySound</string>
-					<string name="sound">event:/sfx/player/classes/wizard/magic_missiles/magic_missiles_cast</string>
+					<string name="sound">event:/sfx/player/classes/sorcerer/lightning_ball/lightning_ball_cast</string>
 				</dict>
 				<dict>
 					<string name="class">ShootProjectile</string>

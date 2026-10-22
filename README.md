@@ -125,8 +125,9 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
   Warlock (`mods/specs`). `plan-specs` passes all six (80 checks, after the code review's fixes). Not yet tested: what
   needs a second player (teammates in Protective Gale and Shared Breath, the standard's
   allies, Martyr's Banner, Mana Conduit). The world sprites (brand sigil, Hellfire Claw, the standard, the
-  Tempest orb) are in. The icons are final: all 49 were picked by the user over two rounds
-  (`art/specs/override/`, `tools/icon_art/sp.py` and `sp_r2.py`). Still to do: balance and sounds (pick them in the audio picker, `art/specs/AUDIO.md`).
+  Tempest orb) are in. The icons are the user's picks over three rounds (`art/specs/override/`, `tools/icon_art/sp.py`,
+  `sp_r2.py`, `sp_r3.py`); the Arcane and Aerotheurge emblems keep their placeholders by choice. The
+  sounds are the user's picks too (`art/specs/AUDIO.md`; Void Barrier's save silent). Still to do: balance (pick them in the audio picker, `art/specs/AUDIO.md`).
 - 2026-10-21: the Ranger's and Wizard's 4th specs now match Noah's PR #4 version in the planner:
   **Deadeye** (Lightning Arrow; Gathering Winds gives a Tailwind stack every 5 kills, each lasting
   4 s on its own, +2-4% Action Speed a stack) and **Aerotheurge** (Thunder Orb; Static Charge gains

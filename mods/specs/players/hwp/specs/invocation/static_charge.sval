@@ -56,6 +56,7 @@
 						<dict>
 							<string name="class">HWPSpecsStaticRelease</string>
 							<string name="channel-bind">sc-channel</string>
+							<string name="sound">event:/sfx/player/classes/ranger/rain_of_arrows/rain_of_arrows_thunder</string>
 							<dict name="zap">
 								<int name="targets">3</int>
 								<int name="radius">120</int>

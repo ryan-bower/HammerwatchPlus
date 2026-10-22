@@ -85,6 +85,7 @@ namespace HWP
 				s.m_left /= 2;
 				s.m_tickC = 0;
 				StandardFx(s);
+				PlaySound3D(Resources::GetSoundEvent("event:/sfx/player/classes/priest/holy_banner/holy_banner"), xyz(s.m_pos));
 				Log("specs", "standard: planted, " + s.m_left + " ms left, dr " + s.m_dr * 2);
 			}
 			else
@@ -102,6 +103,7 @@ namespace HWP
 				s.m_crusadeLvl = Learned(plr, CRUSADE) ? BindI(plr, CRUSADE, "crusade-lvl", 0) : 0;
 				g_standards.insertLast(s);
 				StandardFx(s);
+				PlaySound3D(Resources::GetSoundEvent("event:/sfx/player/classes/warrior/war_cry/war_cry"), owner.m_unit.GetPosition());
 				Log("specs", "standard: raised for " + s.m_left + " ms, dr " + s.m_dr + " radius " + s.m_radius
 					+ " ally x" + s.m_allyMul + " self x" + s.m_selfMul
 					+ (s.m_enemyDebuff != "" ? ", enemies " + s.m_enemyDebuff : "")
@@ -142,6 +144,7 @@ namespace HWP
 				if (s.m_owner is null || s.m_owner.m_unit.IsDestroyed() || s.m_owner.IsDead() || s.m_left <= 0)
 				{
 					Log("specs", "standard: ended" + (s.m_left <= 0 ? "" : " (bearer gone)"));
+					PlaySound3D(Resources::GetSoundEvent("event:/sfx/player/classes/priest/holy_banner/holy_banner_end"), xyz(s.Pos()));
 					RemoveStandard(i);
 					continue;
 				}

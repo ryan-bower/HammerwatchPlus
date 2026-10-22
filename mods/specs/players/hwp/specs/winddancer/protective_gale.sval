@@ -8,7 +8,7 @@
 	movement speed for the same time).
 	Shared Breath (Second Wind's orb) rides on this cast: HWPSpecsShareBreath gives the
 	teammates it reaches the evade gust (scripts/HWP/Specs/Winddancer.as).
-	Sound: a placeholder until the audio picker (art/specs/AUDIO.md).
+	Sound: picked in the audio picker (art/specs/AUDIO.md).
 -->
 <dict>
 	<string name="name">.hwp.specs.protective_gale.name</string>
@@ -52,7 +52,7 @@
 			<array name="cast">
 				<dict>
 					<string name="class">PlaySound</string>
-					<string name="sound">event:/sfx/player/classes/ranger/wind_weaver/wind_weaver_cast</string>
+					<string name="sound">event:/sfx/player/classes/wizard/haste/haste</string>
 				</dict>
 				<dict>
 					<string name="class">Explode</string>

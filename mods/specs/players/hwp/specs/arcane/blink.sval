@@ -10,7 +10,7 @@
 	cooldown 6 s. The radius is taken as game units, as written.
 	Orbs: Void Barrier (bl-barrier: no lethal damage for 1 s after a Blink), Far Step (bl-far:
 	+15/25/35% distance).
-	Sound: placeholders until the audio picker (art/specs/AUDIO.md).
+	Sound: picked in the audio picker (art/specs/AUDIO.md).
 -->
 <dict>
 	<string name="name">.hwp.specs.blink.name</string>

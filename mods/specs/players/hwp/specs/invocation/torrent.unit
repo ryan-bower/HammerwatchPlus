@@ -5,7 +5,8 @@
 		(penetration 999, no hit effects), stopped by a wall (bounce speed 0: it stays and keeps
 		zapping). Every 250 ms: tt-zaps zaps of tt-dmg lightning within tt-radius (3 and 70; Lightning Rod
 		raises both). Binds: tt-ttl (+tt-ttl-add, Lingering Storm), tt-overcharge (Focal Point),
-		tt-clap (Thunderclap, on the way out).
+		tt-clap (Thunderclap, on the way out). Sounds (art/specs/AUDIO.md): the static loop while
+		it flies, one zap sound a tick that zaps anything, the blast with Thunderclap's burst.
 	-->
 	<behavior class="NewProjectile">
 		<string name="anim">default</string>
@@ -22,6 +23,10 @@
 				<vec2 name="speed-limits">0 10</vec2>
 			</dict>
 			<dict>
+				<string name="class">Projectile::AttachedLoopingSound</string>
+				<string name="sound">event:/sfx/player/classes/sorcerer/lightning_ball/lightning_ball_static_loop</string>
+			</dict>
+			<dict>
 				<string name="class">HWPSpecsTtlAdd</string>
 				<string name="add-bind">tt-ttl-add</string>
 			</dict>
@@ -35,6 +40,7 @@
 						<string name="radius-bind">tt-radius</string>
 						<string name="overcharge-bind">tt-overcharge</string>
 						<int name="max-overcharge">10</int>
+						<string name="sound">event:/sfx/player/classes/rogue/artificer_suit/artificer_suit_zap</string>
 						<array name="effects">
 							<dict>
 								<string name="class">Damage</string>
@@ -53,6 +59,7 @@
 				<string name="radius-bind">tt-radius</string>
 				<string name="mul-bind">tt-clap</string>
 				<string name="hit-fx">effects/generic/explosions/lightning_explosion_1.effect</string>
+				<string name="sound">event:/sfx/player/attacks/twohanded/lightning_blast</string>
 				<array name="effects">
 					<dict>
 						<string name="class">Damage</string>

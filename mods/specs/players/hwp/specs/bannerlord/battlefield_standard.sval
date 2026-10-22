@@ -55,10 +55,6 @@
 				<dict>
 					<string name="class">HWPSpecsStandardCast</string>
 				</dict>
-				<dict>
-					<string name="class">PlaySound</string>
-					<string name="sound">event:/sfx/player/classes/priest/holy_banner/holy_banner</string>
-				</dict>
 			</array>
 		</dict>
 

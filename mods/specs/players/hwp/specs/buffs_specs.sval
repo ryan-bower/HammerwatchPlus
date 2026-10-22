@@ -144,7 +144,7 @@
 				<array name="effects">
 					<dict>
 						<string name="class">PlaySound</string>
-						<string name="sound">event:/sfx/actors/bosses/boss_warrior_spirit/dive_attack/dive_attack_healing_wave</string>
+						<string name="sound">event:/sfx/player/classes/ranger/wind_weaver/wind_weaver_hit</string>
 					</dict>
 					<dict>
 						<string name="class">Explode</string>

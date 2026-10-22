@@ -410,13 +410,19 @@ class HWPSpecsBlink : IEffect
 		m_tele.DoTeleport(plr, from + dir * HWP::Specs::BLINK_DIST * (1.0f + far));
 		vec2 at = xy(plr.m_unit.GetPosition());
 		float radius = HWP::Specs::BindF(plr, HWP::Specs::BLINK, "bl-radius", 20);
-		// placeholders until the audio picker (art/specs/AUDIO.md)
+		// sounds picked in the audio picker (art/specs/AUDIO.md); the vanish at twice the volume, as asked
 		PlayEffect("effects/generic/other/arcane/magic_blink.effect", from);
-		PlaySound3D(Resources::GetSoundEvent("event:/sfx/actors/bosses/boss_avatar/boss_avatar_blink_out"), xyz(from));
+		auto vanish = Resources::GetSoundEvent("event:/sfx/actors/undead/shade/shade/shade_blink_out");
+		if (vanish !is null)
+		{
+			SoundInstance@ si = vanish.PlayTracked(xyz(from));
+			si.SetVolume(2.0f);
+			si.SetPaused(false);
+		}
 		PlayEffect("effects/generic/other/arcane/magic_blink.effect", at);
 		dictionary ps = { { "radius", radius } };
 		PlayEffect("effects/generic/explosions/arcane_explosion_1.effect", at, ps);
-		PlaySound3D(Resources::GetSoundEvent("event:/sfx/actors/bosses/boss_avatar/boss_avatar_blink_in"), xyz(at));
+		PlaySound3D(Resources::GetSoundEvent("event:/sfx/actors/undead/shade/shade/shade_blink_in"), xyz(at));
 
 		float dmg = HWP::Specs::BindF(plr, HWP::Specs::BLINK, "bl-dmg", 25);
 		auto enemies = HWP::Specs::EnemiesNear(at, radius, plr.Team);

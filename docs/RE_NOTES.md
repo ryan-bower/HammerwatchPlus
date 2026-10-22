@@ -2489,3 +2489,28 @@ every Aerotheurge icon. Three picks were "keep" (the round-1 icon stays): Gather
 Ward, Mana Conduit. `make_specs_icons.py` now paints all 49 with no placeholders. The atlas cells
 are unchanged, so no new run was made; the icons are not yet seen in game.
 
+## 4th-spec sounds wired, icon round 3 (2026-10-21)
+
+Icon round 3 (`tools/icon_art/sp_r3.py`, picker ids `specs3.<name>`) redid the 24 icons that
+were not unique: the six spec emblems (still placeholders) and 18 recolours, shrunken copies or
+reused motifs. The user took 6 new ones (the Deadeye, Winddancer, Bannerlord and Branding
+emblems, Lightning Rod, Feared Crest) and kept the rest, the Arcane and Aerotheurge emblems'
+placeholders included.
+
+Sounds: the user's 17 picks from the audio picker (https://claude.ai/artifact/5u7FtTXXPVJk6hixoda7Ux)
+are wired, every event checked against the banks' own list (`fmod.py list`):
+- Swapped in place: the sval and unit PlaySounds, and Branding.as's claw (`wisp_fire_explode`).
+- Thunder Orb: `Projectile::AttachedLoopingSound` (vanilla, NewProjectile.as:849) for the
+  loop; HWPSpecsZap takes a `sound` param played once per apply that zaps anything (the
+  tick's zap; Thunderclap's burst on the way out, so only with the orb); HWPSpecsStaticRelease
+  takes one for the release.
+- Battlefield Standard: the sound moved out of the skill's `cast` actions, since the plant is a
+  recast of the same skill and would have played the raise sound too. Bannerlord.as plays the
+  war cry on a raise, holy_banner on the plant and holy_banner_end when it ends.
+- Blink's vanish plays through `SoundEvent.PlayTracked` with `SetVolume(2.0)`, as the user asked
+  for it twice as loud. Assumed, not measured: FMOD treats an instance volume above 1 as gain.
+- Void Barrier's save: silent, by choice.
+- Measured: `out` is an AngelScript keyword. A local named `out` failed to compile
+  (`Expected expression value`, run `20261021-224619`).
+- The lab is muted, so a run only shows that nothing errors, not how anything sounds.
+

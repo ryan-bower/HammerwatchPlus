@@ -9,7 +9,7 @@
 	Orbs: Boomerang (ec-return-mul 1.2/1.4 on the way back; ec-lone: a lone enemy takes
 	the strikes), Storm Arrow (ec-strikes 3/4/5, ec-radius 69/75/84), Tailwind Catch
 	(ec-catch: catching an arrow adds a Tailwind stack, with Gathering Winds).
-	Sound: placeholders until the audio picker (art/specs/AUDIO.md).
+	Sound: picked in the audio picker (art/specs/AUDIO.md).
 -->
 <dict>
 	<string name="name">.hwp.specs.electric_circuit.name</string>
@@ -61,7 +61,7 @@
 			<array name="cast">
 				<dict>
 					<string name="class">PlaySound</string>
-					<string name="sound">event:/sfx/player/attacks/twohanded/shortbow_quick_shot</string>
+					<string name="sound">event:/sfx/actors/undead/court/court_sniper/court_sniper_bow_arrow_lightning</string>
 				</dict>
 				<dict>
 					<string name="class">ShootProjectileFan</string>

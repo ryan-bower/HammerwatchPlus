@@ -40,7 +40,7 @@ def audio_md():
     """art/specs/AUDIO.md: the same slots, for reading."""
     out = ["# Audio: the six 4th specializations (mods/specs)", "",
            "Every moment below plays (or could play) a sound. All options are vanilla FMOD events, so",
-           "nothing new needs recording. **Now** is the mod's placeholder today (none: silent so far).",
+           "nothing new needs recording. **Now** is what the mod plays (the user's picks, 2026-10-21; none: silent).",
            "Pick in the audio picker: `python tools/audio_pick/build.py` renders every option with the",
            "game's own FMOD (read only, from the install) into `tools/audio_pick/out/picker.html`, which",
            "is published as an artifact with a shared store; the picks are read back from it and wired",

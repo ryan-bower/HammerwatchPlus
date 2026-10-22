@@ -9,7 +9,7 @@
 	the gust heals; a timed Heal, not regeneration, which pauses after a hit),
 	Shared Breath (sw-share: teammates Protective Gale reaches can release the gust too,
 	scripts/HWP/Specs/Winddancer.as; sw-breeze-lvl picks their gust's breeze).
-	Sound: a placeholder until the audio picker (art/specs/AUDIO.md).
+	Sound: picked in the audio picker (art/specs/AUDIO.md).
 -->
 <dict>
 	<string name="name">.hwp.specs.second_wind.name</string>
@@ -47,7 +47,7 @@
 					<array name="effects">
 						<dict>
 							<string name="class">PlaySound</string>
-							<string name="sound">event:/sfx/actors/bosses/boss_warrior_spirit/dive_attack/dive_attack_healing_wave</string>
+							<string name="sound">event:/sfx/player/classes/ranger/wind_weaver/wind_weaver_hit</string>
 						</dict>
 						<dict>
 							<string name="class">Explode</string>
