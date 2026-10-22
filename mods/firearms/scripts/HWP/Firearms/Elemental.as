@@ -94,7 +94,10 @@ class HWPFirearmsGunShot : ShootProjectile
 	{
 		super(unit, params);
 		@m_plain = m_projectile;
-		m_magOff = GetParamString(unit, params, "projectile", false, "").findFirst("_off") >= 0;
+		// "off-hand" (the vanilla Damage.as name) says which gun's magazine the round comes
+		// from; a round with no such param is main-hand unless its unit is named *_off.
+		m_magOff = GetParamBool(unit, params, "off-hand", false,
+			GetParamString(unit, params, "projectile", false, "").findFirst("_off") >= 0);
 		m_converge = GetParamInt(unit, params, "converge", false, 0);
 		for (uint i = 0; i < HWP::Firearms::ELEMENTS.length(); i++)
 		{

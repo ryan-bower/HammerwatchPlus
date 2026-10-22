@@ -992,10 +992,7 @@ namespace Modifiers
 				uint off = HWP::Firearms::MagazineHandSkill(player, true);
 				if (off != 0 && skill.m_skillId == off)
 					stacks = HWP::Firearms::MagazineRounds(player, true);
-				else if ((main != 0 && skill.m_skillId == main)
-					|| skill.m_skillId == HashString("hwp_attack_rifle")
-					|| skill.m_skillId == HashString("hwp_attack_rifle_epic")
-					|| skill.m_skillId == HashString("hwp_attack_autofire"))
+				else if ((main != 0 && skill.m_skillId == main) || HWP::Firearms::IsRifleRound(skill.m_skillId))
 					stacks = HWP::Firearms::MagazineRounds(player, false);
 			}
 			return (stacks > 0 && roll_chance(player, lerp(m_chance, intensity) * stacks)) ? 1 : 0;

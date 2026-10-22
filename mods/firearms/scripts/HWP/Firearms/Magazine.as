@@ -251,6 +251,16 @@ namespace HWP
 				state.Sync(plr);
 		}
 
+		// The rifle attacks that spend a cartridge: these read the main-hand magazine.
+		// The grenade launcher (hwp_attack_rifle_gl*) and the flame rifle's channel
+		// (hwp_attack_flamer) spend no clip, so they keep the shared-clip bonus like a spell.
+		bool IsRifleRound(uint skillId)
+		{
+			return skillId == HashString("hwp_attack_rifle")
+				|| skillId == HashString("hwp_attack_rifle_epic")
+				|| skillId == HashString("hwp_attack_autofire");
+		}
+
 		// 0 for non-cartridge skills: spells, rifle gadgets and another weapon
 		// retain their shared-clip bonus. Handgun rounds use their own gun skill.
 		uint MagazineHandSkill(PlayerBase@ plr, bool off)
@@ -273,9 +283,11 @@ namespace Modifiers
 
 		void Modify(PlayerRecord@ rec, PlayerStats@ stats, float intensity) override
 		{
+			// No actor (the stat sheet from a menu, a record whose actor is gone): the
+			// shared clip (intensity) is the only magazine there is, as for CritDamage.
 			auto plr = cast<PlayerBase>(rec.actor);
-			int main = HWP::Firearms::BaseMagazine(HWP::Firearms::MagazineItemId(rec, false));
-			int off = HWP::Firearms::BaseMagazine(HWP::Firearms::MagazineItemId(rec, true));
+			int main = plr is null ? 0 : HWP::Firearms::BaseMagazine(HWP::Firearms::MagazineItemId(rec, false));
+			int off = plr is null ? 0 : HWP::Firearms::BaseMagazine(HWP::Firearms::MagazineItemId(rec, true));
 			float mainRounds = main > 0 ? HWP::Firearms::MagazineRounds(plr, false) : intensity;
 			float offRounds = off > 0 ? HWP::Firearms::MagazineRounds(plr, true) : intensity;
 			stats.SpellCritDamage += lerp(m_spellCritDmg, intensity);
@@ -290,6 +302,11 @@ namespace Modifiers
 // Native DamageActor selects crit stats by DamageInfo.Weapon's skill type. A
 // paired/mixed action can fire the other gun, so its round must identify that gun.
 // Turret/other IOwnedUnit rounds keep their existing summon damage path unchanged.
+// Every reader of di.Weapon then sees the gun's own attack skill: the per-weapon
+// damage statistic (Player.as DamagedActor), lifesteal and the PlayerDamageActor hook
+// (PlayerBase.as), kill-trigger orbs (Player.as KilledActor) and the PlayerDamaged/
+// PlayerDied messages. All are skills the player has, so GetSkill() resolves; the
+// round is credited to the gun that fired it, which is the intent.
 class HWPFirearmsGunDamage : PlayerDamage
 {
 	HWPFirearmsGunDamage(UnitPtr unit, SValue& params) { super(unit, params); }
