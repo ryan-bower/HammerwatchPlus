@@ -2551,3 +2551,20 @@ and `Branding.as` (HWPSpecsEssenceHit, GainEssence). Passed in run `20261021-232
   which can straddle the 4 s expiry; it now takes one read. A swept-segment catch test
   (from-to segment within 12 px) caught 3 of 3, but the back hits went from 1 to 0, so it was
   reverted. The cause is not understood yet.
+
+## Devil Forgemaster: Penance as an alternate form, icon ideas (2026-10-22)
+
+Planner only, nothing built:
+- Sacrificial Penance has its own record (`planner/data/skills/priest-spec4-penance.json`) with
+  `alt_of: priest-spec4-active` and `alt_when`. `mine("skills")` leaves alternate forms out, so
+  the spec still counts 1 active and 1 passive; the page draws the form inside Necrotic
+  Resurrection's card (checked in a headless Edge screenshot of `#priest`). Necrotic
+  Resurrection's levels no longer carry the Penance numbers; Penance's own levels do (1/1/2/2/3).
+- Icon ideas (`tools/icon_art/sp_pri.py`, picker ids `specsP.<name>`, published to the picker
+  https://claude.ai/artifact/PSk1d9NwASasB5zqmnccNq): Necrotic Resurrection, Sacrificial
+  Penance, Call of Heresy (24x24) and the Heresy stack below 5 and at 5+ (14x14). Below 5 is
+  purple; 5+ is red hot, each idea the same letter's motif gone too far, so the two read apart.
+  The planner shows no icon for them until they are built (`planner_icons.py` cuts icons from
+  the game's atlases only).
+- How the 5+ icon swaps in game is not settled. Two stacks (one per icon) or a script swapping
+  the buff's icon are both possible; neither is checked against the engine yet.

@@ -1,0 +1,24 @@
+{
+  "alt_of": "priest-spec4-active",
+  "alt_when": "while Divine Favor is at its max (5 to 8 stacks, by Divine Favor's level)",
+  "built": "",
+  "cls": "priest",
+  "cooldown": "",
+  "group": "priest-spec4",
+  "kind": "active",
+  "levels": [
+    "Removes 1 Heresy",
+    "Removes 1 Heresy",
+    "Removes 2 Heresy",
+    "Removes 2 Heresy",
+    "Removes 3 Heresy"
+  ],
+  "mana": "",
+  "name": "Sacrificial Penance",
+  "notes": "Necrotic Resurrection's alternate form: same key, own name, icon and effect; it levels with Necrotic Resurrection (1/1/2/2/3 is a first pass for 'depending on level'). It turns back into Necrotic Resurrection as soon as Favor drops below its max. Penance and the Pyre Sacrifice orb are the only ways Heresy goes down. Mana cost and cooldown not decided yet. Icon: one of the picker's specsP.pri_sacrificial_penance ideas (tools/icon_art/sp_pri.py).",
+  "order": 0.5,
+  "role": "",
+  "status": "idea",
+  "summary": "Channel for 3 seconds on an intact body to sacrifice it and wash away Heresy.",
+  "unlock": "bought"
+}

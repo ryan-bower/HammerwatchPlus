@@ -141,6 +141,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
   twice). The old +max Essence and the melee-on-branded-elites gain are gone. Reading "trigger twice"
   that way is assumed. `plan-specs` passes (run `20261021-232748`). Known flaky: Lightning Arrow's
   Tailwind Catch caught 0 to 3 of 3 returning arrows across five runs (`storm_catch` failed twice).
+- 2026-10-22: the Priest's 4th spec, the **Devil Forgemaster**, is fully designed in the planner
+  (Necrotic Resurrection, Call of Heresy, Heresy as its own stack, which bosses can be raised).
+  Sacrificial Penance, the form Necrotic Resurrection takes at max Divine Favor, has its own
+  planner entry (new `alt_of` field). Three icon ideas each for the two skills, Penance and the
+  Heresy stack (below 5 and 5+) are in the picker (`tools/icon_art/sp_pri.py`), waiting on the
+  user's picks. Not built yet.
 - Designed in the planner, not built, and parked for later: an "Echoes of Hammerwatch I"
   (formerly "HoH1 Remastered") 5th spec for every vanilla class (the Rogue's from the HoH1
   Thief, the Warrior's from the Gladiator), one active and one passive of HoH1's that HoH2

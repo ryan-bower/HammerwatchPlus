@@ -90,6 +90,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .levels{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:2px;font-size:12.5px}
 .levels li{display:grid;grid-template-columns:28px 1fr;gap:6px}
 .levels b{color:var(--muted);font-weight:600}
+.altform{margin-top:10px;padding:8px 10px;border-radius:8px;border:1px dashed var(--line);background:var(--panel-2)}
 .mods{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;display:grid;gap:6px}
 .mod{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;padding:6px 8px;border-radius:7px;background:var(--panel-2);cursor:pointer;border:1px solid transparent}
 .mod:hover{border-color:var(--line)}
@@ -203,7 +204,8 @@ const SCHEMA = {
     ["order","number","Order"],["built","text","In-game id / file"],
     ["mana","text","Mana cost"],["cooldown","text","Cooldown"],
     ["summary","textarea","What it does"],
-    ["levels","levels5","Skill levels 1-5"],["notes","textarea","Notes"]]},
+    ["levels","levels5","Skill levels 1-5"],["notes","textarea","Notes"],
+    ["alt_of","altof","Alternate form of (blank: a skill of its own)"],["alt_when","text","The form takes over when"]]},
   mods: {label:"Orb mod", fields:[
     ["name","text","Name"],["status","status","Status"],
     ["skill","skill","Parent skill"],["exclusive","text","Exclusive group (blank = stacks freely)"],
@@ -271,7 +273,10 @@ const sortRecs = rs => rs.sort((a,b) => (num(a.order)-num(b.order)) || String(a.
 const list = c => sortRecs([...state.data[c].values()]);
 // Records with no class field belong to the Firearms Specialist (they predate the other classes).
 const clsOf = r => r.cls || FIREARMS;
-const mine = (c, cls = state.cls) => list(c).filter(r => clsOf(r) === cls);
+// A skill's alternate form (alt_of: the skill it replaces for a while, alt_when: when) is drawn inside
+// that skill's card and is not counted as a skill of its own.
+const mine = (c, cls = state.cls) => list(c).filter(r => clsOf(r) === cls && !(c === "skills" && r.alt_of));
+const formsOf = s => list("skills").filter(x => x.alt_of === s._id);
 const chip = (cls, text) => h("span",{class:"chip "+cls}, text);
 const statusChip = s => chip("st-"+(STATUSES.includes(s)?s:"idea"), s || "idea");
 const qualityOf = lv => QUALITIES.includes(lv && lv.q) ? lv.q : "common";
@@ -417,12 +422,25 @@ function skillCard(s){
       s.built ? h("span",null,"· "+s.built) : null, s.hoh1_file ? h("span",null,"· HoH1 "+s.hoh1_file) : null),
     s.summary ? h("p",{class:"summary"}, s.summary) : null,
     levelsList(s.levels),
+    formsOf(s).map(altForm),
     h("div",{class:"mods"},
       h("div",{class:"row"}, h("span",{class:"mono grow"}, mods.length+" orb mod"+(mods.length===1?"":"s")+" · "+mods.reduce((a,m)=>a+(m.levels||[]).length,0)+" levels"),
         addBtn(vanilla ? "orb" : "mod","mods", Object.assign({skill:s._id}, vanilla ? ORB() : {}))),
       mods.map(modRow)),
     s.notes ? h("div",{class:"para"},h("span",{class:"k"},"Notes"), s.notes) : null,
     h("div",{class:"row",style:"margin-top:8px"}, h("button",{class:"btn small", onclick:()=>openEditor("skills",s._id)}, state.canWrite?"Edit":"Details")));
+}
+function altForm(f){
+  return h("div",{class:"altform"},
+    h("div",{class:"row"}, ico(f, 40),
+      h("div",{class:"grow",style:"min-width:0"},
+        h("div",{class:"title clickable", onclick:()=>openEditor("skills",f._id)}, f.name||f._id),
+        h("div",{class:"row"}, chip("van","alternate form"), statusChip(f.status)))),
+    f.alt_when ? h("div",{class:"mono",style:"margin-top:2px"}, "Takes over "+f.alt_when) : null,
+    h("div",{class:"row mono"}, f.mana ? h("span",null,"mana "+f.mana) : null, f.cooldown ? h("span",null,"· cd "+f.cooldown) : null, f.built ? h("span",null,"· "+f.built) : null),
+    f.summary ? h("p",{class:"summary"}, f.summary) : null,
+    levelsList(f.levels),
+    f.notes ? h("div",{class:"para"},h("span",{class:"k"},"Notes"), f.notes) : null);
 }
 function vanillaSkillCard(s, orbsOpen){
   const extra = list("mods").filter(m => m.skill === s.id && clsOf(m) === state.cls);
@@ -711,6 +729,8 @@ function fieldInput(coll, key, type, val){
     for (const sp of specs) opts.push(h("optgroup",{label:"Vanilla · "+sp}, van.filter(s => s.spec === sp).map(s => h("option",{value:s.id, selected:val===s.id}, s.name))));
     return h("select",{name:key}, opts);
   }
+  if (type === "altof") return h("select",{name:key}, h("option",{value:"", selected:!val}, "—"),
+    mine("skills").filter(s => !editing || s._id !== editing.id).map(s => h("option",{value:s._id, selected:val===s._id}, s.name||s._id)));
   if (type === "levels5") return levelsEditor(key, Array.isArray(val)?val:[], false);
   if (type === "levelsq") return levelsEditor(key, Array.isArray(val)?val:[], true);
   return h("input",{name:key, type:"text", value: val ?? ""});

@@ -5,15 +5,15 @@
   "group": "priest-spec4",
   "kind": "active",
   "levels": [
-    "Up to 2 summons, 50% of the risen enemy's health and damage; Penance removes 1 Heresy",
-    "Up to 2 summons, 60% of the risen enemy's health and damage; Penance removes 1 Heresy",
-    "Up to 3 summons, 70% of the risen enemy's health and damage; Penance removes 2 Heresy",
-    "Up to 3 summons, 85% of the risen enemy's health and damage; Penance removes 2 Heresy",
-    "Up to 4 summons, 100% of the risen enemy's health and damage; Penance removes 3 Heresy"
+    "Up to 2 summons, 50% of the risen enemy's health and damage",
+    "Up to 2 summons, 60% of the risen enemy's health and damage",
+    "Up to 3 summons, 70% of the risen enemy's health and damage",
+    "Up to 3 summons, 85% of the risen enemy's health and damage",
+    "Up to 4 summons, 100% of the risen enemy's health and damage"
   ],
   "mana": "70",
   "name": "Necrotic Resurrection",
-  "notes": "Cast on the body you aim at: takes 3 seconds to complete, 5 seconds for an elite, 10 for a boss. Heresy per raise: normal +1, elite +2, boss +3. At 5 or more Heresy raising is blocked; below that a raise may overshoot 5 (a boss at 4 Heresy makes 7). Sacrificial Penance: while your Divine Favor is at its max (5 to 8 stacks, by Divine Favor's level) the skill changes its name, icon and effect. A 3 second channel on the body you aim at sacrifices it and removes 1-3 Heresy by this skill's level (1/1/2/2/3 is a first pass for 'depending on level'). Summons last until killed or decayed: they lose 1% health every 3 seconds, a boss every 9 seconds. Past the summon cap the oldest dies. Every summon, bosses included, follows you to new floors. Risen summons can't be healed: the Lantern's Holy Light and other ally heals skip them (vanilla PlayerHeal heals any actor on your team, so the build has to exclude them). Boss resurrection must be unlocked through Deeper Depravity. Not free any more: the spec's free level is Divine Favor's instead. Level numbers are a first pass.",
+  "notes": "Cast on the body you aim at: takes 3 seconds to complete, 5 seconds for an elite, 10 for a boss. Heresy per raise: normal +1, elite +2, boss +3. At 5 or more Heresy raising is blocked; below that a raise may overshoot 5 (a boss at 4 Heresy makes 7). At max Divine Favor the skill turns into Sacrificial Penance (its own entry, shown in this card as the alternate form). Summons last until killed or decayed: they lose 1% health every 3 seconds, a boss every 9 seconds. Past the summon cap the oldest dies. Every summon, bosses included, follows you to new floors. Risen summons can't be healed: the Lantern's Holy Light and other ally heals skip them (vanilla PlayerHeal heals any actor on your team, so the build has to exclude them). Boss resurrection must be unlocked through Deeper Depravity. Not free any more: the spec's free level is Divine Favor's instead. Level numbers are a first pass.",
   "order": 0,
   "role": "",
   "status": "idea",

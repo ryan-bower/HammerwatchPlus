@@ -57,6 +57,14 @@ each one that plays differently from the skill's top level is an orb idea,
 the games shipped commented out (Remedy's ally aura, Vicious Cuts on skill hits, Flurry of
 Blades' extra strikes).
 
+## Alternate forms
+
+A skill that turns into another for a while (the Priest's Necrotic Resurrection becomes
+Sacrificial Penance at max Divine Favor) has that form as a skill record of its own, with
+`alt_of` (the skill it replaces) and `alt_when` (when). The form is drawn inside its skill's
+card and is left out of every count: the spec's active and passive tally, the budget meters,
+the overview and the orb lists.
+
 ## Status and the class dots
 
 A record's status runs idea, designed, built, tested, finished. The dot on a class's tab sums
