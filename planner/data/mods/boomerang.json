@@ -1,21 +1,21 @@
 {
-  "built": "hwp_ran_ec_charged_boomerang",
+  "built": "",
   "cls": "ranger",
   "exclusive": "",
   "levels": [
     {
       "q": "uncommon",
-      "text": "+20% damage on the way back"
+      "text": "+20%"
     },
     {
       "q": "rare",
-      "text": "+40% damage on the way back"
+      "text": "+40%"
     }
   ],
-  "name": "Charged Boomerang",
-  "notes": "In game (hwp_ran_ec_charged_boomerang, built): x1.2 / x1.4 damage on the way back, and a lone enemy takes the strikes itself. Only the orb's numbers are checked in game, not the damage.",
+  "name": "Boomerang",
+  "notes": "",
   "order": null,
   "skill": "ranger-spec4-active",
-  "status": "built",
+  "status": "idea",
   "summary": "The returning arrow deals increased damage. When it hits an enemy with no other enemies nearby, the lightning strikes that enemy instead."
 }

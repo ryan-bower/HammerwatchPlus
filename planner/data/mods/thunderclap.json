@@ -1,5 +1,5 @@
 {
-  "built": "hwp_wiz_tt_thunderclap",
+  "built": "",
   "cls": "wizard",
   "exclusive": "",
   "levels": [
@@ -9,9 +9,9 @@
     }
   ],
   "name": "Thunderclap",
-  "notes": "In game (hwp_wiz_tt_thunderclap, built): when the orb expires every enemy within 70 takes 150% of a zap (the radius assumed). Only seen as torrent damage.",
+  "notes": "",
   "order": null,
   "skill": "wizard-spec4-active",
-  "status": "built",
-  "summary": "When Tempest Torrent expires, it bursts, dealing Lightning damage to all nearby enemies."
+  "status": "idea",
+  "summary": "When Tempest Orb expires, it bursts, dealing Lightning damage to all nearby enemies."
 }

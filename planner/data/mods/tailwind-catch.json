@@ -1,17 +1,17 @@
 {
-  "built": "hwp_ran_ec_tailwind_catch",
+  "built": "",
   "cls": "ranger",
   "exclusive": "",
   "levels": [
     {
       "q": "rare",
-      "text": "Catching a returning arrow adds a Tailwind stack"
+      "text": ""
     }
   ],
   "name": "Tailwind Catch",
-  "notes": "If the arrow hits your hitbox on the return trip it disappears and you \"caught\" it\n\nIn game (hwp_ran_ec_tailwind_catch, tested): catching a returning arrow adds a Tailwind stack (needs Gathering Winds).",
+  "notes": "",
   "order": null,
   "skill": "ranger-spec4-active",
-  "status": "tested",
+  "status": "idea",
   "summary": "Catching your returning arrow grants a stack of Tailwind (Gathering Winds)."
 }

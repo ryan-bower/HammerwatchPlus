@@ -1,11 +1,10 @@
 {
   "blurb": "The fastest and most dangerous archer build, when nothing makes sense, turn to more projectiles and speed.",
-  "built": "hwp_ranger_stormbringer",
   "cls": "ranger",
-  "name": "Stormbringer",
-  "notes": "In game (hwp_ranger_stormbringer, tested): the subclass in mods/specs (players/hwp/specs/class_specs.sval). Every skill and orb is checked by plan-specs 20261021-163852; numbers the design left open are marked assumed on each record. Not balanced yet.",
+  "name": "Deadeye",
+  "notes": "",
   "order": 4,
   "owner": "Noah",
   "spec4": true,
-  "status": "tested"
+  "status": "idea"
 }

@@ -1,5 +1,5 @@
 {
-  "built": "hwp_wiz_tt_lingering_storm",
+  "built": "",
   "cls": "wizard",
   "exclusive": "",
   "levels": [
@@ -13,9 +13,9 @@
     }
   ],
   "name": "Lingering Storm",
-  "notes": "In game (hwp_wiz_tt_lingering_storm, built): the orb lasts 1/2 s longer. Only the orb's numbers are checked in game.",
+  "notes": "",
   "order": null,
   "skill": "wizard-spec4-active",
-  "status": "built",
-  "summary": "Increases Tempest Torrent's duration."
+  "status": "idea",
+  "summary": "Increases Tempest Orb's duration."
 }

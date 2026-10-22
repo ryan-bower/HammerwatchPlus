@@ -1,21 +1,21 @@
 {
-  "built": "hwp_wiz_sc_static_channel",
+  "built": "",
   "cls": "wizard",
   "exclusive": "",
   "levels": [
     {
       "q": "uncommon",
-      "text": "10% mana restored"
+      "text": "10% of max mana restored"
     },
     {
       "q": "rare",
-      "text": "20% mana restored"
+      "text": "20% of max mana restored"
     }
   ],
-  "name": "Static Channel",
-  "notes": "In game (hwp_wiz_sc_static_channel, tested): a release gives back 10/20% of max mana.",
+  "name": "Charged Font",
+  "notes": "",
   "order": null,
   "skill": "wizard-spec4-passive",
-  "status": "tested",
-  "summary": "Releasing Static Charge restores Mana."
+  "status": "idea",
+  "summary": "Releasing Static Charge restores Mana, as a share of your max Mana."
 }

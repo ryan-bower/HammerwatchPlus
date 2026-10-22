@@ -4,8 +4,14 @@
   "cooldown": "12",
   "group": "wizard-spec4",
   "kind": "active",
-  "levels": [],
-  "mana": "",
+  "levels": [
+    "5 Damage per Strike, 2 Second Duration, 40 Mana",
+    "6 Damage per Strike, 2.5 Second Duration, 50 Mana",
+    "7 Damage per Strike, 2.5 Second Duration, 50 Mana",
+    "8 Damage per Strike, 3 Second Duration, 60 Mana",
+    "10 Damage per Strike, 3 Second Duration, 60 Mana"
+  ],
+  "mana": "40/50/50/60/60",
   "name": "Thunder Orb",
   "notes": "",
   "order": 0,
