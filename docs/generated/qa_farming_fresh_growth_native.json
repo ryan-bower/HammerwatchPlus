@@ -1,0 +1,88 @@
+{
+  "generated_utc": "2026-10-22T20:33:10.808095+00:00",
+  "scope": "Freshbasic12 plus fresh abort/growth6 requiredscoped checks; all18PASS withoutcropstate setter.",
+  "cases": [
+    {
+      "scenario": "qa-module-farming-standalone",
+      "run_id": "20261022-151349-qa-module-farming-standalone-lab",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "f8b0ed7e57fb4ebf8055c650c7ec4c1fadb0b26bf402b870602a99e61929b00b",
+        "files": 1268,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "runner_assertions": 12,
+      "checks": {
+        "well_no_can": true,
+        "farmer_open": true,
+        "can_bought": true,
+        "seed_bought": true,
+        "plots_found": true,
+        "planted": true,
+        "sprouts_shown": true,
+        "watered": true,
+        "wet_soil_shown": true,
+        "already_watered": true,
+        "well_refills": true,
+        "well_moved": true
+      },
+      "native_notes": [
+        "farm status: Farm: on, 4 plot(s) (patches) at -560,1040, 0 run(s) counted. Planted: - / No watering can. No seeds. The farmer sells them.",
+        "well_no_can: ['You need a watering can. The farmer sells one.']",
+        "npc_misc_farmer_man: not in this town, spawned beside the player",
+        "farmer_open: HWPFarmMenu",
+        "can_bought: 'No watering can' -> 'Mahogany Watering Can: 4/4 water', gold 5000 -> 4800",
+        "seed_bought: gold 4800 -> 4780, ['Bought a Mahogany Watering Can! It holds 4 water.', 'Bought a Cabbage seed (1).']",
+        "plots_found: 4 plot units",
+        "planted: window 'Empty soil. Plant one of your seeds:', then ; planted ['4: Cabbage (0/2)']",
+        "sprouts_shown: visuals ['0'] -> ['3']",
+        "watered: ['Watered the Cabbage (3/4 water left).']; ['4: Cabbage (0/2, watered)']",
+        "wet_soil_shown: visuals ['3'] -> ['6']",
+        "already_watered: 'Already watered since the last run.' ['Already watered since the last run.', 'Already watered since the last run.']",
+        "well_refills: ['Watering can filled (4).']",
+        "well_moved: ['well moved to -290,1044 (saved).\\n[NFO] [15:14:26] [menu] Refreshing keybind strings\\n[NFO] [15:14:26] Refreshing keybind strings\\n[NFO] [15:14:26] [GL] {\"ev\":\"hb\",\"n\":27,\"frames\":837,\"phase\":\"town\",\"window\":\"\",\"paused\":false,\"cmds\":28,\"exceptions\":0}\\n'], near [{'unit': -8, 'name': 'doodads/hwp/farm_well.unit', 'behavior': 'HWPLocalNPC', 'usable': True, 'hp': 1.0, 'hpMax': 100000, 'hpExact': 100000.0, 'dead': False, 'x': -290.0, 'y': 1044.0, 'dist': 0.0}]"
+      ]
+    },
+    {
+      "scenario": "qa-module-farming-cycle-standalone",
+      "run_id": "20261022-151429-qa-module-farming-cycle-standalone-lab",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "f8b0ed7e57fb4ebf8055c650c7ec4c1fadb0b26bf402b870602a99e61929b00b",
+        "files": 1268,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "runner_assertions": 12,
+      "checks": {
+        "abort_grows_nothing": true,
+        "failed_run_grows": true,
+        "dry_bigger_sprout": true,
+        "watered_shows_wet": true,
+        "dry_ready_after_two": true,
+        "watered_ready_after_one": true
+      },
+      "native_notes": [
+        "npc_misc_farmer_man: not in this town, spawned beside the player",
+        "before: 0 run(s), planted 4: Cabbage (0/2)",
+        "aborted: town True, 0 run(s), planted 4: Cabbage (0/2), ['the run was not finished (state 4): the crops do not grow']",
+        "failed: town True, 1 run(s), planted 4: Cabbage (1/2), ['a run finished: 1 counted']",
+        "abort_grows_nothing: 0 -> 0 runs, '4: Cabbage (0/2)' -> '4: Cabbage (0/2)'",
+        "failed_run_grows: 0 -> 1 runs, '4: Cabbage (0/2)' -> '4: Cabbage (1/2)'",
+        "npc_misc_farmer_man: not in this town, spawned beside the player",
+        "after one run (dry): ['farm_sprout2'], 4: Cabbage (1/2); new plot ['farm_sprout2'] -> watered ['farm_sprout', 'farm_sprout2', 'farm_wet'], 3: Cabbage (0/2, watered) | 4: Cabbage (1/2)",
+        "after the next run: dry ['crops/cabbage'], watered ['crops/cabbage'], 3: Cabbage ready | 4: Cabbage ready",
+        "dry_bigger_sprout: ['farm_sprout2'] 4: Cabbage (1/2)",
+        "watered_shows_wet: ['farm_sprout', 'farm_sprout2', 'farm_wet'] 3: Cabbage (0/2, watered) | 4: Cabbage (1/2)",
+        "dry_ready_after_two: ['crops/cabbage']",
+        "watered_ready_after_one: ['crops/cabbage'] 3: Cabbage ready | 4: Cabbage ready"
+      ]
+    }
+  ],
+  "limits": [
+    "Minimum core+farming dependencies only. Existing combined135031fixture stateconfound andallrawoutcomes retained.",
+    "Native aborted/failed game APIs used; failed state is controlled andnot actualdeath.",
+    "Farmer absent from this town layout, so helper spawned nativefarmer besideplayer; normal farmerplacement/acquisition notproved.",
+    "Native shop/crop/water/visual unit scene readbacks; no independent pixelreview or allcrop/townvariant/fullharvest/yield proof.",
+    "Actual plot/run counters survive native town transitions; no diskrestart/module-disable persistence claim."
+  ]
+}

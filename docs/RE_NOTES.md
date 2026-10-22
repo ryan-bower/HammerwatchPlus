@@ -14,7 +14,7 @@ DIFFERENT SETUPS OR INSTALL LOCATIONS.
 **Ids and version.** Steam app id `619820`. Build id `25509441`
 (`steamapps/appmanifest_619820.acf::buildid`). The game logs
 `Build 170: ARCH_64 USING_STEAM RELEASE FINAL` as its second line (`HWR2.exe.log`), and the
-window title is `Heroes of Hammerwatch II - B170`. `HWR2.exe` sha256 `6ddd9e7d8fe3…`,
+window title is `Heroes of Hammerwatch II - B170`. `HWR2.exe` sha256 `6ddd9e7d8fe3â€¦`,
 PE timestamp 1790265044. Pinned in `gamelab/build_id.json`; `tools/pin_build.py --show`
 compares live to pin, and every GameLab launch refuses with exit 3 on mismatch.
 
@@ -266,9 +266,9 @@ Verified means measured on the pinned build (run id or source line). Assumed is 
   - Assumed cause: units standing in passages. Not verified.
   - Seen again in floor-soak 20261017-184334 sample 1. At (2042,617), 200 units south of
     the exit's stand point, nothing routed:
-    - stand → anywhere: 3 expansions;
-    - spawn → stand: failed;
-    - here → spawn: failed, along the way the player had just walked.
+    - stand â†’ anywhere: 3 expansions;
+    - spawn â†’ stand: failed;
+    - here â†’ spawn: failed, along the way the player had just walked.
     No enemy was within kite range.
   - **What can change the graph (verified from data, not yet tied to a run):** a unit's
     `<collision static="true">` blocks nav unless it says `nav-block="false"`. In the
@@ -341,11 +341,11 @@ Verified means measured on the pinned build (run id or source line). Assumed is 
   first and failed units are skipped. pilot-floor 20261017-194552 PASS. The next soak
   (20261017-194740) was interrupted by the user, leaving a stale lock: no process was alive, so
   `gamelab reset`.
-- **Mod load checks: 27 of 27 pass** (20261017-194937 … -195451). The six earlier failures pass
+- **Mod load checks: 27 of 27 pass** (20261017-194937 â€¦ -195451). The six earlier failures pass
   with their self-check log lines present. Cause not traced.
 - **P6b paused** at the user's request (2026-10-17), to be walked through together.
 
-## 2026-10-17 (night): watch-mode focus (P6 items 1 and 1′)
+## 2026-10-17 (night): watch-mode focus (P6 items 1 and 1â€²)
 - **Who took the foreground in 20261017-195821.** pid 25096 was `HWR2.exe` itself, the
   `harness.start` pid. The empty image name was a sampler bug: it resolved names at
   `report()` time, after the game had exited. `ForegroundSampler` now records at each switch
@@ -800,8 +800,8 @@ Verified means measured on the pinned build (run id or source line). Assumed is 
   itself, and `make_pet_dyes.py --verify` (doctor) reports any HoH1 unit still on a
   vanilla class. plan-t9 092312: `HWPMiniPetWalking`, Gold off leaves the drop, on fetches it.
 - **A gold drop the pathfinder reaches can still be one the pet won't fetch.** A drop at
-  (150, 0) from the Bandit Keep start stayed put while (±106, 106) and (0, 150) were
-  fetched. `plan_checks.gold_drop` now wants a near-straight path (length ≤ 1.25 × the
+  (150, 0) from the Bandit Keep start stayed put while (Â±106, 106) and (0, 150) were
+  fetched. `plan_checks.gold_drop` now wants a near-straight path (length â‰¤ 1.25 Ã— the
   distance), tries the diagonals first, and moves to the next direction when a drop isn't
   fetched within 8 s.
 - **`Material::DropMaterial(type, amount, pos, shared, dropAnim)`** gives a pickup that
@@ -1104,7 +1104,7 @@ Built the firearms clip, the reload rework, the rifle rework and the pistols
   def must exist before the first stack is made. The Reload skill carries a
   `ModifyStack add-max 0 0` for that.
 - **Lose-effects at 0 stacks run at intensity 0, and `AddStacks.Apply` returns false at
-  intensity ≤ 0** (AddStacks.as:59). Before the fix, an empty clip never started its reload.
+  intensity â‰¤ 0** (AddStacks.as:59). Before the fix, an empty clip never started its reload.
   An effect-list dict `<vec2 name="intensity-set">1 1</vec2>` placed first fixes it
   (verified, `plan-t14`).
 - **`conditionals` is an OR of groups; the tokens of one `conditional` array are ANDed**
@@ -1133,7 +1133,7 @@ Built the firearms clip, the reload rework, the rifle rework and the pistols
 - **Purple orbs are skill spheres** (Behaviors/SkillSphere.as, GUI/Menus/GiveSkillSphereMenu.as;
   read from source, not run). A sphere offers 3 picks from the `modifier-skills` of learned
   skills, each at its next level, and no two share a parent. A reroll costs Shadow Curse
-  `min(100, ScaleShadowCurse(12 + 7 × rerolls used))`. Across all 196 vanilla orbs the
+  `min(100, ScaleShadowCurse(12 + 7 Ã— rerolls used))`. Across all 196 vanilla orbs the
   levels are Uncommon or Rare, never Epic (counted from the class data by the planner seed
   script). So a new orb only enters the pool once its parent skill is learned.
 - **The class planner** (https://claude.ai/artifact/GUXggQqycAoQRiJ6G1Nwv3) now holds every
@@ -1143,7 +1143,7 @@ Built the firearms clip, the reload rework, the rifle rework and the pistols
   (see `docs/design/firearms.md`).
 - **How orb levels read** (PlayerClass.as LoadParams and LoadSkillDescriptionParams, from
   source). A level with no `quality` takes the orb's own `quality` (default common), not the
-  level before it. A `description-params` entry is `[key, (formatting bool), label, v1, v2…]`.
+  level before it. A `description-params` entry is `[key, (formatting bool), label, v1, v2â€¦]`.
   Level L shows `v[min(L, n) - 1]` (Modifications.as AppendSkillDesc). Two entries can share
   a key: the label list shows both, and the `%key%` in the text gets the last.
 
@@ -1169,7 +1169,7 @@ Checks: `plan-firearms-a` 20261019-020024, `-b` 20261019-015752, `-orbs` 2026101
   (`aimed_cast`). The same applies to a press shorter than the castpoint: the rifle's 80 ms
   castpoint against a 60 ms press sent the round the wrong way (Focus never rose).
 - **A projectile thrown along a direction lands 100 out** (IProjectile.as:49-57: GetTargetPos
-  is from + dir × 100, which GroundBouncing `hit-target` flies to). Explosive Reload's
+  is from + dir Ã— 100, which GroundBouncing `hit-target` flies to). Explosive Reload's
   magazine missed a dummy at 45 with its 48 radius; one at 100 is hit.
 - **A round that stops at its first hit stops on anything between.** The old Snipe pierced
   6, the new one 0 without its orb. On one floor it hit nothing on a wall-free line, so the
@@ -1226,12 +1226,12 @@ empty clip gives, and for dual pistols to throw their magazines one after the ot
   cast's start). The window no longer opens while a Reload cast is under way.
 - **Dual magazines in turn.** The Reload timeline has a second entry, `650 cast2`, holding
   a `HWPFirearmsThrowMag` with `second`. The cast throws the main hand's magazine and keeps
-  the other half of the rounds per owner unit for it; the two land 8° either side of the aim.
-  Measured gap: 99 ms (scene 26136 → 26235 ms).
+  the other half of the rounds per owner unit for it; the two land 8Â° either side of the aim.
+  Measured gap: 99 ms (scene 26136 â†’ 26235 ms).
 - Runs, all PASS: plan-firearms-orbs 20261019-091445 (new flags
   `explosive_reload_dual_in_turn`, `over_reload_manual_perfect`, `over_reload_capped`,
   `over_reload_plain_clears`), plan-t14 20261019-091715.
-- **Pistol magazine 12 → 10** (owner, 2026-10-19): `GunMarker glock_main/glock_off 10` in
+- **Pistol magazine 12 â†’ 10** (owner, 2026-10-19): `GunMarker glock_main/glock_off 10` in
   buffs_firearms.sval, so dual pistols share 20. plan-firearms-guns 20261019-095245 PASS
   (clip max 10 / 20 / 10, rifle 30); the planner's weapon records are updated to match.
 
@@ -1491,7 +1491,7 @@ empty clip gives, and for dual pistols to throw their magazines one after the ot
   hand on the right (look-firearms-muzzles 20261019-161736, zoomed frames, six aims).
   `rotate-offset` turns (0, +y) to the aim's right (ShootProjectile.as:96-97:
   `addrot(offset, aim angle)`). So main-hand rounds use (0 6) and off-hand rounds (0 -6).
-  The old offsets were ±2 and had the main hand's rounds on the left.
+  The old offsets were Â±2 and had the main hand's rounds on the left.
 - **Gun sounds with a volume.** `HWPFirearmsSound` is a PlaySound whose instance
   (`SoundEvent.PlayTracked`) gets `SetVolume`. The pistols now use the rifle's
   `bandit_rogue_bomb_bounce` at 1. The rifle is at 1.4. Assumed, not measured: FMOD
@@ -1665,9 +1665,9 @@ Status: measured where a run is cited; the rest says which run checks it.
   town clears it) and broadcast as the `keys.pool` event. Clients ask for it at level start
   (`keys.pool_get`) and ask the host to spend one (`keys.pool_spend`) when they open a chest
   with it. Bought keys stay on the buyer's record, as in vanilla.
-- **The budget is per floor and per tier:** `floor(locked × share)` plus the fraction rounded by
+- **The budget is per floor and per tier:** `floor(locked Ã— share)` plus the fraction rounded by
   a hash roll, minus the party keys of that tier held when the floor started, where share =
-  `keys.budget_share` 0.5 + `keys.budget_per_player` 0.1 × (players − 1), at most 0.95. The
+  `keys.budget_share` 0.5 + `keys.budget_per_player` 0.1 Ã— (players âˆ’ 1), at most 0.95. The
   floor's locked chests are counted as `HWPChest` locks them (`g_lockedTier`).
 - **mod-keys-pool 20261020-003440 (bandit_keep floor 1, solo):** 3 locked bronze chests, budget
   bronze 2. With `keys.accept 1`, culling the floor dropped exactly 2 bronze keys, then no more
@@ -1680,7 +1680,7 @@ Status: measured where a run is cited; the rest says which run checks it.
 
 - **`g_diffLevel` is the floor's level including new game+:** MissionGameMode.LoadDifficulty
   (MissionGameMode.as:153-161) takes the level's `diff-level` (or `diff-level-ngp` in new game+)
-  and adds `g_ngp × Tweak::LevelCapNGPAdd` (5, Player.as:73). The Dark Citadel's floors are
+  and adds `g_ngp Ã— Tweak::LevelCapNGPAdd` (5, Player.as:73). The Dark Citadel's floors are
   2..22, the side missions 10..15, and new game+ floor 1 is 13 + 5 = 18.
 - **The old single payout beat a vanilla platinum chest** (chests.sval `chest_platinum`: 200-400
   gold, an epic trinket, a rare item ilvl +1-3) on every floor. It is now three tables on the key
@@ -1697,7 +1697,7 @@ Status: measured where a run is cited; the rest says which run checks it.
   item's `m_price` (`tweak/items/items_valuables.sval`, 26 valuables, 30 to 800 gold). The pickup
   is paid by the picker's own record, so every machine needs the change, not just the host.
 - **Setting `m_price` is enough:** mods/valuables keeps each valuable's vanilla price and sets
-  `m_price = vanilla × valuables.gold_mult`, so changing the setting never compounds.
+  `m_price = vanilla Ã— valuables.gold_mult`, so changing the setting never compounds.
 - **mod-valuables 20261020-021120 PASS:** boot self-check "26 valuables at 2x"; `hwp valuables`
   "150 -> 300" for the ceramic vase; a dropped vase is "worth 300"; picking it up took the
   character's gold from 0 (`gl inv` c6) to 300 (c9), asserted in the rerun 20261020-021931 PASS; `gold_mult 1` gives 150 -> 150 and 2 gives
@@ -1751,7 +1751,7 @@ are above). Measured on build 25932569 unless marked assumed.
 - **Rifle and pistols.** The rifle fires a 3-round burst per pull and no longer pierces; a lone
   pistol fires single rounds every 300 ms (only a dual pair alternates); the last 3 rounds (6
   dual) click (`HWPFirearmsLowClick`, `event:/sfx/doodads/buttons/button_metal`; GameLab is muted, so the sound itself is unheard here). Damage was brought to the bow and crossbow's range with
-  the burst and the dual pair counted in: rifle ×0.52 (epic 0.65), pistols ×0.8, from
+  the burst and the dual pair counted in: rifle Ã—0.52 (epic 0.65), pistols Ã—0.8, from
   bench-weapons 20261020-003538 (a solo dummy; the dual DPS is measured on the small dummy only,
   assumed to hold on bigger targets). Frag Grenade radius 64 (half). New characters start with
   `hwp_glock_mh_01` (Service Pistol). Measured: plan-t14, plan-firearms-guns, mod-firearms-pistols
@@ -1766,7 +1766,7 @@ are above). Measured on build 25932569 unless marked assumed.
   dodge. plan-t8 20261020-025317: `swap_channel_rooted` moved 0.0, `swap_cancel_key` and
   `swap_cancel_dodge` logged their cancel, the swap lands after the channel.
 - **The generator picks the first base item when every weight is 0.** EquipmentGenerator.as
-  `GenerateBaseItem` (:216-227) does `r = randf() × sum` then `r -= rarity; if (r <= 0) return`,
+  `GenerateBaseItem` (:216-227) does `r = randf() Ã— sum` then `r -= rarity; if (r <= 0) return`,
   so with a sum of 0 the first candidate always wins. Joints have spawn-chance 0, and chests in
   plan-t8 20261020-023506 rolled them ("Generated 'hwp_joint_lucky_leaf_5' equipment with too few
   modifiers"). `equipment_joints.sval` now carries a conditional on a flag nobody sets
@@ -1779,14 +1779,14 @@ are above). Measured on build 25932569 unless marked assumed.
   ones unless the editor-only `AllowDuplicates` is set, so the second fishing spot a floor spawned
   removed the first. `HWPFishingHoleNPC` overrides it empty, as core Town.as:366 does.
 - **Unit and texture rules met on the way:** a GUI/doodad texture must be power-of-two
-  (`fish_small.png` is padded to 64×32 by `tools/make_small_fish.py`), and a scene can hold one
+  (`fish_small.png` is padded to 64Ã—32 by `tools/make_small_fish.py`), and a scene can hold one
   `<collision>`: UnitLoader refuses a second ("A scene can only contain a single collision
   definition", the menu crashed), so the bucket's solid rect and sensor share one.
 - **Fish in the wells.** The spot sits on the potion well's water, one scene per well kind, and
   greys on the map once this player has no casts left. mod-fishing-spots 20261020-024404: every
   spot within 2 px of its well (well 96,-92, spot 96,-91), 8 of 8 greyed when fished out. The
   vanilla pond fish are blue (54,122,221) and vanish in the wells' blue water, so the wells and the
-  bucket use a small orange koi (`make_small_fish.py`, hue 24°); placement in each well's basin
+  bucket use a small orange koi (`make_small_fish.py`, hue 24Â°); placement in each well's basin
   was checked on offline renders of the well unit with the spot over it (crypt moved to the
   left pool, -12,-10).
 - **In a run the fishing window pauses the game,** and the pilot with it, so a pilot `use` that
@@ -1796,7 +1796,7 @@ are above). Measured on build 25932569 unless marked assumed.
   exist but are never used. The pirate sits on the wreck at tiers 0-2 and stands in the rowing
   boat (272,-124 of the plot) at tier 3.
 - **A doodad hides a unit north of its origin.** `boat_small.unit`'s se sprite (origin 30 37 of a
-  58×61 frame) is drawn sorted by the boat's origin, so the pirate placed 6 px north of it was
+  58Ã—61 frame) is drawn sorted by the boat's origin, so the pirate placed 6 px north of it was
   logged in the boat (mod-fishing-spots 20261020-032028: -1269,125) yet the hull covered him
   entirely (shot `coast-2`: an empty boat). He now stands 2 px south of the origin. The wreck's
   sprite is `layer="-1"`, under everything, so it never hid him. From 40 px south of the wreck
@@ -1868,7 +1868,7 @@ runs after the fixes: mod-keys 20261020-041212, mod-keys-pool 041225, mod-puzzle
   20261020-041947 `s7_joint_burns_across_levels`: puffed 5/5, a floor started within 0.4 s, 4/5
   in the run.
 - **The host relayed any joint hand-over a peer sent.** The host now relays a take only when the
-  holder has a joint and is within 2× the take range (equipment syncs to every machine:
+  holder has a joint and is within 2Ã— the take range (equipment syncs to every machine:
   EquippedItems.as:152, PlayerHandler.as:771). It relays a give only for a take it checked, with a
   valid joint id and 1-5 puffs. Assumed from the code: one machine can't send another peer's
   messages.
@@ -1880,7 +1880,7 @@ runs after the fixes: mod-keys 20261020-041212, mod-keys-pool 041225, mod-puzzle
   sprite. The source rects are now clamped (mod-all 20261020-041515).
 - **Dual pistols missed with their spread.** A spread dict's `min` is added to every round with
   a random sign (ShootProjectile.as:56-67 `GetShootDir`; the `time` ramp at :100-103 only moves it
-  toward `max`), so every dual round left at least 4° off the aim line. A plain `spread` of 5 (±2.5°)
+  toward `max`), so every dual round left at least 4Â° off the aim line. A plain `spread` of 5 (Â±2.5Â°)
   takes dual pistols on left click from 38/75 to 87/129 per second at L1/L12, the rifle's 88/129 and
   inside the bows' 83-99/119-142 (bench-weapons 20261020-042519 against 20261020-003538).
 
@@ -1900,7 +1900,7 @@ the gain comes from the skills and the mana pool.
 Bench fixes first (a4c72d3, 6258dc9):
 - **L25 was a level 20 character for every class.** The cap is 20 + 5 per NG+
   (PlayerRecord.GetLevelCap) and the bench never set NG+. The new verb `ngp` sets it.
-- **Rolled gear made about ±20 % noise** between two runs of one build. `kit ... seed=N` now rolls
+- **Rolled gear made about Â±20 % noise** between two runs of one build. `kit ... seed=N` now rolls
   EquipmentGenerator's choices on a seeded generator: the same kit every run and every class.
 - **A weapon the character can't wear was skipped silently**, e.g. hwp_rifle_03 at ilvl 25 needs
   about 73 dex. `kit_weapons` now steps the ilvl down until the weapon goes on and records
@@ -1918,49 +1918,49 @@ Findings:
   bench now puts it 30 px in front of the player, which is how the passive asks an Engineer to play.
 
 Skill changes:
-- **Snipe:** 200-600 % → 300/400/500/600/750 % weapon damage, mana 30-50 → 20/20/25/25/30.
-- **Rocket Launcher:** 150-300 → 200/240/280/330/400 fire.
-- **Double Barrel Burst:** 200 → 150 physical a shell (Assault was 1.5-1.8x at L12).
-- **Deploy Turret:** rounds at 0.6x → 1x weapon damage.
+- **Snipe:** 200-600 % â†’ 300/400/500/600/750 % weapon damage, mana 30-50 â†’ 20/20/25/25/30.
+- **Rocket Launcher:** 150-300 â†’ 200/240/280/330/400 fire.
+- **Double Barrel Burst:** 200 â†’ 150 physical a shell (Assault was 1.5-1.8x at L12).
+- **Deploy Turret:** rounds at 0.6x â†’ 1x weapon damage.
 
 Runs: HEAD bench-firearms 20261020-074134; skills only 20261020-082101; this commit
 20261020-102050; vanilla ranger 090017, rogue 091548, sorcerer 093114, wizard 094648, warlock
 100215 (all seeded, all PASS).
 
-Spec averages over the L12-L25 checkpoints, single / pack: assault 1.41/1.45 → 1.32/1.43,
-demolitions 0.69/0.91 → 0.88/1.33, engineer 0.58/0.61 → 1.07/0.96, sniper 0.70/0.57 → 1.03/0.75.
+Spec averages over the L12-L25 checkpoints, single / pack: assault 1.41/1.45 â†’ 1.32/1.43,
+demolitions 0.69/0.91 â†’ 0.88/1.33, engineer 0.58/0.61 â†’ 1.07/0.96, sniper 0.70/0.57 â†’ 1.03/0.75.
 
-single target, x the vanilla median (HEAD a4c72d3 → this commit)
+single target, x the vanilla median (HEAD a4c72d3 â†’ this commit)
 
 | build | L1 start | L1 run | L12 start | L12 run | L20 start | L20 run | L25 start | L25 run |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | vanilla median | 133 | 139 | 275 | 478 | 497 | 1062 | 596 | 1210 |
-| (level 1) rifle | 0.83 → 0.92 | 0.82 → 0.99 |  |  |  |  |  |  |
-| (level 1) pistols | 0.70 → 0.66 | 0.73 → 0.94 |  |  |  |  |  |  |
-| sniper rifle |  |  | 0.83 → 0.91 | 0.68 → 0.98 | 0.70 → 0.94 | 0.59 → 0.80 | 0.63 → 0.82 | 0.57 → 0.95 |
-| sniper pistols |  |  | 0.74 → 1.18 | 0.63 → 1.29 | 0.74 → 1.11 | 0.70 → 1.17 | 0.79 → 1.02 | 0.77 → 1.20 |
-| demolitions rifle |  |  | 0.83 → 1.02 | 0.59 → 0.89 | 0.77 → 0.92 | 0.48 → 0.74 | 0.71 → 0.86 | 0.77 → 0.85 |
-| demolitions pistols |  |  | 0.83 → 1.05 | 0.67 → 0.84 | 0.91 → 0.96 | 0.47 → 0.66 | 0.76 → 0.85 | 0.48 → 0.86 |
-| assault rifle |  |  | 1.48 → 1.41 | 1.65 → 1.56 | 1.51 → 1.15 | 1.15 → 1.15 | 1.09 → 1.03 | 1.40 → 1.37 |
-| assault pistols |  |  | 1.53 → 1.75 | 1.80 → 1.64 | 1.57 → 1.24 | 1.32 → 1.15 | 1.19 → 1.14 | 1.29 → 1.23 |
-| engineer rifle |  |  | 0.71 → 1.50 | 0.60 → 1.22 | 0.69 → 1.30 | 0.51 → 0.91 | 0.54 → 1.25 | 0.41 → 0.89 |
-| engineer pistols |  |  | 0.68 → 1.22 | 0.52 → 0.88 | 0.59 → 1.08 | 0.48 → 0.86 | 0.71 → 1.04 | 0.50 → 0.73 |
+| (level 1) rifle | 0.83 â†’ 0.92 | 0.82 â†’ 0.99 |  |  |  |  |  |  |
+| (level 1) pistols | 0.70 â†’ 0.66 | 0.73 â†’ 0.94 |  |  |  |  |  |  |
+| sniper rifle |  |  | 0.83 â†’ 0.91 | 0.68 â†’ 0.98 | 0.70 â†’ 0.94 | 0.59 â†’ 0.80 | 0.63 â†’ 0.82 | 0.57 â†’ 0.95 |
+| sniper pistols |  |  | 0.74 â†’ 1.18 | 0.63 â†’ 1.29 | 0.74 â†’ 1.11 | 0.70 â†’ 1.17 | 0.79 â†’ 1.02 | 0.77 â†’ 1.20 |
+| demolitions rifle |  |  | 0.83 â†’ 1.02 | 0.59 â†’ 0.89 | 0.77 â†’ 0.92 | 0.48 â†’ 0.74 | 0.71 â†’ 0.86 | 0.77 â†’ 0.85 |
+| demolitions pistols |  |  | 0.83 â†’ 1.05 | 0.67 â†’ 0.84 | 0.91 â†’ 0.96 | 0.47 â†’ 0.66 | 0.76 â†’ 0.85 | 0.48 â†’ 0.86 |
+| assault rifle |  |  | 1.48 â†’ 1.41 | 1.65 â†’ 1.56 | 1.51 â†’ 1.15 | 1.15 â†’ 1.15 | 1.09 â†’ 1.03 | 1.40 â†’ 1.37 |
+| assault pistols |  |  | 1.53 â†’ 1.75 | 1.80 â†’ 1.64 | 1.57 â†’ 1.24 | 1.32 â†’ 1.15 | 1.19 â†’ 1.14 | 1.29 â†’ 1.23 |
+| engineer rifle |  |  | 0.71 â†’ 1.50 | 0.60 â†’ 1.22 | 0.69 â†’ 1.30 | 0.51 â†’ 0.91 | 0.54 â†’ 1.25 | 0.41 â†’ 0.89 |
+| engineer pistols |  |  | 0.68 â†’ 1.22 | 0.52 â†’ 0.88 | 0.59 â†’ 1.08 | 0.48 â†’ 0.86 | 0.71 â†’ 1.04 | 0.50 â†’ 0.73 |
 
-pack target, x the vanilla median (HEAD a4c72d3 → this commit)
+pack target, x the vanilla median (HEAD a4c72d3 â†’ this commit)
 
 | build | L1 start | L1 run | L12 start | L12 run | L20 start | L20 run | L25 start | L25 run |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | vanilla median | 268 | 276 | 731 | 1077 | 1145 | 2455 | 1480 | 3118 |
-| (level 1) rifle | 1.18 → 1.39 | 1.18 → 1.44 |  |  |  |  |  |  |
-| (level 1) pistols | 0.89 → 0.99 | 0.89 → 1.11 |  |  |  |  |  |  |
-| sniper rifle |  |  | 0.62 → 0.83 | 0.56 → 0.60 | 0.55 → 0.91 | 0.54 → 0.65 | 0.67 → 0.80 | 0.57 → 0.55 |
-| sniper pistols |  |  | 0.54 → 0.73 | 0.51 → 0.83 | 0.65 → 0.85 | 0.51 → 0.74 | 0.63 → 0.80 | 0.51 → 0.72 |
-| demolitions rifle |  |  | 0.85 → 1.30 | 0.86 → 1.49 | 1.16 → 1.45 | 0.78 → 1.09 | 0.83 → 1.28 | 0.84 → 1.38 |
-| demolitions pistols |  |  | 0.93 → 1.25 | 1.02 → 1.51 | 1.06 → 1.48 | 0.83 → 1.13 | 0.92 → 1.22 | 0.87 → 1.35 |
-| assault rifle |  |  | 1.28 → 1.45 | 1.77 → 1.86 | 1.62 → 1.44 | 1.30 → 1.32 | 1.24 → 1.27 | 1.42 → 1.40 |
-| assault pistols |  |  | 1.51 → 1.53 | 1.97 → 1.86 | 1.56 → 1.43 | 1.35 → 1.24 | 1.11 → 1.22 | 1.32 → 1.19 |
-| engineer rifle |  |  | 0.73 → 1.17 | 0.71 → 1.07 | 0.75 → 1.23 | 0.56 → 0.87 | 0.70 → 1.13 | 0.47 → 0.85 |
-| engineer pistols |  |  | 0.51 → 0.97 | 0.54 → 0.83 | 0.73 → 1.00 | 0.50 → 0.70 | 0.68 → 1.02 | 0.48 → 0.63 |
+| (level 1) rifle | 1.18 â†’ 1.39 | 1.18 â†’ 1.44 |  |  |  |  |  |  |
+| (level 1) pistols | 0.89 â†’ 0.99 | 0.89 â†’ 1.11 |  |  |  |  |  |  |
+| sniper rifle |  |  | 0.62 â†’ 0.83 | 0.56 â†’ 0.60 | 0.55 â†’ 0.91 | 0.54 â†’ 0.65 | 0.67 â†’ 0.80 | 0.57 â†’ 0.55 |
+| sniper pistols |  |  | 0.54 â†’ 0.73 | 0.51 â†’ 0.83 | 0.65 â†’ 0.85 | 0.51 â†’ 0.74 | 0.63 â†’ 0.80 | 0.51 â†’ 0.72 |
+| demolitions rifle |  |  | 0.85 â†’ 1.30 | 0.86 â†’ 1.49 | 1.16 â†’ 1.45 | 0.78 â†’ 1.09 | 0.83 â†’ 1.28 | 0.84 â†’ 1.38 |
+| demolitions pistols |  |  | 0.93 â†’ 1.25 | 1.02 â†’ 1.51 | 1.06 â†’ 1.48 | 0.83 â†’ 1.13 | 0.92 â†’ 1.22 | 0.87 â†’ 1.35 |
+| assault rifle |  |  | 1.28 â†’ 1.45 | 1.77 â†’ 1.86 | 1.62 â†’ 1.44 | 1.30 â†’ 1.32 | 1.24 â†’ 1.27 | 1.42 â†’ 1.40 |
+| assault pistols |  |  | 1.51 â†’ 1.53 | 1.97 â†’ 1.86 | 1.56 â†’ 1.43 | 1.35 â†’ 1.24 | 1.11 â†’ 1.22 | 1.32 â†’ 1.19 |
+| engineer rifle |  |  | 0.73 â†’ 1.17 | 0.71 â†’ 1.07 | 0.75 â†’ 1.23 | 0.56 â†’ 0.87 | 0.70 â†’ 1.13 | 0.47 â†’ 0.85 |
+| engineer pistols |  |  | 0.51 â†’ 0.97 | 0.54 â†’ 0.83 | 0.73 â†’ 1.00 | 0.50 â†’ 0.70 | 0.68 â†’ 1.02 | 0.48 â†’ 0.63 |
 
 Left as is: Engineer late in a run (0.73-0.91 single) and Demolitions' single target at L20 late
 (0.66-0.74; its pack number is 1.1). Both sit inside the vanilla spread. Bench limits: the dummies
@@ -2551,3 +2551,339 @@ and `Branding.as` (HWPSpecsEssenceHit, GainEssence). Passed in run `20261021-232
   which can straddle the 4 s expiry; it now takes one read. A swept-segment catch test
   (from-to segment within 12 px) caught 3 of 3, but the back hits went from 1 to 0, so it was
   reverted. The cause is not understood yet.
+
+## GameLab setup and portable compiler discovery (2026-10-21)
+
+Prepared this checkout for the overnight QA sweep. `doctor --fix` installed the locked
+Python dependencies in `.venv`, found both games through Steam, verified the existing
+HoH2 build pin (25932569), backed up the saves, generated the isolated lab environment,
+extracted both games, imported the HoH1 pets/levels/campaign/class art, generated 208
+class-swapped units, and generated the pet dye copies. No build re-pin was needed.
+
+- The original sandboxed Steam check said stopped because `tasklist` returned Access
+  denied. The reviewed command outside the sandbox correctly detected the running
+  client; no Steam process was started and no readiness gate was bypassed.
+- Installed the portable x86_64 GCC 16.2.0 / MinGW-w64 14.0.0 UCRT compiler from the
+  [official WinLibs r1 release](https://github.com/brechtsanders/winlibs_mingw/releases/tag/16.2.0posix-14.0.0-ucrt-r1)
+  into `gamelab/fixtures/cache/toolchain/mingw64/` (gitignored). The downloaded ZIP's
+  SHA256 matched the release sidecar:
+  `c1f52294597c0b73786b2a78eb5d176d89226d2f21875eab75e783a8b1cefcc4`.
+- `gamepaths.find_gcc()` keeps an existing PATH compiler first, then finds local
+  `mingw64` or `w64devkit` copies. Doctor and bootstrap use the same discovery and
+  add the compiler bin directory only to compiler child environments. System PATH,
+  compiler architecture checks, build checks and save confirmation gates are unchanged.
+- `export-datatables` PASS, run `20261021-234735-export-datatables-lab`: all 326/326
+  sval files exported; generated trees match the manifest, including the HoH1 tree.
+- `null-payload` PASS in 13 s, run `20261021-235153-null-payload-lab`: probe, frame,
+  isolation and clean teardown assertions passed. User saves/config, install resources
+  and foreground focus remained unchanged.
+- A fresh `.\.venv\Scripts\python.exe -m gamelab doctor`, with no compiler PATH
+  override, reports **green**. Use that interpreter or `uv run python` for GameLab;
+  the system Python does not contain all project dependencies.
+- Verification: `tools/compiler_selftest.py` passed 7 tests (discovery precedence,
+  local fallbacks and child environments); `tools/doctor_selftest.py` passed 78
+  checks for save gates, HoH1 discovery/imports, smoke diagnostics and pet dyes.
+
+The 44 real save files were copied and re-hashed into
+`saves-backup/2026-10-21T23-41-09/`. Recovery command, only if a restore is wanted:
+`.\.venv\Scripts\python.exe tools/saves.py restore --from 2026-10-21T23-41-09`.
+The overnight mod QA sweep has not been started by this setup session.
+
+## Overnight QA baseline and coverage inventory (2026-10-22, in progress)
+
+The sweep began at 00:20:52 Central with a 10:20:52 deadline and the final hour reserved
+for regression and handoff. `docs/QA_OVERNIGHT.md` is the resumable ledger; the four
+`docs/generated/qa_*_inventory.json` files track priority skill/orb/rank expectations and
+all 31 module dependency sets. Inventory rows remain UNTESTED unless fresh runtime
+behavior proves their specific expectation. A load or bind check is not an effect check.
+
+- Corrected `mod-all`: its old list omitted `specs`; the new list exactly equals the 31
+  module manifests. Run `20261022-003459-mod-all-lab` passed town load, clean teardown
+  and all isolation checks. This does not prove every module's gameplay behavior.
+- Original-code `plan-specs` run `20261022-003808-plan-specs-lab` failed the Branding
+  doubled-Essence equality. Logs identify test contamination: Proliferation shortened
+  the brand and Released Essence paid out when the elite died during the hit loop.
+  The measurement setup is being isolated without changing gameplay or widening the
+  equality assertion; the original failure remains in the ledger and artifacts.
+- Original-code `plan-classesa` run `20261022-004605-plan-classesa-lab` failed
+  `trident_thrust_hits` (front and side target HP unchanged). Cause is unresolved;
+  a bounded activation/settled-target diagnostic is prepared before any source repair.
+  `plan-classesb-a` run `20261022-004840-plan-classesb-a-lab` passed its existing checks.
+- Existing Firearms A/B, both orb suites, guns, cannon, arm and reload-cut baselines
+  passed so far. Each exact run ID and source fingerprint is in the ledger and serial
+  JSONL journal. New per-magazine crit, Hoarder unequip, rank and arsenal checks are
+  not covered by those historical assertions and are queued separately.
+
+No gameplay-source repair or full-coverage claim has been made at this checkpoint.
+
+
+## Overnight QA checkpoint (2026-10-22, 04:00 Central; still in progress)
+
+Four gameplay repairs now pass their retained reproductions: Shadow Strike uses the
+native landing explosion for damage/stun (030624); Riposte uses flat melee-only
+AddThorns instead of scaling reflection (021550, 18 control/rank cases); Steady
+Hands/Cool Head uses each gun's own remaining magazine for gun crit damage (030332);
+and Ordinance Hoarder's charge HUD clears while its launcher skill is absent,
+preserving the bank (030527). Original failures and exact source fingerprints remain
+in docs/QA_OVERNIGHT.md and the per-batch JSONL journals. These scoped passes do not
+prove the outstanding middle ranks, new arsenal/orb cases or save transitions.
+
+Full mod-all032859 and all31 individual mod-ID cases pass, mostly load/self-check
+scope. Expanded54 legacy all-content scenarios from the old29-module set to all31,
+including specs and valuables, without removing assertions. Global/per-skill zero
+crit control032933 passes, and Lingering Tempest033415 passes native HP/lifetime
+observations. All three Lasting Gale, Tailwind and Lingering Breeze ranks031218 pass
+their observed duration/movement/expiry effects. Shared Breath ally behavior remains
+blocked without a second real client.
+
+Return033153 still loses an outer fan arrow at a wall before its turn, consistently
+in all3 ordinary trials. Static033017 native phase events show an old Thunder Orb
+critical hit adding an extra stack after a new noncritical MagicMissile cast. Its
+15745-character final event exceeds GameLab's15000-character print limit; retained
+phase events establish gameplay independently. Repairs are staged pending the next
+serial runtime boundary. Gale's prior failure was invalid readiness/Sidestep test
+setup; its corrected rank sweep and ordinary HoH1 integration are in progress.
+
+Added optional restart town/resume selection with explicit merged state readback;
+recipe probes, exact enabled mods, muted profile and all launcher isolation gates
+remain active. Native unequal-hand Firearms save/resume is still untested. No user
+installation/config/save files were changed, no parked class status was changed,
+and no full-sweep completion is claimed. See the ledger for the remaining queue.
+
+
+## Overnight QA checkpoint (2026-10-22, 04:55 Central; incomplete)
+
+Thunder Orb now keeps a shared token for each actual cast, including periodic and
+destroyed effects, so a newer spell cannot rearm an older orb or consume another
+orb's first-critical bonus. Native DamageActor/CriticalHit paths remain intact;
+release damage retains Static Charge attribution/exclusion. Original042233 and
+042350 preserve valid TT?MM and TT?TT failures. Scoped TT?MM repair042809 passes;
+its same-TT neighbor is queued. Non-TT delayed projectile attribution is unverified.
+
+Returning arrows now protect the first wall turn from duplicate native callbacks,
+undo oblique projectile reflection through the same normal, and sweep only actual
+returning movement for the catch. Valid044257 passes all3 ordinary and all3 coarse6x
+stress cases with damage and actual3 Tailwind stacks. Earlier042925 remains INVALID
+because res/editor metadata differed; its historical before/after values are unknown.
+Five later directory/content snapshots were stable, and the bounded diagnostic run
+retains identical full res dictionaries. Added exact isolation-res.json diagnostics;
+no isolation comparison or other gate was relaxed and no installation file was edited.
+
+All5 Standard self-DR/free-plant/expiry ranks040543 and Righteous self-duration/
+movement/attack/reversion ranks040406 pass. Firearms magazine edge040044 passes23
+retained bot rows (21 unique, repeated controls preserved). Native save/resume,
+arsenal and wider rank/orb cases remain pending. Seven shared restart tests pass.
+
+Broad-m's56-case serial queue and frozen source hashes are retained under results;
+143verbs are current after adding the bounded native Wizard first-impact observer.
+New Branding rank/orb/rate cases are prepared and source-reviewed, with no runtime
+claim yet. Full31-module smoke evidence does not stand for remaining functional,
+UI/settings, persistence, failure or multiplayer coverage. The full goal remains active.
+
+## Overnight QA checkpoint (2026-10-22, after 06:35 Central; incomplete)
+
+Stash sorting mixed Frostbrand and Warhammer by item level because both custom IDs
+were classified as `mh`. The original four-item failure061238 is retained. A narrow
+slot-matched `hwp_mh_`/`hwp_oh_`/`hwp_2h_` family correction passes the original
+reproduction063606 and an eight-item vanilla/Firearms/custom neighbor063629,
+including item conservation and repeated-sort idempotence. Untyped IDs retain their
+old family rule. Complete31-module load063532 passes on the same source fingerprint.
+
+The resource isolation investigation captured editor directory size4096 to0 with
+unchanged mtime and25 unchanged file hashes. Windows documents directory size as
+undefined (WIN32_FILE_ATTRIBUTE_DATA). The new read-only manifest compares recursive
+file bytes/SHA256/size/mtime, directory paths/types/mtime, and explicit reparse targets,
+failing closed on unreadable entries or observed races. It excludes only undefined
+directory size; the outer equality gate remains. Negative controls pass9 tests with2
+symlink-privilege skips; actual Windows junction traversal, retarget and cycle tests
+pass. Earlier INVALID runs retain that verdict. Later native runs pass all isolation
+checks. This is a harness repair, separate from the seven gameplay repairs.
+
+Firearms054758 passes actual own-hand critical damage controls and055033 passes
+unequal magazine/factor preservation across a native floor transition. Resume055214
+failed fixture materialization because its recipe used nonnative mod aliases; the
+corrected fixture is queued. Arsenal055606 completed all72 cases:68 damage paths
+passed and4 dealt zero target damage despite valid equipment/ammo. A bounded eight
+path regression uses denser target geometry; all original outcomes remain. No weapon
+gameplay fix is inferred from the four misses yet.
+
+Gale050230 verifies all5 ranks with complete native timed observations. Arcane050619
+verifies plain Blink at all5 ranks; Far Step clipping required a certified destination
+fixture, and Living Mana coefficient coverage remains partial. Deadeye050849 stalled
+on a missing QA texture; that fixture dependency and masked-first-error cleanup were
+corrected after cause inspection and one isolated lab reset. Corrected cases remain
+unverified until their new native runs finish.
+
+Class runs061712/061850/062027 cleanly rejected the same invalid cloak fixture before
+ordinary combat. Native Equipment.as computes back_2b10's requirement as Vit11,
+not the previously assumed5. The corrected matched fixture explicitly checks an empty
+back, four legal seeded rare20 armor pieces, common20 class weapon and57 earned
+primary points. Controlled death/town return and exact base save/load passed within
+the failed setup runs; boss/reward/ordinary survival and acquired-reward persistence
+receive no credit from them. The new ordinary three-class batch is running.
+
+The final-hour reservation and10:20:52 Central deadline remain unchanged. The ledger
+and granular inventories distinguish prepared cases from measured behavior; extensive
+skill/orb, module functional, transition and multiplayer coverage remains open.
+
+## Overnight native checkpoint (2026-10-22, after07:17 Central; incomplete)
+
+Cold Firearms resume064827 and dense eight-path arsenal065040 pass their scoped native effects; original failures remain. Static same-TT065338, corrected Arcane065457 and Deadeye065727 pass their declared cases with exact coefficient/cadence/lifecycle gaps retained in the granular Specs inventory.
+
+Class070416/070724/071026 each validates two ordinary native floor transitions with normal path/use. Full runs remain FAIL: floor3 mandatory Bandit encounter/closed-door objective is not handled by the driver; death/no-route outcomes do not establish a class defect. Boss/reward/town completion remains unverified. The Python-only exit adapter derives prefab rotation, verifies the actual unique physics sensor and native top usable, then requires a real live-floor change; it never executes the exit script or sets transition flags.
+
+Priority-v runs36 prepared Firearms/Specs cases serially under unchanged isolation gates and frozen queued source. No full-coverage completion is claimed; see QA_OVERNIGHT and the four inventories for exact scopes, fingerprints, gaps and the deadline.
+
+## Overnight build and native checkpoint (2026-10-22, 09:10 Central; incomplete)
+
+Eight scoped gameplay repairs now have passing reproductions: Shadow Strike,
+Riposte, per-gun magazine crit, Hoarder HUD cleanup, Thunder Orb cast attribution,
+returning-arrow catches, custom weapon-family stash sorting and Dragon's Breath
+patch persistence. Historical failures, invalid runs and fixture/oracle failures
+remain retained. The final native regression set and newly corrected measurement
+fixtures are pending, so these separate passes do not establish final-code or
+full-sweep completion.
+
+Dragon's Breath had lost five of its six authored cone patches per shell to the
+native ordinary summon cap of one. The new subtype retains DangerAreaBehaviorP
+and exempts only its own producer through the native infiniteSummons list; damage,
+TTL binds, six-patch geometry and ownership remain unchanged. Run 085158 passes
+both qualities with two shells and twelve patches each: actual target losses
+1037.121 and 2656.579 HP, exact initial TTL 1000/3000 ms, 500 ms frequency, positive
+countdowns, subsequent cadence, terminal expiry and an absence tail. No trace is
+truncated. Grenades 085345 also passes all nine rank-quality cases using native
+countdown observations. Earlier wall-span and censored observations retain their
+original verdicts.
+
+The current granular inventories record 45 scoped PASS, 5 PARTIAL and 10 UNTESTED of
+60 built fourth-spec skill-rank rows, plus 37 scoped PASS, 24 UNTESTED and 4 ally BLOCKED
+of 65 orb-quality rows. The partial skill rows retain Living Mana's exact-regeneration
+coefficient gap. Firearms records 26 of 75 orb-quality rows with scoped passes; its
+new 60-row skill-rank matrix remains UNTESTED, separate from existing baseline and
+focused gun/ammo/persistence observations. True co-op and broader legal combinations
+remain unverified. Debug counters and source review do not add runtime credit.
+
+The three hidden HoH1 ports remain hidden. Their full 31-module ordinary cases each
+complete two native floor transitions, but all three full runs still fail before
+the final boss; the driver omits floor 3's mandatory Bandit encounter/unlock objective.
+Boss/reward completion, natural town return and acquired-reward persistence receive
+no credit. Of 39 effective skills, only Shadow Strike and Riposte have scoped granular
+passes, at ranks 1/5 with their retained controls; the other 37 skills and intermediate
+rank effects remain open. Nine selected-mastery save/reload combinations are untested.
+Controlled base-save/death/town-return evidence stays separate. There are no built
+HoH1 orbs, and parked or planner-only content remains excluded.
+
+At the clean native boundary, `.venv/Scripts/python.exe -B tools/build.py` completed
+with exit 0 and generated all release assets. The 32 `dist/` archives comprise 31
+individual modules plus `HammerwatchPlus-All.bin`. Readback verified every header,
+metadata record, unique path set and decompressed payload against current release
+entries; All contains their exact 955-entry union, with no GameLab/local-only paths.
+All-in-one SHA256:
+`8d42ca89b379f7bb4ada76085fa6cc1e5ec3c28d6aacbdd4970393c0ecf01274`.
+The complete 32-file hash manifest is retained at
+`gamelab/results/qa-20261022-dist-build-manifest.json`. Post-build
+`tools/build.py --check`, `tools/list_verbs.py --check` and `git diff --check` pass.
+Packaging verification does not replace the pending final native regressions.
+
+## Overnight regression and handoff checkpoint (2026-10-22; incomplete)
+
+Eight gameplay repairs retain passing native reproductions: Shadow Strike, Riposte,
+per-hand magazine crit, Hoarder HUD cleanup, Static Charge cast attribution,
+returning-arrow catches, typed weapon-family Stash sorting and Dragon's Breath
+patch persistence. The required final14 regression scopes all passed at their
+recorded fingerprints. Final magazine093247, Hoarder093432, Riposte093528 and
+Shadow093637 join the final native Static/Return/Stash/variant proofs. Later changes
+only extend read-only GameLab dead-player mana telemetry; relevant production and
+release payloads remain unchanged. The manifest explicitly separates these epochs.
+
+Granular fourth-spec coverage is55/60 scoped skill-rank PASS and5 LivingMana PARTIAL.
+Orb qualities are47 PASS,3 PARTIAL,11 UNTESTED and4 ally BLOCKED out of65. Font/Conduit
+093729 passes independent primary/cast timelines and exact mana refunds; Provisions
+094004 passes earned caps, exclusions, source-CD deltas and expiry; Feedback094540
+passes all9 real-input casts, bank caps, consumption, multipliers and reversion.
+Ward proves actual185/170 incoming HP loss and expiry200, but native Refresh averages
+old/new intensities while stacks ramp, so exact settled coefficients remain PARTIAL.
+Barrier proves protection, mana drain and expiry death in094732, but its precise
+post-death assertion was unavailable. The new read-only field compiled in100030;
+that fresh Barrier run failed geometry before any effect trial and grants no credit.
+Branding/Gale lane failures likewise executed zero ability trials. All originals stay.
+
+Firearms has10/60 skill ranks scoped PASS,10 PARTIAL and40 UNTESTED; orb qualities
+are42/75 scoped PASS,32 UNTESTED and1 true-co-op BLOCKED. Elements095401 retains
+340000 native distribution rolls across five base ranks and12 weighted qualities,
+plus real gunfire/HP at every base rank. Orb-specific natural projectile frequencies
+and damage amplitude are separate gaps. Frag cooling-refusal trials were issued
+only after native cooldown zero; Focus's additive chance expectation contradicted
+native complementary-probability stacking. Both five-rank sets stay PARTIAL with
+all raw FAILs retained. They are not additional gameplay defects or balance changes.
+
+Bloodlust/Judgement095729 adds all10 controlled native kill-hook rank effects:
+health gains10/20/30/40/50 and mana3/4/5/6/7. The HoH1 matrix is now4/39 skills and
+14/191 positive-rank slots scoped PASS;35 skills,177 rank slots and9 selected-mastery
+save combinations remain untested. Every ordinary full31 class run still fails
+before the final boss after two actual floor transitions. Implementing the driver's
+floor3 Bandit encounter/unlock objective remains necessary before claiming ordinary
+boss, reward, natural town-return or acquired-reward persistence coverage.
+
+Additional functional scopes pass: settings search and two-tab stash save/restart
+095605 (24 runner assertions), Architect native picker/pricing100154, controlled
+Strongbox/Abyss no-reward timeouts100238/100326, gun-arm100414 and native town object
+rebuilding100615. Fresh standalone dependency/load cases100507/100522/100537/100552
+pass for all four repaired modules. Module axes retain uncovered UI/tooltips,
+settings, successful rewards, persistence, interactions and true-co-op limits.
+
+Native-visibility final doctor is green, including Steam, HoH1 imports, pinned build
+25932569 and backup gates. The sandboxed report's Steam visibility refusal is retained
+separately; it did not change setup. Post-build override/verb/diff checks pass. All32
+release archives remain verified against actual production sources; the all-in-one
+contains exactly955 release entries and has SHA256
+8d42ca89b379f7bb4ada76085fa6cc1e5ec3c28d6aacbdd4970393c0ecf01274.
+The durable package manifest is gamelab/results/qa-20261022-dist-build-manifest.json.
+Native isolation guards preserve user config, saves, install assets and input focus.
+No parked classes, planner-only designs, IDs or balance contracts were changed.
+
+The complete sweep is not achieved. QA_OVERNIGHT and the four granular inventories
+are the resumable record; time exhaustion is a stop condition, not completion.
+
+Final native mod-all100827 passes the exact31 stack after the read-only Probe change.
+The focused101134 case then verifies fractional dead mana12.375 against independent
+raw record telemetry and integer12; all8 gates/12 runner assertions pass. This adds
+no Barrier ability credit. Module inventory now retains217 axes:31standalonePASS,
+23functionalPARTIAL and163UNTESTED, plus9 scoped native-feature PASS records. The
+complete sweep remains incomplete at its10-hour limit. Resume commands, unresolved
+fixture/oracle causes and required next coverage are in QA_OVERNIGHT; machine-readable
+counts and the32-archive hash are in docs/generated/qa_overnight_summary.json.
+
+
+## Resumed full sweep ? no time limit (2026-10-22)
+
+The user removed the original overnight deadline and activated the goal again. Work remains in progress; the original deadline/final-hour notes below are historical. Verified scoped coverage now includes60/60 fourth-spec rank cases,49/65orb qualities (nine fresh Branding qualities awaiting granular audit; maximum combo failed),20/60 Firearms ranks,42/75orb qualities,62/191HoH1positive ranks and9/9mastery save/reload combinations. Native stat-only scopes remain separate from combat/cadence/mitigation.
+
+Fresh full-stack `mod-all 20261022-111422` and minimal `null-payload 111454` compile/load checks passed with the read-only per-frame resource observer. `qa-firearms-ranks-base 111509` and `qa-specs-living-mana-coefficients 111830` passed; exact per-run hashes are in the ledger/journals. `qa-specs-branding-orbs 113033` now obtains strict fine-grid/native-ray geometry through normal walking but fails the maximum-combination check. `qa-classes-gladiator-hoh2-run 112028` reached Keep3 and died during objective travel; no class/encounter bug is inferred. Controlled endgame weapon tests112325/112427 failed native equip requirements before attack/parry testing: ilvl35 requirements use unbounded vector interpolation at34/9, not the high endpoint at level10. A QA fixture correction is staged; no production change is inferred from these setup failures.
+
+The source is frozen during each serial GameLab batch. Remaining ranks/orbs, legal interactions, ordinary run lifecycles, UI/acquisition and module functional/persistence/failure paths remain required. See `docs/QA_OVERNIGHT.md` and `docs/generated/qa_overnight_summary.json`; previous repair regressions and all failures are retained.
+
+
+## Resumed sweep checkpoint (2026-10-22; still active)
+
+The full sweep has no time limit. Scoped native coverage is 60/60 fourth-spec rank rows and 61/65 orb-quality rows (four require true co-op), 60/60 Firearms rank rows and 71/75 orb-quality rows (three Reload rows await a corrected idle-timer test; one requires co-op), and 118/191 positive HoH1 ranks across 26/39 abilities. All nine selected-mastery save/reload combinations pass. These counts cover the recorded effects, not every amplitude, boundary, interaction, UI or ordinary lifecycle requirement.
+
+Two additional gameplay repairs are verified: Branding no longer retains the Essence damage bonus after consumption, and Gladius now deals native weapon-scaled damage instead of zero. Gladius first-contact damage passes at all five ranks in `qa-classes-gladius-collision 20261022-145123`. Current full-stack load passes in `mod-all 145021`; all 31 modules also have standalone load evidence. Full module functionality remains incomplete.
+
+The current serial batch is finishing Branding quality combinations and Sphere acquisition/UI prerequisites. Reload's expired negative input timer and Grimoire's stationary-glyph target distance are source-reviewed QA corrections awaiting native reruns. A Branding combination failed its clear-lane setup before any combat trial; it remains recorded and under investigation. Ordinary runs also need a source-correct reward-window input flow before boss/reward/save coverage can be claimed.
+
+The earlier 32-archive package verification predates the Branding and Gladius repairs. Those archives are historical; current-source packaging and final regressions remain required. The detailed source epochs, original failures and remaining work are retained in `docs/QA_OVERNIGHT.md` and the generated inventories.
+
+
+## User-requested PR wrap (2026-10-22)
+
+The user requested a natural stopping point for a large remote PR; the goal is paused, not complete. Native batch `resume-n-main` terminated cleanly after15of17cases:8PASS/7FAIL, source `e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0` unchanged across every case. Essence cadence and the corrected ordinary Gladiator pilot never started. LastStats/ChatLinks failed fixture prerequisites, Burst/Shadow failed fixture return/landing control, and Static-MM exceeded a parent path-query timeout before a gameplay trial. All original outcomes remain recorded.
+
+Authoritative scoped totals: fourthspec60/60ranks and61/65orb qualities (4trueallyblocked); Firearms60/60ranks and74/75orb qualities (1co-opblocked); HoH1 29/39 skills, 136/191 positive ranks, 9/9 selected-mastery saves. Ordinary own-active/boss/reward/town/death/save coverage, acquisition/UI, exact remaining mechanics/interactions and broad31-module behavior remain open.
+
+The reviewed21-file O-v2 QA bundle is deliberately UNAPPLIED. Its manifest/payloads plus deferred observer/design work are preserved in an ignored local recovery archive indexed by `docs/generated/qa_deferred_work.json`; they are not installed source or runtime passes. Both essential production additions, `mods/classes/players/hwp/gladiator/projectiles/gladius.unit` and `mods/firearms/scripts/HWP/Firearms/Magazine.as`, must accompany the tracked edits.
+
+Current normal packaging now passes:32archives,956all-in-one entries, everydecoded payload equals current source inputs, no localimports or devharness. All-in-one SHA256 `87bcb72411b57255c616a905a041464601022f2de75b4b6b170b7befce48d419`. This supersedes the earlier archive manifest only for package integrity; it is not a packed-game boot or full-sweep PASS. See `docs/generated/qa_pr_archive_manifest.json`, `qa_pr_validation.json` and `qa_pr_checkpoint.json`. The old14-case final-regression checkpoint retains its historical source/coverage limits.
+
+
+Final PR verification: full-stack `20261022-175415-mod-all-lab` passes all 14 assertions at source `f242a80b25e8c4bdbd048ccf40f0fd7c97a7ce46bdc482c86a6508785878fe19` with clean teardown. The preceding `175056` bootstrap-shutdown access violation is retained; only isolated GameLab saves/appdata were reset before the successful recheck. Nine new source files received formatting-only cleanup, with native tokens/scalars or Python AST preserved. Final normal packaging verifies all 32 archives and 956 all-in-one payloads at this source; SHA256 `87bcb72411b57255c616a905a041464601022f2de75b4b6b170b7befce48d419`. Historical patch contents are preserved byte-for-byte in `docs/generated/qa_historical_patch_artifacts.json`. This adds no ability-coverage credit and does not complete the paused sweep.

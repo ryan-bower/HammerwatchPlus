@@ -1,0 +1,249 @@
+{
+  "started_utc": "2026-10-22T22:57:27.182715+00:00",
+  "before": {
+    "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+    "source_sha256": "f242a80b25e8c4bdbd048ccf40f0fd7c97a7ce46bdc482c86a6508785878fe19",
+    "files": 1290,
+    "fingerprint_scope": "mods+gamelab+tools-v2"
+  },
+  "with_local": false,
+  "archives": [
+    {
+      "path": "dist/HWP-abyss.bin",
+      "entries": 5,
+      "sha256": "f86791da4793370d4ffe34e87a3d4772200e42d948a3bedb44a6afe38e9cea89",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-architect.bin",
+      "entries": 5,
+      "sha256": "210052b00a98bf68bcb36ab674217beaf96b064feb0893634982543391eea64a",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-bufftips.bin",
+      "entries": 2,
+      "sha256": "7b1ff93574fe4170f19a62205224cb39a654ac2bd4014d9f87e075b62faef90e",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-campaign.bin",
+      "entries": 12,
+      "sha256": "c19d505b243928fb7435afe84a2734a8864d5dc1491c19d3f4b14dccfa7c91c7",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-chatlinks.bin",
+      "entries": 2,
+      "sha256": "d67c704abfe9ddcc6686072ea5ecc982397d5efac5593635ccb56c273e8466c8",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-classes.bin",
+      "entries": 57,
+      "sha256": "5e91d7ad93d4a4457bda29f7b08aacf2436faa9741a97b34457dc3ab56a8fd6e",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-colors.bin",
+      "entries": 186,
+      "sha256": "3535ffe878227e721b5ed6576821893e40b4ff27aacdd9cecb6fa2fd23dfda32",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-core.bin",
+      "entries": 41,
+      "sha256": "909b871bd8aecdf45d1ca1737c5d608cbc6d88e2d5f2e80e0b9f7731f86a3c22",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-deathrecap.bin",
+      "entries": 3,
+      "sha256": "9647eccb6218c42076bf66ecc48865e0f9b25dca71414a41dac2dd666f29f6d7",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-droptrade.bin",
+      "entries": 4,
+      "sha256": "617927b986c3c9458c6ecde6da8dfca8b0a73a8fc90288a5a5124cef48f7af65",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-farming.bin",
+      "entries": 54,
+      "sha256": "956d55517a065051b99786b3dd50e4ccf5a905ac2ae93f7f270551d8a1910153",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-firearms.bin",
+      "entries": 143,
+      "sha256": "c83ac931d1b9fefe02787df1e5350fd89d201836876627c0beece4a49a0373a6",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-fishing.bin",
+      "entries": 19,
+      "sha256": "3eb5442b3598eac53f80534c031a26bb7cf280efcca3e9a2ed86f35696246451",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-gambler.bin",
+      "entries": 60,
+      "sha256": "a4f0f378c9a9639abae082191c7a046a22f8ff52446f61f375b8e02ce30cb9a9",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-goldpet.bin",
+      "entries": 7,
+      "sha256": "10827f8e11df60b90943ead8741d738e518c8bfdf9479d1f46ebb7cfca54c258",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-groupcombo.bin",
+      "entries": 3,
+      "sha256": "ed67dde58f416ceea60710067ea0b92fae692e6db1c85697e9dcab25a42b4dd7",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-keys.bin",
+      "entries": 30,
+      "sha256": "8e03db5c0a148c51f46990be20e2bc19b6b5b03493c8660abd523e77e59fb412",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-laststats.bin",
+      "entries": 5,
+      "sha256": "e603bd69db92d54d14584bb97b0255256a98c2f5f7ea167f7ccff5047a349762",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-legacy.bin",
+      "entries": 4,
+      "sha256": "39bafa707e73bfa4d46a3fa65540bbf763ffb174d682156281cd5e523d39499c",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-maps.bin",
+      "entries": 5,
+      "sha256": "66cf3d40bc19a6b800c359a786543a87f7d218524d6a1d19cd3cac6efd79401d",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-mercenary.bin",
+      "entries": 2,
+      "sha256": "cc1c6679392050450fe05ee97797bccb33404c51f45a71c8ed3e807e289a51ea",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-pets.bin",
+      "entries": 241,
+      "sha256": "f23225981a235151b9adcc1fd8ecd3651ecfd55448d1f85a7e46485030c6d9c8",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-puzzles.bin",
+      "entries": 6,
+      "sha256": "1d6df212118c75412b66376f5ad83bdedcd788363267ec45dd39c6dd1d9094eb",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-specs.bin",
+      "entries": 35,
+      "sha256": "7c8c0040fd35902000e01431647af1c52af9ce654806a84cf622a5a317df2318",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-stash.bin",
+      "entries": 3,
+      "sha256": "9eca720de78d13b7bcd549d44ba8b6c8d6c9dbc0bfc2d956429136681e993203",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-strongbox.bin",
+      "entries": 4,
+      "sha256": "857e7b9ae9655830ecdcd34669205918e55f005080b7b9ca2e5fcb5afdf7b063",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-summons.bin",
+      "entries": 2,
+      "sha256": "f4d889e49c9a9d1a4dd609f3f7ee81434f270e7360016736d46d5c921214ce73",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-valuables.bin",
+      "entries": 2,
+      "sha256": "3915ebd0acd294710c824e668e132edecdc49531497a972d5469fd9e90fa985c",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-wavemode.bin",
+      "entries": 7,
+      "sha256": "c51f156e6679552a6cf69467c0ea9a82bad561b28634644ca8441077bab99967",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-weapons.bin",
+      "entries": 3,
+      "sha256": "869096c1d1515a610bf5e5f8004b1143831432d2fd8e4b8f1e9744098941175a",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HWP-weaponswap.bin",
+      "entries": 4,
+      "sha256": "51dbcb3564ab78a7200bb1dd3bf64d51414c3761784edc5a23cb3415bca0bcfe",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true
+    },
+    {
+      "path": "dist/HammerwatchPlus-All.bin",
+      "entries": 956,
+      "sha256": "87bcb72411b57255c616a905a041464601022f2de75b4b6b170b7befce48d419",
+      "all_payloads_match_source": true,
+      "local_imports_absent": true,
+      "dev_harness_absent": true
+    }
+  ],
+  "limits": "Package/source integrity only. No packed-game boot or whole-sweep completion claim.",
+  "build_exit": 0,
+  "after": {
+    "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+    "source_sha256": "f242a80b25e8c4bdbd048ccf40f0fd7c97a7ce46bdc482c86a6508785878fe19",
+    "files": 1290,
+    "fingerprint_scope": "mods+gamelab+tools-v2"
+  },
+  "status": "PASS",
+  "archive_count": 32,
+  "all_entries": 956,
+  "finished_utc": "2026-10-22T22:57:36.482766+00:00"
+}

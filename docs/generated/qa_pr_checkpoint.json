@@ -1,0 +1,636 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-22T22:59:05.023578+00:00",
+  "status": "PAUSED_FOR_PR_AT_USER_REQUEST",
+  "full_sweep_complete": false,
+  "head_before_pr_commits": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+  "installed_source": {
+    "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+    "source_sha256": "f242a80b25e8c4bdbd048ccf40f0fd7c97a7ce46bdc482c86a6508785878fe19",
+    "files": 1290,
+    "fingerprint_scope": "mods+gamelab+tools-v2"
+  },
+  "native_queue": "TERMINAL_CLEAN",
+  "latest_full_stack": "20261022-175415-mod-all-lab",
+  "coverage": {
+    "spec_skill_ranks": {
+      "PASS": 60,
+      "PARTIAL": 0,
+      "total": 60,
+      "scope": "Independent declared rank measurements only; all-mechanic, interaction and lifecycle gaps retained."
+    },
+    "spec_orb_qualities": {
+      "PASS": 61,
+      "PARTIAL": 0,
+      "UNTESTED": 0,
+      "BLOCKED": 4,
+      "total": 65,
+      "scope": "Declared native quality effects only; four true-ally checks require co-op. Exact boundaries, combinations, UI/acquisition and lifecycle remain required."
+    },
+    "firearms_skill_ranks": {
+      "PASS": 60,
+      "PARTIAL": 0,
+      "scope": "Scoped declared native ranks only; exactdamage/cadence/combinations/ordinarylifecycle remainrequired."
+    },
+    "firearms_orb_qualities": {
+      "PASS": 74,
+      "PARTIAL": 0,
+      "UNTESTED": 0,
+      "BLOCKED": 1,
+      "total": 75,
+      "scope": "Recorded controlled native quality effects only; Reload163506 independently verified full actualammo/damage/trajectory/protocol/native expiredTTL. Acquisition/natural chance/ordinary/exact coefficient/boundaries remain separate."
+    },
+    "hoh1_skills": {
+      "scoped_PASS": 29,
+      "UNTESTED": 10,
+      "total": 39,
+      "scope": "Recorded native effects only. Caltrops/Whirl all-rank preciseHP reruns pass. Ordinary/boss/own-active/UI/lifecycle and remaining effects are incomplete."
+    },
+    "hoh1_positive_ranks": {
+      "scoped_PASS": 136,
+      "UNTESTED": 55,
+      "total": 191
+    },
+    "mastery_save_combinations": {
+      "total": 9,
+      "PASS": 9,
+      "UNTESTED": 0
+    },
+    "module_axes": {
+      "PASS": 31,
+      "PARTIAL": 80,
+      "UNTESTED": 106
+    }
+  },
+  "module_scoped_feature_records": 49,
+  "native_batch": {
+    "label": "resume-n-main",
+    "cases": 15,
+    "planned_cases": 17,
+    "verdicts": {
+      "PASS": 8,
+      "FAIL": 7
+    },
+    "clean": true,
+    "stable_source": true,
+    "stopped_reason": "StaticMM native path-query batch exceeded15s parent RPC; no ability verdict",
+    "unstarted": [
+      "qa-specs-essence-cadence",
+      "qa-classes-gladiator-hoh2-run"
+    ],
+    "scope": "Last coverage batch; final PR load verification is separate."
+  },
+  "native_results": [
+    {
+      "scenario": "qa-specs-ui-sphere-contract",
+      "run_id": "20261022-163415-qa-specs-ui-sphere-contract-lab",
+      "verdict": "PASS",
+      "seconds": 50.6,
+      "assertions": 12,
+      "failed": [],
+      "error": null,
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+        "files": 1290,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "teardown": {
+        "clean": true,
+        "reasons": [],
+        "run": "20261022-163415-qa-specs-ui-sphere-contract-lab",
+        "at": "2026-10-22T16:35:05"
+      }
+    },
+    {
+      "scenario": "qa-firearms-orb-reload-explosive-aim",
+      "run_id": "20261022-163506-qa-firearms-orb-reload-explosive-aim-lab",
+      "verdict": "PASS",
+      "seconds": 97.9,
+      "assertions": 12,
+      "failed": [],
+      "error": null,
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+        "files": 1290,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "teardown": {
+        "clean": true,
+        "reasons": [],
+        "run": "20261022-163506-qa-firearms-orb-reload-explosive-aim-lab",
+        "at": "2026-10-22T16:36:43"
+      }
+    },
+    {
+      "scenario": "qa-firearms-burst-cancel",
+      "run_id": "20261022-163644-qa-firearms-burst-cancel-lab",
+      "verdict": "FAIL",
+      "seconds": 198.8,
+      "assertions": 12,
+      "failed": [
+        {
+          "name": "bot qa_firearms_burst_cancel",
+          "ok": false,
+          "detail": "ok: want True, got False | None"
+        }
+      ],
+      "error": null,
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+        "files": 1290,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "teardown": {
+        "clean": true,
+        "reasons": [],
+        "run": "20261022-163644-qa-firearms-burst-cancel-lab",
+        "at": "2026-10-22T16:40:03"
+      }
+    },
+    {
+      "scenario": "qa-firearms-burst-exact-amplitude",
+      "run_id": "20261022-164004-qa-firearms-burst-exact-amplitude-lab",
+      "verdict": "PASS",
+      "seconds": 213.2,
+      "assertions": 12,
+      "failed": [],
+      "error": null,
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+        "files": 1290,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "teardown": {
+        "clean": true,
+        "reasons": [],
+        "run": "20261022-164004-qa-firearms-burst-exact-amplitude-lab",
+        "at": "2026-10-22T16:43:36"
+      }
+    },
+    {
+      "scenario": "qa-classes-caltrops-all-ranks",
+      "run_id": "20261022-164337-qa-classes-caltrops-all-ranks-lab",
+      "verdict": "PASS",
+      "seconds": 159.2,
+      "assertions": 12,
+      "failed": [],
+      "error": null,
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+        "files": 1290,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "teardown": {
+        "clean": true,
+        "reasons": [],
+        "run": "20261022-164337-qa-classes-caltrops-all-ranks-lab",
+        "at": "2026-10-22T16:46:16"
+      }
+    },
+    {
+      "scenario": "qa-classes-whirl-all-ranks",
+      "run_id": "20261022-164617-qa-classes-whirl-all-ranks-lab",
+      "verdict": "PASS",
+      "seconds": 74.9,
+      "assertions": 12,
+      "failed": [],
+      "error": null,
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+        "files": 1290,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "teardown": {
+        "clean": true,
+        "reasons": [],
+        "run": "20261022-164617-qa-classes-whirl-all-ranks-lab",
+        "at": "2026-10-22T16:47:31"
+      }
+    },
+    {
+      "scenario": "qa-classes-shadow-strike-all-ranks",
+      "run_id": "20261022-164732-qa-classes-shadow-strike-all-ranks-lab",
+      "verdict": "FAIL",
+      "seconds": 84.4,
+      "assertions": 12,
+      "failed": [
+        {
+          "name": "bot qa_class_ranks",
+          "ok": false,
+          "detail": "shadow_strike_r5_outside_radius: want True, got False; shadow_strike_r5_moves: want True, got False; shadow_strike_r5_damage: want True, got False; shadow_strike_r5_landing_stun: want True, got False; shadow_strike_damage_scales: want True, got False; shadow_strike_r4_outside_radius: want True, got False; shadow_strike_r4_moves: want True, got False; shadow_strike_r4_damage: want True, got False; shadow_strike_r4_landing_stun: want True, got False | None"
+        }
+      ],
+      "error": null,
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+        "files": 1290,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "teardown": {
+        "clean": true,
+        "reasons": [],
+        "run": "20261022-164732-qa-classes-shadow-strike-all-ranks-lab",
+        "at": "2026-10-22T16:48:56"
+      }
+    },
+    {
+      "scenario": "qa-classes-barbed-net-all-ranks",
+      "run_id": "20261022-164857-qa-classes-barbed-net-all-ranks-lab",
+      "verdict": "PASS",
+      "seconds": 90.6,
+      "assertions": 12,
+      "failed": [],
+      "error": null,
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+        "files": 1290,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "teardown": {
+        "clean": true,
+        "reasons": [],
+        "run": "20261022-164857-qa-classes-barbed-net-all-ranks-lab",
+        "at": "2026-10-22T16:50:27"
+      }
+    },
+    {
+      "scenario": "qa-module-laststats-native-standalone",
+      "run_id": "20261022-165028-qa-module-laststats-native-standalone-lab",
+      "verdict": "FAIL",
+      "seconds": 45.2,
+      "assertions": 17,
+      "failed": [
+        {
+          "name": "bot qa_laststats_native",
+          "ok": false,
+          "detail": "fresh_normal_use: want True, got False; fresh_empty_ui: want True, got <missing>; fresh_close_unpauses: want True, got <missing>; snapshot_replaced: want True, got <missing>; prepared: want True, got <missing>; native_save: want True, got <missing>; aborted_entered: want True, got <missing>; aborted_controlled_fixture: want True, got <missing>; aborted_native_movement: want True, got <missing>; aborted_native_finish: want True, got <missing>; aborted_end_window: want True, got <missing>; aborted_native_snapshot_equal: want True, got <missing>; aborted_end_close: want True, got <missing>; aborted_one_board: want True, got <missing>; aborted_normal_use: want True, got <missing>; aborted_metadata: want True, got <missing>; aborted_all_values: want True, got <missing>; aborted_prev_wrap: want True, got <missing>; aborted_next_wrap: want True, got <missing>; aborted_close_unpauses: want True, got <missing>; failed_entered: want True, got <missing>; failed_controlled_fixture: want True, got <missing>; failed_native_movement: want True, got <missing>; failed_native_finish: want True, got <missing>; failed_end_window: want True, got <missing>; failed_native_snapshot_equal: want True, got <missing>; failed_end_close: want True, got <missing>; failed_one_board: want True, got <missing>; failed_normal_use: want True, got <missing>; failed_metadata: want True, got <missing>; failed_all_values: want True, got <missing>; failed_prev_wrap: want True, got <missing>; failed_next_wrap: want True, got <missing>; failed_close_unpauses: want True, got <missing>; fresh_input_release: want True, got <missing>; aborted_input_release: want True, got <missing>; failed_input_release: want True, got <missing> | fresh_one_board: {'id': 'c10', 'ok': True, 'radius': 6000, 'count': 1, 'truncated': 0, 'units': [{'unit': 867, 'name': 'doodads/hwp/laststats_board.unit', 'behavior': 'CompositeActorBehaviorNPC', 'usable': True, 'hp': 1.0, 'hpMax': 100000, 'hpExact': 100000.0, 'dead': False, 'x': -440.0, 'y': 110.0, 'dist': 2472.634}], '_t': 15.891} | fresh_normal_use: Normal path did not reach exact usable board"
+        },
+        {
+          "name": "bot qa_laststats_native",
+          "ok": false,
+          "detail": "reload_record: want True, got <missing>; reload_snapshot_exact: want True, got <missing>; reload_one_board: want True, got <missing>; reload_normal_use: want True, got <missing>; reload_metadata: want True, got <missing>; reload_all_values: want True, got <missing>; reload_prev_wrap: want True, got <missing>; reload_next_wrap: want True, got <missing>; reload_close_unpauses: want True, got <missing>; rebuild1_one_board: want True, got <missing>; rebuild1_normal_use: want True, got <missing>; rebuild1_metadata: want True, got <missing>; rebuild1_all_values: want True, got <missing>; rebuild1_prev_wrap: want True, got <missing>; rebuild1_next_wrap: want True, got <missing>; rebuild1_close_unpauses: want True, got <missing>; rebuild2_one_board: want True, got <missing>; rebuild2_normal_use: want True, got <missing>; rebuild2_metadata: want True, got <missing>; rebuild2_all_values: want True, got <missing>; rebuild2_prev_wrap: want True, got <missing>; rebuild2_next_wrap: want True, got <missing>; rebuild2_close_unpauses: want True, got <missing>; rebuild1_snapshot_exact: want True, got <missing>; rebuild2_snapshot_exact: want True, got <missing>; reload_input_release: want True, got <missing>; rebuild1_input_release: want True, got <missing>; rebuild2_input_release: want True, got <missing> | verify_crashed: FileNotFoundError(2, 'No such file or directory')"
+        }
+      ],
+      "error": null,
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+        "files": 1290,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "teardown": {
+        "clean": true,
+        "reasons": [],
+        "run": "20261022-165028-qa-module-laststats-native-standalone-lab",
+        "at": "2026-10-22T16:51:12"
+      }
+    },
+    {
+      "scenario": "qa-module-laststats-native-full",
+      "run_id": "20261022-165114-qa-module-laststats-native-full-lab",
+      "verdict": "FAIL",
+      "seconds": 47.6,
+      "assertions": 17,
+      "failed": [
+        {
+          "name": "bot qa_laststats_native",
+          "ok": false,
+          "detail": "fresh_normal_use: want True, got False; fresh_empty_ui: want True, got <missing>; fresh_close_unpauses: want True, got <missing>; snapshot_replaced: want True, got <missing>; prepared: want True, got <missing>; native_save: want True, got <missing>; aborted_entered: want True, got <missing>; aborted_controlled_fixture: want True, got <missing>; aborted_native_movement: want True, got <missing>; aborted_native_finish: want True, got <missing>; aborted_end_window: want True, got <missing>; aborted_native_snapshot_equal: want True, got <missing>; aborted_end_close: want True, got <missing>; aborted_one_board: want True, got <missing>; aborted_normal_use: want True, got <missing>; aborted_metadata: want True, got <missing>; aborted_all_values: want True, got <missing>; aborted_prev_wrap: want True, got <missing>; aborted_next_wrap: want True, got <missing>; aborted_close_unpauses: want True, got <missing>; failed_entered: want True, got <missing>; failed_controlled_fixture: want True, got <missing>; failed_native_movement: want True, got <missing>; failed_native_finish: want True, got <missing>; failed_end_window: want True, got <missing>; failed_native_snapshot_equal: want True, got <missing>; failed_end_close: want True, got <missing>; failed_one_board: want True, got <missing>; failed_normal_use: want True, got <missing>; failed_metadata: want True, got <missing>; failed_all_values: want True, got <missing>; failed_prev_wrap: want True, got <missing>; failed_next_wrap: want True, got <missing>; failed_close_unpauses: want True, got <missing>; fresh_input_release: want True, got <missing>; aborted_input_release: want True, got <missing>; failed_input_release: want True, got <missing> | fresh_one_board: {'id': 'c11', 'ok': True, 'radius': 6000, 'count': 1, 'truncated': 0, 'units': [{'unit': 868, 'name': 'doodads/hwp/laststats_board.unit', 'behavior': 'CompositeActorBehaviorNPC', 'usable': True, 'hp': 1.0, 'hpMax': 100000, 'hpExact': 100000.0, 'dead': False, 'x': -440.0, 'y': 110.0, 'dist': 2472.634}], '_t': 16.923} | fresh_normal_use: Normal path did not reach exact usable board"
+        },
+        {
+          "name": "bot qa_laststats_native",
+          "ok": false,
+          "detail": "reload_record: want True, got <missing>; reload_snapshot_exact: want True, got <missing>; reload_one_board: want True, got <missing>; reload_normal_use: want True, got <missing>; reload_metadata: want True, got <missing>; reload_all_values: want True, got <missing>; reload_prev_wrap: want True, got <missing>; reload_next_wrap: want True, got <missing>; reload_close_unpauses: want True, got <missing>; rebuild1_one_board: want True, got <missing>; rebuild1_normal_use: want True, got <missing>; rebuild1_metadata: want True, got <missing>; rebuild1_all_values: want True, got <missing>; rebuild1_prev_wrap: want True, got <missing>; rebuild1_next_wrap: want True, got <missing>; rebuild1_close_unpauses: want True, got <missing>; rebuild2_one_board: want True, got <missing>; rebuild2_normal_use: want True, got <missing>; rebuild2_metadata: want True, got <missing>; rebuild2_all_values: want True, got <missing>; rebuild2_prev_wrap: want True, got <missing>; rebuild2_next_wrap: want True, got <missing>; rebuild2_close_unpauses: want True, got <missing>; rebuild1_snapshot_exact: want True, got <missing>; rebuild2_snapshot_exact: want True, got <missing>; reload_input_release: want True, got <missing>; rebuild1_input_release: want True, got <missing>; rebuild2_input_release: want True, got <missing> | verify_crashed: FileNotFoundError(2, 'No such file or directory')"
+        }
+      ],
+      "error": null,
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+        "files": 1290,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "teardown": {
+        "clean": true,
+        "reasons": [],
+        "run": "20261022-165114-qa-module-laststats-native-full-lab",
+        "at": "2026-10-22T16:52:00"
+      }
+    },
+    {
+      "scenario": "qa-content-weapons-native-standalone",
+      "run_id": "20261022-165202-qa-content-weapons-native-standalone-lab",
+      "verdict": "PASS",
+      "seconds": 113.9,
+      "assertions": 12,
+      "failed": [],
+      "error": null,
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+        "files": 1290,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "teardown": {
+        "clean": true,
+        "reasons": [],
+        "run": "20261022-165202-qa-content-weapons-native-standalone-lab",
+        "at": "2026-10-22T16:53:55"
+      }
+    },
+    {
+      "scenario": "qa-content-weapons-native",
+      "run_id": "20261022-165356-qa-content-weapons-native-lab",
+      "verdict": "PASS",
+      "seconds": 117.0,
+      "assertions": 12,
+      "failed": [],
+      "error": null,
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+        "files": 1290,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "teardown": {
+        "clean": true,
+        "reasons": [],
+        "run": "20261022-165356-qa-content-weapons-native-lab",
+        "at": "2026-10-22T16:55:52"
+      }
+    },
+    {
+      "scenario": "qa-module-chatlinks-native-standalone",
+      "run_id": "20261022-165553-qa-module-chatlinks-native-standalone-lab",
+      "verdict": "FAIL",
+      "seconds": 19.7,
+      "assertions": 12,
+      "failed": [
+        {
+          "name": "bot qa_chatlinks_native",
+          "ok": false,
+          "detail": "ok: want True, got False | None"
+        }
+      ],
+      "error": null,
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+        "files": 1290,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "teardown": {
+        "clean": true,
+        "reasons": [],
+        "run": "20261022-165553-qa-module-chatlinks-native-standalone-lab",
+        "at": "2026-10-22T16:56:12"
+      }
+    },
+    {
+      "scenario": "qa-module-chatlinks-native-full",
+      "run_id": "20261022-165613-qa-module-chatlinks-native-full-lab",
+      "verdict": "FAIL",
+      "seconds": 20.6,
+      "assertions": 12,
+      "failed": [
+        {
+          "name": "bot qa_chatlinks_native",
+          "ok": false,
+          "detail": "ok: want True, got False | None"
+        }
+      ],
+      "error": null,
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+        "files": 1290,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "teardown": {
+        "clean": true,
+        "reasons": [],
+        "run": "20261022-165613-qa-module-chatlinks-native-full-lab",
+        "at": "2026-10-22T16:56:33"
+      }
+    },
+    {
+      "scenario": "qa-specs-static-mm-neighbor",
+      "run_id": "20261022-165634-qa-specs-static-mm-neighbor-lab",
+      "verdict": "FAIL",
+      "seconds": 98.8,
+      "assertions": 9,
+      "failed": [],
+      "error": "GameError: no reply to 'gl c52 multi qa_routeleg -718.318 546.951 128 + qa_routeleg -702.318 562.951 128 + qa_routeleg -686.318 578.951 128 + qa_routeleg -734.318 514.951 128 + qa_routeleg -718.318 530.951 128 + qa_routeleg -734.318 498.951 128 + qa_routeleg -702.318 546.951 128 + qa_routeleg -686.318 562.951 128' within 15s",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+        "files": 1290,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "teardown": {
+        "clean": true,
+        "reasons": [],
+        "run": "20261022-165634-qa-specs-static-mm-neighbor-lab",
+        "at": "2026-10-22T16:58:12"
+      }
+    }
+  ],
+  "production_repairs": [
+    "Tailwind native return/catch geometry",
+    "Thunder Orb StaticCharge firstcrit cast identity (generic delayed native spells remain open)",
+    "Branding post-consumption stat refresh",
+    "ShadowStrike landing HP/stun effect targeting",
+    "Riposte flat melee-only reflection",
+    "Gladius weapon-scaled projectile damage",
+    "Per-gun remaining-magazine critical bonuses/persistence",
+    "Hoarder hidden-weapon HUD without consuming banks",
+    "Dragon ground-patch native lifetimes",
+    "Typed HWP stash weapon-family parsing"
+  ],
+  "required_regressions": {
+    "PASS": 14,
+    "total": 14,
+    "manifest": "docs/generated/qa_final_regression_manifest.json",
+    "progress": {
+      "required_scoped_pass": 14,
+      "required_unverified": 0,
+      "complete": true,
+      "completion_scope": "The fourteen declared required regression scenarios only. All original failures and per-feature coverage limits remain.",
+      "overnight_goal_complete": false
+    },
+    "current_epoch_complete_retest": false,
+    "epoch_note": "14recorded scoped passes at their own historical epochs/relevant-source bases. Not a fresh full current-epoch regression suite."
+  },
+  "archive_manifest": "docs/generated/qa_pr_archive_manifest.json",
+  "archive_integrity_verified": true,
+  "packed_game_runtime_verified": false,
+  "validation_report": "docs/generated/qa_pr_validation.json",
+  "deferred_work": "docs/generated/qa_deferred_work.json",
+  "remaining_work": [
+    "Resume only when requested; preserve the full unfinished sweep scope.",
+    "O-v2 reviewed21-file QA bundle is unapplied; compile/load and actual consumer gates are still required before runtime credit.",
+    "Re-run corrected Burst return, Shadow arena, Chat equipment, LastStats main-Town and Static nav cases; diagnose cursor projection before target-dependent cases.",
+    "Run unstarted EE cadence and primary-compatibility Gladiator pilot, then actual own-active ordinary runs across all requested builds.",
+    "Finish remaining55 HoH1 ranks, summons/Knives/procs, all eligible Sphere UI/acquisition and meaningful shared-branch interactions.",
+    "Complete31-module functionality/settings/failure/persistence/interactions and seven legendary effects.",
+    "Retest final regressions on the intended final source; five orb-quality ally cases and other genuine co-op checks need a second real participant."
+  ],
+  "remote": {
+    "target": "ryan-bower/HammerwatchPlus",
+    "base": "main",
+    "verified_base_commit": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+    "github_cli_push_permission": true
+  },
+  "evidence_note": "Final PR source differs from the e582 coverage epoch only by formatting in nine new files; native directive/XML tokens, scalar contents and quoted literals or Python AST were preserved. Post-format mod-all 175056 failed only pass-1 bootstrap shutdown with access violation 3221225477 (0xC0000005); subsequent gameplay passes and other guards passed. After resetting only isolated GameLab saves/appdata, mod-all 175415 passed all 14 assertions with clean teardown and unchanged f242 source. The first failure is retained; no production crash repair or additional ability coverage is claimed. Earlier coverage/gates retain their own epochs. O-v2 remains unapplied; the full sweep is paused and incomplete.",
+  "pr_wrap_native_verification": {
+    "attempts": [
+      {
+        "scenario": "mod-all",
+        "started": "2026-10-22T22:50:55.362874+00:00",
+        "finished": "2026-10-22T22:51:29.822689+00:00",
+        "seconds": 34.5,
+        "exit": 1,
+        "verdict": "FAIL",
+        "run_id": "20261022-175056-mod-all-lab",
+        "error": null,
+        "failed": [
+          {
+            "name": "pass 1 exited cleanly",
+            "ok": false,
+            "detail": "exit code 3221225477"
+          }
+        ],
+        "assertions": 16,
+        "teardown": {
+          "clean": false,
+          "reasons": [
+            "pass 1 exited cleanly: exit code 3221225477"
+          ],
+          "run": "20261022-175056-mod-all-lab",
+          "at": "2026-10-22T17:51:29"
+        },
+        "code": {
+          "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+          "source_sha256": "f242a80b25e8c4bdbd048ccf40f0fd7c97a7ce46bdc482c86a6508785878fe19",
+          "files": 1290,
+          "fingerprint_scope": "mods+gamelab+tools-v2"
+        },
+        "source_after": {
+          "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+          "source_sha256": "f242a80b25e8c4bdbd048ccf40f0fd7c97a7ce46bdc482c86a6508785878fe19",
+          "files": 1290,
+          "fingerprint_scope": "mods+gamelab+tools-v2"
+        },
+        "output": "gamelab\\results\\qa-20261022-pr-wrap-load-mod-all.out.txt"
+      },
+      {
+        "scenario": "mod-all",
+        "started": "2026-10-22T22:54:14.936316+00:00",
+        "finished": "2026-10-22T22:54:28.846435+00:00",
+        "seconds": 13.9,
+        "exit": 0,
+        "verdict": "PASS",
+        "run_id": "20261022-175415-mod-all-lab",
+        "error": null,
+        "failed": [],
+        "assertions": 14,
+        "teardown": {
+          "clean": true,
+          "reasons": [],
+          "run": "20261022-175415-mod-all-lab",
+          "at": "2026-10-22T17:54:28"
+        },
+        "code": {
+          "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+          "source_sha256": "f242a80b25e8c4bdbd048ccf40f0fd7c97a7ce46bdc482c86a6508785878fe19",
+          "files": 1290,
+          "fingerprint_scope": "mods+gamelab+tools-v2"
+        },
+        "source_after": {
+          "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+          "source_sha256": "f242a80b25e8c4bdbd048ccf40f0fd7c97a7ce46bdc482c86a6508785878fe19",
+          "files": 1290,
+          "fingerprint_scope": "mods+gamelab+tools-v2"
+        },
+        "output": "gamelab\\results\\qa-20261022-pr-wrap-load-after-reset-mod-all.out.txt"
+      }
+    ],
+    "reset_scope": "Only isolated gamelab/env/userdata/game saves and appdata; no processes killed and no user saves/config changed.",
+    "interpretation": "Final PR source differs from the e582 coverage epoch only by formatting in nine new files; native directive/XML tokens, scalar contents and quoted literals or Python AST were preserved. Post-format mod-all 175056 failed only pass-1 bootstrap shutdown with access violation 3221225477 (0xC0000005); subsequent gameplay passes and other guards passed. After resetting only isolated GameLab saves/appdata, mod-all 175415 passed all 14 assertions with clean teardown and unchanged f242 source. The first failure is retained; no production crash repair or additional ability coverage is claimed. Earlier coverage/gates retain their own epochs. O-v2 remains unapplied; the full sweep is paused and incomplete."
+  },
+  "formatting_cleanup": {
+    "scope": "Nine newly added source files only. Exact native literals/directives or PythonAST unchanged; no gameplay changes. Historicalpatchdata preserved without byte loss.",
+    "changes": [
+      {
+        "path": "gamelab/bots/qa_firearms_ranks.py",
+        "before_sha256": "cd5d27c10a9b39a0ae6c56b8c98ebab830bfbae8eaab7d8911083156652abdb5",
+        "after_sha256": "b625d85c19df5197e1bdf429a43840f366184b46b6e07671f24709133afd5185",
+        "proof": "Exact staged Python AST preserved; EOF blankline only"
+      },
+      {
+        "path": "mods/classes/players/hwp/gladiator/projectiles/gladius.unit",
+        "before_sha256": "f87efae791a5b92f68d6024f2073ad2127018e508580528d49f10b45bf8c5bce",
+        "after_sha256": "4b9669645c7d5c8cc404a0698a3646916cab9f9dcbc6f1f2af1f298112a88518",
+        "proof": "Exact nonblank native directive/XML tokens, scalar contents and quoted literals preserved; insignificant formatting/line endings only"
+      },
+      {
+        "path": "mods/gamelab-hands/gamelab/qa_firearms_target_dummy_armor.unit",
+        "before_sha256": "1ab3dcec4d528244ad98a4eb7d80295435edada2036c10e8874abca9e0489329",
+        "after_sha256": "9c55d4b7cc184896b9c0fac7948fc8082bd13b9c34d422cebf74baed7edcfcb0",
+        "proof": "Exact nonblank native directive/XML tokens, scalar contents and quoted literals preserved; insignificant formatting/line endings only"
+      },
+      {
+        "path": "mods/gamelab-hands/gamelab/qa_firearms_target_dummy_resist_tough.unit",
+        "before_sha256": "8287b8de026a0e915ce5eb4be03a6d8fe53418f7fe39f1ba75bc4ca1d3443c3d",
+        "after_sha256": "9edb28cdba11a90d2557611f7d23e08c1f733a6dd0194895d791b66c0ffc02bb",
+        "proof": "Exact nonblank native directive/XML tokens, scalar contents and quoted literals preserved; insignificant formatting/line endings only"
+      },
+      {
+        "path": "mods/gamelab-hands/gamelab/qa_released_boss.unit",
+        "before_sha256": "fa0ffcd8525b865f8d459e27a1dcf132e2cba77e42af7e00162d7692a1fb2739",
+        "after_sha256": "579b5d2b0b39eaaf89b7e25f92fd32d5a6933b05104e621c4915d815ef5f36c7",
+        "proof": "Exact nonblank native directive/XML tokens, scalar contents and quoted literals preserved; insignificant formatting/line endings only"
+      },
+      {
+        "path": "mods/gamelab-hands/gamelab/qa_released_elite.unit",
+        "before_sha256": "ecca805da88db893340d98cf734574df1a0b004c670b103bb863c572057eb543",
+        "after_sha256": "0aabfef8cca9eb550cbb1ac9051461685c12fa50a1d043c57cc8ab371617a7d6",
+        "proof": "Exact nonblank native directive/XML tokens, scalar contents and quoted literals preserved; insignificant formatting/line endings only"
+      },
+      {
+        "path": "mods/gamelab-hands/gamelab/qa_released_ordinary.unit",
+        "before_sha256": "78662762f9f28b43506661f716f5c926503150ef913adad11bd9eee9ce2ab5fb",
+        "after_sha256": "291dc6e5958f5ec4c4c194e6b1b22f981d90a03fc4c637d217867683dfa57b9d",
+        "proof": "Exact nonblank native directive/XML tokens, scalar contents and quoted literals preserved; insignificant formatting/line endings only"
+      },
+      {
+        "path": "mods/gamelab-hands/gamelab/qa_specs_fragile_target_dummy.unit",
+        "before_sha256": "e1c6a79fefd7e084c3ac69a89aaeb151f7681d56b04061661216a347bca214f2",
+        "after_sha256": "6366cd56a1c6a278379064304b641d119cab2d607428e27ee376a7bbf88f20b1",
+        "proof": "Exact nonblank native directive/XML tokens, scalar contents and quoted literals preserved; insignificant formatting/line endings only"
+      },
+      {
+        "path": "mods/gamelab-probe/gamelab/qa_firearms_target_dummy_damage.unit",
+        "before_sha256": "e9abe781fb1cba3c726f901dcc19546e0ba0a5bd79823f0cdc9457679981440c",
+        "after_sha256": "c3f61ff456ad6d8602be36c8d7094dca7d12599ff904b0b224c5ccb6ca3e8de9",
+        "proof": "Exact nonblank native directive/XML tokens, scalar contents and quoted literals preserved; insignificant formatting/line endings only"
+      }
+    ],
+    "archived_patches": 8
+  },
+  "historical_patch_artifacts": "docs/generated/qa_historical_patch_artifacts.json",
+  "historical_native_gates": [
+    "20261022-162619-null-payload-lab",
+    "20261022-162634-mod-firearms-lab",
+    "20261022-162648-qa-firearms-input-sequence-lab"
+  ],
+  "historical_native_gates_source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0"
+}

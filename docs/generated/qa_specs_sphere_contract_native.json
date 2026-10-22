@@ -1,0 +1,957 @@
+{
+  "status": "PASS (single controlled native acquisition contract)",
+  "audited_utc": "2026-10-22T21:41:24.854555+00:00",
+  "run": "gamelab/results/20261022-163415-qa-specs-ui-sphere-contract-lab",
+  "terminal": {
+    "scenario": "qa-specs-ui-sphere-contract",
+    "started": "2026-10-22T21:34:15.326019+00:00",
+    "finished": "2026-10-22T21:35:05.877869+00:00",
+    "seconds": 50.6,
+    "exit": 0,
+    "verdict": "PASS",
+    "run_id": "20261022-163415-qa-specs-ui-sphere-contract-lab",
+    "error": null,
+    "failed": [],
+    "assertions": 12,
+    "teardown": {
+      "clean": true,
+      "reasons": [],
+      "run": "20261022-163415-qa-specs-ui-sphere-contract-lab",
+      "at": "2026-10-22T16:35:05"
+    },
+    "code": {
+      "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+      "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+      "files": 1290,
+      "fingerprint_scope": "mods+gamelab+tools-v2"
+    },
+    "source_after": {
+      "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+      "source_sha256": "e58285ce6d1c63ff3490096f91047b5e255453981589d8078a5a10f15f8f20c0",
+      "files": 1290,
+      "fingerprint_scope": "mods+gamelab+tools-v2"
+    },
+    "output": "gamelab\\results\\qa-20261022-resume-n-main-qa-specs-ui-sphere-contract.out.txt"
+  },
+  "source_raw_sha256": "8a580074d3e2b8869f2c998674e18deef9dbaab810fea331c835663abd06b018",
+  "requested": {
+    "class": "hwp_ranger_stormbringer",
+    "mode": "one",
+    "quality_count": 10,
+    "max_picks": 32
+  },
+  "acquired_requested": [
+    [
+      "hwp_ran_gw_wind_ward",
+      1
+    ]
+  ],
+  "remaining_requested": [
+    [
+      "hwp_ran_ec_charged_boomerang",
+      1
+    ],
+    [
+      "hwp_ran_ec_charged_boomerang",
+      2
+    ],
+    [
+      "hwp_ran_ec_lightning_rod",
+      1
+    ],
+    [
+      "hwp_ran_ec_lightning_rod",
+      2
+    ],
+    [
+      "hwp_ran_ec_lightning_rod",
+      3
+    ],
+    [
+      "hwp_ran_ec_tailwind_catch",
+      1
+    ],
+    [
+      "hwp_ran_gw_gale_force",
+      1
+    ],
+    [
+      "hwp_ran_gw_gale_force",
+      2
+    ],
+    [
+      "hwp_ran_gw_wind_ward",
+      2
+    ]
+  ],
+  "native_pick": {
+    "index": 0,
+    "spawn": {
+      "id": "c24",
+      "ok": true,
+      "unit": 30338,
+      "name": "items/skill_sphere.unit",
+      "x": -240.0,
+      "y": -48.0,
+      "_t": 28.139
+    },
+    "normal_use": {
+      "before_usables": {
+        "id": "c25",
+        "ok": true,
+        "usables": [],
+        "_t": 28.435
+      },
+      "valid": true,
+      "menu_reads": [
+        {
+          "id": "c40",
+          "ok": true,
+          "open": true,
+          "class": "hwp_ranger_stormbringer",
+          "possible_count": 11,
+          "possible_truncated": 0,
+          "possible": [
+            "ran_mark_pursuit",
+            "ran_mark_kill",
+            "ran_mark_big_game",
+            "ran_rhythm_attack_speed",
+            "ran_rhythm_mana_cost",
+            "ran_rhythm_dash",
+            "hwp_ran_ec_charged_boomerang",
+            "hwp_ran_ec_lightning_rod",
+            "hwp_ran_ec_tailwind_catch",
+            "hwp_ran_gw_gale_force",
+            "hwp_ran_gw_wind_ward"
+          ],
+          "sphere_unit_id": 30338,
+          "sphere_unit": "items/skill_sphere.unit",
+          "offers": [
+            {
+              "present": true,
+              "id": "ran_mark_big_game",
+              "level": 0,
+              "next_level": 1,
+              "parent": "ran_mark",
+              "eligible": true,
+              "name_key": "Big Game Hunter",
+              "description_key": ".skills.ranger.spell_1.up3.desc",
+              "localized_name": "Big Game Hunter",
+              "quality": 1,
+              "icon": true,
+              "widget_present": true,
+              "widget_visible": true,
+              "name_widget": true,
+              "description_widget": true,
+              "rendered_name": "Marked Shot - Big Game Hunter 1",
+              "name_w": 112,
+              "name_h": 29,
+              "rendered_description": "You deal additional damage to \\cb0dfffBosses\\d and \\cb0dfffElites\\d inflicted by \\cb0dfffMarked\\d.\n\nDamage: \\c104ab4+10%\\d\\z\\c727272/\\d\\c72727220%\\d\\z\\c727272/\\d\\c72727230%\\d",
+              "desc_w": 129,
+              "desc_h": 40
+            },
+            {
+              "present": true,
+              "id": "ran_rhythm_mana_cost",
+              "level": 0,
+              "next_level": 1,
+              "parent": "ran_rhythm",
+              "eligible": true,
+              "name_key": "Efficiency",
+              "description_key": ".skills.ranger.passive_1.up2.desc",
+              "localized_name": "Efficiency",
+              "quality": 1,
+              "icon": true,
+              "widget_present": true,
+              "widget_visible": true,
+              "name_widget": true,
+              "description_widget": true,
+              "rendered_name": "Rhythm - Efficiency 1",
+              "name_w": 105,
+              "name_h": 16,
+              "rendered_description": "Each stack of \\cb0dfffRhythm\\d reduces your Mana costs.\n\nMana Cost per Stack: \\c104ab4-2.5%\\d\\z\\c727272/\\d\\c727272-5%\\d\\z\\c727272/\\d\\c727272-10%\\d",
+              "desc_w": 130,
+              "desc_h": 40
+            },
+            {
+              "present": true,
+              "id": "hwp_ran_gw_wind_ward",
+              "level": 0,
+              "next_level": 1,
+              "parent": "hwp_ran_gathering_winds",
+              "eligible": true,
+              "name_key": "Wind Ward",
+              "description_key": ".hwp.specs.wind_ward.desc",
+              "localized_name": "Wind Ward",
+              "quality": 2,
+              "icon": true,
+              "widget_present": true,
+              "widget_visible": true,
+              "name_widget": true,
+              "description_widget": true,
+              "rendered_name": "Gathering Winds - Wind Ward 1",
+              "name_w": 112,
+              "name_h": 29,
+              "rendered_description": "Each stack of Tailwind reduces the damage you take by \\c104ab41.5%\\d.\n\nDamage Reduction per Stack: \\c104ab41.5%\\d\\z\\c727272/\\d\\c7272723%\\d",
+              "desc_w": 131,
+              "desc_h": 40
+            }
+          ],
+          "sphere_present": true,
+          "sphere_used": false,
+          "quality_values": {
+            "common": 1,
+            "uncommon": 2,
+            "rare": 4,
+            "epic": 8
+          },
+          "_t": 47.262
+        }
+      ],
+      "physical_contact": [
+        {
+          "away": {
+            "result": "done",
+            "reason": "arrived",
+            "intent": "path_to",
+            "id": "c26",
+            "tick": 14,
+            "event": {
+              "ev": "pilot",
+              "id": "c26",
+              "intent": "path_to",
+              "result": "done",
+              "reason": "arrived",
+              "tick": 14,
+              "ms": 462,
+              "frames": 14,
+              "x": -193.012,
+              "y": -48.0,
+              "hp": 226,
+              "hpMax": 226,
+              "_t": 29.149
+            }
+          },
+          "outside": {
+            "id": "c27",
+            "ok": true,
+            "phase": "mission",
+            "level": "levels/generated.lvl",
+            "inTown": false,
+            "ngp": 0.0,
+            "window": "",
+            "player": {
+              "name": "QAOrbUIstormbringer",
+              "class": "hwp_ranger_stormbringer",
+              "level": 20,
+              "xp": 1301032,
+              "skillFree": 57,
+              "bonusSkillPoints": 0,
+              "hp": 226,
+              "hpMax": 226,
+              "mana": 157,
+              "manaMax": 157,
+              "dead": false,
+              "spawned": true,
+              "x": -189.097,
+              "y": -48.0,
+              "combo": false,
+              "manaExact": 157.0,
+              "manaCostMul": 1.0,
+              "buffs": [
+                ".hwp.legacy.buff"
+              ]
+            },
+            "_t": 29.295
+          },
+          "outside_distance": 50.90299999999999,
+          "sensor_center": [
+            -240.0,
+            -48.0
+          ],
+          "sensor_radius": 9,
+          "pilot_body_diameter": 12,
+          "returned": {
+            "result": "done",
+            "reason": "arrived",
+            "intent": "path_to",
+            "id": "c28",
+            "tick": 29,
+            "event": {
+              "ev": "pilot",
+              "id": "c28",
+              "intent": "path_to",
+              "result": "done",
+              "reason": "arrived",
+              "tick": 29,
+              "ms": 495,
+              "frames": 15,
+              "x": -240.0,
+              "y": -48.0,
+              "hp": 226,
+              "hpMax": 226,
+              "_t": 30.014
+            }
+          },
+          "inside": {
+            "id": "c29",
+            "ok": true,
+            "phase": "mission",
+            "level": "levels/generated.lvl",
+            "inTown": false,
+            "ngp": 0.0,
+            "window": "",
+            "player": {
+              "name": "QAOrbUIstormbringer",
+              "class": "hwp_ranger_stormbringer",
+              "level": 20,
+              "xp": 1301032,
+              "skillFree": 57,
+              "bonusSkillPoints": 0,
+              "hp": 226,
+              "hpMax": 226,
+              "mana": 157,
+              "manaMax": 157,
+              "dead": false,
+              "spawned": true,
+              "x": -243.916,
+              "y": -48.0,
+              "combo": false,
+              "manaExact": 157.0,
+              "manaCostMul": 1.0,
+              "buffs": [
+                ".hwp.legacy.buff"
+              ]
+            },
+            "_t": 30.16
+          },
+          "inside_distance": 3.915999999999997,
+          "usable_reads": []
+        },
+        {
+          "away": {
+            "result": "failed",
+            "reason": "stuck at -294,-47",
+            "intent": "path_to",
+            "id": "c30",
+            "tick": 184,
+            "event": {
+              "ev": "pilot",
+              "id": "c30",
+              "intent": "path_to",
+              "result": "failed",
+              "reason": "stuck at -294,-47",
+              "tick": 184,
+              "ms": 5115,
+              "frames": 155,
+              "x": -294.66,
+              "y": -47.812,
+              "hp": 226,
+              "hpMax": 226,
+              "_t": 35.563
+            }
+          },
+          "outside": {
+            "id": "c31",
+            "ok": true,
+            "phase": "mission",
+            "level": "levels/generated.lvl",
+            "inTown": false,
+            "ngp": 0.0,
+            "window": "",
+            "player": {
+              "name": "QAOrbUIstormbringer",
+              "class": "hwp_ranger_stormbringer",
+              "level": 20,
+              "xp": 1301032,
+              "skillFree": 57,
+              "bonusSkillPoints": 0,
+              "hp": 226,
+              "hpMax": 226,
+              "mana": 157,
+              "manaMax": 157,
+              "dead": false,
+              "spawned": true,
+              "x": -294.66,
+              "y": -47.812,
+              "combo": false,
+              "manaExact": 157.0,
+              "manaCostMul": 1.0,
+              "buffs": [
+                ".hwp.legacy.buff"
+              ]
+            },
+            "_t": 36.265
+          },
+          "outside_distance": 54.66032330676432,
+          "sensor_center": [
+            -240.0,
+            -48.0
+          ],
+          "sensor_radius": 9,
+          "pilot_body_diameter": 12,
+          "returned": {
+            "result": "timeout",
+            "reason": "after 8000 ms",
+            "intent": "path_to",
+            "id": "c32",
+            "tick": 427,
+            "event": {
+              "ev": "pilot",
+              "id": "c32",
+              "intent": "path_to",
+              "result": "timeout",
+              "reason": "after 8000 ms",
+              "tick": 427,
+              "ms": 8019,
+              "frames": 243,
+              "x": -243.359,
+              "y": -50.012,
+              "hp": 226,
+              "hpMax": 226,
+              "_t": 44.467
+            }
+          },
+          "inside": {
+            "id": "c33",
+            "ok": true,
+            "phase": "mission",
+            "level": "levels/generated.lvl",
+            "inTown": false,
+            "ngp": 0.0,
+            "window": "",
+            "player": {
+              "name": "QAOrbUIstormbringer",
+              "class": "hwp_ranger_stormbringer",
+              "level": 20,
+              "xp": 1301032,
+              "skillFree": 57,
+              "bonusSkillPoints": 0,
+              "hp": 226,
+              "hpMax": 226,
+              "mana": 157,
+              "manaMax": 157,
+              "dead": false,
+              "spawned": true,
+              "x": -243.422,
+              "y": -46.097,
+              "combo": false,
+              "manaExact": 157.0,
+              "manaCostMul": 1.0,
+              "buffs": [
+                ".hwp.legacy.buff"
+              ]
+            },
+            "_t": 44.613
+          },
+          "inside_distance": 3.915545045073543,
+          "usable_reads": []
+        },
+        {
+          "away": {
+            "result": "done",
+            "reason": "arrived",
+            "intent": "path_to",
+            "id": "c34",
+            "tick": 441,
+            "event": {
+              "ev": "pilot",
+              "id": "c34",
+              "intent": "path_to",
+              "result": "done",
+              "reason": "arrived",
+              "tick": 441,
+              "ms": 462,
+              "frames": 14,
+              "x": -239.943,
+              "y": 0.762,
+              "hp": 226,
+              "hpMax": 226,
+              "_t": 45.331
+            }
+          },
+          "outside": {
+            "id": "c35",
+            "ok": true,
+            "phase": "mission",
+            "level": "levels/generated.lvl",
+            "inTown": false,
+            "ngp": 0.0,
+            "window": "",
+            "player": {
+              "name": "QAOrbUIstormbringer",
+              "class": "hwp_ranger_stormbringer",
+              "level": 20,
+              "xp": 1301032,
+              "skillFree": 57,
+              "bonusSkillPoints": 0,
+              "hp": 226,
+              "hpMax": 226,
+              "mana": 157,
+              "manaMax": 157,
+              "dead": false,
+              "spawned": true,
+              "x": -239.654,
+              "y": 4.667,
+              "combo": false,
+              "manaExact": 157.0,
+              "manaCostMul": 1.0,
+              "buffs": [
+                ".hwp.legacy.buff"
+              ]
+            },
+            "_t": 45.477
+          },
+          "outside_distance": 52.66813652484774,
+          "sensor_center": [
+            -240.0,
+            -48.0
+          ],
+          "sensor_radius": 9,
+          "pilot_body_diameter": 12,
+          "returned": {
+            "result": "done",
+            "reason": "arrived",
+            "intent": "path_to",
+            "id": "c36",
+            "tick": 456,
+            "event": {
+              "ev": "pilot",
+              "id": "c36",
+              "intent": "path_to",
+              "result": "done",
+              "reason": "arrived",
+              "tick": 456,
+              "ms": 495,
+              "frames": 15,
+              "x": -239.988,
+              "y": -46.235,
+              "hp": 226,
+              "hpMax": 226,
+              "_t": 46.243
+            }
+          },
+          "inside": {
+            "id": "c37",
+            "ok": true,
+            "phase": "mission",
+            "level": "levels/generated.lvl",
+            "inTown": false,
+            "ngp": 0.0,
+            "window": "",
+            "player": {
+              "name": "QAOrbUIstormbringer",
+              "class": "hwp_ranger_stormbringer",
+              "level": 20,
+              "xp": 1301032,
+              "skillFree": 57,
+              "bonusSkillPoints": 0,
+              "hp": 226,
+              "hpMax": 226,
+              "mana": 157,
+              "manaMax": 157,
+              "dead": false,
+              "spawned": true,
+              "x": -240.014,
+              "y": -50.151,
+              "combo": false,
+              "manaExact": 157.0,
+              "manaCostMul": 1.0,
+              "buffs": [
+                ".hwp.legacy.buff"
+              ]
+            },
+            "_t": 46.388
+          },
+          "inside_distance": 2.1510455597220655,
+          "usable_reads": [
+            {
+              "id": "c38",
+              "ok": true,
+              "usables": [
+                {
+                  "unit": {
+                    "unit": 30338,
+                    "name": "items/skill_sphere.unit",
+                    "behavior": "SkillSphere",
+                    "usable": true,
+                    "x": -240.0,
+                    "y": -48.0,
+                    "dist": 2.151
+                  },
+                  "canUse": true,
+                  "top": true
+                }
+              ],
+              "_t": 46.679
+            }
+          ]
+        }
+      ],
+      "validated_usables": {
+        "id": "c38",
+        "ok": true,
+        "usables": [
+          {
+            "unit": {
+              "unit": 30338,
+              "name": "items/skill_sphere.unit",
+              "behavior": "SkillSphere",
+              "usable": true,
+              "x": -240.0,
+              "y": -48.0,
+              "dist": 2.151
+            },
+            "canUse": true,
+            "top": true
+          }
+        ],
+        "_t": 46.679
+      },
+      "accepted": {
+        "id": "c39",
+        "ok": true,
+        "tag": "sphere-use-30338-1792704902661305500",
+        "steps": 1,
+        "requested_ms": 1,
+        "player": 30267,
+        "_t": 46.971
+      },
+      "sequence_tag": "sphere-use-30338-1792704902661305500",
+      "first_write": {
+        "ev": "input_done",
+        "id": "c39:0",
+        "sequence": "sphere-use-30338-1792704902661305500",
+        "step": 0,
+        "frames": 1,
+        "first_write": 26202,
+        "last_write": 26202,
+        "actual_ms": 33,
+        "_t": 46.971
+      }
+    },
+    "before": {
+      "id": "c22",
+      "ok": true,
+      "open": false,
+      "class": "hwp_ranger_stormbringer",
+      "possible_count": 11,
+      "possible_truncated": 0,
+      "possible": [
+        "ran_mark_pursuit",
+        "ran_mark_kill",
+        "ran_mark_big_game",
+        "ran_rhythm_attack_speed",
+        "ran_rhythm_mana_cost",
+        "ran_rhythm_dash",
+        "hwp_ran_ec_charged_boomerang",
+        "hwp_ran_ec_lightning_rod",
+        "hwp_ran_ec_tailwind_catch",
+        "hwp_ran_gw_gale_force",
+        "hwp_ran_gw_wind_ward"
+      ],
+      "quality_values": {
+        "common": 1,
+        "uncommon": 2,
+        "rare": 4,
+        "epic": 8
+      },
+      "_t": 27.558
+    },
+    "menu": {
+      "id": "c40",
+      "ok": true,
+      "open": true,
+      "class": "hwp_ranger_stormbringer",
+      "possible_count": 11,
+      "possible_truncated": 0,
+      "possible": [
+        "ran_mark_pursuit",
+        "ran_mark_kill",
+        "ran_mark_big_game",
+        "ran_rhythm_attack_speed",
+        "ran_rhythm_mana_cost",
+        "ran_rhythm_dash",
+        "hwp_ran_ec_charged_boomerang",
+        "hwp_ran_ec_lightning_rod",
+        "hwp_ran_ec_tailwind_catch",
+        "hwp_ran_gw_gale_force",
+        "hwp_ran_gw_wind_ward"
+      ],
+      "sphere_unit_id": 30338,
+      "sphere_unit": "items/skill_sphere.unit",
+      "offers": [
+        {
+          "present": true,
+          "id": "ran_mark_big_game",
+          "level": 0,
+          "next_level": 1,
+          "parent": "ran_mark",
+          "eligible": true,
+          "name_key": "Big Game Hunter",
+          "description_key": ".skills.ranger.spell_1.up3.desc",
+          "localized_name": "Big Game Hunter",
+          "quality": 1,
+          "icon": true,
+          "widget_present": true,
+          "widget_visible": true,
+          "name_widget": true,
+          "description_widget": true,
+          "rendered_name": "Marked Shot - Big Game Hunter 1",
+          "name_w": 112,
+          "name_h": 29,
+          "rendered_description": "You deal additional damage to \\cb0dfffBosses\\d and \\cb0dfffElites\\d inflicted by \\cb0dfffMarked\\d.\n\nDamage: \\c104ab4+10%\\d\\z\\c727272/\\d\\c72727220%\\d\\z\\c727272/\\d\\c72727230%\\d",
+          "desc_w": 129,
+          "desc_h": 40
+        },
+        {
+          "present": true,
+          "id": "ran_rhythm_mana_cost",
+          "level": 0,
+          "next_level": 1,
+          "parent": "ran_rhythm",
+          "eligible": true,
+          "name_key": "Efficiency",
+          "description_key": ".skills.ranger.passive_1.up2.desc",
+          "localized_name": "Efficiency",
+          "quality": 1,
+          "icon": true,
+          "widget_present": true,
+          "widget_visible": true,
+          "name_widget": true,
+          "description_widget": true,
+          "rendered_name": "Rhythm - Efficiency 1",
+          "name_w": 105,
+          "name_h": 16,
+          "rendered_description": "Each stack of \\cb0dfffRhythm\\d reduces your Mana costs.\n\nMana Cost per Stack: \\c104ab4-2.5%\\d\\z\\c727272/\\d\\c727272-5%\\d\\z\\c727272/\\d\\c727272-10%\\d",
+          "desc_w": 130,
+          "desc_h": 40
+        },
+        {
+          "present": true,
+          "id": "hwp_ran_gw_wind_ward",
+          "level": 0,
+          "next_level": 1,
+          "parent": "hwp_ran_gathering_winds",
+          "eligible": true,
+          "name_key": "Wind Ward",
+          "description_key": ".hwp.specs.wind_ward.desc",
+          "localized_name": "Wind Ward",
+          "quality": 2,
+          "icon": true,
+          "widget_present": true,
+          "widget_visible": true,
+          "name_widget": true,
+          "description_widget": true,
+          "rendered_name": "Gathering Winds - Wind Ward 1",
+          "name_w": 112,
+          "name_h": 29,
+          "rendered_description": "Each stack of Tailwind reduces the damage you take by \\c104ab41.5%\\d.\n\nDamage Reduction per Stack: \\c104ab41.5%\\d\\z\\c727272/\\d\\c7272723%\\d",
+          "desc_w": 131,
+          "desc_h": 40
+        }
+      ],
+      "sphere_present": true,
+      "sphere_used": false,
+      "quality_values": {
+        "common": 1,
+        "uncommon": 2,
+        "rare": 4,
+        "epic": 8
+      },
+      "_t": 47.262
+    },
+    "menu_valid": true,
+    "source_expected": {
+      "quality": "uncommon",
+      "expected": "1.5%",
+      "source": [
+        "planner/data/mods/wind-ward.json",
+        "mods/specs/players/hwp/specs/stormbringer/gathering_winds.sval",
+        "mods/specs/scripts/HWP/Specs/Stormbringer.as"
+      ]
+    },
+    "source_quality_matches": true,
+    "screenshot": "shots\\sphere-ui-hwp_ranger_stormbringer-hwp_ran_gw_wind_ward-q1.png",
+    "selected": {
+      "present": true,
+      "id": "hwp_ran_gw_wind_ward",
+      "level": 0,
+      "next_level": 1,
+      "parent": "hwp_ran_gathering_winds",
+      "eligible": true,
+      "name_key": "Wind Ward",
+      "description_key": ".hwp.specs.wind_ward.desc",
+      "localized_name": "Wind Ward",
+      "quality": 2,
+      "icon": true,
+      "widget_present": true,
+      "widget_visible": true,
+      "name_widget": true,
+      "description_widget": true,
+      "rendered_name": "Gathering Winds - Wind Ward 1",
+      "name_w": 112,
+      "name_h": 29,
+      "rendered_description": "Each stack of Tailwind reduces the damage you take by \\c104ab41.5%\\d.\n\nDamage Reduction per Stack: \\c104ab41.5%\\d\\z\\c727272/\\d\\c7272723%\\d",
+      "desc_w": 131,
+      "desc_h": 40
+    },
+    "pick": {
+      "id": "c41",
+      "ok": true,
+      "selected": "hwp_ran_gw_wind_ward",
+      "choice": 3,
+      "level0": 0,
+      "level": 1,
+      "consumed": true,
+      "window_closed": true,
+      "_t": 47.795
+    },
+    "closed": {
+      "id": "c42",
+      "ok": true,
+      "open": false,
+      "class": "hwp_ranger_stormbringer",
+      "possible_count": 11,
+      "possible_truncated": 0,
+      "possible": [
+        "ran_mark_pursuit",
+        "ran_mark_kill",
+        "ran_mark_big_game",
+        "ran_rhythm_attack_speed",
+        "ran_rhythm_mana_cost",
+        "ran_rhythm_dash",
+        "hwp_ran_ec_charged_boomerang",
+        "hwp_ran_ec_lightning_rod",
+        "hwp_ran_ec_tailwind_catch",
+        "hwp_ran_gw_gale_force",
+        "hwp_ran_gw_wind_ward"
+      ],
+      "quality_values": {
+        "common": 1,
+        "uncommon": 2,
+        "rare": 4,
+        "epic": 8
+      },
+      "_t": 48.087
+    },
+    "independent_level": {
+      "id": "c44",
+      "ok": true,
+      "orb": "hwp_ran_gw_wind_ward",
+      "changed": 0,
+      "level": 1,
+      "_t": 48.669
+    },
+    "native_acquisition_valid": true,
+    "use_input_done": [
+      {
+        "ev": "input_done",
+        "id": "c39:0",
+        "sequence": "sphere-use-30338-1792704902661305500",
+        "step": 0,
+        "frames": 1,
+        "first_write": 26202,
+        "last_write": 26202,
+        "actual_ms": 33,
+        "_t": 46.971
+      }
+    ],
+    "use_terminal": {
+      "ev": "inputsequence",
+      "id": "c39",
+      "tag": "sphere-use-30338-1792704902661305500",
+      "ok": true,
+      "error": "",
+      "player": 30267,
+      "created": 26169,
+      "start": 26202,
+      "end": 26268,
+      "frames": 1,
+      "total_ms": 33,
+      "completed_steps": 1,
+      "requested_steps": 1,
+      "released": true,
+      "steps": [
+        {
+          "step": 0,
+          "id": "c39:0",
+          "requested_ms": 1,
+          "actual_ms": 33,
+          "frames": 1,
+          "first_write": 26202,
+          "last_write": 26202,
+          "dt_min": 33,
+          "dt_max": 33,
+          "x_first": -240.014,
+          "y_first": -50.151,
+          "x_last": -240.014,
+          "y_last": -50.151,
+          "buttons": [
+            "use"
+          ]
+        }
+      ],
+      "_t": 47.795
+    },
+    "use_protocol": {
+      "valid": true,
+      "errors": [],
+      "steps": [
+        {
+          "step": 0,
+          "id": "c39:0",
+          "requested_ms": 1,
+          "actual_ms": 33,
+          "frames": 1,
+          "first_write": 26202,
+          "last_write": 26202,
+          "dt_min": 33,
+          "dt_max": 33,
+          "x_first": -240.014,
+          "y_first": -50.151,
+          "x_last": -240.014,
+          "y_last": -50.151,
+          "buttons": [
+            "use"
+          ]
+        }
+      ],
+      "scope": "Exact native writes/input_done; per-step positions have one player-update phase uncertainty."
+    },
+    "post_usables": {
+      "id": "c43",
+      "ok": true,
+      "usables": [],
+      "_t": 48.379
+    },
+    "used_sphere_retired": true,
+    "rendered_glyph_layout_review": "UNTESTED (actual screenshot retained for independent review)"
+  },
+  "visual_review": {
+    "reviewer": "audit_verification independent model vision",
+    "path": "gamelab/results/20261022-163415-qa-specs-ui-sphere-contract-lab/shots/sphere-ui-hwp_ranger_stormbringer-hwp_ran_gw_wind_ward-q1.png",
+    "sha256": "3b9d28fe8e4155848fa516581ccfdbb189413c616195ad94c73430d78658ccf4",
+    "resolution": [
+      640,
+      360
+    ],
+    "status": "PASS for this captured menu",
+    "observed": [
+      "All three native cards, icons, names and descriptions visible within card frames.",
+      "Wind Ward1 title wraps into two lines without clipping.",
+      "Wind Ward description visibly shows1.5% per Tailwind stack and the1.5%/3% rank progression; no unresolved localization key or missing glyph observed.",
+      "Native menu rarity styling and highlighted statistics visible."
+    ],
+    "limits": [
+      "Only one captured three-card menu; not all orb qualities, skill menus, fonts/languages, scales/resolutions or controller navigation.",
+      "Choice uses the guarded native menu callback; not a simulated mouse click or ordinary item-drop acquisition."
+    ]
+  },
+  "coverage_limits": [
+    "Original sphere was explicitly spawned in controlled mission fixture; no natural enemy drop proof.",
+    "Only Wind Ward quality1 acquired; remaining9 Ranger qualities and other classes untested in this contract.",
+    "No additional effect coefficient, ordinary combat, legal interaction, save/respec/death/transition or true-ally credit.",
+    "Historical154912 empty-usables setupFAIL retained; failed movement/contact candidates retained."
+  ]
+}

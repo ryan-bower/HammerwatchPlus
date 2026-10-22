@@ -1,0 +1,262 @@
+{
+  "scope": "Source and test review only. Root runtime ledger owns outcomes. Registration smoke never proves functional behavior.",
+  "reviewer": "firearms_qa",
+  "native_build": "25932569",
+  "modules": {
+    "weapons": {
+      "source": "mods/weapons/tweak/hwp/equipment_weapons_hwp.sval",
+      "built": "12 endgame weapons: four mainhand, four offhand, four two-handed; common base ilvl35, native reused graphics/models/skills and new modifier profiles.",
+      "existing": [
+        {
+          "scenario": "mod-weapons",
+          "scope": "12 registered items and town boot only"
+        }
+      ],
+      "new": [
+        {
+          "scenario": "qa-content-weapons-native",
+          "status": "UNTESTED",
+          "scope": "12 common ilvl35 actual equipment readbacks, ten natural damaging native attacks, Bulwark native stun/cost/cooldown; requirements enabled with explicit controlled extra stat points"
+        },
+        {
+          "scenario": "qa-content-dirk-defense",
+          "status": "UNTESTED",
+          "scope": "Native engine-parsed offhand skill/item tables, actual custom Dirk equip, fixed controlled frontal Player.Damage calls versus no-Dirk control, native Parry floating-text deltas, exact HP, raw native stats-run snapshots"
+        }
+      ],
+      "gaps": [
+        "Legal epic qualities and modifier rolls",
+        "Exact damage/speed/stat-scaling profile comparisons",
+        "Bulwark actual incoming damage block amount/arc",
+        "Natural drop/shop eligibility",
+        "Model, animation, tooltip and audio visual review"
+      ],
+      "candidates": [
+        "Parrying Dirk references attack_offhand_dirk, while pinned skill and vanilla dirk prototypes are commented out; native engine parse and actual equip required before diagnosis.",
+        "Parrying Dirk sets Parry chance0.6 but omits arc. Native ParryArc initializes0; Parry modifier defaults missing arc to0; Player.Damage only parries when abs(angle)<ParryArc. No production change authorized from source alone. README gives no intended angle and explicitly describes defensive use rather than stabbing."
+      ]
+    },
+    "maps": {
+      "source": "mods/maps/tweak/hwp/missions/",
+      "existing": [
+        {
+          "scenario": "mod-maps",
+          "scope": "3 mission definitions and24 enemy schemes registered; town boot only"
+        }
+      ],
+      "new": [
+        {
+          "scenario": "qa-content-maps-goblin-warrens",
+          "status": "UNTESTED"
+        },
+        {
+          "scenario": "qa-content-maps-sunken-dungeon",
+          "status": "UNTESTED"
+        },
+        {
+          "scenario": "qa-content-maps-high-court",
+          "status": "UNTESTED"
+        }
+      ],
+      "new_scope": "Four direct native floor loads each; independent live MissionManager-derived mission/floor identity, actual generated level file, living hostile actors and enabled exit scripts on regular floors, exact pinned boss scene. God protects observer and enemies are not culled.",
+      "layouts": {
+        "hwp_goblin_warrens": {
+          "floors": [
+            "forest_1",
+            "cave_dark_1",
+            "cave_dark_2"
+          ],
+          "boss": "levels/boss_totem_cave.lvl",
+          "difficulty": [
+            5,
+            6,
+            7,
+            9
+          ],
+          "weight": 1.0
+        },
+        "hwp_sunken_dungeon": {
+          "floors": [
+            "dungeon_1",
+            "dungeon_2",
+            "crypt_1"
+          ],
+          "boss": "levels/boss_arista.lvl",
+          "difficulty": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "weight": 0.8
+        },
+        "hwp_high_court": {
+          "floors": [
+            "barracks_1",
+            "courts_1",
+            "courts_2"
+          ],
+          "boss": "levels/boss_bone_serpent.lvl",
+          "difficulty": [
+            17,
+            18,
+            19,
+            21
+          ],
+          "weight": 0.6
+        }
+      },
+      "gaps": [
+        "Actual equipment-map item rolls and weights",
+        "mission_story_intro_find_npcs eligibility gating",
+        "Exit reachability and natural traversal",
+        "Boss intro, real attacks, defeat, reward and portal",
+        "NGP scaling and native save/resume"
+      ]
+    },
+    "legacy": {
+      "source": "mods/legacy/scripts/HWP/Legacy/Legacy.as",
+      "existing": [
+        {
+          "scenario": "mod-legacy",
+          "scope": "Registered classes/title boot only"
+        },
+        {
+          "scenario": "plan-ui-a",
+          "scope": "bufftips_crown and bufftips_menu inspect actual Title Bonuses crown/tooltip/Effects display. Other mapicons section is core dye markers, not maps missions."
+        }
+      ],
+      "gaps": [
+        "Guild Hall all-class/no-hero grey rows and parent title de-duplication",
+        "Exactly one crown across repeated town upgrades, death, and floors",
+        "legacy.enabled removal/re-enable",
+        "HoH1 title numeric text at multiple levels and donation formatting"
+      ],
+      "exclusion": "This module presents vanilla hero-title bonuses; it does not add a second stat bonus. A successful crown is not proof of added stats."
+    },
+    "valuables": {
+      "source": "mods/valuables/scripts/HWP/Valuables/Valuables.as",
+      "existing": [
+        {
+          "scenario": "mod-valuables",
+          "scope": "Functional actual ceramic vase pickup gives300gold at2x; all26 registration and multiplier1/2 non-compounding are logs only"
+        }
+      ],
+      "gaps": [
+        "All26 actual native payouts",
+        "Actual0, fractional and20 multipliers plus clamping",
+        "Repeated floors and native save/reload without price compounding",
+        "Unrelated gold coins and materials unchanged",
+        "Co-op host-synced payout"
+      ],
+      "expected_formula": "int(vanilla_base * clamp(multiplier,0,20) +0.5)",
+      "co_op": "BLOCKED: no second connected client"
+    },
+    "stash": {
+      "source": "mods/stash/scripts/HWP/Stash/StashSort.as",
+      "existing": [
+        {
+          "scenario": "mod-stash",
+          "scope": "Functional eight-item UI sorting and idempotence"
+        },
+        {
+          "scenario": "plan-newa-a",
+          "scope": "15+4 vanilla common items across two tabs; exact class/slot/family/ilvl order, untouched other tab, grid order, idempotence, reopen and native restart"
+        }
+      ],
+      "new": [
+        {
+          "scenario": "qa-content-stash-families",
+          "status": "FIX_VERIFIED_NATIVE_PASS",
+          "scope": "Four actual interleaved common custom Frostbrand/Warhammer items; same STR/mainhand group must keep distinct families contiguous before descending ilvl; item multiset preserved and second press idempotent",
+          "run": "20261022-061238-qa-content-stash-families-lab",
+          "original_failure": "20261022-061238-qa-content-stash-families-lab",
+          "retest": "20261022-063606-qa-content-stash-families-lab"
+        },
+        {
+          "scenario": "qa-content-stash-neighbors",
+          "status": "NATIVE_PASS",
+          "scope": "Original4 custom entries plus4 ordinary rifle/autorifle neighbors; exact8-item class/slot/family/ilvl order and conservation/idempotence.",
+          "run": "20261022-063629-qa-content-stash-neighbors-lab"
+        }
+      ],
+      "candidate": "Confirmed native interleaving under original Family token1. Narrow slot-matched hwp_mh_/hwp_oh_/hwp_2h_ correction applied at root authorization after class-r terminal; ordinary hwp_rifle_01 and vanilla token1 behavior preserved. Compile and native regressions pending.",
+      "gaps": [
+        "Quality/name tie ordering",
+        "Stable order and serialized identity for equal keys",
+        "No-requirement and non-Equipment entries",
+        "Large/full tabs",
+        "Localization-dependent name ordering"
+      ],
+      "repair": {
+        "source": "mods/stash/scripts/HWP/Stash/StashSort.as",
+        "artifact": "docs/generated/qa_stash_family_fix.patch",
+        "metadata_review": "Native Equipment.as BaseItem has slot/skills/animSet and mod-compatibility tags, no dedicated weapon family getter. Peer source review agrees narrow typed prefix is appropriate.",
+        "risks": "Typed custom IDs group by base-name token2; no change to class/slot/ilvl/quality/name comparators, stable sorting, persistence or item mutation. Native compile/test still required.",
+        "native_retest": "Original4-item and new8-item cases PASS exact ordering, preservation and idempotence; each5 behavioral rows, all runner guards PASS. Source compile/full31 mod-all063532PASS.",
+        "peer_review": "audit_verification independently verified typed-prefix/slot checks, unchanged gun/native fallback and a neighbor oracle that would fail generic namespace stripping."
+      }
+    },
+    "droptrade": {
+      "sources": [
+        "mods/droptrade/scripts/HWP/DropTrade/DropTrade.as",
+        "mods/droptrade/scripts/GUI/PlayerMenu/Character.as"
+      ],
+      "existing": [
+        {
+          "scenario": "mod-droptrade",
+          "scope": "Boot/registration only"
+        },
+        {
+          "scenario": "plan-gear-b",
+          "scope": "Real Q and clickable Drop, bag decreases, shared world item at feet, actual pickup restores count, Destroy/No and equipped refusal, G rebinding and old Q ignored"
+        }
+      ],
+      "gaps": [
+        "Exact affix/quality/serialized item identity through drop/pickup",
+        "Rapid stale-hover repeated key presses cannot duplicate",
+        "Typing/chat/modal-dialog/topmost guards",
+        "Full inventory and floor transitions",
+        "Real second-player shared pickup"
+      ],
+      "source_safeguard": "Character removes item from equipInventory successfully before shared Item::DropItem; stale hover alone cannot duplicate.",
+      "co_op": "BLOCKED: no second connected client"
+    },
+    "weaponswap": {
+      "source": "mods/weaponswap/scripts/HWP/WeaponSwap/WeaponSwapModule.as",
+      "existing": [
+        {
+          "scenario": "mod-weaponswap",
+          "scope": "Boot only"
+        },
+        {
+          "scenario": "plan-gear-a",
+          "scope": "Alt slot tooltip/click, two-hand mirror/dim, native requirement refusal and full-bag owned floor fallback"
+        },
+        {
+          "scenario": "plan-t8",
+          "scope": "mission/swap/swap_sets sections: native2s root/channel, repeat-key/dodge cancellation, live sword/bow sets, alternate slots/HUD, R binding and old X ignored, swapdrop"
+        },
+        {
+          "scenario": "plan-t2",
+          "scope": "Selected set and stored Ball Mace/Wooden Shield names across native death/town/restart; log-only status, no full serialized identity"
+        }
+      ],
+      "gaps": [
+        "Exact affix/quality/serialized identity and total item conservation",
+        "Requirements that depended on the unequipped old set",
+        "Both sets empty, dead actor and typing/dialog input guards",
+        "Repeated channel/cooldown boundaries",
+        "Co-op native equipment replication"
+      ],
+      "source_safeguard": "Native MayEquip is checked before and after unequipping; refused items remain stored, worn, bagged or dropped owned at feet.",
+      "log_limit": "runner log_has searches whole current native pass. Game.start deletes native log at each boot, so restart cannot reuse old-boot status; same-pass town status can reuse earlier text.",
+      "co_op": "BLOCKED: no second connected client"
+    }
+  },
+  "qa_resource_audit": {
+    "status": "STATIC_PASS",
+    "scope": "Both new Firearms QA dummy files explicitly reference existing pinned doodads/generic/target_dummy.png and system/default.mats:default-noxray. All24 native graphic/model file references in the12 weapon definitions exist. Native loading remains independently required.",
+    "production_edits": "None during module review; all mods held by root."
+  }
+}

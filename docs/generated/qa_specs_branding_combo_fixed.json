@@ -1,0 +1,3045 @@
+{
+  "status": "PASS_SCOPED_NATIVE_BEFORE_AFTER",
+  "run": "20261022-142518-qa-specs-branding-native-combo-lab",
+  "source_sha256": "bd82865baecab25c5c9cfdc8a4b050d4190763050a6cf0848d1099131b9faf7d",
+  "production_only_change": "Branding.as4ec066?c9ac81; identical5c43 bot/571908 model/f909 helper",
+  "before_run": "20261022-140751-qa-specs-branding-native-combo-lab",
+  "raw": "gamelab/results/20261022-142518-qa-specs-branding-native-combo-lab/bot-results.jsonl",
+  "rows": [
+    {
+      "trial": 1,
+      "essence": 0,
+      "setup_valid": true,
+      "damage_valid": true,
+      "cost_ok": true,
+      "source_maxima_valid": true,
+      "predictions": [
+        {
+          "amount": 40.0,
+          "fire": 1.0,
+          "multiplier": 1.17,
+          "direct": 47,
+          "pool": 15,
+          "hp_loss": 62,
+          "ticks": 5
+        },
+        {
+          "amount": 40,
+          "fire": 1.0,
+          "multiplier": 1.17,
+          "direct": 47,
+          "pool": 15,
+          "hp_loss": 62,
+          "ticks": 5
+        }
+      ],
+      "actual_damage": [
+        62.0,
+        62.0
+      ],
+      "settled": true,
+      "claws": [
+        [
+          40,
+          40,
+          1,
+          0
+        ],
+        [
+          40,
+          40,
+          1,
+          0
+        ]
+      ],
+      "expected_claws": [
+        [
+          40,
+          40,
+          1,
+          0
+        ],
+        [
+          40,
+          40,
+          1,
+          0
+        ]
+      ],
+      "spent": true,
+      "full_cd": true,
+      "crit_fixture_valid": true,
+      "initial": {
+        "input_valid": true,
+        "input_done": {
+          "ev": "input_done",
+          "id": "c68.2",
+          "frames": 13,
+          "_t": 57.762
+        },
+        "source_cost": {
+          "valid": true,
+          "errors": [],
+          "expense": 56.99999928,
+          "max_mana": 255,
+          "mana_fraction": 0.988544881,
+          "raw": {
+            "id": "c68.0",
+            "ok": true,
+            "skill": "hwp_wlk_pyrebrand",
+            "class": "hwp_warlock_branding",
+            "unit": 30902,
+            "now": 27588,
+            "matches": 1,
+            "skill_count": 7,
+            "truncated": false,
+            "type": 4,
+            "base": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 1.0,
+              "dash": 0
+            },
+            "modified": {
+              "health_flat": 0,
+              "mana_flat": 0,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "combined": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "free_health": false,
+            "free_mana": false,
+            "max_health": 158,
+            "max_mana": 255,
+            "health_fraction": 1.0,
+            "mana_fraction": 0.988544881,
+            "global_health_multiplier": 1.0,
+            "global_mana_multiplier": 1.0,
+            "scaled_health": 0.0,
+            "scaled_mana": 57.0,
+            "use_points_health": 0,
+            "use_points_mana": 0,
+            "expense_health": 0.0,
+            "expense_mana": 57.0,
+            "_t": 57.399
+          }
+        },
+        "payment": {
+          "valid": true,
+          "errors": [],
+          "decreases": [
+            {
+              "index": 7,
+              "now": 27786,
+              "actual_drop": 56.94059806499999,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_expense": 56.99999928,
+              "matches": true
+            }
+          ],
+          "refunds": [],
+          "rescalings": []
+        },
+        "conservation_all": true,
+        "prefixes": 37
+      },
+      "recast": {
+        "input_valid": true,
+        "input_done": {
+          "ev": "input_done",
+          "id": "c75.3",
+          "frames": 13,
+          "_t": 60.831
+        },
+        "source_cost": {
+          "valid": true,
+          "errors": [],
+          "expense": 56.99999928,
+          "max_mana": 255,
+          "mana_fraction": 0.786445498,
+          "raw": {
+            "id": "c75.0",
+            "ok": true,
+            "skill": "hwp_wlk_pyrebrand",
+            "class": "hwp_warlock_branding",
+            "unit": 30902,
+            "now": 30624,
+            "matches": 1,
+            "skill_count": 7,
+            "truncated": false,
+            "type": 4,
+            "base": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 1.0,
+              "dash": 0
+            },
+            "modified": {
+              "health_flat": 0,
+              "mana_flat": 0,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "combined": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "free_health": false,
+            "free_mana": false,
+            "max_health": 158,
+            "max_mana": 255,
+            "health_fraction": 1.0,
+            "mana_fraction": 0.786445498,
+            "global_health_multiplier": 1.0,
+            "global_mana_multiplier": 1.0,
+            "scaled_health": 0.0,
+            "scaled_mana": 57.0,
+            "use_points_health": 0,
+            "use_points_mana": 0,
+            "expense_health": 0.0,
+            "expense_mana": 57.0,
+            "_t": 60.469
+          }
+        },
+        "payment": {
+          "valid": true,
+          "errors": [],
+          "decreases": [
+            {
+              "index": 7,
+              "now": 30822,
+              "actual_drop": 56.94059806500002,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_expense": 56.99999928,
+              "matches": true
+            }
+          ],
+          "refunds": [
+            {
+              "index": 19,
+              "now": 31218,
+              "actual_gain": 57.05939517,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_refund": 57,
+              "matches": true
+            }
+          ],
+          "rescalings": []
+        },
+        "conservation_all": true,
+        "prefixes": 37
+      }
+    },
+    {
+      "trial": 1,
+      "essence": 10,
+      "setup_valid": true,
+      "damage_valid": true,
+      "cost_ok": true,
+      "source_maxima_valid": true,
+      "predictions": [
+        {
+          "amount": 56.0,
+          "fire": 1.3,
+          "multiplier": 1.521,
+          "direct": 85,
+          "pool": 28,
+          "hp_loss": 113,
+          "ticks": 6
+        },
+        {
+          "amount": 40,
+          "fire": 1.0,
+          "multiplier": 1.17,
+          "direct": 47,
+          "pool": 15,
+          "hp_loss": 62,
+          "ticks": 5
+        }
+      ],
+      "actual_damage": [
+        62.0,
+        113.0
+      ],
+      "settled": true,
+      "claws": [
+        [
+          56,
+          56,
+          1,
+          10
+        ],
+        [
+          40,
+          40,
+          1,
+          0
+        ]
+      ],
+      "expected_claws": [
+        [
+          56,
+          56,
+          1,
+          10
+        ],
+        [
+          40,
+          40,
+          1,
+          0
+        ]
+      ],
+      "spent": true,
+      "full_cd": true,
+      "crit_fixture_valid": true,
+      "initial": {
+        "input_valid": true,
+        "input_done": {
+          "ev": "input_done",
+          "id": "c109.2",
+          "frames": 13,
+          "_t": 75.879
+        },
+        "source_cost": {
+          "valid": true,
+          "errors": [],
+          "expense": 56.99999928,
+          "max_mana": 306,
+          "mana_fraction": 0.823788106,
+          "raw": {
+            "id": "c109.0",
+            "ok": true,
+            "skill": "hwp_wlk_pyrebrand",
+            "class": "hwp_warlock_branding",
+            "unit": 30902,
+            "now": 45507,
+            "matches": 1,
+            "skill_count": 7,
+            "truncated": false,
+            "type": 4,
+            "base": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 1.0,
+              "dash": 0
+            },
+            "modified": {
+              "health_flat": 0,
+              "mana_flat": 0,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "combined": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "free_health": false,
+            "free_mana": false,
+            "max_health": 189,
+            "max_mana": 306,
+            "health_fraction": 1.0,
+            "mana_fraction": 0.823788106,
+            "global_health_multiplier": 1.0,
+            "global_mana_multiplier": 1.0,
+            "scaled_health": 0.0,
+            "scaled_mana": 57.0,
+            "use_points_health": 0,
+            "use_points_mana": 0,
+            "expense_health": 0.0,
+            "expense_mana": 57.0,
+            "_t": 75.517
+          }
+        },
+        "payment": {
+          "valid": true,
+          "errors": [],
+          "decreases": [
+            {
+              "index": 7,
+              "now": 45705,
+              "actual_drop": 56.94060117600001,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_expense": 56.99999928,
+              "matches": true
+            }
+          ],
+          "refunds": [],
+          "rescalings": []
+        },
+        "conservation_all": true,
+        "prefixes": 37
+      },
+      "recast": {
+        "input_valid": true,
+        "input_done": {
+          "ev": "input_done",
+          "id": "c116.3",
+          "frames": 13,
+          "_t": 78.904
+        },
+        "source_cost": {
+          "valid": true,
+          "errors": [],
+          "expense": 56.99999928,
+          "max_mana": 306,
+          "mana_fraction": 0.65517962,
+          "raw": {
+            "id": "c116.0",
+            "ok": true,
+            "skill": "hwp_wlk_pyrebrand",
+            "class": "hwp_warlock_branding",
+            "unit": 30902,
+            "now": 48510,
+            "matches": 1,
+            "skill_count": 7,
+            "truncated": false,
+            "type": 4,
+            "base": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 1.0,
+              "dash": 0
+            },
+            "modified": {
+              "health_flat": 0,
+              "mana_flat": 0,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "combined": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "free_health": false,
+            "free_mana": false,
+            "max_health": 189,
+            "max_mana": 306,
+            "health_fraction": 1.0,
+            "mana_fraction": 0.65517962,
+            "global_health_multiplier": 1.0,
+            "global_mana_multiplier": 1.0,
+            "scaled_health": 0.0,
+            "scaled_mana": 57.0,
+            "use_points_health": 0,
+            "use_points_mana": 0,
+            "expense_health": 0.0,
+            "expense_mana": 57.0,
+            "_t": 78.561
+          }
+        },
+        "payment": {
+          "valid": true,
+          "errors": [],
+          "decreases": [
+            {
+              "index": 7,
+              "now": 48708,
+              "actual_drop": 56.94060117599998,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_expense": 56.99999928,
+              "matches": true
+            }
+          ],
+          "refunds": [
+            {
+              "index": 19,
+              "now": 49104,
+              "actual_gain": 57.059394915000006,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_refund": 57,
+              "matches": true
+            }
+          ],
+          "rescalings": [
+            {
+              "now": 48741,
+              "from_max": 306,
+              "to_max": 255,
+              "absolute_drop": 23.914165735999987,
+              "fraction_drop": -0.00023293499999998968,
+              "rescale_contribution": -23.98544382
+            }
+          ]
+        },
+        "conservation_all": true,
+        "prefixes": 37
+      }
+    },
+    {
+      "trial": 2,
+      "essence": 0,
+      "setup_valid": true,
+      "damage_valid": true,
+      "cost_ok": true,
+      "source_maxima_valid": true,
+      "predictions": [
+        {
+          "amount": 40.0,
+          "fire": 1.0,
+          "multiplier": 1.17,
+          "direct": 47,
+          "pool": 15,
+          "hp_loss": 62,
+          "ticks": 5
+        },
+        {
+          "amount": 40,
+          "fire": 1.0,
+          "multiplier": 1.17,
+          "direct": 47,
+          "pool": 15,
+          "hp_loss": 62,
+          "ticks": 5
+        }
+      ],
+      "actual_damage": [
+        62.0,
+        62.0
+      ],
+      "settled": true,
+      "claws": [
+        [
+          40,
+          40,
+          1,
+          0
+        ],
+        [
+          40,
+          40,
+          1,
+          0
+        ]
+      ],
+      "expected_claws": [
+        [
+          40,
+          40,
+          1,
+          0
+        ],
+        [
+          40,
+          40,
+          1,
+          0
+        ]
+      ],
+      "spent": true,
+      "full_cd": true,
+      "crit_fixture_valid": true,
+      "initial": {
+        "input_valid": true,
+        "input_done": {
+          "ev": "input_done",
+          "id": "c149.2",
+          "frames": 13,
+          "_t": 93.661
+        },
+        "source_cost": {
+          "valid": true,
+          "errors": [],
+          "expense": 56.99999928,
+          "max_mana": 255,
+          "mana_fraction": 0.988544881,
+          "raw": {
+            "id": "c149.0",
+            "ok": true,
+            "skill": "hwp_wlk_pyrebrand",
+            "class": "hwp_warlock_branding",
+            "unit": 30902,
+            "now": 63129,
+            "matches": 1,
+            "skill_count": 7,
+            "truncated": false,
+            "type": 4,
+            "base": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 1.0,
+              "dash": 0
+            },
+            "modified": {
+              "health_flat": 0,
+              "mana_flat": 0,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "combined": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "free_health": false,
+            "free_mana": false,
+            "max_health": 158,
+            "max_mana": 255,
+            "health_fraction": 1.0,
+            "mana_fraction": 0.988544881,
+            "global_health_multiplier": 1.0,
+            "global_mana_multiplier": 1.0,
+            "scaled_health": 0.0,
+            "scaled_mana": 57.0,
+            "use_points_health": 0,
+            "use_points_mana": 0,
+            "expense_health": 0.0,
+            "expense_mana": 57.0,
+            "_t": 93.313
+          }
+        },
+        "payment": {
+          "valid": true,
+          "errors": [],
+          "decreases": [
+            {
+              "index": 7,
+              "now": 63327,
+              "actual_drop": 56.94059806499999,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_expense": 56.99999928,
+              "matches": true
+            }
+          ],
+          "refunds": [],
+          "rescalings": []
+        },
+        "conservation_all": true,
+        "prefixes": 37
+      },
+      "recast": {
+        "input_valid": true,
+        "input_done": {
+          "ev": "input_done",
+          "id": "c156.3",
+          "frames": 13,
+          "_t": 96.712
+        },
+        "source_cost": {
+          "valid": true,
+          "errors": [],
+          "expense": 56.99999928,
+          "max_mana": 255,
+          "mana_fraction": 0.786212564,
+          "raw": {
+            "id": "c156.0",
+            "ok": true,
+            "skill": "hwp_wlk_pyrebrand",
+            "class": "hwp_warlock_branding",
+            "unit": 30902,
+            "now": 66132,
+            "matches": 1,
+            "skill_count": 7,
+            "truncated": false,
+            "type": 4,
+            "base": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 1.0,
+              "dash": 0
+            },
+            "modified": {
+              "health_flat": 0,
+              "mana_flat": 0,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "combined": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "free_health": false,
+            "free_mana": false,
+            "max_health": 158,
+            "max_mana": 255,
+            "health_fraction": 1.0,
+            "mana_fraction": 0.786212564,
+            "global_health_multiplier": 1.0,
+            "global_mana_multiplier": 1.0,
+            "scaled_health": 0.0,
+            "scaled_mana": 57.0,
+            "use_points_health": 0,
+            "use_points_mana": 0,
+            "expense_health": 0.0,
+            "expense_mana": 57.0,
+            "_t": 96.357
+          }
+        },
+        "payment": {
+          "valid": true,
+          "errors": [],
+          "decreases": [
+            {
+              "index": 7,
+              "now": 66330,
+              "actual_drop": 56.94059806500002,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_expense": 56.99999928,
+              "matches": true
+            }
+          ],
+          "refunds": [
+            {
+              "index": 19,
+              "now": 66726,
+              "actual_gain": 57.05939517,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_refund": 57,
+              "matches": true
+            }
+          ],
+          "rescalings": []
+        },
+        "conservation_all": true,
+        "prefixes": 37
+      }
+    },
+    {
+      "trial": 2,
+      "essence": 10,
+      "setup_valid": true,
+      "damage_valid": true,
+      "cost_ok": true,
+      "source_maxima_valid": true,
+      "predictions": [
+        {
+          "amount": 56.0,
+          "fire": 1.3,
+          "multiplier": 1.521,
+          "direct": 85,
+          "pool": 28,
+          "hp_loss": 113,
+          "ticks": 6
+        },
+        {
+          "amount": 40,
+          "fire": 1.0,
+          "multiplier": 1.17,
+          "direct": 47,
+          "pool": 15,
+          "hp_loss": 62,
+          "ticks": 5
+        }
+      ],
+      "actual_damage": [
+        62.0,
+        113.0
+      ],
+      "settled": true,
+      "claws": [
+        [
+          56,
+          56,
+          1,
+          10
+        ],
+        [
+          40,
+          40,
+          1,
+          0
+        ]
+      ],
+      "expected_claws": [
+        [
+          56,
+          56,
+          1,
+          10
+        ],
+        [
+          40,
+          40,
+          1,
+          0
+        ]
+      ],
+      "spent": true,
+      "full_cd": true,
+      "crit_fixture_valid": true,
+      "initial": {
+        "input_valid": true,
+        "input_done": {
+          "ev": "input_done",
+          "id": "c190.2",
+          "frames": 13,
+          "_t": 111.751
+        },
+        "source_cost": {
+          "valid": true,
+          "errors": [],
+          "expense": 56.99999928,
+          "max_mana": 306,
+          "mana_fraction": 0.823788106,
+          "raw": {
+            "id": "c190.0",
+            "ok": true,
+            "skill": "hwp_wlk_pyrebrand",
+            "class": "hwp_warlock_branding",
+            "unit": 30902,
+            "now": 81048,
+            "matches": 1,
+            "skill_count": 7,
+            "truncated": false,
+            "type": 4,
+            "base": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 1.0,
+              "dash": 0
+            },
+            "modified": {
+              "health_flat": 0,
+              "mana_flat": 0,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "combined": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "free_health": false,
+            "free_mana": false,
+            "max_health": 189,
+            "max_mana": 306,
+            "health_fraction": 1.0,
+            "mana_fraction": 0.823788106,
+            "global_health_multiplier": 1.0,
+            "global_mana_multiplier": 1.0,
+            "scaled_health": 0.0,
+            "scaled_mana": 57.0,
+            "use_points_health": 0,
+            "use_points_mana": 0,
+            "expense_health": 0.0,
+            "expense_mana": 57.0,
+            "_t": 111.387
+          }
+        },
+        "payment": {
+          "valid": true,
+          "errors": [],
+          "decreases": [
+            {
+              "index": 7,
+              "now": 81246,
+              "actual_drop": 56.94060117600001,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_expense": 56.99999928,
+              "matches": true
+            }
+          ],
+          "refunds": [],
+          "rescalings": []
+        },
+        "conservation_all": true,
+        "prefixes": 37
+      },
+      "recast": {
+        "input_valid": true,
+        "input_done": {
+          "ev": "input_done",
+          "id": "c197.3",
+          "frames": 13,
+          "_t": 114.817
+        },
+        "source_cost": {
+          "valid": true,
+          "errors": [],
+          "expense": 56.99999928,
+          "max_mana": 306,
+          "mana_fraction": 0.655373752,
+          "raw": {
+            "id": "c197.0",
+            "ok": true,
+            "skill": "hwp_wlk_pyrebrand",
+            "class": "hwp_warlock_branding",
+            "unit": 30902,
+            "now": 84084,
+            "matches": 1,
+            "skill_count": 7,
+            "truncated": false,
+            "type": 4,
+            "base": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 1.0,
+              "dash": 0
+            },
+            "modified": {
+              "health_flat": 0,
+              "mana_flat": 0,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "combined": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "free_health": false,
+            "free_mana": false,
+            "max_health": 189,
+            "max_mana": 306,
+            "health_fraction": 1.0,
+            "mana_fraction": 0.655373752,
+            "global_health_multiplier": 1.0,
+            "global_mana_multiplier": 1.0,
+            "scaled_health": 0.0,
+            "scaled_mana": 57.0,
+            "use_points_health": 0,
+            "use_points_mana": 0,
+            "expense_health": 0.0,
+            "expense_mana": 57.0,
+            "_t": 114.455
+          }
+        },
+        "payment": {
+          "valid": true,
+          "errors": [],
+          "decreases": [
+            {
+              "index": 7,
+              "now": 84282,
+              "actual_drop": 56.940601175999994,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_expense": 56.99999928,
+              "matches": true
+            }
+          ],
+          "refunds": [
+            {
+              "index": 19,
+              "now": 84678,
+              "actual_gain": 57.059394915000006,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_refund": 57,
+              "matches": true
+            }
+          ],
+          "rescalings": [
+            {
+              "now": 84315,
+              "from_max": 306,
+              "to_max": 255,
+              "absolute_drop": 23.924066483999994,
+              "fraction_drop": -0.00023293499999998968,
+              "rescale_contribution": -23.995344603
+            }
+          ]
+        },
+        "conservation_all": true,
+        "prefixes": 37
+      }
+    },
+    {
+      "trial": 3,
+      "essence": 0,
+      "setup_valid": true,
+      "damage_valid": true,
+      "cost_ok": true,
+      "source_maxima_valid": true,
+      "predictions": [
+        {
+          "amount": 40.0,
+          "fire": 1.0,
+          "multiplier": 1.17,
+          "direct": 47,
+          "pool": 15,
+          "hp_loss": 62,
+          "ticks": 5
+        },
+        {
+          "amount": 40,
+          "fire": 1.0,
+          "multiplier": 1.17,
+          "direct": 47,
+          "pool": 15,
+          "hp_loss": 62,
+          "ticks": 5
+        }
+      ],
+      "actual_damage": [
+        62.0,
+        62.0
+      ],
+      "settled": true,
+      "claws": [
+        [
+          40,
+          40,
+          1,
+          0
+        ],
+        [
+          40,
+          40,
+          1,
+          0
+        ]
+      ],
+      "expected_claws": [
+        [
+          40,
+          40,
+          1,
+          0
+        ],
+        [
+          40,
+          40,
+          1,
+          0
+        ]
+      ],
+      "spent": true,
+      "full_cd": true,
+      "crit_fixture_valid": true,
+      "initial": {
+        "input_valid": true,
+        "input_done": {
+          "ev": "input_done",
+          "id": "c230.2",
+          "frames": 13,
+          "_t": 129.591
+        },
+        "source_cost": {
+          "valid": true,
+          "errors": [],
+          "expense": 56.99999928,
+          "max_mana": 255,
+          "mana_fraction": 0.988544881,
+          "raw": {
+            "id": "c230.0",
+            "ok": true,
+            "skill": "hwp_wlk_pyrebrand",
+            "class": "hwp_warlock_branding",
+            "unit": 30902,
+            "now": 98703,
+            "matches": 1,
+            "skill_count": 7,
+            "truncated": false,
+            "type": 4,
+            "base": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 1.0,
+              "dash": 0
+            },
+            "modified": {
+              "health_flat": 0,
+              "mana_flat": 0,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "combined": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "free_health": false,
+            "free_mana": false,
+            "max_health": 158,
+            "max_mana": 255,
+            "health_fraction": 1.0,
+            "mana_fraction": 0.988544881,
+            "global_health_multiplier": 1.0,
+            "global_mana_multiplier": 1.0,
+            "scaled_health": 0.0,
+            "scaled_mana": 57.0,
+            "use_points_health": 0,
+            "use_points_mana": 0,
+            "expense_health": 0.0,
+            "expense_mana": 57.0,
+            "_t": 129.229
+          }
+        },
+        "payment": {
+          "valid": true,
+          "errors": [],
+          "decreases": [
+            {
+              "index": 7,
+              "now": 98901,
+              "actual_drop": 56.94059806499999,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_expense": 56.99999928,
+              "matches": true
+            }
+          ],
+          "refunds": [],
+          "rescalings": []
+        },
+        "conservation_all": true,
+        "prefixes": 37
+      },
+      "recast": {
+        "input_valid": true,
+        "input_done": {
+          "ev": "input_done",
+          "id": "c237.3",
+          "frames": 13,
+          "_t": 132.619
+        },
+        "source_cost": {
+          "valid": true,
+          "errors": [],
+          "expense": 56.99999928,
+          "max_mana": 255,
+          "mana_fraction": 0.786212564,
+          "raw": {
+            "id": "c237.0",
+            "ok": true,
+            "skill": "hwp_wlk_pyrebrand",
+            "class": "hwp_warlock_branding",
+            "unit": 30902,
+            "now": 101706,
+            "matches": 1,
+            "skill_count": 7,
+            "truncated": false,
+            "type": 4,
+            "base": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 1.0,
+              "dash": 0
+            },
+            "modified": {
+              "health_flat": 0,
+              "mana_flat": 0,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "combined": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "free_health": false,
+            "free_mana": false,
+            "max_health": 158,
+            "max_mana": 255,
+            "health_fraction": 1.0,
+            "mana_fraction": 0.786212564,
+            "global_health_multiplier": 1.0,
+            "global_mana_multiplier": 1.0,
+            "scaled_health": 0.0,
+            "scaled_mana": 57.0,
+            "use_points_health": 0,
+            "use_points_mana": 0,
+            "expense_health": 0.0,
+            "expense_mana": 57.0,
+            "_t": 132.277
+          }
+        },
+        "payment": {
+          "valid": true,
+          "errors": [],
+          "decreases": [
+            {
+              "index": 7,
+              "now": 101904,
+              "actual_drop": 56.94059806500002,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_expense": 56.99999928,
+              "matches": true
+            }
+          ],
+          "refunds": [
+            {
+              "index": 19,
+              "now": 102300,
+              "actual_gain": 57.05939517,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_refund": 57,
+              "matches": true
+            }
+          ],
+          "rescalings": []
+        },
+        "conservation_all": true,
+        "prefixes": 37
+      }
+    },
+    {
+      "trial": 3,
+      "essence": 10,
+      "setup_valid": true,
+      "damage_valid": true,
+      "cost_ok": true,
+      "source_maxima_valid": true,
+      "predictions": [
+        {
+          "amount": 56.0,
+          "fire": 1.3,
+          "multiplier": 1.521,
+          "direct": 85,
+          "pool": 28,
+          "hp_loss": 113,
+          "ticks": 6
+        },
+        {
+          "amount": 40,
+          "fire": 1.0,
+          "multiplier": 1.17,
+          "direct": 47,
+          "pool": 15,
+          "hp_loss": 62,
+          "ticks": 5
+        }
+      ],
+      "actual_damage": [
+        62.0,
+        113.0
+      ],
+      "settled": true,
+      "claws": [
+        [
+          56,
+          56,
+          1,
+          10
+        ],
+        [
+          40,
+          40,
+          1,
+          0
+        ]
+      ],
+      "expected_claws": [
+        [
+          56,
+          56,
+          1,
+          10
+        ],
+        [
+          40,
+          40,
+          1,
+          0
+        ]
+      ],
+      "spent": true,
+      "full_cd": true,
+      "crit_fixture_valid": true,
+      "initial": {
+        "input_valid": true,
+        "input_done": {
+          "ev": "input_done",
+          "id": "c271.2",
+          "frames": 13,
+          "_t": 147.684
+        },
+        "source_cost": {
+          "valid": true,
+          "errors": [],
+          "expense": 56.99999928,
+          "max_mana": 306,
+          "mana_fraction": 0.823788106,
+          "raw": {
+            "id": "c271.0",
+            "ok": true,
+            "skill": "hwp_wlk_pyrebrand",
+            "class": "hwp_warlock_branding",
+            "unit": 30902,
+            "now": 116622,
+            "matches": 1,
+            "skill_count": 7,
+            "truncated": false,
+            "type": 4,
+            "base": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 1.0,
+              "dash": 0
+            },
+            "modified": {
+              "health_flat": 0,
+              "mana_flat": 0,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "combined": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "free_health": false,
+            "free_mana": false,
+            "max_health": 189,
+            "max_mana": 306,
+            "health_fraction": 1.0,
+            "mana_fraction": 0.823788106,
+            "global_health_multiplier": 1.0,
+            "global_mana_multiplier": 1.0,
+            "scaled_health": 0.0,
+            "scaled_mana": 57.0,
+            "use_points_health": 0,
+            "use_points_mana": 0,
+            "expense_health": 0.0,
+            "expense_mana": 57.0,
+            "_t": 147.318
+          }
+        },
+        "payment": {
+          "valid": true,
+          "errors": [],
+          "decreases": [
+            {
+              "index": 7,
+              "now": 116820,
+              "actual_drop": 56.94060117600001,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_expense": 56.99999928,
+              "matches": true
+            }
+          ],
+          "refunds": [],
+          "rescalings": []
+        },
+        "conservation_all": true,
+        "prefixes": 37
+      },
+      "recast": {
+        "input_valid": true,
+        "input_done": {
+          "ev": "input_done",
+          "id": "c278.3",
+          "frames": 13,
+          "_t": 150.752
+        },
+        "source_cost": {
+          "valid": true,
+          "errors": [],
+          "expense": 56.99999928,
+          "max_mana": 306,
+          "mana_fraction": 0.655373752,
+          "raw": {
+            "id": "c278.0",
+            "ok": true,
+            "skill": "hwp_wlk_pyrebrand",
+            "class": "hwp_warlock_branding",
+            "unit": 30902,
+            "now": 119658,
+            "matches": 1,
+            "skill_count": 7,
+            "truncated": false,
+            "type": 4,
+            "base": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 1.0,
+              "dash": 0
+            },
+            "modified": {
+              "health_flat": 0,
+              "mana_flat": 0,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "combined": {
+              "health_flat": 0,
+              "mana_flat": 60,
+              "health_max_percent": 0.0,
+              "mana_max_percent": 0.0,
+              "health_current_percent": 0.0,
+              "mana_current_percent": 0.0,
+              "health_multiplier": 1.0,
+              "mana_multiplier": 0.949999988,
+              "dash": 0
+            },
+            "free_health": false,
+            "free_mana": false,
+            "max_health": 189,
+            "max_mana": 306,
+            "health_fraction": 1.0,
+            "mana_fraction": 0.655373752,
+            "global_health_multiplier": 1.0,
+            "global_mana_multiplier": 1.0,
+            "scaled_health": 0.0,
+            "scaled_mana": 57.0,
+            "use_points_health": 0,
+            "use_points_mana": 0,
+            "expense_health": 0.0,
+            "expense_mana": 57.0,
+            "_t": 150.389
+          }
+        },
+        "payment": {
+          "valid": true,
+          "errors": [],
+          "decreases": [
+            {
+              "index": 7,
+              "now": 119856,
+              "actual_drop": 56.940601175999994,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_expense": 56.99999928,
+              "matches": true
+            }
+          ],
+          "refunds": [
+            {
+              "index": 19,
+              "now": 120252,
+              "actual_gain": 57.059394915000006,
+              "source_regen_bound": 0.05939999841600001,
+              "expected_refund": 57,
+              "matches": true
+            }
+          ],
+          "rescalings": [
+            {
+              "now": 119889,
+              "from_max": 306,
+              "to_max": 255,
+              "absolute_drop": 23.924066483999994,
+              "fraction_drop": -0.00023293499999998968,
+              "rescale_contribution": -23.995344603
+            }
+          ]
+        },
+        "conservation_all": true,
+        "prefixes": 37
+      }
+    }
+  ],
+  "scope": "Combustion3/Proliferation3/Empowerment3/Released2;6fixed actualbutton trials; first Claw preserves high Essence outgoing damage, next synchronous Claw uses spent Essence stats. Controlled prerequisites; no ordinary acquisition or all-quality/lifecycle claim.",
+  "unchanged_regression_neighbors": [
+    {
+      "run": "20261022-142802-qa-specs-branding-ranks-lab",
+      "status": "PASS scoped; all12 runner guards clean/stablebd82865b",
+      "raw": "gamelab/results/20261022-142802-qa-specs-branding-ranks-lab/bot-results.jsonl"
+    },
+    {
+      "run": "20261022-143032-qa-specs-branding-orbs-lab",
+      "status": "PASS scoped; all12 runner guards clean/stablebd82865b",
+      "raw": "gamelab/results/20261022-143032-qa-specs-branding-orbs-lab/bot-results.jsonl"
+    },
+    {
+      "run": "20261022-143358-qa-specs-released-essence-lab",
+      "status": "PASS scoped; all12 runner guards clean/stablebd82865b",
+      "raw": "gamelab/results/20261022-143358-qa-specs-released-essence-lab/bot-results.jsonl"
+    },
+    {
+      "run": "20261022-143704-qa-specs-essence-rates-lab",
+      "status": "PASS scoped; all12 runner guards clean/stablebd82865b",
+      "raw": "gamelab/results/20261022-143704-qa-specs-essence-rates-lab/bot-results.jsonl"
+    }
+  ],
+  "neighbor_native_scopes": {
+    "pyre_all5": {
+      "run": "20261022-142802-qa-specs-branding-ranks-lab",
+      "actual_stored_claw_damage": [
+        48.998,
+        65.999,
+        92.998,
+        120.999,
+        157.998
+      ],
+      "source_expected": [
+        49,
+        66,
+        93,
+        121,
+        158
+      ],
+      "limits": "Controlled source-calibrated base/stored Fire/radius/CD; not ordinary buttons/acquisition."
+    },
+    "individual_orbs": {
+      "run": "20261022-143032-qa-specs-branding-orbs-lab",
+      "all10_rows_flags": true,
+      "limits": "ThreeCombust radius/spend proofs,threeSpread bounds,threeEmpower nativeHP/revert,one maxcombo; q1/q2 exactamp stillunverified."
+    },
+    "released": {
+      "run": "20261022-143358-qa-specs-released-essence-lab",
+      "actual_final_stacks": [
+        0,
+        0,
+        3,
+        3,
+        10,
+        0,
+        6,
+        6,
+        10,
+        6
+      ],
+      "all10_usable_observers_and_literal_recasts": true,
+      "limits": "Controlled lowHP native actors/castat; no ordinarykill/otherkiller/windowboundary claim."
+    },
+    "essence_rates": {
+      "run": "20261022-143704-qa-specs-essence-rates-lab",
+      "rows": [
+        {
+          "rank": 1,
+          "kind": "plain",
+          "expected_ms": 2000,
+          "analysis": {
+            "ok": true,
+            "errors": [],
+            "hits": [
+              {
+                "now": 18249,
+                "damage": 24.0,
+                "gain": 1
+              },
+              {
+                "now": 18282,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 18348,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 18876,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 18909,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 18975,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 19503,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 19536,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 19602,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 20130,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 20163,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 20229,
+                "damage": 24.000999999998385,
+                "gain": 0
+              },
+              {
+                "now": 20757,
+                "damage": 24.0,
+                "gain": 1
+              },
+              {
+                "now": 20790,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 20856,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 21384,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 21417,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 21483,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 22011,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 22044,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 22110,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 22638,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 22671,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 22737,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 23265,
+                "damage": 24.0,
+                "gain": 1
+              },
+              {
+                "now": 23298,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 23364,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 23892,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 23925,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 23991,
+                "damage": 24.0,
+                "gain": 0
+              }
+            ],
+            "gain_times": [
+              18249,
+              20757,
+              23265
+            ],
+            "intervals_ms": [
+              2508,
+              2508
+            ]
+          },
+          "observer_usable": true,
+          "stored": 32,
+          "claws_before": null,
+          "claws_after": null
+        },
+        {
+          "rank": 1,
+          "kind": "branded",
+          "expected_ms": 2000,
+          "analysis": {
+            "ok": true,
+            "errors": [],
+            "hits": [
+              {
+                "now": 30162,
+                "damage": 24.001000000000204,
+                "gain": 2
+              },
+              {
+                "now": 30195,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 30261,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 30789,
+                "damage": 24.000999999998385,
+                "gain": 0
+              },
+              {
+                "now": 30822,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 30888,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 31416,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 31449,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 31515,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 32043,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 32076,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 32142,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 32670,
+                "damage": 24.0,
+                "gain": 2
+              },
+              {
+                "now": 32703,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 32769,
+                "damage": 24.0,
+                "gain": 0
+              }
+            ],
+            "gain_times": [
+              30162,
+              32670
+            ],
+            "intervals_ms": [
+              2508
+            ]
+          },
+          "observer_usable": true,
+          "stored": 17,
+          "claws_before": 0,
+          "claws_after": 0
+        },
+        {
+          "rank": 2,
+          "kind": "plain",
+          "expected_ms": 1750,
+          "analysis": {
+            "ok": true,
+            "errors": [],
+            "hits": [
+              {
+                "now": 40095,
+                "damage": 24.0,
+                "gain": 1
+              },
+              {
+                "now": 40128,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 40194,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 40722,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 40755,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 40821,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 41349,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 41382,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 41448,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 41976,
+                "damage": 24.0,
+                "gain": 1
+              },
+              {
+                "now": 42009,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 42075,
+                "damage": 24.000999999998385,
+                "gain": 0
+              },
+              {
+                "now": 42603,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 42636,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 42702,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 43230,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 43263,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 43329,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 43857,
+                "damage": 24.001000000000204,
+                "gain": 1
+              },
+              {
+                "now": 43890,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 43956,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 44484,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 44517,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 44583,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 45111,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 45144,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 45210,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 45738,
+                "damage": 24.0,
+                "gain": 1
+              },
+              {
+                "now": 45771,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 45837,
+                "damage": 24.0,
+                "gain": 0
+              }
+            ],
+            "gain_times": [
+              40095,
+              41976,
+              43857,
+              45738
+            ],
+            "intervals_ms": [
+              1881,
+              1881,
+              1881
+            ]
+          },
+          "observer_usable": true,
+          "stored": 32,
+          "claws_before": null,
+          "claws_after": null
+        },
+        {
+          "rank": 2,
+          "kind": "branded",
+          "expected_ms": 1750,
+          "analysis": {
+            "ok": true,
+            "errors": [],
+            "hits": [
+              {
+                "now": 52008,
+                "damage": 24.001000000000204,
+                "gain": 2
+              },
+              {
+                "now": 52041,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 52107,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 52635,
+                "damage": 24.000999999998385,
+                "gain": 0
+              },
+              {
+                "now": 52668,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 52734,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 53262,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 53295,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 53361,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 53889,
+                "damage": 24.0,
+                "gain": 2
+              },
+              {
+                "now": 53922,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 53988,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 54516,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 54549,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 54615,
+                "damage": 24.0,
+                "gain": 0
+              }
+            ],
+            "gain_times": [
+              52008,
+              53889
+            ],
+            "intervals_ms": [
+              1881
+            ]
+          },
+          "observer_usable": true,
+          "stored": 17,
+          "claws_before": 1,
+          "claws_after": 1
+        },
+        {
+          "rank": 3,
+          "kind": "plain",
+          "expected_ms": 1500,
+          "analysis": {
+            "ok": true,
+            "errors": [],
+            "hits": [
+              {
+                "now": 61941,
+                "damage": 24.0,
+                "gain": 1
+              },
+              {
+                "now": 61974,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 62040,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 62568,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 62601,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 62667,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 63195,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 63228,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 63294,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 63822,
+                "damage": 24.0,
+                "gain": 1
+              },
+              {
+                "now": 63855,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 63921,
+                "damage": 24.000999999998385,
+                "gain": 0
+              },
+              {
+                "now": 64449,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 64482,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 64548,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 65076,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 65109,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 65175,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 65703,
+                "damage": 24.001000000000204,
+                "gain": 1
+              },
+              {
+                "now": 65736,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 65802,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 66330,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 66363,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 66429,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 66957,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 66990,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 67056,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 67584,
+                "damage": 24.0,
+                "gain": 1
+              },
+              {
+                "now": 67617,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 67683,
+                "damage": 24.0,
+                "gain": 0
+              }
+            ],
+            "gain_times": [
+              61941,
+              63822,
+              65703,
+              67584
+            ],
+            "intervals_ms": [
+              1881,
+              1881,
+              1881
+            ]
+          },
+          "observer_usable": true,
+          "stored": 32,
+          "claws_before": null,
+          "claws_after": null
+        },
+        {
+          "rank": 3,
+          "kind": "branded",
+          "expected_ms": 1500,
+          "analysis": {
+            "ok": true,
+            "errors": [],
+            "hits": [
+              {
+                "now": 73887,
+                "damage": 24.001000000000204,
+                "gain": 2
+              },
+              {
+                "now": 73920,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 73986,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 74514,
+                "damage": 24.000999999998385,
+                "gain": 0
+              },
+              {
+                "now": 74547,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 74613,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 75141,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 75174,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 75240,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 75768,
+                "damage": 24.0,
+                "gain": 2
+              },
+              {
+                "now": 75801,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 75867,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 76395,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 76428,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 76494,
+                "damage": 24.0,
+                "gain": 0
+              }
+            ],
+            "gain_times": [
+              73887,
+              75768
+            ],
+            "intervals_ms": [
+              1881
+            ]
+          },
+          "observer_usable": true,
+          "stored": 17,
+          "claws_before": 2,
+          "claws_after": 2
+        },
+        {
+          "rank": 4,
+          "kind": "plain",
+          "expected_ms": 1250,
+          "analysis": {
+            "ok": true,
+            "errors": [],
+            "hits": [
+              {
+                "now": 83820,
+                "damage": 24.0,
+                "gain": 1
+              },
+              {
+                "now": 83853,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 83919,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 84447,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 84480,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 84546,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 85074,
+                "damage": 24.001000000000204,
+                "gain": 1
+              },
+              {
+                "now": 85107,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 85173,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 85701,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 85734,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 85800,
+                "damage": 24.000999999998385,
+                "gain": 0
+              },
+              {
+                "now": 86328,
+                "damage": 24.0,
+                "gain": 1
+              },
+              {
+                "now": 86361,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 86427,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 86955,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 86988,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 87054,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 87582,
+                "damage": 24.001000000000204,
+                "gain": 1
+              },
+              {
+                "now": 87615,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 87681,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 88209,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 88242,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 88308,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 88836,
+                "damage": 24.0,
+                "gain": 1
+              },
+              {
+                "now": 88869,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 88935,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 89463,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 89496,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 89562,
+                "damage": 24.0,
+                "gain": 0
+              }
+            ],
+            "gain_times": [
+              83820,
+              85074,
+              86328,
+              87582,
+              88836
+            ],
+            "intervals_ms": [
+              1254,
+              1254,
+              1254,
+              1254
+            ]
+          },
+          "observer_usable": true,
+          "stored": 32,
+          "claws_before": null,
+          "claws_after": null
+        },
+        {
+          "rank": 4,
+          "kind": "branded",
+          "expected_ms": 1250,
+          "analysis": {
+            "ok": true,
+            "errors": [],
+            "hits": [
+              {
+                "now": 95766,
+                "damage": 24.001000000000204,
+                "gain": 2
+              },
+              {
+                "now": 95799,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 95865,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 96393,
+                "damage": 24.000999999998385,
+                "gain": 0
+              },
+              {
+                "now": 96426,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 96492,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 97020,
+                "damage": 24.0,
+                "gain": 2
+              },
+              {
+                "now": 97053,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 97119,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 97647,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 97680,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 97746,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 98274,
+                "damage": 24.0,
+                "gain": 2
+              },
+              {
+                "now": 98307,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 98373,
+                "damage": 24.0,
+                "gain": 0
+              }
+            ],
+            "gain_times": [
+              95766,
+              97020,
+              98274
+            ],
+            "intervals_ms": [
+              1254,
+              1254
+            ]
+          },
+          "observer_usable": true,
+          "stored": 17,
+          "claws_before": 3,
+          "claws_after": 3
+        },
+        {
+          "rank": 5,
+          "kind": "plain",
+          "expected_ms": 1000,
+          "analysis": {
+            "ok": true,
+            "errors": [],
+            "hits": [
+              {
+                "now": 105699,
+                "damage": 24.0,
+                "gain": 1
+              },
+              {
+                "now": 105732,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 105798,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 106326,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 106359,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 106425,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 106953,
+                "damage": 24.001000000000204,
+                "gain": 1
+              },
+              {
+                "now": 106986,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 107052,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 107580,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 107613,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 107679,
+                "damage": 24.000999999998385,
+                "gain": 0
+              },
+              {
+                "now": 108207,
+                "damage": 24.0,
+                "gain": 1
+              },
+              {
+                "now": 108240,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 108306,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 108834,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 108867,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 108933,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 109461,
+                "damage": 24.001000000000204,
+                "gain": 1
+              },
+              {
+                "now": 109494,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 109560,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 110088,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 110121,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 110187,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 110715,
+                "damage": 24.0,
+                "gain": 1
+              },
+              {
+                "now": 110748,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 110814,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 111342,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 111375,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 111441,
+                "damage": 24.0,
+                "gain": 0
+              }
+            ],
+            "gain_times": [
+              105699,
+              106953,
+              108207,
+              109461,
+              110715
+            ],
+            "intervals_ms": [
+              1254,
+              1254,
+              1254,
+              1254
+            ]
+          },
+          "observer_usable": true,
+          "stored": 32,
+          "claws_before": null,
+          "claws_after": null
+        },
+        {
+          "rank": 5,
+          "kind": "branded",
+          "expected_ms": 1000,
+          "analysis": {
+            "ok": true,
+            "errors": [],
+            "hits": [
+              {
+                "now": 117612,
+                "damage": 24.001000000000204,
+                "gain": 2
+              },
+              {
+                "now": 117645,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 117711,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 118239,
+                "damage": 24.000999999998385,
+                "gain": 0
+              },
+              {
+                "now": 118272,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 118338,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 118866,
+                "damage": 24.0,
+                "gain": 2
+              },
+              {
+                "now": 118899,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 118965,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 119493,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 119526,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 119592,
+                "damage": 24.0,
+                "gain": 0
+              },
+              {
+                "now": 120120,
+                "damage": 24.0,
+                "gain": 2
+              },
+              {
+                "now": 120153,
+                "damage": 24.001000000000204,
+                "gain": 0
+              },
+              {
+                "now": 120219,
+                "damage": 24.0,
+                "gain": 0
+              }
+            ],
+            "gain_times": [
+              117612,
+              118866,
+              120120
+            ],
+            "intervals_ms": [
+              1254,
+              1254
+            ]
+          },
+          "observer_usable": true,
+          "stored": 17,
+          "claws_before": 4,
+          "claws_after": 4
+        }
+      ],
+      "limits": "Real wand main inputs/HP/gains/native timings and stablebrands; controlledunderGodmode andcastatbrand prerequisite."
+    }
+  }
+}

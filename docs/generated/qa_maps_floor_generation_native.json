@@ -1,0 +1,184 @@
+{
+  "status": "PASS_SCOPED_NATIVE_GENERATION",
+  "recorded_utc": "2026-10-22T21:02:24.683371+00:00",
+  "scope": "Direct native generation only; normal map acquisition/unlock, actual traversal, boss combat/rewards, UI and persistence remain open. God protects observer; no cull.",
+  "runs": [
+    {
+      "run_id": "20261022-155154-qa-content-maps-high-court-lab",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "f8b0ed7e57fb4ebf8055c650c7ec4c1fadb0b26bf402b870602a99e61929b00b",
+        "files": 1268,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "source": "mods/maps/tweak/hwp/missions/missions_hwp_high_court.sval",
+      "source_sha256": "5401461007269bc2f20aa285bd6507346e46842ee65563c382ef877dac88f8c8",
+      "floors": [
+        {
+          "floor": "barracks_1",
+          "actual_place": "hwp_high_court/barracks_1",
+          "actual_level": "levels/generated.lvl",
+          "native_raw_units": 16182,
+          "state_native_reply": "c10",
+          "scan_native_reply": "c11",
+          "retained_live_hostiles": 32,
+          "enabled_exits": 1,
+          "limit": "Native scan caps hostiles at32; presence only, never population completeness or reachability."
+        },
+        {
+          "floor": "courts_1",
+          "actual_place": "hwp_high_court/courts_1",
+          "actual_level": "levels/generated.lvl",
+          "native_raw_units": 31136,
+          "state_native_reply": "c20",
+          "scan_native_reply": "c21",
+          "retained_live_hostiles": 32,
+          "enabled_exits": 1,
+          "limit": "Native scan caps hostiles at32; presence only, never population completeness or reachability."
+        },
+        {
+          "floor": "courts_2",
+          "actual_place": "hwp_high_court/courts_2",
+          "actual_level": "levels/generated.lvl",
+          "native_raw_units": 26030,
+          "state_native_reply": "c30",
+          "scan_native_reply": "c31",
+          "retained_live_hostiles": 32,
+          "enabled_exits": 1,
+          "limit": "Native scan caps hostiles at32; presence only, never population completeness or reachability."
+        },
+        {
+          "floor": "courts_boss",
+          "actual_place": "hwp_high_court/courts_boss",
+          "actual_level": "levels/boss_bone_serpent.lvl",
+          "native_raw_units": 11819,
+          "state_native_reply": "c40",
+          "scan_native_reply": "c41"
+        }
+      ],
+      "evidence": [
+        "gamelab/results/20261022-155154-qa-content-maps-high-court-lab/run.json",
+        "gamelab/results/20261022-155154-qa-content-maps-high-court-lab/gl.jsonl",
+        "gamelab/results/20261022-155154-qa-content-maps-high-court-lab/bot-results.jsonl"
+      ]
+    },
+    {
+      "run_id": "20261022-155405-qa-content-maps-sunken-dungeon-lab",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "f8b0ed7e57fb4ebf8055c650c7ec4c1fadb0b26bf402b870602a99e61929b00b",
+        "files": 1268,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "source": "mods/maps/tweak/hwp/missions/missions_hwp_sunken_dungeon.sval",
+      "source_sha256": "c7f4c2673a4cc6cccb3e67b985e58bdcb06cafcac45074ccc54504222ff761a8",
+      "floors": [
+        {
+          "floor": "dungeon_1",
+          "actual_place": "hwp_sunken_dungeon/dungeon_1",
+          "actual_level": "levels/generated.lvl",
+          "native_raw_units": 16963,
+          "state_native_reply": "c10",
+          "scan_native_reply": "c11",
+          "retained_live_hostiles": 32,
+          "enabled_exits": 1,
+          "limit": "Native scan caps hostiles at32; presence only, never population completeness or reachability."
+        },
+        {
+          "floor": "dungeon_2",
+          "actual_place": "hwp_sunken_dungeon/dungeon_2",
+          "actual_level": "levels/generated.lvl",
+          "native_raw_units": 18543,
+          "state_native_reply": "c20",
+          "scan_native_reply": "c21",
+          "retained_live_hostiles": 32,
+          "enabled_exits": 1,
+          "limit": "Native scan caps hostiles at32; presence only, never population completeness or reachability."
+        },
+        {
+          "floor": "crypt_1",
+          "actual_place": "hwp_sunken_dungeon/crypt_1",
+          "actual_level": "levels/generated.lvl",
+          "native_raw_units": 16932,
+          "state_native_reply": "c30",
+          "scan_native_reply": "c31",
+          "retained_live_hostiles": 32,
+          "enabled_exits": 1,
+          "limit": "Native scan caps hostiles at32; presence only, never population completeness or reachability."
+        },
+        {
+          "floor": "dungeon_boss",
+          "actual_place": "hwp_sunken_dungeon/dungeon_boss",
+          "actual_level": "levels/boss_arista.lvl",
+          "native_raw_units": 1586,
+          "state_native_reply": "c40",
+          "scan_native_reply": "c41"
+        }
+      ],
+      "evidence": [
+        "gamelab/results/20261022-155405-qa-content-maps-sunken-dungeon-lab/run.json",
+        "gamelab/results/20261022-155405-qa-content-maps-sunken-dungeon-lab/gl.jsonl",
+        "gamelab/results/20261022-155405-qa-content-maps-sunken-dungeon-lab/bot-results.jsonl"
+      ]
+    },
+    {
+      "run_id": "20261022-155613-qa-content-maps-goblin-warrens-lab",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "f8b0ed7e57fb4ebf8055c650c7ec4c1fadb0b26bf402b870602a99e61929b00b",
+        "files": 1268,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "source": "mods/maps/tweak/hwp/missions/missions_hwp_goblin_warrens.sval",
+      "source_sha256": "1e9b3247e50f4c45fbfc1fde25d7e87ba74dc357f0dab2a8c73d38d825ec88f9",
+      "floors": [
+        {
+          "floor": "forest_1",
+          "actual_place": "hwp_goblin_warrens/forest_1",
+          "actual_level": "levels/generated.lvl",
+          "native_raw_units": 5631,
+          "state_native_reply": "c10",
+          "scan_native_reply": "c11",
+          "retained_live_hostiles": 32,
+          "enabled_exits": 1,
+          "limit": "Native scan caps hostiles at32; presence only, never population completeness or reachability."
+        },
+        {
+          "floor": "cave_dark_1",
+          "actual_place": "hwp_goblin_warrens/cave_dark_1",
+          "actual_level": "levels/generated.lvl",
+          "native_raw_units": 18480,
+          "state_native_reply": "c20",
+          "scan_native_reply": "c21",
+          "retained_live_hostiles": 32,
+          "enabled_exits": 1,
+          "limit": "Native scan caps hostiles at32; presence only, never population completeness or reachability."
+        },
+        {
+          "floor": "cave_dark_2",
+          "actual_place": "hwp_goblin_warrens/cave_dark_2",
+          "actual_level": "levels/generated.lvl",
+          "native_raw_units": 16569,
+          "state_native_reply": "c30",
+          "scan_native_reply": "c31",
+          "retained_live_hostiles": 32,
+          "enabled_exits": 1,
+          "limit": "Native scan caps hostiles at32; presence only, never population completeness or reachability."
+        },
+        {
+          "floor": "cave_dark_boss",
+          "actual_place": "hwp_goblin_warrens/cave_dark_boss",
+          "actual_level": "levels/boss_totem_cave.lvl",
+          "native_raw_units": 2327,
+          "state_native_reply": "c40",
+          "scan_native_reply": "c41"
+        }
+      ],
+      "evidence": [
+        "gamelab/results/20261022-155613-qa-content-maps-goblin-warrens-lab/run.json",
+        "gamelab/results/20261022-155613-qa-content-maps-goblin-warrens-lab/gl.jsonl",
+        "gamelab/results/20261022-155613-qa-content-maps-goblin-warrens-lab/bot-results.jsonl"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,463 @@
+{
+  "recorded_utc": "2026-10-22T18:52:30.507465+00:00",
+  "status": "PASS (scoped)",
+  "actual": "Minimum core+keys and full31 each pass the native key gate, exact positive Use input, key1-to0, chest disappearance and complete native new-loot identity/type/quality checks. Bonus gear is independently distinguished from the guaranteed epic trinket.",
+  "limits": [
+    "No negative Use button was pressed; zero-key refusal is native CanUsefalse and unchanged chest/key/loot only.",
+    "Chance1/0 endpoints and controlled grants/spawns do not establish natural probabilities or ordinary acquisition.",
+    "Unit IDs may be reused after destruction; each test validates the actual live chest and complete before/after identities within its lifetime.",
+    "Seven legendary special effects, co-op instancing and saved inventory/lifecycle remain open."
+  ],
+  "runs": [
+    {
+      "run_id": "20261022-133840-qa-keys-native-payload-standalone-lab",
+      "scenario": "qa-keys-native-payload-standalone",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "4b884e9e7983038f460853e0f4c06343ab04cc43467eb8c1b4ad4707358dcca1",
+        "files": 1225,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "runner_assertions": 12,
+      "required_flags": 21,
+      "records": [
+        {
+          "label": "bronze",
+          "chest": {
+            "unit": 30015,
+            "name": "items/chests/chest_bronze_equipment.unit",
+            "behavior": "HWPChest",
+            "usable": true,
+            "x": -438.0,
+            "y": -48.0,
+            "dist": 90.0
+          },
+          "fresh": [
+            {
+              "unit": 29810,
+              "item": "Venomous Long Sword",
+              "quality": "uncommon",
+              "equipment": true,
+              "trinket": false,
+              "item_type": "Item",
+              "owner": "shared",
+              "picked": false,
+              "hidden": false,
+              "anim": -11,
+              "dist": 27.772
+            }
+          ],
+          "key_before": {
+            "valid": true,
+            "own": [
+              1,
+              0,
+              0,
+              0
+            ],
+            "pool": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "record_keys": [
+            "label",
+            "target",
+            "before",
+            "after",
+            "complete",
+            "fresh",
+            "key_before",
+            "key_after",
+            "interaction"
+          ]
+        },
+        {
+          "label": "legendary",
+          "chest": {
+            "unit": 29815,
+            "name": "items/chests/chest_gold_equipment.unit",
+            "behavior": "HWPChest",
+            "usable": true,
+            "x": -438.0,
+            "y": -3.0,
+            "dist": 100.623
+          },
+          "fresh": [
+            {
+              "unit": 29826,
+              "item": "Medusa's Charm",
+              "quality": "legendary",
+              "equipment": true,
+              "trinket": false,
+              "item_type": "UniqueEquipment",
+              "owner": "shared",
+              "picked": false,
+              "hidden": false,
+              "anim": -32,
+              "dist": 24.012
+            },
+            {
+              "unit": 29838,
+              "item": "Brass Statuette",
+              "quality": "common",
+              "equipment": false,
+              "trinket": false,
+              "item_type": "Valuable",
+              "owner": "shared",
+              "picked": false,
+              "hidden": false,
+              "anim": -23,
+              "dist": 17.08
+            },
+            {
+              "unit": 29849,
+              "item": "Dragon's Heart",
+              "quality": "epic",
+              "equipment": false,
+              "trinket": true,
+              "item_type": "Trinket",
+              "owner": "shared",
+              "picked": false,
+              "hidden": false,
+              "anim": -12,
+              "dist": 17.41
+            }
+          ],
+          "key_before": {
+            "valid": true,
+            "own": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "pool": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "record_keys": [
+            "label",
+            "target",
+            "before",
+            "after",
+            "complete",
+            "fresh",
+            "key_before",
+            "key_after",
+            "interaction"
+          ]
+        },
+        {
+          "label": "epic",
+          "chest": {
+            "unit": 29815,
+            "name": "items/chests/chest_gold_equipment.unit",
+            "behavior": "HWPChest",
+            "usable": true,
+            "x": -438.0,
+            "y": -93.0,
+            "dist": 100.623
+          },
+          "fresh": [
+            {
+              "unit": 29850,
+              "item": "Vengeful Heavy Plate",
+              "quality": "epic",
+              "equipment": true,
+              "trinket": false,
+              "item_type": "Item",
+              "owner": "shared",
+              "picked": false,
+              "hidden": false,
+              "anim": -20,
+              "dist": 16.169
+            },
+            {
+              "unit": 29861,
+              "item": "Fine Painting",
+              "quality": "common",
+              "equipment": false,
+              "trinket": false,
+              "item_type": "Valuable",
+              "owner": "shared",
+              "picked": false,
+              "hidden": false,
+              "anim": -14,
+              "dist": 19.922
+            },
+            {
+              "unit": 29862,
+              "item": "Sands of Time",
+              "quality": "epic",
+              "equipment": false,
+              "trinket": true,
+              "item_type": "Trinket",
+              "owner": "shared",
+              "picked": false,
+              "hidden": false,
+              "anim": -25,
+              "dist": 9.202
+            }
+          ],
+          "key_before": {
+            "valid": true,
+            "own": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "pool": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "record_keys": [
+            "label",
+            "target",
+            "before",
+            "after",
+            "complete",
+            "fresh",
+            "key_before",
+            "key_after",
+            "interaction"
+          ]
+        }
+      ]
+    },
+    {
+      "run_id": "20261022-133954-qa-keys-native-payload-all-lab",
+      "scenario": "qa-keys-native-payload-all",
+      "code": {
+        "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+        "source_sha256": "4b884e9e7983038f460853e0f4c06343ab04cc43467eb8c1b4ad4707358dcca1",
+        "files": 1225,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      },
+      "runner_assertions": 12,
+      "required_flags": 21,
+      "records": [
+        {
+          "label": "bronze",
+          "chest": {
+            "unit": 31213,
+            "name": "items/chests/chest_bronze_equipment.unit",
+            "behavior": "HWPChest",
+            "usable": true,
+            "x": -438.0,
+            "y": -48.0,
+            "dist": 90.0
+          },
+          "fresh": [
+            {
+              "unit": 27551,
+              "item": "Astute Frost Tome",
+              "quality": "uncommon",
+              "equipment": true,
+              "trinket": false,
+              "item_type": "Item",
+              "owner": "shared",
+              "picked": false,
+              "hidden": false,
+              "anim": -6,
+              "dist": 18.596
+            }
+          ],
+          "key_before": {
+            "valid": true,
+            "own": [
+              1,
+              0,
+              0,
+              0
+            ],
+            "pool": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "record_keys": [
+            "label",
+            "target",
+            "before",
+            "after",
+            "complete",
+            "fresh",
+            "key_before",
+            "key_after",
+            "interaction"
+          ]
+        },
+        {
+          "label": "legendary",
+          "chest": {
+            "unit": 27552,
+            "name": "items/chests/chest_gold_equipment.unit",
+            "behavior": "HWPChest",
+            "usable": true,
+            "x": -438.0,
+            "y": -3.0,
+            "dist": 100.623
+          },
+          "fresh": [
+            {
+              "unit": 27553,
+              "item": "Descending Destruction",
+              "quality": "legendary",
+              "equipment": true,
+              "trinket": false,
+              "item_type": "UniqueEquipment",
+              "owner": "shared",
+              "picked": false,
+              "hidden": false,
+              "anim": -9,
+              "dist": 31.571
+            },
+            {
+              "unit": 27555,
+              "item": "Fine Painting",
+              "quality": "common",
+              "equipment": false,
+              "trinket": false,
+              "item_type": "Valuable",
+              "owner": "shared",
+              "picked": false,
+              "hidden": false,
+              "anim": -24,
+              "dist": 20.171
+            },
+            {
+              "unit": 27556,
+              "item": "Champion's Medal",
+              "quality": "epic",
+              "equipment": false,
+              "trinket": true,
+              "item_type": "Trinket",
+              "owner": "shared",
+              "picked": false,
+              "hidden": false,
+              "anim": -25,
+              "dist": 25.688
+            }
+          ],
+          "key_before": {
+            "valid": true,
+            "own": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "pool": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "record_keys": [
+            "label",
+            "target",
+            "before",
+            "after",
+            "complete",
+            "fresh",
+            "key_before",
+            "key_after",
+            "interaction"
+          ]
+        },
+        {
+          "label": "epic",
+          "chest": {
+            "unit": 27552,
+            "name": "items/chests/chest_gold_equipment.unit",
+            "behavior": "HWPChest",
+            "usable": true,
+            "x": -438.0,
+            "y": -93.0,
+            "dist": 100.623
+          },
+          "fresh": [
+            {
+              "unit": 27558,
+              "item": "Feral Hand Crossbow",
+              "quality": "epic",
+              "equipment": true,
+              "trinket": false,
+              "item_type": "Item",
+              "owner": "shared",
+              "picked": false,
+              "hidden": false,
+              "anim": -6,
+              "dist": 21.229
+            },
+            {
+              "unit": 30924,
+              "item": "Brass Statuette",
+              "quality": "common",
+              "equipment": false,
+              "trinket": false,
+              "item_type": "Valuable",
+              "owner": "shared",
+              "picked": false,
+              "hidden": false,
+              "anim": -4,
+              "dist": 38.621
+            },
+            {
+              "unit": 30930,
+              "item": "Dragon's Heart",
+              "quality": "epic",
+              "equipment": false,
+              "trinket": true,
+              "item_type": "Trinket",
+              "owner": "shared",
+              "picked": false,
+              "hidden": false,
+              "anim": -17,
+              "dist": 14.326
+            }
+          ],
+          "key_before": {
+            "valid": true,
+            "own": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "pool": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "record_keys": [
+            "label",
+            "target",
+            "before",
+            "after",
+            "complete",
+            "fresh",
+            "key_before",
+            "key_after",
+            "interaction"
+          ]
+        }
+      ]
+    }
+  ]
+}

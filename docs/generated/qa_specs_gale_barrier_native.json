@@ -1,0 +1,435 @@
+{
+  "schema": 1,
+  "audited_at": "2026-10-22T17:34:40.731741+00:00",
+  "source_prefix": "a3f53e9005b08fff",
+  "scope": "Independent raw native effect proof; controlled fixture/direct main-attack activation is not ordinary player-use or acquisition evidence. All earlier failures retained.",
+  "runs": [
+    {
+      "run": "gamelab/results/20261022-122425-qa-specs-deadeye-gale-lab",
+      "verdict": "PASS",
+      "guards": 12,
+      "geometry": {
+        "actual": [
+          -528.0,
+          2.903
+        ],
+        "requirements": {
+          "back": 16,
+          "length": 144,
+          "half_width": 48,
+          "fine_step": 8,
+          "coarse_step": 16,
+          "gale_fan_angles": [
+            0,
+            10,
+            -10
+          ],
+          "projectile_radius": 6
+        },
+        "teleports": 0,
+        "routes": [
+          {
+            "intent": "path_to",
+            "result": "done",
+            "reason": "arrived",
+            "tick": 14
+          }
+        ]
+      },
+      "trials": [
+        {
+          "tag": "gale_q0_t1",
+          "earned_kills": 25,
+          "stacks_before_after": [
+            5,
+            5
+          ],
+          "projectiles": 1,
+          "angles": [
+            0.0
+          ],
+          "expected_angles": [
+            0
+          ],
+          "track_ms": 1023,
+          "track_frames": 31,
+          "target_hp_deltas": [
+            {
+              "unit": 29573,
+              "side": -17.633,
+              "forward": 100.0,
+              "damage": 0.0
+            },
+            {
+              "unit": 29556,
+              "side": 0.0,
+              "forward": 100.0,
+              "damage": 25.0
+            },
+            {
+              "unit": 29562,
+              "side": 17.633000000000003,
+              "forward": 100.0,
+              "damage": 0.0
+            }
+          ],
+          "measurement_activation": {
+            "id": "c43.5",
+            "ok": true,
+            "skill": "attack_2h_shortbow",
+            "mode": 3,
+            "activated": true,
+            "x": -528.0,
+            "y": 2.903,
+            "tx": 1.0,
+            "ty": 0.0,
+            "_t": 41.723
+          }
+        },
+        {
+          "tag": "gale_q0_t2",
+          "earned_kills": 25,
+          "stacks_before_after": [
+            5,
+            5
+          ],
+          "projectiles": 1,
+          "angles": [
+            0.0
+          ],
+          "expected_angles": [
+            0
+          ],
+          "track_ms": 1023,
+          "track_frames": 31,
+          "target_hp_deltas": [
+            {
+              "unit": 29479,
+              "side": -17.633,
+              "forward": 100.0,
+              "damage": 0.0
+            },
+            {
+              "unit": 29473,
+              "side": 0.0,
+              "forward": 100.0,
+              "damage": 25.0
+            },
+            {
+              "unit": 29474,
+              "side": 17.633000000000003,
+              "forward": 100.0,
+              "damage": 0.0
+            }
+          ],
+          "measurement_activation": {
+            "id": "c59.5",
+            "ok": true,
+            "skill": "attack_2h_shortbow",
+            "mode": 3,
+            "activated": true,
+            "x": -528.0,
+            "y": 2.903,
+            "tx": 1.0,
+            "ty": 0.0,
+            "_t": 50.694
+          }
+        },
+        {
+          "tag": "gale_q1_t1",
+          "earned_kills": 25,
+          "stacks_before_after": [
+            5,
+            5
+          ],
+          "projectiles": 2,
+          "angles": [
+            0.0,
+            9.999682169737943
+          ],
+          "expected_angles": [
+            0,
+            10
+          ],
+          "track_ms": 1023,
+          "track_frames": 31,
+          "target_hp_deltas": [
+            {
+              "unit": 29586,
+              "side": -17.633,
+              "forward": 100.0,
+              "damage": 0.0
+            },
+            {
+              "unit": 29574,
+              "side": 0.0,
+              "forward": 100.0,
+              "damage": 25.0
+            },
+            {
+              "unit": 29580,
+              "side": 17.633000000000003,
+              "forward": 100.0,
+              "damage": 25.0
+            }
+          ],
+          "measurement_activation": {
+            "id": "c76.5",
+            "ok": true,
+            "skill": "attack_2h_shortbow",
+            "mode": 3,
+            "activated": true,
+            "x": -528.0,
+            "y": 2.903,
+            "tx": 1.0,
+            "ty": 0.0,
+            "_t": 59.951
+          }
+        },
+        {
+          "tag": "gale_q1_t2",
+          "earned_kills": 25,
+          "stacks_before_after": [
+            5,
+            5
+          ],
+          "projectiles": 2,
+          "angles": [
+            0.0,
+            9.999682169737943
+          ],
+          "expected_angles": [
+            0,
+            10
+          ],
+          "track_ms": 1023,
+          "track_frames": 31,
+          "target_hp_deltas": [
+            {
+              "unit": 29486,
+              "side": -17.633,
+              "forward": 100.0,
+              "damage": 0.0
+            },
+            {
+              "unit": 29480,
+              "side": 0.0,
+              "forward": 100.0,
+              "damage": 25.0
+            },
+            {
+              "unit": 29485,
+              "side": 17.633000000000003,
+              "forward": 100.0,
+              "damage": 39.0
+            }
+          ],
+          "measurement_activation": {
+            "id": "c92.5",
+            "ok": true,
+            "skill": "attack_2h_shortbow",
+            "mode": 3,
+            "activated": true,
+            "x": -528.0,
+            "y": 2.903,
+            "tx": 1.0,
+            "ty": 0.0,
+            "_t": 68.94
+          }
+        },
+        {
+          "tag": "gale_q2_t1",
+          "earned_kills": 25,
+          "stacks_before_after": [
+            5,
+            5
+          ],
+          "projectiles": 3,
+          "angles": [
+            -9.99968216973794,
+            0.0,
+            9.999682169737943
+          ],
+          "expected_angles": [
+            -10,
+            0,
+            10
+          ],
+          "track_ms": 1023,
+          "track_frames": 31,
+          "target_hp_deltas": [
+            {
+              "unit": 29479,
+              "side": -17.633,
+              "forward": 100.0,
+              "damage": 25.0
+            },
+            {
+              "unit": 29473,
+              "side": 0.0,
+              "forward": 100.0,
+              "damage": 25.0
+            },
+            {
+              "unit": 29474,
+              "side": 17.633000000000003,
+              "forward": 100.0,
+              "damage": 25.0
+            }
+          ],
+          "measurement_activation": {
+            "id": "c109.5",
+            "ok": true,
+            "skill": "attack_2h_shortbow",
+            "mode": 3,
+            "activated": true,
+            "x": -528.0,
+            "y": 2.903,
+            "tx": 1.0,
+            "ty": 0.0,
+            "_t": 78.227
+          }
+        },
+        {
+          "tag": "gale_q2_t2",
+          "earned_kills": 25,
+          "stacks_before_after": [
+            5,
+            5
+          ],
+          "projectiles": 3,
+          "angles": [
+            -9.99968216973794,
+            0.0,
+            9.999682169737943
+          ],
+          "expected_angles": [
+            -10,
+            0,
+            10
+          ],
+          "track_ms": 1023,
+          "track_frames": 31,
+          "target_hp_deltas": [
+            {
+              "unit": 29509,
+              "side": -17.633,
+              "forward": 100.0,
+              "damage": 25.0
+            },
+            {
+              "unit": 29492,
+              "side": 0.0,
+              "forward": 100.0,
+              "damage": 25.0
+            },
+            {
+              "unit": 29503,
+              "side": 17.633000000000003,
+              "forward": 100.0,
+              "damage": 25.0
+            }
+          ],
+          "measurement_activation": {
+            "id": "c125.5",
+            "ok": true,
+            "skill": "attack_2h_shortbow",
+            "mode": 3,
+            "activated": true,
+            "x": -528.0,
+            "y": 2.903,
+            "tx": 1.0,
+            "ty": 0.0,
+            "_t": 87.221
+          }
+        }
+      ],
+      "remaining": [
+        "Gale zero-Tailwind/expiry gating",
+        "intermediate1..4stack controls",
+        "crossbow/offhand/epicweapon variants",
+        "exactperarrow noncritdamage (physicalmaincrit not forced; one actualsidehit39 ratherthan25)",
+        "ordinarymaininput/acquisition/UI/lifecycle/co-op/allorbcombos"
+      ]
+    },
+    {
+      "run": "gamelab/results/20261022-122602-qa-specs-arcane-barrier-lab",
+      "verdict": "PASS",
+      "guards": 12,
+      "inside_clock_delta_from_preinput": 627,
+      "inside_same_native_frame": 24618,
+      "mana_before_5_after_5_after_1000": [
+        395.38,
+        390.38,
+        1.0
+      ],
+      "actual_damage_taken": [
+        5,
+        1000
+      ],
+      "inside_survives": true,
+      "barrier_saves_delta": 1,
+      "native_blinks_delta": 1,
+      "expiry_wait_since_inside": 1749,
+      "fatal_after_expiry": [
+        {
+          "id": "c55.0",
+          "ok": true,
+          "sceneMs": 26664,
+          "frames": 808,
+          "timescale": 1.0,
+          "hour": 12,
+          "_t": 50.771
+        },
+        {
+          "id": "c55.1",
+          "ok": true,
+          "amount": 1000,
+          "mode": "ranged",
+          "took": 1000,
+          "hp0": 6,
+          "hp": -1000,
+          "thorns": 0.0,
+          "attacker_unit": 27660,
+          "attacker_hp0": 1.0,
+          "attacker_hp": 1.0,
+          "attacker_hp0_exact": 15000.0,
+          "attacker_hp_exact": 15000.0,
+          "attacker_hpMax": 15000,
+          "attacker_dead": false,
+          "_t": 50.771
+        },
+        {
+          "id": "c55.2",
+          "ok": true,
+          "phase": "dead",
+          "level": "levels/generated.lvl",
+          "inTown": false,
+          "ngp": 0.0,
+          "window": "",
+          "player": {
+            "name": "LabArcaneBarrier",
+            "class": "hwp_sorcerer_arcane",
+            "level": 20,
+            "xp": 1301032,
+            "hp": -1000,
+            "hpMax": 148,
+            "mana": 0,
+            "manaMax": 413,
+            "dead": true,
+            "spawned": false,
+            "manaExact": 0.0
+          },
+          "_t": 50.771
+        }
+      ],
+      "remaining": [
+        "exact1ms threshold",
+        "multiple lethal hits withinwindow",
+        "refresh/recast/cooldown/refusal",
+        "Feedback/FarStep/ManaConduit interactions",
+        "ordinary acquisition/UI/lifecycle/co-op"
+      ]
+    }
+  ]
+}

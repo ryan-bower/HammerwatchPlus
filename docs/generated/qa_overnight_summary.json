@@ -1,0 +1,234 @@
+{
+  "schema": 1,
+  "recorded_at_utc": "2026-10-22T22:59:05.023578+00:00",
+  "start_utc": "2026-10-22T05:20:52+00:00",
+  "goal_complete": false,
+  "status": "PAUSED_FOR_PR_AT_USER_REQUEST",
+  "spec_skill_ranks": {
+    "PASS": 60,
+    "PARTIAL": 0,
+    "total": 60,
+    "scope": "Independent declared rank measurements only; all-mechanic, interaction and lifecycle gaps retained."
+  },
+  "spec_orb_qualities": {
+    "PASS": 61,
+    "PARTIAL": 0,
+    "UNTESTED": 0,
+    "BLOCKED": 4,
+    "total": 65,
+    "scope": "Declared native quality effects only; four true-ally checks require co-op. Exact boundaries, combinations, UI/acquisition and lifecycle remain required."
+  },
+  "firearms_skill_ranks": {
+    "PASS": 60,
+    "PARTIAL": 0,
+    "scope": "Scoped declared native ranks only; exactdamage/cadence/combinations/ordinarylifecycle remainrequired."
+  },
+  "firearms_orb_qualities": {
+    "PASS": 74,
+    "PARTIAL": 0,
+    "UNTESTED": 0,
+    "BLOCKED": 1,
+    "total": 75,
+    "scope": "Recorded controlled native quality effects only; Reload163506 independently verified full actualammo/damage/trajectory/protocol/native expiredTTL. Acquisition/natural chance/ordinary/exact coefficient/boundaries remain separate."
+  },
+  "hoh1_skills": {
+    "scoped_PASS": 29,
+    "UNTESTED": 10,
+    "total": 39,
+    "scope": "Recorded native effects only. Caltrops/Whirl all-rank preciseHP reruns pass. Ordinary/boss/own-active/UI/lifecycle and remaining effects are incomplete."
+  },
+  "hoh1_positive_ranks": {
+    "scoped_PASS": 136,
+    "UNTESTED": 55,
+    "total": 191
+  },
+  "mastery_save_combinations": {
+    "total": 9,
+    "PASS": 9,
+    "UNTESTED": 0
+  },
+  "module_axes": {
+    "PASS": 31,
+    "PARTIAL": 80,
+    "UNTESTED": 106
+  },
+  "module_axis_total": 217,
+  "required_regression_scopes": {
+    "PASS": 14,
+    "total": 14,
+    "manifest": "docs/generated/qa_final_regression_manifest.json",
+    "progress": {
+      "required_scoped_pass": 14,
+      "required_unverified": 0,
+      "complete": true,
+      "completion_scope": "The fourteen declared required regression scenarios only. All original failures and per-feature coverage limits remain.",
+      "overnight_goal_complete": false
+    },
+    "current_epoch_complete_retest": false,
+    "epoch_note": "14recorded scoped passes at their own historical epochs/relevant-source bases. Not a fresh full current-epoch regression suite."
+  },
+  "release": {
+    "archives": 32,
+    "all_entries": 956,
+    "all_sha256": "87bcb72411b57255c616a905a041464601022f2de75b4b6b170b7befce48d419",
+    "manifest": "docs/generated/qa_pr_archive_manifest.json",
+    "current_source_verified": true,
+    "scope": "Every decoded package entry equals current build inputs; no local imports/dev harness. No packed runtime or full-sweep completion proof."
+  },
+  "final_full_stack": "20261022-175415-mod-all-lab",
+  "dead_precision_only": "20261022-101134-qa-dead-state-precision-lab",
+  "final_source_sha256": "f242a80b25e8c4bdbd048ccf40f0fd7c97a7ce46bdc482c86a6508785878fe19",
+  "source_epoch_note": "Final PR source differs from the e582 coverage epoch only by formatting in nine new files; native directive/XML tokens, scalar contents and quoted literals or Python AST were preserved. Post-format mod-all 175056 failed only pass-1 bootstrap shutdown with access violation 3221225477 (0xC0000005); subsequent gameplay passes and other guards passed. After resetting only isolated GameLab saves/appdata, mod-all 175415 passed all 14 assertions with clean teardown and unchanged f242 source. The first failure is retained; no production crash repair or additional ability coverage is claimed. Earlier coverage/gates retain their own epochs. O-v2 remains unapplied; the full sweep is paused and incomplete.",
+  "checks": {
+    "native_doctor": "gamelab/results/qa-20261022-final-doctor-native.txt",
+    "build_manifest": "gamelab/results/qa-20261022-dist-build-manifest.json"
+  },
+  "next_work": [
+    "Resume only when requested; preserve the full unfinished sweep scope.",
+    "O-v2 reviewed21-file QA bundle is unapplied; compile/load and actual consumer gates are still required before runtime credit.",
+    "Re-run corrected Burst return, Shadow arena, Chat equipment, LastStats main-Town and Static nav cases; diagnose cursor projection before target-dependent cases.",
+    "Run unstarted EE cadence and primary-compatibility Gladiator pilot, then actual own-active ordinary runs across all requested builds.",
+    "Finish remaining55 HoH1 ranks, summons/Knives/procs, all eligible Sphere UI/acquisition and meaningful shared-branch interactions.",
+    "Complete31-module functionality/settings/failure/persistence/interactions and seven legendary effects.",
+    "Retest final regressions on the intended final source; five orb-quality ally cases and other genuine co-op checks need a second real participant."
+  ],
+  "ledger": "docs/QA_OVERNIGHT.md",
+  "dead_precision_evidence": "docs/generated/qa_dead_state_precision.json",
+  "final_checks": {
+    "full_stack_load": "PASS after isolated reset; initial shutdown failure retained",
+    "archive_source_integrity": "PASS",
+    "non_native_validation": "docs/generated/qa_pr_validation.json",
+    "full_sweep_complete": false
+  },
+  "previous_hard_deadline_utc": "2026-10-22T15:20:52+00:00",
+  "hard_deadline_utc": null,
+  "rescope": "Continue all remaining authorized coverage; original measurements and gates preserved",
+  "previous_final_source_sha256": "85b04b38bdbd5b565c86bc880e571a48f03557fdd71709356d76ea8961a69739",
+  "latest_completed_source_sha256": "f242a80b25e8c4bdbd048ccf40f0fd7c97a7ce46bdc482c86a6508785878fe19",
+  "latest_full_stack": "20261022-175415-mod-all-lab",
+  "coverage_note": "Family rank/quality counts credit the documented scoped effects only. Exact amplitudes/timing, combinations, UI/acquisition and ordinary lifecycle requirements remain open even when every rank row passes.",
+  "current_batch": null,
+  "historical_final_full_stack": "20261022-111422-mod-all-lab",
+  "historical_final_checks": {
+    "native_doctor": "PASS",
+    "build_override_check": "PASS",
+    "verb_documentation_check": "PASS",
+    "native_git_diff_check": "PASS",
+    "four_inventory_json_and_module_axis_totals": "PASS",
+    "all_in_one_hash_recheck": "PASS"
+  },
+  "native_queue_status": "TERMINAL_CLEAN",
+  "goal_status": "paused",
+  "release_history": [
+    {
+      "archives": 32,
+      "all_entries": 955,
+      "all_sha256": "8d42ca89b379f7bb4ada76085fa6cc1e5ec3c28d6aacbdd4970393c0ecf01274",
+      "manifest": "gamelab/results/qa-20261022-dist-build-manifest.json",
+      "current_source_verified": false,
+      "note": "Historical32-archive manifest predates both verified Branding and Gladius production repairs; rebuild and verify before final release claim."
+    },
+    {
+      "archives": 32,
+      "all_entries": 956,
+      "all_sha256": "f91cd6defd3743111f33dcb81e7c2019590391de0332fd82a6abb1723d280605",
+      "manifest": "docs/generated/qa_pr_archive_manifest.json",
+      "current_source_verified": false,
+      "scope": "Every decoded package entry equals current build inputs; no local imports/dev harness. No packed runtime or full-sweep completion proof.",
+      "note": "Pre-format archive verification at e582; superseded by final f242 manifest."
+    }
+  ],
+  "pr_validation": "docs/generated/qa_pr_validation.json",
+  "pr_wrap_native_verification": {
+    "attempts": [
+      {
+        "scenario": "mod-all",
+        "started": "2026-10-22T22:50:55.362874+00:00",
+        "finished": "2026-10-22T22:51:29.822689+00:00",
+        "seconds": 34.5,
+        "exit": 1,
+        "verdict": "FAIL",
+        "run_id": "20261022-175056-mod-all-lab",
+        "error": null,
+        "failed": [
+          {
+            "name": "pass 1 exited cleanly",
+            "ok": false,
+            "detail": "exit code 3221225477"
+          }
+        ],
+        "assertions": 16,
+        "teardown": {
+          "clean": false,
+          "reasons": [
+            "pass 1 exited cleanly: exit code 3221225477"
+          ],
+          "run": "20261022-175056-mod-all-lab",
+          "at": "2026-10-22T17:51:29"
+        },
+        "code": {
+          "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+          "source_sha256": "f242a80b25e8c4bdbd048ccf40f0fd7c97a7ce46bdc482c86a6508785878fe19",
+          "files": 1290,
+          "fingerprint_scope": "mods+gamelab+tools-v2"
+        },
+        "source_after": {
+          "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+          "source_sha256": "f242a80b25e8c4bdbd048ccf40f0fd7c97a7ce46bdc482c86a6508785878fe19",
+          "files": 1290,
+          "fingerprint_scope": "mods+gamelab+tools-v2"
+        },
+        "output": "gamelab\\results\\qa-20261022-pr-wrap-load-mod-all.out.txt"
+      },
+      {
+        "scenario": "mod-all",
+        "started": "2026-10-22T22:54:14.936316+00:00",
+        "finished": "2026-10-22T22:54:28.846435+00:00",
+        "seconds": 13.9,
+        "exit": 0,
+        "verdict": "PASS",
+        "run_id": "20261022-175415-mod-all-lab",
+        "error": null,
+        "failed": [],
+        "assertions": 14,
+        "teardown": {
+          "clean": true,
+          "reasons": [],
+          "run": "20261022-175415-mod-all-lab",
+          "at": "2026-10-22T17:54:28"
+        },
+        "code": {
+          "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+          "source_sha256": "f242a80b25e8c4bdbd048ccf40f0fd7c97a7ce46bdc482c86a6508785878fe19",
+          "files": 1290,
+          "fingerprint_scope": "mods+gamelab+tools-v2"
+        },
+        "source_after": {
+          "head": "4ed9c7a55db06e14314b8c895c147f9d90ccb052",
+          "source_sha256": "f242a80b25e8c4bdbd048ccf40f0fd7c97a7ce46bdc482c86a6508785878fe19",
+          "files": 1290,
+          "fingerprint_scope": "mods+gamelab+tools-v2"
+        },
+        "output": "gamelab\\results\\qa-20261022-pr-wrap-load-after-reset-mod-all.out.txt"
+      }
+    ],
+    "reset_scope": "Only isolated gamelab/env/userdata/game saves and appdata; no processes killed and no user saves/config changed.",
+    "interpretation": "Final PR source differs from the e582 coverage epoch only by formatting in nine new files; native directive/XML tokens, scalar contents and quoted literals or Python AST were preserved. Post-format mod-all 175056 failed only pass-1 bootstrap shutdown with access violation 3221225477 (0xC0000005); subsequent gameplay passes and other guards passed. After resetting only isolated GameLab saves/appdata, mod-all 175415 passed all 14 assertions with clean teardown and unchanged f242 source. The first failure is retained; no production crash repair or additional ability coverage is claimed. Earlier coverage/gates retain their own epochs. O-v2 remains unapplied; the full sweep is paused and incomplete."
+  },
+  "latest_completed_coverage_batch": {
+    "label": "resume-n-main",
+    "cases": 15,
+    "planned_cases": 17,
+    "verdicts": {
+      "PASS": 8,
+      "FAIL": 7
+    },
+    "clean": true,
+    "stable_source": true,
+    "stopped_reason": "StaticMM native path-query batch exceeded15s parent RPC; no ability verdict",
+    "unstarted": [
+      "qa-specs-essence-cadence",
+      "qa-classes-gladiator-hoh2-run"
+    ]
+  }
+}
