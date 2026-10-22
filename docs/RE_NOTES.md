@@ -2584,3 +2584,7 @@ Planner only, nothing built:
   Pyre Sacrifice in necrotic green, both Heresy eyes green (below 5 from round-2 a, 5+ from the
   kept round-1 pick), and the eating status's maw with defined teeth and lips. The icons go into
   the specs sheet when the spec is built (`tools/make_specs_icons.py` has no Priest row yet).
+- Round 3's picks: Call of Heresy a, Pyre Sacrifice b, Heresy below 5 a and the eating status b,
+  now in `art/specs/override/` (`sp_pri4.py --finals`). Round 4 (`sp_pri4.py`, ids
+  `specsP4.<name>`) is only the Heresy 5+ status: the kept round-1 pick with the eye's purple
+  round swapped for the green, at three shades. 10 of the spec's 11 icons are settled.

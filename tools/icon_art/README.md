@@ -22,6 +22,7 @@ through `art/firearms/override/` and `tools/make_firearms_icons.py`.
 | sp_pri.py | the Priest's 4th spec (Devil Forgemaster): three ideas each for its two skills, Sacrificial Penance and the Heresy stack below 5 and at 5+, and their picker (ids `specsP.<name>`) |
 | sp_pri2.py | its round 2: three refinements of each round-1 pick (the pick beside them) and first ideas for the emblem, the four orbs and the eating status (ids `specsP2.<name>`) |
 | sp_pri3.py | its round 3: the five noted round-2 picks redone in necrotic green (and the eating status's teeth), ids `specsP3.<name>`; `--finals` writes the six settled ones to `art/specs/override/` |
+| sp_pri4.py | its round 4: the Heresy 5+ status with its purple swapped for the green, ids `specsP4.<name>`; `--finals` writes round 3's four picks |
 | sp_fx.py | their four world sprites: frame strips on a transparent ground to `art/specs/fx/`, 4x GIF previews in `out/specs/fx/` |
 | planner_icons.py | the class planner's icon sheet (`planner/web/`), cut from the game's atlases |
 | orb_groups.py | the picker's per-class orb lists, from the planner's data |
