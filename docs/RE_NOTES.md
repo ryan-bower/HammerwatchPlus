@@ -2836,3 +2836,24 @@ its run (`plan-forgemaster-smoke` and `plan-forgemaster`, `gamelab/results/`):
   (`gamelab/bots/holylocal_priest.py`) reads the list as the children of the `class-list` widget,
   whose ids are the class ids (`CreateCharacterClass.as`). holylocal is for the private beta only,
   with the dev team's permission; remove it before publishing.
+- **The install still showed the Thief, Gladiator and Witch Hunter and the old Firearms class
+  figure: a stale deploy, not the code.** The install's `mods/HWP-core.bin`, `HWP-classes.bin` and
+  `HWP-firearms.bin` were dated 2026-10-19 20:56, before the hide (f32dfe8, 10-21) and the showcase
+  figure (f97a942, 10-20); read back with `tools/hwr_archive.py`, the deployed core's
+  `CreateCharacterClass.as` has no `IsClassHidden`, the deployed classes module no `HideClass`, and the
+  deployed `class_showcase.png` entry is the 237-byte ring (dist's is the 682-byte figure).
+  `HammerwatchPlus-All.bin` in the install is 10-19 as well and `deploy.py modded-prod` never rebuilds
+  it, so it must not be the enabled one. Only `HWP-specs.bin` and `HWP-holylocal.bin` were deployed on
+  10-22. The user redeploys (`deploy.py modded-prod --beta`); not re-run here (the user asked for no
+  GameLab runs on the character creation).
+- **Raw `%damage%` tokens in the create-character skill tooltips (main menu).** The skill tooltip ends
+  in `AppendSkillDesc` (GUI/PlayerMenu/Modifications.as:1028), which fills the description's `%param%`
+  tokens from `description-params` only through the unit overload of `Resources::GetString` when the
+  record has a live actor; with no player (the main menu's create-character window, record null or not
+  yet spawned) it appends the bare string. Vanilla descriptions carry no tokens (the params are listed
+  under the text), so only the HWP ones (Firearms, the HoH1 classes: 43 strings) showed it, and only
+  there: in town a player exists, which is why the lab's from-town `charcreate` never showed it. Core
+  now overrides `Modifications.as` with one line in that branch: `GetString(m_description,
+  g_bookColors, descParams)` (the `(string, dictionary, dictionary)` overload is in the API strings;
+  `descParams` already holds the level 1 value per token). Assumed, not run: the user asked for no
+  GameLab runs here; a script error in that file would show in the game log as `Modifications.as`.

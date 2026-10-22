@@ -176,6 +176,10 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
   Verified: with it the create-character list offers the Priest and "create" makes one
   (`mod-holylocal-priest 20261022-163957`); without it there is no Priest
   (`mod-holylocal-priest-control 20261022-164029`). **Remove `mods/holylocal/` before publishing.**
+- 2026-10-22: core overrides `GUI/PlayerMenu/Modifications.as` (one line) so the HWP skill
+  descriptions' `%param%` tokens are filled in the main menu's create-character tooltips, where
+  no player actor exists yet (assumed from the code, not run). The install's hidden-classes and
+  Firearms-figure complaints were a stale 10-19 deploy: redeploy with `deploy.py modded-prod --beta`.
 - Designed in the planner, not built, and parked for later: an "Echoes of Hammerwatch I"
   (formerly "HoH1 Remastered") 5th spec for every vanilla class (the Rogue's from the HoH1
   Thief, the Warrior's from the Gladiator), one active and one passive of HoH1's that HoH2
