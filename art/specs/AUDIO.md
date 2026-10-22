@@ -7,14 +7,14 @@ game's own FMOD (read only, from the install) into `tools/audio_pick/out/picker.
 is published as an artifact with a shared store; the picks are read back from it and wired
 in at the hook named. Options are in `tools/audio_pick/slots.py`.
 
-## Deadeye (was Stormbringer)
+## Deadeye
 
 | slot | moment | hook | now | options |
 |---|---|---|---|---|
 | `ran_ec_shot` | **Lightning Arrow: the shot**<br>The fan of three arrows leaving the bow. | stormbringer/electric_circuit.sval (PlaySound) | `player/attacks/twohanded/shortbow_quick_shot` | a: `player/attacks/twohanded/shortbow_charged_shot`<br>b: `actors/undead/court/court_sniper/court_sniper_bow_arrow_lightning`<br>c: `player/classes/ranger/marked_shot/marked_shot_cast` |
 | `ran_ec_strike` | **Lightning Arrow: lightning strike**<br>An arrow's hit calling lightning onto an enemy nearby (up to 2 a hit: plays often). | stormbringer/circuit.unit (PlaySound) | `player/classes/ranger/rain_of_arrows/rain_of_arrows_lightning` | a: `player/attacks/mainhand/lightning_bolt_zap`<br>b: `player/classes/sorcerer/static_discharge/static_discharge_hit`<br>c: `actors/bosses/boss_totempole/lightning/lightning_strike/lightning_strike_strike` |
 
-## Aerotheurge (was Invocation)
+## Aerotheurge
 
 | slot | moment | hook | now | options |
 |---|---|---|---|---|
@@ -44,7 +44,7 @@ in at the hook named. Options are in `tools/audio_pick/slots.py`.
 | slot | moment | hook | now | options |
 |---|---|---|---|---|
 | `wlk_pb_brand` | **Pyrebrand: brand**<br>The sigil searing onto an enemy. | branding/pyrebrand.sval (PlaySound) | `player/classes/warlock/dark_ritual/dark_ritual_cast` | a: `player/classes/ranger/marked_shot/marked_shot_hit`<br>b: `actors/bosses/boss_warrior_spirit/marked_prey/marked_prey_cast`<br>c: `player/shadow_curse` |
-| `wlk_pb_claw` | **Pyrebrand: Hellfire Claw**<br>The claw erupting under the branded enemy. | scripts/HWP/Specs/Branding.as (PlaySound3D) | `player/classes/warlock/dark_ritual/dark_ritual_fire_explode` | a: `trinkets/scroll_hellfire/scroll_hellfire_impact`<br>b: `player/classes/warlock/demons_tail/demons_tail_fiery_impact`<br>c: `player/classes/warlock/summon_fiends/summon_fiends_cast_impact` |
+| `wlk_pb_claw` | **Pyrebrand: Hellfire Claw**<br>The claw erupting under the branded enemy. | scripts/HWP/Specs/Branding.as (PlaySound3D) | `player/classes/warlock/dark_ritual/dark_ritual_fire_explode` | a: `trinkets/scroll_hellfire/scroll_hellfire_impact`<br>b: `player/classes/warlock/demons_tail/demons_tail_fiery_impact`<br>c: `player/classes/warlock/summon_fiends/summon_fiends_cast_impact`<br>d: `trinkets/scroll_meteor/scroll_meteor_impact`<br>e: `player/classes/warlock/dark_ritual/dark_ritual_explode`<br>f: `player/classes/warlock/summon_fiends/summon_fiends_explode`<br>g: `player/attacks/twohanded/fire_blast`<br>h: `actors/aberrations/wisps/wisp_fire/wisp_fire_explode`<br>i: `player/classes/wizard/animated_sword/animated_sword_fire_explode`<br>j: `actors/bosses/boss_serpent/boss_serpent_falling_bomb_explode`<br>k: `actors/bosses/boss_warrior_spirit/rain_of_swords/rain_of_swords_fire_impact`<br>l: `actors/aberrations/phantoms/warlock/phantom_warlock_ritual_bomb_explode` |
 
 ## Arcane
 
@@ -52,7 +52,7 @@ in at the hook named. Options are in `tools/audio_pick/slots.py`.
 |---|---|---|---|---|
 | `sor_bl_out` | **Blink: vanish**<br>Where the sorcerer disappears. | scripts/HWP/Specs/Arcane.as HWPSpecsBlink (PlaySound3D) | `actors/bosses/boss_avatar/boss_avatar_blink_out` | a: `actors/undead/shade/shade/shade_blink_out`<br>b: `actors/bosses/boss_avatar/boss_avatar_blink_out_stormstart`<br>c: `actors/bosses/boss_warrior_spirit/marked_prey/marked_prey_charge` |
 | `sor_bl_in` | **Blink: reappear**<br>Where the sorcerer lands (the damage burst). | scripts/HWP/Specs/Arcane.as HWPSpecsBlink (PlaySound3D) | `actors/bosses/boss_avatar/boss_avatar_blink_in` | a: `actors/undead/shade/shade/shade_blink_in`<br>b: `actors/bosses/boss_warrior_spirit/marked_prey/marked_prey_teleport_end`<br>c: `player/classes/wizard/magic_missiles/magic_missiles_hit` |
-| `sor_vb_save` | **Void Barrier: saved**<br>A hit that would have killed, stopped at 1 mana. | scripts/HWP/Specs/Arcane.as LivingHit (new) | none | a: `player/classes/wizard/barrier/barrier_impact`<br>b: `player/classes/paladin/armored_knight/armored_knight_block`<br>c: `player/parry` |
+| `sor_vb_save` | **Void Barrier: saved**<br>A hit that would have killed, stopped at 1 mana. | scripts/HWP/Specs/Arcane.as LivingHit (new) | none | a: `player/classes/wizard/barrier/barrier_impact`<br>b: `player/classes/paladin/armored_knight/armored_knight_block`<br>c: `player/parry`<br>d: `player/revived`<br>e: `actors/bosses/boss_wraith/wraith_bell`<br>f: `actors/bosses/boss_avatar/boss_avatar_phase_2`<br>g: `actors/humans/cultists/cultist_acolyte/cultist_acolyte_shadow_bomb_explode`<br>h: `actors/undead/shade/shade_lesser/shade_lesser_shadow_ball_hit`<br>i: `player/classes/sorcerer/ice_mastery/ice_mastery_shatter`<br>j: `actors/bosses/boss_warrior_spirit/halo/halo_close`<br>k: `actors/bosses/boss_warrior_spirit/glory_to_the_goddess/glory_to_the_goddess_impulse` |
 
 Left without a sound by choice: stack gains (Tailwind, Static Charge, Essence), the arrow
 catch, a brand passing on, Arcane Feedback banking, Mana Conduit. Vanilla stacks are silent too.
