@@ -256,8 +256,9 @@ class Run:
                 raise GameError(f"pick failed: {reply}")
             if choice == "resume" and (reply.get("choice") != "resume" or not reply.get("run")):
                 raise GameError(f"no saved run to resume: {reply}")
-        elif choice is not None:
-            raise GameError("explicit restart choice requires the character selection window")
+        elif choice == "resume":
+            raise GameError("restart choice 'resume' requires the character selection window")
+        # "town" is the default choice: with no selection window the game is already there
         self.out.setdefault("fixture_entries", []).append(
             {"choice": choice, "selection": selection, "readback": expected})
         if game.wait_gl(lambda o: o.get("ev") == "hb" and o.get("phase") == expected["phase"], 60) is None:
@@ -364,11 +365,15 @@ class Run:
             # Assertion summaries intentionally stay short. Preserve the full returned
             # observations before scoring, including every failed fixed trial.
             result_file = self.results / "bot-results.jsonl"
-            with result_file.open("a", encoding="utf-8") as f:
-                f.write(json.dumps({"bot": s["bot"], "kwargs": s.get("kwargs", {}),
-                                    "pass": self.passes, "assertion_index": len(self.assertions),
-                                    "result": got}, ensure_ascii=False) + "\n")
-            self.out["bot_results_file"] = result_file.name
+            try:
+                with result_file.open("a", encoding="utf-8") as f:
+                    f.write(json.dumps({"bot": s["bot"], "kwargs": s.get("kwargs", {}),
+                                        "pass": self.passes, "assertion_index": len(self.assertions),
+                                        "result": got}, ensure_ascii=False, default=str) + "\n")
+                self.out["bot_results_file"] = result_file.name
+            except (OSError, TypeError, ValueError) as e:
+                # a bot's own result object (a Path, a set) must not fail the step
+                print(f"[note] bot result line not saved: {e}", flush=True)
             # the whole result, for tables the 3000-char assertion detail cuts (bot-<name>.json)
             label = re.sub(r"[^A-Za-z0-9_.-]+", "_", s.get("name", f"bot {s['bot']}"))
             try:

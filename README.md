@@ -140,6 +140,9 @@ handoff update adds documentation and a batch helper, not native coverage.
   fingerprints; later changes only extend read-only QA telemetry. Production sources
   and release payloads remain unchanged after those passes;
   exact evidence and limits are in `docs/QA_OVERNIGHT.md` and `docs/generated/qa_*_inventory.json`.
+- 2026-10-22 night: PR #9's code review applied after its merge (explicit `off-hand` flags on
+  the gun rounds, Extended Clip Crit with no actor, typed stash ids in any slot, launcher and
+  runner guards; `docs/RE_NOTES.md`, "PR #9's code review, applied after the merge").
 - Current granular coverage: the six built fourth specs have 55 of 60 skill-rank rows
   with scoped passes and 5 partial; their 65 orb-quality rows have 47 scoped
   passes, 3 partial, 11 untested and 4 blocked on real allies. Firearms has 42 of 75

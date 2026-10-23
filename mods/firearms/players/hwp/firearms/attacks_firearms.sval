@@ -7,7 +7,10 @@
 	passes when any one array does (Conditional.as CheckConditionals), so the gates are flat.
 	The Glocks read the other hand's marker buff (buffs_firearms.sval) to pair up.
 	The rounds are shot by HWPFirearmsGunShot (Elemental.as), which may swap in an element's
-	round for Elemental Bullets (fs_scavenger.sval).
+	round for Elemental Bullets (fs_scavenger.sval). An off-hand gun's round says so with
+	"off-hand" (the ShotOff block, or the bool on an inline dict): that is what Magazine.as
+	debits the off-hand magazine by, so a round shot by the other hand's action still counts
+	against its own gun.
 	Each attack's blocking ends just after its last round, as vanilla attacks block only their
 	opening (shortbow 0 100 of 300). A held gun restarts itself in the frame its cycle ends
 	(Combat.as HWPFirearmsGun), so while one blocked its whole cycle no skill could start
@@ -26,6 +29,22 @@
 %defblock Shot ROUND OFFSET SPREAD
 					<dict>
 						<string name="class">HWPFirearmsGunShot</string>
+						<string name="projectile">players/hwp/firearms/projectiles/%%ROUND%%.unit</string>
+						<string name="fire">players/hwp/firearms/projectiles/%%ROUND%%_fire.unit</string>
+						<string name="ice">players/hwp/firearms/projectiles/%%ROUND%%_ice.unit</string>
+						<string name="lightning">players/hwp/firearms/projectiles/%%ROUND%%_lightning.unit</string>
+						<string name="poison">players/hwp/firearms/projectiles/%%ROUND%%_poison.unit</string>
+						<int name="dist">12</int>
+						<vec2 name="offset">0 %%OFFSET%%</vec2>
+						<bool name="rotate-offset">true</bool>
+						<int name="converge">100</int>
+						<int name="spread">%%SPREAD%%</int>
+					</dict>
+%endblock
+%defblock ShotOff ROUND OFFSET SPREAD
+					<dict>
+						<string name="class">HWPFirearmsGunShot</string>
+						<bool name="off-hand">true</bool>
 						<string name="projectile">players/hwp/firearms/projectiles/%%ROUND%%.unit</string>
 						<string name="fire">players/hwp/firearms/projectiles/%%ROUND%%_fire.unit</string>
 						<string name="ice">players/hwp/firearms/projectiles/%%ROUND%%_ice.unit</string>
@@ -502,6 +521,7 @@
 					</dict>
 					<dict>
 						<string name="class">HWPFirearmsGunShot</string>
+						<bool name="off-hand">true</bool>
 						<string name="projectile">players/hwp/firearms/projectiles/glock_round_off.unit</string>
 						<string name="fire">players/hwp/firearms/projectiles/glock_round_off_fire.unit</string>
 						<string name="ice">players/hwp/firearms/projectiles/glock_round_off_ice.unit</string>
@@ -534,7 +554,7 @@
 				</array>
 				<array name="mix2">
 					%block If hcannon_off 1
-					%block Shot hcannon_round_off -6 5
+					%block ShotOff hcannon_round_off -6 5
 					%block Bang 1.8
 					%block Spend 1
 					%block Low 6
@@ -614,6 +634,7 @@
 					</dict>
 					<dict>
 						<string name="class">HWPFirearmsGunShot</string>
+						<bool name="off-hand">true</bool>
 						<string name="projectile">players/hwp/firearms/projectiles/glock_round_off.unit</string>
 						<string name="fire">players/hwp/firearms/projectiles/glock_round_off_fire.unit</string>
 						<string name="ice">players/hwp/firearms/projectiles/glock_round_off_ice.unit</string>
@@ -650,6 +671,7 @@
 					</dict>
 					<dict>
 						<string name="class">HWPFirearmsGunShot</string>
+						<bool name="off-hand">true</bool>
 						<string name="projectile">players/hwp/firearms/projectiles/glock_round_off.unit</string>
 						<string name="fire">players/hwp/firearms/projectiles/glock_round_off_fire.unit</string>
 						<string name="ice">players/hwp/firearms/projectiles/glock_round_off_ice.unit</string>
@@ -687,6 +709,7 @@
 					</dict>
 					<dict>
 						<string name="class">HWPFirearmsGunShot</string>
+						<bool name="off-hand">true</bool>
 						<string name="projectile">players/hwp/firearms/projectiles/glock_round_off.unit</string>
 						<string name="fire">players/hwp/firearms/projectiles/glock_round_off_fire.unit</string>
 						<string name="ice">players/hwp/firearms/projectiles/glock_round_off_ice.unit</string>
@@ -712,14 +735,14 @@
 				<array name="bothc">
 					%block If hcannon_main 2
 					%block Shot hcannon_round 6 18
-					%block Shot glock_round_off -6 18
+					%block ShotOff glock_round_off -6 18
 					%block Bang 1.8
 					%block Spend 2
 					%block Low 6
 				</array>
 				<array name="lastc">
 					%block IfLast hcannon_main
-					%block Shot glock_round_off -6 4
+					%block ShotOff glock_round_off -6 4
 					%block Bang 1
 					%block Spend 1
 					%block Low 6
@@ -797,14 +820,14 @@
 				</array>
 				<array name="right">
 					%block If hcannon_off 1
-					%block Shot hcannon_round_off -6 5
+					%block ShotOff hcannon_round_off -6 5
 					%block Bang 1.8
 					%block Spend 1
 					%block Low 4
 				</array>
 				<array name="mix1">
 					%block If glock_off 1
-					%block Shot glock_round_off -6 5
+					%block ShotOff glock_round_off -6 5
 					%block Bang 1
 					%block Spend 1
 					%block Low 6
@@ -818,7 +841,7 @@
 				</array>
 				<array name="mix3">
 					%block If glock_off 1
-					%block Shot glock_round_off -6 5
+					%block ShotOff glock_round_off -6 5
 					%block Bang 1
 					%block Spend 1
 					%block Low 6
@@ -868,14 +891,14 @@
 			<dict name="actions">
 				<array name="last">
 					%block IfLast glock_main
-					%block Shot hcannon_round_off -6 4
+					%block ShotOff hcannon_round_off -6 4
 					%block Bang 1.8
 					%block Spend 1
 					%block Low 6
 				</array>
 				<array name="lastc">
 					%block IfLast hcannon_main
-					%block Shot hcannon_round_off -6 4
+					%block ShotOff hcannon_round_off -6 4
 					%block Bang 1.8
 					%block Spend 1
 					%block Low 4
@@ -883,7 +906,7 @@
 				<array name="both">
 					%block If glock_main 2
 					%block Shot glock_round_dual 6 18
-					%block Shot hcannon_round_off -6 18
+					%block ShotOff hcannon_round_off -6 18
 					%block Bang 1.8
 					%block Spend 2
 					%block Low 6
@@ -891,7 +914,7 @@
 				<array name="bothc">
 					%block If hcannon_main 2
 					%block Shot hcannon_round 6 18
-					%block Shot hcannon_round_off -6 18
+					%block ShotOff hcannon_round_off -6 18
 					%block Bang 1.8
 					%block Spend 2
 					%block Low 4
@@ -909,7 +932,7 @@
 						<bool name="attach-to-owner">true</bool>
 						<bool name="send-angle">true</bool>
 					</dict>
-					%block Shot hcannon_round_off -6 4
+					%block ShotOff hcannon_round_off -6 4
 					%block Bang 1.8
 					%block Spend 1
 					%block Low 2
