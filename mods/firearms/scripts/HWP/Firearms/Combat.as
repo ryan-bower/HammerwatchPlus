@@ -698,6 +698,15 @@ namespace HWP
 		// shot, or at once when the clip reloads or another skill (a dodge, Reload, a spell)
 		// starts: the animation then runs on from the frozen frame at full speed, unheld, so
 		// the arm comes down the shot's own way and the layer is free.
+		// The pin is asserted three times a frame, because the game's own skill update plays
+		// the same animation on from where it is at full speed every frame of the cycle
+		// (PlayerSkillDirectional.as:103 SetUnitScene(m_animation, false), after :60's reset
+		// at each cycle's start): once from the module's UpdateFrame, once from the gun skill
+		// right after that base update (Pin, HWPFirearmsGun.Update), and once from the module's
+		// PreRenderFrame, the last script to run before the frame is drawn. With the hold
+		// reasserted only in UpdateFrame the arm pumped up and down through a rifle burst in the
+		// real game (the user, 2026-10-22). Read from the code: the lab did not show it at
+		// timescale 0.2 either way (plan-firearms-arm-burst 20261022-203557 and -203713).
 		const int HOLD_MS = 1000;
 		const float FROZEN = 0.0001f;
 		const array<uint> GUNS = {
@@ -722,6 +731,13 @@ namespace HWP
 					plr.m_effectParams.PlayAnimation3D(m_anim.m_anim3d, m_anim.m_skel3dset, plr.m_unit, 1, m_anim.m_priority, resetTime, loop, speed);
 				else
 					plr.m_effectParams.PlayAnimation3D(m_anim.m_anim3d, plr.m_skeleton, plr.m_unit, 1, m_anim.m_priority, resetTime, loop, speed);
+			}
+
+			// reassert the frozen first frame (no-op unless the arm is held)
+			void Pin(PlayerBase@ plr)
+			{
+				if (m_holding && plr !is null)
+					Play(plr, true, AnimationLoopType::Hold, FROZEN);
 			}
 
 			void Release(PlayerBase@ plr, const string &in why)
@@ -814,6 +830,13 @@ namespace HWP
 			g_overReload.Update(plr, ms);
 			g_reloadSounds.Update(plr);
 			g_aimHold.Update(plr, ms);
+		}
+
+		void PreRenderCombat()
+		{
+			auto plr = cast<PlayerBase>(GetLocalPlayer());
+			if (plr !is null && IsFirearms(GetLocalPlayerRecord()))
+				g_aimHold.Pin(plr);
 		}
 
 		void RenderCombat(int idt, SpriteBatch& sb)
@@ -1445,6 +1468,10 @@ class HWPFirearmsGun : Skills::PlayerSkillDirectional
 				carry = min(next - m_skillLen, CARRY_MAX);
 		}
 		Skills::PlayerSkillDirectional::Update(dt, walking, aimDir);
+		// the base Update just played the shot animation on at full speed (its :103): pin the
+		// raised arm again before anything draws (Combat.as AimHold)
+		if (m_castingT >= 0 && cast<Player>(m_owner) !is null)
+			HWP::Firearms::g_aimHold.Pin(cast<PlayerBase>(m_owner));
 		// the base Update stretches the cycle to the timeline's last entry (max(m_animLen,
 		// GetLength()), PlayerSkillDirectional.as:107): a Hand Cannon's 500 ms mixed cycle ran
 		// 600, to its right-hand round (plan-firearms-cannon 20261020-170115)

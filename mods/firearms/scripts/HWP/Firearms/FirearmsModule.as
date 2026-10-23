@@ -457,6 +457,11 @@ namespace Modules
 			HWP::Firearms::UpdateLaserDot();
 		}
 
+		void PreRenderFrame(int idt) override
+		{
+			HWP::Firearms::PreRenderCombat();
+		}
+
 		void RenderFrame(int idt, SpriteBatch& sb) override
 		{
 			HWP::Firearms::RenderCombat(idt, sb);

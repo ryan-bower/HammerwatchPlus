@@ -1392,6 +1392,39 @@ class Checks(Base):
         time.sleep(1.5)
 
 
+    # --- frames through a rifle burst (Combat.as AimHold, the pin against the base update)
+    def firearms_rifle_burst(self, frames=12, timescale=0.2):
+        """Hold the rifle's trigger through more than one 800 ms cycle at a slowed clock and
+        take frames all the way through: with the arm pinned they show the same raised pose
+        in every frame (judged offline on the player's crop, not flagged here); logged
+        held/lowered lines bracket the burst."""
+        self.gl("char", "hwp_firearms", "LabBurst")
+        self.wait_phase("town", 60)
+        time.sleep(2)
+        if not self.enter_floor("burst"):
+            return
+        eq = self.gl("equip", "hwp_rifle_01", "common").get("ok")
+        time.sleep(1.0)
+        self.gl("givestacks", self.CLIP, 999)
+        pos = self.log_pos()
+        self.gl("timescale", timescale)
+        self.gl("input", 2400, 0, 0, 1, 0, "main")     # game ms: three cycles, 12 s real at 0.2
+        held = self.wait_log(r"gun arm: held", pos, 3.0)
+        t0 = time.time()
+        times = []
+        for i in range(frames):
+            self.g.shot(f"burst {i:02d}", settle=False)
+            times.append(round(time.time() - t0, 2))
+            time.sleep(0.5)
+        self.gl("timescale", 1)
+        low = self.wait_log(r"gun arm: lowered \(([^)]*)\)", pos, 4.0)
+        self.flag("rifle_burst_equipped", bool(eq), f"equip {eq}")
+        self.flag("rifle_burst_held", held is not None, f"{held and held.group(0)}")
+        self.flag("rifle_burst_lowers_after", low is not None and "without a shot" in low.group(1), f"{low and low.group(0)}")
+        self.notes.append(f"burst frames at {times} s after held")
+        self.to_town()
+
+
 def run(p, sections="firearms_frag", **_):
     c = Checks(p)
     for s in sections.split(","):

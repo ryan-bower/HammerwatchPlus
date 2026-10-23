@@ -1,0 +1,69 @@
+{
+ "name": "plan-firearms-arm-burst",
+ "about": "Measurement (timescale 0.2): frames through a held rifle burst to see whether the raised arm stays put across the game's per-frame animation replay (Combat.as AimHold Pin). The held/lowered log lines are asserted; the frames are judged by eye.",
+ "fixture": "town-paladin",
+ "mods": [
+  "core",
+  "abyss",
+  "architect",
+  "bufftips",
+  "campaign",
+  "chatlinks",
+  "classes",
+  "colors",
+  "deathrecap",
+  "droptrade",
+  "farming",
+  "firearms",
+  "fishing",
+  "gambler",
+  "goldpet",
+  "groupcombo",
+  "keys",
+  "laststats",
+  "legacy",
+  "maps",
+  "mercenary",
+  "pets",
+  "puzzles",
+  "specs",
+  "stash",
+  "strongbox",
+  "summons",
+  "valuables",
+  "wavemode",
+  "weapons",
+  "weaponswap"
+ ],
+ "timeout": 240,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "plan_firearms",
+   "kwargs": {
+    "sections": "firearms_rifle_burst"
+   },
+   "name": "rifle burst",
+   "expect": {
+    "rifle_burst_equipped": true,
+    "rifle_burst_held": true,
+    "rifle_burst_lowers_after": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

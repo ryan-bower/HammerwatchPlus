@@ -3305,3 +3305,31 @@ Reading the install's `mods/` back after `deploy.py modded-prod --beta` (29 bins
 `gamelab/env/environments.json`, which is what `deploy.py` builds and copies (and refuses a module
 not on it). `mod-all` loads all 31 modules, so the lab never noticed. The list now has all 31;
 `HWP-petwait.bin` in `dist/` is a stale 2026-10-16 artifact of a module that no longer exists.
+
+## The rifle arm pumped through a burst in the real game (2026-10-22, night)
+
+- **Report:** "the rifle flickers while shooting, looks like gun is going up and down during
+  burst fire" (the user, playing the deployed build). The real game's log shows the hold itself
+  working at its coarse level (`gun arm: held` / `lowered (1000 ms without a shot)` /
+  `lowered (reloading)` pairs around every burst), so the pumping is inside a held cycle.
+- **Mechanism (read from the decompiled source):** `PlayerSkillDirectional.Update` calls
+  `m_owner.SetUnitScene(m_animation, false)` on every frame of a cast (:103), after `:60`'s reset
+  at each cycle's start, and `SetUnitTimeScale(...)` with it. `PlayerBase.SetUnitScene` is
+  `PlayAnimation3D(..., layer 1, resetTime, m_looping)` at the default speed 1.0. So the game plays
+  the shot animation on at full speed every frame, and `AimHold`'s frozen first frame
+  (`PlayAnimation3D(..., Hold, 0.0001)`) only held while the module's `UpdateFrame` happened to run
+  after the actor update in a frame. `AimHold.Pin()` now reasserts the frozen frame right after
+  the base update in `HWPFirearmsGun.Update` (the gun's own class, so nothing native runs on
+  layer 1 after it in that update) and again from the module's `PreRenderFrame` (the last script
+  before the frame is drawn; `Modules::Module.PreRenderFrame(int idt)`, called from
+  `AGameplayGameMode.PreRenderFrame` after every update). The local player is the `Player`
+  (peers are `PlayerHusk`), so `cast<Player>(m_owner) !is null` is the local check.
+- **Not reproduced in the lab.** `plan-firearms-arm-burst` (new: hold the trigger through three
+  cycles at timescale 0.2 and take twelve frames) shows twelve identical raised poses with the
+  fix (`20261022-203557` PASS, a bullet crossing frame 8 the only change) and without it
+  (`20261022-203713`, INVALID: the user's own slot-7 saves changed during the run, they were
+  playing; the frames are the same). The lab renders at 60 fps on a slowed clock, where one
+  frame of full-speed play is a few milliseconds of the animation; the real game's frame
+  pacing differs. The fix is therefore reasoned, and the user's game is the test.
+- **Regression:** `plan-firearms-arm 20261022-203851` PASS (held, lowers after 1 s, on a dodge,
+  on a reload, rifle and pistol). `mod-all 20261022-203531` PASS compiled it.
