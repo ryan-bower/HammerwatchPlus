@@ -3295,3 +3295,13 @@ measurement.
 - **Verified:** `mod-all 20261022-194902` PASS (all modules compiled with the new Elemental.as,
   Magazine.as, Combat.as, StashSort.as and the regenerated attack table; no script errors in our
   files). `qa-firearms-magazine-crit 20261022-194932` PASS (12 assertions: the per-gun split with the explicit flags). `qa-content-stash-families 20261022-195143` PASS (the typed ids still group by family). `build.py --check`, `list_verbs.py --check`, pytest as above.
+
+## The deploy list was missing three modules (2026-10-22, night)
+
+Reading the install's `mods/` back after `deploy.py modded-prod --beta` (29 bins identical to
+`dist/`, core 45 files with the Priest tables, firearms with the `off-hand` param) showed no
+`HWP-mercenary.bin`, `HWP-puzzles.bin` or `HWP-stash.bin`. The three modules landed on 2026-10-18
+(`bdeaec5`, `3139744`, `5450408`) but were never appended to the `modded-prod` list in
+`gamelab/env/environments.json`, which is what `deploy.py` builds and copies (and refuses a module
+not on it). `mod-all` loads all 31 modules, so the lab never noticed. The list now has all 31;
+`HWP-petwait.bin` in `dist/` is a stale 2026-10-16 artifact of a module that no longer exists.

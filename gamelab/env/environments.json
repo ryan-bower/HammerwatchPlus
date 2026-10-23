@@ -37,7 +37,10 @@
       "campaign",
       "wavemode",
       "classes",
-      "specs"
+      "specs",
+      "mercenary",
+      "puzzles",
+      "stash"
     ],
     "forbidden_mods": [
       "gamelab-*"
