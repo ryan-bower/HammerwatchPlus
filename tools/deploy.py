@@ -6,6 +6,9 @@
     deploy.py modded-prod --dry-run      # list what would be written, write nothing
     deploy.py modded-prod --beta         # a beta build: build.py --beta folds the `beta_into` modules
                                          # (holylocal, the Priest without the DLC) into their hosts' .bin
+    deploy.py modded-prod --with-local   # a personal build: build.py --with-local packs the content made
+                                         # from your own HoH1 install (the real HoH1 campaign levels); never
+                                         # publish those .bin files. tools/run.py passes it when HoH1 is imported
     deploy.py vanilla                    # refuses: vanilla declares no mods
 
 gamelab: mods are directory junctions into mods/<id>/, so an edit in the repo *is* the
@@ -52,7 +55,7 @@ def deploy_gamelab(mods: list[str]) -> int:
     return 1 if problems else 0
 
 
-def deploy_prod(mods: list[str], dry_run: bool, beta: bool = False) -> int:
+def deploy_prod(mods: list[str], dry_run: bool, beta: bool = False, with_local: bool = False) -> int:
     decl = env.environments()["modded-prod"]
     forbidden = decl.get("forbidden_mods", [])
     wanted = mods or decl["mods"]
@@ -64,20 +67,26 @@ def deploy_prod(mods: list[str], dry_run: bool, beta: bool = False) -> int:
     plan = [(gamepaths.DIST / f"HWP-{m}.bin", target / f"HWP-{m}.bin") for m in wanted]
     if dry_run:
         for src, dst in plan:
-            print(f"would build {src.relative_to(gamepaths.REPO)}{' (--beta)' if beta else ''} and copy it to {dst}")
+            flags = (" (--beta)" if beta else "") + (" (--with-local)" if with_local else "")
+            print(f"would build {src.relative_to(gamepaths.REPO)}{flags} and copy it to {dst}")
         print(RELOAD)
         return 0
     unconfirmed = saves.confirmation_problems()
     if unconfirmed:
         print("REFUSED: modded-prod runs on the player's real saves; " + "; ".join(unconfirmed))
         return 2
-    flags = ["--no-all"] + (["--beta"] if beta else [])
+    flags = ["--no-all"] + (["--beta"] if beta else []) + (["--with-local"] if with_local else [])
     r = subprocess.run([sys.executable, str(gamepaths.TOOLS / "build.py"), *flags, *wanted])
     if r.returncode:
         return r.returncode
     target.mkdir(exist_ok=True)
     for src, dst in plan:
-        shutil.copy2(src, dst)
+        try:
+            shutil.copy2(src, dst)
+        except PermissionError:
+            print(f"REFUSED: cannot replace {dst}: the game is holding it open. Close Heroes of Hammerwatch II "
+                  "and deploy again")
+            return 3
         print(f"deployed {dst}")
     print(RELOAD)
     return 0
@@ -89,13 +98,16 @@ def main(argv=None) -> int:
     ap.add_argument("mods", nargs="*")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--beta", action="store_true", help="modded-prod: build with build.py --beta (never publish those .bin files)")
+    ap.add_argument("--with-local", action="store_true",
+                    help="modded-prod: build with build.py --with-local, packing the content made from your own "
+                         "HoH1 install (never publish those .bin files)")
     a = ap.parse_args(argv)
     if a.env == "vanilla":
         print("REFUSED: the vanilla environment declares no mods")
         return 2
     if a.env == "gamelab":
         return deploy_gamelab(a.mods)
-    return deploy_prod(a.mods, a.dry_run, a.beta)
+    return deploy_prod(a.mods, a.dry_run, a.beta, a.with_local)
 
 
 if __name__ == "__main__":

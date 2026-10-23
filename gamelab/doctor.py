@@ -606,7 +606,7 @@ def smoke(r: Report, fix: bool, force: bool) -> None:
     r.check(label, True, f"PASS in {time.time() - t0:.0f}s{where}")
 
 
-def diagnose(fix: bool, force_smoke: bool = False) -> Report:
+def diagnose(fix: bool, force_smoke: bool = False, no_smoke: bool = False) -> Report:
     r = Report()
     print("machine:")
     if not r.check("Windows", sys.platform == "win32", sys.platform):
@@ -693,6 +693,11 @@ def diagnose(fix: bool, force_smoke: bool = False) -> Report:
     print("local content (gitignored, made from your own installs):")
     local_content(r, fix, hoh1)
 
+    if no_smoke:
+        # tools/run.py: a play session needs the content rows, not a lab boot (the launcher's
+        # own preflight still guards every GameLab run); the stamp is left as it is
+        r.info("smoke boot skipped (--no-smoke)")
+        return r
     print("smoke boot (this machine's GPU, antivirus and cores):")
     smoke(r, fix, force_smoke)
     return r
@@ -706,6 +711,8 @@ def main(argv=None) -> int:
     ap.add_argument("--confirm-saves", action="store_true")
     ap.add_argument("--no-saves-yet", action="store_true")
     ap.add_argument("--smoke", action="store_true", help="boot null-payload now, even if it passed before")
+    ap.add_argument("--no-smoke", action="store_true",
+                    help="skip the smoke boot (tools/run.py: setup for a play session, no lab boot)")
     hg = ap.add_mutually_exclusive_group()
     hg.add_argument("--hoh1", metavar="DIR", help="the HoH1 install dir the user named: validated, then "
                     "remembered in tools/paths.local.json (gitignored)")
@@ -723,7 +730,7 @@ def main(argv=None) -> int:
         confirm_saves(r, a.no_saves_yet, auto=False)
         print(f"doctor: saves {'confirmed' if r.green else 'NOT confirmed'}")
         return 0 if r.green else 2
-    r = diagnose(a.fix, a.smoke)
+    r = diagnose(a.fix, a.smoke, a.no_smoke)
     bad = [n for n, ok, _ in r.rows if not ok]
     print(f"doctor: {'green' if not bad else 'NOT ready: ' + ', '.join(bad)}")
     return 0 if not bad else 2
