@@ -58,11 +58,14 @@ namespace GameLab
 	//   cht_add_all_dyes               Console::Cheats::addAllDyesCFunc (Console/Cheats.as:1231)
 	//   cht_unlock_town_flags          Console::Cheats::UnlockTownFlagsCFunc (Console/Cheats.as:146)
 	//   mission_start <missionId>      Console::Missions::StartMission (MissionGameMode.as:84)
+	//   cht_finish_level               Console::Cheats::FinishLevelCFunc (Console/Cheats.as:1117)
+	//   dbg_show_stash                 Console::Cheats::ShowPlayerStashCFunc (Console/Cheats.as:1070)
+	//   show_chat                      ShowChatCFunc (GameModes/MainMenuGameMode.as:3)
 	void VerbCheat(const string &in id, array<string>@ args)
 	{
 		if (args.length() < 1)
 		{
-			Fail(id, "usage: cheat <ply_kill|cht_revive|cht_set_flag|cht_give_material|cht_add_all_dyes|cht_unlock_town_flags|mission_start> [args]");
+			Fail(id, "usage: cheat <ply_kill|cht_revive|cht_set_flag|cht_give_material|cht_add_all_dyes|cht_unlock_town_flags|mission_start|cht_finish_level|dbg_show_stash|show_chat> [args]");
 			return;
 		}
 		string fn = args[0];
@@ -156,6 +159,28 @@ namespace GameLab
 				return;
 			}
 			gm.m_windowManager.AddWindowObject(MissionLoadoutMenu(gm.m_guiBuilder));
+		}
+		else if (fn == "cht_finish_level")
+		{
+			if (GetLocalPlayer() is null)
+			{
+				Fail(id, "cheat cht_finish_level: no local player");
+				return;
+			}
+			Console::Cheats::FinishLevelCFunc();
+		}
+		else if (fn == "dbg_show_stash")
+		{
+			if (cast<BaseGameMode>(g_gameMode) is null || g_myTownRecord is null)
+			{
+				Fail(id, "cheat dbg_show_stash: no game mode or town record");
+				return;
+			}
+			Console::Cheats::ShowPlayerStashCFunc();
+		}
+		else if (fn == "show_chat")
+		{
+			ShowChatCFunc();
 		}
 		else
 		{
