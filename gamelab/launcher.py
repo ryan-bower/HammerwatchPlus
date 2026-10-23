@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import subprocess
 import sys
 import time
@@ -87,25 +88,50 @@ def preflight(mode: str, accept_drift: bool = False, mods: list[str] | None = No
     return errors, mism
 
 
-def run(scenario_name: str, mode: str, accept_drift: bool = False) -> int:
-    scenario_path = Path(scenario_name) if scenario_name.endswith(".json") else SCENARIOS / f"{scenario_name}.json"
+def scenario_file(name: str) -> Path:
+    """A scenario by name (`mod-x`, or a path under gamelab/scenarios/ such as
+    `it/gambler/gambler-bet`) or by .json path."""
+    return Path(name) if name.endswith(".json") else SCENARIOS / f"{name}.json"
+
+
+def acquire(scenario_name: str, mode: str, wait: float = 0) -> None:
+    """lock.acquire; with `wait` seconds, wait while another LIVE run holds the lock (another
+    agent's run). A stale lock or a dirty teardown is still refused at once: those need a
+    look, then `python -m gamelab reset`."""
+    end, said = time.time() + wait, False
+    while True:
+        try:
+            lock.acquire(scenario_name, mode)
+            return
+        except lock.Refused as e:
+            if not (wait and "another GameLab run holds the lock" in str(e) and time.time() < end):
+                raise
+            if not said:
+                print("WAITING", e, flush=True)
+                said = True
+            time.sleep(3)
+
+
+def run(scenario_name: str, mode: str, accept_drift: bool = False, wait: float = 0) -> int:
+    scenario_path = scenario_file(scenario_name)
     scenario_name = scenario_path.stem
     scenario = json.loads(scenario_path.read_text(encoding="utf-8"))
-    # the lock comes first: preflight relinks the shared lab game dir's mods
+    # the lock before preflight: preflight re-links the lab mods dir (env.link), and doing that
+    # under another live run drops that run's mods under test from the game dir
     try:
-        lock.acquire(scenario_name, mode)
+        acquire(scenario_name, mode, wait)
     except lock.Refused as e:
         print("REFUSED", e)
         return lock.EXIT_REFUSED
     try:
         errors, drift = preflight(mode, accept_drift, scenario.get("mods"))
     except BaseException:
-        lock.release(scenario_name, [])  # the build gate (sys.exit): nothing ran
+        lock.release(scenario_name, [])     # nothing ran (e.g. the build gate's exit 3)
         raise
     if errors:
+        lock.release(scenario_name, [])
         for e in errors:
             print("PREFLIGHT", e)
-        lock.release(scenario_name, [])
         return 2
     try:
         return _run(scenario_path, scenario_name, scenario, mode, drift)
@@ -129,7 +155,7 @@ def _run(scenario_path: Path, scenario_name: str, scenario: dict, mode: str, dri
     timeout = scenario.get("timeout", 300) * 3          # fixture passes + the run itself
     timeout = scenario.get("outer_timeout", timeout)   # test hook: kill before the runner's own deadline
     t0 = time.time()
-    timed_out = False
+    timed_out = aborted = False
     with winproc.ForegroundSampler(game_dir=str(env.GAME.resolve()) if mode == "lab" else None) as fg:
         try:
             done = hidden_desktop.run(cmd, cwd=REPO, timeout=timeout, visible=(mode == "watch"))
@@ -137,6 +163,13 @@ def _run(scenario_path: Path, scenario_name: str, scenario: dict, mode: str, dri
         except subprocess.TimeoutExpired as e:
             inner_code, stdout, stderr = None, str(e.stdout or ""), f"timeout after {timeout}s"
             timed_out = True
+        except KeyboardInterrupt:
+            # Ctrl+C (the user ending a watch session): hidden_desktop's job object has killed
+            # the game tree, and the checks below still run, so this is a normal end, not a
+            # dirty teardown that refuses the next run (arena watch 20261021-192533 needed a reset)
+            inner_code, stdout, stderr = None, "", "aborted by Ctrl+C"
+            aborted = True
+            print("ABORTED by Ctrl+C: checking the install and tearing down", flush=True)
     (results / "runner.out.txt").write_text(f"{stdout}\n--- stderr ---\n{stderr}", encoding="utf-8")
     # a killed runner never reached its finally: put back what its write_* steps edited
     restored = restore_written(results)
@@ -158,6 +191,11 @@ def _run(scenario_path: Path, scenario_name: str, scenario: dict, mode: str, dri
     (results / "isolation-res.json").write_text(json.dumps(res_evidence, indent=1), encoding="utf-8")
     outer("install res/ unchanged", res_after == res_before,
           ", ".join(sorted(k for k in set(res_before) | set(res_after) if res_before.get(k) != res_after.get(k))))
+    want_ver = (pin_build.pinned() or {}).get("game_version", "unknown")
+    seen_ver = sorted({m.group(1) for log in (results / "logs").glob("pass*.HWR2.exe.log")
+                       for m in [re.search(r"\] (Build \d+):", log.read_text(encoding="utf-8", errors="replace")[:600])] if m})
+    outer("game log names the pinned version", want_ver == "unknown" or seen_ver in ([], [want_ver]),
+          f"pin {want_ver}, logs {seen_ver or 'none'}" + (" (pin_build.py --game-version to pin it)" if want_ver == "unknown" else ""))
     changed = saves.diff(saves_before, saves.snapshot())
     outer("user saves unchanged", not changed, ", ".join(changed))
     report = fg.report()
@@ -168,16 +206,21 @@ def _run(scenario_path: Path, scenario_name: str, scenario: dict, mode: str, dri
               f"{report['window_scans']} scans, leaks {report['game_windows_on_input_desktop']}")
     else:
         # watch: the window is visible and the human may click it, but from launch to the
-        # first frame the foreground must never belong to the GameLab tree (no focus steal)
+        # first frame the foreground must never belong to the GameLab tree (no focus steal).
+        # No first frame (the game exited while booting) checks the whole run instead: a boot
+        # that dies is the run's own error, not an INVALID (watch 20261019-005852: the game
+        # exited code 0 at 5 s, nothing stole focus, and the verdict hid the GameError)
         first = inner.get("first_frame_at")
         stolen = [sw for sw in report["switches"] if sw.get("ours") and (first is None or fg.t0 + sw["t"] < first)]
-        outer("foreground never the game tree from launch to first frame", first is not None and not stolen,
+        outer("foreground never the game tree from launch to first frame", not stolen,
               json.dumps({"first_frame_s": round(first - fg.t0, 2) if first else None, "stolen": stolen}))
     failed = [a for a in assertions if not a["ok"]]
     shot_fail = [a for a in failed if a["name"].startswith("shot ")]
     probes_ok = not [a for a in failed if not a["name"].startswith("shot ")]
     if any(a["name"] in INVALIDATING for a in failed) or (shot_fail and probes_ok):
         verdict = "INVALID"
+    elif aborted:
+        verdict = "ABORTED"
     elif timed_out or inner.get("timeout"):
         verdict = "TIMEOUT"
     elif failed or "error" in inner or inner_code != 0:
@@ -185,7 +228,9 @@ def _run(scenario_path: Path, scenario_name: str, scenario: dict, mode: str, dri
     else:
         verdict = "PASS"
     dirty = [f"{a['name']}: {a['detail']}" for a in assertions if a["name"].endswith("exited cleanly") and not a["ok"]]
-    if not (results / "inner.json").exists():
+    if aborted:
+        pass                                   # a runner cut short by Ctrl+C has no full inner.json by design
+    elif not (results / "inner.json").exists():
         dirty.append("runner wrote no inner.json")
     elif inner.get("partial"):
         dirty.append("runner was killed before it finished (inner.json is partial)")
@@ -200,6 +245,15 @@ def _run(scenario_path: Path, scenario_name: str, scenario: dict, mode: str, dri
     (results / "run.json").write_text(json.dumps(record, indent=1), encoding="utf-8")
     if inner.get("boundaries"):
         (results / "boundaries.md").write_text(boundary_table(inner["boundaries"]), encoding="utf-8")
+    # summary.{json,md}: per place wall/stall/loot/hits (tools/run_summary.py); never fails the run
+    try:
+        sys.path.insert(0, str(REPO / "tools"))
+        import run_summary
+        summ = run_summary.write(results)
+        if summ.get("stall_s"):
+            print(f"  stalled frames: {summ['stall_s']} s (summary.md)")
+    except Exception as e:                     # noqa: BLE001 - a report, not a gate
+        print(f"  summary failed: {type(e).__name__}: {e}")
     for a in assertions:
         print(f"  [{'PASS' if a['ok'] else 'FAIL'}] {a['name']}" + (f"  -- {a['detail']}" if a["detail"] and not a["ok"] else ""))
     if inner.get("error"):
@@ -209,7 +263,7 @@ def _run(scenario_path: Path, scenario_name: str, scenario: dict, mode: str, dri
     if not teardown["clean"]:
         print("  dirty teardown:", "; ".join(teardown["reasons"]))
     print(f"{verdict}  {scenario_name} ({mode}) in {record['seconds']}s -> {results.relative_to(REPO)}")
-    return {"PASS": 0, "FAIL": 1, "INVALID": 5, "TIMEOUT": 6}[verdict]
+    return {"PASS": 0, "FAIL": 1, "INVALID": 5, "TIMEOUT": 6, "ABORTED": 130}[verdict]
 
 
 def boundary_table(rows: list[dict]) -> str:

@@ -1,0 +1,7 @@
+{
+  "id": "gamelab-it-campaign",
+  "requires": ["gamelab-probe"],
+  "overrides": [],
+  "exclude": [],
+  "gamelab": true
+}

@@ -15,6 +15,9 @@ SCRIPT_ISSUE = re.compile(r"\] (ERR|WARN|WRN|ERROR)\s+: (?P<file>[^ ]+) \(ln (?P
 MOD_ADDED = re.compile(r"Adding (packed|unpacked) mod '([^']+)'")
 # "sval does not exist": a gui naming a sprite set nobody defines; vanilla never logs it
 OURS = (r"scripts/HWP/", r"scripts/GameLab/", r"hwp_", r"\[HWP:", r"HammerwatchPlus", r"sval does not exist")
+LINE_PREFIX = re.compile(r"^\[\w+\] \[[\d:]+\] (?:SE|INFO|ERR|WARN)?\s*:?\s*")
+# the engine's last word when any script fails to compile: every mod script stops, the probe too
+COMPILE_FAILED = "Please correct the errors in the script"
 
 
 def script_issues(text: str) -> list[dict]:
@@ -22,19 +25,37 @@ def script_issues(text: str) -> list[dict]:
     for m in SCRIPT_ISSUE.finditer(text):
         end = text.find("\n", m.end())
         msg = text[end + 1:text.find("\n", end + 1)].strip() if end >= 0 else ""
+        msg = LINE_PREFIX.sub("", msg)          # "[WRN] [15:33:16] SE : Function 'opNeg()' not found"
         out.append({"kind": m.group(1), "file": m.group("file"), "line": int(m.group("line")),
                     "col": int(m.group("col")), "msg": msg})
     return out
 
 
-def errors_in(text: str, patterns=OURS) -> list[str]:
-    """Compile errors in files matching `patterns`, plus runtime errors mentioning them."""
+def errors_in(text: str, patterns=OURS, allow=()) -> list[str]:
+    """Compile errors in files matching `patterns`, plus runtime errors mentioning them.
+    `allow`: regexes for expected error lines; one is dropped with the engine's `From "<file>"
+    line N` line right after it (an HWP::LogError is two lines, the second naming Log.as:
+    architect-errors 20261020-160604)."""
     ours = re.compile("|".join(patterns))
+    ok = re.compile("|".join(allow)) if allow else None
     bad = [f"{i['kind']} {i['file']}:{i['line']}:{i['col']} {i['msg']}" for i in script_issues(text)
            if i["kind"].startswith("ERR") and ours.search(i["file"])]
-    bad += [ln.strip() for ln in text.splitlines()
-            if ("Script exception" in ln or "[ERR]" in ln) and ours.search(ln)]
-    return bad
+    skip_from = False
+    for ln in text.splitlines():
+        if ok is not None and ok.search(ln):
+            skip_from = True
+            continue
+        if skip_from and re.search(r'\[ERR\].* From "', ln):
+            skip_from = False
+            continue
+        skip_from = False
+        if ("Script exception" in ln or "[ERR]" in ln) and ours.search(ln):
+            bad.append(ln.strip())
+    return list(dict.fromkeys(bad))         # the engine compiles twice (boot, menu level): once each
+
+
+def compile_failed(text: str) -> bool:
+    return COMPILE_FAILED in text
 
 
 def mods_added(text: str) -> list[str]:

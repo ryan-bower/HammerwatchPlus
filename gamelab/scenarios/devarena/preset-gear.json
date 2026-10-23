@@ -1,0 +1,1675 @@
+{
+ "name": "devarena-preset-gear",
+ "about": "Every Dev Arena preset in turn must read back ok, including every equipped item passing the game's MayEquip: an item that fails it has its weapon skill blocked every frame (CheckSkillBlocked), so left/right click did nothing (user report 2026-10-21, priest and wizard). Run: python -m gamelab run devarena/preset-gear --mode lab.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "core",
+  "devarena",
+  "spec-ranger-test"
+ ],
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "mark",
+   "name": "p4"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "paladin_divine/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset paladin_divine/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout paladin_divine/early ok",
+   "since": "p4",
+   "timeout": 10,
+   "name": "paladin_divine/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p7"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "paladin_divine/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset paladin_divine/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout paladin_divine/mid ok",
+   "since": "p7",
+   "timeout": 10,
+   "name": "paladin_divine/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p10"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "paladin_divine/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset paladin_divine/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout paladin_divine/end ok",
+   "since": "p10",
+   "timeout": 10,
+   "name": "paladin_divine/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p13"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "paladin_justice/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset paladin_justice/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout paladin_justice/early ok",
+   "since": "p13",
+   "timeout": 10,
+   "name": "paladin_justice/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p16"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "paladin_justice/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset paladin_justice/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout paladin_justice/mid ok",
+   "since": "p16",
+   "timeout": 10,
+   "name": "paladin_justice/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p19"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "paladin_justice/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset paladin_justice/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout paladin_justice/end ok",
+   "since": "p19",
+   "timeout": 10,
+   "name": "paladin_justice/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p22"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "paladin_radiance/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset paladin_radiance/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout paladin_radiance/early ok",
+   "since": "p22",
+   "timeout": 10,
+   "name": "paladin_radiance/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p25"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "paladin_radiance/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset paladin_radiance/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout paladin_radiance/mid ok",
+   "since": "p25",
+   "timeout": 10,
+   "name": "paladin_radiance/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p28"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "paladin_radiance/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset paladin_radiance/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout paladin_radiance/end ok",
+   "since": "p28",
+   "timeout": 10,
+   "name": "paladin_radiance/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p31"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "priest_crusader/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset priest_crusader/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout priest_crusader/early ok",
+   "since": "p31",
+   "timeout": 10,
+   "name": "priest_crusader/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p34"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "priest_crusader/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset priest_crusader/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout priest_crusader/mid ok",
+   "since": "p34",
+   "timeout": 10,
+   "name": "priest_crusader/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p37"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "priest_crusader/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset priest_crusader/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout priest_crusader/end ok",
+   "since": "p37",
+   "timeout": 10,
+   "name": "priest_crusader/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p40"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "priest_divine_light/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset priest_divine_light/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout priest_divine_light/early ok",
+   "since": "p40",
+   "timeout": 10,
+   "name": "priest_divine_light/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p43"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "priest_divine_light/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset priest_divine_light/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout priest_divine_light/mid ok",
+   "since": "p43",
+   "timeout": 10,
+   "name": "priest_divine_light/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p46"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "priest_divine_light/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset priest_divine_light/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout priest_divine_light/end ok",
+   "since": "p46",
+   "timeout": 10,
+   "name": "priest_divine_light/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p49"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "priest_flaggelant/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset priest_flaggelant/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout priest_flaggelant/early ok",
+   "since": "p49",
+   "timeout": 10,
+   "name": "priest_flaggelant/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p52"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "priest_flaggelant/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset priest_flaggelant/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout priest_flaggelant/mid ok",
+   "since": "p52",
+   "timeout": 10,
+   "name": "priest_flaggelant/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p55"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "priest_flaggelant/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset priest_flaggelant/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout priest_flaggelant/end ok",
+   "since": "p55",
+   "timeout": 10,
+   "name": "priest_flaggelant/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p58"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_beasts/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_beasts/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_beasts/early ok",
+   "since": "p58",
+   "timeout": 10,
+   "name": "ranger_beasts/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p61"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_beasts/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_beasts/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_beasts/mid ok",
+   "since": "p61",
+   "timeout": 10,
+   "name": "ranger_beasts/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p64"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_beasts/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_beasts/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_beasts/end ok",
+   "since": "p64",
+   "timeout": 10,
+   "name": "ranger_beasts/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p67"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_marksman/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_marksman/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_marksman/early ok",
+   "since": "p67",
+   "timeout": 10,
+   "name": "ranger_marksman/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p70"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_marksman/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_marksman/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_marksman/mid ok",
+   "since": "p70",
+   "timeout": 10,
+   "name": "ranger_marksman/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p73"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_marksman/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_marksman/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_marksman/end ok",
+   "since": "p73",
+   "timeout": 10,
+   "name": "ranger_marksman/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p76"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_nature/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_nature/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_nature/early ok",
+   "since": "p76",
+   "timeout": 10,
+   "name": "ranger_nature/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p79"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_nature/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_nature/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_nature/mid ok",
+   "since": "p79",
+   "timeout": 10,
+   "name": "ranger_nature/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p82"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_nature/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_nature/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_nature/end ok",
+   "since": "p82",
+   "timeout": 10,
+   "name": "ranger_nature/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p85"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "rogue_blades/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset rogue_blades/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout rogue_blades/early ok",
+   "since": "p85",
+   "timeout": 10,
+   "name": "rogue_blades/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p88"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "rogue_blades/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset rogue_blades/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout rogue_blades/mid ok",
+   "since": "p88",
+   "timeout": 10,
+   "name": "rogue_blades/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p91"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "rogue_blades/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset rogue_blades/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout rogue_blades/end ok",
+   "since": "p91",
+   "timeout": 10,
+   "name": "rogue_blades/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p94"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "rogue_demolitions/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset rogue_demolitions/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout rogue_demolitions/early ok",
+   "since": "p94",
+   "timeout": 10,
+   "name": "rogue_demolitions/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p97"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "rogue_demolitions/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset rogue_demolitions/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout rogue_demolitions/mid ok",
+   "since": "p97",
+   "timeout": 10,
+   "name": "rogue_demolitions/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p100"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "rogue_demolitions/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset rogue_demolitions/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout rogue_demolitions/end ok",
+   "since": "p100",
+   "timeout": 10,
+   "name": "rogue_demolitions/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p103"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "rogue_poison/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset rogue_poison/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout rogue_poison/early ok",
+   "since": "p103",
+   "timeout": 10,
+   "name": "rogue_poison/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p106"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "rogue_poison/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset rogue_poison/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout rogue_poison/mid ok",
+   "since": "p106",
+   "timeout": 10,
+   "name": "rogue_poison/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p109"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "rogue_poison/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset rogue_poison/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout rogue_poison/end ok",
+   "since": "p109",
+   "timeout": 10,
+   "name": "rogue_poison/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p112"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "sorcerer_fire/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset sorcerer_fire/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout sorcerer_fire/early ok",
+   "since": "p112",
+   "timeout": 10,
+   "name": "sorcerer_fire/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p115"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "sorcerer_fire/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset sorcerer_fire/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout sorcerer_fire/mid ok",
+   "since": "p115",
+   "timeout": 10,
+   "name": "sorcerer_fire/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p118"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "sorcerer_fire/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset sorcerer_fire/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout sorcerer_fire/end ok",
+   "since": "p118",
+   "timeout": 10,
+   "name": "sorcerer_fire/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p121"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "sorcerer_ice/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset sorcerer_ice/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout sorcerer_ice/early ok",
+   "since": "p121",
+   "timeout": 10,
+   "name": "sorcerer_ice/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p124"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "sorcerer_ice/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset sorcerer_ice/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout sorcerer_ice/mid ok",
+   "since": "p124",
+   "timeout": 10,
+   "name": "sorcerer_ice/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p127"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "sorcerer_ice/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset sorcerer_ice/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout sorcerer_ice/end ok",
+   "since": "p127",
+   "timeout": 10,
+   "name": "sorcerer_ice/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p130"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "sorcerer_lightning/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset sorcerer_lightning/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout sorcerer_lightning/early ok",
+   "since": "p130",
+   "timeout": 10,
+   "name": "sorcerer_lightning/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p133"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "sorcerer_lightning/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset sorcerer_lightning/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout sorcerer_lightning/mid ok",
+   "since": "p133",
+   "timeout": 10,
+   "name": "sorcerer_lightning/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p136"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "sorcerer_lightning/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset sorcerer_lightning/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout sorcerer_lightning/end ok",
+   "since": "p136",
+   "timeout": 10,
+   "name": "sorcerer_lightning/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p139"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warlock_chaos/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warlock_chaos/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warlock_chaos/early ok",
+   "since": "p139",
+   "timeout": 10,
+   "name": "warlock_chaos/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p142"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warlock_chaos/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warlock_chaos/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warlock_chaos/mid ok",
+   "since": "p142",
+   "timeout": 10,
+   "name": "warlock_chaos/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p145"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warlock_chaos/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warlock_chaos/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warlock_chaos/end ok",
+   "since": "p145",
+   "timeout": 10,
+   "name": "warlock_chaos/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p148"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warlock_souls/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warlock_souls/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warlock_souls/early ok",
+   "since": "p148",
+   "timeout": 10,
+   "name": "warlock_souls/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p151"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warlock_souls/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warlock_souls/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warlock_souls/mid ok",
+   "since": "p151",
+   "timeout": 10,
+   "name": "warlock_souls/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p154"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warlock_souls/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warlock_souls/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warlock_souls/end ok",
+   "since": "p154",
+   "timeout": 10,
+   "name": "warlock_souls/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p157"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warlock_summoning/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warlock_summoning/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warlock_summoning/early ok",
+   "since": "p157",
+   "timeout": 10,
+   "name": "warlock_summoning/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p160"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warlock_summoning/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warlock_summoning/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warlock_summoning/mid ok",
+   "since": "p160",
+   "timeout": 10,
+   "name": "warlock_summoning/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p163"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warlock_summoning/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warlock_summoning/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warlock_summoning/end ok",
+   "since": "p163",
+   "timeout": 10,
+   "name": "warlock_summoning/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p166"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warrior_berserker/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warrior_berserker/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warrior_berserker/early ok",
+   "since": "p166",
+   "timeout": 10,
+   "name": "warrior_berserker/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p169"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warrior_berserker/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warrior_berserker/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warrior_berserker/mid ok",
+   "since": "p169",
+   "timeout": 10,
+   "name": "warrior_berserker/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p172"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warrior_berserker/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warrior_berserker/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warrior_berserker/end ok",
+   "since": "p172",
+   "timeout": 10,
+   "name": "warrior_berserker/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p175"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warrior_primalist/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warrior_primalist/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warrior_primalist/early ok",
+   "since": "p175",
+   "timeout": 10,
+   "name": "warrior_primalist/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p178"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warrior_primalist/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warrior_primalist/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warrior_primalist/mid ok",
+   "since": "p178",
+   "timeout": 10,
+   "name": "warrior_primalist/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p181"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warrior_primalist/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warrior_primalist/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warrior_primalist/end ok",
+   "since": "p181",
+   "timeout": 10,
+   "name": "warrior_primalist/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p184"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warrior_tyrant/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warrior_tyrant/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warrior_tyrant/early ok",
+   "since": "p184",
+   "timeout": 10,
+   "name": "warrior_tyrant/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p187"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warrior_tyrant/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warrior_tyrant/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warrior_tyrant/mid ok",
+   "since": "p187",
+   "timeout": 10,
+   "name": "warrior_tyrant/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p190"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warrior_tyrant/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warrior_tyrant/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warrior_tyrant/end ok",
+   "since": "p190",
+   "timeout": 10,
+   "name": "warrior_tyrant/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p193"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "wizard_conjuration/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset wizard_conjuration/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout wizard_conjuration/early ok",
+   "since": "p193",
+   "timeout": 10,
+   "name": "wizard_conjuration/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p196"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "wizard_conjuration/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset wizard_conjuration/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout wizard_conjuration/mid ok",
+   "since": "p196",
+   "timeout": 10,
+   "name": "wizard_conjuration/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p199"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "wizard_conjuration/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset wizard_conjuration/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout wizard_conjuration/end ok",
+   "since": "p199",
+   "timeout": 10,
+   "name": "wizard_conjuration/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p202"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "wizard_evocation/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset wizard_evocation/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout wizard_evocation/early ok",
+   "since": "p202",
+   "timeout": 10,
+   "name": "wizard_evocation/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p205"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "wizard_evocation/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset wizard_evocation/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout wizard_evocation/mid ok",
+   "since": "p205",
+   "timeout": 10,
+   "name": "wizard_evocation/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p208"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "wizard_evocation/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset wizard_evocation/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout wizard_evocation/end ok",
+   "since": "p208",
+   "timeout": 10,
+   "name": "wizard_evocation/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p211"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "wizard_transmutation/early"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset wizard_transmutation/early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout wizard_transmutation/early ok",
+   "since": "p211",
+   "timeout": 10,
+   "name": "wizard_transmutation/early: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p214"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "wizard_transmutation/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset wizard_transmutation/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout wizard_transmutation/mid ok",
+   "since": "p214",
+   "timeout": 10,
+   "name": "wizard_transmutation/mid: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p217"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "wizard_transmutation/end"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset wizard_transmutation/end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout wizard_transmutation/end ok",
+   "since": "p217",
+   "timeout": 10,
+   "name": "wizard_transmutation/end: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p220"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_nature/mid+poison"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_nature/mid+poison"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_nature/mid\\+poison ok",
+   "since": "p220",
+   "timeout": 10,
+   "name": "ranger_nature/mid+poison: loads ok, every item usable (MayEquip)"
+  },
+  {
+   "do": "mark",
+   "name": "p223"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_nature/end+heal"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_nature/end+heal"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_nature/end\\+heal ok",
+   "since": "p223",
+   "timeout": 10,
+   "name": "ranger_nature/end+heal: loads ok, every item usable (MayEquip)"
+  }
+ ]
+}

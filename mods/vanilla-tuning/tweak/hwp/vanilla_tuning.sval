@@ -1,0 +1,8 @@
+<!-- Vanilla Tuning edits, exported from the Dev Arena tuner by tools/devarena/export.py.
+     Rows: [skill id, level index (0 = base, k = upgrades[k-1]), path, value]. -->
+<dict>
+	<int name="schema">1</int>
+	<int name="version">0</int>
+	<string name="note">v0: vanilla</string>
+	<array name="edits"></array>
+</dict>

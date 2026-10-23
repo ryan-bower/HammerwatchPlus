@@ -1,0 +1,159 @@
+{
+ "name": "spike-deferred",
+ "about": "Spike 2: deferred apply. Lengthen Entangle's cast (anim-length 600->4000, live), start a cast, patch the cooldown mid-cast: da-set must report applied=false/casting=true, and the module must apply it on the first frame after the cast ends (pending back to 0, deferredFrames > 0, cooldown read back).",
+ "fixture": "mission-ranger",
+ "mods": [
+  "core",
+  "devarena"
+ ],
+ "timeout": 400,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true,
+    "seed": 4242
+   }
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "da-set",
+   "args": [
+    "nature_entangle",
+    0,
+    "anim-length",
+    4000
+   ],
+   "expect": {
+    "ok": true,
+    "applied": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "nature_entangle",
+    "area-dmg,area-ttl"
+   ],
+   "save_as": "long",
+   "name": "long",
+   "expect": {
+    "ok": true,
+    "animLen": 4000,
+    "rebuilds": 1
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "input",
+   "args": [
+    300,
+    0,
+    0,
+    1,
+    0,
+    "skill2"
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "da-set",
+   "args": [
+    "nature_entangle",
+    0,
+    "cooldown",
+    2500
+   ],
+   "expect": {
+    "ok": true,
+    "applied": false,
+    "casting": true,
+    "pending": 1
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "nature_entangle",
+    "area-dmg,area-ttl"
+   ],
+   "save_as": "mid",
+   "name": "mid",
+   "expect": {
+    "ok": true,
+    "casting": true,
+    "cooldown": 20000,
+    "pending": 1
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 5
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "nature_entangle",
+    "area-dmg,area-ttl"
+   ],
+   "save_as": "done",
+   "name": "done",
+   "expect": {
+    "ok": true,
+    "casting": false,
+    "cooldown": 2500,
+    "pending": 0,
+    "rebuilds": 2,
+    "deferredFrames": {
+     "between": [
+      1,
+      100000
+     ]
+    }
+   }
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:devarena\\] (rejected|apply failed)"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

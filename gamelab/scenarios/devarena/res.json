@@ -1,0 +1,339 @@
+{
+ "name": "devarena-res",
+ "about": "The dock at 1920x1080 and 2560x1440 (SPEC 'Decided during build' 1a): ranger_nature/mid on a cleared floor, F1, then for each resolution (gl da-res, the options window's SetVar without saving the profile) every tab is opened by its button and shot at the full window size. The shots are the evidence, read by eye; the assertions only prove the window really was that size and every tab button was there.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "core",
+  "devarena",
+  "spec-ranger-test"
+ ],
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "mark",
+   "name": "preset"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_nature/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: ranger_nature/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_nature/mid ok",
+   "since": "preset",
+   "timeout": 15,
+   "name": "ranger_nature/mid applied"
+  },
+  {
+   "do": "key",
+   "key": "f1",
+   "name": "F1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "da-dock",
+   "expect": {
+    "ok": true,
+    "open": true
+   },
+   "name": "the dock is open"
+  },
+  {
+   "do": "gl",
+   "verb": "da-res",
+   "args": [
+    "1920x1080"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: 1920x1080"
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "da-res",
+   "expect": {
+    "ok": true,
+    "w": 1920,
+    "h": 1080
+   },
+   "save_as": "res1080",
+   "name": "1080p: the window is 1920x1080"
+  },
+  {
+   "do": "click",
+   "dock": "tab-tune",
+   "verify": false,
+   "name": "1080p: the Tune tab"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "shot",
+   "name": "1080p-tune",
+   "size": "1920x1080"
+  },
+  {
+   "do": "click",
+   "dock": "tab-loadout",
+   "verify": false,
+   "name": "1080p: the Loadout tab"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "shot",
+   "name": "1080p-loadout",
+   "size": "1920x1080"
+  },
+  {
+   "do": "click",
+   "dock": "tab-arena",
+   "verify": false,
+   "name": "1080p: the Arena tab"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "shot",
+   "name": "1080p-arena",
+   "size": "1920x1080"
+  },
+  {
+   "do": "click",
+   "dock": "tab-golem",
+   "verify": false,
+   "name": "1080p: the Golem tab"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "shot",
+   "name": "1080p-golem",
+   "size": "1920x1080"
+  },
+  {
+   "do": "click",
+   "dock": "tab-bench",
+   "verify": false,
+   "name": "1080p: the Bench tab"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "shot",
+   "name": "1080p-bench",
+   "size": "1920x1080"
+  },
+  {
+   "do": "click",
+   "dock": "tab-compose",
+   "verify": false,
+   "name": "1080p: the Compose tab"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "shot",
+   "name": "1080p-compose",
+   "size": "1920x1080"
+  },
+  {
+   "do": "gl",
+   "verb": "da-res",
+   "args": [
+    "2560x1440"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: 2560x1440"
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "da-res",
+   "expect": {
+    "ok": true,
+    "w": 2560,
+    "h": 1440
+   },
+   "save_as": "res1440",
+   "name": "1440p: the window is 2560x1440"
+  },
+  {
+   "do": "click",
+   "dock": "tab-tune",
+   "verify": false,
+   "name": "1440p: the Tune tab"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "shot",
+   "name": "1440p-tune",
+   "size": "2560x1440"
+  },
+  {
+   "do": "click",
+   "dock": "tab-loadout",
+   "verify": false,
+   "name": "1440p: the Loadout tab"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "shot",
+   "name": "1440p-loadout",
+   "size": "2560x1440"
+  },
+  {
+   "do": "click",
+   "dock": "tab-arena",
+   "verify": false,
+   "name": "1440p: the Arena tab"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "shot",
+   "name": "1440p-arena",
+   "size": "2560x1440"
+  },
+  {
+   "do": "click",
+   "dock": "tab-golem",
+   "verify": false,
+   "name": "1440p: the Golem tab"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "shot",
+   "name": "1440p-golem",
+   "size": "2560x1440"
+  },
+  {
+   "do": "click",
+   "dock": "tab-bench",
+   "verify": false,
+   "name": "1440p: the Bench tab"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "shot",
+   "name": "1440p-bench",
+   "size": "2560x1440"
+  },
+  {
+   "do": "click",
+   "dock": "tab-compose",
+   "verify": false,
+   "name": "1440p: the Compose tab"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "shot",
+   "name": "1440p-compose",
+   "size": "2560x1440"
+  },
+  {
+   "do": "gl",
+   "verb": "da-res",
+   "args": [
+    "640x360"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "back to the lab profile's 640x360 (the end shot checks it)"
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:devarena\\].*\\b(error|ERR|apply failed|rejected)\\b",
+   "name": "no devarena errors"
+  }
+ ]
+}

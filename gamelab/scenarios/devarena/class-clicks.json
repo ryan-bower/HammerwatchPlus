@@ -1,0 +1,2118 @@
+{
+ "name": "devarena-class-clicks",
+ "about": "Every class's mid preset in turn: left and right click (posted mouse messages, shim hand-off with focus kept in watch) must cast the main and off skill, with no test cheats (a preset starts with its skills ready, Loadout.as ApplyPreset) (user report 2026-10-21: clicks fired on ranger but not priest or wizard). Run: python -m gamelab run devarena/class-clicks --mode lab (or --mode watch).",
+ "fixture": "mission-ranger",
+ "mods": [
+  "core",
+  "devarena",
+  "spec-ranger-test"
+ ],
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "gl",
+   "verb": "da-inputlog",
+   "args": [
+    "on"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "input log on (no cheats: the player's real mana and cooldowns)"
+  },
+  {
+   "do": "handoff",
+   "keep_focus": true,
+   "name": "hand the mouse to the scripted player (focus kept)"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "mark",
+   "name": "p-paladin_divine"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "paladin_divine/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset paladin_divine/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout paladin_divine/mid (ok|mismatch)",
+   "since": "p-paladin_divine",
+   "timeout": 15,
+   "name": "paladin_divine: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-paladin_divine"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-paladin_divine",
+   "timeout": 4,
+   "name": "paladin_divine: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-paladin_divine"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-paladin_divine",
+   "timeout": 4,
+   "name": "paladin_divine: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-paladin_justice"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "paladin_justice/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset paladin_justice/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout paladin_justice/mid (ok|mismatch)",
+   "since": "p-paladin_justice",
+   "timeout": 15,
+   "name": "paladin_justice: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-paladin_justice"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-paladin_justice",
+   "timeout": 4,
+   "name": "paladin_justice: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-paladin_justice"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-paladin_justice",
+   "timeout": 4,
+   "name": "paladin_justice: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-paladin_radiance"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "paladin_radiance/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset paladin_radiance/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout paladin_radiance/mid (ok|mismatch)",
+   "since": "p-paladin_radiance",
+   "timeout": 15,
+   "name": "paladin_radiance: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-paladin_radiance"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-paladin_radiance",
+   "timeout": 4,
+   "name": "paladin_radiance: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-paladin_radiance"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-paladin_radiance",
+   "timeout": 4,
+   "name": "paladin_radiance: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-priest_crusader"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "priest_crusader/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset priest_crusader/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout priest_crusader/mid (ok|mismatch)",
+   "since": "p-priest_crusader",
+   "timeout": 15,
+   "name": "priest_crusader: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-priest_crusader"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-priest_crusader",
+   "timeout": 4,
+   "name": "priest_crusader: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-priest_crusader"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-priest_crusader",
+   "timeout": 4,
+   "name": "priest_crusader: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-priest_divine_light"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "priest_divine_light/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset priest_divine_light/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout priest_divine_light/mid (ok|mismatch)",
+   "since": "p-priest_divine_light",
+   "timeout": 15,
+   "name": "priest_divine_light: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-priest_divine_light"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-priest_divine_light",
+   "timeout": 4,
+   "name": "priest_divine_light: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-priest_divine_light"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-priest_divine_light",
+   "timeout": 4,
+   "name": "priest_divine_light: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-priest_flaggelant"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "priest_flaggelant/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset priest_flaggelant/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout priest_flaggelant/mid (ok|mismatch)",
+   "since": "p-priest_flaggelant",
+   "timeout": 15,
+   "name": "priest_flaggelant: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-priest_flaggelant"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-priest_flaggelant",
+   "timeout": 4,
+   "name": "priest_flaggelant: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-priest_flaggelant"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-priest_flaggelant",
+   "timeout": 4,
+   "name": "priest_flaggelant: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-ranger_beasts"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_beasts/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_beasts/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_beasts/mid (ok|mismatch)",
+   "since": "p-ranger_beasts",
+   "timeout": 15,
+   "name": "ranger_beasts: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-ranger_beasts"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-ranger_beasts",
+   "timeout": 4,
+   "name": "ranger_beasts: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-ranger_beasts"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-ranger_beasts",
+   "timeout": 4,
+   "name": "ranger_beasts: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-ranger_marksman"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_marksman/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_marksman/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_marksman/mid (ok|mismatch)",
+   "since": "p-ranger_marksman",
+   "timeout": 15,
+   "name": "ranger_marksman: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-ranger_marksman"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-ranger_marksman",
+   "timeout": 4,
+   "name": "ranger_marksman: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-ranger_marksman"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-ranger_marksman",
+   "timeout": 4,
+   "name": "ranger_marksman: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-ranger_nature"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_nature/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_nature/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_nature/mid (ok|mismatch)",
+   "since": "p-ranger_nature",
+   "timeout": 15,
+   "name": "ranger_nature: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-ranger_nature"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-ranger_nature",
+   "timeout": 4,
+   "name": "ranger_nature: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-ranger_nature"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-ranger_nature",
+   "timeout": 4,
+   "name": "ranger_nature: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-rogue_blades"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "rogue_blades/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset rogue_blades/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout rogue_blades/mid (ok|mismatch)",
+   "since": "p-rogue_blades",
+   "timeout": 15,
+   "name": "rogue_blades: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-rogue_blades"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-rogue_blades",
+   "timeout": 4,
+   "name": "rogue_blades: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-rogue_blades"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-rogue_blades",
+   "timeout": 4,
+   "name": "rogue_blades: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-rogue_demolitions"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "rogue_demolitions/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset rogue_demolitions/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout rogue_demolitions/mid (ok|mismatch)",
+   "since": "p-rogue_demolitions",
+   "timeout": 15,
+   "name": "rogue_demolitions: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-rogue_demolitions"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-rogue_demolitions",
+   "timeout": 4,
+   "name": "rogue_demolitions: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-rogue_demolitions"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-rogue_demolitions",
+   "timeout": 4,
+   "name": "rogue_demolitions: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-rogue_poison"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "rogue_poison/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset rogue_poison/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout rogue_poison/mid (ok|mismatch)",
+   "since": "p-rogue_poison",
+   "timeout": 15,
+   "name": "rogue_poison: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-rogue_poison"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-rogue_poison",
+   "timeout": 4,
+   "name": "rogue_poison: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-rogue_poison"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-rogue_poison",
+   "timeout": 4,
+   "name": "rogue_poison: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-sorcerer_fire"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "sorcerer_fire/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset sorcerer_fire/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout sorcerer_fire/mid (ok|mismatch)",
+   "since": "p-sorcerer_fire",
+   "timeout": 15,
+   "name": "sorcerer_fire: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-sorcerer_fire"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-sorcerer_fire",
+   "timeout": 4,
+   "name": "sorcerer_fire: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-sorcerer_fire"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-sorcerer_fire",
+   "timeout": 4,
+   "name": "sorcerer_fire: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-sorcerer_ice"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "sorcerer_ice/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset sorcerer_ice/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout sorcerer_ice/mid (ok|mismatch)",
+   "since": "p-sorcerer_ice",
+   "timeout": 15,
+   "name": "sorcerer_ice: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-sorcerer_ice"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-sorcerer_ice",
+   "timeout": 4,
+   "name": "sorcerer_ice: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-sorcerer_ice"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-sorcerer_ice",
+   "timeout": 4,
+   "name": "sorcerer_ice: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-sorcerer_lightning"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "sorcerer_lightning/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset sorcerer_lightning/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout sorcerer_lightning/mid (ok|mismatch)",
+   "since": "p-sorcerer_lightning",
+   "timeout": 15,
+   "name": "sorcerer_lightning: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-sorcerer_lightning"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-sorcerer_lightning",
+   "timeout": 4,
+   "name": "sorcerer_lightning: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-sorcerer_lightning"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-sorcerer_lightning",
+   "timeout": 4,
+   "name": "sorcerer_lightning: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-warlock_chaos"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warlock_chaos/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warlock_chaos/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warlock_chaos/mid (ok|mismatch)",
+   "since": "p-warlock_chaos",
+   "timeout": 15,
+   "name": "warlock_chaos: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-warlock_chaos"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-warlock_chaos",
+   "timeout": 4,
+   "name": "warlock_chaos: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-warlock_chaos"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-warlock_chaos",
+   "timeout": 4,
+   "name": "warlock_chaos: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-warlock_souls"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warlock_souls/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warlock_souls/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warlock_souls/mid (ok|mismatch)",
+   "since": "p-warlock_souls",
+   "timeout": 15,
+   "name": "warlock_souls: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-warlock_souls"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-warlock_souls",
+   "timeout": 4,
+   "name": "warlock_souls: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-warlock_souls"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-warlock_souls",
+   "timeout": 4,
+   "name": "warlock_souls: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-warlock_summoning"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warlock_summoning/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warlock_summoning/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warlock_summoning/mid (ok|mismatch)",
+   "since": "p-warlock_summoning",
+   "timeout": 15,
+   "name": "warlock_summoning: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-warlock_summoning"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-warlock_summoning",
+   "timeout": 4,
+   "name": "warlock_summoning: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-warlock_summoning"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-warlock_summoning",
+   "timeout": 4,
+   "name": "warlock_summoning: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-warrior_berserker"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warrior_berserker/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warrior_berserker/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warrior_berserker/mid (ok|mismatch)",
+   "since": "p-warrior_berserker",
+   "timeout": 15,
+   "name": "warrior_berserker: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-warrior_berserker"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-warrior_berserker",
+   "timeout": 4,
+   "name": "warrior_berserker: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-warrior_berserker"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-warrior_berserker",
+   "timeout": 4,
+   "name": "warrior_berserker: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-warrior_primalist"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warrior_primalist/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warrior_primalist/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warrior_primalist/mid (ok|mismatch)",
+   "since": "p-warrior_primalist",
+   "timeout": 15,
+   "name": "warrior_primalist: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-warrior_primalist"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-warrior_primalist",
+   "timeout": 4,
+   "name": "warrior_primalist: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-warrior_primalist"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-warrior_primalist",
+   "timeout": 4,
+   "name": "warrior_primalist: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-warrior_tyrant"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "warrior_tyrant/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset warrior_tyrant/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout warrior_tyrant/mid (ok|mismatch)",
+   "since": "p-warrior_tyrant",
+   "timeout": 15,
+   "name": "warrior_tyrant: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-warrior_tyrant"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-warrior_tyrant",
+   "timeout": 4,
+   "name": "warrior_tyrant: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-warrior_tyrant"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-warrior_tyrant",
+   "timeout": 4,
+   "name": "warrior_tyrant: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-wizard_conjuration"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "wizard_conjuration/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset wizard_conjuration/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout wizard_conjuration/mid (ok|mismatch)",
+   "since": "p-wizard_conjuration",
+   "timeout": 15,
+   "name": "wizard_conjuration: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-wizard_conjuration"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-wizard_conjuration",
+   "timeout": 4,
+   "name": "wizard_conjuration: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-wizard_conjuration"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-wizard_conjuration",
+   "timeout": 4,
+   "name": "wizard_conjuration: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-wizard_evocation"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "wizard_evocation/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset wizard_evocation/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout wizard_evocation/mid (ok|mismatch)",
+   "since": "p-wizard_evocation",
+   "timeout": 15,
+   "name": "wizard_evocation: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-wizard_evocation"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-wizard_evocation",
+   "timeout": 4,
+   "name": "wizard_evocation: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-wizard_evocation"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-wizard_evocation",
+   "timeout": 4,
+   "name": "wizard_evocation: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "p-wizard_transmutation"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "wizard_transmutation/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset wizard_transmutation/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout wizard_transmutation/mid (ok|mismatch)",
+   "since": "p-wizard_transmutation",
+   "timeout": 15,
+   "name": "wizard_transmutation: loadout applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "l-wizard_transmutation"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "l-wizard_transmutation",
+   "timeout": 4,
+   "name": "wizard_transmutation: left click casts main"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "r-wizard_transmutation"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "r-wizard_transmutation",
+   "timeout": 4,
+   "name": "wizard_transmutation: right click casts off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "gl",
+   "verb": "da-inputlog",
+   "args": [
+    "off"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "input log off"
+  }
+ ]
+}

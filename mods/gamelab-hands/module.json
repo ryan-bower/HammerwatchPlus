@@ -1,7 +1,21 @@
 {
   "id": "gamelab-hands",
-  "requires": ["gamelab-probe"],
-  "overrides": [],
+  "requires": [
+    "gamelab-probe"
+  ],
+  "overrides": [
+    "scripts/Generators/DungeonBrush.as",
+    "scripts/Generators/DungeonBrushPainting.as",
+    "scripts/Generators/DungeonGenerationCarveInitial.as",
+    "scripts/Generators/DungeonGenerationCommands.as",
+    "scripts/Generators/DungeonGenerationHallwayInitial.as",
+    "scripts/Generators/DungeonGenerator.as",
+    "scripts/Generators/DungeonInstanceBrush.as",
+    "scripts/Generators/ForestBrush.as",
+    "scripts/Generators/MissionPrefabDef.as",
+    "scripts/Generators/PatternMatcher.as",
+    "scripts/Generators/PrefabPlacement.as"
+  ],
   "exclude": [],
   "gamelab": true
 }

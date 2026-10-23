@@ -1,0 +1,661 @@
+{
+ "name": "devarena-edge",
+ "about": "The adversarial review's edge cases, typed into the Tune tab as a player would: (D2) an int past int32 (4294967396) is refused, not wrapped to 100; (N1) a negative castpoint is refused; (D4) castpoint 0 then 200 moves only the cast event, the timeline's start stays at 0; (D3) a REFS path longer than 48 chars reaches the submit whole, and one past the 160-char field limit is refused instead of committed cut off. Review 2: (B2) a typed edit committed by clicking the A/B swap or another skill's chip lands on the slot and skill it was typed for; (B1) a timeline that opens on the cast (Trap's [100,\"cast\"]) moves with the castpoint. Review 3: committing a filter or search by a click must not let the reflowed layout hand that click to a row that was never under the pointer.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "core",
+  "devarena",
+  "spec-ranger-test"
+ ],
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "mark",
+   "name": "preset"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_nature/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: ranger_nature/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_nature/mid ok",
+   "since": "preset",
+   "timeout": 15,
+   "name": "ranger_nature/mid applied"
+  },
+  {
+   "do": "key",
+   "key": "f1",
+   "name": "F1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "click",
+   "dock": "tab-tune",
+   "verify": false,
+   "name": "the Tune tab"
+  },
+  {
+   "do": "click",
+   "dock": "skill|nature_entangle",
+   "verify": false,
+   "name": "the Entangle chip"
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "nature_entangle"
+   ],
+   "expect": {
+    "ok": true,
+    "castpoint": 150,
+    "timeline.0": 0,
+    "timeline.1": 150
+   },
+   "name": "before: castpoint 150, timeline [0,150]"
+  },
+  {
+   "do": "mark",
+   "name": "d2"
+  },
+  {
+   "do": "click",
+   "dock": "feel|castpoint",
+   "verify": false,
+   "name": "D2: the castpoint field"
+  },
+  {
+   "do": "text",
+   "text": "4294967396",
+   "name": "D2: type 4294967396"
+  },
+  {
+   "do": "key",
+   "key": "enter",
+   "name": "D2: Enter"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] rejected nature_entangle.*castpoint=4294967396: '4294967396' is out of int range",
+   "since": "d2",
+   "timeout": 5,
+   "name": "D2: refused as out of int range"
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "nature_entangle"
+   ],
+   "expect": {
+    "ok": true,
+    "castpoint": 150
+   },
+   "name": "D2: castpoint still 150 (not wrapped to 100)"
+  },
+  {
+   "do": "mark",
+   "name": "n1"
+  },
+  {
+   "do": "click",
+   "dock": "feel|castpoint",
+   "verify": false,
+   "name": "N1: the castpoint field"
+  },
+  {
+   "do": "text",
+   "text": "-100",
+   "name": "N1: type -100"
+  },
+  {
+   "do": "key",
+   "key": "enter",
+   "name": "N1: Enter"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] rejected nature_entangle.*castpoint=-100: castpoint can't be negative",
+   "since": "n1",
+   "timeout": 5,
+   "name": "N1: a negative castpoint is refused"
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "nature_entangle"
+   ],
+   "expect": {
+    "ok": true,
+    "castpoint": 150
+   },
+   "name": "N1: castpoint still 150"
+  },
+  {
+   "do": "click",
+   "dock": "feel|castpoint",
+   "verify": false,
+   "name": "D4: the castpoint field"
+  },
+  {
+   "do": "text",
+   "text": "0",
+   "name": "D4: type 0"
+  },
+  {
+   "do": "key",
+   "key": "enter",
+   "name": "D4: Enter"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "nature_entangle"
+   ],
+   "expect": {
+    "ok": true,
+    "castpoint": 0,
+    "timeline.0": 0,
+    "timeline.1": 0
+   },
+   "name": "D4: castpoint 0, timeline [0,0]"
+  },
+  {
+   "do": "click",
+   "dock": "feel|castpoint",
+   "verify": false,
+   "name": "D4: the castpoint field again"
+  },
+  {
+   "do": "text",
+   "text": "200",
+   "name": "D4: type 200"
+  },
+  {
+   "do": "key",
+   "key": "enter",
+   "name": "D4: Enter"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "nature_entangle"
+   ],
+   "expect": {
+    "ok": true,
+    "castpoint": 200,
+    "timeline.0": 0,
+    "timeline.1": 200
+   },
+   "name": "D4: castpoint 200, the start stays at 0: timeline [0,200]"
+  },
+  {
+   "do": "mark",
+   "name": "b2swap"
+  },
+  {
+   "do": "click",
+   "dock": "feel|castpoint",
+   "verify": false,
+   "name": "B2: on B, the castpoint field"
+  },
+  {
+   "do": "text",
+   "text": "120",
+   "name": "B2: type 120, no Enter"
+  },
+  {
+   "do": "click",
+   "dock": "ab-swap",
+   "verify": false,
+   "name": "B2: click the A/B swap (commits the edit)"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] version v[0-9]+ \\([0-9]+ edits\\): nature_entangle castpoint=120",
+   "since": "b2swap",
+   "timeout": 5,
+   "name": "B2: the edit was made on B before the swap"
+  },
+  {
+   "do": "gl",
+   "verb": "da-tune",
+   "expect": {
+    "ok": true,
+    "slot": "A",
+    "a": 0,
+    "b": {
+     "not": 0
+    }
+   },
+   "name": "B2: now on A (v0), B holds the edit"
+  },
+  {
+   "do": "click",
+   "dock": "ab-swap",
+   "verify": false,
+   "name": "B2: back to B"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "nature_entangle"
+   ],
+   "expect": {
+    "ok": true,
+    "castpoint": 120
+   },
+   "name": "B2: B's Entangle castpoint is 120"
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "ran_trap"
+   ],
+   "save_as": "trap0",
+   "expect": {
+    "ok": true,
+    "castpoint": 100,
+    "timeline.0": 100
+   },
+   "name": "B1 before: Trap castpoint 100, timeline [100,cast]"
+  },
+  {
+   "do": "mark",
+   "name": "b2chip"
+  },
+  {
+   "do": "click",
+   "dock": "feel|castpoint",
+   "verify": false,
+   "name": "B2: the Entangle castpoint field"
+  },
+  {
+   "do": "text",
+   "text": "130",
+   "name": "B2: type 130, no Enter"
+  },
+  {
+   "do": "click",
+   "dock": "skill|ran_trap",
+   "verify": false,
+   "name": "B2: click the Trap chip (commits the edit)"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] version v[0-9]+ \\([0-9]+ edits\\): nature_entangle castpoint=130",
+   "since": "b2chip",
+   "timeout": 5,
+   "name": "B2: the edit went onto Entangle, where it was typed"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "ran_trap castpoint=130",
+   "since": "b2chip",
+   "name": "B2: not onto Trap"
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "ran_trap"
+   ],
+   "expect": {
+    "ok": true,
+    "castpoint": 100
+   },
+   "name": "B2: Trap untouched"
+  },
+  {
+   "do": "click",
+   "dock": "feel|castpoint",
+   "verify": false,
+   "name": "B1: the Trap castpoint field"
+  },
+  {
+   "do": "text",
+   "text": "50",
+   "name": "B1: type 50"
+  },
+  {
+   "do": "key",
+   "key": "enter",
+   "name": "B1: Enter"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "ran_trap"
+   ],
+   "expect": {
+    "ok": true,
+    "castpoint": 50,
+    "timeline.0": 50
+   },
+   "name": "B1: Trap's cast event moved with it: castpoint 50, timeline [50]"
+  },
+  {
+   "do": "click",
+   "dock": "skill|nature_entangle",
+   "verify": false,
+   "name": "back to the Entangle chip"
+  },
+  {
+   "do": "click",
+   "dock": "filter",
+   "verify": false,
+   "name": "D3: the Tune filter"
+  },
+  {
+   "do": "text",
+   "text": "area-unit",
+   "name": "D3: filter area-unit"
+  },
+  {
+   "do": "key",
+   "key": "enter",
+   "name": "D3: Enter"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "mark",
+   "name": "d3long"
+  },
+  {
+   "do": "click",
+   "dock": "ref|binds.area-unit",
+   "verify": false,
+   "name": "D3: the area-unit REFS field"
+  },
+  {
+   "do": "text",
+   "text": "players/ranger/units/entangle_area_poison_but_longer_than_48.unit",
+   "name": "D3: type a 65-char path"
+  },
+  {
+   "do": "key",
+   "key": "enter",
+   "name": "D3: Enter"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] field submit ref\\|binds\\.area-unit 'players/ranger/units/entangle_area_poison_but_longer_than_48\\.unit'",
+   "since": "d3long",
+   "timeout": 5,
+   "name": "D3: the 65-char path reaches the submit whole"
+  },
+  {
+   "do": "mark",
+   "name": "d3over"
+  },
+  {
+   "do": "click",
+   "dock": "ref|binds.area-unit",
+   "verify": false,
+   "name": "D3: the area-unit REFS field again"
+  },
+  {
+   "do": "text",
+   "text": "players/ranger/units/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.unit",
+   "name": "D3: type a 177-char path"
+  },
+  {
+   "do": "key",
+   "key": "enter",
+   "name": "D3: Enter"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] field rejected ref\\|binds\\.area-unit: longer than 160 chars",
+   "since": "d3over",
+   "timeout": 5,
+   "name": "D3: past 160 chars it is refused"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:devarena\\] field submit ref\\|binds\\.area-unit 'players/ranger/units/a{20}",
+   "since": "d3over",
+   "name": "D3: the cut-off text was never submitted"
+  },
+  {
+   "do": "gl",
+   "verb": "da-arena",
+   "expect": {
+    "ok": true,
+    "lastError": {
+     "match": "longer than 160"
+    }
+   },
+   "name": "D3: the footer error says so"
+  },
+  {
+   "do": "click",
+   "dock": "filter",
+   "verify": false,
+   "name": "R3: the Tune filter"
+  },
+  {
+   "do": "key",
+   "key": "backspace",
+   "name": "R3: clear it"
+  },
+  {
+   "do": "key",
+   "key": "enter",
+   "name": "R3: Enter (no filter)"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "da-tune",
+   "args": [
+    "nature_entangle",
+    "binds.area-ttl"
+   ],
+   "name": "R4 before: area-ttl [7000..11000]",
+   "expect": {
+    "ok": true,
+    "values.0": "7000",
+    "values.4": "11000"
+   }
+  },
+  {
+   "do": "mark",
+   "name": "r4grow"
+  },
+  {
+   "do": "click",
+   "dock": "cell|binds.area-ttl|1",
+   "verify": false,
+   "name": "R4: the area-ttl L1 cell"
+  },
+  {
+   "do": "text",
+   "text": "5000",
+   "name": "R4: type 5000, no Enter"
+  },
+  {
+   "do": "click",
+   "dock": "grow+|binds.area-ttl",
+   "verify": false,
+   "name": "R4: click growth + (commits the cell)"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] version v[0-9]+ \\([0-9]+ edits\\): binds\\.area-ttl growth 1916\\.667",
+   "since": "r4grow",
+   "timeout": 5,
+   "name": "R4: the growth was fitted to the typed base (5000, step 250), not the old one"
+  },
+  {
+   "do": "gl",
+   "verb": "da-tune",
+   "args": [
+    "nature_entangle",
+    "binds.area-ttl"
+   ],
+   "name": "R4: the curve is a line through 5000",
+   "expect": {
+    "ok": true,
+    "values.0": "5000",
+    "values.1": {
+     "match": "^691[67]$"
+    }
+   }
+  },
+  {
+   "do": "click",
+   "dock": "filter",
+   "verify": false,
+   "name": "R3: the filter again"
+  },
+  {
+   "do": "text",
+   "text": "cost",
+   "name": "R3: type cost, no Enter"
+  },
+  {
+   "do": "click",
+   "dock": "cell|binds.area-ttl|1",
+   "verify": false,
+   "name": "R3: click the area-ttl cell as drawn (commits the filter)"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "da-dock",
+   "expect": {
+    "ok": true,
+    "editing": {
+     "not": "cell|skill-cost|1"
+    }
+   },
+   "name": "R3: the reflowed row under the pointer did not take the click"
+  },
+  {
+   "do": "click",
+   "dock": "tab-loadout",
+   "verify": false,
+   "name": "R3: the Loadout tab"
+  },
+  {
+   "do": "mark",
+   "name": "r3load"
+  },
+  {
+   "do": "click",
+   "dock": "lsearch",
+   "verify": false,
+   "name": "R3: the Loadout search"
+  },
+  {
+   "do": "text",
+   "text": "paladin",
+   "name": "R3: type paladin, no Enter"
+  },
+  {
+   "do": "click",
+   "dock": "preset|ranger_nature/end",
+   "verify": false,
+   "name": "R3: click ranger_nature/end as drawn (commits the search)"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] field submit lsearch 'paladin'",
+   "since": "r3load",
+   "timeout": 5,
+   "name": "R3: the search committed"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "loadout paladin_divine",
+   "since": "r3load",
+   "name": "R3: no paladin preset applied by the reflow"
+  },
+  {
+   "do": "shot",
+   "name": "edge-end"
+  }
+ ]
+}

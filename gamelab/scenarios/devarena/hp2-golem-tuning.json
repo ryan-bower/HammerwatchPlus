@@ -1,0 +1,310 @@
+{
+ "name": "hp2-golem-tuning",
+ "about": "HP2 (docs/devarena/SPEC.md, happy paths): apply ranger_nature/mid, raise Entangle's area-dmg growth three steps into slot B on the Tune tab, F4 into the golem room, pick the footman elite profile (the spec's 'barracks elite' has no unit of that name; footman elite is the nearest guard elite), NG+3, a 4M pool, then the Bench tab: bot, 5 pulls of 10 s, Start, a verdict, Keep B>A and the CSV (preset, variant, version, n, spread). Buttons are aimed by id (gl da-dock).",
+ "fixture": "mission-ranger",
+ "mods": [
+  "core",
+  "devarena"
+ ],
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "key",
+   "key": "f1",
+   "name": "F1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "click",
+   "dock": "tab-loadout",
+   "verify": false,
+   "name": "the Loadout tab"
+  },
+  {
+   "do": "click",
+   "dock": "lclass|ranger",
+   "verify": false,
+   "name": "ranger chip"
+  },
+  {
+   "do": "click",
+   "dock": "lsub|nature",
+   "verify": false,
+   "name": "nature chip"
+  },
+  {
+   "do": "mark",
+   "name": "apply"
+  },
+  {
+   "do": "click",
+   "dock": "preset|ranger_nature/mid",
+   "verify": false,
+   "name": "apply ranger_nature/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_nature/mid (ok|mismatch)",
+   "since": "apply",
+   "timeout": 10,
+   "name": "ranger_nature/mid applied"
+  },
+  {
+   "do": "click",
+   "dock": "tab-tune",
+   "verify": false,
+   "name": "the Tune tab"
+  },
+  {
+   "do": "click",
+   "dock": "skill|nature_entangle",
+   "verify": false,
+   "name": "Tune: the Entangle chip"
+  },
+  {
+   "do": "click",
+   "dock": "grow+|binds.area-dmg",
+   "verify": false,
+   "name": "growth [+] 1"
+  },
+  {
+   "do": "click",
+   "dock": "grow+|binds.area-dmg",
+   "verify": false,
+   "name": "growth [+] 2"
+  },
+  {
+   "do": "click",
+   "dock": "grow+|binds.area-dmg",
+   "verify": false,
+   "name": "growth [+] 3"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "da-tune",
+   "expect": {
+    "ok": true,
+    "a": 0,
+    "b": 3,
+    "slot": "B"
+   },
+   "name": "three growth steps: B is v3"
+  },
+  {
+   "do": "mark",
+   "name": "in"
+  },
+  {
+   "do": "key",
+   "key": "f4",
+   "name": "F4: into the room"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] golem room in",
+   "since": "in",
+   "timeout": 5,
+   "name": "in the room"
+  },
+  {
+   "do": "click",
+   "dock": "tab-golem",
+   "verify": false,
+   "name": "the Golem tab"
+  },
+  {
+   "do": "click",
+   "dock": "gprof|footman elite",
+   "verify": false,
+   "name": "profile: footman elite"
+  },
+  {
+   "do": "click",
+   "dock": "gngp|+",
+   "verify": false,
+   "name": "NG+ 1"
+  },
+  {
+   "do": "click",
+   "dock": "gngp|+",
+   "verify": false,
+   "name": "NG+ 2"
+  },
+  {
+   "do": "click",
+   "dock": "gngp|+",
+   "verify": false,
+   "name": "NG+ 3"
+  },
+  {
+   "do": "click",
+   "dock": "gpool|4M",
+   "verify": false,
+   "name": "pool 4M"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] golem spawn footman elite ngp 3 ",
+   "since": "in",
+   "timeout": 5,
+   "name": "footman elite at NG+3"
+  },
+  {
+   "do": "click",
+   "dock": "tab-bench",
+   "verify": false,
+   "name": "the Bench tab"
+  },
+  {
+   "do": "click",
+   "dock": "bmode|bot",
+   "verify": false,
+   "name": "driver: bot"
+  },
+  {
+   "do": "click",
+   "dock": "bpulls|5",
+   "verify": false,
+   "name": "5 pulls"
+  },
+  {
+   "do": "click",
+   "dock": "bsecs|10s",
+   "verify": false,
+   "name": "10 s"
+  },
+  {
+   "do": "gl",
+   "verb": "da-bench",
+   "expect": {
+    "ok": true,
+    "pulls": 5,
+    "secs": 10,
+    "driver": "bot",
+    "source": "versions"
+   },
+   "name": "settings took"
+  },
+  {
+   "do": "shot",
+   "name": "bench-set"
+  },
+  {
+   "do": "mark",
+   "name": "bench"
+  },
+  {
+   "do": "click",
+   "dock": "bstart",
+   "verify": false,
+   "name": "Start bench"
+  },
+  {
+   "do": "gl",
+   "verb": "pointer",
+   "args": [
+    "320",
+    "130",
+    "move"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: the mouse over the golem, off the dock"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] bench 1 start bot 10 pulls of 10s, A v0, B v3",
+   "since": "bench",
+   "timeout": 5,
+   "name": "bench started: 10 pulls, A v0 vs B v3"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] bench-result \\{\"bench\":1,",
+   "since": "bench",
+   "timeout": 240,
+   "name": "the bench finished"
+  },
+  {
+   "do": "log_has",
+   "pattern": "bench-pull \\{\"bench\":1,\"variant\":\"B\",\"version\":3,.*\"preset\":\"ranger_nature/mid\".*\"dps\":[1-9]",
+   "since": "bench",
+   "timeout": 5,
+   "name": "a B v3 pull on ranger_nature/mid dealt damage"
+  },
+  {
+   "do": "bench_csv",
+   "since": "bench",
+   "min_rows": 10,
+   "name": "CSV: 10 rows, the game's stats agree with bench.py"
+  },
+  {
+   "do": "shot",
+   "name": "verdict"
+  },
+  {
+   "do": "click",
+   "dock": "bkeep",
+   "verify": false,
+   "name": "Keep B>A"
+  },
+  {
+   "do": "gl",
+   "verb": "da-tune",
+   "expect": {
+    "ok": true,
+    "a": 3,
+    "b": -1,
+    "slot": "A"
+   },
+   "name": "kept: A is v3, B empty"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:devarena\\].*(error|ERR)",
+   "name": "no devarena errors"
+  }
+ ]
+}

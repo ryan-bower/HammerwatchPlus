@@ -1,0 +1,38 @@
+{
+ "name": "loadout-all",
+ "about": "Loadouts (docs/devarena/SPEC.md build order 3): every preset tools/make_presets.py wrote is applied on a live floor and read back (class, level, skill and combo picks, stats, gear base id + quality + ilvl per slot, trinkets, stars and stat points not overspent). First one same-class apply (ranger_nature/mid) and one cross-class apply (paladin_divine/end, ChangeClass in place, no floor reload) with a shot each, then all of them in file order.",
+ "fixture": "mission-ranger",
+ "mods": ["core", "devarena"],
+ "timeout": 500,
+ "steps": [
+  {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},
+  {"do": "wait_phase", "phase": "mission", "timeout": 120},
+  {"do": "sleep", "seconds": 3},
+  {"do": "gl", "verb": "cull", "args": ["all"], "expect": {"ok": true}, "name": "setup: clear the floor (cheat)"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] presets: 74", "timeout": 5, "name": "74 presets read at boot"},
+  {"do": "gl", "verb": "da-loadout", "expect": {"ok": true, "presets": 74, "preset": "", "applied": 0, "class": "ranger_nature"}, "name": "before: no preset, the fixture's ranger"},
+  {"do": "shot", "name": "before"},
+
+  {"do": "mark", "name": "same"},
+  {"do": "gl", "verb": "da-preset", "args": ["ranger_nature/mid"], "expect": {"ok": true}, "name": "setup: apply ranger_nature/mid"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] loadout ranger_nature/mid (ok|mismatch.*)", "since": "same", "timeout": 10, "name": "ranger_nature/mid applied"},
+  {"do": "gl", "verb": "da-loadout", "expect": {"ok": true, "preset": "ranger_nature/mid", "applied": 1, "good": 1, "bad": 0, "class": "ranger_nature", "level": 12, "trinketsTotal": 4}, "name": "ranger_nature/mid reads back"},
+  {"do": "shot", "name": "ranger-mid"},
+
+  {"do": "mark", "name": "cross"},
+  {"do": "gl", "verb": "da-preset", "args": ["paladin_divine/end"], "expect": {"ok": true}, "name": "setup: apply paladin_divine/end (cross-class)"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] loadout paladin_divine/end (ok|mismatch.*)", "since": "cross", "timeout": 10, "name": "paladin_divine/end applied"},
+  {"do": "gl", "verb": "da-loadout", "expect": {"ok": true, "preset": "paladin_divine/end", "applied": 2, "bad": 0, "class": "paladin_divine", "level": 20, "trinketsTotal": 6}, "name": "cross-class: paladin_divine/end reads back"},
+  {"do": "sleep", "seconds": 1},
+  {"do": "shot", "name": "paladin-end"},
+  {"do": "gl", "verb": "state", "expect": {"ok": true, "phase": "mission"}, "name": "still on the floor after the class change"},
+
+  {"do": "mark", "name": "all"},
+  {"do": "gl", "verb": "da-preset", "args": ["all"], "expect": {"ok": true, "queued": 74}, "name": "setup: queue every preset"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] loadout ranger_nature/end\\+heal (ok|mismatch.*)", "since": "all", "timeout": 60, "name": "the last preset applied"},
+  {"do": "gl", "verb": "da-loadout", "expect": {"ok": true, "queued": 0, "applied": 76, "bad": 0}, "name": "all 74 presets read back ok"},
+  {"do": "log_lacks", "pattern": "\\[HWP:devarena\\] loadout \\S+ mismatch.*", "name": "no preset mismatched"},
+  {"do": "shot", "name": "last"},
+  {"do": "log_clean"}
+ ]
+}

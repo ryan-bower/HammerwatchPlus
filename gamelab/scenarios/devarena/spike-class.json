@@ -1,0 +1,23 @@
+{
+ "name": "spike-class",
+ "about": "Spike 6 (docs/devarena/SPEC.md build order): a mod class through InstantiateClass. Entangle's 'start' action (PlaySound) is swapped for HWP::DevArena::ProbeAction, a class in mods/devarena, by patching the base skill's actions.start.0.class; the rebuild runs the engine's own action loader (Actions/IAction.as:282), and one cast fires the mod class.",
+ "fixture": "mission-ranger",
+ "mods": ["core", "devarena"],
+ "timeout": 300,
+ "steps": [
+  {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},
+  {"do": "wait_phase", "phase": "mission", "timeout": 120},
+  {"do": "sleep", "seconds": 3},
+  {"do": "gl", "verb": "cull", "args": ["all"], "expect": {"ok": true}, "name": "setup: clear the floor (cheat)"},
+  {"do": "gl", "verb": "da-skill", "args": ["nature_entangle"], "expect": {"ok": true, "slot": 1, "probeBuilt": 0, "probeFired": 0}, "name": "before: no probe built"},
+  {"do": "gl", "verb": "da-set", "args": ["nature_entangle", 0, "actions.start.0.tag", "entangle-start"], "expect": {"ok": true, "applied": true}, "name": "add a tag param to the start action"},
+  {"do": "gl", "verb": "da-set", "args": ["nature_entangle", 0, "actions.start.0.class", "HWP::DevArena::ProbeAction"], "expect": {"ok": true, "applied": true}, "name": "swap the start action's class for the mod class"},
+  {"do": "gl", "verb": "da-skill", "args": ["nature_entangle"], "expect": {"ok": true, "probeBuilt": {"between": [1, 100]}, "probeFired": 0}, "name": "the rebuild built the mod class"},
+  {"do": "gl", "verb": "input", "args": [300, 0, 0, 1, 0, "skill2"], "expect": {"ok": true}, "name": "cast Entangle (Skill2)"},
+  {"do": "sleep", "seconds": 1.5},
+  {"do": "gl", "verb": "da-skill", "args": ["nature_entangle"], "expect": {"ok": true, "casts": 1, "probeFired": 1}, "name": "the cast fired the mod class once"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] probe action 'entangle-start' fired \\(1\\)", "timeout": 5},
+  {"do": "log_lacks", "pattern": "is not an IAction|Couldn't instantiate|No class"},
+  {"do": "log_clean"}
+ ]
+}

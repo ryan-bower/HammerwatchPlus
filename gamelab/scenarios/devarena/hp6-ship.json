@@ -1,0 +1,257 @@
+{
+ "name": "hp6-ship",
+ "about": "HP6 (docs/devarena/SPEC.md, Decided during build 27): the ship check. mods/spec-ranger-test (tools/devarena/clone_spec.py from hp4-compose's v1, tooltips rewritten to the composed numbers) boots cold. The guild hall goes to tier 3, where the Subclass Picker stands (prefabs/town/buildings/guild_hall/guild_hall_tier_3.pfb and up; tweak/town/buildings/guild_hall.sval: tier_3 is the second upgrade); a level-10 ranger in town walks up to the real Subclass Picker NPC, presses Use, clicks the picker's next arrow until it shows Test Warden and takes it with the MenuContext key (gamelab/bots/devarena_pick_spec.py). da-ship reads the class as the game parsed it (every lang key resolved, its place among the ranger masteries, the window's texts) before and after. Then the composed Entangle fires once on a mission floor. tools/devarena/ship_check.py --run <this run> writes docs/devarena/ship/ranger_test.md.",
+ "fixture": "town-ranger10",
+ "mods": [
+  "core",
+  "devarena",
+  "spec-ranger-test"
+ ],
+ "timeout": 360,
+ "steps": [
+  {
+   "do": "wait_phase",
+   "phase": "town",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "buildings",
+   "save_as": "bld",
+   "name": "the town's buildings"
+  },
+  {"do": "gl", "verb": "build", "args": ["guild_hall"], "expect": {"ok": true}, "name": "setup: build the guild hall, tier 1 (the builder's path minus cost) (cheat)"},
+  {"do": "sleep", "seconds": 0.8},
+  {
+   "do": "gl",
+   "verb": "da-tierup",
+   "args": [
+    "guild_hall"
+   ],
+   "expect": {
+    "ok": true,
+    "before": 0,
+    "after": 1
+   },
+   "name": "setup: guild hall tier 2 (the builder's upgrade minus cost) (cheat)"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "gl",
+   "verb": "da-tierup",
+   "args": [
+    "guild_hall"
+   ],
+   "expect": {
+    "ok": true,
+    "before": 1,
+    "after": 2
+   },
+   "name": "setup: guild hall tier 3 (cheat)"
+  },
+  {
+   "do": "bot",
+   "bot": "it_pets_wait",
+   "kwargs": {
+    "verb": "near",
+    "args": [
+     6000,
+     "npc_subclass_picker"
+    ],
+    "expect": {
+     "count": 1
+    },
+    "timeout": 8,
+    "cinema": false
+   },
+   "expect": {
+    "terminal": "done"
+   },
+   "name": "the Subclass Picker stands in the tier-3 guild hall"
+  },
+  {
+   "do": "gl",
+   "verb": "da-ship",
+   "args": [
+    "ranger_test"
+   ],
+   "save_as": "before",
+   "expect": {
+    "ok": true,
+    "name": "Test Warden",
+    "parent": "ranger",
+    "pickerIndex": {
+     "not": -1
+    },
+    "unresolvedCount": 0,
+    "icon": true,
+    "playerClass": "ranger",
+    "playerLevel": 10,
+    "picked": false,
+    "skillsCut": false
+   },
+   "name": "the spec as the game parsed it: named, resolved, a ranger mastery"
+  },
+  {
+   "do": "bot",
+   "bot": "devarena_pick_spec",
+   "kwargs": {
+    "spec": "ranger_test",
+    "tour": true
+   },
+   "save_as": "pick",
+   "expect": {
+    "terminal": "done",
+    "picked": true,
+    "shown.shows": "ranger_test",
+    "toured": ["ranger_marksman", "ranger_beasts", "ranger_nature", "ranger_test"],
+    "shown.picked-class": {
+     "match": "Test Warden"
+    }
+   },
+   "name": "picked at the Subclass Picker NPC: Use, the next arrow, MenuContext"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "player.class": "ranger_test"
+   },
+   "name": "the class is ranger_test"
+  },
+  {
+   "do": "gl",
+   "verb": "da-ship",
+   "args": [
+    "ranger_test"
+   ],
+   "save_as": "after",
+   "expect": {
+    "ok": true,
+    "picked": true,
+    "playerClass": "ranger_test",
+    "unresolvedCount": 0
+   },
+   "name": "da-ship after the pick"
+  },
+  {
+   "do": "shot",
+   "name": "hp6-town"
+  },
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "player.class": "ranger_test"
+   },
+   "name": "the mastery carried into the mission"
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "hwp_ranger_test_nature_entangle",
+    "proj-dmg,burst-dmg,burst-radius"
+   ],
+   "expect": {
+    "ok": true,
+    "castpoint": 150,
+    "cooldown": 3000
+   },
+   "name": "the spec's Entangle is the composed skill"
+  },
+  {
+   "do": "gl",
+   "verb": "input",
+   "args": [
+    300,
+    0,
+    0,
+    1,
+    0,
+    "skill2"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "cast it (Skill2)"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1.5
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "hwp_ranger_test_nature_entangle"
+   ],
+   "expect": {
+    "ok": true,
+    "casts": 1
+   },
+   "name": "it cast once"
+  },
+  {
+   "do": "shot",
+   "name": "hp6-cast"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "(?i)(spec_ranger_test|spec-ranger-test|hwp_ranger_test).*\\b(error|not found|missing|failed)\\b"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:devarena\\].*\\b(error|ERR|apply failed|rejected)\\b"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "(?i)\\b(script error|compile error|null pointer)\\b"
+  }
+ ]
+}

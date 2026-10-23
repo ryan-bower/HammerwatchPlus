@@ -326,6 +326,81 @@ namespace GameLab
 		Emit(Reply(id, done == times).Str("skill", args[0]).Int("raised", done).Int("level", rec.GetSkillLevel(def)));
 	}
 
+	// skillup <skillId> [n|max]: the skill trainer's Buy("buy") (Town/SkillTrainer.as:13-25,
+	// PlayerRecord.SkillUp), n times; SkillUp spends stars and refuses at max level or when
+	// the stars run out, which fails the verb unless max was asked
+	void VerbSkillUp(const string &in id, array<string>@ args)
+	{
+		auto rec = FixtureRecord(id);
+		if (rec is null)
+			return;
+		if (args.length() < 1)
+		{
+			Fail(id, "usage: skillup <skillId> [n|max]");
+			return;
+		}
+		bool toMax = args.length() > 1 && args[1] == "max";
+		int want = toMax ? 1000 : (args.length() > 1 ? int(parseInt(args[1])) : 1);
+		int done = 0;
+		while (done < want && rec.SkillUp(args[0]))
+			done++;
+		int lvl = 0;
+		if (!rec.pickedSkills.get(args[0], lvl))
+			lvl = 0;
+		if (!toMax && done < want)
+		{
+			Fail(id, "only " + done + " of " + want + " skill-ups taken for '" + args[0] + "' (picked level " + lvl
+				+ ", free stars " + rec.GetFreeSkillPoints() + "; see the game log for SkillUp's reason)");
+			return;
+		}
+		Emit(Reply(id, true).Str("skill", args[0]).Int("taken", done).Int("picked", lvl).Int("freeStars", rec.GetFreeSkillPoints()));
+	}
+
+	// mastery <masteryId> [n|all]: the weapon/spell mastery shop's Buy("assign")
+	// (Town/WeaponMastery.as:49-60, PlayerRecord.WeaponMasterySkillUp, then RefreshModifiers),
+	// n times; ids are tweak/town/weapon_masteries.sval and spell_masteries.sval (e.g. bows)
+	void VerbMastery(const string &in id, array<string>@ args)
+	{
+		auto rec = FixtureRecord(id);
+		if (rec is null)
+			return;
+		if (args.length() < 1)
+		{
+			Fail(id, "usage: mastery <masteryId> [n|all]");
+			return;
+		}
+		WeaponMastery@ m = null;
+		for (uint i = 0; i < WeaponMastery::Instances.length() && m is null; i++)
+		{
+			string mid = WeaponMastery::Instances[i].m_id;
+			int at = mid.findLast(":" + args[0]);
+			if (mid == args[0] || (at >= 0 && at == int(mid.length() - args[0].length() - 1)))
+				@m = WeaponMastery::Instances[i];
+		}
+		if (m is null)
+		{
+			Fail(id, "no mastery '" + args[0] + "'");
+			return;
+		}
+		bool all = args.length() > 1 && args[1] == "all";
+		int want = all ? 1000 : (args.length() > 1 ? int(parseInt(args[1])) : 1);
+		int done = 0;
+		while (done < want && rec.WeaponMasterySkillUp(m))
+			done++;
+		rec.RefreshModifiers();
+		rec.RefreshStats();
+		int lvl = 0;
+		for (uint i = 0; i < rec.weaponMasteries.length(); i++)
+			if (rec.weaponMasteries[i].m_mastery is m)
+				lvl = rec.weaponMasteries[i].m_level;
+		if (!all && done < want)
+		{
+			Fail(id, "only " + done + " of " + want + " mastery levels bought for '" + args[0] + "' (free stars " + rec.GetFreeSkillPoints() + ")");
+			return;
+		}
+		Emit(Reply(id, true).Str("mastery", m.m_id).Int("taken", done).Int("level", lvl).Int("freeStars", rec.GetFreeSkillPoints()));
+	}
+
 	// kill <radius> <filter> [hp]: Actor.Kill(null, 0) on every live actor within radius whose
 	// .unit path or behavior type contains filter (as `near`), or with "tag:<tag>" that has
 	// the actor tag (tag:elite, tag:boss), never the local player.
@@ -585,41 +660,58 @@ namespace GameLab
 			.Int("cheatsType", int(GetVarType("e_cheats"))).Bool("cheats", CheatsOn()));
 	}
 
-	// cull: the cht_kill_all cheat's body (Console/Cheats.as:970-980): Kill every targetable
-	// actor not on the player's team; `skipped` names (at most 16) the untargetable ones left.
-	// "cull mine" names the local player as the killer (CompositeActorBehavior.Kill ->
+	// cull [mine] [all]: the cht_kill_all cheat's body (Console/Cheats.as:970-980): Kill every
+	// targetable actor not on the player's team; `skipped` names (at most 16) the untargetable
+	// ones left. "mine" names the local player as the killer (CompositeActorBehavior.Kill ->
 	// OnDeath -> Player.KilledActor), so XP and the PlayerKilledActor hook run as for a
-	// player's kill. Measurement scenarios only, like teleport.
+	// player's kill. "all" kills the untargetable ones too (the ones hidden until they show
+	// themselves, which the cheat leaves and abyss still samples: abyss-dormant 20261020-165935,
+	// 170 of 645 left); `untargetable` counts them either way. Measurement scenarios only, like
+	// teleport.
 	void VerbCull(const string &in id, array<string>@ args)
 	{
 		Actor@ killer = null;
-		if (args.length() > 0 && args[0] == "mine")
+		bool all = false;
+		for (uint k = 0; k < args.length(); k++)
 		{
-			auto plr = GetLocalPlayer();
-			if (plr is null)
+			if (args[k] == "all")
+				all = true;
+			else if (args[k] == "mine")
 			{
-				Emit(Reply(id, false).Str("error", "no local player"));
-				return;
+				auto plr = GetLocalPlayer();
+				if (plr is null)
+				{
+					Emit(Reply(id, false).Str("error", "no local player"));
+					return;
+				}
+				@killer = plr;
 			}
-			@killer = plr;
 		}
 		auto enemies = g_scene.FetchAllActorsWithOtherTeam(g_team_player);
-		int killed = 0;
+		int killed = 0, untargetable = 0;
 		array<string> skipped;
 		for (uint i = 0; i < enemies.length(); i++)
 		{
 			Actor@ a = cast<Actor>(enemies[i].GetScriptBehavior());
-			if (a !is null && a.IsTargetable())
+			if (a is null || a.IsDead())
+				continue;
+			if (!a.IsTargetable())
 			{
-				a.Kill(killer, 0);
-				killed++;
+				untargetable++;
+				if (!all)
+				{
+					if (skipped.length() < 16)
+					{
+						vec3 pos = enemies[i].GetPosition();
+						skipped.insertLast(enemies[i].GetDebugName() + "@" + int(pos.x) + "," + int(pos.y));
+					}
+					continue;
+				}
 			}
-			else if (skipped.length() < 16)
-			{
-				vec3 pos = enemies[i].GetPosition();
-				skipped.insertLast(enemies[i].GetDebugName() + "@" + int(pos.x) + "," + int(pos.y));
-			}
+			a.Kill(killer, 0);
+			killed++;
 		}
-		Emit(Reply(id, true).Int("found", enemies.length()).Int("killed", killed).Raw("skipped", StrArray(skipped)));
+		Emit(Reply(id, true).Int("found", enemies.length()).Int("killed", killed).Int("untargetable", untargetable)
+			.Raw("skipped", StrArray(skipped)));
 	}
 }

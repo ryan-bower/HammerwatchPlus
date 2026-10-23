@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">GameLab IT: campaign group</string>
+	<string name="author">HammerwatchPlus GameLab</string>
+	<string name="description">Test harness only: integration-test probes for the campaign, wavemode and abyss modules (mission definitions as parsed, the survival module's live state, resource lookups) and a few labelled setup verbs (kill with credit, abandon the run). Uses only vanilla symbols, so it compiles without the mods under test. Lives in the GameLab environment; never deployed to a play install.</string>
+</dict>

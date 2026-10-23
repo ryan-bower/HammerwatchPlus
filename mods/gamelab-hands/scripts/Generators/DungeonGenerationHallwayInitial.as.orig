@@ -1,0 +1,132 @@
+class DungeonGenerationHallwayInitial : DungeonGenerationCommands
+{
+	ivec2 m_padding;
+
+	float m_sidePathChance;
+
+	ivec2 m_pathWidth;
+	ivec2 m_pathHeight;
+
+	ivec2 m_pathLenX;
+	ivec2 m_pathLenY;
+
+	ivec2 m_pathJitterX;
+
+	string m_startPfbSet;
+	string m_exitPfbSet;
+
+	void LoadParams(array<SValue@>@ params) override
+	{
+		DungeonGenerationCommands::LoadParams(params);
+		
+		UnitPtr u;
+		
+		m_startPfbSet = GetParamString(u, params, "entrance-prefab", true);
+		m_exitPfbSet = GetParamString(u, params, "exit-prefab", true);
+		
+		m_padding = GetParamIVec2(u, params, "padding", false, 14);
+		
+		m_sidePathChance = GetParamFloat(u, params, "side-path-chance", false, 0.33f);
+		
+		m_pathJitterX = GetParamIVec2(u, params, "path-jitter-hori", false, ivec2(-10, 10));
+		
+		m_pathWidth = GetParamIVec2(u, params, "path-width", false, ivec2(2, 2));
+		m_pathHeight = GetParamIVec2(u, params, "path-height", false, ivec2(4, 4));
+		
+		m_pathLenX = GetParamIVec2(u, params, "path-length-hori", false, ivec2(5, 5));
+		m_pathLenY = GetParamIVec2(u, params, "path-length-vert", false, ivec2(8, 8));
+	}
+
+	bool Execute(DungeonBrush@ brush, PrefabPlacement@ pfbPlacer) override
+	{
+		print("DungeonGenerationHallwayInitial");
+		%PROFILE_SCOPE DungeonGenerationHallwayInitial
+		
+		ivec2 currPos(brush.m_width / 2, brush.m_height - m_padding.y);
+		
+		if (!m_startPfbSet.isEmpty())
+		{
+			auto startPrefabs = MissionPrefabDef::GetPossiblePrefabs(HashString(m_startPfbSet));
+			if (startPrefabs.length() > 0)
+			{
+				auto room = startPrefabs[MissionPrefabDef::RollIndex(startPrefabs)].UsePrefab();
+				print("  Placing entrance prefab: " + room.m_id);
+				
+				pfbPlacer.PlacePrefabAt(room, currPos);
+				brush.OutputDebugImage();
+				
+				if (room.m_junctionsUp.length() > 0)
+				{
+					currPos += xy(room.m_junctionsUp[0]);
+					ivec2 to = currPos - ivec2(0, 5);
+					
+					brush.PlotLine(currPos, to, Modifiers::lerp(m_pathWidth, randf()), Cell::Floor);
+					brush.OutputDebugImage();
+					
+					currPos = to - ivec2(3, 0);
+				}
+			}
+		}
+		
+		while (true)
+		{
+			ivec2 to = currPos;
+			
+			to.y -= Modifiers::lerp(m_pathLenY, randf());
+			to.x += Modifiers::lerp(m_pathJitterX, randf());
+			
+			if (to.y <= m_padding.y)
+				break;
+			
+			if (to.x <= m_padding.x || to.x >= (brush.m_width - m_padding.x))
+				continue;
+			
+			brush.PlotLine(currPos, to, Modifiers::lerp(m_pathWidth, randf()), Cell::Floor);
+			brush.OutputDebugImage();
+			
+			currPos = to;
+			
+			if (randf() < m_sidePathChance)
+			{
+				ivec2 sideTo = currPos;
+				
+				if (randi(2) == 0)
+					sideTo.x += Modifiers::lerp(m_pathLenX, randf());
+				else
+					sideTo.x -= Modifiers::lerp(m_pathLenX, randf());
+				
+				if (sideTo.x <= m_padding.x || sideTo.x >= (brush.m_width - m_padding.x))
+					continue;
+				
+				brush.PlotLine(currPos, sideTo, Modifiers::lerp(m_pathHeight, randf()), Cell::Floor);
+				brush.OutputDebugImage();
+			}
+		}
+		
+		if (!m_exitPfbSet.isEmpty())
+		{
+			auto exitPrefabs = MissionPrefabDef::GetPossiblePrefabs(HashString(m_exitPfbSet));
+			if (exitPrefabs.length() > 0)
+			{
+				auto room = exitPrefabs[MissionPrefabDef::RollIndex(exitPrefabs)].UsePrefab();
+				print("  Placing exit prefab: " + room.m_id);
+				
+				ivec2 to = currPos - ivec2(0, 5);
+				
+				brush.PlotLine(currPos, to, Modifiers::lerp(m_pathWidth, randf()), Cell::Floor);
+				brush.OutputDebugImage();
+				
+				if (room.m_junctionsDown.length() > 0)
+					to -= xy(room.m_junctionsDown[0]);
+				
+				pfbPlacer.PlacePrefabAt(room, to);
+				brush.OutputDebugImage();
+			}
+		}
+		
+		return true;
+	}
+}
+
+
+
