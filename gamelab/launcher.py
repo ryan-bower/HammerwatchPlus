@@ -25,6 +25,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -145,7 +146,14 @@ def _run(scenario_path: Path, scenario_name: str, scenario: dict, mode: str, dri
     results.mkdir(parents=True)
     config = gamepaths.real_config()
     config_before = sha(config)
-    res_before = env.install_res_snapshot()
+    try:
+        res_before = env.install_res_snapshot()
+    except OSError as e:
+        # the install's res/ could not be read whole (a file changed under us, a
+        # permission): nothing ran, so refuse like a preflight instead of a dirty lock
+        print("PREFLIGHT", f"install res/ snapshot: {e}")
+        shutil.rmtree(results, ignore_errors=True)
+        return 2
     # Preserve the exact observation if the isolation gate later fails. A bare
     # entry name cannot distinguish directory metadata drift from a file write.
     res_evidence = {"before": res_before}
@@ -183,7 +191,10 @@ def _run(scenario_path: Path, scenario_name: str, scenario: dict, mode: str, dri
         assertions.append({"name": name, "ok": bool(ok), "detail": detail})
 
     outer("user config unchanged", sha(config) == config_before, str(config))
-    res_after = env.install_res_snapshot()
+    try:
+        res_after = env.install_res_snapshot()
+    except OSError as e:
+        res_after = {"<snapshot failed>": {"error": str(e)}}   # differs from before: INVALID below
     res_evidence["after"] = res_after
     res_evidence["changed"] = {k: {"before": res_before.get(k), "after": res_after.get(k)}
                                for k in sorted(set(res_before) | set(res_after))

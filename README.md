@@ -1,6 +1,6 @@
 # HammerwatchPlus
 
-> **QA checkpoint (2026-10-22): paused at the user-requested PR boundary.** The full sweep is incomplete. Scoped passes: fourth specs60/60 rank cases and61/65 orb-quality cases; Firearms60/60 ranks and74/75 orb qualities; HoH1 imports29/39 skills and136/191 ranks;9/9 selected-mastery saves. Five orb cases need real co-op. All31modules have load evidence, with broader feature/lifecycle work open. Earlier QA summaries below are historical snapshots. See [the authoritative checkpoint](docs/generated/qa_pr_checkpoint.json) and [QA ledger](docs/QA_OVERNIGHT.md).
+> **QA checkpoint (2026-10-22): paused at the user-requested PR boundary.** The full sweep is incomplete. Recorded original-sweep passes: six original fourth specs60/60 rank cases and61/65 orb-quality cases; Firearms60/60 ranks and74/75 orb qualities; HoH1 imports29/39 skills and136/191 ranks;9/9 selected-mastery saves. Five orb cases need real co-op. All 31 normal-release modules have load evidence, with broader feature/lifecycle work open. Earlier QA summaries below are historical snapshots. See [the authoritative checkpoint](docs/generated/qa_pr_checkpoint.json) and [QA ledger](docs/QA_OVERNIGHT.md).
 
 
 A modular co-op mod for **Heroes of Hammerwatch II**: a new class (the Firearms Specialist)
@@ -19,7 +19,7 @@ needs `pets`.
 | Module | What it does |
 |---|---|
 | `firearms` | The **Firearms Specialist**, a new class. Guns fire from a clip that counts down per shot and reloads (automatically at 0, or with the Reload skill, which a dodge cancels); mana pays for gadgets. A rifle (30 rounds, 3-round bursts; the Grenade Launching Rifle has an under-barrel grenade launcher, the Flamethrower Rifle a mana-fed flamethrower held on right click, the Full Auto Rifle a wild full-auto spray) or pistols, one or two (10 rounds each, 20 dual), or Hand Cannons (half a pistol's rate, 1.5 times its damage, 6 rounds; with a pistol, a pistol-cannon-pistol burst). Base kit: Reload and Frag Grenade, whose orbs give Explosive Reload, Over-Reload's timed perfect reload, and Stun, Incendiary or Gas grenades. Four specializations, each with orbs: **Marksman** (Snipe, Critical Aim), **Demolitionist** (Rocket Launcher, Ordinance Hoarder), **Assault** (Double Barrel Burst, Adrenaline) and **Engineer** (Deploy Turret, My Turret!). New characters start with a Service Pistol. Details: `mods/firearms/README.md`; design: `docs/design/firearms.md`. |
-| `specs` | A **4th specialization** for six vanilla classes, one active and one passive each, with orbs: **Deadeye** Ranger (Lightning Arrow, Gathering Winds), **Aerotheurge** Wizard (Thunder Orb, Static Charge), **Arcane** Sorcerer (Blink, Living Mana), **Winddancer** Rogue (Protective Gale, Second Wind), **Bannerlord** Warrior (Battlefield Standard, Righteous Crusade), **Branding** Warlock (Pyrebrand, Essence Extraction) and the **Devil Forgemaster** Priest (Necrotic Resurrection, Call of Heresy: raise the enemies that fall with their body intact, bosses included, as summons that keep their own skills; Sacrificial Penance at max Divine Favor). Icons and sounds are the user's picks (`art/specs/`). The Forgemaster's risen and body units are generated from the base game by `tools/make_forgemaster_risen.py` (gitignored; `doctor --fix` makes them). |
+| `specs` | A **4th specialization** for seven vanilla classes, one active and one passive each, with orbs: **Deadeye** Ranger (Lightning Arrow, Gathering Winds), **Aerotheurge** Wizard (Thunder Orb, Static Charge), **Arcane** Sorcerer (Blink, Living Mana), **Winddancer** Rogue (Protective Gale, Second Wind), **Bannerlord** Warrior (Battlefield Standard, Righteous Crusade), **Branding** Warlock (Pyrebrand, Essence Extraction) and the **Devil Forgemaster** Priest (Necrotic Resurrection, Call of Heresy: raise the enemies that fall with their body intact, bosses included, as summons that keep their own skills; Sacrificial Penance at max Divine Favor). Icons and sounds are the user's picks (`art/specs/`). The Forgemaster's risen and body units are generated from the base game by `tools/make_forgemaster_risen.py` (gitignored; `doctor --fix` makes them). |
 | `classes` | The HoH1 classes HoH2 lacks: **Thief**, **Gladiator** and **Witch Hunter**, three masteries each. The Thief's extra actives cast on core's Skill 4 key. The real HoH1 art comes from your own HoH1 install (`tools/import_hoh1.py classes`). |
 | `weapons` | Twelve new endgame weapons (ilvl 35, four per slot) with new modifier profiles on vanilla visuals and attacks. |
 | `weaponswap` | A second weapon set on a hotkey (default X): a 2 s channel standing still, cancelled by a dodge or a second press. |
@@ -98,9 +98,9 @@ Workshop uploads will follow once the modules settle.
 
 The class designs live in a local web page: every class's kit, specs and orbs from the game
 data, the Firearms Specialist's full design, and a 4th specialization for each of the other
-classes (Rogue and Sorcerer: Zak; Warrior and Warlock: Colin; Ranger and Wizard: Noah). Six
+classes (Rogue and Sorcerer: Zak; Warrior and Warlock: Colin; Ranger and Wizard: Noah). Seven
 of them are built in `mods/specs`, and their planner records show the in-game numbers and
-whether each skill and orb is built or tested. The Paladin's and Priest's are still designs.
+whether each skill and orb is built or tested. The Paladin's remains a design.
 
 It needs only Python 3 (no game, no packages):
 - **Windows:** double-click `planner.cmd`.
@@ -113,6 +113,25 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+The full QA sweep is paused and incomplete. The [current checkpoint](docs/generated/qa_pr_checkpoint.json)
+records 10 gameplay repairs and scoped passing coverage for the six original
+fourth specs: 60/60 rank rows and 61/65 orb qualities; Firearms 60/60 rank rows and 74/75 orb qualities;
+HoH1 imports 29/39 skills and 136/191 positive ranks; 9/9 selected-mastery saves.
+The later Priest Forgemaster work is outside those original matrix counts.
+These counts do not establish complete mechanics, UI, interactions or ordinary
+run lifecycle coverage. Five orb-quality cases require real co-op.
+
+Agents and contributors: start with [AGENTS.md](AGENTS.md), the
+[GameLab quickstart](gamelab/README.md), and the
+[regression/known-failure map](docs/qa/REGRESSIONS.md). Deferred QA drafts are
+[committed for fresh-clone recovery](docs/qa/deferred/README.md), still unapplied.
+Historical native/package results retain their original source epochs; this
+handoff update adds documentation and a batch helper, not native coverage.
+
+<details>
+<summary>Historical feature and QA checkpoints</summary>
+
+
 - 2026-10-22 overnight QA remains incomplete. Eight scoped
   gameplay repairs have passing reproductions: Shadow Strike, Riposte, per-gun magazine
   crit, Hoarder HUD cleanup, Thunder Orb cast attribution, returning-arrow catches,
@@ -121,6 +140,9 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
   fingerprints; later changes only extend read-only QA telemetry. Production sources
   and release payloads remain unchanged after those passes;
   exact evidence and limits are in `docs/QA_OVERNIGHT.md` and `docs/generated/qa_*_inventory.json`.
+- 2026-10-22 night: PR #9's code review applied after its merge (explicit `off-hand` flags on
+  the gun rounds, Extended Clip Crit with no actor, typed stash ids in any slot, launcher and
+  runner guards; `docs/RE_NOTES.md`, "PR #9's code review, applied after the merge").
 - Current granular coverage: the six built fourth specs have 55 of 60 skill-rank rows
   with scoped passes and 5 partial; their 65 orb-quality rows have 47 scoped
   passes, 3 partial, 11 untested and 4 blocked on real allies. Firearms has 42 of 75
@@ -222,11 +244,16 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
   `docs/RE_NOTES.md`. The HoH1-to-HoH2 trinket comparison is a private web app outside the
   repo; its link is there too.
 
+
+</details>
+
 ## GameLab
 
 GameLab is the test harness: it boots a sandboxed copy of the game hidden and muted,
 drives it through its own scripts (no real input, no focus steals, never touching your
-config or saves), and scores what happened. Use the `gamelab` skill to run it.
+config or saves), and scores what happened. Start with the [quickstart](gamelab/README.md)
+and [regression map](docs/qa/REGRESSIONS.md); the [detailed skill](.claude/skills/gamelab/SKILL.md)
+covers authoring and troubleshooting.
 Before merging to main, run `python -m gamelab run mod-all --mode lab` (every content
 mod loaded together; GUI textures must be power-of-two sized or the game won't boot).
 
@@ -273,7 +300,7 @@ player imports it themselves.
 MIT. Game assets belong to Crackshell.
 
 
-## Resumed full sweep ? no time limit (2026-10-22)
+## Resumed full sweep (historical snapshot) ? no time limit (2026-10-22)
 
 The user removed the original overnight deadline and activated the goal again. Work remains in progress; the original deadline/final-hour notes below are historical. Verified scoped coverage now includes60/60 fourth-spec rank cases,49/65orb qualities (nine fresh Branding qualities awaiting granular audit; maximum combo failed),20/60 Firearms ranks,42/75orb qualities,62/191HoH1positive ranks and9/9mastery save/reload combinations. Native stat-only scopes remain separate from combat/cadence/mitigation.
 

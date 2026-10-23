@@ -3227,6 +3227,75 @@ its run (`plan-forgemaster-smoke` and `plan-forgemaster`, `gamelab/results/`):
   "all12", "Full31"-style glued counts remain. The new res/ isolation snapshot hashes every file
   under the install's `res/` (118 files) before and after each run, a second or so each.
 
+
+## Agent-compatible QA handoff (2026-10-22)
+
+AGENTS.md now leads to the GameLab quickstart, regression selection/known-failure
+map and detailed skill. CLAUDE.md delegates to the same committed instructions.
+The skill documents completed bot returns, partial/outer verdict checks and the
+separate source-fingerprint journal. `tools/qa_batch.py` replaces reliance on the
+local date-specific queue wrapper with a portable, fail-fast serial CLI and dry-run.
+The 49 deferred text drafts/control/plan files are committed in a hash-indexed,
+unapplied bundle; old installers must be rebased/reviewed before use. README/ledger
+historical sections are clearly separated from current status. No gameplay source
+or native-coverage claim changes in this follow-up.
+
+## PR #9's code review, applied after the merge (2026-10-22, night)
+
+The `/code-review medium` of PR #9 reported after the PR was merged (`2f61d64`), so its ten
+findings are fixed on `qa-review-fixes` off main. Eight changed code, two are declined with a
+measurement.
+
+- **Off-hand rounds are flagged, not named** (Elemental.as, attacks_firearms.sval).
+  `HWPFirearmsGunShot` used to decide which magazine a round debits by `"_off"` appearing in the
+  projectile path; a renamed unit would have flipped a round to the other gun silently. Every
+  off-hand shot now carries `<bool name="off-hand">true</bool>`, the param name vanilla
+  `Damage.as` uses for the same thing: a `ShotOff` block beside `Shot` for the eleven macro calls
+  (`hcannon_round_off`, `glock_round_off`) and the bool on the four inline `glock_round_off` dicts.
+  `GetParamBool("off-hand", ...)` is read first; the name test remains only as the default for a
+  round without the param. `glock_round_dual` stays a main-hand round (it is the main pistol's
+  shot in both attacks' mixes).
+- **Extended Clip Crit with no actor** (Magazine.as `HWPFirearmsMagazineCrit`). `rec.actor` can be
+  null (a stat sheet from a menu, a record whose actor is gone); `MagazineRounds(null)` returned 0,
+  so the modifier gave no attack crit at all there. With no actor both hands now use the shared
+  clip (`intensity`), as `CritDamage` itself does.
+- **One list of the rifle's cartridge skills** (Magazine.as `IsRifleRound`, used by Combat.as's
+  stack-crit). The review asked why `hwp_attack_flamer` was missing from the hard-coded trio
+  (`rifle`, `rifle_epic`, `autofire`): the flame rifle's attack is a mana channel and the grenade
+  launcher spends no clip either (attacks_firearms.sval, no `clip` keyword in those skills), so
+  both keep the shared-clip bonus by design. The reason now sits with the list.
+- **`di.Weapon` overwrite, kept and documented** (Magazine.as `HWPFirearmsGunDamage`). Setting
+  the damage's weapon to the firing gun's own attack skill reaches every reader: per-weapon damage
+  statistics (Player.as `DamagedActor`), lifesteal and the `PlayerDamageActor` hook (PlayerBase.as),
+  kill-trigger orbs (Player.as `KilledActor`), the `PlayerDamaged`/`PlayerDied` messages. All
+  resolve `GetSkill()` to a skill the player has, and crediting the round to the gun that fired it
+  is the intent. The comment on the class lists them.
+- **Stash families of typed ids** (StashSort.as `Family`). `hwp_mh_<family>` in an unexpected slot
+  fell through to `parts[1]` and sorted as a family called "mh". The slot token is never a family:
+  a typed id now returns its family whatever slot the item sits in.
+- **Launcher never leaves a dirty lock over an unreadable res/** (launcher.py). `install_res_snapshot`
+  raises `OSError` when a file changes under it or cannot be read; before the run that is now a
+  `PREFLIGHT` refusal (exit 2, the empty results dir removed); after the run the failure is recorded
+  as a differing "after" snapshot, so the `install res/ unchanged` assertion fails and the verdict is
+  INVALID, with the error in `isolation-res.json`.
+- **Bot results that are not JSON** (runner.py). The `bot-results.jsonl` line now serializes with
+  `default=str` inside a try, like the `bot-<name>.json` writer: a bot returning a `Path` or a set no
+  longer fails its own step after the game work is done.
+- **`restart` with `choice: "town"`** (runner.py `enter_fixture`). An explicit "town" raised when
+  the game went straight to town with no character-selection window, while the default (no
+  choice) passed; "town" is the default and is now treated the same. Only an explicit "resume"
+  still needs the window. Two tests added (`test_runner_restart.py`).
+- **Tests under `gamelab/tests/`**: `test_res_snapshot.py` and `test_runner_restart.py` moved there
+  from `gamelab/` (`git mv`); 52 passed, 2 skipped from `python -m pytest gamelab/tests`, the same
+  count from the repo root.
+- **Declined: the res/ snapshot's cost.** The review flagged hashing ~296 MB twice per run. Measured
+  here: `install_res_snapshot()` over 133 entries takes 0.2 s with a warm file cache (a cold one a
+  few seconds), against runs of 13 s and up; the before/after hash is the isolation evidence the
+  INVALID verdict rests on, so it stays.
+- **Verified:** `mod-all 20261022-194902` PASS (all modules compiled with the new Elemental.as,
+  Magazine.as, Combat.as, StashSort.as and the regenerated attack table; no script errors in our
+  files). `qa-firearms-magazine-crit 20261022-194932` PASS (12 assertions: the per-gun split with the explicit flags). `qa-content-stash-families 20261022-195143` PASS (the typed ids still group by family). `build.py --check`, `list_verbs.py --check`, pytest as above.
+
 ## 2026-10-18 (afternoon): reproducible generated floors (`mission ... seed=N`)
 
 - **The generator's RNG is the engine's global one, and it is shared.** Every draw in

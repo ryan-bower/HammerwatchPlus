@@ -96,6 +96,22 @@ class RestartTests(unittest.TestCase):
         with self.assertRaisesRegex(GameError, "no saved run to resume"):
             self.resume()
 
+    def no_selection_window(self):
+        # the game went straight to town: no character selection window to pick from
+        self.game.wait_gl = lambda predicate, timeout: {"ev": "hb", "phase": "town"}
+        self.game.state["phase"] = "town"
+
+    def test_explicit_town_without_selection_window_is_the_default(self):
+        self.no_selection_window()
+        self.assertIs(self.runner.step(self.game, {"do": "restart", "choice": "town"}, {}), self.game)
+        self.assertNotIn(("pick", 0, "town"), self.game.commands)
+        self.assertTrue(all(a["ok"] for a in self.runner.assertions))
+
+    def test_resume_without_selection_window_is_refused(self):
+        self.no_selection_window()
+        with self.assertRaisesRegex(GameError, "requires the character selection window"):
+            self.resume()
+
     def test_unknown_choice_is_rejected_before_boot(self):
         with self.assertRaisesRegex(GameError, "unsupported restart choice"):
             self.runner.enter_fixture(self.runner.recipe, [], choice="unknown")
