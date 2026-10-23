@@ -1259,8 +1259,8 @@ namespace GameLab
 	// The same steps as CreateCharacterWindow's "create" (GUI/CreateCharacterWindow.as:136-141)
 	// without its pickers. CreateCharacter defaults the colours (PlayerRecord.as:468-471) but not
 	// the portrait: an empty one null-derefs the vanilla dyer window (GetPortraitModel,
-	// CreateCharacterCustomize.as:610; pets-dye 20261020-144606). So SetPortrait gets the
-	// class piece and, per feature, the first piece with no conditionals (a fixture is fixed).
+	// CreateCharacterCustomize.as:610; pets-dye 20261020-144606). So SetPortrait gets each
+	// category's default piece after it.
 	void VerbChar(const string &in id, array<string>@ args)
 	{
 		if (args.length() < 2)
@@ -1300,17 +1300,6 @@ namespace GameLab
 			Fail(id, "no local player record");
 			return;
 		}
-		array<PlayerPortraitPiece@> pieces = { pClass.m_portraitPiece };
-		array<PlayerPortraitCategory> feats = { PlayerPortraitCategory::Hair, PlayerPortraitCategory::Nose,
-			PlayerPortraitCategory::Eyes, PlayerPortraitCategory::Mouth };
-		for (uint f = 0; f < feats.length(); f++)
-			for (uint c = 0; c < PlayerPortraitPiece::Instances.length(); c++)
-				if (PlayerPortraitPiece::Instances[c].m_category == feats[f] && PlayerPortraitPiece::Instances[c].m_conditionals.isEmpty())
-				{
-					pieces.insertLast(PlayerPortraitPiece::Instances[c]);
-					break;
-				}
-		plr.SetPortrait(pieces);
 		plr.CreateCharacter(pClass, args[1], PlayerVoice::Instances[0]);
 		// CreateCharacter leaves the portrait empty; the vanilla dyer and HUD expect one piece per category.
 		array<PlayerPortraitCategory> cats = { PlayerPortraitCategory::Class, PlayerPortraitCategory::Hair,
