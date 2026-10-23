@@ -1,0 +1,223 @@
+%include "players/skills_cost.inc"
+<dict>
+	<string name="name">.skills.ranger.mastery_3.passive_1.name</string>
+	<string name="type-name">.skills.type.passive</string>
+	<string name="description">.skills.ranger.mastery_3.passive_1.desc</string>
+
+	<array name="description-params">
+		<array><s>damage</s><s>.skills.desc.params.damage</s><s>20%</s><s>25%</s><s>35%</s><s>45%</s><s>60%</s></array>
+		<array><s>effectcd</s><s>.skills.desc.params.cooldown.effect</s><s>0.10s</s></array>
+	</array>
+
+	<array name="icon">
+		<string>players/icons_skills.png</string>
+		<int>100</int><vec4>168 48 24 24</vec4>
+	</array>
+
+	<string name="id">hwp_ranger_test_nature_wind_weaver</string>
+	<array name="tags"><s>passive</s><s>physical</s></array>
+	<int name="starting-level">1</int>
+
+	<dict name="skill">
+		<int name="skill-cost">SKILLCOSTMASTERYLEVEL_1</int>
+		<string name="class">Skills::PassiveSkill</string>
+
+		<dict name="binds">
+			<string name="proj-unit">players/ranger/projectiles/wind_slash.unit</string>
+			<int name="wind-dmg">20</int>
+			<int name="ice-dmg">0</int>
+
+			<float name="ice-dmg-mul">0</float>
+			<float name="mainhand-dmg-mul">0.2</float>
+		</dict>
+
+		<array name="modifiers">
+			<array>
+				<dict>
+					<string name="class">Modifiers::SkillTriggerEffect</string>
+					<array name="skill-tags"><s>weapon</s></array>
+					<string name="trigger">hit</string>
+					<bool name="target-self">false</bool>
+					<float name="chance">1</float>
+					<int name="timeout">100</int>
+
+					<array name="effects">
+						<dict>
+							<string name="class">PlaySound</string>
+							<string name="sound">event:/sfx/player/classes/ranger/wind_weaver/wind_weaver_cast</string>
+						</dict>
+						<dict>
+							<string name="class">ShootProjectile</string>
+							<string name="projectile-bind">proj-unit</string>
+							<int name="dist">8</int>
+							<int name="spread">360</int>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</array>
+	</dict>
+
+	<array name="upgrades">
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
+			<dict name="binds">
+				<int name="wind-dmg">25</int>
+				<float name="mainhand-dmg-mul">0.25</float>
+			</dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
+			<dict name="binds">
+				<int name="wind-dmg">35</int>
+				<float name="mainhand-dmg-mul">0.35</float>
+			</dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
+			<dict name="binds">
+				<int name="wind-dmg">45</int>
+				<float name="mainhand-dmg-mul">0.45</float>
+			</dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
+			<dict name="binds">
+				<int name="wind-dmg">60</int>
+				<float name="mainhand-dmg-mul">0.6</float>
+			</dict>
+		</dict>
+	</array>
+
+	<array name="modifier-skills">
+		<dict>
+			<string name="name">.skills.ranger.mastery_3.passive_1.up1.name</string>
+			<string name="description">.skills.ranger.mastery_3.passive_1.up1.desc</string>
+
+			<array name="description-params">
+				<array><s>damage</s><s>.skills.desc.params.damage</s><s>50</s><s>100</s><s>200</s></array>
+			</array>
+
+			<array name="icon">
+				<string>players/icons_skills.png</string>
+				<int>100</int><vec4>168 48 24 24</vec4>
+			</array>
+
+			<array name="tags"><s>passive</s><s>physical</s><s>ice</s></array>
+			<string name="id">hwp_ranger_test_nature_wind_weaver_winter</string>
+			<string name="quality">uncommon</string>
+
+			<dict name="skill">
+				<dict name="binds">
+					<string name="proj-unit">players/ranger/projectiles/wind_slash_ice.unit</string>
+					<float name="ice-dmg-mul">0.25</float>
+					<int name="ice-dmg">50</int>
+				</dict>
+			</dict>
+
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds">
+						<float name="ice-dmg-mul">0.5</float>
+						<int name="ice-dmg">100</int>
+					</dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds">
+						<float name="ice-dmg-mul">1</float>
+						<int name="ice-dmg">200</int>
+					</dict>
+				</dict>
+			</array>
+		</dict>
+
+		<dict>
+			<string name="name">.skills.ranger.mastery_3.passive_1.up2.name</string>
+			<string name="description">.skills.ranger.mastery_3.passive_1.up2.desc</string>
+
+			<array name="description-params">
+				<array><s>damage</s><s>.skills.desc.params.projectile.number</s><s>3</s><s>5</s><s>7</s></array>
+			</array>
+
+			<array name="icon">
+				<string>players/icons_skills.png</string>
+				<int>100</int><vec4>168 48 24 24</vec4>
+			</array>
+
+			<string name="id">hwp_ranger_test_nature_wind_weaver_dash</string>
+			<string name="quality">uncommon</string>
+			<!-- <int name="starting-level">3</int> -->
+
+			<dict name="skill">
+				<dict name="binds">
+					<!-- <int name="vortex-ttl">3000</int> -->
+					<int name="proj-num">3</int>
+					<int name="proj-spread">240</int>
+				</dict>
+
+				<array name="modifiers">
+					<array>
+						<null />
+					</array>
+					<array>
+						<dict>
+							<string name="class">Modifiers::TriggerEffect</string>
+							<string name="trigger">dash</string>
+							<bool name="target-self">true</bool>
+							<float name="chance">1</float>
+							<int name="timeout">0</int>
+
+							<array name="effects">
+								<dict>
+									<string name="class">PlaySound</string>
+									<string name="sound">event:/sfx/player/classes/ranger/wind_weaver/wind_weaver_cast</string>
+								</dict>
+<!-- 								<dict>
+									<string name="class">DebugLog</string>
+									<string name="text">test_dash_vortex</string>
+								</dict> -->
+<!-- 								<dict>
+									<string name="class">ShootProjectile</string>
+									<string name="projectile">players/ranger/projectiles/wind_vortex.unit</string>
+									<int name="dist">0</int>
+								</dict> -->
+								<dict>
+									<string name="class">ShootProjectileFan</string>
+									<string name="projectile-bind">proj-unit</string>
+									<int name="dist">8</int>
+									<string name="projectiles-bind">proj-num</string>
+									<string name="spread-bind">proj-spread</string>
+									<float name="jitter">0.5</float>
+								</dict>
+<!-- 								<dict>
+									<string name="class">SpawnUnit</string>
+									<string name="unit">players/ranger/projectiles/wind_vortex_area.unit</string>
+									<bool name="safe-spawn">false</bool>
+								</dict> -->
+							</array>
+						</dict>
+					</array>
+				</array>
+			</dict>
+
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds">
+						<int name="proj-num">5</int>
+						<int name="proj-spread">288</int>
+					</dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds">
+						<int name="proj-num">7</int>
+						<int name="proj-spread">309</int>
+					</dict>
+				</dict>
+			</array>
+		</dict>
+	</array>
+</dict>

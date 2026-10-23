@@ -1,0 +1,71 @@
+{
+ "name": "arena-dock",
+ "about": "The Arena tab as a player uses it (docs/devarena/SPEC.md, Arena): F1, the Arena tab, god / no-cooldown / free-mana chips (the engine's CVars::Cht* read back), a footman pack armed on the brush and placed with a middle click, Cull ends its encounter with a clear time, F3 resets the arena, and Reload floor regenerates the same seed with the toggles carried through the town save. Buttons are aimed by id (gl da-dock).",
+ "fixture": "mission-ranger",
+ "mods": ["core", "devarena"],
+ "timeout": 400,
+ "steps": [
+  {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},
+  {"do": "wait_phase", "phase": "mission", "timeout": 120},
+  {"do": "sleep", "seconds": 3},
+  {"do": "gl", "verb": "cull", "args": ["all"], "expect": {"ok": true}, "name": "setup: clear the floor (cheat)"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] arena floor .* seed 4242", "timeout": 10, "name": "the arena saw the floor"},
+
+  {"do": "key", "key": "f1", "name": "F1"},
+  {"do": "sleep", "seconds": 0.5},
+  {"do": "click", "dock": "tab-arena", "verify": false, "name": "click the Arena tab"},
+  {"do": "gl", "verb": "da-dock", "args": ["me|"], "expect": {"ok": true, "open": true, "tab": "arena"}, "name": "the Arena tab is open"},
+  {"do": "shot", "name": "arena-tab"},
+
+  {"do": "mark", "name": "me"},
+  {"do": "click", "dock": "me|god", "verify": false, "name": "god"},
+  {"do": "click", "dock": "me|nocd", "verify": false, "name": "no cooldowns"},
+  {"do": "click", "dock": "me|mana", "verify": false, "name": "free mana"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] arena me mana on", "since": "me", "timeout": 5, "name": "the chips logged"},
+  {"do": "gl", "verb": "da-arena", "expect": {"ok": true, "god": true, "nocd": true, "mana": true, "cvarGod": true, "cvarNocd": true}, "name": "da-arena: cheats as the engine holds them"},
+
+  {"do": "mark", "name": "brush"},
+  {"do": "click", "dock": "brush|guard_footman", "verify": false, "name": "arm the footman"},
+  {"do": "click", "dock": "enc|pack", "verify": false, "name": "pack"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] brush armed guard_footman pack", "since": "brush", "timeout": 5, "name": "brush armed"},
+  {"do": "gl", "verb": "pointer", "args": ["150", "180", "mclick"], "expect": {"ok": true}, "name": "middle click on the floor left of the player"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] brush placed guard_footman pack 4 at", "since": "brush", "timeout": 5, "name": "a pack of 4 placed"},
+  {"do": "sleep", "seconds": 1.5},
+  {"do": "shot", "name": "pack-placed"},
+  {"do": "gl", "verb": "da-arena", "expect": {"ok": true, "brush": "guard_footman", "kind": "pack", "placed": 1, "spawnedAlive": 4}, "name": "da-arena: the encounter is running"},
+
+  {"do": "click", "dock": "cull", "verify": false, "name": "Cull"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] encounter pack guard_footman x4 clear \\d+ ms", "since": "brush", "timeout": 5, "name": "the encounter cleared with a time"},
+
+  {"do": "mark", "name": "pause"},
+  {"do": "key", "key": "f6", "name": "F6: pause"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] arena pause on", "since": "pause", "timeout": 5, "name": "paused"},
+  {"do": "gl", "verb": "da-arena", "expect": {"ok": true, "paused": true}, "name": "da-arena: paused"},
+  {"do": "shot", "name": "paused"},
+  {"do": "key", "key": "f6", "name": "F6: resume"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] arena pause off", "since": "pause", "timeout": 5, "name": "resumed"},
+
+  {"do": "mark", "name": "esc"},
+  {"do": "click", "dock": "brush|guard_sentry", "verify": false, "name": "arm the sentry"},
+  {"do": "key", "key": "escape", "name": "Esc: disarm"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] brush disarmed", "since": "esc", "timeout": 5, "name": "Esc disarmed the brush"},
+  {"do": "sleep", "seconds": 0.5},
+  {"do": "gl", "verb": "da-dock", "args": ["me|"], "expect": {"ok": true, "open": true, "paused": false}, "name": "Esc opened no pause menu"},
+  {"do": "shot", "name": "after-esc"},
+
+  {"do": "mark", "name": "reset"},
+  {"do": "key", "key": "f3", "name": "F3"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] arena reset 1", "since": "reset", "timeout": 5, "name": "F3 reset the arena"},
+
+  {"do": "mark", "name": "reload"},
+  {"do": "click", "dock": "reload", "verify": false, "name": "Reload floor"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] arena reload floor 13 seed \\d+ ngp 0", "since": "reload", "timeout": 5, "name": "reload asked"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] arena floor .* seed \\d+", "since": "reload", "timeout": 120, "name": "the floor came back"},
+  {"do": "wait_phase", "phase": "mission", "timeout": 60},
+  {"do": "sleep", "seconds": 3},
+  {"do": "gl", "verb": "da-arena", "expect": {"ok": true, "restored": true, "floor": 13, "seed": 4242, "startX": 928.0, "startY": 112.0, "god": true, "cvarGod": true, "cvarNocd": true, "kind": "pack"}, "name": "the toggles rode the town save"},
+  {"do": "gl", "verb": "da-dock", "args": ["me|"], "expect": {"ok": true, "open": true, "tab": "arena"}, "name": "the dock came back on the Arena tab"},
+  {"do": "shot", "name": "after-reload"},
+  {"do": "log_lacks", "pattern": "\\[HWP:devarena\\].*(error|ERR)", "name": "no devarena errors"}
+ ]
+}

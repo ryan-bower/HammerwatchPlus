@@ -1,0 +1,9 @@
+{
+ "about": "Named Dev Arena preset variants (tools/make_presets.py). `from` a generated preset; `set` replaces the row with the same verb and first arg (picks \"0\" drops it); `drop` removes [verb, id] rows; `add` appends rows; level, ilvl and quality override the header.",
+ "variants": [
+  {"id": "ranger_nature/mid+poison", "from": "ranger_nature/mid", "note": "Entangle's poison sub-skill on top of the generated build",
+   "set": [["skill", "nature_entangle_poison", "1"]]},
+  {"id": "ranger_nature/end+heal", "from": "ranger_nature/end", "note": "Entangle's heal sub-skill (blocks poison)",
+   "drop": [["skill", "nature_entangle_poison"]], "set": [["skill", "nature_entangle_heal", "1"]]}
+ ]
+}

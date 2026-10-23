@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">HammerwatchPlus spec: Test Warden</string>
+	<string name="author">Dev Arena</string>
+	<string name="description">Test Warden, a ranger subclass cloned from ranger_nature by the Dev Arena (tools/devarena/clone_spec.py). Part of HammerwatchPlus; requires HWP Core.</string>
+</dict>

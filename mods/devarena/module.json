@@ -1,0 +1,7 @@
+{
+  "id": "devarena",
+  "requires": ["gamelab-probe", "gamelab-hands", "core"],
+  "overrides": [],
+  "exclude": [],
+  "gamelab": true
+}

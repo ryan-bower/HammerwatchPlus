@@ -1,0 +1,24 @@
+{
+ "name": "town-ranger10",
+ "about": "Dev Arena HP6 (docs/devarena/SPEC.md): a fresh level-10 ranger standing in town, no subclass, so the Subclass Picker NPC offers its masteries (actors/npcs/town/npc_subclass_picker.unit: SubclassPickShopContent at lvl ge 10). Level L needs LevelExperience(L-1) = 2000 * (L-1)^2.2 (PlayerRecord.as:2077-2080, Data/Player.as:99-100): 251399 for level 10, 316978 for 11, so 251500 lands on 10.",
+ "slot": 0,
+ "binary_edits": {
+  "enable_mods": ["gamelab-probe", "gamelab-hands", "gamelab-pilot"]
+ },
+ "character": {"class": "ranger", "name": "Shipper"},
+ "setup": [
+  {"verb": "xp", "args": [251500], "expect": {"ok": true, "level": 10}}
+ ],
+ "save_town": true,
+ "readback": {
+  "phase": "town",
+  "player.class": "ranger",
+  "player.name": "Shipper",
+  "player.level": 10,
+  "player.dead": false
+ },
+ "readback_probes": [
+  {"verb": "inspect", "args": ["player", "level"], "expect": {"value": 10}},
+  {"verb": "inspect", "args": ["player", "class"], "expect": {"value": "ranger"}}
+ ]
+}

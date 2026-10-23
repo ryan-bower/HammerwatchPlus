@@ -12,7 +12,7 @@ dependency order, with the safe ones fixed on request.
 --fix never writes the user's saves, config or install: bootstrap writes gamecode/ and
 tools/bin/ (the patched PACKAGER is a copy there, not in the install), env_link writes
 gamelab/env/userdata/, tools/class_units.py writes the class-swapped base units into
-mods/keys/ and mods/pets/, and tools/import_hoh1.py (pets, levels, campaign, classes; only
+mods/keys/, mods/pets/ and mods/colors/, and tools/import_hoh1.py (pets, levels, campaign, classes; only
 the ones whose output is missing, never --force) writes the HoH1 content into mods/ and
 hoh1_import/, tools/make_pet_dyes.py the dye-ready pet copies into mods/pets/, and
 tools/make_forgemaster_risen.py the Devil Forgemaster's risen and body units into mods/specs/.
@@ -335,7 +335,7 @@ def local_content(r: Report, fix: bool, hoh1: tuple[str, Path | None, str]) -> N
             bad, total = class_units_problems()
         r.check("class-swapped base units (class_units.py)", not bad,
                 f"{len(bad)} of {total} missing or stale (first: {bad[:2]}); `python tools/class_units.py`"
-                if bad else f"{total} units in mods/keys, mods/pets")
+                if bad else f"{total} units in mods/keys, mods/pets, mods/colors")
 
     hoh1_imports(r, fix, hoh1, base_ok)
     pet_dyes(r, fix, base_ok)

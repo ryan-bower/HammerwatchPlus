@@ -1,0 +1,488 @@
+class DungeonEnemyPlacer
+{
+	int m_autoSpotMinRadius;
+	float m_autoSpotChance;
+	float m_spotChanceMul;
+
+	array<EnemyPlacementScheme@> m_schemeNames;
+	array<int> m_schemeChances;
+
+	bool m_allowElites;
+	bool m_allowMinibosses;
+
+	vec2 m_densityMul;
+
+
+	DungeonEnemyPlacer(UnitPtr owner, array<SValue@>@ params)
+	{
+		m_autoSpotMinRadius = GetParamInt(owner, params, "auto-spot-min-radius", false, 2);
+		m_autoSpotChance = GetParamFloat(owner, params, "auto-spot-chance", false, 1.0f);
+		m_spotChanceMul = GetParamFloat(owner, params, "spot-chance-mul", false, 0.66f);
+		
+		m_allowElites = GetParamBool(owner, params, "elites", false, false);
+		m_allowMinibosses = GetParamBool(owner, params, "minibosses", false, false);
+		
+		m_densityMul = GetParamVec2(owner, params, "density", false, vec2(1.0f, 1.0f));
+		
+		
+		
+		auto schemeArr = GetParamArray(owner, params, "schemes", false);
+		if (schemeArr !is null)
+		{
+			for (uint i = 0; i < schemeArr.length(); i += 2)
+			{
+				auto scheme = EnemyPlacementScheme::Get(schemeArr[i+1].GetString());
+				if (scheme is null)
+					continue;
+				
+				m_schemeChances.insertLast(schemeArr[i].GetInteger());
+				m_schemeNames.insertLast(scheme);
+				
+			}
+		}
+	}
+
+	EnemyPlacementScheme@ GetEnemyScheme(WorldScript::EnemyPlacement@ placement, float &out budget)
+	{
+		//float space = pow(placement.Spread / 16.0f, 2.0f) * PI;
+		float space = pow((placement.Spread + 8) / 16.0f, 1.5f) * PI;
+		float baseBudget = Modifiers::lerp(m_densityMul, randf()) * placement.Density * space;
+		
+		
+		int schemeChanceSum = 0;
+		for (uint i = 0; i < m_schemeNames.length(); i++)
+		{
+			m_schemeNames[i].m_tmpInUse = false;
+			
+			if (baseBudget < m_schemeNames[i].m_minBudget || baseBudget > m_schemeNames[i].m_maxBudget)
+				continue;
+			
+			if (placement.m_tagInt != 0 && (placement.m_tagInt & m_schemeNames[i].m_tags) == 0)
+				continue;
+			
+			if (!CheckGlobalConditionals(m_schemeNames[i].m_conditionals))
+				continue;
+			
+			m_schemeNames[i].m_tmpInUse = true;
+			schemeChanceSum += m_schemeChances[i];
+		}
+		
+		
+		int r = randi(schemeChanceSum);
+		for (uint i = 0; i < m_schemeChances.length(); i++)
+		{
+			if (!m_schemeNames[i].m_tmpInUse)
+				continue;
+			
+			r -= m_schemeChances[i];
+			if (r < 0)
+			{
+				budget = max(2.0f, baseBudget * Modifiers::lerp(m_schemeNames[i].m_density, randf()));
+				return m_schemeNames[i];
+			}
+		}
+		
+		budget = 0;
+		return null;
+	}
+
+}
+
+array<uint> g_dungeonGenFlags;
+array<uint> g_dungeonGenRunFlags;
+array<string> g_dungeonGenRunFlagNames;
+array<uint> g_dungeonGenCDScalars;
+array<float> g_dungeonGenCDScalarValues;
+uint g_genNumId;
+
+
+
+class DungeonGenerator : ALevelGenerator
+{
+	vec2 m_startPos;
+	bool m_placeActShortcut;
+	int m_numPlrs;
+	DungeonBrush@ m_brush;
+	array<DungeonGenerationCommands@> m_genCommands;
+	array<DungeonPostGenerationCommands@> m_postGenCommands;
+
+
+	void LoadParams(array<SValue@>@ params, MissionThemeDef@ themeDef) override
+	{
+		ALevelGenerator::LoadParams(params, themeDef);
+
+		UnitPtr u;
+
+
+		array<SValue@> brushData;
+		
+		auto bDat = GetParamDictionary(u, params, "brush", false);
+		if (bDat !is null)
+			brushData.insertLast(bDat);
+		
+		if (themeDef !is null && themeDef.m_brushData !is null)
+			brushData.insertLast(themeDef.m_brushData);
+		
+		auto brushClass = GetParamString(u, brushData, "class");
+		@m_brush = cast<DungeonBrush>(InstantiateClass(brushClass));
+		if (m_brush !is null)
+			m_brush.LoadParams(brushData, themeDef);
+
+
+
+		uint numGens = 0;
+		auto genArr = GetParamArray(u, params, "generation", false);
+		
+		if (genArr !is null)
+			numGens = max(numGens, genArr.length());
+		
+		if (themeDef !is null && themeDef.m_generationData !is null)
+			numGens = max(numGens, themeDef.m_generationData.length());
+		
+		for (uint i = 0; i < numGens; i++)
+		{
+			array<SValue@> genData;
+			bool valid = false;
+			
+			if (genArr !is null && i < genArr.length())
+			{
+				genData.insertLast(genArr[i]);
+				valid = true;
+			}
+			
+			if (themeDef !is null && themeDef.m_generationData !is null && i < themeDef.m_generationData.length())
+			{
+				genData.insertLast(themeDef.m_generationData[i]);
+				valid = true;
+			}
+			
+			if (!valid)
+				continue;
+			
+			auto classStr = GetParamString(u, genData, "class", false);
+			if (classStr.isEmpty())
+				continue;
+			
+			auto command = cast<DungeonGenerationCommands>(InstantiateClass(classStr));
+			if (command !is null)
+			{
+				command.LoadParams(genData);
+				m_genCommands.insertLast(command);
+			}
+		}
+
+
+
+
+
+
+		uint numCmnds = 0;
+		auto cmdArr = GetParamArray(u, params, "post-gen-commands", false);
+		
+		if (cmdArr !is null)
+			numCmnds = max(numCmnds, cmdArr.length());
+		
+		if (themeDef !is null && themeDef.m_postGenCommandData !is null)
+			numCmnds = max(numCmnds, themeDef.m_postGenCommandData.length());
+		
+		for (uint i = 0; i < numCmnds; i++)
+		{
+			array<SValue@> cmdData;
+			bool valid = false;
+			
+			if (cmdArr !is null && i < cmdArr.length())
+			{
+				cmdData.insertLast(cmdArr[i]);
+				valid = true;
+			}
+			
+			if (themeDef !is null && themeDef.m_postGenCommandData !is null && i < themeDef.m_postGenCommandData.length())
+			{
+				cmdData.insertLast(themeDef.m_postGenCommandData[i]);
+				valid = true;
+			}
+			
+			if (!valid)
+				continue;
+			
+			auto classStr = GetParamString(u, cmdData, "class", false);
+			if (classStr.isEmpty())
+				continue;
+			
+			auto command = cast<DungeonPostGenerationCommands>(InstantiateClass(classStr));
+			if (command !is null)
+			{
+				command.LoadParams(cmdData);
+				m_postGenCommands.insertLast(command);
+			}
+		}
+	}
+
+	int ReserveCliff(array<array<uint8>>@ gridTaken, int x, int y, bool fill)
+	{
+		int w = m_brush.m_width;
+		int h = m_brush.m_height;
+	
+		array<ivec2> delta = { ivec2(1, 0), ivec2(-1, 0), ivec2(0, 1), ivec2(0, -1) };
+	
+		array<ivec2> queue;
+		queue.insertLast(ivec2(x, y));
+		gridTaken[x][y] = 0;
+
+		bool valid = true;
+		int num = 0;
+		while(!queue.isEmpty())
+		{
+			auto pt = queue[0];
+			queue.removeAt(0);
+			
+			for (int i = 0; i < 4; i++)
+			{
+				ivec2 p = pt + delta[i];
+				
+				if (p.x < 0 || p.x >= w || p.y < 0 || p.y >= h || m_brush.IsConsumed(p.x, p.y))
+				{
+					valid = false;
+					continue;
+				}
+				
+				if (gridTaken[p.x][p.y] != 0)
+					continue;
+
+				if (m_brush.GetCell(p.x, p.y) != Cell::Wall)
+					continue;
+				
+				if (valid && !fill)
+				{
+					if (m_brush.GetCell(p.x, p.y - 1) != Cell::Wall && (m_brush.GetCell(p.x, p.y + 1) != Cell::Wall   ))//|| m_brush.GetCell(p.x, p.y + 2) != Cell::Wall))
+						valid = false;
+					else if (m_brush.GetCell(p.x - 1, p.y) != Cell::Wall && m_brush.GetCell(p.x + 1, p.y) != Cell::Wall)
+						valid = false;
+				}
+				
+				queue.insertLast(p);
+				gridTaken[p.x][p.y] = 1;
+				num++;
+				
+				if (fill)
+					m_brush.SetCell(p.x, p.y, Cell::Cliff);
+			}
+		}
+		
+		return valid ? num : -1;
+	}
+
+	void MakeCliffs(int maxNum, int maxSize)
+	{
+		if (maxNum <= 0)
+			return;
+	
+		int w = m_brush.m_width;
+		int h = m_brush.m_height;
+	
+		auto gridTaken = array<array<uint8>>(w, array<uint8>(h, 0));
+		array<ivec2> cliffGroups;
+		
+		for (int y = 0; y < h; y++)
+		{
+			for (int x = 0; x < w; x++)
+			{
+				if (gridTaken[x][y] != 0)
+					continue;
+			
+				Cell cell = m_brush.GetCell(x, y);
+				if (cell == Cell::Wall && !m_brush.IsConsumed(x, y))
+				{
+					int size = ReserveCliff(gridTaken, x, y, false);
+					if (size > 10 && size < maxSize)
+						cliffGroups.insertLast(ivec2(x, y));
+				}
+			}
+		}
+		
+		gridTaken = array<array<uint8>>(w, array<uint8>(h, 0));
+		while(maxNum-- > 0 && cliffGroups.length() > 0)
+		{
+			int idx = randi(cliffGroups.length());
+			auto pt = cliffGroups[idx];
+			cliffGroups.removeAt(idx);
+			
+			ReserveCliff(gridTaken, pt.x, pt.y, true);
+		}
+	}
+
+	void PlaceCrateBreakables(int w, int h)
+	{
+		for (int y = 0; y < h; y++)
+		{
+			for (int x = 0; x < w; x++)
+			{
+				if (BlocksBreakable(x, y))
+					continue;
+				
+				if (BlocksBreakable(x, y + 1))
+					continue;
+				
+				if (BlocksBreakable(x, y + 2))
+					continue;
+				
+				if (BlocksBreakable(x, y + 3))
+					continue;
+				
+				if (m_brush.GetCell(x, y -1) == Cell::Floor)
+					continue;
+
+				bool noWall = true;
+				int chance = 10;
+				if (m_brush.GetCell(x, y -1) == Cell::Wall)
+				{
+					chance += 30;
+					noWall = false;
+				}
+				else if (m_brush.GetCell(x, y -1) == Cell::Breakables)
+					chance += 10;
+					
+				if (m_brush.GetCell(x -1, y) == Cell::Wall)
+				{
+					chance += 25;
+					noWall = false;
+				}
+				else if (m_brush.GetCell(x -1, y) == Cell::Breakables)
+					chance += 20;
+					
+				if (m_brush.GetCell(x +1, y) == Cell::Wall)
+				{
+					chance += 25;
+					noWall = false;
+				}
+				else if (m_brush.GetCell(x +1, y) == Cell::Breakables)
+					chance += 20;
+				
+				if (noWall)
+					chance -= 15;
+				
+				if (randi(100) < chance)
+					m_brush.SetCell(x, y, Cell::Breakables);
+			}
+		}
+	}
+
+	bool BlocksBreakable(int x, int y)
+	{
+		if (m_brush.IsConsumed(x, y))
+			return true;
+	
+		auto cell = m_brush.GetCell(x, y);
+		return (cell != Cell::Floor && cell != Cell::Breakables);
+	}
+
+	bool InitializeGeneration() { return true; }
+	bool BeginGeneration(PrefabPlacement@ placer) { return true; }
+
+	void Generate(SValue@ save) override
+	{
+		auto missionGm = cast<MissionGameModeBase>(g_gameMode);
+		
+		while (true)
+		{
+			g_dungeonGenFlags.removeRange(0, g_dungeonGenFlags.length());
+			g_dungeonGenRunFlags.removeRange(0, g_dungeonGenRunFlags.length());
+			g_dungeonGenRunFlagNames.removeRange(0, g_dungeonGenRunFlagNames.length());
+			g_dungeonGenCDScalars.removeRange(0, g_dungeonGenCDScalars.length());
+			g_dungeonGenCDScalarValues.removeRange(0, g_dungeonGenCDScalarValues.length());
+			
+			if (missionGm !is null)
+			{
+				for (uint i = 0; i < missionGm.m_missionLevel.m_levelFlags.length(); i++)
+					g_dungeonGenFlags.insertLast(HashString(missionGm.m_missionLevel.m_levelFlags[i]));
+			}
+			
+			g_genNumId = randi();
+			print("Generating level...");
+			
+			PreloaderYield();
+			
+			if (!InitializeGeneration())
+			{
+				PrintError("Failed generation initialization");
+				continue;
+			}
+			
+			int w = m_size.x / 16;
+			int h = m_size.y / 16;
+			
+			PreloaderYield();
+			
+			m_brush.Initialize(w, h, vec2(-m_size.x / 2, -m_size.y / 2));
+			PrefabPlacement placer(m_brush);
+			
+			PreloaderYield();
+			
+			if (!BeginGeneration(placer))
+			{
+				PrintError("Failed generation startup");
+				continue;
+			}
+			
+			print("Running generation commands");
+			
+			bool failed = false;
+			for (uint i = 0; i < m_genCommands.length(); i++)
+			{
+				PreloaderYield();
+				
+				if (randf() > m_genCommands[i].m_execChance)
+					continue;
+				if (!CheckGlobalConditionals(m_genCommands[i].m_conditionals))
+					continue;
+				
+				if (!m_genCommands[i].Execute(m_brush, placer))
+				{
+					failed = true;
+					break;
+				}
+				
+				m_brush.OutputDebugImage();
+			}
+			
+			if (failed)
+			{
+				PrintWarning("Failed generation commands, retrying from scratch");
+				continue;
+			}
+			
+			print("Finished generation commands");
+			
+			PreloaderYield();
+			
+			PlaceBreakables();
+			
+			PreloaderYield();
+			
+			m_brush.GenerateNothingness();
+			
+			break;
+		}
+		
+		PreloaderYield();
+		
+		print("Brush build");
+		m_brush.Build(g_scene);
+		
+		PreloaderYield();
+		
+		print("Placing enemy spots");
+		m_brush.PlaceEnemySpots(g_scene, m_enemyPlacer);
+	}
+	
+	void PlaceBreakables()
+	{
+		print("Placing breakables");
+		
+		int w = m_size.x / 16;
+		int h = m_size.y / 16;
+		
+		PlaceCrateBreakables(w, h);
+	}
+
+}

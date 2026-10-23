@@ -160,9 +160,15 @@ modules; the optional `holylocal` module is local-only and outside that stack.
 ## Running and exit codes
 
 ```
-python -m gamelab list
-python -m gamelab run <scenario> --mode lab
+python -m gamelab list [it]
+python -m gamelab run <scenario> --mode lab [--wait 1800]   # --wait: queue behind another agent's live run
+python -m gamelab suite it/<mod> --mode lab                  # every integration scenario of a module, in order
 ```
+
+Integration tests (full happy/error paths, run on purpose, not on every change) live in
+`gamelab/scenarios/it/<mod>/`; run one as `python -m gamelab run it/<mod>/<name> --mode lab`.
+The launcher takes the lock before preflight (preflight re-links the mods dir, which must not
+happen under another live run).
 
 | exit | verdict | do |
 |---|---|---|
@@ -228,6 +234,8 @@ its baseline/pins after a commit, rebase, or other source change before applying
   - `timeout` (default 300): the step budget; the whole run gets 3x, to cover fixture builds.
   - `boundaries`, `probe_menu` (below).
   - `explore: true`: the only way an `exit` writes new edges to `gamelab/travel/learned.json`.
+- `forget_edges: [[from, to], ...]`: this run treats those edges as unknown, so an `explore`
+  scenario re-proves learning every run; the fresh crossing replaces the stored entry.
 - `expect` is `{dotted.path: value}` against the reply, or `{"between": [lo, hi]}`.
 - `save_as` names a reply for `assert_more`, `assert_dist`, `loot_check` and `boundaries`.
 - Templates: `mod-fishing.json` (mod smoke test), `pilot-floor.json` (bot, shots, `shot_changed`).
@@ -244,7 +252,7 @@ its baseline/pins after a commit, rebase, or other source change before applying
 | `shot_changed` / `shot_diff` / `shot_tint` | `before`, `after`, ... | pixels must agree with what the probes say |
 | `log_has` / `log_lacks` | `pattern`, `timeout` | regex in this pass's game log |
 | `log_capture` | `pattern`, `save_as`, `timeout` | the named groups of the regex's last match, saved as `{match: {...}}` (numbers where they parse); `assert_dist` with `path: "match"` compares logged positions |
-| `log_clean` | | no script errors in our mods' files |
+| `log_clean` | `allow` | no script errors in our mods' files; `allow` regexes drop expected error lines (with the `From "<file>" line N` line after each) |
 | `overlays` | `allow` | nothing unexpected drawn over the world |
 | `assert_more` | `than`, `now`, `path` | the values under `path` grew |
 | `assert_dist` | `a`, `b`, `path`, `min`, `max` | distance between two saved `{x, y}` |
@@ -256,6 +264,11 @@ its baseline/pins after a commit, rebase, or other source change before applying
 | `sval` | `file`, `dest` | export a datatable as the game parsed it |
 | `key`, `console`, `sleep`, `minimize` | | posted key, raw console line, wait, minimize |
 | `type` | `text`, `gap` | posted WM_CHARs into whatever has the keyboard (a textinput pressed with `gl menu <tab> - <widget> !click`). Each `gl` command opens the console, whose key char (`) reaches a focused field unless the field forbids it; identical consecutive chars arrive once ("qqq" -> "q") |
+| `console` + `expect` / `lacks` | `line`, `expect`, `lacks`, `timeout`, `settle`, `save_as` | a console line (`hwp ...`) whose reply is matched in the log written **after** it (typed-line echoes left out) |
+| `click` / `hover` | `widget` (+`n`, `root`, `any_window`) or `x`,`y`; `verify`, `after`, `click_anyway` | a human click / pointer move with the emulated mouse (`gl pointer`, `gamelab/ui.py`) at the widget's centre; by default fails unless the game kept the position, the window hovers the widget and took the press and release |
+| `mark` | `name` | a point in the log; `log_has` / `log_lacks` take `"since": name` |
+| `assert_delta` | `than`, `now`, `path`, `equals` / `between` / `in` | `now - than` at a numeric path (gold spent: `equals: -40000`; a bet: `in: [-100, 0, 100]`) |
+| `compare` | `a`, `b`, `same`, `differ` | paths equal / not equal between two saved replies (a refused action changed nothing) |
 
 `{$name.dotted.path}` inside a `gl` or `pilot` step's `args`, or a `console` line, is replaced by that saved
 value (a missing one fails the run). It hands a unit id from `near` to `pilot use`, or a logged position from
@@ -263,6 +276,30 @@ value (a missing one fails the run). It hands a unit id from `near` to `pilot us
 kills (XP, `PlayerKilledActor` hooks), which plain `cull` does not.
 Don't press Escape after a `gl use` that may have failed: with no window open it opens the pause menu, and
 module timers stop until it closes.
+
+`expect` values may also be `{"match": regex}`, `{"not": v}` or `{"in": [v, ...]}`.
+
+### Using the UI like a human
+
+- A town session starts with an arrival cinematic: the game walks the player itself and drops
+  input until `gl cinema` reports `active: false` (Player.as:1388-1395; diag-teleport
+  20261018-053946). Act after it.
+- Open an NPC's window: the `use_unit` bot (`gamelab/bots/use_unit.py`), kwargs `name` (unit
+  name or behaviour, as `near` filters), `window`, `teleport: true` for town NPCs the Pilot
+  cannot route to (a labelled setup cheat). It presses the Use key when the unit is the top
+  usable.
+- Find what to click: `gl clickables [top|all] [id]` (what the top window's hit-test can
+  reach: id, func, enabled, shown, text, `px`/`py`); `gl widget <id> [n] [top|all]` (one
+  widget's text/state/position, `count: 0` when absent); `gl widgets` (whole tree, positions).
+- Click it: `{"do": "click", "widget": "bet-btn-2"}` (the emulated mouse, as a player; posted
+  WM_MOUSE* never reach the game) or
+  `{"do": "gl", "verb": "press", "args": ["bet-btn-2"]}` (the top window's widget's own
+  ClickDown/ClickUp, no mouse; it does not check that the widget is shown or enabled). Prefer
+  `click`; `press` when the mouse path is not what is under test.
+- Only the top window gets input (WindowManager::Update); a widget sits at
+  `window.m_origin + widget.m_origin` GUI units, times `m_wndScale` in pixels.
+- Script paths must be unique across mods: two mods with the same `scripts/...` path shadow
+  each other (ProbeUi.as / HandsUi.as, 2026-10-18).
 
 ## Fixtures (`gamelab/fixtures/`)
 
@@ -285,8 +322,10 @@ The current registered verbs and doc comments are in the
 Use `python tools/list_verbs.py --check` to verify that the catalog matches source;
 do not rely on a fixed verb count in this skill.
 
-- Read: `state`, `scan`, `near`, `usables`, `ui`, `overlays`, `widgets`, `inv`,
-  `buildings`, `cvars`, `mods`, `clock`, `terrain`, `pathfind`, `reachmap`.
+- Read: `state`, `scan`, `near`, `usables`, `ui`, `overlays`, `widgets [depth] [root] [type]`
+  (one root: a window class, `PlayerMenu:<tab class>` or the HUD; `type` keeps one script class),
+  `widget`, `clickables`, `cinema`, `inv`, `buildings`, `cvars`, `mods`, `clock`, `terrain`,
+  `pathfind`, `reachmap`.
   `widgets` gives `text` for TextWidgets, `enabled` for buttons and `item` for item slots,
   and the open tab of a tabbed window as its own root (`PlayerMenu:PlayerMenuCharacterTab`).
   A button's caption is a BitmapString it can't read, so check a window's result line
@@ -307,19 +346,24 @@ do not rely on a fixed verb count in this skill.
   A reply over 15,000 chars comes back as an error (a longer log line looked fatal).
 - Read the game's own data:
   - `inspect player|town <dotted.path>`: the save record.
-  - `sval <file>`: a datatable as parsed.
+  - `sval <file>`: a datatable as parsed; `sval <file>:<entry>` only one dictionary key, or the
+    array element whose `id` matches.
   - `members <Type>`: script reflection.
 - Act through the game's own code path: `mission`, `build`, `equip`, `xp`, `material`,
-  `upgrade`, `assign`, `charflag`, `spawn`, `save`, `pick`, `char`, `input`.
+  `upgrade`, `assign`, `charflag`, `spawn`, `save`, `pick`, `char`, `input`, `pointer`,
+  `skillup`, `mastery`.
   `spawn` of a material unit gives an amount-0 pickup; `drop <type> <amount> <dx> <dy>`
   makes a real one (Material::DropMaterial).
+- `areatriggers [radius]` (read-only): AreaTrigger / AllPlayersAreaTrigger scripts near the
+  player (enabled, inside). Boss levels spawn the boss through one; walk into it first.
 - `multi a + b + c` runs many verbs in one frame.
 
 ## Measurement-only verbs
 
-`teleport`, `cull` and `timescale` measure engine facts. A scenario that uses them is
-not evidence of play. `timescale` speeds up timers but not per-frame movement. A
-teleport takes the pet along, so check following with a walk (`input <ms> <x> <y>`).
+`teleport`, `cull` and `timescale` measure engine facts (`cull` is cht_kill_all, targetable actors only;
+`cull all` kills the untargetable ones too and reports `untargetable`; `cull mine` credits the local
+player). A scenario that uses them is not evidence of play. `timescale` speeds up timers but not
+per-frame movement. A teleport takes the pet along, so check following with a walk (`input <ms> <x> <y>`).
 
 ## Pilot intents and bots
 

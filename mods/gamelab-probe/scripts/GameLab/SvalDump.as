@@ -91,19 +91,55 @@ namespace GameLab
 		return "{\"__unsupported\":" + Quote(name) + "}";
 	}
 
+	// One entry of a parsed file: a dictionary's key, or the array element whose "id" is entry.
+	SValue@ SvalEntry(SValue@ sv, const string &in entry)
+	{
+		if (sv.GetType() == SValueType::Dictionary)
+			return sv.GetDictionaryEntry(entry);
+		if (sv.GetType() != SValueType::Array)
+			return null;
+		auto arr = sv.GetArray();
+		for (uint i = 0; i < arr.length(); i++)
+		{
+			if (arr[i] is null || arr[i].GetType() != SValueType::Dictionary)
+				continue;
+			auto e = arr[i].GetDictionaryEntry("id");
+			if (e !is null && e.GetType() == SValueType::String && e.GetString() == entry)
+				return arr[i];
+		}
+		return null;
+	}
+
 	// sval <file.sval>[:entry]: read-only. A datatable as the game parsed it, as JSON, sent in parts when long.
+	// With :entry only that entry: a dictionary key, or the array element whose "id" matches.
 	void VerbSval(const string &in id, array<string>@ args)
 	{
 		if (args.length() < 1)
 		{
-			Fail(id, "usage: sval <file.sval>");
+			Fail(id, "usage: sval <file.sval>[:entry]");
 			return;
 		}
-		auto sv = Resources::GetSValue(args[0]);
+		string file = args[0], entry = "";
+		int colon = file.findFirst(".sval:");
+		if (colon >= 0)
+		{
+			entry = file.substr(colon + 6);
+			file = file.substr(0, colon + 5);
+		}
+		auto sv = Resources::GetSValue(file);
 		if (sv is null)
 		{
-			Fail(id, "no sval '" + args[0] + "'");
+			Fail(id, "no sval '" + file + "'");
 			return;
+		}
+		if (entry != "")
+		{
+			@sv = SvalEntry(sv, entry);
+			if (sv is null)
+			{
+				Fail(id, "no entry '" + entry + "' in '" + file + "'");
+				return;
+			}
 		}
 		string text = SvalJson(sv, 0);
 		uint parts = (text.length() + SVAL_CHUNK - 1) / SVAL_CHUNK;

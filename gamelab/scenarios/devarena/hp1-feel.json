@@ -1,0 +1,42 @@
+{
+ "name": "hp1-feel",
+ "about": "HP1 feel tweak (docs/devarena/SPEC.md happy paths; Decided 3: castpoint 150 -> 100): ranger_nature/mid, F1, Tune, the Entangle chip, the castpoint field typed to 100 and released with Enter (applied between casts: a typed field holds input focus, so no cast can run while typing; the mid-cast deferral is spike-deferred 20261020-222134). The live skill then reads castpoint 100 with the timeline's cast event moved; a cast fires at the new castpoint; F2 puts vanilla (150) live and F2 again brings 100 back. Buttons are aimed by id (gl da-dock).",
+ "fixture": "mission-ranger",
+ "mods": ["core", "devarena"],
+ "timeout": 400,
+ "steps": [
+  {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},
+  {"do": "wait_phase", "phase": "mission", "timeout": 120},
+  {"do": "sleep", "seconds": 3},
+  {"do": "gl", "verb": "cull", "args": ["all"], "expect": {"ok": true}, "name": "setup: clear the floor (cheat)"},
+  {"do": "mark", "name": "preset"},
+  {"do": "gl", "verb": "da-preset", "args": ["ranger_nature/mid"], "expect": {"ok": true}, "name": "setup: ranger_nature/mid"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] loadout ranger_nature/mid (ok|mismatch)", "since": "preset", "timeout": 15, "name": "mid applied"},
+  {"do": "gl", "verb": "da-skill", "args": ["nature_entangle"], "expect": {"ok": true, "castpoint": 150, "slot": 2}, "name": "before: castpoint 150"},
+
+  {"do": "key", "key": "f1", "name": "F1"},
+  {"do": "sleep", "seconds": 0.5},
+  {"do": "gl", "verb": "da-dock", "expect": {"ok": true, "open": true, "paused": false}, "name": "the dock is open and the game is not paused"},
+  {"do": "click", "dock": "tab-tune", "verify": false, "name": "the Tune tab"},
+  {"do": "click", "dock": "skill|nature_entangle", "verify": false, "name": "the Entangle chip"},
+  {"do": "click", "dock": "feel|castpoint", "verify": false, "name": "the castpoint field"},
+  {"do": "text", "text": "100", "name": "type 100"},
+  {"do": "key", "key": "enter", "name": "release: Enter"},
+  {"do": "sleep", "seconds": 0.5},
+  {"do": "gl", "verb": "da-skill", "args": ["nature_entangle"], "expect": {"ok": true, "castpoint": 100, "timeline.1": 100, "casts": 0, "pending": 0}, "name": "applied before the cast: castpoint 100, the cast event moved"},
+  {"do": "gl", "verb": "da-tune", "expect": {"ok": true, "versions": 1, "live": 1, "slot": "B"}, "name": "v1 live in B"},
+  {"do": "gl", "verb": "pointer", "args": ["320", "130", "move"], "expect": {"ok": true}, "name": "setup: the mouse off the dock"},
+  {"do": "gl", "verb": "input", "args": [300, 0, 0, 1, 0, "skill3"], "expect": {"ok": true}, "name": "cast Entangle (Skill3)"},
+  {"do": "sleep", "seconds": 1.5},
+  {"do": "gl", "verb": "da-skill", "args": ["nature_entangle"], "save_as": "cast", "expect": {"ok": true, "castpoint": 100, "casts": 1, "skillLen": {"between": [1, 5000]}}, "name": "the cast ran on the tuned skill"},
+  {"do": "shot", "name": "hp1-tuned"},
+
+  {"do": "key", "key": "f2", "name": "F2: slot A"},
+  {"do": "sleep", "seconds": 0.5},
+  {"do": "gl", "verb": "da-skill", "args": ["nature_entangle"], "expect": {"ok": true, "castpoint": 150}, "name": "A: vanilla castpoint 150"},
+  {"do": "key", "key": "f2", "name": "F2: back to B"},
+  {"do": "sleep", "seconds": 0.5},
+  {"do": "gl", "verb": "da-skill", "args": ["nature_entangle"], "expect": {"ok": true, "castpoint": 100}, "name": "B: castpoint 100 again"},
+  {"do": "log_lacks", "pattern": "\\[HWP:devarena\\].*(error|ERR|apply failed|rejected)", "name": "no devarena errors"}
+ ]
+}

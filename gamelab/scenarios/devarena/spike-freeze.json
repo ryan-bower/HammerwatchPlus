@@ -1,0 +1,165 @@
+{
+ "name": "spike-freeze",
+ "about": "Spike 3 (docs/devarena/SPEC.md build order): freeze by stun. Spawn two melee footman elites and a ranged beetle next to the player, freeze them (CompositeActorBehavior.m_frozen + a code-built buff with lock-movement, speed-mul 0, disarm, silence, re-applied every second), and hold 10 s: no mob may move and the player may lose no hp. Then unfreeze and check the mobs do move, so the measurement can see movement at all.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "core",
+  "devarena"
+ ],
+ "timeout": 400,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "gl",
+   "verb": "spawn",
+   "args": [
+    "actors/undead/guard/guard_footman_elite.unit",
+    40,
+    0
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: footman elite east (cheat)"
+  },
+  {
+   "do": "gl",
+   "verb": "spawn",
+   "args": [
+    "actors/undead/guard/guard_footman_elite.unit",
+    0,
+    40
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: footman elite south (cheat)"
+  },
+  {
+   "do": "gl",
+   "verb": "spawn",
+   "args": [
+    "actors/beasts/beetles/beetle_green_ranged.unit",
+    -110,
+    0
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: ranged beetle west (cheat)"
+  },
+  {
+   "do": "gl",
+   "verb": "da-freeze",
+   "args": [
+    "on"
+   ],
+   "expect": {
+    "ok": true,
+    "freeze": true,
+    "mobs": {
+     "between": [
+      3,
+      3
+     ]
+    }
+   },
+   "name": "freeze the three"
+  },
+  {
+   "do": "sleep",
+   "seconds": 10
+  },
+  {
+   "do": "gl",
+   "verb": "da-mobs",
+   "expect": {
+    "ok": true,
+    "freeze": true,
+    "mobs": 3,
+    "frozen": 3,
+    "tracked": 3,
+    "maxMoved": {
+     "between": [
+      0,
+      0.5
+     ]
+    },
+    "hpLost": 0
+   },
+   "name": "frozen 10 s: nothing moved, no damage"
+  },
+  {
+   "do": "gl",
+   "verb": "da-freeze",
+   "args": [
+    "off"
+   ],
+   "expect": {
+    "ok": true,
+    "freeze": false
+   },
+   "name": "unfreeze (the buff runs out within 2 s; positions from the freeze are kept)"
+  },
+  {
+   "do": "sleep",
+   "seconds": 5
+  },
+  {
+   "do": "gl",
+   "verb": "da-mobs",
+   "expect": {
+    "ok": true,
+    "frozen": 0,
+    "maxMoved": {
+     "between": [
+      2,
+      100000
+     ]
+    }
+   },
+   "name": "control: unfrozen mobs do move"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] freeze on: 3 mobs",
+   "timeout": 5
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

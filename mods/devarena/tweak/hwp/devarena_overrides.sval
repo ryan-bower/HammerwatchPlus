@@ -1,0 +1,11 @@
+<!-- Dev Arena override file (mods/devarena/scripts/HWP/DevArena/Overrides.as). Written by
+     tools/devarena/overrides.py from the game log; read once at boot. Empty = vanilla. -->
+<dict>
+	<int name="schema">1</int>
+	<int name="live">0</int>
+	<int name="a">0</int>
+	<int name="b">-1</int>
+	<string name="slot">A</string>
+	<array name="pins"></array>
+	<array name="versions"></array>
+</dict>

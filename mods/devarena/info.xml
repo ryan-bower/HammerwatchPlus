@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">Dev Arena</string>
+	<string name="author">HammerwatchPlus</string>
+	<string name="description">Dev tool only: the elite-spec tuner, loadouts, golem room and bench overlay (F1). Lives in the GameLab environment; never deployed to a play install.</string>
+</dict>

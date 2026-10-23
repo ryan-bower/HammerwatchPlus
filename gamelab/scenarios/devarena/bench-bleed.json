@@ -1,0 +1,251 @@
+{
+ "name": "devarena-bench-bleed",
+ "about": "Review D5: B (Entangle's area-dmg tuned to 900, an area that outlives a 5 s pull) must not keep hitting the golem in the next A pull. Same setup as bench-dock (A B A B A B, bot driver); each pull's reset clears player projectiles and owned non-actor units in the room (Bench.as ClearLingering), and A's dps is read from the CSV against its own first pull, which has no B before it.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "core",
+  "devarena"
+ ],
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "gl",
+   "verb": "da-bench",
+   "expect": {
+    "ok": true,
+    "running": false,
+    "driver": "bot",
+    "pulls": 5,
+    "rotation": "default"
+   },
+   "name": "da-bench: idle, defaults"
+  },
+  {
+   "do": "key",
+   "key": "f1",
+   "name": "F1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "click",
+   "dock": "skill|nature_entangle",
+   "verify": false,
+   "name": "Tune: the Entangle chip"
+  },
+  {
+   "do": "click",
+   "dock": "cell|binds.area-dmg|5",
+   "verify": false,
+   "name": "the L5 area-dmg cell"
+  },
+  {
+   "do": "text",
+   "text": "900",
+   "name": "type 900"
+  },
+  {
+   "do": "key",
+   "key": "enter",
+   "name": "Enter"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "da-tune",
+   "expect": {
+    "ok": true,
+    "a": 0,
+    "b": 1,
+    "slot": "B"
+   },
+   "name": "B is v1"
+  },
+  {
+   "do": "click",
+   "dock": "tab-bench",
+   "verify": false,
+   "name": "the Bench tab"
+  },
+  {
+   "do": "gl",
+   "verb": "da-dock",
+   "args": [
+    "b"
+   ],
+   "expect": {
+    "ok": true,
+    "open": true,
+    "tab": "bench"
+   },
+   "name": "the Bench tab is open"
+  },
+  {
+   "do": "shot",
+   "name": "bench-tab"
+  },
+  {
+   "do": "mark",
+   "name": "in"
+  },
+  {
+   "do": "key",
+   "key": "f4",
+   "name": "F4: into the room"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] golem room in",
+   "since": "in",
+   "timeout": 5,
+   "name": "in the room"
+  },
+  {
+   "do": "click",
+   "dock": "bpulls|3",
+   "verify": false,
+   "name": "3 pulls"
+  },
+  {
+   "do": "click",
+   "dock": "bsecs|5s",
+   "verify": false,
+   "name": "5 s"
+  },
+  {
+   "do": "gl",
+   "verb": "da-bench",
+   "expect": {
+    "ok": true,
+    "pulls": 3,
+    "secs": 5
+   },
+   "name": "settings took"
+  },
+  {
+   "do": "mark",
+   "name": "bench"
+  },
+  {
+   "do": "click",
+   "dock": "bstart",
+   "verify": false,
+   "name": "Start bench"
+  },
+  {
+   "do": "gl",
+   "verb": "pointer",
+   "args": [
+    "320",
+    "130",
+    "move"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: the mouse over the golem, off the dock"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] bench 1 start bot 6 pulls",
+   "since": "bench",
+   "timeout": 5,
+   "name": "bench started: 6 pulls"
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "da-bench",
+   "expect": {
+    "ok": true,
+    "running": true
+   },
+   "name": "da-bench: running"
+  },
+  {
+   "do": "shot",
+   "name": "running"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] bench-result \\{\"bench\":1,",
+   "since": "bench",
+   "timeout": 120,
+   "name": "the bench finished"
+  },
+  {
+   "do": "log_has",
+   "pattern": "bench-pull \\{\"bench\":1,\"variant\":\"B\",\"version\":1,\"pull\":6,.*\"dps\":[1-9]",
+   "since": "bench",
+   "timeout": 5,
+   "name": "the sixth pull was B v1, dps > 0"
+  },
+  {
+   "do": "log_has",
+   "pattern": "bench-pull \\{\"bench\":1,\"variant\":\"A\",\"version\":0,\"pull\":5,.*\"dps\":[1-9]",
+   "since": "bench",
+   "timeout": 5,
+   "name": "the fifth was A v0, dps > 0"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] bench pull [2-6]: cleared [1-9][0-9]* lingering units",
+   "since": "bench",
+   "timeout": 5,
+   "name": "D5: what B left in the room was cleared before the next pull"
+  },
+  {
+   "do": "bench_csv",
+   "since": "bench",
+   "min_rows": 6,
+   "name": "CSV: 6 rows, the game's stats agree with bench.py"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:devarena\\].*(error|ERR)",
+   "name": "no devarena errors"
+  }
+ ]
+}

@@ -1,0 +1,267 @@
+{
+ "name": "devarena-class-switch",
+ "about": "Review 5: the live version follows a preset's class change (ran_trap is on every ranger class, each with its own defs).",
+ "fixture": "mission-ranger",
+ "mods": [
+  "core",
+  "devarena",
+  "spec-ranger-test"
+ ],
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "mark",
+   "name": "p1"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_nature/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_nature/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_nature\\/mid ok",
+   "since": "p1",
+   "timeout": 15,
+   "name": "ranger_nature/mid applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "ran_trap"
+   ],
+   "expect": {
+    "ok": true,
+    "cooldown": 2000
+   },
+   "name": "vanilla ran_trap cooldown 2000"
+  },
+  {
+   "do": "gl",
+   "verb": "da-set",
+   "args": [
+    "ran_trap",
+    "0",
+    "cooldown",
+    "7777"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "v1: nature ran_trap cooldown 7777"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "ran_trap"
+   ],
+   "expect": {
+    "ok": true,
+    "cooldown": 7777
+   },
+   "name": "v1 live on nature"
+  },
+  {
+   "do": "mark",
+   "name": "p2"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_beasts/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_beasts/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_beasts\\/mid ok",
+   "since": "p2",
+   "timeout": 15,
+   "name": "ranger_beasts/mid applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] class ranger_beasts: re-applying v1",
+   "since": "p2",
+   "timeout": 5,
+   "name": "the class change re-applies the live version"
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "ran_trap"
+   ],
+   "expect": {
+    "ok": true,
+    "cooldown": 7777
+   },
+   "name": "beasts' ran_trap carries v1 too"
+  },
+  {
+   "do": "gl",
+   "verb": "da-tune",
+   "expect": {
+    "ok": true,
+    "pending": false
+   },
+   "name": "nothing pending"
+  },
+  {
+   "do": "gl",
+   "verb": "da-set",
+   "args": [
+    "ran_trap",
+    "0",
+    "cooldown",
+    "5555"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "v2: beasts ran_trap cooldown 5555"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "ran_trap"
+   ],
+   "expect": {
+    "ok": true,
+    "cooldown": 5555
+   },
+   "name": "v2 live on beasts"
+  },
+  {
+   "do": "mark",
+   "name": "p3"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_nature/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_nature/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_nature\\/mid ok",
+   "since": "p3",
+   "timeout": 15,
+   "name": "ranger_nature/mid applied"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "ran_trap"
+   ],
+   "expect": {
+    "ok": true,
+    "cooldown": 5555
+   },
+   "name": "back on nature: v2, not a stale v1"
+  },
+  {
+   "do": "key",
+   "key": "f1",
+   "name": "F1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "key",
+   "key": "ctrl+z",
+   "name": "undo to v1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "ran_trap"
+   ],
+   "expect": {
+    "ok": true,
+    "cooldown": 7777
+   },
+   "name": "undo puts v1 on nature"
+  }
+ ]
+}

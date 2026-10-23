@@ -1,0 +1,354 @@
+{
+ "name": "golem-room",
+ "about": "The Golem tab as a player uses it (docs/devarena/SPEC.md, Golem room): F1, the Golem tab, F4 into the room (the golem spawns north of the player, the room walled with barracks wall pieces and its other enemies culled; walking south stops at the wall), the ranger's main attack held on it for 4 s, the pull ends 4 s after the last hit with a golem-pull line (dps, hits, per-skill breakdown), then profile / NG+ / pool / debuff chips respawn it as asked, and F4 back out. Buttons are aimed by id (gl da-dock).",
+ "fixture": "mission-ranger",
+ "mods": [
+  "core",
+  "devarena"
+ ],
+ "timeout": 400,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "key",
+   "key": "f1",
+   "name": "F1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "click",
+   "dock": "tab-golem",
+   "verify": false,
+   "name": "click the Golem tab"
+  },
+  {
+   "do": "gl",
+   "verb": "da-dock",
+   "args": [
+    "g"
+   ],
+   "expect": {
+    "ok": true,
+    "open": true,
+    "tab": "golem"
+   },
+   "name": "the Golem tab is open"
+  },
+  {
+   "do": "mark",
+   "name": "in"
+  },
+  {
+   "do": "key",
+   "key": "f4",
+   "name": "F4: into the room"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] golem room in",
+   "since": "in",
+   "timeout": 5,
+   "name": "in the room"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] golem spawn footman elite ngp 0 hp 1000000",
+   "since": "in",
+   "timeout": 5,
+   "name": "the default golem: footman elite, 1M"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "room"
+  },
+  {
+   "do": "gl",
+   "verb": "pointer",
+   "args": [
+    "2",
+    "2",
+    "move"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: park the mouse off the dock"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] golem walls 28 box",
+   "since": "in",
+   "timeout": 5,
+   "name": "the room is walled (28 pieces)"
+  },
+  {
+   "do": "mark",
+   "name": "pull"
+  },
+  {
+   "do": "gl",
+   "verb": "input",
+   "args": [
+    4000,
+    0,
+    0,
+    0,
+    -1,
+    "main"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "hold the main attack north at the golem for 4 s"
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "shot",
+   "name": "pulling"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] golem-pull \\{.*\"dps\":[1-9]",
+   "since": "pull",
+   "timeout": 20,
+   "name": "the pull ended idle with dps > 0"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "golem-pull .*,-\\d",
+   "name": "no negative damage rows"
+  },
+  {
+   "do": "gl",
+   "verb": "da-arena",
+   "expect": {
+    "ok": true
+   },
+   "name": "da-arena: the last pull"
+  },
+  {
+   "do": "shot",
+   "name": "pulled"
+  },
+  {
+   "do": "mark",
+   "name": "chips"
+  },
+  {
+   "do": "click",
+   "dock": "gprof|dummy",
+   "verify": false,
+   "name": "the dummy profile"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] golem spawn dummy ngp 0",
+   "since": "chips",
+   "timeout": 5,
+   "name": "dummy spawned"
+  },
+  {
+   "do": "click",
+   "dock": "gngp|+",
+   "verify": false,
+   "name": "NG+ up"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] golem spawn dummy ngp 1",
+   "since": "chips",
+   "timeout": 5,
+   "name": "NG+1 dummy"
+  },
+  {
+   "do": "click",
+   "dock": "gpool|4M",
+   "verify": false,
+   "name": "the 4M pool"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] golem spawn dummy ngp 1 hp 4000000",
+   "since": "chips",
+   "timeout": 5,
+   "name": "4M hp"
+  },
+  {
+   "do": "click",
+   "dock": "gdebuff|vulnerability",
+   "verify": false,
+   "name": "vulnerability on"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] golem debuff vulnerability on",
+   "since": "chips",
+   "timeout": 5,
+   "name": "debuff on"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "golem-tab"
+  },
+  {
+   "do": "mark",
+   "name": "move"
+  },
+  {
+   "do": "key",
+   "key": "f4",
+   "name": "F4: out, to move the room"
+  },
+  {
+   "do": "gl",
+   "verb": "pointer",
+   "args": [
+    "2",
+    "2",
+    "move"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: mouse off the dock again"
+  },
+  {
+   "do": "gl",
+   "verb": "input",
+   "args": [
+    1200,
+    0,
+    -1
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: walk north into the open corridor"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1.2
+  },
+  {
+   "do": "key",
+   "key": "f4",
+   "name": "F4: the room is built here"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] golem walls 28 box",
+   "since": "move",
+   "timeout": 5,
+   "name": "walled again where F4 was pressed"
+  },
+  {
+   "do": "gl",
+   "verb": "input",
+   "args": [
+    3000,
+    1,
+    0
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "walk east along the corridor for 3 s"
+  },
+  {
+   "do": "sleep",
+   "seconds": 3.5
+  },
+  {
+   "do": "gl",
+   "verb": "da-arena",
+   "expect": {
+    "ok": true,
+    "walls": 28,
+    "inBox": true,
+    "atWall": "e"
+   },
+   "name": "the east wall stopped the player inside the box"
+  },
+  {
+   "do": "shot",
+   "name": "against-wall"
+  },
+  {
+   "do": "mark",
+   "name": "out"
+  },
+  {
+   "do": "key",
+   "key": "f4",
+   "name": "F4: out of the room"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] golem room out",
+   "since": "out",
+   "timeout": 5,
+   "name": "out of the room"
+  },
+  {
+   "do": "gl",
+   "verb": "da-arena",
+   "expect": {
+    "ok": true,
+    "walls": 0
+   },
+   "name": "the walls came down"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:devarena\\].*(error|ERR)",
+   "name": "no devarena errors"
+  }
+ ]
+}
