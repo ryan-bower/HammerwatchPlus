@@ -19,6 +19,24 @@ Sections:
 - heresy: the block at 5, the overshoot, the carry to the next floor, the reset in town.
 - lunge: the forced lunge's effects, then the real roll (Heresy x coh-lunge) over many bodies.
 - decay: 1% every 3 s to death, Rot Bloom on the way out; the cap kills the oldest.
+- channel_lock (fix-forgemaster-channels): a channel locks the priest onto the body: the facing
+  holds against a turned aim, a dash press is refused (and logged) and moves nothing, the beam
+  and the pulses run, the bar is drawn; the dash is free again after; the same for a Penance.
+- penance_icon: the skill's icon is the Penance one at max Divine Favor, the raise one below.
+- pyre_heresy: a brazier is usable (CanUse) with Heresy and no curse and removes ps-reduce
+  Heresy; not usable with neither; the large WorldScript pyre does the same when the floor (or
+  a fabricated pyre prefab) has one.
+- orb_boss: Deeper Depravity's epic rank reads dd-boss 1.0 and every boss death leaves a body.
+- risen_speed (fix-specs-risen-speed): a risen's follower movement runs (speed >= 4.5, roaming 1.0,
+  run-back 1.4x; `hwp risen`), it runs back to a priest 260 px away, and it damages a brute 150 px
+  east, then one west, within 5 s each.
+- risen_look (fix-specs-risen-look): the generated files (npc material and dot, the marker ring;
+  a body npc-noxray, no dot, no ring, shoot-through; the wisp body's dead core), the body's grey
+  log line and no map icon, the risen's map icon, the wisp body standing (a shot follows).
+- body_passthrough (fix-specs-body-passthrough): a brute's body 50 px east between the priest and a
+  breakable target at 110 px: the main attack and Holy Blast damage the target through it.
+- risen_floors (fix-specs-risen-floors): two risen at 60% HP come along to the next floor at that
+  HP; mods/summons' floor restore line and no 'Exception when saving summons'.
 """
 import re
 import time
@@ -169,7 +187,7 @@ class Checks(Base):
         orbs.update({k: self.bind(COH, k) for k in ("dd-elite", "dd-boss", "rl-dmg", "rl-knock")})
         fo = {k: float(v) for k, v in orbs.items() if v not in (None, "")}
         self.flag("forge_orb_binds", fo.get("ps-reduce") == 3 and abs(fo.get("rb-dmg", 0) - 1.2) < 1e-3
-                  and abs(fo.get("dd-elite", 0) - 0.15) < 1e-3 and abs(fo.get("dd-boss", 0) - 0.3) < 1e-3
+                  and abs(fo.get("dd-elite", 0) - 0.15) < 1e-3 and abs(fo.get("dd-boss", 0) - 1.0) < 1e-3
                   and abs(fo.get("rl-dmg", 0) - 1.5) < 1e-3 and fo.get("rl-knock") == 1, f"{orbs}")
         # the floor: its enemies die with a Forgemaster on it, so every death rolls a body
         mark2 = len(self.g.read_log())
@@ -645,6 +663,462 @@ class Checks(Base):
             self.gl("use", "brazier_pyre")
             time.sleep(0.8)
         self.flag("decay_pyre", bool(pyres) and self.heresy() == 1, f"pyre units {len(pyres)}, heresy 4 -> {self.heresy()} (ps-reduce {self.bind(NR, 'ps-reduce')})")
+
+
+    # --- the channel lock, effects and bar (the user, 2026-10-25)
+    def lock_status(self):
+        st = self.forge_status()
+        return st, {k: self.fnum(st, k) for k in ("locked", "beam", "pulses", "lockface", "beamframes", "bar", "dashpin", "dashrefused", "dashcd", "angle")}
+
+    def dash_try(self, dx=1, dy=0):
+        """A dash press (move + aim that way); how far the priest moved in the next half second."""
+        x0, y0 = self.pos()
+        self.gl("input", 150, dx, dy, dx, dy, "dash")
+        time.sleep(0.5)
+        x1, y1 = self.pos()
+        return ((x1 - x0) ** 2 + (y1 - y0) ** 2) ** 0.5
+
+    def channel_lock(self):
+        self.setup_forge("lock")
+        if not self.to_arena("lock"):
+            return
+        fav = self.favor_path()
+        # a raise on an elite's body (5 s channel: room for the reads) 70 px east: the lock faces east (0)
+        self.set_stacks(fav, 0)
+        self.set_heresy(0)
+        self.body("humans/bandits/bandit_brute_elite.unit", 70, 0)
+        time.sleep(0.4)
+        mark = len(self.g.read_log())
+        presses, spent, button = self.cast_skill("lock", NR, 70, done=lambda: self.has("raising")["raising"].get("on"))
+        st, a = self.lock_status()
+        self.flag("lock_raise_locked", presses > 0 and a["locked"] == 1 and a["angle"] is not None and abs(a["angle"]) <= 12,
+                  f"locked {a['locked']}, facing {a['angle']} (the body is east: 0), dash pinned {a['dashpin']} cd {a['dashcd']}")
+        self.flag("lock_beam", a["beam"] == 1, f"beam unit alive {a['beam']}")
+        self.flag("lock_bar", a["bar"] == 1, f"bar drawn this frame {a['bar']}")
+        # the aim turned south for 1.2 s: the facing holds east
+        self.gl("input", 1200, 0, 0, 0, 1)
+        time.sleep(0.6)
+        st, b = self.lock_status()
+        self.flag("lock_facing_held", b["locked"] == 1 and b["angle"] is not None and abs(b["angle"]) <= 12,
+                  f"facing {b['angle']} with the aim turned south (90), still channelling {self.fnum(st, 'channel') is not None}")
+        time.sleep(0.7)
+        # a dash press mid-channel: refused (the pinned cooldown), nothing moves, the log says so
+        moved = self.dash_try()
+        st, c = self.lock_status()
+        log = self.g.read_log()[mark:]
+        self.flag("lock_dash_refused", moved < 4 and ((c["dashrefused"] or 0) >= 1 or "dash refused during raise channel" in log),
+                  f"moved {moved:.1f} px, refused count {c['dashrefused']}, log line {'dash refused during raise channel' in log}, dash cd {c['dashcd']}")
+        self.flag("lock_fx", (c["pulses"] or 0) >= 8 and (c["beamframes"] or 0) >= 30,
+                  f"pulses {c['pulses']} (150 ms each), beam frames {c['beamframes']}")
+        # the channel completes: the risen, Heresy +2, the beam gone, the dash free again
+        time.sleep(3.0)
+        for _ in range(20):
+            if not self.has("raising")["raising"].get("on"):
+                break
+            time.sleep(0.2)
+        time.sleep(0.4)
+        st, d = self.lock_status()
+        self.flag("lock_raise_done", len(self.risen()) == 1 and self.heresy() == 2 and d["beam"] in (0, None) and d["dashpin"] == 0,
+                  f"risen {len(self.risen())}, heresy {self.heresy()}, beam {d['beam']}, dash pinned {d['dashpin']} cd {d['dashcd']}")
+        moved = self.dash_try(0, 1)
+        self.flag("lock_dash_after", moved >= 20, f"a dash after the channel moved {moved:.1f} px")
+        self.cull()
+        self.origin()
+        # a Penance: the dodge lands, then the lock (facing up, -90), the dash refused, the golden beam
+        self.set_heresy(4)
+        self.body("humans/bandits/bandit_brute.unit", 70, 0)
+        time.sleep(0.4)
+        self.set_stacks(fav, 5)
+        mark = len(self.g.read_log())
+        presses, spent, button = self.cast_skill("lock_pen", NR, 50, done=lambda: self.has("raising")["raising"].get("on"))
+        time.sleep(0.9)   # the dodge (DODGE_MAX_MS 600) has landed
+        st, e = self.lock_status()
+        self.flag("lock_pen_locked", presses > 0 and e["locked"] == 1 and e["angle"] is not None and abs(e["angle"] + 90) <= 12 and e["beam"] == 1,
+                  f"locked {e['locked']}, facing {e['angle']} (up is -90), beam {e['beam']}, bar {e['bar']}")
+        moved = self.dash_try()
+        st, f = self.lock_status()
+        log = self.g.read_log()[mark:]
+        self.flag("lock_pen_dash_refused", moved < 4 and ((f["dashrefused"] or 0) >= 1 or "dash refused during penance channel" in log),
+                  f"moved {moved:.1f} px, refused {f['dashrefused']}, log {'dash refused during penance channel' in log}")
+        time.sleep(2.5)
+        for _ in range(20):
+            if not self.has("raising")["raising"].get("on"):
+                break
+            time.sleep(0.2)
+        time.sleep(0.4)
+        st = self.forge_status()
+        self.flag("lock_pen_done", self.heresy() == 3 and (self.fnum(st, "favor") or 0) == 0 and self.fnum(st, "bodies") == 0,
+                  f"heresy 4 -> {self.heresy()}, favor {self.fnum(st, 'favor')}, bodies {self.fnum(st, 'bodies')}")
+        self.cull()
+
+    # --- the Penance icon
+    def icon_name(self):
+        m = re.findall(r"; icon (\w+)", self.forge_status())
+        return m[-1] if m else None
+
+    def penance_icon(self):
+        self.setup_forge("icon")
+        if not self.to_arena("icon"):
+            return
+        fav = self.favor_path()
+        self.set_stacks(fav, 0)
+        time.sleep(0.4)
+        low = self.icon_name()
+        mark = len(self.g.read_log())
+        self.set_stacks(fav, 5)
+        time.sleep(0.5)
+        high = self.icon_name()
+        log = self.g.read_log()[mark:]
+        self.set_stacks(fav, 2)
+        time.sleep(0.5)
+        back = self.icon_name()
+        self.flag("icon_raise_below_max", low == "raise", f"icon at 0 Favor: {low}")
+        self.flag("icon_penance_at_max", high == "penance" and "resurrection icon -> penance" in log, f"icon at 5 Favor: {high}, log swap {'resurrection icon -> penance' in log}")
+        self.flag("icon_back_to_raise", back == "raise", f"icon at 2 Favor: {back}")
+
+    # --- pyres with Heresy and no curse; the large pyre
+    def usable(self, text):
+        """The `usables` entry whose unit json mentions text, else None."""
+        for u in self.gl("usables").get("usables") or []:
+            if text in str(u.get("unit")) or text in str(u):
+                return u
+        return None
+
+    def walk_into(self, text, dx, dy, tries=4):
+        for _ in range(tries):
+            u = self.usable(text)
+            if u is not None:
+                return u
+            self.gl("input", 150, dx, dy)
+            time.sleep(0.35)
+        return self.usable(text)
+
+    def pyre_heresy(self):
+        self.setup_forge("pyre")
+        self.gl("orb", "hwp_pri_nr_pyre_sacrifice", 2)   # uncommon: ps-reduce 3
+        if not self.to_arena("pyre"):
+            return
+        curses = self.gl("state").get("player", {}).get("curses")
+        # a brazier: with Heresy 4 and no curse it is usable (CanUse) and its use removes 3 Heresy
+        self.set_heresy(4)
+        self.gl("spawn", "doodads/lamps/brazier_pyre.unit", 26, 0)
+        time.sleep(0.5)
+        u = self.walk_into("brazier_pyre", 1, 0)
+        self.flag("pyre_canuse_with_heresy", u is not None and u.get("canUse") is True, f"usables entry {u}, curses {curses}")
+        mark = len(self.g.read_log())
+        self.gl("use", "brazier_pyre")
+        time.sleep(0.8)
+        log = self.g.read_log()[mark:]
+        self.flag("pyre_heresy_removed", self.heresy() == 1 and "brazier pyre used with no curse: heresy -3 -> 1" in log,
+                  f"heresy 4 -> {self.heresy()}, log {[l.strip()[:90] for l in log.splitlines() if 'pyre used' in l]}")
+        # with neither Heresy nor a curse the vanilla rule stands: not usable
+        self.origin()
+        self.set_heresy(0)
+        self.gl("spawn", "doodads/lamps/brazier_pyre.unit", 26, 40)
+        time.sleep(0.5)
+        u2 = self.walk_into("brazier_pyre", 0.6, 1)
+        self.flag("pyre_needs_heresy_or_curse", u2 is not None and u2.get("canUse") is False, f"usables entry {u2}")
+        self.origin()
+        # the large pyre (WorldScript::Pyre): the floor's own, else a fabricated pyre prefab
+        ws = self.gl("ws", "Pyre").get("scripts") or []
+        if not ws:
+            pf = self.gl("prefab", "prefabs/barracks/special/pyre_crn_nw.pfb", 0, -560)
+            time.sleep(1.0)
+            ws = self.gl("ws", "Pyre").get("scripts") or []
+            self.notes.append(f"pyre prefab fabricated: {pf}")
+        self.flag("pyre_large_present", bool(ws), f"WorldScript Pyre scripts {ws[:2]}")
+        if not ws:
+            return
+        comment = ws[0].get("c", "")
+        self.set_heresy(4)
+        r = self.gl("goto", "Pyre", comment, 0, 24)
+        time.sleep(0.4)
+        u3 = self.walk_into("Pyre", 0, -1)
+        self.flag("pyre_large_canuse", u3 is not None and u3.get("canUse") is True, f"goto {r}, usables entry {u3}")
+        mark = len(self.g.read_log())
+        self.gl("use", "Pyre")   # the nearest usable whose type name has Pyre: the large one under the priest
+        time.sleep(0.8)
+        log = self.g.read_log()[mark:]
+        self.flag("pyre_large_heresy", self.heresy() == 1 and "large pyre used with no curse: heresy -3 -> 1" in log,
+                  f"heresy 4 -> {self.heresy()}, log {[l.strip()[:90] for l in log.splitlines() if 'pyre used' in l]}")
+
+    # --- Deeper Depravity: every boss leaves a body at epic
+    def orb_boss(self):
+        self.setup_forge("orb")
+        self.gl("orb", "hwp_pri_coh_deeper_depravity", 2)   # rare: no boss chance yet
+        time.sleep(0.3)
+        rare = self.bind(COH, "dd-boss")
+        self.gl("orb", "hwp_pri_coh_deeper_depravity", 1)   # epic
+        time.sleep(0.3)
+        epic = self.bind(COH, "dd-boss")
+        self.flag("orb_boss_epic_only", str(rare) in ("0", "0.0") and abs(float(epic or 0) - 1.0) < 1e-6, f"dd-boss rare {rare}, epic {epic}")
+        if not self.to_arena("orb"):
+            return
+        # three boss deaths on the floor (the host rolls each): three bodies
+        rolls0 = self.fnum(self.forge_status(), "rolls") or 0
+        bodies = 0
+        sp = None
+        for i in range(3):
+            sp = self.gl("spawn", "actors/bosses/boss_bandit/boss_bandit_encounter.unit", 120, 0)
+            time.sleep(0.6)
+            self.gl("kill", 300, "boss_bandit")
+            time.sleep(0.8)
+            st = self.hwp("forge bodies", 0.3, until="forge bodies")
+            bodies = len(re.findall(r"boss_bandit_encounter\.unit", st))
+            self.cull()
+            self.origin()
+        rolls = self.fnum(self.forge_status(), "rolls") or 0
+        self.flag("orb_boss_always", rolls - rolls0 >= 3 and bodies >= 1, f"rolls {rolls0} -> {rolls}, boss bodies after the last death {bodies} (spawn {sp})")
+        self.cull()
+
+    # --- the units' fixes (the user, 2026-10-25; Forgemaster_Risen.as, make_forgemaster_risen.py,
+    # mods/summons): a risen runs and engages, looks like a summon; a body is grey, map-less and shot
+    # through; the risen come along to the next floor
+    RISEN_RE = re.compile(r"\| id (\d+) move (\S+) speed ([\d.]+) runback ([\d.]+) roaming ([\d.]+) search ([\d.]+) target (\S+) dist (-?\d+)")
+    RUNS_RE = re.compile(r"\[HWP:specs\] risen (\d+) runs: (\S+) speed ([\d.]+) runback ([\d.]+) roaming ([\d.]+) search-mul ([\d.]+)")
+
+    def risen_rows(self):
+        """[{id, move, speed, runback, roaming, search, target, dist}] from `hwp risen`."""
+        txt = self.hwp("risen", 0.3, until="risen ")
+        return [{"id": int(m.group(1)), "move": m.group(2), "speed": float(m.group(3)), "runback": float(m.group(4)),
+                 "roaming": float(m.group(5)), "search": float(m.group(6)), "target": m.group(7), "dist": int(m.group(8))}
+                for m in self.RISEN_RE.finditer(txt)]
+
+    def raise_body(self, rel, dx=40, dy=0, wait=0.8):
+        """A body, raised at once; the log text since the raise."""
+        self.body(rel, dx, dy)
+        time.sleep(0.4)
+        mark = len(self.g.read_log())
+        self.raise_now()
+        time.sleep(wait)
+        return self.g.read_log()[mark:]
+
+    def first_hit(self, before, timeout):
+        """Seconds until a brute of `before` lost HP or died, or None."""
+        t0 = time.time()
+        while time.time() - t0 < timeout:
+            if self.dummy_hit(before):
+                return round(time.time() - t0, 1)
+            time.sleep(0.2)
+        return None
+
+    def bodies_near(self, r=300):
+        return [u for u in self.gl("near", r, "forgemaster/bodies").get("units") or []]
+
+    def map_icons(self, units, filt):
+        """mapicons at the first unit's spot: the rows (icon = its scene has a minimap sprite)."""
+        if not units:
+            return {}, []
+        mi = self.gl("mapicons", round(units[0]["x"]), round(units[0]["y"]), 24, filt)
+        return mi, mi.get("units") or []
+
+    def lanes(self, radius=300, step=15):
+        """Free straight lanes from the arena origin, {(dx, dy): px} for the four axis directions:
+        the farthest cell such that every cell up to it, with its two neighbours across, is free
+        in `gl terrain`. The mission start is a corridor (fix-specs-risen-speed 20261025-180859:
+        a priest teleported 260 px east stood in rock, brutes spawned at +-150 px stood in rock,
+        nothing could path or see anything), so every spot a section uses comes from here."""
+        self.origin()
+        t = self.gl("terrain", radius, step)
+        rows = t.get("rows") or []
+        n = len(rows)
+        c = n // 2
+        out = {}
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            far = 0
+            for k in range(1, c + 1):
+                x, y = c + dx * k, c + dy * k
+                cells = [(x + dy * s, y + dx * s) for s in (-1, 0, 1)]   # the cell and its neighbours across
+                if not all(0 <= cy < n and 0 <= cx < n and rows[cy][cx] in ".@" for cx, cy in cells):
+                    break
+                far = k * step
+            out[(dx, dy)] = far
+        self.notes.append(f"lanes from {self.pos()} (terrain step {step}): {out}")
+        return out
+
+    def best_lane(self, lanes):
+        """(dx, dy), px of the longest lane."""
+        d = max(lanes, key=lanes.get)
+        return d, lanes[d]
+
+    def fresh_target(self, dx, dy):
+        """One live breakable target dummy at the origin + (dx, dy), the others gone; its rows."""
+        self.gl("kill", 900, "target_dummy")
+        time.sleep(0.2)
+        self.gl("spawn", TARGET, dx, dy)
+        time.sleep(0.4)
+        return [u for u in self.targets(300) if not u.get("dead")]
+
+    def risen_speed(self):
+        """fix-specs-risen-speed: a risen moves at the chase pace at all times and attacks what
+        comes near, like the vanilla summons. Every spot is on a free lane from the origin (the
+        start is a corridor)."""
+        self.setup_forge("speed")
+        if not self.to_arena("speed"):
+            return
+        self.hwp("forge trace on", 0.3)   # 'risen N target ... skills:' every 2 s in the log
+        lanes = self.lanes()
+        (ax, ay), far = self.best_lane(lanes)
+        back = lanes[(-ax, -ay)]
+        log = self.raise_body("humans/bandits/bandit_brute.unit", 40 * ax, 40 * ay)
+        m = self.RUNS_RE.search(log)
+        self.flag("speed_log", bool(m), f"log: {m.group(0) if m else log[-400:]}")
+        rows = self.risen_rows()
+        ok = bool(rows) and all(r["speed"] >= 4.5 - 1e-3 and r["runback"] >= r["speed"] * 1.4 - 0.05 and r["roaming"] >= 0.99
+                                and r["search"] <= 0.5 + 1e-3 and "Follower" in r["move"] for r in rows)
+        self.flag("speed_values", ok, f"hwp risen: {rows} (speed >= 4.5, run-back >= 1.4 x speed, roaming 1.0, search 0.5)")
+        # the pace: the priest down the lane (inside the 350 teleport leash; past the 180 run-back
+        # distance when the lane allows, else the idle walk toward the owner at roaming 1.0 does
+        # it): the risen closes in within 1.5 s
+        sx, sy = self.origin()
+        lane = min(far, 260)
+        self.gl("teleport", round(sx + lane * ax, 1), round(sy + lane * ay, 1))
+        time.sleep(0.3)
+        d0 = [r["dist"] for r in self.risen_rows()]
+        time.sleep(1.5)
+        d1 = [r["dist"] for r in self.risen_rows()]
+        need = min(100, max(20, lane - 80))
+        self.flag("speed_runs_back", bool(d0) and bool(d1) and (d1[0] <= 80 or (lane >= 100 and d0[0] - d1[0] >= need)),
+                  f"lane {lane} px {(ax, ay)}: distance to the priest {d0} -> {d1} after 1.5 s (closed {need}+ px, or within 80)")
+        self.origin()
+        time.sleep(0.8)
+        # the engagement: a brute down the lane, then one up the opposite lane (a second target
+        # search after the first kill), each damaged within 5 s. The mission start is often a
+        # corridor open one way only: with no lane back, the second brute goes down the same lane
+        # instead (the second search still has to find it).
+        second = ("west", (-ax, -ay), back) if min(back, 150) >= 50 else ("west", (ax, ay), far)
+        for key, (dx, dy), avail in (("east", (ax, ay), far), second):
+            d = min(avail, 150)
+            if d < 50:
+                self.flag(f"speed_attacks_{key}", False, f"no free lane {(dx, dy)} ({avail} px) for a brute")
+                continue
+            self.gl("spawn", DUMMY, d * dx, d * dy)
+            time.sleep(0.3)
+            before = [u for u in self.dummies(400) if not u.get("dead")]
+            t = self.first_hit(before, 5.0)
+            self.flag(f"speed_attacks_{key}", bool(before) and t is not None,
+                      f"brute {d} px {(dx, dy)}: first damage after {t} s (5 s allowed, {len(before)} brute(s))")
+            self.gl("kill", 600, "tag:enemy")
+            time.sleep(0.5)
+        self.hwp("forge trace off", 0.3)
+        self.cull()
+
+    def risen_look(self):
+        """fix-specs-risen-look: a body is grey and off the map; a risen has the summons' map dot
+        and the orange ring (file checks: the live colours cannot be read back); a dead electric
+        orb is a still core (the unit, then a shot for the eye)."""
+        self.setup_forge("look")
+        if not self.to_arena("look"):
+            return
+        rel = "undead/horde/horde_soldier_elite.unit"
+        risen_txt = (BODIES.parent / "risen" / rel).read_text(encoding="utf-8")
+        body_txt = (BODIES / rel).read_text(encoding="utf-8")
+        wisp_txt = (BODIES / "aberrations/wisp/wisp_lightning.unit").read_text(encoding="utf-8")
+        marker = BODIES.parent / "marker"
+        self.flag("look_files", 'mats:npc"' in risen_txt and "minimap.unit:npc_normal" in risen_txt
+                  and "marker/elite_marker.unit:16" in risen_txt and "mats:enemy" not in risen_txt
+                  and "mats:npc-noxray" in body_txt and "mats:enemy" not in body_txt and "minimap.unit" not in body_txt
+                  and "elite_marker" not in body_txt and 'shoot-through="true"' in body_txt
+                  and "dead_core.png" in wisp_txt and "<effect" not in wisp_txt
+                  and (marker / "elite_marker.png").is_file() and (marker / "elite_marker_16.effect").is_file(),
+                  "risen: npc material, npc_normal dot, marker ring; body: npc-noxray, no dot, no ring, shoot-through; wisp body: dead_core")
+        # the body: grey (its log line), no map dot (mapicons: no minimap sprite in its scene)
+        mark = len(self.g.read_log())
+        uid = self.body(rel, 60, 0)
+        time.sleep(0.5)
+        log = self.g.read_log()[mark:]
+        self.flag("look_body_grey", uid > 0 and f"body {uid} " in log and "tint grey" in log, f"body unit {uid}; log has 'body {uid} ... tint grey': {'tint grey' in log}")
+        mi, icons = self.map_icons(self.bodies_near(), "bodies")
+        self.flag("look_body_no_map", bool(icons) and not any(u.get("icon") for u in icons), f"mapicons at the body: {icons[:2]} (minimap {mi.get('minimap')})")
+        # raised: the elite risen has a map dot (npc_normal) and its ring scene loads without an error
+        mark = len(self.g.read_log())
+        self.raise_now()
+        time.sleep(0.8)
+        rs = self.risen()
+        mi, icons = self.map_icons(rs, "risen")
+        self.flag("look_risen_map", bool(rs) and bool(icons) and all(u.get("icon") for u in icons), f"risen {len(rs)}; mapicons at it: {icons[:2]}")
+        errs = self.errors_since(mark)
+        self.flag("look_no_errors", bool(rs) and not errs, f"errors since the raise: {errs[:3]}")
+        self.cull()
+        # a dead electric orb: the wisp's body stands as a still grey core (the shot after this bot is for the eye)
+        uid = self.body("aberrations/wisp/wisp_lightning.unit", 60, 0)
+        time.sleep(0.5)
+        wisps = [u for u in self.bodies_near() if "wisp" in u.get("name", "")]
+        self.flag("look_wisp_body", uid > 0 and bool(wisps), f"wisp body unit {uid}: {wisps[:1]}")
+
+    def body_passthrough(self):
+        """fix-specs-body-passthrough: a body between the priest and a target never stops the
+        scepter's hitscan (attack_holy_scepter: Hitscan, range 65) or the lantern's heal beam
+        (attack_offhand_lantern: Skills::ShootBeam, distance 160, penetration 0): the breakable
+        target behind it loses HP. Each attack is proven on the bare lane first (the control),
+        then with a brute's body 22 px out on the same line, the target at 60 px (the scepter's
+        smite at a stopped ray, radius 26 around ~17 px, cannot reach a target edge at 56)."""
+        self.setup_forge("pass")
+        if not self.to_arena("pass"):
+            return
+        lanes = self.lanes()
+        (ax, ay), far = self.best_lane(lanes)
+        self.flag("pass_lane", far >= 80, f"lane {(ax, ay)} {far} px (80 needed)")
+        t = self.fresh_target(60 * ax, 60 * ay)
+        for _ in range(3):
+            self.shoot("main", 600, (ax, ay))
+        hit = self.target_hit(t)
+        self.flag("pass_main_control", hit, f"the scepter on the bare lane: target damaged {hit}")
+        t = self.fresh_target(60 * ax, 60 * ay)
+        self.gl("input", 1500, 0, 0, ax, ay, "off")   # the beam: castpoint 200, a tick per 200 ms; input returns at once
+        time.sleep(1.8)
+        hit = self.target_hit(t)
+        self.flag("pass_beam_control", hit, f"the lantern beam on the bare lane: target damaged {hit}")
+        # the body on the line
+        uid = self.body("humans/bandits/bandit_brute.unit", 22 * ax, 22 * ay)
+        time.sleep(0.4)
+        t = self.fresh_target(60 * ax, 60 * ay)
+        self.flag("pass_setup", uid > 0 and len(t) == 1 and len(self.bodies_near()) == 1, f"body unit {uid}, targets {len(t)}, bodies {len(self.bodies_near())}")
+        for _ in range(3):
+            self.shoot("main", 600, (ax, ay))
+        hit = self.target_hit(t)
+        self.flag("pass_main_through_body", hit, f"the scepter through the body: target damaged {hit}")
+        t = self.fresh_target(60 * ax, 60 * ay)
+        self.gl("input", 1500, 0, 0, ax, ay, "off")   # the beam: castpoint 200, a tick per 200 ms; input returns at once
+        time.sleep(1.8)
+        hit2 = self.target_hit(t)
+        self.flag("pass_beam_through_body", hit2, f"the lantern beam through the body: target damaged {hit2}")
+        self.flag("pass_body_stays", len(self.bodies_near()) == 1, "the body is nobody's target: still there after the shots")
+        self.cull()
+
+    def risen_floors(self):
+        """fix-specs-risen-floors: the risen come along to the next floor with their HP (the game's
+        own summon carry, with mods/summons filling any shortfall), and none into town. The new
+        floor's enemies die the moment it is up and the decay (1% per 3 s, RisenDecay) is allowed
+        for: 20261025-181000 read 0.58 and 0.407 after 2.5 s among 25 brutes."""
+        self.setup_forge("floors")
+        if not self.to_arena("floors"):
+            return
+        lanes = self.lanes()
+        (ax, ay), far = self.best_lane(lanes)
+        for i in range(2):
+            self.raise_body("humans/bandits/bandit_brute.unit", (40 + 30 * i) * ax, (40 + 30 * i) * ay, wait=0.6)
+        self.gl("kill", 900, RISEN, 0.6)  # hp 60%: the carry keeps it
+        time.sleep(0.5)
+        r0 = self.risen_lines()
+        self.flag("floors_raised", len(r0) == 2 and all(abs(r["hp"] - 0.6) < 0.08 for r in r0), f"risen before the exit: {[(r['name'].split('/')[-1], r['hp']) for r in r0]}")
+        t_exit = time.time()
+        log = self.next_floor()
+        self.gl("kill", 1500, "tag:enemy")   # before anything on the new floor reaches them
+        r1 = self.risen_lines()
+        elapsed = time.time() - t_exit
+        allowed = 0.01 * (elapsed / 3 + 2)   # the decay over the floor change, two steps of slack
+        time.sleep(1.5)
+        log += self.g.read_log()[-4000:]
+        self.flag("floors_carry", len(r1) == 2, f"risen on the next floor: {[(r['name'].split('/')[-1], r['hp']) for r in r1]}")
+        self.flag("floors_hp", len(r1) == 2 and all(0.6 - allowed <= r["hp"] <= 0.61 for r in r1),
+                  f"hp on the next floor {[r['hp'] for r in r1]} (0.6 before, {elapsed:.1f} s of decay allowed: >= {0.6 - allowed:.3f})")
+        self.flag("floors_save_ok", "Exception when saving summons" not in log, "no 'Exception when saving summons' (PlayerRecord.Save's catch) in the log")
+        m = re.search(r"\[HWP:summons\] floor restore: (\d+) in the snapshot, (\d+) already live, (\d+) produced", log)
+        self.flag("floors_summons_restore", bool(m) and int(m.group(1)) == 2 and int(m.group(2)) + int(m.group(3)) == 2,
+                  f"summons restore line: {m.group(0) if m else 'none'}")
+        self.notes.append("floors: hwp summons: " + self.hwp("summons", 0.3, until="summons").strip()[-200:])
+        self.cull()
 
 
 def run(p, sections="forge,penance,heresy_rules,lunge,decay,bosses,raise_all", units="", **_):

@@ -1,0 +1,18 @@
+{
+ "name": "fix-specs-risen-floors",
+ "about": "Devil Forgemaster risen come along to the next floor (the user, 2026-10-25: 'necro summons not coming with you between floors'). The game carries every saveable summon itself (PlayerRecord.Save's summons array, re-produced by Player's constructor); mods/summons now tracks the risen producers (players/hwp/specs/forgemaster/risen/) as it does the crusaders and produces any shortfall on the next floor, logging '[HWP:summons] floor restore: N in the snapshot, M already live, K produced'. plan_forgemaster section risen_floors: two risen bandit brutes at 60% HP, `hwp finishlevel`, on the next floor (its enemies killed the moment it is up) both stand at that HP less the decay over the change (RisenDecay: 1% per 3 s; 20261025-181000 read 0.58 and 0.407 after 2.5 s among 25 brutes), the restore line adds up to 2 (that run: 2 already live, 0 produced, the game carried them), and the log has no 'Exception when saving summons' (the catch in PlayerRecord.Save that would silently drop every summon).",
+ "fixture": "town-paladin",
+ "mods": ["core", "classes", "specs", "summons"],
+ "timeout": 360,
+ "steps": [
+  {"do": "log_has", "pattern": "\\[HWP:specs\\] 7 of 7 subclasses registered", "timeout": 30},
+  {"do": "log_has", "pattern": "\\[HWP:summons\\] self-check done: 3/3 tracked units, the Forgemaster's risen tracked", "timeout": 30},
+  {"do": "console", "line": "e_cheats 1"},
+  {"do": "console", "line": "show_chat"},
+  {"do": "sleep", "seconds": 1},
+  {"do": "bot", "bot": "plan_forgemaster", "name": "risen_floors", "kwargs": {"sections": "risen_floors"},
+   "expect": {"floors_raised": true, "floors_carry": true, "floors_hp": true, "floors_save_ok": true, "floors_summons_restore": true}},
+  {"do": "log_has", "pattern": "\\[HWP:summons\\] floor restore: 2 in the snapshot, \\d+ already live, \\d+ produced", "timeout": 5},
+  {"do": "log_clean"}
+ ]
+}

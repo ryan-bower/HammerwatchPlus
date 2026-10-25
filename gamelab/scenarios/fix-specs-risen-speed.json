@@ -1,0 +1,17 @@
+{
+ "name": "fix-specs-risen-speed",
+ "about": "Devil Forgemaster risen move at the chase pace at all times and attack what comes near, like the vanilla summons (the user, 2026-10-25: 'summoned bodies are moving at not aggroed speed ... they also dont attack enemies often'). Forgemaster_Risen.as HWPSpecsRisenUnit/HWPSpecsRisenStateUnit set every follower movement to roaming 1.0, speed >= 4.5 and run-back 1.4x, and the target search to half its cooldown (target-find-cooldown-mul 0.5, also in the generated unit). plan_forgemaster section risen_speed, every spot on a free lane from the start (gl terrain; 20261025-180859 teleported the priest into rock and spawned both brutes in rock, so nothing could path or see): the raise logs '[HWP:specs] risen N runs: ...', `hwp risen` reads the numbers, the risen closes in on a priest teleported down the lane (up to 260 px) within 1.5 s, and a brute down the lane, then one up the opposite lane (up to 150 px), is damaged within 5 s each; `hwp forge trace on` logs each risen's target and skills every 2 s meanwhile.",
+ "fixture": "town-paladin",
+ "mods": ["core", "classes", "specs"],
+ "timeout": 300,
+ "steps": [
+  {"do": "log_has", "pattern": "\\[HWP:specs\\] 7 of 7 subclasses registered", "timeout": 30},
+  {"do": "console", "line": "e_cheats 1"},
+  {"do": "console", "line": "show_chat"},
+  {"do": "sleep", "seconds": 1},
+  {"do": "bot", "bot": "plan_forgemaster", "name": "risen_speed", "kwargs": {"sections": "risen_speed"},
+   "expect": {"speed_log": true, "speed_values": true, "speed_runs_back": true, "speed_attacks_east": true, "speed_attacks_west": true}},
+  {"do": "log_has", "pattern": "\\[HWP:specs\\] risen \\d+ runs: \\S+ speed [0-9.]+ runback [0-9.]+ roaming 1\\.0 search-mul 0\\.5", "timeout": 5},
+  {"do": "log_clean"}
+ ]
+}

@@ -1,6 +1,8 @@
 // Persistent summons: the Priest's Crusaders (pikemen, crossbowmen, boon
-// pikemen) survive the loading screen between floors instead of dying with
-// the old level. Optionally every saveable summon does (summons.all).
+// pikemen) and the Devil Forgemaster's risen (mods/specs, every producer under
+// RISEN_DIR; summons.risen, default on) survive the loading screen between
+// floors instead of dying with the old level. Optionally every saveable summon
+// does (summons.all).
 //
 // How: while in a run, the local player's tracked summons are snapshotted
 // twice a second with the same SaveUnit() data the game uses for save games,
@@ -23,8 +25,14 @@ namespace HWP
 			"players/priest/units/crusader_pikeman_boon.unit"
 		};
 
+		// the Devil Forgemaster's risen units (tools/make_forgemaster_risen.py), tracked by prefix:
+		// 141 producers, one per raisable enemy (the user, 2026-10-25: the risen were not coming
+		// along between floors)
+		const string RISEN_DIR = "players/hwp/specs/forgemaster/risen/";
+
 		bool g_enabled = true;
 		bool g_all = false;
+		bool g_risen = true;
 
 		const string KEY_SAVED = "summons.saved"; // { n, p<i>: unit path, d<i>: SaveUnit data }
 		int g_savedCount = 0;     // summons in the last snapshot (status line)
@@ -35,7 +43,10 @@ namespace HWP
 		{
 			g_enabled = HWP::Settings::GetBool("summons.enabled", true);
 			g_all = HWP::Settings::GetBool("summons.all", false);
+			g_risen = HWP::Settings::GetBool("summons.risen", true);
 		}
+
+		bool IsRisen(const string &in prodName) { return prodName.findFirst(RISEN_DIR) == 0; }
 
 		void OnSettingChanged(const string &in key)
 		{
@@ -49,7 +60,10 @@ namespace HWP
 				return false;
 			if (g_all)
 				return true;
-			return UNITS.find(prod.GetResourceName()) >= 0;
+			string name = prod.GetResourceName();
+			if (g_risen && IsRisen(name))
+				return true;
+			return UNITS.find(name) >= 0;
 		}
 
 		bool IsLive(IOwnedUnit@ owned)
@@ -134,6 +148,7 @@ namespace HWP
 			// produced: snapshot count minus what is already live. Producing every entry gave
 			// the player one crusader too many (plan-t12 095531: 2 in, 3 out).
 			dictionary missing; // prod name -> how many more to produce
+			int live = 0;       // snapshot entries the game already carried (status, the floors scenario)
 			for (int i = 0; i < count; i++)
 			{
 				string prodName = HWP::SV::Str(saved, "p" + i);
@@ -141,7 +156,11 @@ namespace HWP
 					continue;
 				int n = 0;
 				if (!missing.get(prodName, n))
-					n = -LiveCount(rec, prodName);
+				{
+					int already = LiveCount(rec, prodName);
+					live += already;
+					n = -already;
+				}
 				n++; // a named int: dictionary.set keeps a temporary by reference
 				missing.set(prodName, n);
 			}
@@ -175,6 +194,7 @@ namespace HWP
 			}
 			if (g_lastRestored > 0)
 				HWP::Log("summons", "restored " + g_lastRestored + " summon(s) on the new floor");
+			HWP::Log("summons", "floor restore: " + count + " in the snapshot, " + min(live, count) + " already live, " + g_lastRestored + " produced");
 			bag.Remove(KEY_SAVED); // after the loop: `data` points into it
 		}
 
@@ -191,7 +211,7 @@ namespace HWP
 		void CmdSummons(array<string>@ args)
 		{
 			HWP::Commands::Reply(Resources::GetString(".hwp.summons.status", {
-				{ "state", g_enabled ? "on" : "off" }, { "all", g_all ? "on" : "off" },
+				{ "state", g_enabled ? "on" : "off" }, { "all", g_all ? "on" : "off" }, { "risen", g_risen ? "on" : "off" },
 				{ "saved", g_savedCount }, { "last", g_lastRestored } }));
 		}
 
@@ -205,7 +225,7 @@ namespace HWP
 				else
 					HWP::LogError("summons", "missing unit " + UNITS[i]);
 			}
-			HWP::Log("summons", "self-check done: " + ok + "/" + UNITS.length() + " tracked units");
+			HWP::Log("summons", "self-check done: " + ok + "/" + UNITS.length() + " tracked units, the Forgemaster's risen tracked by prefix " + RISEN_DIR);
 		}
 	}
 }
