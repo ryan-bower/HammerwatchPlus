@@ -1,7 +1,8 @@
 // Pet progression and skills. Every pet (vanilla HoH2, the imported HoH1
 // skins, and external pets such as the Gold Collector that register with
 // RegisterExternal) earns XP from its owner's kills, from its own pickups and
-// from farm crops fed at the feeding bowl in town. Each level past 1 is a
+// from farm crops fed at the Pet Shop keeper (the "Train pet" menu; the old
+// feeding bowl doodad is optional now, pets.bowl). Each level past 1 is a
 // skill point for a small utility tree; the numbers live in
 // tweak/hwp/pet_skills.sval.
 //
@@ -159,9 +160,12 @@ namespace HWP
 			return 0;
 		}
 
+		bool g_bowl = false; // pets.bowl: also place the feeding bowl doodad in town (the menu lives at the Pet Shop)
+
 		void RefreshSettings()
 		{
 			g_enabled = HWP::Settings::GetBool("pets.enabled", true);
+			g_bowl = HWP::Settings::GetBool("pets.bowl", false);
 			g_debug = HWP::Settings::GetBool("pets.debug", false);
 			g_secretChance = HWP::Settings::GetInt("pets.candle_chance", 0);
 		}
@@ -172,10 +176,11 @@ namespace HWP
 		{
 			if (key.findFirst("pets.") == 0)
 				RefreshSettings();
-			// a client got the host's values: the bowl goes where the host has it
-			if (key == "pets." && g_inTown && g_bowlReady)
+			// a client got the host's values ("pets."), or pets.bowl / pets.enabled changed
+			// live (`hwp set pets.bowl 1`): the bowl goes where the host has it, or away
+			if ((key == "pets." || key == "pets.bowl" || key == "pets.enabled") && g_inTown && g_bowlReady)
 			{
-				if (g_enabled)
+				if (g_enabled && g_bowl)
 					SpawnBowl(BowlPos());
 				else if (HWP::Town::Is(g_bowlUnit, BOWL_UNIT))
 				{
@@ -1075,6 +1080,9 @@ namespace HWP
 				HWP::Settings::SetInt("pets.bowl_y", int(p.y));
 				HWP::Commands::NotifySettingChanged("pets.bowl_x");
 				HWP::Commands::NotifySettingChanged("pets.bowl_y");
+				HWP::Settings::SetBool("pets.bowl", true);
+				HWP::Commands::NotifySettingChanged("pets.bowl");
+				g_bowl = true;
 				if (g_inTown)
 					SpawnBowl(vec3(float(int(p.x)), float(int(p.y)), 0.0f));
 				HWP::Commands::Reply(Resources::GetString(".hwp.pets.moved"));
@@ -1241,7 +1249,71 @@ namespace HWPPets
 	}
 }
 
-// ---- the feeding bowl ---------------------------------------------------------------
+// ---- the Pet Shop keeper ------------------------------------------------------------
+
+// In place of PetsShopContent (module.json class_swaps; actors/npcs/town/npc_pets.unit):
+// with a pet, the keeper first asks "Buy a pet / Train your pet"; Train opens the
+// progression menu (skills, feeding, pickup toggles) that used to be the feeding
+// bowl's. Without a pet (nothing to train) the vanilla shop opens directly.
+class HWPPetShopContent : PetsShopContent
+{
+	HWPPetShopContent() {}
+	HWPPetShopContent(UnitPtr u, SValue& params) { super(u, params); }
+
+	AWindowObject@ MakeShopWindow(GUIBuilder@ guiBuilder) override
+	{
+		if (!HWP::Pets::g_enabled || HWP::Pets::ActivePetId(m_player).isEmpty())
+			return PetsShopContent::MakeShopWindow(guiBuilder);
+		@m_window = HWPPetShopChoice(guiBuilder, this);
+		return m_window;
+	}
+}
+
+class HWPPetShopChoice : AWindowObject
+{
+	HWPPetShopContent@ m_shop;
+
+	HWPPetShopChoice(GUIBuilder@ b, HWPPetShopContent@ shop)
+	{
+		super(b, "gui/hwp_pet_shop_choice.gui");
+		@m_shop = shop;
+		PauseGame(true, true);
+		auto text = cast<TextWidget>(m_widget.GetWidgetById("pet-state"));
+		if (text !is null)
+			text.SetText(HWP::Pets::Status(GetLocalPlayerRecord()));
+	}
+
+	void OnClose() override
+	{
+		PauseGame(false, true);
+	}
+
+	void OnFunc(Widget@ sender, const string &in name) override
+	{
+		if (name == "close")
+		{
+			m_closing = true; // the NPC's IsDone() reads it; CloseWindow doesn't set it
+			m_manager.CloseWindow(this);
+			return;
+		}
+		if (name != "buy" && name != "train")
+			return;
+		// close this one first (it un-pauses), then open the next (it pauses)
+		auto manager = m_manager;
+		m_closing = true;
+		manager.CloseWindow(this);
+		AWindowObject@ next;
+		if (name == "buy")
+			@next = PetsShopWindow(m_builder, m_shop);
+		else
+			@next = HWPPetMenu(m_builder, m_shop);
+		@m_shop.m_window = next;
+		manager.AddWindowObject(next);
+		HWP::Log("pets", "pet shop: " + name);
+	}
+}
+
+// ---- the feeding bowl (optional, pets.bowl) ------------------------------------------
 
 class HWPPetBowl : AShopContent
 {
@@ -1262,9 +1334,10 @@ class HWPPetBowl : AShopContent
 	void Load(SValue@ sval) override { }
 }
 
+// the pet progression menu: skills, feeding, pickup toggles (gui/hwp_pets.gui)
 class HWPPetMenu : AWindowObject
 {
-	HWPPetBowl@ m_bowl;
+	AShopContent@ m_shop;
 	int m_seenVersion = -1;
 	string m_message;
 
@@ -1280,11 +1353,11 @@ class HWPPetMenu : AWindowObject
 	array<Widget@> m_rows;
 	array<string> m_rowActions; // "skill:<i>", "feed:<ware>", "opt:<i>"
 
-	HWPPetMenu(GUIBuilder@ b, HWPPetBowl@ bowl)
+	HWPPetMenu(GUIBuilder@ b, AShopContent@ shop)
 	{
 		super(b, "gui/hwp_pets.gui");
 		PauseGame(true, true);
-		@m_bowl = bowl;
+		@m_shop = shop;
 
 		@m_state = cast<TextWidget>(m_widget.GetWidgetById("state"));
 		@m_xp = cast<TextWidget>(m_widget.GetWidgetById("xp"));
@@ -1488,7 +1561,7 @@ namespace Modules
 			HWP::Net::OnEvent(HWP::Pets::PICKUP, HWP::Net::EventHandler(HWP::Pets::OnPickupEvent));
 			HWP::PetDye::Init();
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Pets::OnSettingChanged));
-			HWP::Commands::Register("pet", " pet status; 'skill <id>', 'feed <crop>', '<gold|valuables|materials|health|caches|cursed|elixirs|xp> on|off', 'here' moves the bowl (host)", HWP::Commands::Handler(HWP::Pets::CmdPet));
+			HWP::Commands::Register("pet", " pet status; 'skill <id>', 'feed <crop>', '<gold|valuables|materials|health|caches|cursed|elixirs|xp> on|off' (also at the Pet Shop keeper's Train menu), 'here' places the optional feeding bowl where you stand (host)", HWP::Commands::Handler(HWP::Pets::CmdPet));
 			HWP::Pets::SelfCheck(false);
 		}
 
@@ -1504,6 +1577,7 @@ namespace Modules
 			HWP::Pets::g_bowlReady = false;
 			HWP::PetDye::Start();
 			HWP::Pets::g_version++;
+			HWP::PetLevelTab::Reset();
 			m_bowlSpawned = false;
 			m_bowl.m_hostOnly = false;
 			m_bowl.Reset();
@@ -1514,6 +1588,8 @@ namespace Modules
 
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
 		{
+			// the player menu pauses a solo game: the pet level line is kept up while paused
+			HWP::PetLevelTab::Tick();
 			if (paused)
 				return;
 			m_delay += ms;
@@ -1525,11 +1601,11 @@ namespace Modules
 			{
 				m_bowlSpawned = true;
 				HWP::Pets::g_bowlReady = true;
-				if (HWP::Pets::g_enabled)
+				if (HWP::Pets::g_enabled && HWP::Pets::g_bowl)
 					HWP::Pets::SpawnBowl(HWP::Pets::BowlPos());
 			}
 			// a building upgrade reloads the town without a new Start and takes the bowl
-			else if (m_bowlSpawned && HWP::Pets::g_enabled)
+			else if (m_bowlSpawned && HWP::Pets::g_enabled && HWP::Pets::g_bowl)
 			{
 				// take the bowl's producer only when SpawnBowl made a new one: set every
 				// frame it would adopt whatever unit took a reused id, and Due never fires

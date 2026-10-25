@@ -7,7 +7,8 @@
   "class_swaps": {
     "MiniPetWalking": "HWPMiniPetWalking",
     "MiniPetFlying": "HWPMiniPetFlying",
-    "EquipmentDyerShopContent": "HWPDyerShopContent"
+    "EquipmentDyerShopContent": "HWPDyerShopContent",
+    "PetsShopContent": "HWPPetShopContent"
   },
   "exclude": []
 }

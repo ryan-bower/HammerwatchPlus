@@ -1,0 +1,48 @@
+{
+ "name": "fix-pets-merchant",
+ "about": "mods/pets: the feeding bowl's functions (pet skills, feeding, pickup toggles) live at the Pet Shop keeper now (class swap PetsShopContent -> HWPPetShopContent). Without a pet the keeper opens the vanilla shop; the bot buys a pet there. With a pet the keeper asks Buy a pet / Train your pet (the pet's status on the window); Train opens the progression menu (gui/hwp_pets.gui: the 7 skill rows, feed section, pickup toggles) and logs `[HWP:pets] pet shop: train`. The lab town has no Pet Shop house, so the keeper is spawned beside the player.",
+ "fixture": "town-paladin",
+ "mods": [
+  "core",
+  "pets"
+ ],
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "still in town"
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "fix_pets",
+   "kwargs": {
+    "check": "merchant"
+   },
+   "expect": {
+    "ok": true,
+    "pet_bought": true,
+    "keeper_offers_choice": true,
+    "train_menu_open": true,
+    "train_menu_rows": true,
+    "train_logged": true
+   },
+   "name": "keeper: buy, then the Buy/Train choice, then the training menu"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:pets\\] pet shop: train",
+   "timeout": 5
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

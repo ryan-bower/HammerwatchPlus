@@ -5,6 +5,7 @@ doodads/hwp/outlook_props.png
 tweak/hwp/pets_hoh1.sval
 # >>> tools/class_units.py (generated from the HoH2 base; do not edit)
 /actors/npcs/town/npc_dyer.unit
+/actors/npcs/town/npc_pets.unit
 /players/pets/cat_maltese.unit
 /players/pets/imp.unit
 /players/pets/imp_red.unit

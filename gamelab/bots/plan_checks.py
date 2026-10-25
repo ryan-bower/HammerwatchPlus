@@ -786,9 +786,24 @@ class Checks:
         m = re.findall(ware + r"\D{0,4}(\d+)|(\d+)x? " + ware, self.hwp("wares", 0.4, until="Bet tokens"))
         return m[-1] if m else None
 
+    def train_menu(self):
+        """Open the pet progression menu (skills, feeding, toggles): at the Pet Shop keeper,
+        whose window asks Buy / Train once the player has a pet (the feeding bowl doodad is
+        optional now, pets.bowl). Returns the `use` reply."""
+        self.npc("npc_pets", "actors/npcs/town/npc_pets.unit")
+        u = self.gl("use", "npc_pets")
+        time.sleep(0.6)
+        if self.gl("wtext", "pet-state").get("missing"):
+            # no choice window: the keeper opened the plain shop (no pet out)
+            self.notes.append(f"train_menu: no Buy/Train choice ({u.get('window')})")
+            return u
+        self.gl("press", "train-btn")
+        time.sleep(0.6)
+        return u
+
     def petbowl(self):
-        """pets s3/s6: debug XP gives a level-up line and points at the bowl; feeding a
-        cabbage there uses it and adds XP."""
+        """pets s3/s6: debug XP gives a level-up line and points in the Train menu at the Pet
+        Shop keeper (the old bowl's menu); feeding a cabbage there uses it and adds XP."""
         self.hwp("set pets.debug true")
         r = self.hwp("pet xp 500", 0.8, until="reached level")
         line = re.findall(r"\[HWP\] (.*reached level.*)", r)
@@ -799,8 +814,7 @@ class Checks:
         self.gl("use", "wild/cabbage")
         time.sleep(0.8)
         n0 = self.wares_count("Cabbage")
-        u = self.gl("use", "pet_bowl")
-        time.sleep(0.6)
+        u = self.train_menu()
         pts = self.widget("points").get("text", "")
         xp0 = self.widget("xp").get("text", "")
         self.flag("bowl_points", u.get("ok") and re.search(r"Skill points: [1-9]", pts) is not None,

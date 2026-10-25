@@ -1,6 +1,6 @@
 {
  "name": "mod-town-rebuild",
- "about": "Units HWP spawns once per town load (the gambler, the laststats notice board, the pets feeding bowl, the goldpet vendor) come back after a building upgrade, which reloads the town level without a new Start (gl townrefresh = TownRecord.Refresh). Building the Hunter's Lodge mid-session brings the pet vendor. No duplicates after a second rebuild.",
+ "about": "Units HWP spawns once per town load (the gambler, the laststats notice board, the pets feeding bowl, the goldpet vendor) come back after a building upgrade, which reloads the town level without a new Start (gl townrefresh = TownRecord.Refresh). Building the Hunter's Lodge mid-session brings the pet vendor. No duplicates after a second rebuild. The feeding bowl is optional since 2026-10-25 (pets.bowl, default off; the pet menu lives at the Pet Shop keeper): the scenario turns it on with `hwp set pets.bowl 1`, which places it at once, so its respawn after a rebuild stays covered.",
  "fixture": "town-tavern",
  "mods": [
   "core",
@@ -15,6 +15,11 @@
    "do": "log_has",
    "pattern": "\\[HWP:gambler\\] spawned the gambler",
    "timeout": 20
+  },
+  {
+   "do": "console",
+   "line": "hwp set pets.bowl 1",
+   "name": "the optional feeding bowl turned on (placed at once by OnSettingChanged)"
   },
   {
    "do": "log_has",
