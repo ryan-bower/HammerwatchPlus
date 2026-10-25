@@ -8,10 +8,12 @@
 // 2-star) and glow squid tiers 3-4 (up to 3-star) to the coast. In runs,
 // 2-star fish (tier 3) bite only on the second half of a run's floors and
 // 3-star fish (tier 4) only in boss rooms.
-// Your rod (per character, tier 1 is free) widens the catch zone, slows the
-// marker and improves the odds. A pirate fisherman sits on the half-buried
-// boat by the trading post and sells bait, rod upgrades and fish traps, and
-// buys fish.
+// Your rod (per character; every character starts with the Driftwood Rod)
+// widens the catch zone, slows the marker and improves the odds. A pirate
+// fisherman sits on the half-buried boat by the trading post and sells bait,
+// rod upgrades and fish traps, and buys fish. Luck (core HWP::Luck) raises the
+// odds of rare fish and of a key coming up with a catch (coast, traps, holes;
+// tweak/hwp/fishing_keys.sval, only with the keys module).
 //
 // Fish traps (up to 3 per character) sit in the sea by the coast. A run fills
 // them: every 10 minutes spent on a run gives each trap a 50 % chance of one
@@ -64,7 +66,9 @@ namespace HWP
 		const string KEY_RUN_MS = "fishing.run_ms"; // per character: ms spent on the current run
 		const int TIERS = 4;
 		const int ROD_TIERS = 4;
-		const array<int> ROD_PRICE = { 0, 100, 400, 1200, 3000 };
+		// the Driftwood Rod comes with every character (RodTier); the pirate sells
+		// the three better ones, each steeply dearer (were 100 / 400 / 1200 / 3000)
+		const array<int> ROD_PRICE = { 0, 0, 1000, 5000, 25000 };
 		// bait kinds 1-3: worms, shrimp, glow squid. A kind keeps a coast bite
 		// within its tiers; the pirate sells each in packs.
 		const array<string> BAIT_IDS = { "worm", "shrimp", "squid" };
@@ -95,6 +99,18 @@ namespace HWP
 		const array<int> TRAP_SPOT = { 1, 2, 3 };
 		const int TRAP_DX = -44;
 		const int TRAP_DY = 40;
+		// Keys. The keys module's pickups are items/hwp/keys/key_<tier>.unit; without
+		// that module none exists and no key is rolled (KeysPresent). A catch has
+		// g_keyChance[fish tier - 1] per mille of bringing a key up, whose tier comes
+		// from the fish tier's row of g_keyWeight (bronze, silver, gold, ace per
+		// mille). tweak/hwp/fishing_keys.sval holds the live numbers (LoadKeyTable);
+		// these are the fallback. Luck (HWP::Luck::Factor) scales the chance and the
+		// gold / ace shares.
+		const string KEY_UNIT_PREFIX = "items/hwp/keys/key_";
+		const string KEYS_SVAL = "tweak/hwp/fishing_keys.sval";
+		const array<string> KEY_TIERS = { "bronze", "silver", "gold", "ace" };
+		array<int> g_keyChance = { 20, 40, 80, 150 };
+		array<int> g_keyWeight = { 850, 130, 18, 2,  700, 240, 50, 10,  450, 380, 140, 30,  200, 400, 300, 100 };
 
 		// The west coast of the town (prefabs/town/segments/base.lvl, its
 		// water_coastline pieces), a little inland so the angler stands on the
@@ -184,6 +200,9 @@ namespace HWP
 		int g_biteMin = 800;
 		int g_biteMax = 3000;
 		bool g_debug = false;
+		bool g_keys = true;      // fishing.keys: keys can come up with a catch
+		int g_keyChanceSet = -1; // fishing.key_chance: -1 = the table; 0-1000 per mille for every catch (tests)
+		int g_keyTierSet = 0;    // fishing.key_tier: 0 = roll; 1-4 forces the key's tier (tests)
 
 		void RefreshSettings()
 		{
@@ -194,6 +213,9 @@ namespace HWP
 			g_biteMin = HWP::Settings::GetInt("fishing.bite_min", 800);
 			g_biteMax = HWP::Settings::GetInt("fishing.bite_max", 3000);
 			g_debug = HWP::Settings::GetBool("fishing.debug", false);
+			g_keys = HWP::Settings::GetBool("fishing.keys", true);
+			g_keyChanceSet = clamp(HWP::Settings::GetInt("fishing.key_chance", -1), -1, 1000);
+			g_keyTierSet = clamp(HWP::Settings::GetInt("fishing.key_tier", 0), 0, 4);
 			if (g_biteMin < 100) g_biteMin = 100;
 			if (g_biteMax < g_biteMin) g_biteMax = g_biteMin;
 		}
@@ -222,23 +244,22 @@ namespace HWP
 			return t;
 		}
 
-		// 0 until the pirate sells you the Driftwood Rod. Saves from before rods were
-		// bought had a free one: a character that fished, ran or levelled before the
-		// first look keeps it (a new character is at level 1 in town at its first)
+		// Every character starts with the Driftwood Rod: the first look at its save
+		// data (KEY_ROD_V below 2: a new character, or one saved before the starter
+		// rod, rod or none) puts it there, once. After that the tier is what the
+		// pirate sold, or 0 from `hwp fishing rod 0` (debug: no rod).
 		int RodTier()
 		{
 			auto bag = HWP::SaveData::Local();
-			if (!bag.Has(KEY_ROD_V))
+			if (bag.GetInt(KEY_ROD_V, 0) < 2)
 			{
-				auto rec = GetLocalPlayerRecord();
-				bool old = bag.Has(KEY_ROD) || bag.Has(KEY_BAIT) || bag.Has(KEY_BAIT_SEL) || bag.Has(KEY_RUN_MS)
-					|| bag.Has(KEY_TRAPS) || (rec !is null && rec.level > 1);
-				if (old && bag.GetInt(KEY_ROD, 0) < 1)
+				bool fresh = !bag.Has(KEY_ROD_V);
+				if (bag.GetInt(KEY_ROD, 0) < 1)
 				{
 					bag.SetInt(KEY_ROD, 1);
-					HWP::Log("fishing", "an older character: keeps the free Driftwood Rod");
+					HWP::Log("fishing", (fresh ? "a new character" : "a character without a rod") + ": starts with the Driftwood Rod");
 				}
-				bag.SetInt(KEY_ROD_V, 1);
+				bag.SetInt(KEY_ROD_V, 2);
 			}
 			int t = bag.GetInt(KEY_ROD, 0);
 			return t < 1 ? 0 : ClampRod(t);
@@ -465,7 +486,7 @@ namespace HWP
 				{
 					if (randi(2) != 0)
 						continue;
-					auto fish = RandomFish(RollTier(RodTier(), 1, TOWN_MAX_TIER));
+					auto fish = RandomFish(RollTier(RodTier(), 1, TOWN_MAX_TIER, LuckOf(GetLocalPlayerRecord())));
 					if (fish is null)
 						continue;
 					ids.insertLast(fish.id);
@@ -494,6 +515,7 @@ namespace HWP
 			{
 				auto fish = GetFish(ids[j]);
 				GiveFish(fish, -1, false);
+				RollTownKey(fish, "trap " + (i + 1));
 				names += (names.isEmpty() ? "" : ", ") + fish.Name();
 			}
 			SetTrapFish(i, array<string>());
@@ -536,15 +558,26 @@ namespace HWP
 
 		// ---- rolls ------------------------------------------------------------------
 
-		// per mille: the tier 4 / 3 / 2 thresholds grow with the rod; the result
-		// is kept within what the place has (minTier-maxTier)
-		int RollTier(int rod = 1, int minTier = 1, int maxTier = TIERS)
+		// the fisher's luck (core HWP::Luck::Factor: 1.0 + luck/100, 1.0 without any)
+		float LuckOf(PlayerRecord@ rec)
+		{
+			PlayerBase@ plr = null;
+			if (rec !is null)
+				@plr = cast<PlayerBase>(rec.actor);
+			float f = HWP::Luck::Factor(plr);
+			return f < 0.1f ? 0.1f : f;
+		}
+
+		// per mille: the tier 4 / 3 / 2 thresholds grow with the rod, the tier 4 / 3
+		// ones with luck too; the result is kept within what the place has
+		// (minTier-maxTier)
+		int RollTier(int rod = 1, int minTier = 1, int maxTier = TIERS, float luck = 1.0f)
 		{
 			int r = ClampRod(rod) - 1;
 			int roll = randi(1000);
 			int tier = 1;
-			if (roll < 40 + 15 * r) tier = 4;
-			else if (roll < 170 + 40 * r) tier = 3;
+			if (roll < int(float(40 + 15 * r) * luck)) tier = 4;
+			else if (roll < int(float(170 + 40 * r) * luck)) tier = 3;
 			else if (roll < 450 + 30 * r) tier = 2;
 			if (tier > maxTier) tier = maxTier;
 			if (tier < minTier) tier = minTier;
@@ -608,6 +641,284 @@ namespace HWP
 			if (tier < 1) return 1;
 			if (tier > TIERS) return TIERS;
 			return tier;
+		}
+
+		// ---- keys -------------------------------------------------------------------
+
+		bool g_keyTableLoaded = false;
+
+		// the keys module is in: its key pickups exist
+		bool KeysPresent() { return Resources::GetUnitProducer(KEY_UNIT_PREFIX + "bronze.unit") !is null; }
+
+		string KeyName(int tier) { return Resources::GetString(".item.key." + KEY_TIERS[tier - 1]); }
+
+		// tweak/hwp/fishing_keys.sval (plain, no loader): "chance" (per mille per
+		// catch, by fish tier 1-4) and "tier1".."tier4" (bronze, silver, gold, ace per
+		// mille of a key, by fish tier) replace the built-in numbers when present
+		void LoadKeyTable()
+		{
+			if (g_keyTableLoaded)
+				return;
+			g_keyTableLoaded = true;
+			auto sv = Resources::GetSValue(HashString(KEYS_SVAL + ":keys"));
+			if (sv is null)
+			{
+				HWP::LogError("fishing", "missing " + KEYS_SVAL + ":keys, using the built-in key odds");
+				return;
+			}
+			auto chance = HWP::SV::Ints(sv, "chance");
+			if (chance.length() == uint(TIERS))
+				g_keyChance = chance;
+			for (int t = 1; t <= TIERS; t++)
+			{
+				auto w = HWP::SV::Ints(sv, "tier" + t);
+				if (w.length() != KEY_TIERS.length())
+					continue;
+				for (uint k = 0; k < KEY_TIERS.length(); k++)
+					g_keyWeight[(t - 1) * 4 + k] = w[k];
+			}
+			HWP::Log("fishing", "key odds: " + KeyOdds());
+		}
+
+		// the odds as text: "tier 1: 20/1000 (850/130/18/2); tier 2: ..."
+		string KeyOdds()
+		{
+			string s = "";
+			for (int t = 1; t <= TIERS; t++)
+			{
+				int row = (t - 1) * 4;
+				s += (t > 1 ? "; " : "") + "tier " + t + ": " + KeyChance(t) + "/1000 ("
+					+ g_keyWeight[row] + "/" + g_keyWeight[row + 1] + "/" + g_keyWeight[row + 2] + "/" + g_keyWeight[row + 3] + ")";
+			}
+			return s;
+		}
+
+		int KeyChance(int fishTier) { return g_keyChanceSet >= 0 ? g_keyChanceSet : g_keyChance[ClampTier(fishTier) - 1]; }
+
+		// 0: no key; else the tier (1-4) of the key a catch of this fish tier brings up
+		int RollKeyTier(int fishTier, float luck)
+		{
+			if (!g_keys || !KeysPresent())
+				return 0;
+			int chance = int(float(KeyChance(fishTier)) * luck);
+			if (randi(1000) >= chance)
+				return 0;
+			if (g_keyTierSet >= 1 && g_keyTierSet <= int(KEY_TIERS.length()))
+				return g_keyTierSet;
+			int row = (ClampTier(fishTier) - 1) * 4;
+			// luck raises the gold and ace shares
+			array<int> w = { g_keyWeight[row], g_keyWeight[row + 1], int(float(g_keyWeight[row + 2]) * luck), int(float(g_keyWeight[row + 3]) * luck) };
+			int total = w[0] + w[1] + w[2] + w[3];
+			if (total <= 0)
+				return 1;
+			int r = randi(total);
+			for (uint k = 0; k < w.length(); k++)
+			{
+				r -= w[k];
+				if (r < 0)
+					return int(k) + 1;
+			}
+			return 1;
+		}
+
+		// town (the coast, a trap): the key is the fisher's own, like one bought from
+		// the General Merchant, in the record's keys. Stored the way the keys module
+		// does it, through a named local: vanilla PlayerRecord.AddKeys keeps a
+		// temporary by reference and the count turns to garbage (docs/RE_NOTES.md)
+		void GiveOwnKey(PlayerRecord@ rec, int tier)
+		{
+			if (rec is null || tier < 1 || tier > int(KEY_TIERS.length()))
+				return;
+			string key = KEY_TIERS[tier - 1];
+			int stored = rec.GetKeys(key) + 1;
+			if (stored < 1 || stored > 999)
+				stored = 1;
+			rec.keys.set(key, stored);
+			Stats::Add(HashString("key-found-" + key), 1, rec);
+			LootLog::PresentPickup(rec, KeyName(tier), 1);
+		}
+
+		// a town catch (the coast, a trap) may bring a key up with the fish
+		void RollTownKey(Fish@ fish, const string &in source)
+		{
+			auto rec = GetLocalPlayerRecord();
+			if (rec is null || fish is null || !g_inTown)
+				return;
+			float luck = LuckOf(rec);
+			int tier = RollKeyTier(fish.tier, luck);
+			if (tier <= 0)
+				return;
+			GiveOwnKey(rec, tier);
+			HWP::Log("fishing", "key: a " + KEY_TIERS[tier - 1] + " key with a tier " + fish.tier + " " + fish.id + " (" + source + ", luck " + luck + ")");
+			HWP::Commands::Reply(Resources::GetString(".hwp.fishing.key_found", { { "key", KeyName(tier) } }));
+		}
+
+		// host, a run: the key is a pickup at the fisher's feet (the keys module's
+		// unit: global and secure, picked once by anyone, into the party pool).
+		// Produced here and told to every client, since key units are not netsynced
+		// (the same message HWP::Keys::SpawnKey and LootDef::Spawn use)
+		void SpawnKeyPickup(vec3 pos, int tier)
+		{
+			auto prod = Resources::GetUnitProducer(KEY_UNIT_PREFIX + KEY_TIERS[tier - 1] + ".unit");
+			if (prod is null)
+				return;
+			prod.Produce(g_scene, pos);
+			if (!IsNetsyncedExistance(prod.GetNetSyncMode()))
+			{
+				SValueBuilder sval;
+				sval.PushArray();
+				sval.PushInteger(prod.GetResourceHash());
+				sval.PushVector2(xy(pos));
+				sval.PopArray();
+				(Network::Message("SpawnLoot") << sval.Build()).SendToAll();
+			}
+		}
+
+		// host, a run: a key for a catch of this fish tier, dropped at the fisher
+		int DropRunKey(PlayerRecord@ rec, int fishTier, const string &in source)
+		{
+			if (rec is null || rec.actor is null)
+				return 0;
+			float luck = LuckOf(rec);
+			int tier = RollKeyTier(fishTier, luck);
+			if (tier <= 0)
+				return 0;
+			SpawnKeyPickup(rec.actor.m_unit.GetPosition(), tier);
+			HWP::Log("fishing", "key: a " + KEY_TIERS[tier - 1] + " key with a tier " + fishTier + " catch for " + rec.GetName() + " (" + source + ", luck " + luck + ")");
+			return tier;
+		}
+
+		// the character's own keys per tier, e.g. "bronze 1, silver 0, gold 0, ace 0"
+		string KeyCounts(PlayerRecord@ rec)
+		{
+			string s = "";
+			for (uint k = 0; k < KEY_TIERS.length(); k++)
+			{
+				int n = rec is null ? 0 : rec.GetKeys(KEY_TIERS[k]);
+				if (n < 0 || n > 999)
+					n = 0;
+				s += (k > 0 ? ", " : "") + KEY_TIERS[k] + " " + n;
+			}
+			return s;
+		}
+
+		// ---- the catch's loot, for the fisher alone (host) ----------------------------
+
+		// Item::LootTable.SpawnLoot drops every instanced entry (gear, trinkets) once
+		// per player in the lobby, as a chest does, so a catch handed everyone gear.
+		// This walks the table's pools like LootTablePool.SpawnLoot but spawns each
+		// rolled entry for the catcher only: gear and trinkets owned by them, gold and
+		// pickups a shared pile at their feet. Returns the entries spawned.
+		int SpawnCatchLoot(Item::LootTable@ table, PlayerRecord@ rec, vec3 pos)
+		{
+			int spawned = 0;
+			for (uint i = 0; i < table.m_pools.length(); i++)
+			{
+				auto pool = table.m_pools[i];
+				if (!CheckConditionals(pool.m_conditionals, rec.actor))
+					continue;
+				vec3 at = pos + pool.m_offset;
+				at.x += (randf() - 0.5f) * pool.m_spread.x;
+				at.y += (randf() - 0.5f) * pool.m_spread.y;
+				at.z += randf() * pool.m_spread.z;
+				int n = randi(1000);
+				for (uint j = 0; j < pool.m_items.length(); j++)
+				{
+					n -= pool.m_items[j].m_chance;
+					if (n >= 0)
+						continue;
+					auto hit = g_scene.RaycastClosest(xy(pos), xy(at), ~0, RaycastType::Any);
+					pool.m_items[j].SpawnLoot(rec, vec3(hit.point.x, hit.point.y, at.z));
+					spawned++;
+					break;
+				}
+			}
+			return spawned;
+		}
+
+		// ---- the marker's motion, measured (hwp fishing smooth) ---------------------
+
+		// Every frame of the last bite: how far the marker moved on screen. A stall
+		// is a frame it did not move (the stutter the fix removes); a bounce frame
+		// (it turned round) is not a sample. g_smLast keeps the finished report.
+		int g_smTier = 0;
+		int g_smFrames = 0;
+		int g_smTicks = 0;
+		int g_smStalls = 0;
+		int g_smSkipped = 0;
+		int g_smZeroIdt = 0;
+		float g_smSum = 0;
+		float g_smSumSq = 0;
+		float g_smMax = 0;
+		float g_smLastX = -1;
+		float g_smLastDx = 0;
+		string g_smLast = "";
+		int g_forceTier = 0; // debug: the coast's next bite tier (0: rolled)
+
+		void SmoothReset(int tier)
+		{
+			g_smTier = tier;
+			g_smFrames = 0;
+			g_smTicks = 0;
+			g_smStalls = 0;
+			g_smSkipped = 0;
+			g_smZeroIdt = 0;
+			g_smSum = 0;
+			g_smSumSq = 0;
+			g_smMax = 0;
+			g_smLastX = -1;
+			g_smLastDx = 0;
+		}
+
+		void SmoothSample(float x, bool zeroIdt)
+		{
+			if (g_smTier <= 0)
+				return;
+			if (zeroIdt)
+				g_smZeroIdt++;
+			if (g_smLastX >= 0)
+			{
+				float dx = x - g_smLastX;
+				if (g_smLastDx != 0 && dx * g_smLastDx < 0)
+					g_smSkipped++; // the bounce
+				else
+				{
+					float a = abs(dx);
+					g_smFrames++;
+					g_smSum += a;
+					g_smSumSq += a * a;
+					if (a < 0.01f)
+						g_smStalls++;
+					if (a > g_smMax)
+						g_smMax = a;
+				}
+				if (dx != 0)
+					g_smLastDx = dx;
+			}
+			g_smLastX = x;
+		}
+
+		void SmoothFinish()
+		{
+			if (g_smTier <= 0)
+				return;
+			float mean = g_smFrames > 0 ? g_smSum / float(g_smFrames) : 0.0f;
+			float variance = g_smFrames > 0 ? g_smSumSq / float(g_smFrames) - mean * mean : 0.0f;
+			float sd = variance > 0 ? sqrt(variance) : 0.0f;
+			float cv = mean > 0 ? sd / mean : 0.0f;
+			int stallPct = g_smFrames > 0 ? g_smStalls * 100 / g_smFrames : 0;
+			g_smLast = "smooth: tier " + g_smTier + ", " + g_smFrames + " frames over " + g_smTicks + " ticks, mean " + mean
+				+ " px/frame, cv " + cv + ", stalls " + stallPct + "%, max " + g_smMax + " px, " + g_smZeroIdt
+				+ " frames with idt 0, " + g_smSkipped + " bounce frames skipped";
+			HWP::Log("fishing", g_smLast);
+			g_smTier = 0;
+		}
+
+		string SmoothReport()
+		{
+			if (g_smTier > 0)
+				return "smooth: a bite is on now (" + g_smFrames + " frames so far)";
+			return g_smLast.isEmpty() ? "smooth: no bite measured yet (cast at a spot and let it run)" : g_smLast;
 		}
 
 		// ---- coast catches (local) --------------------------------------------------
@@ -772,7 +1083,7 @@ namespace HWP
 			// moves the odds a little (co-op, everyone runs the mod)
 			int minTier, maxTier;
 			RunTiers(minTier, maxTier);
-			g_pendingTier[peer] = RollTier(HWP::SV::Int(data, "rod", 1), minTier, maxTier);
+			g_pendingTier[peer] = RollTier(HWP::SV::Int(data, "rod", 1), minTier, maxTier, LuckOf(GetPlayerRecordByPeer(peer)));
 			SValueBuilder b;
 			b.PushDictionary();
 			b.PushInteger("tier", g_pendingTier[peer]);
@@ -802,7 +1113,8 @@ namespace HWP
 				HWP::LogError("fishing", "missing loot table hwp_fishing_run_" + tier);
 				return;
 			}
-			table.SpawnLoot(rec.actor, rec.actor.m_unit.GetPosition());
+			int drops = SpawnCatchLoot(table, rec, rec.actor.m_unit.GetPosition());
+			int keyTier = DropRunKey(rec, tier, "hole");
 			// the fish itself goes into the catcher's own bag (bags are local)
 			auto fish = RandomFish(tier);
 			if (fish !is null)
@@ -811,10 +1123,12 @@ namespace HWP
 				b.PushDictionary();
 				b.PushString("fish", fish.id);
 				b.PushInteger("ilvl", CatchItemLevel(rec, fish));
+				b.PushInteger("key", keyTier);
 				b.PopDictionary();
 				HWP::Net::Send(peer, LANDED, b.Build());
 			}
-			HWP::Log("fishing", rec.GetName() + " caught tier " + tier + " (" + CastsLeft(peer) + " casts left)");
+			HWP::Log("fishing", rec.GetName() + " caught tier " + tier + " (" + CastsLeft(peer) + " casts left): loot for them alone, "
+				+ drops + " drop(s)" + (keyTier > 0 ? ", a " + KEY_TIERS[keyTier - 1] + " key" : ""));
 		}
 
 		// local: the host's fish for our bag
@@ -825,6 +1139,9 @@ namespace HWP
 				return;
 			GiveFish(fish, HWP::SV::Int(data, "ilvl", 1));
 			Say(Resources::GetString(".hwp.fishing.caught", { { "fish", fish.Name() } }));
+			int key = HWP::SV::Int(data, "key", 0);
+			if (key >= 1 && key <= int(KEY_TIERS.length()))
+				HWP::Commands::Reply(Resources::GetString(".hwp.fishing.key_found_run", { { "key", KeyName(key) } }));
 		}
 
 		// local: the host rolled our bite
@@ -1140,6 +1457,7 @@ namespace HWP
 
 		void SelfCheck()
 		{
+			LoadKeyTable();
 			array<string> tables;
 			for (int t = 1; t <= TIERS; t++)
 				tables.insertLast("hwp_fishing_run_" + t);
@@ -1194,6 +1512,32 @@ namespace HWP
 				if (rec is null || rec.actor is null)
 					return;
 				SpawnAt(HOLE_UNIT, rec.actor.m_unit.GetPosition() + vec3(40, 0, 0));
+				return;
+			}
+			if (sub == "smooth")
+			{
+				// the last bite's marker motion per frame (the fix for the stepping marker)
+				HWP::Commands::Reply(SmoothReport());
+				return;
+			}
+			if (sub == "keys")
+			{
+				LoadKeyTable();
+				HWP::Commands::Reply("fishing keys: " + (KeysPresent() ? (g_keys ? "on" : "off (fishing.keys)") : "no keys module")
+					+ "; own keys: " + KeyCounts(rec) + "; odds " + KeyOdds()
+					+ (g_keyChanceSet >= 0 ? "; key_chance " + g_keyChanceSet : "") + (g_keyTierSet > 0 ? "; key_tier " + g_keyTierSet : ""));
+				return;
+			}
+			if (sub == "tier")
+			{
+				// debug: the tier of the coast's next bites (0: rolled)
+				if (!g_debug)
+				{
+					HWP::Commands::Reply(Resources::GetString(".hwp.fishing.debug_off"));
+					return;
+				}
+				g_forceTier = args.length() >= 2 ? clamp(parseInt(args[1]), 0, TIERS) : 0;
+				HWP::Commands::Reply("fishing: the next coast bites are tier " + (g_forceTier > 0 ? "" + g_forceTier : "rolled"));
 				return;
 			}
 			if (sub == "buy")
@@ -1264,6 +1608,11 @@ namespace HWP
 				auto fish = RandomFish(tier);
 				GiveFish(fish);
 				HWP::Commands::Reply(Resources::GetString(".hwp.fishing.caught", { { "fish", fish.Name() } }));
+				// a key as a real catch would: the fisher's own in town, a pickup on a run (host)
+				if (g_inTown)
+					RollTownKey(fish, "debug catch");
+				else if (Network::IsServer())
+					DropRunKey(rec, fish.tier, "debug catch");
 				return;
 			}
 			if (sub == "bait")
@@ -1335,6 +1684,8 @@ namespace HWP
 				{ "chance", g_runChance }, { "casts", g_runCasts }, { "catch", s.isEmpty() ? "-" : s } }));
 			auto slot = HWP::Gear::Get("hwp-gear-rod");
 			HWP::Commands::Reply("rod slot: " + (slot is null ? "none" : slot.Icon() is null ? "empty" : "drawn"));
+			if (KeysPresent())
+				HWP::Commands::Reply("keys: " + KeyCounts(rec));
 		}
 	}
 }
@@ -1402,6 +1753,9 @@ class HWPFishingMenu : AWindowObject
 	int m_markerDir = 1;
 	int m_zoneX = 0;
 	int m_zoneW = 60;
+	int m_tickMs = 33;       // the last game tick's ms
+	int m_drawsThisTick = 0; // frames drawn since that tick
+	int m_drawsLastTick = 0; // frames the tick before it got
 
 	HWPFishingMenu(GUIBuilder@ b, HWPFishingSpot@ spot)
 	{
@@ -1483,8 +1837,14 @@ class HWPFishingMenu : AWindowObject
 		}
 		else if (state == HWP::Fishing::STATE_BITE)
 		{
-			if (!m_spot.m_inRun)
-				m_tier = HWP::Fishing::RollTier(m_rod, HWP::Fishing::BAIT_MIN_TIER[m_baitUsed - 1], HWP::Fishing::BAIT_MAX_TIER[m_baitUsed - 1]); // a run spot: m_tier came from the host
+			if (!m_spot.m_inRun) // a run spot: m_tier came from the host
+			{
+				m_tier = HWP::Fishing::RollTier(m_rod, HWP::Fishing::BAIT_MIN_TIER[m_baitUsed - 1], HWP::Fishing::BAIT_MAX_TIER[m_baitUsed - 1],
+					HWP::Fishing::LuckOf(GetLocalPlayerRecord()));
+				if (HWP::Fishing::g_forceTier > 0)
+					m_tier = HWP::Fishing::g_forceTier;
+			}
+			HWP::Fishing::SmoothReset(m_tier);
 			m_zoneW = int(float(HWP::Fishing::ZONE_WIDTH[m_tier - 1]) * HWP::Fishing::ZoneScale(m_rod));
 			if (m_zoneW > HWP::Fishing::BAR_WIDTH / 2)
 				m_zoneW = HWP::Fishing::BAR_WIDTH / 2;
@@ -1504,6 +1864,7 @@ class HWPFishingMenu : AWindowObject
 		}
 		else if (state == HWP::Fishing::STATE_RESULT)
 		{
+			HWP::Fishing::SmoothFinish();
 			m_castButton.SetText(Resources::GetString(".hwp.fishing.cast_again"));
 			m_status.SetText(Resources::GetString(".hwp.fishing.idle"));
 		}
@@ -1533,6 +1894,7 @@ class HWPFishingMenu : AWindowObject
 			{
 				HWP::Fishing::GiveFish(fish);
 				m_log.SetText(Resources::GetString(".hwp.fishing.caught", { { "fish", fish.Name() } }));
+				HWP::Fishing::RollTownKey(fish, "coast");
 			}
 		}
 		SetState(HWP::Fishing::STATE_RESULT);
@@ -1555,19 +1917,40 @@ class HWPFishingMenu : AWindowObject
 	}
 
 	// the marker as a sub-pixel rect every frame: moving the widget only on game
-	// ticks, snapped to whole GUI pixels (4 screen px), made it stutter
+	// ticks, snapped to whole GUI pixels (4 screen px), made it stutter.
+	// This window pauses the game, and a paused game renders with idt 0
+	// (AGameplayGameMode.RenderFrame / PreRenderFrame zero it), so the time into
+	// the tick is not given: the marker stepped once per ~33 ms tick, 11 px at a
+	// time for the fastest fish, with every frame in between a repeat. There is no
+	// clock in script that runs while paused, so the frames of the previous tick
+	// stand in: the k-th frame of a tick is k / (frames last tick) of the way to
+	// the next position. Smooth at a steady frame rate; the real idt is used
+	// whenever the engine gives one.
 	void Draw(SpriteBatch& sb, int idt) override
 	{
 		AWindowObject::Draw(sb, idt);
 		if (m_state != HWP::Fishing::STATE_BITE || m_barGroup is null)
 			return;
+		int at = idt;
+		if (at <= 0 && m_drawsLastTick > 1)
+			at = m_tickMs * m_drawsThisTick / m_drawsLastTick;
+		if (at > m_tickMs)
+			at = m_tickMs;
+		m_drawsThisTick++;
+		float x = MarkerAt(at);
+		HWP::Fishing::SmoothSample(x, idt <= 0);
 		vec2 o = m_barGroup.m_origin;
-		sb.FillRectangle(vec4(o.x + MarkerAt(idt), o.y, float(HWP::Fishing::MARKER_WIDTH), float(m_barGroup.m_height)), vec4(1, 1, 1, 1));
+		sb.FillRectangle(vec4(o.x + x, o.y, float(HWP::Fishing::MARKER_WIDTH), float(m_barGroup.m_height)), vec4(1, 1, 1, 1));
 	}
 
 	bool Update(int ms, GameInput& gameInput, MenuInput& menuInput) override
 	{
 		bool result = AWindowObject::Update(ms, gameInput, menuInput);
+		// a game tick: Draw interpolates the next one by the frames this one got
+		m_drawsLastTick = m_drawsThisTick;
+		m_drawsThisTick = 0;
+		if (ms > 0)
+			m_tickMs = ms;
 
 		if (m_state == HWP::Fishing::STATE_WAIT)
 		{
@@ -1596,6 +1979,7 @@ class HWPFishingMenu : AWindowObject
 		}
 		else if (m_state == HWP::Fishing::STATE_BITE)
 		{
+			HWP::Fishing::g_smTicks++;
 			float maxX = float(HWP::Fishing::BAR_WIDTH - HWP::Fishing::MARKER_WIDTH);
 			m_markerPos += MarkerSpeed() * float(ms) * float(m_markerDir);
 			if (m_markerPos >= maxX)
@@ -1628,6 +2012,7 @@ class HWPFishingMenu : AWindowObject
 
 	void OnClose() override
 	{
+		HWP::Fishing::SmoothFinish();
 		PauseGame(false, true);
 	}
 
@@ -1930,7 +2315,7 @@ namespace Modules
 			HWP::Net::OnEvent(HWP::Fishing::ANNOUNCE, HWP::Net::EventHandler(HWP::Fishing::OnAnnounce));
 			HWP::Net::OnEvent(HWP::Fishing::LANDED, HWP::Net::EventHandler(HWP::Fishing::OnLanded));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Fishing::OnSettingChanged));
-			HWP::Commands::Register("fishing", " fishing status; 'buy bait|bait20|shrimp|squid|rod|trap', 'bait worm|shrimp|squid' (cast with it), 'sell' (fish for bet tokens), 'traps', 'eat' (the first fish in your bag); debug: 'hole', 'wells' (every well kind with its run spot, in a run), 'rod <tier>', 'catch [tier]', 'bait <kind> <n>', 'traps <minutes>'", HWP::Commands::Handler(HWP::Fishing::CmdFishing));
+			HWP::Commands::Register("fishing", " fishing status; 'buy bait|bait20|shrimp|squid|rod|trap', 'bait worm|shrimp|squid' (cast with it), 'sell' (fish for bet tokens), 'traps', 'eat' (the first fish in your bag), 'keys' (key odds and your own keys), 'smooth' (the last bite's marker motion per frame); debug: 'hole', 'wells' (every well kind with its run spot, in a run), 'rod <tier>', 'catch [tier]', 'bait <kind> <n>', 'traps <minutes>', 'tier <n>' (the coast's next bite tier)", HWP::Commands::Handler(HWP::Fishing::CmdFishing));
 			HWP::Fishing::SelfCheck();
 		}
 

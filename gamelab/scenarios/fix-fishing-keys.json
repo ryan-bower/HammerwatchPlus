@@ -1,0 +1,62 @@
+{
+ "name": "fix-fishing-keys",
+ "about": "Keys from fishing (2026-10-25, the user's item 1): tweak/hwp/fishing_keys.sval as parsed (gl sval), `hwp fishing keys` odds, a forced ace key from a debug catch into the character's own keys (keys HUD within 0.5 s), 20 rolled catches = 20 keys over the tiers, a full trap's fish give keys on collection, fishing.keys 0 gives none; then on floor 1 the host's catch drops the keys module's key pickup beside the player (gold, forced) and logs it. Mods core + fishing + keys (plus the rest for the run).",
+ "fixture": "town-paladin",
+ "mods": ["core", "fishing", "keys"],
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:fishing\\] key odds: tier 1: 20/1000",
+   "timeout": 60
+  },
+  {
+   "do": "bot",
+   "bot": "plan_fishing",
+   "kwargs": {
+    "sections": "keys"
+   },
+   "name": "keys in town",
+   "expect": {
+    "keys_sval_parsed": true,
+    "keys_odds_live": true,
+    "keys_status_counts": true,
+    "keys_ace_from_catch": true,
+    "keys_every_catch": true,
+    "keys_from_trap": true,
+    "keys_off_none": true
+   }
+  },
+  {
+   "do": "bot",
+   "bot": "plan_fishing",
+   "kwargs": {
+    "sections": "keys_run"
+   },
+   "name": "key pickup on a run",
+   "expect": {
+    "keys_run_pickup": true
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:fishing\\] key: a gold key with a tier 2 catch for",
+   "timeout": 5
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

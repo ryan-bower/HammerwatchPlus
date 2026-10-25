@@ -1,0 +1,18 @@
+<!-- Keys that come up with a catch (HWP::Fishing::RollKeyTier reads this with
+     Resources::GetSValue("tweak/hwp/fishing_keys.sval:keys"); no loader, so it is a
+     plain resource). Only with the keys module (its key pickups must exist).
+     "chance": per mille of a key per catch, by fish tier 1-4 (perch/carp, trout/pike,
+     salmon/sturgeon, golden carp/abyssal eel). "tierN": the key's tier shares for a
+     fish of tier N, bronze / silver / gold / ace, per mille of a key.
+     Luck (core HWP::Luck::Factor, 1 + luck/100) multiplies the chance and the gold
+     and ace shares. The coast and traps are tier 1-2 fish on worms; boss rooms
+     only tier 4. -->
+<svals>
+	<dict name="keys">
+		<array name="chance"><i>20</i><i>40</i><i>80</i><i>150</i></array>
+		<array name="tier1"><i>850</i><i>130</i><i>18</i><i>2</i></array>
+		<array name="tier2"><i>700</i><i>240</i><i>50</i><i>10</i></array>
+		<array name="tier3"><i>450</i><i>380</i><i>140</i><i>30</i></array>
+		<array name="tier4"><i>200</i><i>400</i><i>300</i><i>100</i></array>
+	</dict>
+</svals>

@@ -1,0 +1,48 @@
+{
+ "name": "fix-fishing-smooth",
+ "about": "The fishing marker moves every frame (2026-10-25, the user's item 3: the minigame stepped, worst for the small fast fish of boss rooms). A forced 3-star coast bite (`hwp fishing tier 4`, squid) runs out; `hwp fishing smooth` reports the per-frame motion: at least 20 frames over 20 ticks, stall share <= 25 %, step coefficient of variation <= 0.5, and the smooth line is logged. The lab draws about one frame per game tick (the old code never stalled there either), so the bound bites where the frame rate exceeds the tick rate; the eye test is the user's game.",
+ "fixture": "town-paladin",
+ "mods": [
+  "core",
+  "fishing",
+  "keys"
+ ],
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "plan_fishing",
+   "kwargs": {
+    "sections": "smooth"
+   },
+   "name": "marker per frame",
+   "expect": {
+    "smooth_window": true,
+    "smooth_measured": true,
+    "smooth_no_stalls": true,
+    "smooth_even_steps": true,
+    "smooth_logged": true
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:fishing\\] smooth: tier 4, \\d+ frames over \\d+ ticks",
+   "timeout": 5
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

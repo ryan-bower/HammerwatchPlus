@@ -33,6 +33,8 @@
 	<string name="hwp.fishing.bait.on_hook">On your hook: the fishing window's bait button picks another.</string>
 	<string name="hwp.fishing.bag_full">Your bag is full; the %fish% flops at your feet.</string>
 	<string name="hwp.fishing.announce">%name% caught: %fish%!</string>
+	<string name="hwp.fishing.key_found">\cffd27fA %key%\d came up tangled in the line!</string>
+	<string name="hwp.fishing.key_found_run">\cffd27fA %key%\d came up with the fish; it lies at your feet.</string>
 	<string name="hwp.fishing.rod.0">No rod</string>
 	<string name="hwp.fishing.rod.1">Driftwood Rod</string>
 	<string name="hwp.fishing.rod.2">Sturdy Rod</string>
