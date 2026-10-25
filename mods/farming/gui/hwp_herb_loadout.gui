@@ -2,7 +2,9 @@
 	<!-- the mission loadout's herb line (HWPHerbLoadout, tweak/hwp/loadouts_herbs.sval) -->
 	<doc>
 		<group>
-			<rect id="rect" visible="false" width="210" height="22" offset="-11 0" anchor="1 0.5" spriteset="gui/sprite_rect.sval:rounded">
+			<!-- one text row: 14 px, so the line costs the run-start window as little height as
+			     possible (the window must leave 20 px under it for the key hints) -->
+			<rect id="rect" visible="false" width="210" height="14" offset="-11 0" anchor="1 0.5" spriteset="gui/sprite_rect.sval:rounded">
 				<text id="hwp-herb" text="" color="#ffd27f" font="text" align="left" anchor="0 0.5" offset="6 1" width="198" />
 			</rect>
 		</group>

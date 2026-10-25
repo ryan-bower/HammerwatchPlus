@@ -53,6 +53,8 @@ namespace HWP
 		const string PLANTED = "farm.planted"; // host -> peer: { seed, plot } use a seed now
 		const string WATERED = "farm.watered"; // host -> peer: { seed, plot, n } use a water charge now
 		const string REFUSED = "farm.refused"; // host -> peer: { why } the request failed
+		const string WILD_PICK = "farm.wild_pick";   // any -> host: { unit, seed } I harvest this wild plot
+		const string WILD_YIELD = "farm.wild_yield"; // host -> peer: { unit, seed, n, seeds } your yield; hide it for you
 		const string KEY_PLOTS = "farm.plots";
 		const string KEY_RUNS = "farm.runs";
 		const string KEY_PENDING = "farm.pending";
@@ -62,11 +64,14 @@ namespace HWP
 		const string KEY_SEED = "farm.seed.";  // per character: seeds owned, + seed id
 		const string KEY_HERB = "farm.herb";   // per character: the strain last puffed, while its floors last
 		const string KEY_HERB_FLOORS = "farm.herb_floors"; // floors it still lasts after this one
+		const string KEY_HERB2 = "farm.herb2";             // the second joint's strain (a joint in each hand)
+		const string KEY_HERB2_FLOORS = "farm.herb2_floors"; // and its floors left
 		const int HERB_FLOORS = 10;            // a puff lasts this many floors, boss floors included
 		// Gambler's Gold is gone: its seeds, wares and plots become Lucky Leaf
 		const string GONE_SEED = "gamblers_gold";
 		const string GONE_TO = "lucky_leaf";
 		const string HERB_SLOT = "hwp_herb";   // SetMissionBuff slot id
+		const string HERB_SLOT2 = "hwp_herb2"; // the second strain's slot: both buffs' modifiers apply (PlayerRecord.as:1802)
 		const int MAX_PLOTS = 48;
 		const int SPACING = 40;
 		const float SEGMENT = 48.0f;           // length of one groove plot unit
@@ -1108,29 +1113,57 @@ namespace HWP
 			RequestPlot(WATER, plot, "", CanTier()); // the water is used in OnWatered
 		}
 
-		string ActiveHerbName(PlayerRecord@ rec)
+		// Two herb slots: 0 is the off-hand joint's (hwp_herb, KEY_HERB), 1 the main-hand
+		// joint's (hwp_herb2, KEY_HERB2). A mission buff slot holds one buff, and every slot's
+		// modifiers apply, so a joint in each hand means both strains at once.
+		string HerbSlotId(int hand) { return hand == 1 ? HERB_SLOT2 : HERB_SLOT; }
+		string HerbKey(int hand) { return hand == 1 ? KEY_HERB2 : KEY_HERB; }
+		string HerbFloorsKey(int hand) { return hand == 1 ? KEY_HERB2_FLOORS : KEY_HERB_FLOORS; }
+
+		// the buff's name in one herb slot, or ""
+		string ActiveHerbName(PlayerRecord@ rec, int hand)
 		{
 			if (rec is null)
 				return "";
-			uint slot = HashString(HERB_SLOT);
+			uint slot = HashString(HerbSlotId(hand));
 			for (uint i = 0; i < rec.missionBuffs.length(); i++)
 				if (rec.missionBuffs[i].m_id == slot && rec.missionBuffs[i].m_buff !is null)
 					return rec.missionBuffs[i].m_buff.m_name;
 			return "";
 		}
 
-		void RemoveHerbBuff(PlayerRecord@ rec)
+		// both slots' names, "A + B" with two (the loadout line, the farm menu)
+		string ActiveHerbName(PlayerRecord@ rec)
 		{
-			uint slot = HashString(HERB_SLOT);
+			string a = ActiveHerbName(rec, 0);
+			string b = ActiveHerbName(rec, 1);
+			if (a.isEmpty())
+				return b;
+			if (b.isEmpty())
+				return a;
+			return a + " + " + b;
+		}
+
+		void RemoveHerbBuff(PlayerRecord@ rec, int hand)
+		{
+			uint slot = HashString(HerbSlotId(hand));
 			for (int i = int(rec.missionBuffs.length()) - 1; i >= 0; i--)
 				if (rec.missionBuffs[i].m_id == slot)
 					rec.missionBuffs.removeAt(i);
 			rec.RefreshModifiers();
 		}
 
+		void RemoveHerbBuff(PlayerRecord@ rec)
+		{
+			RemoveHerbBuff(rec, 0);
+			RemoveHerbBuff(rec, 1);
+		}
+
 		// A puff: the strain's buff, for this floor and the next HERB_FLOORS - 1 (in town:
-		// the next HERB_FLOORS). Every floor load counts one down (KeepHerb).
-		bool ApplyHerb(PlayerRecord@ rec, const string &in herbId)
+		// the next HERB_FLOORS). Every floor load counts one down (KeepHerb). hand is the
+		// joint's: 0 the off hand (slot hwp_herb), 1 the main hand (hwp_herb2); the same
+		// strain in both hands is one buff, refreshed in the slot it already has.
+		bool ApplyHerb(PlayerRecord@ rec, const string &in herbId, int hand = 0)
 		{
 			auto buff = MissionBuff::Get(HashString("hwp_herb_" + herbId));
 			if (rec is null || buff is null)
@@ -1138,30 +1171,42 @@ namespace HWP
 				HWP::LogError("farming", "mission buff hwp_herb_" + herbId + " missing (tweak/hwp/buffs_herbs.sval)");
 				return false;
 			}
-			int floors = g_inTown ? HERB_FLOORS : HERB_FLOORS - 1;
-			rec.SetMissionBuff(HashString(HERB_SLOT), buff);
 			auto bag = HWP::SaveData::Player(rec);
-			bag.SetString(KEY_HERB, herbId);
-			bag.SetInt(KEY_HERB_FLOORS, floors);
+			int other = hand == 1 ? 0 : 1;
+			if (bag.GetString(HerbKey(other)) == herbId)
+				hand = other;
+			int floors = g_inTown ? HERB_FLOORS : HERB_FLOORS - 1;
+			rec.SetMissionBuff(HashString(HerbSlotId(hand)), buff);
+			bag.SetString(HerbKey(hand), herbId);
+			bag.SetInt(HerbFloorsKey(hand), floors);
 			g_floorCounted = true;
 			string text = Resources::GetString(".hwp.farming.smoked", { { "name", buff.m_name }, { "desc", buff.m_description },
 				{ "floors", HERB_FLOORS } });
 			Say(text);
 			HWP::Commands::Reply(text);
+			HWP::Log("farming", "herb " + herbId + " in slot " + HerbSlotId(hand) + " for " + floors + " floor(s) after this one");
 			return true;
 		}
 
+		string HerbSlotStatus(PlayerRecord@ rec, int hand)
+		{
+			auto bag = HWP::SaveData::Player(rec);
+			string label = hand == 1 ? "herb2" : "herb";
+			string active = ActiveHerbName(rec, hand);
+			if (!bag.Has(HerbKey(hand)))
+				return label + ": none" + (active.isEmpty() ? "" : " (buff " + active + ")");
+			return label + ": " + bag.GetString(HerbKey(hand)) + ", " + bag.GetInt(HerbFloorsKey(hand), 0) + " floor(s) after this one, buff "
+				+ (active.isEmpty() ? "off" : active);
+		}
+
+		// "herb: <strain>, N floor(s) after this one, buff <name>; herb2: none" (the hwp joint
+		// status; gamelab/bots/plan_farming.py reads it)
 		string HerbStatus()
 		{
 			auto rec = GetLocalPlayerRecord();
 			if (rec is null)
-				return "herb: none";
-			auto bag = HWP::SaveData::Player(rec);
-			string active = ActiveHerbName(rec);
-			if (!bag.Has(KEY_HERB))
-				return "herb: none" + (active.isEmpty() ? "" : " (buff " + active + ")");
-			return "herb: " + bag.GetString(KEY_HERB) + ", " + bag.GetInt(KEY_HERB_FLOORS, 0) + " floor(s) after this one, buff "
-				+ (active.isEmpty() ? "off" : active);
+				return "herb: none; herb2: none";
+			return HerbSlotStatus(rec, 0) + "; " + HerbSlotStatus(rec, 1);
 		}
 
 		// Gambler's Gold seeds and wares become Lucky Leaf (its plots: ApplyState)
@@ -1179,11 +1224,13 @@ namespace HWP
 				HWP::Market::Add(rec, GONE_TO, wares);
 				HWP::Market::SetCount(rec, GONE_SEED, 0);
 			}
-			if (bag.GetString(KEY_HERB) == GONE_SEED)
+			for (int hand = 0; hand < 2; hand++)
 			{
-				bag.Remove(KEY_HERB);
-				bag.Remove(KEY_HERB_FLOORS);
-				RemoveHerbBuff(rec);
+				if (bag.GetString(HerbKey(hand)) != GONE_SEED)
+					continue;
+				bag.Remove(HerbKey(hand));
+				bag.Remove(HerbFloorsKey(hand));
+				RemoveHerbBuff(rec, hand);
 			}
 			if (seeds > 0 || wares > 0)
 				HWP::Log("farming", "Gambler's Gold is gone: " + seeds + " seed(s) and " + wares + " ware(s) are Lucky Leaf now");
@@ -1195,7 +1242,8 @@ namespace HWP
 		// The herb lasts HERB_FLOORS floors: every floor load (a run level, boss floors too)
 		// counts one down, and the one after the last takes it off. Mission buffs are emptied
 		// by the loadout menu as it opens and by the run's end (ResetForNewMission,
-		// GUI/MissionLoadoutMenu.as:207), so while floors are left it is put back.
+		// GUI/MissionLoadoutMenu.as:207), so while floors are left it is put back. Both herb
+		// slots (a joint in each hand) count the same floors.
 		void KeepHerb()
 		{
 			auto rec = GetLocalPlayerRecord();
@@ -1207,37 +1255,51 @@ namespace HWP
 				MigrateGone(rec);
 			}
 			auto bag = HWP::SaveData::Player(rec);
-			if (!bag.Has(KEY_HERB))
+			if (!bag.Has(KEY_HERB) && !bag.Has(KEY_HERB2))
 				return;
-			if (!bag.Has(KEY_HERB_FLOORS)) // smoked before floors were counted: a full count
-				bag.SetInt(KEY_HERB_FLOORS, HERB_FLOORS);
-			if (!g_inTown && !g_floorCounted)
-			{
+			bool count = !g_inTown && !g_floorCounted;
+			if (count)
 				g_floorCounted = true;
-				int left = bag.GetInt(KEY_HERB_FLOORS, 0);
+			for (int hand = 0; hand < 2; hand++)
+				KeepHerbSlot(rec, hand, count);
+		}
+
+		void KeepHerbSlot(PlayerRecord@ rec, int hand, bool count)
+		{
+			auto bag = HWP::SaveData::Player(rec);
+			string key = HerbKey(hand);
+			string fkey = HerbFloorsKey(hand);
+			string label = hand == 1 ? "herb2" : "herb";
+			if (!bag.Has(key))
+				return;
+			if (!bag.Has(fkey)) // smoked before floors were counted: a full count
+				bag.SetInt(fkey, HERB_FLOORS);
+			if (count)
+			{
+				int left = bag.GetInt(fkey, 0);
 				if (left <= 0)
 				{
-					string was = bag.GetString(KEY_HERB);
-					bag.Remove(KEY_HERB);
-					bag.Remove(KEY_HERB_FLOORS);
-					RemoveHerbBuff(rec);
-					HWP::Log("farming", "the " + was + " buff wore off");
+					string was = bag.GetString(key);
+					bag.Remove(key);
+					bag.Remove(fkey);
+					RemoveHerbBuff(rec, hand);
+					HWP::Log("farming", "the " + was + " buff wore off" + (hand == 1 ? " (second joint)" : ""));
 					Say(Resources::GetString(".hwp.farming.herb_off"));
 					return;
 				}
-				bag.SetInt(KEY_HERB_FLOORS, left - 1);
-				HWP::Log("farming", "herb floor counted: " + (left - 1) + " left after this one");
+				bag.SetInt(fkey, left - 1);
+				HWP::Log("farming", label + " floor counted: " + (left - 1) + " left after this one");
 			}
-			if (!ActiveHerbName(rec).isEmpty())
+			if (!ActiveHerbName(rec, hand).isEmpty())
 				return;
-			auto buff = MissionBuff::Get(HashString("hwp_herb_" + bag.GetString(KEY_HERB)));
+			auto buff = MissionBuff::Get(HashString("hwp_herb_" + bag.GetString(key)));
 			if (buff is null)
 			{
-				bag.Remove(KEY_HERB);
-				bag.Remove(KEY_HERB_FLOORS);
+				bag.Remove(key);
+				bag.Remove(fkey);
 				return;
 			}
-			rec.SetMissionBuff(HashString(HERB_SLOT), buff);
+			rec.SetMissionBuff(HashString(HerbSlotId(hand)), buff);
 			HWP::Log("farming", "mission buffs were emptied: " + buff.m_name + " put back");
 		}
 
@@ -1403,14 +1465,34 @@ namespace HWP
 				units.insertLast(WILD_UNIT_PREFIX + g_seeds[i].id + ".unit");
 			}
 			HWP::CheckUnits("farming", units);
-			HWP::Log("farming", "self-check done: " + g_seeds.length() + " seeds, " + buffs + " herb buffs");
+			// the joints: every stage of every strain, in both hands (tweak/hwp/equipment_joints.sval)
+			int joints = 0;
+			for (uint i = 0; i < g_seeds.length(); i++)
+			{
+				if (!g_seeds[i].herb)
+					continue;
+				for (int n = 1; n <= JOINT_USES; n++)
+				{
+					for (int hand = 0; hand < 2; hand++)
+					{
+						string jid = JointId(g_seeds[i].id, n, hand == 1);
+						if (Equipment::BaseItem::Get(jid) !is null)
+							joints++;
+						else
+							HWP::LogError("farming", "joint item " + jid + " missing (tweak/hwp/equipment_joints.sval)");
+					}
+				}
+			}
+			HWP::Log("farming", "self-check done: " + g_seeds.length() + " seeds, " + buffs + " herb buffs, " + joints + " joint items");
 		}
 
 		// ---- wild plots (runs) ----------------------------------------------------------
 
 		const string WILD_UNIT_PREFIX = "doodads/hwp/wild/"; // + seed id + ".unit"
 		const int WILD_HERB_CHANCE = 15; // % of wild plots that grow a Holy Herb
-		array<int> g_picked; // wild plot units this machine's player has harvested
+		array<int> g_picked; // wild plot units this machine's player has harvested (hidden here)
+		array<int> g_wildPeers; // host: who harvested which plot, pairs with g_wildUnits
+		array<int> g_wildUnits;
 		UnitPtr g_lastWild;  // the last one this machine placed (debug 'farm wild pick')
 
 		Seed@ RollWildSeed()
@@ -1478,19 +1560,93 @@ namespace HWP
 			return u.IsValid() && g_picked.find(u.GetId()) >= 0;
 		}
 
-		// local: the player harvests a wild plot for themselves
+		// ---- harvesting a wild plot ------------------------------------------------------
+		//
+		// Every player harvests each plot once, for themselves (as the game's own ore and gold
+		// pickups are per player). A use asks the host (WILD_PICK); the host checks the plot
+		// and that this peer has not had it yet, rolls the yield and hands it to that player
+		// (WILD_YIELD: the wares and seeds land on the picker's machine, and the plot is hidden
+		// there only). The host's own pick goes the same way (HWP::Net dispatches locally).
+		// Before this, HWPWildPlot.CanInteract wanted player.local, which on the host is false
+		// for a client's record, so the host's UseUnitSecure check (PlayerHandler.as:518-535)
+		// refused every client's use and only the host could ever pick one.
 		const int WILD_PLANTS = 3;
 
-		void HarvestWild(UnitPtr u, const string &in seedId)
+		// host: has this peer harvested this plot?
+		bool WildTaken(int peer, int unit)
 		{
-			auto seed = GetSeed(seedId);
-			auto rec = GetLocalPlayerRecord();
-			if (seed is null || rec is null || !u.IsValid() || Picked(u))
+			for (uint i = 0; i < g_wildUnits.length(); i++)
+				if (g_wildUnits[i] == unit && g_wildPeers[i] == peer)
+					return true;
+			return false;
+		}
+
+		bool IsWildPlot(UnitPtr u, const string &in seedId)
+		{
+			if (!u.IsValid() || GetSeed(seedId) is null)
+				return false;
+			auto prod = u.GetUnitProducer();
+			return prod !is null && prod.GetResourceName() == WILD_UNIT_PREFIX + seedId + ".unit";
+		}
+
+		// the picker (host or client): ask the host
+		void RequestWildPick(UnitPtr u, const string &in seedId)
+		{
+			if (!u.IsValid() || Picked(u))
 				return;
-			g_picked.insertLast(u.GetId());
+			SValueBuilder b;
+			b.PushDictionary();
+			b.PushInteger("unit", u.GetId());
+			b.PushString("seed", seedId);
+			b.PopDictionary();
+			HWP::Net::Request(WILD_PICK, b.Build());
+			HWP::Log("farming", "asked the host for the wild " + seedId + " plot " + u.GetId());
+		}
+
+		// host
+		void OnWildPick(uint8 peer, SValue@ data)
+		{
+			if (!Network::IsServer())
+				return;
+			int id = HWP::SV::Int(data, "unit", 0);
+			string seedId = HWP::SV::Str(data, "seed");
+			UnitPtr u = g_scene.GetUnit(id);
+			if (!g_enabled || !IsWildPlot(u, seedId))
+			{
+				HWP::Log("farming", "refused peer " + peer + "'s wild pick: unit " + id + " is no " + seedId + " plot");
+				return;
+			}
+			if (WildTaken(int(peer), id))
+			{
+				HWP::Log("farming", "refused peer " + peer + "'s wild pick: it already harvested plot " + id);
+				return;
+			}
+			g_wildPeers.insertLast(int(peer));
+			g_wildUnits.insertLast(id);
 			int n = WILD_PLANTS; // as drawn (tools/make_wild_plots.py)
 			int roll = randi(100);
 			int seeds = roll < 10 ? 2 : (roll < 50 ? 1 : 0); // twice the farm's 5 % / 25 %
+			HWP::Log("farming", "wild pick: peer " + peer + " harvests the " + seedId + " plot " + id + " (" + n + ", +" + seeds + " seeds)");
+			SValueBuilder y;
+			y.PushDictionary();
+			y.PushInteger("unit", id);
+			y.PushString("seed", seedId);
+			y.PushInteger("n", n);
+			y.PushInteger("seeds", seeds);
+			y.PopDictionary();
+			HWP::Net::Send(peer, WILD_YIELD, y.Build());
+		}
+
+		// the picker: the yield the host granted; the plot is gone for this player only
+		void OnWildYield(SValue@ data)
+		{
+			int id = HWP::SV::Int(data, "unit", 0);
+			int n = HWP::SV::Int(data, "n", 0);
+			int seeds = HWP::SV::Int(data, "seeds", 0);
+			auto seed = GetSeed(HWP::SV::Str(data, "seed"));
+			auto rec = GetLocalPlayerRecord();
+			if (seed is null || rec is null || n <= 0)
+				return;
 			HWP::Market::Add(rec, seed.id, n);
 			if (seeds > 0)
 				AddSeeds(seed.id, seeds);
@@ -1501,7 +1657,16 @@ namespace HWP
 			HWP::Commands::Reply(text);
 			g_lastMessage = "";
 			HWP::Log("farming", "harvested a wild " + seed.id + " plot: " + n + " (+" + seeds + " seeds)");
-			u.SetHidden(true); // gone for this player; the others still have theirs
+			HideWild(id);
+		}
+
+		void HideWild(int id)
+		{
+			if (g_picked.find(id) < 0)
+				g_picked.insertLast(id);
+			UnitPtr u = g_scene.GetUnit(id);
+			if (u.IsValid())
+				u.SetHidden(true);
 		}
 
 		// ---- commands -----------------------------------------------------------------
@@ -1602,6 +1767,30 @@ namespace HWP
 					HWP::Commands::Reply("wild " + seed.id + " plot placed");
 				return;
 			}
+			if (a == "herb")
+			{
+				// debug 'herb <strain> [n]': herb wares to roll joints from, without a harvest
+				if (!g_debug)
+				{
+					HWP::Commands::Reply(Resources::GetString(".hwp.farming.debug_off"));
+					return;
+				}
+				Seed@ seed;
+				if (args.length() >= 2)
+					@seed = GetSeed(args[1]);
+				if (rec is null || seed is null || !seed.herb)
+				{
+					HWP::Commands::Reply(Resources::GetString(".hwp.farming.unknown_herb", { { "list", SeedList(true) } }));
+					return;
+				}
+				int n = 1;
+				if (args.length() >= 3)
+					n = int(parseInt(args[2]));
+				HWP::Market::Add(rec, seed.id, n);
+				HWP::Commands::Reply(n + " " + seed.Name() + " (" + HWP::Market::Count(rec, seed.id) + " now)");
+				HWP::Log("farming", "debug: +" + n + " " + seed.id + " ware(s)");
+				return;
+			}
 			if (a == "grow")
 			{
 				if (!Network::IsServer() || !g_debug)
@@ -1682,9 +1871,16 @@ namespace HWP
 				: Resources::GetString(".hwp.farming.wares", { { "list", wares } }));
 		}
 
-		// hwp joint [roll <herb>]: status, or roll one as the materials tab does
+		// hwp joint [roll <herb> | wield main|off]: status, roll one as the materials tab does, or put the
+		// newest bag joint in a hand (the main hand through its twin)
 		void CmdJoint(array<string>@ args)
 		{
+			if (args.length() >= 1 && args[0] == "wield")
+			{
+				WieldJoint(args.length() >= 2 && args[1] == "main");
+				HWP::Commands::Reply(JointStatus());
+				return;
+			}
 			if (args.length() >= 1 && args[0] == "roll")
 			{
 				if (args.length() < 2 || GetSeed(args[1]) is null || !GetSeed(args[1]).herb)
@@ -1886,8 +2082,8 @@ class HWPFarmPlot : AShopContent
 	void Load(SValue@ sval) override { }
 }
 
-// Interact class of the in-run wild plots (doodads/hwp/wild/*.unit): harvest
-// for yourself, once; no planting.
+// Interact class of the in-run wild plots (doodads/hwp/wild/*.unit): harvest for
+// yourself, once (through the host, HWP::Farming::RequestWildPick); no planting.
 class HWPWildPlot : AShopContent
 {
 	string m_seed;
@@ -1901,13 +2097,19 @@ class HWPWildPlot : AShopContent
 
 	bool CanInteract(PlayerRecord@ player) override
 	{
-		return player !is null && player.local && HWP::Farming::g_enabled && !HWP::Farming::Picked(m_unit);
+		// not only player.local: on the host this is asked for a client's record too
+		// (UseUnitSecure), and then it is that peer's own harvest that counts
+		if (player is null || !HWP::Farming::g_enabled)
+			return false;
+		if (player.local)
+			return !HWP::Farming::Picked(m_unit);
+		return m_unit.IsValid() && !HWP::Farming::WildTaken(int(player.peer), m_unit.GetId());
 	}
 
 	void Interact(PlayerRecord@ player, int interactLevel) override
 	{
 		if (player !is null && player.local)
-			HWP::Farming::HarvestWild(m_unit, m_seed);
+			HWP::Farming::RequestWildPick(m_unit, m_seed);
 	}
 
 	AWindowObject@ MakeShopWindow(GUIBuilder@ guiBuilder) override { return null; }
@@ -2177,12 +2379,15 @@ namespace Modules
 			HWP::Net::OnEvent(HWP::Farming::WATERED, HWP::Net::EventHandler(HWP::Farming::OnWatered));
 			HWP::Net::OnEvent(HWP::Farming::REFUSED, HWP::Net::EventHandler(HWP::Farming::OnRefused));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Farming::OnSettingChanged));
-			HWP::Commands::Register("farm", " farm status; host: 'here' moves the plots off the fields to you, 'fields' puts them back, 'well' moves the well to you ('well reset' puts it back by the field), 'grow' counts a run, 'wild [seed]' places a wild plot (debug)", HWP::Commands::Handler(HWP::Farming::CmdFarm));
-			HWP::Commands::Register("joint", " [roll <herb>] joints: what you hold and puffed; 'roll' rolls one from a herb (as clicking it under Plants & Herbs does)", HWP::Commands::Handler(HWP::Farming::CmdJoint));
+			HWP::Commands::Register("farm", " farm status; host: 'here' moves the plots off the fields to you, 'fields' puts them back, 'well' moves the well to you ('well reset' puts it back by the field), 'grow' counts a run, 'wild [seed]' places a wild plot, 'herb <strain> [n]' gives herb wares (debug)", HWP::Commands::Handler(HWP::Farming::CmdFarm));
+			HWP::Commands::Register("joint", " [roll <herb> | wield main|off] joints: what you hold (either hand) and puffed; 'roll' rolls one from a herb (as clicking it under Plants & Herbs does); 'wield' puts the newest bag joint in that hand", HWP::Commands::Handler(HWP::Farming::CmdJoint));
 			HWP::Net::OnRequest(HWP::Farming::JOINT_TAKE, HWP::Net::RequestHandler(HWP::Farming::OnJointTake));
 			HWP::Net::OnRequest(HWP::Farming::JOINT_GIVE, HWP::Net::RequestHandler(HWP::Farming::OnJointGive));
 			HWP::Net::OnEvent(HWP::Farming::JOINT_HAND, HWP::Net::EventHandler(HWP::Farming::OnJointHand));
 			HWP::Net::OnEvent(HWP::Farming::JOINT_GET, HWP::Net::EventHandler(HWP::Farming::OnJointGet));
+			HWP::Net::OnRequest(HWP::Farming::WILD_PICK, HWP::Net::RequestHandler(HWP::Farming::OnWildPick));
+			HWP::Net::OnEvent(HWP::Farming::WILD_YIELD, HWP::Net::EventHandler(HWP::Farming::OnWildYield));
+			HWP::Bag::OnEquip(HWP::Bag::EquipPrepare(HWP::Farming::JointEquip)); // a second joint goes to the main hand
 			HWP::Farming::SelfCheck();
 		}
 

@@ -9,6 +9,6 @@
 
 		<string name="gui">gui/hwp_herb_loadout.gui</string>
 		<int name="width">250</int>
-		<int name="height">26</int>
+		<int name="height">14</int>
 	</dict>
 </array>

@@ -1,0 +1,52 @@
+{
+ "name": "fix-farming-dual-joints",
+ "about": "Fix (farming): two joints at once. `hwp joint wield off` puts a Lucky Leaf joint in the off hand, `hwp joint wield main` an Ember Kush one in the main hand (its hwp_joint_mh_* twin, as a bag click on a second joint does through core's HWP::Bag::OnEquip). Right click puffs the off-hand joint (5/5 -> 4/5, the main hand untouched), left click the main-hand one; both herb buffs are on at once (mission-buff slots hwp_herb and hwp_herb2); a twin back in the bag is the off-hand joint again. Shot: dual-joints.",
+ "fixture": "town-paladin",
+ "mods": [
+  "core",
+  "farming"
+ ],
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:farming\\] self-check done: 8 seeds, 3 herb buffs, 30 joint items",
+   "timeout": 20,
+   "name": "the module loaded with every joint item (both hands)"
+  },
+  {
+   "do": "bot",
+   "bot": "plan_farming",
+   "kwargs": {
+    "sections": "dual_joints"
+   },
+   "name": "a joint in each hand",
+   "expect": {
+    "dual_both_hands": true,
+    "dual_right_click_off_hand": true,
+    "dual_left_click_main_hand": true,
+    "dual_both_buffs": true,
+    "dual_twin_back_in_bag": true
+   }
+  },
+  {
+   "do": "shot",
+   "name": "dual-joints"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}
