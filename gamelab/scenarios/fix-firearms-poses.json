@@ -1,0 +1,67 @@
+{
+ "name": "fix-firearms-poses",
+ "about": "The gun poses (2026-10-22, the user's items 4 and 5; Pose.as, rotated gun models swapped into the held item): the rifle aims down walking, straight the whole time it fires, down 1 s after the last shot or at once on a dodge, up while reloading, 45 degrees up for the launcher and straight for full auto; two pistols aim up walking, straight while firing with a 100 ms kick on the hand that just shot, down while reloading. Through the fix_firearms_feel bot: the pose log lines per state and a frame of each pose; `hwp firearms pose` reports the state.",
+ "fixture": "town-paladin",
+ "mods": [
+  "core",
+  "firearms"
+ ],
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "fix_firearms_feel",
+   "kwargs": {
+    "sections": "poses"
+   },
+   "name": "poses",
+   "expect": {
+    "rifle_idle_down": true,
+    "rifle_firing_straight": true,
+    "rifle_down_after_1s": true,
+    "rifle_straight_through_burst": true,
+    "rifle_down_on_dodge": true,
+    "rifle_up_reloading": true,
+    "rifle_high_on_launcher": true,
+    "autofire_straight": true,
+    "pistols_idle_up": true,
+    "pistols_main_kick": true,
+    "pistols_off_kick": true,
+    "pistols_straight_between": true,
+    "pistols_up_after_1s": true,
+    "pistols_down_reloading": true,
+    "pose_status": true
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:firearms\\] pose: main straight, off - \\(firing\\)",
+   "timeout": 5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:firearms\\] pose: main kick, off straight \\(firing\\)",
+   "timeout": 5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:firearms\\] pose: main down, off down \\(reloading\\)",
+   "timeout": 5
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

@@ -256,6 +256,40 @@ namespace HWP
 			HWP::Log("firearms", "self-check done");
 		}
 
+		// the guns in the hands and what their action lists read: the marker buffs (buffs_firearms.sval
+		// GunMarker, re-applied every 250 ms by the items), the clip, and the off-hand gun skill's
+		// cycle ("hwp firearms hands"; a gun cycle that fired no round logs it too)
+		string HandsStatus(PlayerBase@ plr)
+		{
+			if (plr is null || plr.m_record is null)
+				return "hands: no player";
+			string main = MagazineItemId(plr.m_record, false);
+			string off = MagazineItemId(plr.m_record, true);
+			string s = "hands: main " + (main == "" ? "-" : main) + ", off " + (off == "" ? "-" : off) + ", markers";
+			array<string> marks = { "rifle", "glock_main", "glock_off", "hcannon_main", "hcannon_off" };
+			int n = 0;
+			for (uint i = 0; i < marks.length(); i++)
+			{
+				if (HasBuff(plr, marks[i]))
+				{
+					s += " " + marks[i];
+					n++;
+				}
+			}
+			if (n == 0)
+				s += " none";
+			auto clip = ActorBuffStackDef::Get(CLIP);
+			s += ", clip " + (clip is null ? -1 : plr.GetStacks(clip)) + "/" + (clip is null ? -1 : ClipMax(plr, clip));
+			array<string> offSkills = { "hwp_attack_glock_off", "hwp_attack_hcannon_off" };
+			for (uint i = 0; i < offSkills.length(); i++)
+			{
+				auto gun = cast<HWPFirearmsGun>(FindSkill(plr, HashString(offSkills[i])));
+				if (gun !is null)
+					s += ", off skill " + offSkills[i] + " cycle " + gun.m_animLen + " ms" + (gun.IsActive() ? " (active)" : "");
+			}
+			return s;
+		}
+
 		void CmdStatus(array<string>@ args)
 		{
 			if (args.length() > 0 && args[0] == "sound")
@@ -272,18 +306,51 @@ namespace HWP
 				return;
 			}
 			// "reload": the reload bar (Combat.as OverReloadState): bars shown, Over-Reload tries,
-			// whether one shows now, its colour and gold window, and where it sits by the HUD's health bar
+			// whether one shows now, its colour and gold window, and where it sits: over the player
+			// in the world (GUI space), with the HUD health bar's place for comparison
 			if (args.length() > 0 && args[0] == "reload")
 			{
 				auto o = HWP::Firearms::g_overReload;
 				vec2 hp;
 				float hpW;
 				bool hud = o.HealthBar(hp, hpW);
+				auto plr = cast<PlayerBase>(GetLocalPlayer());
+				string over = "-";
+				if (plr !is null && plr.m_unit.IsValid())
+				{
+					vec2 head = ToScreenspace(plr.m_unit.GetPosition()) / g_gameMode.m_wndScale;
+					over = int(head.x) + "," + int(head.y);
+				}
 				HWP::Commands::Reply("reload bar: shown " + o.m_bars + ", perfect " + o.m_hits + ", missed " + o.m_misses
 					+ ", now " + (o.m_active ? "auto" : (o.m_manual ? "manual" : "none"))
 					+ ", " + (o.m_missed ? "red" : "white") + ", gold " + (o.m_windowStart >= 0 ? "yes" : "no")
 					+ ", held " + (o.m_held ? "yes" : "no") + ", cut " + o.m_cuts + ", restarted " + o.m_holds
+					+ ", over player: " + (o.m_drawn ? "drawn at " + int(o.m_at.x) + "," + int(o.m_at.y) : "not drawn")
+					+ " (player at " + over + ", " + int(HWP::Firearms::RELOAD_BAR_ABOVE) + " px up, w " + int(HWP::Firearms::RELOAD_BAR_W) + ")"
 					+ ", health bar " + (hud ? int(hp.x) + "," + int(hp.y) + " w " + int(hpW) : "none"));
+				return;
+			}
+			// "pose": the gun pose state machine (Pose.as)
+			if (args.length() > 0 && args[0] == "pose")
+			{
+				HWP::Commands::Reply(HWP::Firearms::PoseStatus());
+				return;
+			}
+			// "aim": the last gun shot's aim fix (Combat.as AimAtCursor): the cursor from the player
+			// and the engine's direction against the gun's, in degrees
+			if (args.length() > 0 && args[0] == "aim")
+			{
+				auto a = HWP::Firearms::g_aimCursor;
+				HWP::Commands::Reply("aim: fixes " + HWP::Firearms::g_aimFixes + ", cursor " + formatFloat(a.x, "", 0, 1) + "," + formatFloat(a.y, "", 0, 1)
+					+ ", engine " + formatFloat(HWP::Firearms::Degrees(HWP::Firearms::g_aimEngine), "", 0, 1)
+					+ " deg, gun " + formatFloat(HWP::Firearms::Degrees(HWP::Firearms::g_aimFixed), "", 0, 1) + " deg, height " + int(HWP::Firearms::AIM_HEIGHT)
+					+ ", rounds " + HWP::Firearms::g_shotCount);
+				return;
+			}
+			// "hands": the guns in the hands, their marker buffs, the clip and the off-hand gun skill
+			if (args.length() > 0 && args[0] == "hands")
+			{
+				HWP::Commands::Reply(HWP::Firearms::HandsStatus(cast<PlayerBase>(GetLocalPlayer())));
 				return;
 			}
 			// "shots": the gaps between the local player's last gun rounds, in ms, oldest first
@@ -420,7 +487,8 @@ namespace Modules
 		HWPFirearmsModule()
 		{
 			super("hwp-firearms");
-			HWP::Commands::Register("firearms", "[empty|shots|reload|startranks [run|set id n]|elements [reset|roll n]|sound [n|next|prev|again|list]]  Firearms Specialist status; empty (cheat) empties the clip without reloading; startranks shows the rank-1 skills' saved ranks (run and set are cheats); sound (cheat) plays a firing-sound candidate", HWP::Commands::Handler(HWP::Firearms::CmdStatus));
+			HWP::Commands::Register("firearms", "[empty|shots|reload|pose|aim|hands|muzzle|startranks [run|set id n]|elements [reset|roll n]|sound [n|next|prev|again|list]]  Firearms Specialist status; empty (cheat) empties the clip without reloading; reload is the reload bar, pose the gun poses, aim the last shot's cursor aim, hands the guns and their markers; startranks shows the rank-1 skills' saved ranks (run and set are cheats); sound (cheat) plays a firing-sound candidate", HWP::Commands::Handler(HWP::Firearms::CmdStatus));
+			HWP::Firearms::PoseNetRegister();
 			HWP::Firearms::SelfCheck(false);
 			HWP::Bag::OnEquip(HWP::Bag::EquipPrepare(HWP::Firearms::PistolEquip));
 		}
@@ -436,6 +504,7 @@ namespace Modules
 			HWP::Firearms::g_headshot = false;
 			HWP::Firearms::g_headshotEnd = false;
 			HWP::Firearms::g_overReload = HWP::Firearms::OverReloadState();
+			HWP::Firearms::ResetPoses();
 			for (uint i = 0; i < HWP::Firearms::g_hoarded.length(); i++)
 			{
 				HWP::Firearms::g_hoarded[i].m_readyMs = 0;
@@ -452,6 +521,7 @@ namespace Modules
 			HWP::Firearms::UpdateMagazine();
 			HWP::Firearms::UpdateEmptyTrigger(gameInput);
 			HWP::Firearms::UpdateCombat(ms);
+			HWP::Firearms::UpdatePose(ms);
 			HWP::Firearms::UpdatePistols(ms);
 			HWP::Firearms::UpdateAudition(ms);
 			HWP::Firearms::UpdateLaserDot();

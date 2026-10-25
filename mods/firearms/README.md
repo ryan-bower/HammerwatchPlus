@@ -166,6 +166,35 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
   an elemental chance).
 - The orb scripts (Focus, Headshot, Exposure, Hoarder charges, the reload
   bar and Over-Reload, the magazine throw) are in `scripts/HWP/Firearms/Combat.as`.
+- **Aim** (`Combat.as` AimAtCursor, 2026-10-25): a local gun shot (mouse, not gamepad)
+  aims from the gun's height (11 px above the player's feet, where the rounds are
+  drawn) at the world point under the cursor, not along the engine's `AimDir`,
+  whose anchor put the diagonals a few pixels off the crosshair. The fixed
+  direction rides the skill's own network message, so peers see the same shot.
+  `hwp firearms aim` reports the last fix; each logs
+  `<skill>: aim at cursor x,y, engine D deg, gun D deg` (at most one per 400 ms).
+- **Reload bar** (`Combat.as` OverReloadState.Render): drawn in the world over the
+  local player, centred 34 px above the player's position (`RELOAD_BAR_ABOVE`),
+  30x4 px in GUI space, white, red after a missed Over-Reload, with the gold
+  window when the orb is taken. `hwp firearms reload` says `over player: drawn at x,y`.
+- **Mixed hands** (`hwp firearms hands`): the guns in both hands, which marker
+  buffs are on, the clip and the off-hand gun skill's cycle. A gun cycle that fired
+  no round logs `<skill>: cycle fired no round; hands: ...` (Combat.as
+  HWPFirearmsGun.Deactivate), the trace for a right click that seems dead.
+- **Poses** (`scripts/HWP/Firearms/Pose.as`): the held guns are pre-rotated copies of
+  the gun models (`players/models/equipment/pose_<gun>_<pose>.model`, made by
+  rotating the mesh about the across axis: pistols up 90, kick 40, down -75
+  degrees; rifles down -40, up 70, high 45) swapped into the item's
+  `m_modelTmp`, as there is no bone-rotation API. One state machine for the local
+  player: **idle** (rifle down, pistols up), **firing** (straight; the pistol that
+  just shot kicks for 100 ms, the other stays straight; firing lasts until 1 s after
+  the last shot, or ends at once when an ability or the dodge runs), **reloading**
+  (rifle up, pistols down), **secondary** (the launcher and the flamethrower: 45
+  degrees up; full auto stays straight). Each change logs `pose: main P, off P
+  (state[ (another skill | 1000 ms without a shot)])`; `hwp firearms pose` reports the
+  state. State poses (not kicks) go to peers through `HWP::Net` as `firearms.pose`,
+  logged `pose: peer N main P, off P`. A held gun (Snipe, the launchers) owns the
+  model while it is on; the pose waits.
 - **Art:** portrait piece and hero title reuse the ranger assets. The
   character-select figure (`players/hwp/firearms/class_showcase.png`, 32x32) is
   the vanilla Ranger figure with the bow taken out and the t1 rifle held at port
@@ -230,7 +259,7 @@ design. Final icons remain an art task. See `docs/design/firearms.md`.
    SkillTempUp). `plan-firearms-reload-cut`: an ability or the swap cuts a
    reload, and the saved-rank move for skills that start at rank 1
    (`hwp firearms startranks`).
-7. Over-Reload by hand: empty the clip, watch the bar above the health bar,
+7. Over-Reload by hand: empty the clip, watch the bar over the player,
    press Reload (or left click) in the gold; rank 1 adds 5 rounds. Then Reload
    with rounds left and press Reload again in the gold: the bonus stays +5.
    Miss it: the white turns red and a second press does nothing. Without the
@@ -239,3 +268,13 @@ design. Final icons remain an art task. See `docs/design/firearms.md`.
    row.
 9. Co-op: a client sees the host's bullets, grenades and rockets, and the
    other way round.
+10. `fix-firearms-aim-diagonal`: the rifle's rounds pass within 5 px of the
+    crosshair at the 8 compass points (gl cursor + gl track).
+11. `fix-firearms-reload-world`: the reload bar draws over the player, centred
+    34 px up, and `hwp firearms reload` says so; a frame of it.
+12. `fix-firearms-cannon-pistol-right`: Hand Cannon main + pistol off, and the
+    other way round: the right click spends 2 rounds, a held one keeps firing,
+    one round left fires alone, no "cycle fired no round" line.
+13. `fix-firearms-poses`: the rifle and pistol pose log lines per state, a frame of
+    each pose (rifle down/straight/up/high, pistols up/kick/down), `hwp firearms pose`.
+    By hand in co-op: the other player's guns follow their state (not the kicks).

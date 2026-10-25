@@ -229,8 +229,20 @@ namespace HWP
 			HashString(BUFFS + "over_reload_1"), HashString(BUFFS + "over_reload_2"),
 			HashString(BUFFS + "over_reload_3") };
 
+		// The reload bar sits over the local player in the world (the user, 2026-10-22: "over my
+		// player's health in the world, not on the bottom ui"), RELOAD_BAR_ABOVE px above the
+		// player's position in GUI space (RenderFrame runs under the UI scale, as the player names
+		// AGameplayGameMode.DisplayPlayerName draws 16 px above the other players).
+		const float RELOAD_BAR_W = 30;
+		const float RELOAD_BAR_H = 4;
+		const float RELOAD_BAR_ABOVE = 34;
+
 		class OverReloadState
 		{
+			// where the bar was last drawn (its top left, GUI space): "hwp firearms reload"
+			vec2 m_at;
+			bool m_drawn = false;
+
 			bool m_active;        // the automatic reload runs
 			bool m_manual;        // a manual Reload cast runs
 			int m_total = 1;
@@ -525,19 +537,18 @@ namespace HWP
 			void Render(PlayerBase@ plr, int idt, SpriteBatch& sb)
 			{
 				if (!m_active && !m_manual)
-					return;
-				vec2 at;
-				float w;
-				const float h = 4;
-				if (HealthBar(at, w))
-					at.y -= h + 3;
-				else
 				{
-					// no HUD: over the player
-					w = 30;
-					at = ToScreenspace(plr.m_unit.GetInterpolatedPosition(idt) + vec3(0, -30, 0)) / g_gameMode.m_wndScale - vec2(w / 2, 0);
+					m_drawn = false;
+					return;
 				}
+				const float w = RELOAD_BAR_W;
+				const float h = RELOAD_BAR_H;
+				vec2 at = ToScreenspace(plr.m_unit.GetInterpolatedPosition(idt) + vec3(0, -RELOAD_BAR_ABOVE, 0)) / g_gameMode.m_wndScale - vec2(w / 2, 0);
 				at = vec2(int(at.x), int(at.y));
+				if (!m_drawn)
+					HWP::Log("firearms", "reload bar: over the player at " + int(at.x) + "," + int(at.y) + " (gui), " + int(RELOAD_BAR_ABOVE) + " px up");
+				m_drawn = true;
+				m_at = at;
 				sb.FillRectangle(vec4(at.x - 1, at.y - 1, w + 2, h + 2), vec4(0, 0, 0, 0.7f));
 				float done = clamp(m_elapsed / float(m_total), 0.0f, 1.0f);
 				vec4 fill = m_missed ? vec4(0.9f, 0.15f, 0.15f, 1) : vec4(0.9f, 0.9f, 0.95f, 1);
@@ -1359,9 +1370,72 @@ class HWPFirearmsReload : Skills::PlayerSkillDirectional
 // The rifle's and the pistols' attacks. A gun on an empty clip (reloading) says "cant" only
 // for a fresh click: holding the trigger into or through a reload stays quiet. The warning is
 // armed while the trigger is up, and the first warned check (a shot or the warning) spends it.
+// Aim at the cursor (the user, 2026-10-22: the rifle's rounds missed the crosshair on the
+// diagonals, on the axes they lined up). The game aims a directional skill along
+// GameInput.AimDir, the engine's own reading of the mouse against the player (Player.as:1141);
+// the round then starts m_shootDist ahead along that line from the player's position and is
+// drawn AIM_HEIGHT px above its collision point (every round's effect-params height, round_*.
+// effect pos-y="-height"). A gun instead aims from the point its round is drawn from (the
+// player's position, AIM_HEIGHT up) at the world point under the cursor (ToWorldspace(
+// input.MousePos), the point a targeted skill lands on: PlayerTargetingHelper.as:264), so the
+// drawn round crosses the crosshair at any angle, whatever the engine anchors AimDir to. A
+// gamepad keeps AimDir (no cursor). Local player only; the fixed direction is the one the skill
+// sends (PlayerSkillDirectional.Activate, PlayerActiveSkillActivate), so the others see the
+// same round. fix-firearms-aim-diagonal fires at 8 compass points and tracks the rounds.
+namespace HWP
+{
+	namespace Firearms
+	{
+		const float AIM_HEIGHT = 11;
+		const float AIM_NEAR = 20;
+		vec2 g_aimEngine;
+		vec2 g_aimFixed;
+		vec2 g_aimCursor;
+		int g_aimFixes = 0;
+		int g_aimLogAt = -100000;
+
+		float Degrees(vec2 d) { return atan(d.y, d.x) * 180.0f / PI; }
+
+		vec2 AimAtCursor(PlayerBase@ plr, vec2 aimDir)
+		{
+			if (plr is null || cast<Player>(plr) is null || !plr.m_unit.IsValid())
+				return aimDir;
+			auto input = GetInput();
+			if (input is null || input.UsingGamepad)
+				return aimDir;
+			vec2 feet = xy(plr.m_unit.GetPosition());
+			vec2 cursor = xy(ToWorldspace(input.MousePos));
+			vec2 d = cursor - (feet - vec2(0, AIM_HEIGHT));
+			if (lengthsq(d) < AIM_NEAR * AIM_NEAR)
+				return aimDir;
+			g_aimEngine = aimDir;
+			g_aimCursor = cursor - feet;
+			g_aimFixed = normalize(d);
+			g_aimFixes++;
+			return g_aimFixed;
+		}
+
+		// one line per shot cycle at most every 400 ms: the cursor from the player, the engine's
+		// direction and the gun's
+		void LogAim(const string &in skill)
+		{
+			int now = g_scene.GetTime();
+			if (now - g_aimLogAt < 400)
+				return;
+			g_aimLogAt = now;
+			HWP::Log("firearms", skill + ": aim at cursor " + formatFloat(g_aimCursor.x, "", 0, 1) + "," + formatFloat(g_aimCursor.y, "", 0, 1)
+				+ ", engine " + formatFloat(Degrees(g_aimEngine), "", 0, 1) + " deg, gun " + formatFloat(Degrees(g_aimFixed), "", 0, 1) + " deg");
+		}
+
+		// every gun round the local player fired (Elemental.as ProduceProjectile), uncapped
+		int g_shotCount = 0;
+	}
+}
+
 class HWPFirearmsGun : Skills::PlayerSkillDirectional
 {
 	bool m_warnArmed = true;
+	int m_shotsAtStart = -1;
 
 	// A held trigger restarts the skill once it reaches its length (PlayerTargetingHelper.as:629,
 	// DirectionRepeating). The base Update deactivates in the frame the cycle ends and drops
@@ -1441,6 +1515,27 @@ class HWPFirearmsGun : Skills::PlayerSkillDirectional
 		Skills::PlayerSkillDirectional::NetActivate(target, intensity);
 		if (m_carry >= 0)
 			m_castingT = m_carry;
+		m_shotsAtStart = cast<Player>(m_owner) !is null ? HWP::Firearms::g_shotCount : -1;
+	}
+
+	bool Activate(vec2 target, float intensity) override
+	{
+		vec2 fixed = HWP::Firearms::AimAtCursor(cast<PlayerBase>(m_owner), target);
+		bool ok = Skills::PlayerSkillDirectional::Activate(fixed, intensity);
+		if (ok && lengthsq(fixed - target) > 0)
+			HWP::Firearms::LogAim(m_id);
+		return ok;
+	}
+
+	// a cycle of the local player's gun that fired no round: a click with nothing behind it
+	// (every action list's conditional failed), with what the lists read (the user, 2026-10-22:
+	// the right click with a Hand Cannon in the main hand and a pistol in the off hand)
+	void Deactivate() override
+	{
+		if (m_shotsAtStart >= 0 && m_castingT > 0 && HWP::Firearms::g_shotCount == m_shotsAtStart)
+			HWP::Log("firearms", m_id + ": cycle fired no round; " + HWP::Firearms::HandsStatus(cast<PlayerBase>(m_owner)));
+		m_shotsAtStart = -1;
+		Skills::PlayerSkillDirectional::Deactivate();
 	}
 
 	bool CanActivate(bool warn = true) override
@@ -1467,7 +1562,7 @@ class HWPFirearmsGun : Skills::PlayerSkillDirectional
 			if (next >= m_skillLen)
 				carry = min(next - m_skillLen, CARRY_MAX);
 		}
-		Skills::PlayerSkillDirectional::Update(dt, walking, aimDir);
+		Skills::PlayerSkillDirectional::Update(dt, walking, HWP::Firearms::AimAtCursor(cast<PlayerBase>(m_owner), aimDir));
 		// the base Update just played the shot animation on at full speed (its :103): pin the
 		// raised arm again before anything draws (Combat.as AimHold)
 		if (m_castingT >= 0 && cast<Player>(m_owner) !is null)

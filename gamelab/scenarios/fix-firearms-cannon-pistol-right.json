@@ -1,0 +1,52 @@
+{
+ "name": "fix-firearms-cannon-pistol-right",
+ "about": "A Hand Cannon in the main hand with a pistol in the off hand, and the other way round (2026-10-22, the user's item 3): the right click fires both guns (attacks_firearms.sval glock_off bothc / hcannon_off with the main gun's marker). Through the fix_firearms_feel bot: `hwp firearms hands` shows both markers and the off-hand gun skill, a right click spends 2 rounds, a held right click keeps firing, one round left fires alone, and no gun cycle fires nothing (Combat.as HWPFirearmsGun.Deactivate logs 'cycle fired no round' with the hands when it does).",
+ "fixture": "town-paladin",
+ "mods": [
+  "core",
+  "firearms"
+ ],
+ "timeout": 480,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "fix_firearms_feel",
+   "kwargs": {
+    "sections": "cannon_pistol_right"
+   },
+   "name": "cannon pistol right",
+   "expect": {
+    "cannon_pistol_markers": true,
+    "cannon_pistol_right_two_rounds": true,
+    "cannon_pistol_right_held_fires": true,
+    "cannon_pistol_right_last_round": true,
+    "cannon_pistol_no_empty_cycle": true,
+    "pistol_cannon_markers": true,
+    "pistol_cannon_right_two_rounds": true,
+    "pistol_cannon_right_held_fires": true,
+    "pistol_cannon_right_last_round": true,
+    "pistol_cannon_no_empty_cycle": true
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] hands: main hwp_hcannon_mh_01, off hwp_glock_oh_01, markers glock_off hcannon_main, clip \\d+/\\d+, off skill hwp_attack_glock_off cycle \\d+ ms",
+   "timeout": 5
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

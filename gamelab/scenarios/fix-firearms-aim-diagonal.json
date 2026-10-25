@@ -1,0 +1,46 @@
+{
+ "name": "fix-firearms-aim-diagonal",
+ "about": "The rifle's rounds cross the crosshair at every angle (2026-10-22, the user's item 1): Combat.as AimAtCursor aims every local gun shot from the player's gun height (11 px up, the round's drawn height) at the world point under the cursor, instead of the engine's AimDir, whose anchor is off on the diagonals. Through the fix_firearms_feel bot: the cursor 120 px out at 8 compass points (gl cursor), a shot along each, the tracked round's path (gl track) within 5 px of the crosshair; `hwp firearms aim` counts the fixes.",
+ "fixture": "town-paladin",
+ "mods": [
+  "core",
+  "firearms"
+ ],
+ "timeout": 420,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "fix_firearms_feel",
+   "kwargs": {
+    "sections": "aim_diagonal"
+   },
+   "name": "aim diagonal",
+   "expect": {
+    "aim_rifle_equipped": true,
+    "aim_directions_fired": true,
+    "aim_all_on_crosshair": true,
+    "aim_fix_active": true
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:firearms\\] hwp_attack_rifle: aim at cursor ",
+   "timeout": 5
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}
