@@ -84,14 +84,21 @@ them; they are only linked into the GameLab environment.
 
 ## Installing (players)
 
-No releases are published yet; until then, build the packages yourself (see Developing,
-`python tools/build.py`).
+No releases are published yet; until then the repo builds and installs everything for you:
 
-1. Take the `.bin` files you want from `dist/` (or `HammerwatchPlus-All.bin` for everything).
-2. Drop them into `<Steam>/steamapps/common/Heroes of Hammerwatch 2/mods/`.
-3. Start the game, open **Resource Mods** and enable them. Everyone in the lobby does the same.
-4. In game, open the console (the key left of 1) and type `hwp help` for the commands and settings.
+1. Double-click `run.cmd` (or type `/run` to Claude, or `python tools/run.py`). It sets the
+   machine up, builds every module (with your own HoH1 content when Heroes of Hammerwatch 1
+   is installed), copies the `.bin` files into your Steam install's `mods/` folder and starts
+   the game through Steam. Read its `run:` lines: the last one says which modules are new.
+2. The first time only: in the game, open **Resource Mods**, tick every `HWP-*` entry it
+   named and restart. The game remembers the set per save, so later redeploys stay enabled.
+   Everyone in the lobby does the same.
+3. In game, open the console (the key left of 1) and type `hwp help` for the commands and settings.
 
+Without Heroes of Hammerwatch 1 the campaign module ships with HoH2 tiles; if `run` asks
+where HoH1 is, answer with `python -m gamelab doctor --hoh1 "<folder>"` (or `--no-hoh1`) once.
+Sharing the packages by hand still works: `dist/HWP-<module>.bin` (or
+`HammerwatchPlus-All.bin`) into `<Steam>/steamapps/common/Heroes of Hammerwatch 2/mods/`.
 Workshop uploads will follow once the modules settle.
 
 ## Class planner
@@ -273,6 +280,7 @@ After setup creates `.venv`, use `uv run python` in place of `python` below, or 
 `.\.venv\Scripts\python.exe` directly, so GameLab uses the installed project dependencies.
 
 ```
+python tools/run.py                   # everything below that a play session needs, then launch (run.cmd; flags: --no-launch --dry-run)
 python -m gamelab doctor              # first thing on a new clone: checks every prerequisite
 python -m gamelab doctor --fix        # uv sync, back up + verify your saves, bootstrap.py (gamecode/, tools/bin/),
                                       # env_link.py, class_units.py, the HoH1 imports when HoH1 is found,
