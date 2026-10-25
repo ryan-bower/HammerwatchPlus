@@ -21,12 +21,31 @@
 // paints tiles from the cells, so the corridor and the room's frame look like
 // the rest of the floor.
 //
+// The room's door is read off its pattern (the Walkable cells on one edge), not
+// off the junction: the junction's y/x is shifted by SVO_Init_Post and the old
+// math put the keep's corridor two rows below the doorway, so part of the door
+// faced wall and the corridor's lower rows ran into the room's frame (the
+// "partially obscured" rooms). A forced room sits on plain Wall only (never
+// Nothing or Cliff: the black Nothing blocks spill a cell), keeps a one-cell
+// Wall rim, stays PAD cells from the grid edge (the padding blocks cover the
+// bottom 24 px) and its doorway and corridor cells are consumed once carved,
+// so no later command (dead-end fills, walls, traps, crates, enemy spots)
+// rewrites them. Every placed room is recorded (Room) for the summon hold
+// (SummonHold.as) and for `hwp puzzles check`, which walks the recorded
+// doorway, corridor and interior cells with the scene's point query and logs
+// `check done: N room(s), M problem(s)`.
+//
 // Biomes without puzzle rooms borrow a near one (cave_spider: cave_dark).
 // Forest and heaven floors (ForestBrush) are one authored prefab and paint
 // nothing from the cells, so they have no wall to carve a room into. They get
 // the Constellation in an open clearing instead (set hwp_puzzle_open,
 // tweak/missions/hwp_puzzles_open.sval: walkable all over, reserved as floor),
-// placed the vanilla way before the forest's edges and fillers take the space.
+// placed the vanilla way after the last set the floor requires (min > 0: the
+// shortcut, the story encounters, well, glades, imp...) and before the edges and
+// fillers take the space. Placed earlier it starved those sets of their clearing
+// on the small encounter bases (forest_2 failed generation every try, 2026-10-25);
+// placed after them it takes a spare clearing or none ("no open clearing" is not
+// a failure).
 // The keep is an OutdoorGenerator as well, but its DungeonInstanceBrush paints
 // from the cells like any dungeon.
 //
@@ -38,6 +57,8 @@ namespace HWP
 	{
 		const int ROOM_CHANCE = 60;    // percent a floor
 		const int MAX_CORRIDOR = 40;   // cells
+		const int PAD = 3;             // cells kept free along the grid edge (the padding blocks)
+		const int CELL = 16;           // px
 		const string CONSTELLATION_FLAG = "hwp_constellation_placed";
 		const string OPEN_SET = "hwp_puzzle_open";   // tweak/missions/hwp_puzzles_open.sval
 
@@ -81,13 +102,14 @@ namespace HWP
 			return c == Cell::Floor || c == Cell::Breakables || c == Cell::Bridge;
 		}
 
-		// a cell the room or its corridor may take: in the grid, not consumed, not floor
+		// a cell the room, its rim or its corridor may take: in the grid, not consumed, plain
+		// wall. Nothing is painted as black blocks that spill a cell past their own, and a
+		// cliff keeps its cliff tiles: a room on either came out partly covered.
 		bool Free(CellGrid@ grid, int x, int y)
 		{
 			if (grid.IsConsumed(x, y))
 				return false;
-			Cell c = grid.GetCell(x, y);
-			return c == Cell::Wall || c == Cell::Nothing || c == Cell::Cliff;
+			return grid.GetCell(x, y) == Cell::Wall;
 		}
 
 		// the room's door: the junction cells on one edge of its pattern, and the way out
@@ -99,38 +121,49 @@ namespace HWP
 			int m_width;
 		}
 
+		// the run of Walkable cells on one edge of the pattern: the doorway the room's
+		// tiles leave open (the keep's 19x20 rooms: column 18, rows 7-12). The junction is
+		// only a hint for the vanilla matcher and its centre is shifted (MissionPrefabDef
+		// SVO_Init_Post), so it is not used here.
+		bool EdgeRun(MissionPrefabDef@ def, ivec2 start, ivec2 along, ivec2 outDir, Door@ door)
+		{
+			ivec2 sz = def.m_gridSz;
+			int first = -1;
+			int n = 0;
+			for (int i = 0; ; i++)
+			{
+				ivec2 c = start + along * i;
+				if (c.x < 0 || c.y < 0 || c.x >= sz.x || c.y >= sz.y)
+					break;
+				bool walk = Pattern(def.m_gridPattern[c.y * sz.x + c.x]) == Pattern::Walkable;
+				if (walk && first < 0)
+					first = i;
+				if (walk && first >= 0 && n == i - first)
+					n++;
+			}
+			if (first < 0 || n < 2)
+				return false;
+			door.m_from = start + along * first;
+			door.m_along = along;
+			door.m_out = outDir;
+			door.m_width = n;
+			return true;
+		}
+
 		bool GetDoor(MissionPrefabDef@ def, Door@ door)
 		{
-			ivec3 j;
-			if (def.m_junctionsUp.length() > 0)
-			{
-				j = def.m_junctionsUp[0];
-				door.m_along = ivec2(1, 0);
-				door.m_out = ivec2(0, -1);
-			}
-			else if (def.m_junctionsDown.length() > 0)
-			{
-				j = def.m_junctionsDown[0];
-				door.m_along = ivec2(1, 0);
-				door.m_out = ivec2(0, 1);
-			}
-			else if (def.m_junctionsLeft.length() > 0)
-			{
-				j = def.m_junctionsLeft[0];
-				door.m_along = ivec2(0, 1);
-				door.m_out = ivec2(-1, 0);
-			}
-			else if (def.m_junctionsRight.length() > 0)
-			{
-				j = def.m_junctionsRight[0];
-				door.m_along = ivec2(0, 1);
-				door.m_out = ivec2(1, 0);
-			}
-			else
+			if (def.m_gridPattern is null)
 				return false;
-			door.m_width = max(2, j.z);
-			door.m_from = ivec2(j.x, j.y) - door.m_along * (door.m_width / 2);
-			return true;
+			ivec2 sz = def.m_gridSz;
+			if (EdgeRun(def, ivec2(sz.x - 1, 0), ivec2(0, 1), ivec2(1, 0), door))
+				return true;
+			if (EdgeRun(def, ivec2(0, 0), ivec2(0, 1), ivec2(-1, 0), door))
+				return true;
+			if (EdgeRun(def, ivec2(0, sz.y - 1), ivec2(1, 0), ivec2(0, 1), door))
+				return true;
+			if (EdgeRun(def, ivec2(0, 0), ivec2(1, 0), ivec2(0, -1), door))
+				return true;
+			return false;
 		}
 
 		// cells out of the door until the corridor meets the level, or -1
@@ -189,6 +222,89 @@ namespace HWP
 			return ok;
 		}
 
+		// a placed room: its cells and the world rect, for the summon hold and `hwp puzzles check`
+		class Room
+		{
+			string m_id;
+			MissionPrefabDef@ m_def;
+			ivec2 m_pos;             // grid cell of the pattern's top-left
+			ivec2 m_size;
+			bool m_forced;
+			array<ivec2> m_doorCells;      // grid cells of the doorway (pattern edge)
+			array<ivec2> m_corridorCells;  // grid cells carved out of the door (forced only)
+			vec2 m_offset;           // brush.m_posOffset: world = CELL * cell + offset
+			uint m_gen;              // g_genNumId when placed
+
+			// world rect of the whole pattern (walls included)
+			vec4 WorldRect()
+			{
+				return vec4(m_offset.x + m_pos.x * CELL, m_offset.y + m_pos.y * CELL, m_size.x * CELL, m_size.y * CELL);
+			}
+
+			bool Contains(vec2 p, float margin = 0.0f)
+			{
+				vec4 r = WorldRect();
+				return p.x >= r.x - margin && p.y >= r.y - margin && p.x <= r.x + r.z + margin && p.y <= r.y + r.w + margin;
+			}
+
+			vec2 CellCentre(ivec2 c)
+			{
+				return vec2(m_offset.x + c.x * CELL + CELL / 2, m_offset.y + c.y * CELL + CELL / 2);
+			}
+		}
+
+		array<Room@> g_rooms;
+
+		// the rooms of the level being played (a Generate retry leaves older entries behind)
+		array<Room@>@ CurrentRooms()
+		{
+			array<Room@> rooms;
+			for (uint i = 0; i < g_rooms.length(); i++)
+				if (g_rooms[i].m_gen == g_genNumId)
+					rooms.insertLast(g_rooms[i]);
+			return rooms;
+		}
+
+		Room@ RoomAt(vec2 p, float margin = 0.0f)
+		{
+			for (uint i = 0; i < g_rooms.length(); i++)
+				if (g_rooms[i].m_gen == g_genNumId && g_rooms[i].Contains(p, margin))
+					return g_rooms[i];
+			return null;
+		}
+
+		Room@ Record(DungeonBrush@ brush, MissionPrefabDef@ def, ivec2 pos, bool forced)
+		{
+			Room room;
+			room.m_id = def.m_id;
+			@room.m_def = def;
+			room.m_pos = pos;
+			room.m_size = def.m_gridSz;
+			room.m_forced = forced;
+			room.m_offset = brush.m_posOffset;
+			room.m_gen = g_genNumId;
+			Door door;
+			if (GetDoor(def, door))
+				for (int w = 0; w < door.m_width; w++)
+					room.m_doorCells.insertLast(pos + door.m_from + door.m_along * w);
+			g_rooms.insertLast(room);
+			return room;
+		}
+
+		// the rooms PlacePrefabs just added: the new points of interest of the set
+		void RecordPlaced(DungeonBrush@ brush, uint firstPoi)
+		{
+			for (uint i = firstPoi; i < brush.m_pointsOfInterest.length(); i++)
+			{
+				if (brush.m_pointsOfInterest[i].m_type is null)
+					continue;
+				ivec2 at = brush.m_pointsOfInterest[i].m_pos;
+				auto room = Record(brush, brush.m_pointsOfInterest[i].m_type, at, false);
+				vec4 r = room.WorldRect();
+				HWP::Log("puzzles", "room " + room.m_id + " at cell " + at.x + "," + at.y + " world " + int(r.x) + "," + int(r.y) + " " + int(r.z) + "x" + int(r.w) + " door " + room.m_doorCells.length() + " cells (matched)");
+			}
+		}
+
 		class Spot
 		{
 			MissionPrefabDef@ m_def;
@@ -210,11 +326,12 @@ namespace HWP
 			float cy = grid.m_height / 2.0f;
 			Spot@ best = null;
 			ivec2 sz = def.m_gridSz;
-			for (int y = 1; y + sz.y < grid.m_height - 1; y++)
+			// the room plus a one-cell wall rim, PAD cells off every grid edge
+			for (int y = PAD; y + sz.y <= grid.m_height - PAD; y++)
 			{
-				for (int x = 1; x + sz.x < grid.m_width - 1; x++)
+				for (int x = PAD; x + sz.x <= grid.m_width - PAD; x++)
 				{
-					if (Blocked(sums, x, y, sz.x, sz.y) > 0)
+					if (Blocked(sums, x - 1, y - 1, sz.x + 2, sz.y + 2) > 0)
 						continue;
 					int len = CorridorLength(grid, ivec2(x, y), door);
 					if (len < 0)
@@ -238,8 +355,9 @@ namespace HWP
 		}
 
 		// the vanilla way failed: put the room on the outskirts and carve its corridor
-		string ForcePlace(CellGrid@ grid, PrefabPlacement@ placer, const string &in set)
+		string ForcePlace(DungeonBrush@ brush, PrefabPlacement@ placer, const string &in set)
 		{
+			CellGrid@ grid = brush;
 			uint setHash = HashString(set);
 			array<MissionPrefabDef@> defs;
 			for (uint i = 0; i < MissionPrefabDef::Instances.length(); i++)
@@ -300,11 +418,20 @@ namespace HWP
 			room.UnpackGrid();
 			placer.PlacePrefabAt(room, bestPos);
 
-			// the doorway cells the pattern wants walkable, then the corridor out
+			auto rec = Record(brush, room, bestPos, true);
+
+			// the doorway cells the pattern wants walkable, then the corridor out. Both are
+			// consumed: every later command (FillDeadEndPaths, the wall/trap/deco sets, the
+			// crates, the enemy spots) works on unconsumed cells only, so nothing fills or
+			// furnishes the way in. The corridor's side walls stay unconsumed, so they get
+			// their trim like any wall
 			for (int y = 0; y < room.m_gridSz.y; y++)
 				for (int x = 0; x < room.m_gridSz.x; x++)
 					if (Pattern(room.m_gridPattern[y * room.m_gridSz.x + x]) == Pattern::Walkable)
+					{
 						grid.SetCellIfNotConsumed(bestPos.x + x, bestPos.y + y, Cell::Floor);
+						grid.SetConsumed(bestPos.x + x, bestPos.y + y, true);
+					}
 			ivec2 base = bestPos + bestDoor.m_from;
 			for (int k = 1; k < bestLen; k++)
 			{
@@ -312,9 +439,14 @@ namespace HWP
 				{
 					ivec2 c = base + bestDoor.m_out * k + bestDoor.m_along * w;
 					grid.SetCellIfNotConsumed(c.x, c.y, Cell::Floor);
+					grid.SetConsumed(c.x, c.y, true);
+					rec.m_corridorCells.insertLast(c);
 				}
 			}
-			return "forced " + room.m_id + " at " + bestPos.x + "," + bestPos.y + " of " + grid.m_width + "x" + grid.m_height + ", corridor " + (bestLen - 1);
+			vec4 wr = rec.WorldRect();
+			ivec2 d0 = bestPos + bestDoor.m_from;
+			return "forced " + room.m_id + " at " + bestPos.x + "," + bestPos.y + " of " + grid.m_width + "x" + grid.m_height + ", corridor " + (bestLen - 1)
+				+ " (door " + d0.x + "," + d0.y + " width " + bestDoor.m_width + " out " + bestDoor.m_out.x + "," + bestDoor.m_out.y + "; world " + int(wr.x) + "," + int(wr.y) + " " + int(wr.z) + "x" + int(wr.w) + ")";
 		}
 
 		// puzzles.debug_grid: the floor's cells in the log, one row a line
@@ -339,6 +471,16 @@ namespace HWP
 			}
 		}
 
+		// " on keep_2": the mission level being generated, so a log reader (a scenario's
+		// capture of the forced line) can tell this floor's line from an earlier floor's
+		string OnLevel()
+		{
+			auto gm = cast<MissionGameModeBase>(g_gameMode);
+			if (gm is null || gm.m_missionLevel is null)
+				return "";
+			return " on " + gm.m_missionLevel.m_id;
+		}
+
 		// SpawnPrefabSet with the chance read when the level is generated
 		class PuzzleRoomSpawn : SpawnPrefabSet
 		{
@@ -353,10 +495,12 @@ namespace HWP
 					return true;
 				}
 				// an outdoor floor: any open clearing, nothing to carve
+				uint pois = brush.m_pointsOfInterest.length();
 				if (m_set == OPEN_SET)
 				{
 					int placed = pfbPlacer.PlacePrefabs(HashString(m_set), 1, m_numBoost, m_typeMinLimit);
-					HWP::Log("puzzles", m_set + " rolled (" + chance + "%): " + (placed > 0 ? "placed in a clearing" : "no open clearing"));
+					HWP::Log("puzzles", m_set + " rolled (" + chance + "%): " + (placed > 0 ? "placed in a clearing" : "no open clearing") + OnLevel());
+					RecordPlaced(brush, pois);
 					return true;
 				}
 				// puzzles.debug_force: skip the vanilla way, so a test lands on the forced one
@@ -365,12 +509,139 @@ namespace HWP
 					n = pfbPlacer.PlacePrefabs(HashString(m_set), 1, m_numBoost, m_typeMinLimit);
 				if (n > 0)
 				{
-					HWP::Log("puzzles", m_set + " rolled (" + chance + "%): placed in a matching spot");
+					HWP::Log("puzzles", m_set + " rolled (" + chance + "%): placed in a matching spot" + OnLevel());
+					RecordPlaced(brush, pois);
 					return true;
 				}
-				HWP::Log("puzzles", m_set + " rolled (" + chance + "%): " + ForcePlace(brush, pfbPlacer, m_set));
+				HWP::Log("puzzles", m_set + " rolled (" + chance + "%): " + ForcePlace(brush, pfbPlacer, m_set) + OnLevel());
 				return true;
 			}
+		}
+
+		// ---- hwp puzzles check -----------------------------------------------------------
+
+		// a cell is open when the scene's point query at its centre hits nothing solid (the
+		// terrain probe's test); walls, black blocks and doodads with a body all count
+		bool CellOpen(Room@ room, ivec2 c)
+		{
+			vec2 p = room.CellCentre(c);
+			auto hits = g_scene.QueryRect(p, 1, 1, ~0, RaycastType::Any);
+			for (uint i = 0; i < hits.length(); i++)
+			{
+				auto u = hits[i];
+				if (!u.IsValid() || u.IsDestroyed())
+					continue;
+				if (cast<Actor>(u.GetScriptBehavior()) !is null)
+					continue; // a player, a pet or an enemy standing there is not the level
+				return false;
+			}
+			return true;
+		}
+
+		// the room's interior: the cells its pattern reserves (command Reserve)
+		array<ivec2>@ InteriorCells(Room@ room)
+		{
+			array<ivec2> cells;
+			auto def = room.m_def;
+			if (def is null)
+				return cells;
+			def.UnpackGrid();
+			if (def.m_gridCommand is null)
+				return cells;
+			for (int y = 0; y < room.m_size.y; y++)
+				for (int x = 0; x < room.m_size.x; x++)
+					if (PatternCommand(def.m_gridCommand[y * room.m_size.x + x]) == PatternCommand::Reserve)
+						cells.insertLast(room.m_pos + ivec2(x, y));
+			return cells;
+		}
+
+		int CountOpen(Room@ room, array<ivec2>@ cells)
+		{
+			int n = 0;
+			for (uint i = 0; i < cells.length(); i++)
+				if (CellOpen(room, cells[i]))
+					n++;
+			return n;
+		}
+
+		bool IsPuzzleUnit(UnitPtr unit)
+		{
+			if (!unit.IsValid())
+				return false;
+			auto prod = unit.GetUnitProducer();
+			if (prod is null)
+				return false;
+			string path = prod.GetResourceName();
+			if (path.findFirst("doodads/buttons/") == 0)
+				return true;
+			return path.findFirst("puzzle") >= 0;
+		}
+
+		// puzzle units (the buttons, levers, braziers, constellation dots) inside the room
+		int PuzzleUnitsIn(Room@ room)
+		{
+			vec4 r = room.WorldRect();
+			vec2 centre = vec2(r.x + r.z / 2, r.y + r.w / 2);
+			int radius = int(max(r.z, r.w));
+			auto units = g_scene.FetchAllUnits(~0, centre, radius);
+			int n = 0;
+			for (uint i = 0; i < units.length(); i++)
+			{
+				UnitPtr u = units[i];
+				if (!u.IsValid() || u.IsDestroyed() || !room.Contains(xy(u.GetPosition())))
+					continue;
+				if (IsPuzzleUnit(u))
+					n++;
+			}
+			return n;
+		}
+
+		// `hwp puzzles check`: every recorded room of this level, in the log and the chat:
+		// doorway, corridor and interior cells open (the point query), puzzle units present
+		// (the prefab's doodads spawned, so nothing drew over it). Ends with
+		// "check done: N room(s), M problem(s)".
+		void CmdPuzzles(array<string>@ args)
+		{
+			string a = args.length() > 0 ? args[0] : "";
+			if (a != "check" && a != "rooms")
+			{
+				HWP::Commands::Reply("hwp puzzles check | rooms");
+				return;
+			}
+			auto rooms = CurrentRooms();
+			int problems = 0;
+			for (uint i = 0; i < rooms.length(); i++)
+			{
+				auto room = rooms[i];
+				vec4 r = room.WorldRect();
+				string line = "room " + room.m_id + (room.m_forced ? " (forced)" : " (matched)") + " world " + int(r.x) + "," + int(r.y) + " " + int(r.z) + "x" + int(r.w);
+				if (a == "rooms")
+				{
+					HWP::Commands::Reply(line);
+					HWP::Log("puzzles", line);
+					continue;
+				}
+				int doorOpen = CountOpen(room, room.m_doorCells);
+				int corrOpen = CountOpen(room, room.m_corridorCells);
+				auto interior = InteriorCells(room);
+				int inOpen = CountOpen(room, interior);
+				int units = PuzzleUnitsIn(room);
+				int bad = 0;
+				if (doorOpen < int(room.m_doorCells.length())) bad++;
+				if (corrOpen < int(room.m_corridorCells.length())) bad++;
+				// the interior holds the puzzle's own doodads (pillars, braziers with bodies), so
+				// not every reserved cell is open; three quarters is the floor a walkable room shows
+				if (interior.length() > 0 && inOpen * 4 < int(interior.length()) * 3) bad++;
+				if (units == 0) bad++;
+				problems += bad;
+				line += ": door " + doorOpen + "/" + room.m_doorCells.length() + " open, corridor " + corrOpen + "/" + room.m_corridorCells.length()
+					+ " open, interior " + inOpen + "/" + interior.length() + " open, " + units + " puzzle unit(s)" + (bad > 0 ? " PROBLEM" : " ok");
+				HWP::Commands::Reply(line);
+				HWP::Log("puzzles", line);
+			}
+			string done = "check done: " + rooms.length() + " room(s), " + problems + " problem(s)";
+			HWP::Commands::Reply(done);
+			HWP::Log("puzzles", done);
 		}
 
 		SValue@ RoomCommandData(const string &in set)
@@ -425,11 +696,13 @@ namespace HWP
 						auto spawn = cast<SpawnPrefabSet>(gen.m_genCommands[k]);
 						if (spawn is null)
 							continue;
-						if (EndsWith(spawn.m_set, "_shrine") || EndsWith(spawn.m_set, "_skill"))
+						if (!outdoor && (EndsWith(spawn.m_set, "_shrine") || EndsWith(spawn.m_set, "_skill")))
 							at = k + 1;
-						// outdoors: right after the first special set (forest_special,
-						// heaven_special_arenas_1), before the edges and fillers
-						if (outdoor && at < 0 && spawn.m_set.findFirst("_special") >= 0)
+						// outdoors: after the last set the floor must place (min > 0), so the
+						// vanilla encounters, well and glades take their clearings first; the
+						// edges and fillers (no min) come after. A floor without required
+						// sets: after the first special set (heaven_special_arenas_1).
+						if (outdoor && (spawn.m_min > 0 || (at < 0 && spawn.m_set.findFirst("_special") >= 0)))
 							at = k + 1;
 					}
 					if (present)
@@ -452,14 +725,30 @@ namespace HWP
 
 namespace Modules
 {
-	class HWPPuzzlesModule : Module
+	class HWPPuzzlesModule : Module, HWP::ModuleStart
 	{
 		HWPPuzzlesModule()
 		{
 			super("hwp-puzzles");
+			HWP::Puzzles::g_rooms.removeRange(0, HWP::Puzzles::g_rooms.length());
 			int n = HWP::Puzzles::AddPuzzleRooms();
 			if (n > 0)
 				HWP::Log("puzzles", "puzzle rooms added to " + n + " mission level generator(s)");
+			HWP::Commands::Register("puzzles", " puzzles check (every puzzle room of this floor: doorway, corridor and interior open, its units present) | rooms", HWP::Commands::Handler(HWP::Puzzles::CmdPuzzles));
+			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Puzzles::SummonHold::OnSettingChanged));
+		}
+
+		void Start(StartMode sMode)
+		{
+			HWP::Settings::Sync("puzzles.");
+			HWP::Puzzles::SummonHold::Start();
+		}
+
+		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
+		{
+			if (paused)
+				return;
+			HWP::Puzzles::SummonHold::Update(ms);
 		}
 	}
 }

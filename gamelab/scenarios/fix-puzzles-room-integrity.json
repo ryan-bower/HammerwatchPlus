@@ -1,0 +1,410 @@
+{
+ "name": "fix-puzzles-room-integrity",
+ "about": "mods/puzzles: puzzle rooms are never partly covered or walled off. Generated floors with a room: two keep floors with the room forced onto the outskirts, one keep floor placed the normal way, a dark cave floor forced (Dark Citadel floor index 2, cave_dark_1: another brush and cell set), and a forest floor (Dark Citadel floor index 0, forest_1) where the Constellation takes a clearing after the vanilla required sets. On each: the forced line names the doorway read off the room's pattern and the room's world rect, `hwp puzzles check` (the scene's point query over the doorway, the carved corridor and the room's interior, plus the puzzle doodads inside) reports 0 problems, and a shot of each forced room for the eye. Not forest_2 (Dark Citadel floor index 1): an encounter floor whose two bases are run-unique, so re-entering it in one run leaves the generator no base (20261025-182526).",
+ "fixture": "town-paladin",
+ "mods": [
+  "core",
+  "puzzles"
+ ],
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "still in town"
+  },
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "story_intro_find_npcs",
+    0
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "a first run (a new profile saves no town before one)"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "cht_finish_level"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "town",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "key",
+   "key": "escape"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "console",
+   "line": "hwp set puzzles.room_chance 100"
+  },
+  {
+   "do": "console",
+   "line": "hwp set puzzles.debug_force 1"
+  },
+  {
+   "do": "gl",
+   "verb": "save",
+   "expect": {
+    "ok": true
+   },
+   "name": "town saved with the settings"
+  },
+  {
+   "do": "retry",
+   "times": 4,
+   "timeout": 5,
+   "until": "\\[HWP:puzzles\\] keep_puzzle rolled \\(100%\\): forced .* on keep_1(?=\\r?\\n|$)",
+   "name": "keep floor A: a forced puzzle room",
+   "steps": [
+    {
+     "do": "gl",
+     "verb": "mission",
+     "args": [
+      "bandit_keep",
+      0
+     ],
+     "expect": {
+      "ok": true
+     }
+    },
+    {
+     "do": "wait_phase",
+     "phase": "mission",
+     "timeout": 150
+    }
+   ]
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:puzzles\\] keep_puzzle rolled \\(100%\\): forced \\S*puzzle_room\\S* at \\d+,\\d+ of \\d+x\\d+, corridor \\d+ \\(door -?\\d+,-?\\d+ width [2-9]\\d* out -?\\d,-?\\d; world -?\\d+,-?\\d+ \\d+x\\d+\\) on keep_1(?=\\r?\\n|$)",
+   "timeout": 5,
+   "name": "the forced line carries the pattern-derived doorway (2+ cells wide) and the room's world rect"
+  },
+  {
+   "do": "log_capture",
+   "pattern": "keep_puzzle rolled \\(100%\\): forced \\S*puzzle_room\\S* at \\d+,\\d+ of \\d+x\\d+, corridor \\d+ \\(door [^;]*; world (?P<x>-?\\d+),(?P<y>-?\\d+) (?P<w>\\d+)x(?P<h>\\d+)\\) on keep_1(?=\\r?\\n|$)",
+   "save_as": "roomA",
+   "timeout": 5,
+   "name": "roomA: this floor's (keep_1) forced line, its world rect (a missing one stops the pass before any teleport)"
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp god"
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "console",
+   "line": "hwp puzzles check"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:puzzles\\] check done: [1-9]\\d* room\\(s\\), 0 problem\\(s\\)",
+   "timeout": 10,
+   "name": "keep floor A: doorway, corridor and interior open, puzzle doodads present"
+  },
+  {
+   "do": "gl",
+   "verb": "teleport",
+   "args": [
+    "{$roomA.match.x}",
+    "{$roomA.match.y}"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "camera onto the forced room (its top-left corner)"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1.5
+  },
+  {
+   "do": "shot",
+   "name": "room-a"
+  },
+  {
+   "do": "retry",
+   "times": 4,
+   "timeout": 5,
+   "until": "\\[HWP:puzzles\\] keep_puzzle rolled \\(100%\\): forced .* on keep_2(?=\\r?\\n|$)",
+   "name": "keep floor B: another forced room (another layout)",
+   "steps": [
+    {
+     "do": "gl",
+     "verb": "mission",
+     "args": [
+      "bandit_keep",
+      1
+     ],
+     "expect": {
+      "ok": true
+     }
+    },
+    {
+     "do": "wait_phase",
+     "phase": "mission",
+     "timeout": 150
+    }
+   ]
+  },
+  {
+   "do": "log_capture",
+   "pattern": "keep_puzzle rolled \\(100%\\): forced \\S*puzzle_room\\S* at \\d+,\\d+ of \\d+x\\d+, corridor \\d+ \\(door [^;]*; world (?P<x>-?\\d+),(?P<y>-?\\d+) (?P<w>\\d+)x(?P<h>\\d+)\\) on keep_2(?=\\r?\\n|$)",
+   "save_as": "roomB",
+   "timeout": 5,
+   "name": "roomB: this floor's (keep_2) forced line, its world rect (a missing one stops the pass before any teleport)"
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp god"
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "console",
+   "line": "hwp puzzles check"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:puzzles\\] check done: [1-9]\\d* room\\(s\\), 0 problem\\(s\\)",
+   "timeout": 10,
+   "name": "keep floor B: 0 problems"
+  },
+  {
+   "do": "gl",
+   "verb": "teleport",
+   "args": [
+    "{$roomB.match.x}",
+    "{$roomB.match.y}"
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 1.5
+  },
+  {
+   "do": "shot",
+   "name": "room-b"
+  },
+  {
+   "do": "console",
+   "line": "hwp set puzzles.debug_force 0"
+  },
+  {
+   "do": "retry",
+   "times": 4,
+   "timeout": 5,
+   "until": "\\[HWP:puzzles\\] keep_puzzle rolled \\(100%\\): (forced .*|placed in a matching spot) on keep_3(?=\\r?\\n|$)",
+   "name": "keep floor C: a room the normal way (matched spot, or forced when none matches)",
+   "steps": [
+    {
+     "do": "gl",
+     "verb": "mission",
+     "args": [
+      "bandit_keep",
+      2
+     ],
+     "expect": {
+      "ok": true
+     }
+    },
+    {
+     "do": "wait_phase",
+     "phase": "mission",
+     "timeout": 150
+    }
+   ]
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp god"
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "console",
+   "line": "hwp puzzles check"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:puzzles\\] check done: [1-9]\\d* room\\(s\\), 0 problem\\(s\\)",
+   "timeout": 10,
+   "name": "keep floor C: 0 problems (a matched room is recorded from the set's point of interest)"
+  },
+  {
+   "do": "console",
+   "line": "hwp set puzzles.debug_force 1"
+  },
+  {
+   "do": "retry",
+   "times": 4,
+   "timeout": 5,
+   "until": "\\[HWP:puzzles\\] cave_dark_puzzle rolled \\(100%\\): forced .* on cave_dark_1(?=\\r?\\n|$)",
+   "name": "Dark Citadel floor index 2 (cave_dark_1): a forced room in the dark cave biome (its own brush and cell types)",
+   "steps": [
+    {
+     "do": "gl",
+     "verb": "mission",
+     "args": [
+      "dark_citadel",
+      2
+     ],
+     "expect": {
+      "ok": true
+     }
+    },
+    {
+     "do": "wait_phase",
+     "phase": "mission",
+     "timeout": 150
+    }
+   ]
+  },
+  {
+   "do": "log_capture",
+   "pattern": "cave_dark_puzzle rolled \\(100%\\): forced \\S*puzzle_room\\S* at \\d+,\\d+ of \\d+x\\d+, corridor \\d+ \\(door [^;]*; world (?P<x>-?\\d+),(?P<y>-?\\d+) (?P<w>\\d+)x(?P<h>\\d+)\\) on cave_dark_1(?=\\r?\\n|$)",
+   "save_as": "roomD",
+   "timeout": 5,
+   "name": "roomD: this floor's (cave_dark_1) forced line, its world rect (a missing one stops the pass before any teleport)"
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp god"
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "console",
+   "line": "hwp puzzles check"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:puzzles\\] check done: [1-9]\\d* room\\(s\\), 0 problem\\(s\\)",
+   "timeout": 10,
+   "name": "dark cave floor: 0 problems"
+  },
+  {
+   "do": "gl",
+   "verb": "teleport",
+   "args": [
+    "{$roomD.match.x}",
+    "{$roomD.match.y}"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "camera onto the forced cave room"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1.5
+  },
+  {
+   "do": "shot",
+   "name": "room-d"
+  },
+  {
+   "do": "retry",
+   "times": 4,
+   "timeout": 5,
+   "until": "\\[HWP:puzzles\\] hwp_puzzle_open rolled \\(100%\\): (placed in a clearing|no open clearing) on forest_1(?=\\r?\\n|$)",
+   "name": "Dark Citadel floor index 0 (forest_1, regular bases): the Constellation is offered after the forest's required sets",
+   "steps": [
+    {
+     "do": "gl",
+     "verb": "mission",
+     "args": [
+      "dark_citadel",
+      0
+     ],
+     "expect": {
+      "ok": true
+     }
+    },
+    {
+     "do": "wait_phase",
+     "phase": "mission",
+     "timeout": 150
+    }
+   ]
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp god"
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "console",
+   "line": "hwp puzzles check"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:puzzles\\] check done: \\d+ room\\(s\\), 0 problem\\(s\\)",
+   "timeout": 10,
+   "name": "forest floor generated with room_chance 100: the Constellation's clearing (when one was left) is whole, 0 problems"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}
