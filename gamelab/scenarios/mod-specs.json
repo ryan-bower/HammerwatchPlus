@@ -1,6 +1,6 @@
 {
  "name": "mod-specs",
- "about": "mods/specs loads in town: the self-check line (the six 4th-spec subclasses registered), no script errors in our files.",
+ "about": "mods/specs loads in town: the self-check line (the seven 4th-spec subclasses registered), no script errors in our files.",
  "fixture": "town-paladin",
  "mods": [
   "core",
@@ -10,7 +10,7 @@
  "steps": [
   {
    "do": "log_has",
-   "pattern": "\\[HWP:specs\\] 6 of 6 subclasses registered",
+   "pattern": "\\[HWP:specs\\] 7 of 7 subclasses registered",
    "timeout": 20
   },
   {
