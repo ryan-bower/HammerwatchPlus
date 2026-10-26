@@ -3477,3 +3477,78 @@ the tab (`gl menu character - hwp-luck-stat`) and shoots it (`character-tab.png`
 Still open: `dot=true` effects are not in the boss recap; a peer whose copy of a Luck buff is
 out of step can see the refresh overshoot until the next sync; Blink keeps vanilla Teleport
 rules where no floor tileset is found.
+
+## 2026-10-26: Luck in co-op and on generated floors
+
+Design and the site table: `docs/design/luck.md`.
+
+### Engine facts
+
+- **A vanilla loot roll is already shared.** `LootTablePool::SpawnLoot` picks one entry
+  per pool. A shared entry spawns once, and an instanced entry (gear, trinkets) spawns once
+  per player, generated per player at the picked tier. So "the same tier for everyone" was
+  already true; the change is only whose Luck the roll uses.
+- **Stats are per machine.** `PlayerRecord.RefreshModifiers` runs on the record's own
+  machine. The host's copy of a client's record need not carry the client's Luck (buffs,
+  the cheat), so each machine now reports its own (`hwp.luck.report`).
+- **The next floor is generated in another script context** (the "[preload]" one). It
+  constructs every module again with fresh globals (`g_cheat` is 0 there) and has no lobby
+  records worth reading. `MissionGameMode.Generate(save)` calls `LoadFlags(save, true)`,
+  which loads `g_scalars`, the float run scalars that `AGameplayGameMode.Save` writes. A
+  scalar is the channel into generation: the host keeps `hwp_luck_party` set to the
+  party's average. `ScalarBank.Set(name, 0)` deletes the scalar, which `IsSet` then
+  reports as unset.
+- **Timing on a new floor.** `RewardSpot::SpawnRewards` runs on the host in
+  `MissionGameMode.Start`, before the first `UpdateFrame`. The fishing module's
+  `SetupRun` runs about 1 s after the floor starts, and by then the per-frame scalar
+  refresh had already replaced the carried value with the new context's view (the cheat
+  lost, x1). The fix is a snapshot on the first frame (`SnapFloorLuck`), taken before the
+  refresh.
+- **Secret rooms.** Every theme has a `SpawnPrefabSet` whose set ends in `_secrets`
+  (`keep_secrets` min 1 max 1; barracks and cave max 2; crypt, courts and temple max 1).
+  `PlacePrefabs` places up to the max where the patterns match and removes overlapping
+  spots. On the first bandit keep floor at 75 % the extra room rolled (max 2) but one was
+  placed: the five matching spots were on one wall and overlapped. The keep's secret defs
+  have no max-num, so this is a real lack of space, not a limit.
+- **Floor rewards.** RewardSpot's `intensity` (0..1, from depth and the spot's Quality)
+  picks the tiers of exp scrolls, valuables, trinket and equipment chests, caches, health
+  food (apple, orange, fish, meat) and mana pickups. Each count is
+  `roll_round(lerp(min, max, randf()))`, and blueprints are `roll_round(0.25)` behind the
+  `blueprint_cooldown` scalar.
+- **Blueprints.** `BlueprintBehavior` is built per machine and picks a factory (Tavern food
+  and drink, EquipmentModifier enchantments, Trinket). Each factory picks with `randi`
+  among the candidates its buildings unlock. The lab town has none of those buildings
+  ("No blueprint factory able to produce blueprint! 3 factories"), so the quality pick is
+  sampled with `hwp luck roll quality` instead.
+- **Dyes** come from chest loot tables (`tweak/loot/chests.sval`), so the opener's Luck
+  already reaches them.
+- **The imp** is a per-theme `*_imp` SpawnPrefabSet with `exec-chance 0.1` (barracks,
+  cave_dark, courts, crypt, dark_halls, dungeon, forest, temple; not the keep), each prefab
+  with a `run-unique-flag`. `DungeonGenerator` rolls `randf() > m_execChance` before it
+  calls `Execute`, so a Luck chance has to be rolled inside `Execute` with the command's
+  own chance set to 1. The crypt mission's floor 0 is the temple theme (`temple_imp`).
+- **Clients and floor values.** Per-floor values reach a client only by message: a chest's
+  lock and ace roll is a hash every machine computes itself, so the host broadcasts its
+  floor Luck (`hwp.luck.floor`) and a client's `HWPChest` waits for it (10 s, like the
+  settings sync).
+
+### Built
+
+- Chests, caches and strongboxes roll at the opener's Luck (`OpenerFactor`, log suffix
+  `(opener <name>, Luck <n>)`), and so does a fish's loot. Abyss cracks and the key accept
+  roll use the party average.
+- `LuckFloors.as`, with these overrides: `WorldScript/RewardSpot.as` and `BlueprintBank.as`
+  (vanilla copies in `.orig`, changes marked `// HWP`); the fishing hole chance.
+- Keys: the floor's key budget share and its tier pick, and a gold chest's ace chance
+  (at most 50 %), at the floor factor. The imp's room at 10 % x the floor factor.
+- `hwp luck roll quality|secret|count <n> [luck]`.
+
+### Tests
+
+- Scenarios: `fix-core-luck` 20261026-102311 (quality picks: common 1533 and rare 718 at
+  Luck 0, common 465 and rare 1280 at Luck 500; extra secret rooms 0 and 2276 of 3000;
+  count means 494 and 855 per mille), `fix-luck-floors` 20261026-103349 (a gold chest
+  rolled ace at 50 %, the key budget at x6), `fix-luck-imp` 20261026-103414 (not rolled) and
+  20261026-103556 (rolled, placed 1); `mod-keys`, `mod-strongbox`, `mod-all`,
+  `mod-abyss`, `mod-fishing`, `mod-fishing-spots`, `fix-fishing-personal-loot` pass.
+- Not run on two machines: the client reports reaching the host.

@@ -228,7 +228,8 @@ class HWPAbyssCrack
 		if (reward)
 		{
 			HWP::Abyss::g_cleared++;
-			// Luck (core HWP::Luck, docs/design/luck.md): the party's factor gives a
+			// Luck (core HWP::Luck, docs/design/luck.md): nobody opens a crack, so the
+			// party's average factor (each player's own reported Luck) gives a
 			// chance of the next reward tier (25 % per +1.0 of factor, at most 75 %),
 			// and the table itself is rolled at that factor by HWP::Luck::SpawnLoot
 			int tier = HWP::Abyss::RewardTier();

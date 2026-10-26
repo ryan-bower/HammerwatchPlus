@@ -1,0 +1,441 @@
+// HammerwatchPlus core: party Luck weighs the rarer blueprint qualities up (HWP::Luck::
+// PickByQuality, mods/core/scripts/HWP/Core/LuckFloors.as). Every "HWP" comment marks a change
+// from the vanilla file (.orig beside it).
+class TavernBlueprintFactory : IBlueprintFactory
+{
+	int GetSpawnWeight() { return 100; }
+	
+	bool Assign(BlueprintBehavior@ behavior)
+	{
+		if (g_myTownRecord is null)
+			return false;
+		
+		auto tavernLvl = g_myTownRecord.GetVariationOnBuilding(HashString("tavern")) + 1;
+		if (tavernLvl <= 0)
+			return false;
+		
+		auto@ blueprints = g_myTownRecord.m_blueprints;
+		auto plr = GetLocalPlayerRecord();
+		
+		auto drinkHash = HashString("tavern_drink");
+		auto foodHash = HashString("tavern_food");
+		
+		Item::Quality maxQual = GetMaxTavernFoodQuality(tavernLvl - 1);
+		array<MissionBuff@> buffs;
+		for (uint i = 0; i < MissionBuff::Instances.length(); i++)
+		{
+			auto@ buff = MissionBuff::Instances[i];
+			if (buff.m_setHash != drinkHash && buff.m_setHash != foodHash)
+				continue;
+			if (int(buff.m_quality) > int(maxQual))
+				continue;
+			if (buff.m_blueprintHash == 0 || blueprints.HasBlueprint(buff.m_blueprintHash))
+				continue;
+			if (!CheckConditionals(buff.m_blueprintConditionals, plr))
+				continue;
+			
+			//if (!CheckConditionals(buff.m_conditionals, plr))
+			//	continue;
+			buffs.insertLast(buff);
+		}
+		
+		if (buffs.length() <= 0)
+			return false;
+		
+		// HWP: the rarer qualities weigh the party's Luck factor
+		array<int> quals;
+		for (uint i = 0; i < buffs.length(); i++)
+			quals.insertLast(int(buffs[i].m_quality));
+		float luck = HWP::Luck::FloorFactor();
+		auto picked = buffs[HWP::Luck::PickByQuality(quals, luck)];
+		HWP::Luck::LogBlueprint("food/drink", buffs.length(), int(picked.m_quality), luck);
+		if (picked is null)
+			return false;
+		
+		
+		behavior.m_name = picked.m_name;
+		behavior.m_blueprint = picked.GetBlueprintID();
+		
+		auto iconFrame = ScriptSprite(Resources::GetTexture2D("gui/gui.png"), vec4(76, 210, 28, 28));
+		@behavior.m_tooltip = CreateTitledTooltip(Resources::GetSValue("gui/variable/itemtooltip_common.sval"), 
+			picked.m_name, picked.m_description, picked.m_icon, iconFrame, picked.m_quality, Resources::GetString(".tooltip.header.blueprint"));
+		
+		
+		if (picked.m_setHash == drinkHash)
+		{
+			behavior.m_unit.SetUnitScene("blueprint_drink", true);
+			behavior.m_category = ".blueprint.category.drink";
+		}
+		else if (picked.m_setHash == foodHash)
+		{
+			behavior.m_unit.SetUnitScene("blueprint_food", true);
+			behavior.m_category = ".blueprint.category.food";
+		}
+		else
+			behavior.m_unit.SetUnitScene("blueprint", true);
+		
+		return true;
+	}
+}
+
+class EquipmentModifierBlueprintFactory : IBlueprintFactory
+{
+	int GetSpawnWeight() { return 100; }
+	
+	bool Assign(BlueprintBehavior@ behavior)
+	{
+		if (g_myTownRecord is null)
+			return false;
+		
+		auto buildingVar = g_myTownRecord.GetVariationOnBuilding(HashString("enchanter"));
+		if (buildingVar < 0)
+			return false;
+		
+		auto@ blueprints = g_myTownRecord.m_blueprints;
+		auto plr = GetLocalPlayerRecord();
+		
+		array<Equipment::ItemModifier@> mods;
+		for (uint i = 0; i < Equipment::ItemModifier::Instances.length(); i++)
+		{
+			auto@ itemMod = Equipment::ItemModifier::Instances[i];
+			if (itemMod.m_blueprintHash == 0 || blueprints.HasBlueprint(itemMod.m_blueprintHash))
+				continue;
+			if (plr.level <= itemMod.ilvl)
+				continue;
+			if (itemMod.quality == Item::Quality::Rare && buildingVar < 1)
+				continue;
+			mods.insertLast(itemMod);
+		}
+		
+		if (mods.length() <= 0)
+			return false;
+		
+		// HWP: the rarer qualities weigh the party's Luck factor
+		array<int> quals;
+		for (uint i = 0; i < mods.length(); i++)
+			quals.insertLast(int(mods[i].quality));
+		float luck = HWP::Luck::FloorFactor();
+		auto picked = mods[HWP::Luck::PickByQuality(quals, luck)];
+		HWP::Luck::LogBlueprint("enchantment", mods.length(), int(picked.quality), luck);
+		if (picked is null)
+			return false;
+		
+		behavior.m_category = ".blueprint.category.enchantment";
+		behavior.m_name = picked.prefixName.isEmpty() ? picked.suffixName : picked.prefixName;
+		behavior.m_blueprint = picked.GetBlueprintID();
+		
+		@behavior.m_tooltip = CreateTitledTooltip(Resources::GetSValue("gui/variable/itemtooltip_common.sval"), 
+			behavior.m_name, Resources::GetString(behavior.m_category), null, null, picked.quality, Resources::GetString(".tooltip.header.blueprint"));
+		
+		behavior.m_unit.SetUnitScene("blueprint_enchant", true);
+		
+		return true;
+	}
+}
+
+class TrinketBlueprintFactory : IBlueprintFactory
+{
+	int GetSpawnWeight() { return 100; }
+	
+	bool Assign(BlueprintBehavior@ behavior)
+	{
+		if (g_myTownRecord is null)
+			return false;
+		
+		auto buildingVar = g_myTownRecord.GetVariationOnBuilding(HashString("library"));
+		if (buildingVar < 0)
+			return false;
+		
+		auto@ blueprints = g_myTownRecord.m_blueprints;
+		auto plr = GetLocalPlayerRecord();
+		
+		array<Equipment::ItemModifier@> mods;
+		array<Item::Trinket@> trinkets;
+		for (uint i = 0; i < Item::Trinket::Instances.length(); i++)
+		{
+			auto trinket = Item::Trinket::Instances[i];
+			if (trinket.m_desc2.isEmpty())
+				continue;
+			
+			if (trinket.m_blueprintHash == 0 || blueprints.HasBlueprint(trinket.m_blueprintHash))
+				continue;
+			
+			//if (trinket.m_quality == Item::Quality::Common)
+			//	continue;
+			if (trinket.m_quality == Item::Quality::Uncommon && buildingVar < 1)
+				continue;
+			if (trinket.m_quality == Item::Quality::Rare && buildingVar < 2)
+				continue;
+			
+			trinkets.insertLast(trinket);
+		}
+		
+		if (trinkets.length() <= 0)
+			return false;
+		
+		// HWP: the rarer qualities weigh the party's Luck factor
+		array<int> quals;
+		for (uint i = 0; i < trinkets.length(); i++)
+			quals.insertLast(int(trinkets[i].m_quality));
+		float luck = HWP::Luck::FloorFactor();
+		auto picked = trinkets[HWP::Luck::PickByQuality(quals, luck)];
+		HWP::Luck::LogBlueprint("trinket", trinkets.length(), int(picked.m_quality), luck);
+		if (picked is null)
+			return false;
+		
+		behavior.m_category = ".blueprint.category.trinket";
+		behavior.m_name = picked.m_name;
+		behavior.m_blueprint = picked.GetBlueprintID();
+		
+		@behavior.m_tooltip = CreateTrinketTooltip(Item::GetTooltipStyle(picked.GetQuality()), picked, Resources::GetString(".tooltip.header.blueprint"), 1, true);
+		
+		
+		ScriptSprite@ sprite = picked.GetIcon();
+		array<int> frameTimes = { 100 };
+		
+		array<vec4> frames;
+		for (uint i = 0; i < sprite.m_frames.length(); i++)
+			frames.insertLast(sprite.m_frames[i].frame);
+		
+		vec2 halfSize = vec2(
+			sprite.GetWidth() / 2,
+			sprite.GetHeight() / 2
+		);
+		
+		CustomUnitScene bpScene;
+		bpScene.AddScene(behavior.m_unit.GetUnitScene("blueprint_trinket"), 0, vec2(), 0, 0);
+		bpScene.AddSprite(CustomUnitSprite(halfSize, sprite.m_texture, Item::GetQualityMaterial(picked.GetQuality()), frames, frameTimes, true, 0), 0, vec2(0, -4), 0, 1);
+		
+		behavior.m_unit.SetUnitScene(bpScene, true);
+		
+		return true;
+	}
+}
+
+
+interface IBlueprintFactory
+{
+	bool Assign(BlueprintBehavior@ behavior);
+	int GetSpawnWeight();
+}
+
+class BlueprintBehavior : PowerupUsable
+{
+	string m_blueprint;
+	string m_name;
+	string m_category;
+	
+	IBlueprintFactory@ m_factory;
+	ITooltip@ m_tooltip;
+	
+	SoundEvent@ m_sound;
+	
+	
+	BlueprintBehavior(UnitPtr unit, SValue& params)
+	{
+		m_unit = unit;
+		m_used = false;
+		
+		@m_sound = Resources::GetSoundEvent(GetParamString(unit, params, "sound", false));
+		
+		array<IBlueprintFactory@> facts;
+		auto factType = Reflect::GetType("IBlueprintFactory");
+		
+		int totChance = 0;
+		auto types = Reflect::GetTypes();
+		for (uint i = 0; i < types.length(); i++)
+		{
+			if (!types[i].Implements(factType) || types[i] is factType)
+				continue;
+			
+			auto fact = cast<IBlueprintFactory>(InstantiateClass(types[i].GetNamespace() + "::" + types[i].GetName()));
+			if (fact is null)
+				continue;
+			
+			totChance += fact.GetSpawnWeight();
+			facts.insertAt(randi(facts.length()), fact);
+		}
+		
+		int r = randi(totChance);
+		int pickedIndex = 0;
+		for (uint i = 0; i < facts.length(); i++)
+		{
+			r -= facts[i].GetSpawnWeight();
+			if (r < 0)
+			{
+				pickedIndex = i;
+				break;
+			}
+		}
+		
+		for (uint i = 0; i < facts.length(); i++)
+		{
+			auto@ fact = facts[(i + pickedIndex) % facts.length()];
+			if (fact.Assign(this))
+			{
+				@m_factory = fact;
+				return;
+			}
+		}
+		
+		print("No blueprint factory able to produce blueprint! " + facts.length() + " factories");
+		m_unit.SetHidden(true);
+		m_unit.SetShouldCollide(false);
+		//m_unit.Destroy();
+	}
+	
+	void Use(PlayerBase@ player)
+	{
+		if (m_unit.IsDestroyed() || !m_unit.IsValid() || m_used)
+			return;
+		
+		g_myTownRecord.m_blueprints.SetBlueprint(m_blueprint);
+		SetUsed();
+		
+		auto name = Resources::GetString(m_name);
+		
+		if (!m_name.isEmpty())
+			AddFloatingText(FloatingTextType::Pickup, Resources::GetString(m_name), m_unit.GetPosition());
+		
+		LootLog::PresentBlueprint(player.m_record, Resources::GetString(m_category), name);
+		
+		PlaySound3D(m_sound, m_unit.GetPosition());
+		print("Awarded blueprint '" + m_blueprint + "'");
+	}
+	
+	ITooltip@ GetTooltip() override { return m_tooltip; }
+	
+/*
+	SValue@ Save()
+	{
+		SValueBuilder sval;
+		sval.PushArray();
+		sval.PushString(m_blueprint);
+		sval.PushString(m_name);
+		sval.PushString(m_category);
+		sval.PopArray();
+		return sval.Build();
+	}
+	
+	void Load(SValue@ data)
+	{
+		auto arr = data.GetArray();
+		m_blueprint = arr[0].GetString();
+		m_name = arr[1].GetString();
+		m_category = arr[2].GetString();
+	}
+*/
+}
+
+
+namespace BlueprintBehavior
+{
+	void SpawnBlueprint(vec2 pos)
+	{
+		auto blueprintProd = Resources::GetUnitProducer("items/blueprint.unit");
+		if (blueprintProd is null)
+		{
+			PrintError("Failed to spawn blueprint!!");
+			return;
+		}
+		
+		auto unit = blueprintProd.Produce(g_scene, xyz(pos));
+		/*
+		auto behavior = cast<BlueprintBehavior>(unit.GetScriptBehavior());
+		
+		if (behavior is null)
+		{
+			PrintError("Failed to get blueprint behavior!!");
+			return;
+		}
+		
+		if (behavior.Initialize(quality))
+		{
+			if (Network::IsServer())
+				(Network::Message("SpawnBlueprint") << pos << int(quality)).SendToAll();
+		}
+		*/
+	}
+}
+
+class BlueprintBank
+{
+	dictionary m_blueprintMap;
+	array<string> m_blueprintList;
+	
+	BlueprintBank()
+	{
+	}
+	
+	string DebugReport()
+	{
+		StringBuilder builder;
+		
+		//builder.Append("Blueprints:\n");
+		for (uint i = 0; i < m_blueprintList.length(); i++)
+		{
+			builder.Append(" ");
+			builder.Append(m_blueprintList[i]);
+			builder.Append("\n");
+		}
+		
+		return builder.String();
+	}
+	
+	bool HasBlueprint(const string &in blueprint)
+	{
+		return m_blueprintMap.exists(HashString(blueprint));
+	}
+	
+	bool HasBlueprint(uint hash)
+	{
+		return m_blueprintMap.exists(hash);
+	}
+	
+	void SetBlueprint(const string &in blueprint)
+	{
+		auto hash = HashString(blueprint);
+		if (m_blueprintMap.exists(hash))
+			return;
+		
+		m_blueprintMap.set(hash, true);
+		m_blueprintList.insertLast(blueprint);
+	}
+	
+	void RemoveBlueprint(const string &in blueprint)
+	{
+		auto hash = HashString(blueprint);
+		if (!m_blueprintMap.exists(hash))
+			return;
+		
+		m_blueprintMap.delete(hash);
+		
+		for(uint i = 0; i < m_blueprintList.length(); i++)
+		{
+			if(m_blueprintList[i] == blueprint)
+			{
+				m_blueprintList.removeAt(i);
+				return;
+			}
+		}
+	}
+	
+	void Save(SValueBuilder& builder)
+	{
+		for (uint i = 0; i < m_blueprintList.length(); i++)
+			builder.PushString(m_blueprintList[i]);
+	}
+	
+	void Load(array<SValue@>@ dataArr)
+	{
+		if (dataArr is null)
+			return;
+		
+		for (uint i = 0; i < dataArr.length(); i++)
+		{
+			auto blueprint = dataArr[i].GetString();
+			m_blueprintMap.set(HashString(blueprint), true);
+			m_blueprintList.insertLast(blueprint);
+		}
+	}
+}

@@ -23,8 +23,8 @@ Path of Exile style strongboxes.
   rare/epic equipment piece, maybe ore).
 - **Luck.** The payout goes through `HWPStrongbox::Pay`: the table is taken off
   the behaviour around `Chest::Use` and rolled by core `HWP::Luck::SpawnLoot` at
-  the party's luck factor (rare/epic shares weigh more; `docs/design/luck.md`).
-  Log: `[HWP:strongbox] luck x<f> payout`.
+  the opener's luck factor, once for the party (rare/epic shares weigh more;
+  `docs/design/luck.md`). Log: `[HWP:strongbox] luck x<f> payout (opener <name>, Luck <n>)`.
 - **State sync.** `strongbox.state {unit, state}` is broadcast on arm and on
   clear so clients show the cross icon while the pack is alive.
 - Settings: `strongbox.enabled`, `strongbox.chance`, `strongbox.pack`,

@@ -561,10 +561,8 @@ namespace HWP
 		// the fisher's luck (core HWP::Luck::Factor: 1.0 + luck/100, 1.0 without any)
 		float LuckOf(PlayerRecord@ rec)
 		{
-			PlayerBase@ plr = null;
-			if (rec !is null)
-				@plr = cast<PlayerBase>(rec.actor);
-			float f = HWP::Luck::Factor(plr);
+			// the Luck the player's own machine reported (core HWP::Luck::OpenerFactor)
+			float f = HWP::Luck::OpenerFactor(rec);
 			return f < 0.1f ? 0.1f : f;
 		}
 
@@ -1327,7 +1325,13 @@ namespace HWP
 		void SetupRun(PlayerRecord@ host)
 		{
 			bool boss = IsBossLevel();
-			if (!boss && randi(100) >= g_runChance)
+			// Luck: the party's average multiplies the chance (core HWP::Luck::FloorFactor)
+			float luck = HWP::Luck::FloorFactor();
+			int chance = int(HWP::Luck::Chance(g_runChance / 100.0f, luck) * 100.0f + 0.5f);
+			bool rolled = boss || randi(100) < chance;
+			HWP::Log("fishing", "run hole chance " + chance + "% (" + g_runChance + "% at party Luck x" + HWP::Luck::Fmt(luck) + "): "
+				+ (boss ? "boss room" : rolled ? "rolled" : "not rolled"));
+			if (!rolled)
 				return;
 			array<int> kinds;
 			auto wells = Wells(kinds);

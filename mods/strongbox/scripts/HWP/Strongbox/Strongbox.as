@@ -125,17 +125,18 @@ class HWPStrongbox : Chest
 	void SetRemoteState(int state) { m_state = state; }
 
 	// The payout (host): Chest::Use destroys the box and would spawn the loot with the
-	// vanilla roll; the table is taken off for that call and rolled by core
-	// HWP::Luck::SpawnLoot at the party's luck factor instead (docs/design/luck.md).
+	// vanilla roll; the table is taken off for that call and rolled once by core
+	// HWP::Luck::SpawnLoot at the opener's luck factor instead, every player getting
+	// what it picked (docs/design/luck.md).
 	void Pay(PlayerBase@ player)
 	{
 		Item::LootTable@ table = m_lootTable;
 		vec3 pos = m_unit.GetPosition();
-		float factor = HWP::Luck::PartyFactor();
+		float factor = HWP::Luck::OpenerFactor(player.m_record);
 		if (Network::IsServer() && table !is null)
 		{
 			@m_lootTable = null;
-			HWP::Luck::LogRoll("strongbox", "payout", factor);
+			HWP::Luck::LogRoll("strongbox", "payout" + HWP::Luck::OpenerNote(player.m_record), factor);
 		}
 		Chest::Use(player);
 		if (Network::IsServer() && table !is null)

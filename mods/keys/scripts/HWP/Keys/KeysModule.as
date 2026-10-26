@@ -349,13 +349,14 @@ namespace HWP
 		}
 
 		// Keys this floor may still drop of a tier: the floor's locked chests of
-		// that tier times the party's share, its fraction rounded up or down by a
+		// that tier times the party's share (times the party's floor Luck factor,
+		// at most 95 %), its fraction rounded up or down by a
 		// hash roll, minus the party keys of that tier held when the floor
 		// started and the ones dropped since. Recomputed per call, so chests
 		// that lock after the level starts still count.
 		int BudgetTotal(int tier)
 		{
-			float share = clamp(g_budgetShare + g_budgetPerPlayer * (PartySize() - 1), 0.0f, 0.95f);
+			float share = clamp((g_budgetShare + g_budgetPerPlayer * (PartySize() - 1)) * HWP::Luck::FloorFactor(), 0.0f, 0.95f);
 			float want = g_lockedTier[tier - 1] * share;
 			int budget = int(floor(want));
 			string seed = MissionManager::g_module is null ? "" : ("" + MissionManager::g_module.m_missionRewardSeed + ":" + CurrentLevel());
@@ -369,8 +370,9 @@ namespace HWP
 			return max(0, BudgetTotal(tier) - g_droppedTier[tier - 1]);
 		}
 
-		// A tier with budget left, weighted by what is left; elites take the
-		// highest such tier. 0 = the budget is spent.
+		// A tier with budget left, weighted by what is left (a tier above the lowest
+		// one left also by the party's floor Luck factor); elites take the highest
+		// such tier. 0 = the budget is spent.
 		int PickBudgetTier(bool elite)
 		{
 			array<int> left(4, 0);
@@ -388,13 +390,23 @@ namespace HWP
 					if (left[t - 1] > 0)
 						return t;
 			}
-			int r = randi(total);
+			int lowest = 1;
+			while (left[lowest - 1] == 0)
+				lowest++;
+			float luck = HWP::Luck::FloorFactor();
+			float sum = 0;
+			for (int t = 1; t <= 4; t++)
+				sum += left[t - 1] * (t > lowest ? luck : 1.0f);
+			float r = randf() * sum;
 			for (int t = 1; t <= 4; t++)
 			{
-				r -= left[t - 1];
-				if (r < 0)
+				r -= left[t - 1] * (t > lowest ? luck : 1.0f);
+				if (r < 0 && left[t - 1] > 0)
 					return t;
 			}
+			for (int t = 4; t >= 1; t--)
+				if (left[t - 1] > 0)
+					return t;
 			return 0;
 		}
 
@@ -773,7 +785,7 @@ namespace HWP
 				info += "; budget (left/total)";
 				for (int t = 1; t <= 4; t++)
 					info += " " + TIERS[t - 1] + " " + BudgetLeft(t) + "/" + BudgetTotal(t);
-				info += ", party " + PartySize();
+				info += ", party " + PartySize() + ", floor Luck x" + HWP::Luck::Fmt(HWP::Luck::FloorFactor());
 			}
 			HWP::Commands::Reply(info);
 		}

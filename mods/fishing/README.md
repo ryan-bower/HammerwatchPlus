@@ -28,8 +28,10 @@ keys module, a catch can bring up a key of any tier, ace keys included.
   reports the last bite's motion per frame (frames, ticks, mean step, its
   coefficient of variation, the share of frames it stood still, bounce frames
   skipped); `hwp fishing tier <n>` (debug) forces the coast's next bite tier.
-  Luck (core `HWP::Luck::Factor`, 1 + luck/100) widens the 2- and 3-star bands
-  of every roll (coast, traps, holes).
+  Luck (core `HWP::Luck::OpenerFactor`, 1 + luck/100, as the fisher's machine
+  reported it) widens the 2- and 3-star bands of every roll (coast, traps, holes). The
+  party's average Luck multiplies a floor's hole chance (`HWP::Luck::FloorFactor`; log
+  `[HWP:fishing] run hole chance C% (B% at party Luck x<f>): ...`).
 - **Fish are swords.** The catch goes into your bag (or drops at your feet when
   the bag is full) as `hwp_fish_<id>` from `tweak/hwp/fishing_items.sval`: a
   main-hand weapon that swings like the longsword (`attack_swing_longsword`,

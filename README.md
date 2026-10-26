@@ -69,7 +69,7 @@ needs `pets`.
 | `bufftips` | Hover a buff icon to see what it does and how many seconds it has left. |
 | `chatlinks` | Linked items stay in chat with their slot and item level; `hwp link` links an equipped item. |
 | `colors` | Colour-blind and high-contrast tints for enemy and friendly projectiles (player menu > Plus tab), and each player in their own colour on the minimap and the overlay map, with names for players far away. |
-| `core` | Required by every module: settings (the Plus tab and the `hwp` console command), save data and networking. It also adds **Luck**, a stat from gear affixes of Fortune, the Rabbit's Foot trinket and timed buffs from herbs and fish, which weights chest, strongbox, abyss and key drops towards the rarer results; keys 4, 5 and 6 for a class's 4th to 6th active skill; a Plants & Herbs section in the Materials tab with Eat and Roll actions; a warning on orbs that close off other orbs; the use key picking up a dropped item before it talks to an NPC; and "Mm-hmm!" hats (a quarter of rare and epic hats play the Material Trader's "mm-hmm" on every crit, for everyone). |
+| `core` | Required by every module: settings (the Plus tab and the `hwp` console command), save data and networking. It also adds **Luck**, a stat from gear affixes of Fortune, the Rabbit's Foot trinket and timed buffs from herbs and fish, which weights chest, strongbox, abyss and key drops towards the rarer results (a chest at its opener's Luck) and gives the party's average to generated floors (secret rooms, the imp, floor rewards, blueprints, fishing holes, keys and ace chests); keys 4, 5 and 6 for a class's 4th to 6th active skill; a Plants & Herbs section in the Materials tab with Eat and Roll actions; a warning on orbs that close off other orbs; the use key picking up a dropped item before it talks to an NPC; and "Mm-hmm!" hats (a quarter of rare and epic hats play the Material Trader's "mm-hmm" on every crit, for everyone). |
 
 Each module's full spec and test checklist is in `mods/<id>/README.md`.
 
@@ -134,6 +134,12 @@ Luck raising drop rates, DoT missing from the boss recap, Blink past rails, dupl
 all are fixed and the nine affected scenarios pass again (batch `review-fixes-003`). Luck now has a
 cell on the character tab's stat bar with a tooltip giving its factor ("code review, applied" in
 `docs/RE_NOTES.md`).
+In co-op a chest or strongbox now rolls at the Luck of whoever opens it and the whole party
+gets what it rolled; an abyss crack rolls at the party's average. The party's average Luck
+also reaches generated floors: an extra secret room, more and better floor rewards within
+the vanilla ranges (food, mana, chests, caches, scrolls, valuables, the blueprint chance),
+rarer blueprint recipes, more fishing holes, a likelier imp, more and higher keys and
+more ace chests (`docs/design/luck.md`, `fix-luck-floors`, `fix-luck-imp`).
 
 The full QA sweep is paused and incomplete. The [current checkpoint](docs/generated/qa_pr_checkpoint.json)
 records 10 gameplay repairs and scoped passing coverage for the six original

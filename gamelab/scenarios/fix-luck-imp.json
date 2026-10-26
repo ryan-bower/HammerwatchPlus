@@ -1,0 +1,74 @@
+{
+ "name": "fix-luck-imp",
+ "about": "Party Luck on the imp's room (mods/core/scripts/HWP/Core/LuckFloors.as, HWPLuckChanceSpawn). Every theme's \"*_imp\" prefab set runs at exec-chance 0.1; with `hwp luck 500` (factor 6) the crypt mission's first floor (temple theme) rolls temple_imp at 60 %.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "core"
+ ],
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:luck\\] imp sets on [1-9]\\d* floor generator\\(s\\)",
+   "timeout": 20,
+   "name": "the imp sets were swapped for the Luck one"
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp luck 500"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:luck\\] Luck: 500 \\(factor 6",
+   "timeout": 10
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "crypt",
+    0
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 150
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:luck\\] chance set temple_imp on \\S+: party Luck 500, chance 60% \\(10% vanilla\\): (rolled|not rolled), placed \\d+",
+   "timeout": 10,
+   "name": "the imp's room rolled at 60 %"
+  },
+  {
+   "do": "shot",
+   "name": "floor"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

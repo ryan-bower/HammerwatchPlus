@@ -19,8 +19,11 @@
 // nothing at its vanilla odds first, so Luck shifts what drops, it never makes more
 // things drop); Chance(base, factor) scales a plain drop chance, capped at 1;
 // TierUpChance(factor) is the abyss' chance of paying the next reward tier.
-// Shared host-rolled drops (chests, strongboxes, abyss cracks) use PartyFactor(): the
-// average luck of everyone in the lobby, as the host sees it.
+// Shared host-rolled drops roll once and everyone gets what that roll picked. A drop
+// someone opens (a chest, a strongbox) rolls at the opener's Luck (OpenerFactor), so the
+// luckiest player should open them; one nobody opens (an abyss crack, the keys budget's
+// accept roll) at the lobby's average (PartyFactor). Each peer reports its own Luck to the
+// host (REPORT), since the host's copy of a client's record may lack the client's buffs.
 //
 // Cheats (e_cheats 1): `hwp luck <n>` sets a cheat luck value (an exact modifier added
 // in the PlayerRecordRefreshModifiers hook), `hwp luck buff [n] [ms]` applies the Luck buff
@@ -74,10 +77,8 @@ namespace HWP
 		float Factor(PlayerBase@ plr) { return FactorOf(Of(plr)); }
 		float FactorRecord(PlayerRecord@ rec) { return FactorOf(OfRecord(rec)); }
 
-		// The average luck of everyone in the lobby (the host's view of each record;
-		// a client's record on the host carries its synced gear and buffs). Average,
-		// not max, so a shared drop is as lucky as the party is, not as its luckiest
-		// member: one player stacking Luck helps a 4-player lobby a quarter as much.
+		// The average luck of everyone in the lobby (each as their own machine reported
+		// it, OpenerLuck), for the shared drops nobody opens.
 		float PartyLuck()
 		{
 			float sum = 0;
@@ -86,7 +87,7 @@ namespace HWP
 			{
 				if (g_players[i] is null || g_players[i].peer == 255)
 					continue;
-				sum += OfRecord(g_players[i]);
+				sum += OpenerLuck(g_players[i]);
 				n++;
 			}
 			if (n == 0)
@@ -98,6 +99,77 @@ namespace HWP
 		}
 
 		float PartyFactor() { return FactorOf(PartyLuck()); }
+
+		// ---- the opener's Luck (shared drops) ----------------------------------
+
+		// Each player's own machine is the authority on its Luck: the host's copy of a
+		// client's record may lack the client's buffs and cheat value. Every peer reports
+		// its Luck to the host on a change and every REPORT_EVERY_MS; the host keeps the
+		// last value per peer.
+		const string REPORT = "hwp.luck.report";
+		const int REPORT_EVERY_MS = 5000;
+		array<float> g_reported(256, 0.0f);
+		array<bool> g_hasReport(256, false);
+		int g_reportTimer = 0;
+		float g_lastSent = -999999;
+
+		void OnReport(uint8 peer, SValue@ data)
+		{
+			g_reported[peer] = HWP::SV::Float(data, "luck");
+			g_hasReport[peer] = true;
+		}
+
+		// every peer, from the module's UpdateFrame
+		void ReportTick(int ms)
+		{
+			auto rec = GetLocalPlayerRecord();
+			if (rec is null)
+				return;
+			float luck = OfRecord(rec);
+			KeepPartyScalar();
+			g_reportTimer += ms;
+			if (luck == g_lastSent && g_reportTimer < REPORT_EVERY_MS)
+				return;
+			g_reportTimer = 0;
+			g_lastSent = luck;
+			SValueBuilder b;
+			b.PushDictionary();
+			b.PushFloat("luck", luck);
+			b.PopDictionary();
+			HWP::Net::Request(REPORT, b.Build());
+		}
+
+		// host: the party's average Luck as a run scalar, for floor generation (LuckFloors.as)
+		void KeepPartyScalar()
+		{
+			if (!Network::IsServer())
+				return;
+			float party = float(int(PartyLuck() * 10.0f + 0.5f)) / 10.0f;
+			if (g_scalars.Get(PARTY_SCALAR) != party)
+				g_scalars.Set(PARTY_SCALAR, party);
+		}
+
+		// a player's Luck as the host should count it: the value their own machine
+		// reported, or their record here until a report came (the local player's own)
+		float OpenerLuck(PlayerRecord@ rec)
+		{
+			if (rec is null)
+				return 0;
+			if (!rec.local && g_hasReport[rec.peer])
+				return g_reported[rec.peer];
+			return OfRecord(rec);
+		}
+
+		float OpenerFactor(PlayerRecord@ rec) { return FactorOf(OpenerLuck(rec)); }
+
+		// " (opener <name>, Luck <n>)" for the drop sites' log lines
+		string OpenerNote(PlayerRecord@ rec)
+		{
+			if (rec is null)
+				return " (no opener)";
+			float luck = OpenerLuck(rec);
+			return " (opener " + rec.GetName() + ", Luck " + int(luck + (luck < 0 ? -0.5f : 0.5f)) + ")";
+		}
 
 		// ---- the formulas ----------------------------------------------------
 
@@ -459,7 +531,7 @@ namespace HWP
 				return;
 			if (args.length() < 3)
 			{
-				Reply("usage: hwp luck roll <loot table | chance <pct> | tier> <n> [luck]");
+				Reply("usage: hwp luck roll <loot table | chance <pct> | tier | quality | secret | count> <n> [luck]");
 				return;
 			}
 			auto rec = GetLocalPlayerRecord();
@@ -491,6 +563,34 @@ namespace HWP
 					if (randf() < TierUpChance(factor))
 						ups++;
 				Reply(head + ": ups " + ups);
+				return;
+			}
+			// floors (LuckFloors.as): a blueprint pick among two commons, an uncommon and a
+			// rare; the extra secret room; a reward count's lean (LuckyRandf, mean per mille)
+			if (what == "quality")
+			{
+				array<int> quals = { 1, 1, 2, 3 };
+				array<int> got(4, 0);
+				for (int k = 0; k < n; k++)
+					got[quals[PickByQuality(quals, factor)]]++;
+				Reply(head + ": common " + got[1] + " uncommon " + got[2] + " rare " + got[3]);
+				return;
+			}
+			if (what == "secret")
+			{
+				int extra = 0;
+				for (int k = 0; k < n; k++)
+					if (randf() < SecretRoomChance(factor))
+						extra++;
+				Reply(head + ": extra rooms " + extra);
+				return;
+			}
+			if (what == "count")
+			{
+				float sum = 0;
+				for (int k = 0; k < n; k++)
+					sum += LuckyRandf(factor);
+				Reply(head + ": mean " + int(sum / float(n) * 1000.0f + 0.5f) + "/1000");
 				return;
 			}
 			auto table = Item::GetLootTable(what);
@@ -631,7 +731,21 @@ namespace Modules
 		{
 			super("hwp-luck");
 			HWP::Commands::Register("luck", " [<n> | buff [n] [ms] | item <tier> | roll <table|chance <pct>|tier> <n> [luck]]  the Luck stat; the rest are cheats", HWP::Commands::Handler(HWP::Luck::CmdLuck));
+			HWP::Net::OnRequest(HWP::Luck::REPORT, HWP::Net::RequestHandler(HWP::Luck::OnReport));
+			HWP::Net::OnEvent(HWP::Luck::FLOOR_EVENT, HWP::Net::EventHandler(HWP::Luck::OnFloorEvent));
+			int imps = 0;
+			int secrets = HWP::Luck::InstallSecrets(imps);
+			if (imps > 0)
+				HWP::Log("luck", "imp sets on " + imps + " floor generator(s)");
+			if (secrets > 0)
+				HWP::Log("luck", "secret room sets on " + secrets + " floor generator(s)");
 			HWP::Luck::SelfCheck();
+		}
+
+		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
+		{
+			HWP::Luck::FloorTick(ms);
+			HWP::Luck::ReportTick(ms);
 		}
 	}
 }

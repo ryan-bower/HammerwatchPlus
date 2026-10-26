@@ -12,7 +12,8 @@
 // - a hash of the chest's position, the mission reward seed and the level
 // index - so every machine in the lobby agrees without a network message. A
 // share of gold chests become the red ace chest (ace key; loot + a legendary
-// for everyone on half of the openings).
+// for everyone on half of the openings); the party's floor Luck raises that share
+// (core HWP::Luck::AceChance), so a client also waits for the host's floor value.
 namespace HWP { namespace Keys { bool g_chestClassLogged = false; } }
 
 class HWPChest : Chest
@@ -33,18 +34,19 @@ class HWPChest : Chest
 		}
 	}
 
-	// The roll's inputs (keys.* settings) must be the host's: a client waits
-	// for settings.sync (up to 10 s, then it rolls with what it has and logs).
+	// The roll's inputs (keys.* settings, the floor's Luck) must be the host's: a
+	// client waits for settings.sync and the floor Luck (up to 10 s, then it rolls
+	// with what it has and logs).
 	void Update(int dt)
 	{
 		if (m_decided)
 			return;
-		if (!HWP::Settings::RemoteReady())
+		if (!HWP::Settings::RemoteReady() || !HWP::Luck::FloorReady())
 		{
 			m_waited += dt;
 			if (m_waited < 10000)
 				return;
-			HWP::LogError("keys", "host settings never arrived; rolling chest locks with local values");
+			HWP::LogError("keys", "host settings or floor Luck never arrived; rolling chest locks with local values");
 		}
 		m_decided = true;
 		Decide();
@@ -85,7 +87,11 @@ class HWPChest : Chest
 
 		if (Roll(salt + ":lock") >= HWP::Keys::g_lockChance)
 			return;
-		bool ace = parts.length() == 2 && baseTier == 3 && Roll(salt + ":ace") < HWP::Keys::g_aceChance;
+		bool canAce = parts.length() == 2 && baseTier == 3;
+		float luck = HWP::Luck::FloorFactor();
+		float aceChance = HWP::Luck::AceChance(HWP::Keys::g_aceChance, luck);
+		bool ace = canAce && Roll(salt + ":ace") < aceChance;
+		HWP::Luck::LogRoll("keys", "chest lock " + parts[0] + (canAce ? " (ace chance " + int(aceChance * 100.0f + 0.5f) + "%: " + (ace ? "ace" : "gold") + ")" : ""), luck);
 
 		m_tier = ace ? 4 : baseTier;
 		m_key = HWP::Keys::TIERS[m_tier - 1];
@@ -202,18 +208,19 @@ class HWPChest : Chest
 		}
 		int before = m_key.isEmpty() ? 0 : player.m_record.GetKeys(m_key);
 		// Luck (core HWP::Luck, docs/design/luck.md): on the host the chest's table is
-		// rolled by HWP::Luck::SpawnLoot at the party's factor instead of Chest::Use's
+		// rolled once by HWP::Luck::SpawnLoot at the opener's factor (every player gets
+		// the entries that roll picked) instead of Chest::Use's
 		// vanilla roll. The table is taken off the behaviour for the call and put back;
 		// everything else Chest::Use does (key, destroy, trigger, sound) is unchanged.
 		// Puzzle room rewards are these chests too (a RewardSpot spawns a chest unit).
 		Item::LootTable@ luckTable;
 		vec3 luckPos = m_unit.GetPosition();
-		float luckFactor = HWP::Luck::PartyFactor();
+		float luckFactor = HWP::Luck::OpenerFactor(player.m_record);
 		if (Network::IsServer() && m_lootTable !is null)
 		{
 			@luckTable = m_lootTable;
 			@m_lootTable = null;
-			HWP::Luck::LogRoll("keys", "chest " + (m_key.isEmpty() ? "open" : m_key) + " loot", luckFactor);
+			HWP::Luck::LogRoll("keys", "chest " + (m_key.isEmpty() ? "open" : m_key) + " loot" + HWP::Luck::OpenerNote(player.m_record), luckFactor);
 		}
 		HWP::Keys::Trapped::OnChestUse(m_unit, player); // cursed chest: the banner (Trapped.as), before Use destroys the unit
 		Chest::Use(player);

@@ -53,6 +53,12 @@ slots, trinkets for the next run) and red legendaries.
   the mission's second-to-last boss on it is an ace key (Bone Serpent and
   Avatar in the Dark Citadel). `hwp keys` shows the pool, the floor's locked
   chests and the budget left per tier.
+- **Luck on the floor.** The party's floor Luck (core `HWP::Luck::FloorFactor`)
+  multiplies the budget share (still at most 95 %), weighs the budget's higher tiers up
+  and multiplies the ace chance (at most 50 %, `HWP::Luck::AceChance`). A client's chest
+  waits for the host's floor value (`hwp.luck.floor`) before it rolls its lock. Log
+  `[HWP:keys] luck x<f> chest lock <tier>[ (ace chance C%: ace|gold)]`; `hwp keys` shows
+  `floor Luck x<f>` after the budget.
 - **Imp offer.** `HWPImpKeyEffect` adds "a key" to the vanilla imp's random
   offers (`ImpEffect`), the tier scaled by the floor the same way.
 - **General Merchant.** The exit guard by the run start (our copy of
@@ -94,7 +100,7 @@ Open decisions: the budget share (`keys.budget_share`), legendary balance and sl
 whether resource caches should want keys too.
 
 - **Luck** (core `HWP::Luck`, `docs/design/luck.md`). `HWPChest::Use` rolls the
-  chest's table through `HWP::Luck::SpawnLoot` at the party's factor (the rarer
+  chest's table through `HWP::Luck::SpawnLoot` at the opener's factor, once for the party (the rarer
   entries of each pool weigh more; the table is taken off the behaviour around
   `Chest::Use` and put back), which covers every reward chest, cache and puzzle
   room reward. A kill's boss key chance and the normal-kill candidate share use the

@@ -4,8 +4,10 @@
   "overrides": [
     "gui/playermenu/character.gui",
     "gui/playermenu/playermenu.gui",
+    "scripts/BlueprintBank.as",
     "scripts/GUI/CreateCharacter/CreateCharacterClass.as",
     "scripts/GUI/PlayerMenu/Modifications.as",
+    "scripts/WorldScript/RewardSpot.as",
     "system/messages.net",
     "tweak/missions/themes_forest.sval",
     "tweak/missions/themes_heaven.inc",

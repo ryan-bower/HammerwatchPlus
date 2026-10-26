@@ -1,9 +1,33 @@
 # Luck: design
 
 Luck is a core attribute (`mods/core/scripts/HWP/Core/Luck.as`, namespace `HWP::Luck`)
-that makes the rarer outcome of a drop roll more likely. It never adds drops: a pool that
-pays nothing some of the time pays nothing just as often, what changes is which entry
-comes up when it does pay. This file holds the settled decisions and where each is built.
+that makes the rarer outcome of a drop roll more likely. On a drop roll it never adds
+drops: a pool that pays nothing some of the time pays nothing just as often, what changes
+is which entry comes up when it does pay. On a generated floor the party's Luck also leans
+the floor's reward counts toward their vanilla maximum and raises a few spawn chances
+(below). This file holds the settled decisions and where each is built.
+
+## Who rolls in co-op
+
+A shared drop rolls once, on the host, and every player gets what it picked (vanilla's
+rule: shared entries spawn once, instanced entries such as gear and trinkets spawn once
+per player at the picked tier). The question is only whose Luck the roll uses:
+
+- **Opened drops** (chests, caches, puzzle room chests, strongboxes, a fish's loot): the
+  opener's Luck (`OpenerFactor`). The luckiest player opening the chest makes the whole
+  party's chest lucky.
+- **Drops nobody opens** (an abyss crack's payout, the key drop's host accept roll): the
+  party's average (`PartyFactor`).
+- **Generated floors** (secret rooms, the imp, reward spots, blueprints, fishing holes,
+  the key budget, ace chests): the party's average as of the save the floor came from
+  (`FloorFactor`, below). The host broadcasts it (`hwp.luck.floor`, every 3 s) so a roll
+  every machine makes from a hash (a chest's ace lock) uses the same value; a client's
+  chest waits for it as it waits for the host's settings (`FloorReady`).
+
+A record's stats are computed on its own machine, so each machine reports its local
+player's Luck to the host (`hwp.luck.report` through `HWP::Net::Request`, on change and
+every 5 s); the host reads a remote player's Luck from the last report and falls back to
+its own copy of the record until the first one arrives.
 
 ## The stat
 
@@ -17,10 +41,22 @@ comes up when it does pay. This file holds the settled decisions and where each 
   - `float Of(PlayerBase@)` and `OfRecord(PlayerRecord@)`: total Luck points, 0 for null.
   - `float Factor(PlayerBase@)` and `FactorRecord(PlayerRecord@)`: `1 + luck / 100`
     (1.0 for null or no luck; never below 0).
-  - `float PartyLuck()` and `PartyFactor()`: the average Luck of everyone in the lobby
-    (`g_players`, peer 255 skipped; the local record when the list is empty). Average,
-    not maximum: a shared drop is as lucky as the party is, one player stacking Luck
-    helps a four-player lobby a quarter as much.
+  - `float OpenerLuck(PlayerRecord@)` and `OpenerFactor(PlayerRecord@)`: that player's
+    Luck as their own machine reported it (the host's copy of the record for the local
+    player or before a report); `OpenerNote(rec)` is the log suffix
+    ` (opener <name>, Luck <n>)`.
+  - `float PartyLuck()` and `PartyFactor()`: the average reported Luck of everyone in
+    the lobby (`g_players`, peer 255 skipped; the local record when the list is empty).
+    Average, not maximum: a drop nobody opens is as lucky as the party is, one player
+    stacking Luck helps a four-player lobby a quarter as much.
+  - `float FloorLuck()` and `FloorFactor()` (`LuckFloors.as`): the party's average for
+    the current floor. The host keeps `PartyLuck` (rounded to 0.1) in the run scalar
+    `hwp_luck_party`; the level's save carries it into the next floor's generation
+    context (a separate script context with no lobby records, `docs/RE_NOTES.md`) and
+    into the level. Each floor snapshots it on its first frame, before the host refreshes
+    it, so rolls made after the start (the fishing hole) count the same Luck as the
+    generation. Without the scalar (a client, a fresh context) it falls back to
+    `PartyLuck`.
   - `float Chance(base, factor)`: `base * factor` capped at 1; `bool Roll(base, factor)`.
   - `float TierUpChance(factor)`: `(factor - 1) * 0.25` capped at 0.75 (the abyss).
   - `int RollPool(Item::LootTablePool@, factor)` and
@@ -71,16 +107,48 @@ comes up when it does pay. This file holds the settled decisions and where each 
   (500 Luck) 700 : 1800 (72 %). A one-entry pool is unchanged.
 - **Plain chances** (`Chance`): the chance times the factor, capped at 1 (keys).
 - **Tiers** (`TierUpChance`): 25 % per +1.0 of factor, at most 75 % (abyss).
+- **Secret rooms** (`SecretRoomChance`): one room more than the theme's `*_secrets` set
+  allows, 50 % per +1.0 of factor, at most 75 %. The room still needs a spot its pattern
+  matches (the first bandit keep floor often has none left).
+- **Floor reward counts** (`LuckyRandf`): vanilla rolls each count as
+  `lerp(min, max, randf())`; Luck uses `1 - (1 - u)^factor` for the `randf`, so the count
+  never leaves the vanilla range but leans to its top (mean 1/2 at factor 1, 2/3 at 2,
+  6/7 at 6).
+- **Reward quality** (`LuckyIntensity`): a reward spot's intensity (0..1, from depth and
+  the spot's Quality; it picks the food, mana, chest, cache, scroll and valuable tiers)
+  has its gap to 1 divided by the factor (factor 2: 0.5 becomes 0.75).
+- **The imp** (`HWPLuckChanceSpawn`): every theme's `*_imp` set (exec-chance 0.1) runs at
+  that chance times the factor (60 % at factor 6). The generator rolls `exec-chance` before
+  `Execute`, so the swapped command sets it to 1 and rolls inside `Execute`.
+- **Keys and ace chests** (keys module): the floor's key budget share
+  (`keys.budget_share` + per extra player) times the factor, still at most 95 % of the
+  locked chests; the budget's tier pick weighs every tier above the lowest one left by the
+  factor; a gold chest's ace chance (`keys.ace_chance`, 15 %) times the factor, at most 50 %
+  (`AceChance`).
+- **Blueprint picks** (`PickByQuality`): vanilla picks a recipe uniformly; Luck weighs
+  every candidate rarer than the commonest quality on offer by the factor (the RollPool
+  rule). Among two commons, an uncommon and a rare, factor 6 picks a rare 43 % of the
+  time instead of 25 %.
 
 ## Where it applies
 
 | Site | Luck used | Built |
 |---|---|---|
-| Reward chests, caches, puzzle room rewards (any `Chest` unit, which the keys module swaps for `HWPChest`; a puzzle room's reward is a RewardSpot that spawns a chest) | party factor on the chest's table | `mods/keys/scripts/HWP/Keys/HWPChest.as` `Use`: the table is taken off the behaviour around `Chest::Use` and rolled by `SpawnLoot`; log `[HWP:keys] luck x<f> chest <key|open> loot` |
-| Strongbox payout | party factor | `mods/strongbox/.../Strongbox.as` `HWPStrongbox::Pay`; log `[HWP:strongbox] luck x<f> payout` |
+| Reward chests, caches, puzzle room rewards (any `Chest` unit, which the keys module swaps for `HWPChest`; a puzzle room's reward is a RewardSpot that spawns a chest). Dyes are chest loot, so they ride on this | the opener's factor on the chest's table | `mods/keys/scripts/HWP/Keys/HWPChest.as` `Use`: the table is taken off the behaviour around `Chest::Use` and rolled by `SpawnLoot`; log `[HWP:keys] luck x<f> chest <key\|open> loot (opener <name>, Luck <n>)` |
+| Strongbox payout | the opener's factor (who paid) | `mods/strongbox/.../Strongbox.as` `HWPStrongbox::Pay`; log `[HWP:strongbox] luck x<f> payout (opener ...)` |
 | Abyss crack payout | party factor: tier-up roll, then the table | `mods/abyss/.../Abyss.as` `Finish`; log `[HWP:abyss] luck x<f> payout hwp_abyss_reward_<t>[ (tier up)]` |
-| Key drops | killer's factor on the boss chance and the normal-kill candidate share; party factor on the host's accept roll | `mods/keys/.../KeysModule.as` `OnKill`, `OnDropRequest`; logs `[HWP:keys] luck x<f> boss key roll / <elite|normal> kill drop candidate / candidate accept roll` |
-| Fishing (bite tier bands, key chance and tier shares) | the fisher's factor | `mods/fishing/.../FishingModule.as` `LuckOf` (the fishing module's own wiring) |
+| Key drops | killer's factor on the boss chance and the normal-kill candidate share; party factor on the host's accept roll | `mods/keys/.../KeysModule.as` `OnKill`, `OnDropRequest`; logs `[HWP:keys] luck x<f> boss key roll / <elite\|normal> kill drop candidate / candidate accept roll` |
+| Fishing (bite tier bands, key chance and tier shares, catch loot) | the fisher's reported factor | `mods/fishing/.../FishingModule.as` `LuckOf` |
+| Secret rooms per floor | floor factor | `HWPLuckSecretSpawn` (`LuckFloors.as`), swapped in for every `*_secrets` `SpawnPrefabSet` by the module constructor; log `[HWP:luck] secrets <set> on <level>: party Luck N, extra room chance C%: rolled\|not rolled, max M, placed P` |
+| Floor rewards: the counts of trinket picks, trinkets, equipment chests, caches, exp scrolls, valuables, health food and mana pickups; their tiers; the blueprint chance (25 % x factor) | floor factor | core's `WorldScript/RewardSpot.as` override (vanilla in `.orig` beside it, changes marked `// HWP`); log `[HWP:luck] floor rewards at party Luck x<f>: blueprint chance C% -> N, ...`. Skill spheres and material piles stay vanilla |
+| Blueprint recipes (food and drink, enchantments, trinkets) | floor factor | core's `BlueprintBank.as` override (`.orig` beside it); log `[HWP:luck] blueprint <kind> picked of <n> at x<f>: quality <q>` |
+| The imp's room | floor factor on the `*_imp` set's exec-chance | `HWPLuckChanceSpawn` (`LuckFloors.as`); log `[HWP:luck] chance set <set> on <level>: party Luck N, chance C% (10% vanilla): rolled\|not rolled, placed P` |
+| Key budget per floor, its tiers, ace chests | floor factor | `KeysModule.as` `BudgetTotal`, `PickBudgetTier`; `HWPChest.as` `Decide`; log `[HWP:keys] luck x<f> chest lock <tier>[ (ace chance C%: ace\|gold)]`, `hwp keys` shows `floor Luck x<f>` |
+| Fishing holes per floor | floor factor on the run chance (30 % x factor) | `FishingModule.as` `SetupRun`; log `[HWP:fishing] run hole chance C% (B% at party Luck x<f>): rolled\|not rolled\|boss room` |
+
+Chest counts and their bronze, silver and gold tiers come from the reward spots above.
+Not Luck-driven (vanilla or module odds): puzzle room, shrine, shop, strongbox and abyss
+crack spawn chances, skill spheres, gold and material piles.
 
 Without the keys module a vanilla `Chest` pays its vanilla roll: Luck then reaches chests
 only through the modules above.
@@ -92,5 +160,18 @@ status line after `hwp luck 50`, the sheet row, the affix item (`hwp luck item 2
 the buff (`hwp luck buff 25 4000` is on, adds 25, is gone 5 s later), the no-spawn rolls
 (`hwp luck roll hwp_strongbox 3000 0` vs `500`: more epics; `roll chance 40` and
 `roll tier`), and two live drop sites: a spawned strongbox opened in town (no enemies to
-sample, so it pays at once) and a spawned resource cache, each logging its factor and
-`[HWP:luck] loot <what> factor <f> picks ...`.
+sample, so it pays at once) and a spawned resource cache, each logging the opener's
+factor and `[HWP:luck] loot <what> factor <f> picks ...`. The floor formulas are sampled
+there too (`roll quality`, `roll secret`, `roll count`): the lab town has no tavern,
+enchanter or library, so no blueprint factory can produce one in a test.
+
+`gamelab/scenarios/fix-luck-floors.json` (town, then the first bandit keep floor at
+`hwp luck 500`): the scalar reaches generation and the level, the keep's secret set rolls
+at 75 %, the reward spots at a 100 % blueprint chance, the fishing hole at 100 %, each
+locked chest at x6 (a gold one at a 50 % ace chance), the key budget at x6.
+`gamelab/scenarios/fix-luck-imp.json` (the crypt mission's first floor, temple theme):
+`temple_imp` at 60 %.
+
+Not tested on two machines: the clients' Luck reports reaching the host, and a client's
+own view of the floor (a client without the scalar uses its own `PartyLuck`, which only
+matters for client-side rolls, of which there are none on floors today).

@@ -8,7 +8,8 @@ fix-core-luck), in town as the host:
 - `hwp luck buff 25 4000`: `gl hasbuff` sees tweak/hwp/buffs_luck.sval:hwp_luck_charm,
   the status reads 85; 5 s later the buff is gone and the status is back to 60.
 - `hwp luck roll hwp_strongbox 3000 0` vs `... 500`: the trinket pool's epic count is
-  higher at 500 Luck; `roll chance 40 3000` hits more; `roll tier 3000` ups 0 -> many.
+  higher at 500 Luck; `roll chance 40 3000` hits more; `roll tier 3000` ups 0 -> many;
+  `roll quality` picks more rares, `roll secret` adds rooms, `roll count` leans counts up.
 - a strongbox spawned next to the player and used (no enemies in town to sample a pack
   from, so it pays at once) logs `[HWP:strongbox] luck x1.6 payout` and
   `[HWP:luck] loot strongbox factor 1.6`; a spawned bronze resource cache (a Chest unit,
@@ -106,6 +107,19 @@ class Checks(Base):
         ua = re.findall(r"tier luck 0 factor 1 n 3000: ups (\d+)", self.hwp("luck roll tier 3000 0", 1.0, until="ups"))
         ub = re.findall(r"tier luck 500 factor 6 n 3000: ups (\d+)", self.hwp("luck roll tier 3000 500", 1.0, until="ups"))
         self.flag("roll_tier_up", ua and ub and int(ua[-1]) == 0 and 2000 < int(ub[-1]) < 2500, f"ups {ua} {ub}")
+        # floors (LuckFloors.as): blueprint quality picks among {common, common, uncommon, rare}
+        # weigh the rarer ones x6 at 500 Luck (rare ~750 -> ~1286 of 3000); the extra secret
+        # room 0 -> 75 %; a reward count's lean, mean 1/2 -> 6/7
+        qa = re.findall(r"quality luck 0 factor 1 n 3000: common (\d+) uncommon (\d+) rare (\d+)", self.hwp("luck roll quality 3000 0", 1.0, until="rare"))
+        qb = re.findall(r"quality luck 500 factor 6 n 3000: common (\d+) uncommon (\d+) rare (\d+)", self.hwp("luck roll quality 3000 500", 1.0, until="rare"))
+        self.flag("roll_quality_up", qa and qb and int(qb[-1][2]) > int(qa[-1][2]) + 300 and int(qb[-1][0]) < int(qa[-1][0]) - 600,
+                  f"common/uncommon/rare {qa} {qb}")
+        sa = re.findall(r"secret luck 0 factor 1 n 3000: extra rooms (\d+)", self.hwp("luck roll secret 3000 0", 1.0, until="extra rooms"))
+        sb = re.findall(r"secret luck 500 factor 6 n 3000: extra rooms (\d+)", self.hwp("luck roll secret 3000 500", 1.0, until="extra rooms"))
+        self.flag("roll_secret_up", sa and sb and int(sa[-1]) == 0 and 2100 < int(sb[-1]) < 2400, f"extra rooms {sa} {sb}")
+        ca = re.findall(r"count luck 0 factor 1 n 3000: mean (\d+)/1000", self.hwp("luck roll count 3000 0", 1.0, until="mean"))
+        cb = re.findall(r"count luck 500 factor 6 n 3000: mean (\d+)/1000", self.hwp("luck roll count 3000 500", 1.0, until="mean"))
+        self.flag("roll_count_up", ca and cb and 460 < int(ca[-1]) < 540 and 830 < int(cb[-1]) < 885, f"means {ca} {cb}")
 
     def sec_sites(self):
         # luck 60 (cheat 50 + the tier 2 piece) when the sections ran in order
