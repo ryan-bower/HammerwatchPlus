@@ -1,0 +1,146 @@
+<!-- HWP core: the vanilla gold pickup (gold.unit.orig) with all 15 coin sprites of
+     items/misc/base.png by amount: a bronze coin under 5 gold, then bronze piles (5, 10,
+     15, 20), a silver coin at 25 and silver piles (50, 75, 100, 150), a gold coin at 200 and
+     gold piles (250, 300, 350, 400+). MaterialPickup.Initialize picks the highest set at or
+     below the amount when the drop is made (mods/core/README.md, docs/RE_NOTES.md
+     2026-10-26 gold pickups); silver glints white (at 0.8 the strength), bronze and gold orange. -->
+<unit slot="item">
+	<behavior class="Material::MaterialPickup">
+		<string name="type">gold</string>
+		<string name="pickup-trigger">pickup-gold</string>
+		<array name="sets">
+			<i>1</i><s>bronze_1</s>
+			<i>5</i><s>bronze_2</s>
+			<i>10</i><s>bronze_3</s>
+			<i>15</i><s>bronze_4</s>
+			<i>20</i><s>bronze_5</s>
+			<i>25</i><s>silver_1</s>
+			<i>50</i><s>silver_2</s>
+			<i>75</i><s>silver_3</s>
+			<i>100</i><s>silver_4</s>
+			<i>150</i><s>silver_5</s>
+			<i>200</i><s>gold_1</s>
+			<i>250</i><s>gold_2</s>
+			<i>300</i><s>gold_3</s>
+			<i>350</i><s>gold_4</s>
+			<i>400</i><s>gold_5</s>
+		</array>
+	</behavior>
+	<scenes>
+		<scene name="shared">
+			<scene src="special/minimap.unit:gold"/>
+			<collision static="true">
+				<circle offset="-2 0" sensor="true" radius="18" />
+			</collision>
+		</scene>
+
+		<scene name="bronze_1" random-start="true">
+			<scene src="shared"/>
+			<effect pos="-1 0" ulayer="1" src="../gold_reflection.effect?a=0.5"/>
+			<sprite origin="8 8" texture="../misc/base.png" material="items/items.mats:item_gold">
+				<frame time="80">32 96 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="bronze_2" random-start="true">
+			<scene src="shared"/>
+			<effect pos="-1 0" ulayer="1" src="../gold_reflection.effect?a=0.75"/>
+			<sprite origin="8 8" texture="../misc/base.png" material="items/items.mats:item_gold">
+				<frame time="80">64 80 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="bronze_3" random-start="true">
+			<scene src="shared"/>
+			<effect pos="-1 0" ulayer="1" src="../gold_reflection.effect?a=0.75"/>
+			<sprite origin="8 8" texture="../misc/base.png" material="items/items.mats:item_gold">
+				<frame time="80">80 80 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="bronze_4" random-start="true">
+			<scene src="shared"/>
+			<effect pos="-1 0" ulayer="1" src="../gold_reflection.effect?a=0.75"/>
+			<sprite origin="8 8" texture="../misc/base.png" material="items/items.mats:item_gold">
+				<frame time="80">96 80 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="bronze_5" random-start="true">
+			<scene src="shared"/>
+			<effect pos="5 0" ulayer="3" src="../gold_reflection.effect"/>
+			<effect pos="-3 -4" ulayer="3" delay="1000" src="../gold_reflection.effect"/>
+			<sprite origin="8 8" texture="../misc/base.png" material="items/items.mats:item_gold">
+				<frame time="80">112 80 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="silver_1" random-start="true">
+			<scene src="shared"/>
+			<effect pos="-1 0" ulayer="1" src="../material_reflection.effect?a=0.4"/>
+			<sprite origin="8 8" texture="../misc/base.png" material="items/items.mats:item_gold">
+				<frame time="80">48 96 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="silver_2" random-start="true">
+			<scene src="shared"/>
+			<effect pos="-1 0" ulayer="1" src="../material_reflection.effect?a=0.6"/>
+			<sprite origin="8 8" texture="../misc/base.png" material="items/items.mats:item_gold">
+				<frame time="80">64 96 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="silver_3" random-start="true">
+			<scene src="shared"/>
+			<effect pos="-1 0" ulayer="1" src="../material_reflection.effect?a=0.6"/>
+			<sprite origin="8 8" texture="../misc/base.png" material="items/items.mats:item_gold">
+				<frame time="80">80 96 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="silver_4" random-start="true">
+			<scene src="shared"/>
+			<effect pos="-1 0" ulayer="1" src="../material_reflection.effect?a=0.6"/>
+			<sprite origin="8 8" texture="../misc/base.png" material="items/items.mats:item_gold">
+				<frame time="80">96 96 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="silver_5" random-start="true">
+			<scene src="shared"/>
+			<effect pos="5 0" ulayer="3" src="../material_reflection.effect?a=0.6"/>
+			<effect pos="-3 -4" ulayer="3" delay="1000" src="../material_reflection.effect?a=0.6"/>
+			<sprite origin="8 8" texture="../misc/base.png" material="items/items.mats:item_gold">
+				<frame time="80">112 96 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="gold_1" random-start="true">
+			<scene src="shared"/>
+			<effect pos="-1 0" ulayer="1" src="../gold_reflection.effect?a=0.5"/>
+			<sprite origin="8 8" texture="../misc/base.png" material="items/items.mats:item_gold">
+				<frame time="80">48 112 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="gold_2" random-start="true">
+			<scene src="shared"/>
+			<effect pos="-1 0" ulayer="1" src="../gold_reflection.effect?a=0.75"/>
+			<sprite origin="8 8" texture="../misc/base.png" material="items/items.mats:item_gold">
+				<frame time="80">64 112 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="gold_3" random-start="true">
+			<scene src="shared"/>
+			<effect pos="-1 0" ulayer="1" src="../gold_reflection.effect?a=0.75"/>
+			<sprite origin="8 8" texture="../misc/base.png" material="items/items.mats:item_gold">
+				<frame time="80">80 112 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="gold_4" random-start="true">
+			<scene src="shared"/>
+			<effect pos="-1 0" ulayer="1" src="../gold_reflection.effect?a=0.75"/>
+			<sprite origin="8 8" texture="../misc/base.png" material="items/items.mats:item_gold">
+				<frame time="80">96 112 16 16</frame>
+			</sprite>
+		</scene>
+		<scene name="gold_5" random-start="true">
+			<scene src="shared"/>
+			<effect pos="5 0" ulayer="3" src="../gold_reflection.effect"/>
+			<effect pos="-3 -4" ulayer="3" delay="1000" src="../gold_reflection.effect"/>
+			<sprite origin="8 8" texture="../misc/base.png" material="items/items.mats:item_gold">
+				<frame time="80">112 112 16 16</frame>
+			</sprite>
+		</scene>
+	</scenes>
+</unit>

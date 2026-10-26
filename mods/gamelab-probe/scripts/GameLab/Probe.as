@@ -313,6 +313,11 @@ namespace GameLab
 		ref@ b = u.GetScriptBehavior();
 		e.Str("behavior", b is null ? "" : Reflect::GetTypeName(b));
 		e.Bool("usable", cast<IUsable>(b) !is null);
+		auto scene = u.GetCurrentUnitScene();
+		e.Str("scene", scene is null ? "" : scene.GetName());
+		auto mat = cast<Material::MaterialPickup>(b);
+		if (mat !is null)
+			e.Int("amount", mat.m_amount);
 		auto actor = cast<Actor>(b);
 		if (actor !is null)
 			e.Num("hp", actor.GetHealth()).Int("hpMax", actor.GetMaxHp())
@@ -326,6 +331,8 @@ namespace GameLab
 	// near [radius] [filter]: units within radius (default 200) of the player,
 	// nearest first, capped at NEAR_CAP; "truncated" reports how many were left out
 	// Actor hp stays a fraction; hpMax and hpExact report native maximum and current HP units.
+	// Each unit also reports its current scene (UnitPtr.GetCurrentUnitScene) and a material
+	// pickup its amount (Material::MaterialPickup.m_amount, fixed when it was dropped).
 	void VerbNear(const string &in id, array<string>@ args)
 	{
 		auto plr = GetLocalPlayer();

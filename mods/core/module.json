@@ -2,6 +2,7 @@
   "id": "core",
   "requires": [],
   "overrides": [
+    "items/materials/gold.unit",
     "gui/playermenu/character.gui",
     "gui/playermenu/playermenu.gui",
     "scripts/BlueprintBank.as",

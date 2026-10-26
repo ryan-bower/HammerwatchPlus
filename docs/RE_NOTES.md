@@ -3697,3 +3697,41 @@ Design and the site table: `docs/design/luck.md`.
 - `mod-keys` 20261026-124945 and `mod-all` 20261026-125000 pass.
 - Not checked in game: the merchant's ace key price and icon (data only), two machines
   (each counts the area itself, nothing is sent).
+
+## 2026-10-26: gold pickups show their amount with 15 coin sprites
+
+Engine facts:
+
+- Gold gain is applied at pickup, not at the drop. `MaterialPickup` takes
+  `player.m_record.GetMaterialModifier(m_type)` when the gold is collected
+  (`Behaviors/Objects/MaterialPickup.as:262`). That is `(MaterialGainMul +
+  g_ngp * Tweak::NGPMaterialGain) * MaterialGainMulMul` (`PlayerRecord.as:2558`; trinkets
+  and gear add `gold-mul` 1.1-2). So the scene, picked in `Initialize` from the amount
+  passed to `DropMaterial`, shows the base amount. Our Luck does not change gold amounts
+  either: it changes which loot entries roll and how often, and a `LootMaterial` rolls
+  `randi(max - min) + min` (`Items/LootTable.as`).
+- A floor reward spot of gold (`WorldScript/RewardSpot.as:196-219`) is
+  `75 * lerp(0.5, 3, intensity) * (0.5 + randf())`, at most about 337. Up to three extra
+  piles drop at 25-66 % of that.
+- `UnitPtr.GetCurrentUnitScene().GetName()` gives a unit's current scene name (vanilla
+  `ShadowWall.as:18`).
+
+Built: core overrides `items/materials/gold.unit` (with a pristine `.orig`). The behavior
+and the `shared` scene are vanilla. The `sets` are 1/5/10/15/20 bronze coin and piles,
+25/50/75/100/150 silver, and 200/250/300/350/400 gold (frames bronze 32 96, 64-112 80;
+silver 48 96, 64-112 96; gold 48 112, 64-112 112). The biggest pile of each metal has
+vanilla 250g's two glints. Silver uses the white `material_reflection.effect` at 0.8 the
+alpha; the rest use `gold_reflection.effect`. The `several` scene set and vanilla scene
+names are gone; nothing in the scripts refers to them. The silver piles are the art of
+Avarice's fool's gold (`u_fools_gold_*`); the user is fine with that. The thresholds were
+lowered from the user's first idea (silver at 100, gold at 1000) because no single drop
+reaches 1000 (survey above and in the core README); the largest are 200-450.
+
+`gl near` now reports each unit's `scene` and a material pickup's `amount`.
+
+Tests: `fix-gold-sprites` 20261026-131823 passed. All 15 thresholds took their scene with
+the right amount. The amounts just under them (4, 9, 24, 49, 149, 199, 399) took the tier
+below, and 1000 and 5000 stayed on gold_5. Walking onto the 300 pile paid gold (0 to
+725 with neighbours). The screenshots show three rows: bronze, silver, gold. `mod-all`
+20261026-131915 passed; `build.py --check` and `list_verbs.py --check` are OK. Not seen:
+how it reads at full resolution (the lab renders 640x360).

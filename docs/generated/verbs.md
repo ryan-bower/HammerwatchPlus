@@ -168,7 +168,7 @@ Send one as `gl <id> <verb> args` (a `{"do": "gl", "verb": ...}` scenario step, 
 | `classes` |  | player classes the fixture recipes can name |
 | `cvars` | `<name>...` | cvars <name>...: values as the running game holds them (the loaded settings, not the file on disk); the launcher's mute check reads snd_volume* here |
 | `inv` |  | inv: materials as the game reads them (PlayerRecord.GetMaterial: the town's store while in town, the character's own on a mission) |
-| `near` | `[radius] [behaviorOrUnitName]` | near [radius] [filter]: units within radius (default 200) of the player, nearest first, capped at NEAR_CAP; "truncated" reports how many were left out Actor hp stays a fraction; hpMax and hpExact report native maximum and current HP units. |
+| `near` | `[radius] [behaviorOrUnitName]` | near [radius] [filter]: units within radius (default 200) of the player, nearest first, capped at NEAR_CAP; "truncated" reports how many were left out Actor hp stays a fraction; hpMax and hpExact report native maximum and current HP units. Each unit also reports its current scene (UnitPtr.GetCurrentUnitScene) and a material pickup its amount (Material::MaterialPickup.m_amount, fixed when it was dropped). |
 | `usables` |  | usables: what the player could interact with right now, top (the one Use acts on) first |
 | `sval` | `<file.sval>` | sval <file.sval>[:entry]: read-only. A datatable as the game parsed it, as JSON, sent in parts when long. |
 | `char` | `<classId> <name>` | fixture verb: char <classId> <name> The same steps as CreateCharacterWindow's "create" (GUI/CreateCharacterWindow.as), minus the portrait/colour pickers, which CreateCharacter defaults. |
