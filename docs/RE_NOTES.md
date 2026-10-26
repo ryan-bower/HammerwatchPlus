@@ -3617,10 +3617,12 @@ Design and the site table: `docs/design/luck.md`.
   chests at 134 0/18/36 (12 x 18), the map reward chest at 171 0 (18 x 19,
   `items/equipment_map_reward.unit`). Unused (17): the trinket chest at 134 54, and a 4 x 4
   block at 32-84 x 0-72, rows bronze, silver, blue steel and gold (18 px each), columns at
-  x 32, 44 and 56 (12 px, trinket size: plain, strapped, rimmed; the gold rimmed one has a
-  red lid) and 68 (16 px, large and ornate). The chests in the block touch, so the columns
-  were found from their bright 2 px side rims (32-33 ... 42-43, 44-45 ... 54-55, 56-57 ...,
-  68-69 ... 82-83).
+  x 32 and 44 (12 px, trinket size: plain, strapped) and 56 and 70 (14 px: rimmed, the gold
+  one with a red lid; large and ornate). The chests in the block touch, so the columns were
+  found from their bright 2 px side rims (32-33 ... 42-43, 44-45 ... 54-55, 56-57 ... 68-69,
+  70-71 ... 82-83; 76-77 is the large chest's middle strap, not an edge). The first cuts
+  took 56 and 68 as 12 and 16 px, which clipped the rimmed chests' right rim and gave the
+  large ones that rim on their left.
   The picks are in its database (`picks/main`); the alt-art chests are built from them.
   The frames at 116 0 and 84 0 in base.png are chest shadows, not chests.
 
