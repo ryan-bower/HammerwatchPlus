@@ -26,6 +26,7 @@ Shared library every other HammerwatchPlus module depends on. It adds no gamepla
 | `scripts/HWP/Core/SubclassPick.as` | **Subclass Picker skill row by type.** The vanilla picker shows a spec's last two skill defs as "Active" and "Passive", wrong for the HWP specs (Sniper's Flashbang and Decoy are both actives, Snipe never shows). Core patches the open picker in place each time it shows another class: the spec's own skills (those its parent class lacks), actives first then passives, each labelled by its real type, up to four slots across the row. Vanilla specs look the same as before. GameLab: slots are `skill-active-name`, `skill-passive-name`, `hwp-pick-name2`..; labels `hwp-pick-label0`..; `gl classskills <classId>` lists the defs it is checked against |
 | `scripts/HWP/Core/SkillKeys.as` + `SkillKeysHUD.as` | **Extra skill keys.** The game has three skill buttons and gives the 3rd and every later active spell Skill3, so they all fire on one press. Core swaps the local player's `PlayerTargetingHelper` for `HWPSkillKeysHelper`, whose `GetSkillInput` override gives the 4th, 5th and 6th active their own raw key (Plus tab rows `skill4`-`skill6`, settings `skillkeys.skill4`-`6`, default the 4, 5, 6 keys; vanilla binds 1 2 3 Q E V). The vanilla targeting code then serves them like any skill button; Skill3 fires only the 3rd. Keys are ignored while a text field or the chat has the keyboard and on the Plus tab. `HWPSkillKeysHUDPlayer` replaces the HUD's player bar: more than four skill slots, the extra key's name above each extra skill. Keyboard only (no gamepad buttons are left). `hwp skillkeys` lists the keys and what each casts. GameLab: `gl input ... hwp_skill4` holds the key (GlobalCache `hwp_skillkeys_held`) |
 | `scripts/HWP/Core/CoreModule.as` | boot self-checks; prints every mod id's save hash for `gamelab/hps.py` |
+| `scripts/HWP/Core/Luck.as` + `tweak/hwp/modifiers_luck.sval`, `trinkets_luck.sval`, `buffs_luck.sval` | `HWP::Luck`: the **Luck** stat (below, and `docs/design/luck.md`): `Of`, `Factor` (1 + luck/100), `PartyFactor`, `Chance`, `TierUpChance`, `RollPool` / `SpawnLoot` (a luck-weighted loot table roll), `GiveBuff` (the timed Luck buff), `LogRoll`; `hwp luck` |
 
 ## Why character.gui is overridden
 
@@ -79,6 +80,31 @@ The boot log shows `generator safety net: HWPOutdoorGenerator`.
 HoH2 declares all network messages in one file. There is no merge mechanism, so
 the core module ships a copy with two generic messages appended. `tools/build.py
 --check` flags the day a game update changes the original.
+
+## Luck
+
+A custom stat (`hwp-luck`, `Modifiers::CustomStat`) summed by the vanilla modifier
+pass, so anything with modifiers gives it: the rolled "of Fortune" armour affixes
+(`hwp_mod_luck_1..3`: +5 uncommon, +10 rare, +20 epic, one per generator slot, one
+exclusive group), the Rabbit's Foot trinket (`hwp_trinket_rabbit_foot`, +10, attuned
++20), and the 10-minute buff `tweak/hwp/buffs_luck.sval:hwp_luck_charm` that herbs
+(farming), fish (fishing) and `hwp luck buff` apply through `HWP::Luck::GiveBuff`. The
+character sheet's Mods tab lists it after Thorns (row `hwp-luck`, "N Luck").
+
+`Factor = 1 + luck / 100` is what a drop site multiplies its rarer outcomes by:
+`SpawnLoot` rolls a loot table with every entry lighter than the pool's heaviest one
+weighted by the factor (the empty share keeps its weight: Luck changes what drops, not
+how often), `Chance` scales a plain chance capped at 1, `TierUpChance` is 25 % per +1.0
+of factor capped at 75 %. Shared host-rolled drops (chests, strongboxes, abyss cracks,
+the keys budget's accept roll) use `PartyFactor()`, the lobby's average; personal rolls
+(a kill's key chance, a catch) the player's own. Each site logs
+`[HWP:<module>] luck x<factor> <what>` before it rolls.
+
+Cheats (`e_cheats 1`): `hwp luck <n>` (an exact modifier on the local record),
+`hwp luck buff [n] [ms]`, `hwp luck item <tier>` (a chest piece with only that affix,
+equipped), `hwp luck roll <table|chance <pct>|tier> <n> [luck]` (n rolls, no spawning,
+counts per entry). `hwp luck` alone: `Luck: N (factor F; party factor P; cheat C)`.
+Scenario: `fix-core-luck` (`gamelab/bots/fix_luck.py`).
 
 ## Testing
 

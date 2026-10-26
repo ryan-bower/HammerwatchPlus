@@ -32,6 +32,10 @@ Path of Exile's Abyss, scaled down to a HoH2 level.
 
   Tier 1 is about a silver chest, tier 2 a gold one, tier 3 a little more than
   a platinum one. `hwp abyss` shows the tier of the current floor.
+  **Luck** (core `HWP::Luck`, `docs/design/luck.md`): the party's factor first
+  rolls a tier up (25 % per +1.0 of factor, at most 75 %, never past tier 3), then
+  the table is rolled by `HWP::Luck::SpawnLoot` at that factor (the rarer entries
+  weigh more). Log: `[HWP:abyss] luck x<f> payout hwp_abyss_reward_<t>[ (tier up)]`.
 - **Messages.** `abyss.wave {n,total}` and `abyss.done` are broadcast and shown
   as chat lines on every machine.
 - Settings: `abyss.enabled`, `abyss.chance`, `abyss.waves`, `abyss.wave_base`,
@@ -49,6 +53,8 @@ Path of Exile's Abyss, scaled down to a HoH2 level.
    players waves 2 and 3 have elites, the last one two.
 5. `python -m gamelab run mod-abyss-tiers --mode lab`: Dark Citadel floor 1
    pays `hwp_abyss_reward_1`, its new game+ floor 1 `hwp_abyss_reward_3`.
+6. Luck: `hwp luck roll tier 3000 500` (fix-core-luck) ups about 2250 of 3000;
+   `hwp luck roll hwp_abyss_reward_2 3000 500` shows the epic shares up.
 
 Timeout: a wave that is still alive after 2 minutes closes the crack without
 a reward (no next wave, no loot). Wave members only spawn on free spots; a

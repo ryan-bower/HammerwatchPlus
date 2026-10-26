@@ -228,14 +228,23 @@ class HWPAbyssCrack
 		if (reward)
 		{
 			HWP::Abyss::g_cleared++;
-			string id = HWP::Abyss::LOOT + HWP::Abyss::RewardTier();
+			// Luck (core HWP::Luck, docs/design/luck.md): the party's factor gives a
+			// chance of the next reward tier (25 % per +1.0 of factor, at most 75 %),
+			// and the table itself is rolled at that factor by HWP::Luck::SpawnLoot
+			int tier = HWP::Abyss::RewardTier();
+			float factor = HWP::Luck::PartyFactor();
+			bool up = tier < 3 && randf() < HWP::Luck::TierUpChance(factor);
+			if (up)
+				tier++;
+			string id = HWP::Abyss::LOOT + tier;
 			auto table = Item::GetLootTable(id);
 			auto looter = HWP::Spawner::NearestPlayer(pos);
+			HWP::Luck::LogRoll("abyss", "payout " + id + (up ? " (tier up)" : ""), factor);
 			if (table is null)
 				HWP::LogError("abyss", "missing loot table " + id);
 			else if (looter !is null)
 			{
-				table.SpawnLoot(looter, pos);
+				HWP::Luck::SpawnLoot(table, looter, pos, factor, id);
 				HWP::Log("abyss", "payout " + id);
 			}
 			HWP::Net::Broadcast(HWP::Abyss::DONE);

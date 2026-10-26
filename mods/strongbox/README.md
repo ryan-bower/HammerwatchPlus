@@ -21,6 +21,10 @@ Path of Exile style strongboxes.
   as fallback), which destroys the box and spawns `hwp_strongbox`
   (`tweak/hwp/loot_strongbox.sval`: gold, a valuable, a rare/epic trinket, a
   rare/epic equipment piece, maybe ore).
+- **Luck.** The payout goes through `HWPStrongbox::Pay`: the table is taken off
+  the behaviour around `Chest::Use` and rolled by core `HWP::Luck::SpawnLoot` at
+  the party's luck factor (rare/epic shares weigh more; `docs/design/luck.md`).
+  Log: `[HWP:strongbox] luck x<f> payout`.
 - **State sync.** `strongbox.state {unit, state}` is broadcast on arm and on
   clear so clients show the cross icon while the pack is alive.
 - Settings: `strongbox.enabled`, `strongbox.chance`, `strongbox.pack`,
@@ -36,6 +40,9 @@ Path of Exile style strongboxes.
    crack placed on the same level stay at least 300 px apart (core `PickFarSpot`
    claims each spot it hands out).
 4. Co-op: the client sees the box, can arm it, and gets the loot when cleared.
+5. `python -m gamelab run fix-core-luck --mode lab`: a box spawned in town and used
+   (nothing to sample) pays at once and logs `[HWP:strongbox] luck x1.6 payout`;
+   `hwp luck roll hwp_strongbox 3000 500` shows the epic shares up.
 
 Timeout: if the pack is still alive 3 minutes after arming (kited, stuck,
 left behind) the box seals itself and disappears without loot. Pack members

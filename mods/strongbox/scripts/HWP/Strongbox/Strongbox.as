@@ -124,6 +124,27 @@ class HWPStrongbox : Chest
 
 	void SetRemoteState(int state) { m_state = state; }
 
+	// The payout (host): Chest::Use destroys the box and would spawn the loot with the
+	// vanilla roll; the table is taken off for that call and rolled by core
+	// HWP::Luck::SpawnLoot at the party's luck factor instead (docs/design/luck.md).
+	void Pay(PlayerBase@ player)
+	{
+		Item::LootTable@ table = m_lootTable;
+		vec3 pos = m_unit.GetPosition();
+		float factor = HWP::Luck::PartyFactor();
+		if (Network::IsServer() && table !is null)
+		{
+			@m_lootTable = null;
+			HWP::Luck::LogRoll("strongbox", "payout", factor);
+		}
+		Chest::Use(player);
+		if (Network::IsServer() && table !is null)
+		{
+			@m_lootTable = table;
+			HWP::Luck::SpawnLoot(table, player, pos, factor, "strongbox");
+		}
+	}
+
 	bool CanUse(PlayerBase@ player) override
 	{
 		if (m_state != 0)
@@ -158,7 +179,7 @@ class HWPStrongbox : Chest
 		{
 			HWP::Log("strongbox", "no enemies left to sample a pack from; opening");
 			m_state = 2;
-			Chest::Use(player);
+			Pay(player);
 			return;
 		}
 		int count = HWP::Strongbox::g_packBase + HWP::Strongbox::g_packPerPlayer * HWP::Spawner::PlayerCount();
@@ -167,7 +188,7 @@ class HWPStrongbox : Chest
 		{
 			HWP::Log("strongbox", "no free spot for a pack; opening");
 			m_state = 2;
-			Chest::Use(player);
+			Pay(player);
 			return;
 		}
 		if (randi(100) < HWP::Strongbox::g_eliteChance)
@@ -221,7 +242,7 @@ class HWPStrongbox : Chest
 		if (opener is null)
 			@opener = HWP::Spawner::NearestPlayer(m_unit.GetPosition());
 		if (opener !is null)
-			Chest::Use(opener); // destroys the box and spawns the loot on the host
+			Pay(opener); // destroys the box and spawns the loot on the host
 		else
 			m_unit.Destroy();
 	}

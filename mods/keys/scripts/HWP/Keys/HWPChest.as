@@ -201,7 +201,26 @@ class HWPChest : Chest
 			}
 		}
 		int before = m_key.isEmpty() ? 0 : player.m_record.GetKeys(m_key);
+		// Luck (core HWP::Luck, docs/design/luck.md): on the host the chest's table is
+		// rolled by HWP::Luck::SpawnLoot at the party's factor instead of Chest::Use's
+		// vanilla roll. The table is taken off the behaviour for the call and put back;
+		// everything else Chest::Use does (key, destroy, trigger, sound) is unchanged.
+		// Puzzle room rewards are these chests too (a RewardSpot spawns a chest unit).
+		Item::LootTable@ luckTable;
+		vec3 luckPos = m_unit.GetPosition();
+		float luckFactor = HWP::Luck::PartyFactor();
+		if (Network::IsServer() && m_lootTable !is null)
+		{
+			@luckTable = m_lootTable;
+			@m_lootTable = null;
+			HWP::Luck::LogRoll("keys", "chest " + (m_key.isEmpty() ? "open" : m_key) + " loot", luckFactor);
+		}
 		Chest::Use(player);
+		if (luckTable !is null)
+		{
+			@m_lootTable = luckTable;
+			HWP::Luck::SpawnLoot(luckTable, player, luckPos, luckFactor, "chest");
+		}
 		if (!m_key.isEmpty() && player.m_record.local)
 		{
 			HWP::Keys::SetKeys(player.m_record, m_key, party ? before : before - 1);

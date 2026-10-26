@@ -1180,6 +1180,9 @@ namespace HWP
 			bag.SetString(HerbKey(hand), herbId);
 			bag.SetInt(HerbFloorsKey(hand), floors);
 			g_floorCounted = true;
+			// Luck (core HWP::Luck): every puff is also a timed +10 Luck buff, Lucky Leaf's +25
+			// (tweak/hwp/buffs_luck.sval, 10 min; another puff refreshes it)
+			HWP::Luck::GiveBuff(cast<PlayerBase>(rec.actor), herbId == GONE_TO ? 25.0f : 10.0f, -1, "herb " + herbId);
 			string text = Resources::GetString(".hwp.farming.smoked", { { "name", buff.m_name }, { "desc", buff.m_description },
 				{ "floors", HERB_FLOORS } });
 			Say(text);

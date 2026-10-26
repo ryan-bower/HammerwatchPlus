@@ -267,6 +267,18 @@ class PlayerMenuModificationsTab : MenuTab
 		AddStat(Modifiers::ConvertableStat::ExperienceMul, StatsText::FloatStr(stats.ExperienceMul * 100.0f) + "%");
 		AddStat("scursegain", "", StatsText::FloatStr((record.ScaleShadowCurse(1.0f)) * 100.0f) + "%");
 		AddStat(Modifiers::ConvertableStat::Thorns, stats.Thorns);
+		// HWP: the Luck stat (core HWP::Luck, a custom stat): its own widget id so the lab
+		// can read the row (gl menu mods - hwp-luck); AddStat clears the clone's id
+		{
+			auto luckRow = m_statsValueTemplate.Clone();
+			luckRow.m_visible = true;
+			luckRow.SetID("hwp-luck");
+			auto luckIcon = cast<TextWidget>(luckRow.GetWidgetById("icon"));
+			luckIcon.SetText("  ");
+			float luckVal = HWP::Luck::OfRecord(record);
+			cast<TextWidget>(luckIcon.GetWidgetById("value")).SetText("" + int(luckVal + (luckVal < 0 ? -0.5f : 0.5f)) + " " + Resources::GetString(".stat.custom.hwpluck"));
+			m_statsList.AddChild(luckRow);
+		}
 		//AddStat(Modifiers::ConvertableStat::BloodyBullionStat, StatsText::FloatStr(stats.BloodyBullionStat * 100.0f) + "%");
 
 		AddSeparator();

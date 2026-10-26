@@ -144,6 +144,11 @@ keys module, a catch can bring up a key of any tier, ace keys included.
   catch [tier]` (rolls a key too: own key in town, a pickup on a run when host), `hwp fishing bait <worm|shrimp|squid> [n]`, `hwp fishing traps <minutes>` (fill
   the traps as if back from a run that long), `hwp fishing tier <n>` (the coast's next bite tier).
 
+- **Luck from a meal.** Eating a fish (`EatFish`: the bag's Eat hint, `hwp fish eat`)
+  also gives the core Luck buff for 10 minutes, +5 Luck a star
+  (`HWP::Luck::GiveBuff`, `docs/design/luck.md`), refreshed by the next meal. Log:
+  `[HWP:luck] buff +N for 600000 ms (ate <fish>)`.
+
 ## Test checklist
 
 1. `python -m gamelab run mod-fishing --mode lab`: `[HWP:fishing] self-check done: 8 fish, 0 missing items`, no

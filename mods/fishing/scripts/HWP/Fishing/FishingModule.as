@@ -1005,6 +1005,8 @@ namespace HWP
 				return -1;
 			HWP::Market::Forget(rec, cast<Equipment::Item>(e));
 			int healed = plr.Heal(EAT_HP_PER_STAR * fish.Star());
+			// Luck (core HWP::Luck): a meal is also a timed Luck buff, +5 a star (10 min; refreshed by the next)
+			HWP::Luck::GiveBuff(plr, 5.0f * fish.Star(), -1, "ate " + fish.id);
 			PlaySound3D(Resources::GetSoundEvent("event:/sfx/items/item_food_wet"), plr.m_unit.GetPosition());
 			HWP::Log("fishing", "ate " + fish.id + " (" + fish.Star() + " stars): +" + healed + " health");
 			return healed;

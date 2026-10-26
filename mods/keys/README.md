@@ -83,6 +83,15 @@ slots, trinkets for the next run) and red legendaries.
 Open decisions: the budget share (`keys.budget_share`), legendary balance and slots,
 whether resource caches should want keys too.
 
+- **Luck** (core `HWP::Luck`, `docs/design/luck.md`). `HWPChest::Use` rolls the
+  chest's table through `HWP::Luck::SpawnLoot` at the party's factor (the rarer
+  entries of each pool weigh more; the table is taken off the behaviour around
+  `Chest::Use` and put back), which covers every reward chest, cache and puzzle
+  room reward. A kill's boss key chance and the normal-kill candidate share use the
+  killer's factor, the host's accept roll the party's (`HWP::Luck::Chance`, capped
+  at 1). Logs: `[HWP:keys] luck x<f> chest <key|open> loot`, `... boss key roll`,
+  `... <elite|normal> kill drop candidate`, `... candidate accept roll`.
+
 ## Test checklist
 
 1. `python -m gamelab run mod-keys --mode lab`: no script errors, `Making Module hwp-keys`, lang check OK.
@@ -115,3 +124,5 @@ whether resource caches should want keys too.
    drop keys the host spawned into the shared pool; either player can open a
    chest with a party key, and the client with their own bought key.
 8. Disable the module: vanilla saves still load, keys remain in the record.
+9. `python -m gamelab run fix-core-luck --mode lab`: a spawned cache used at 60 Luck
+   logs `[HWP:keys] luck x1.6 chest open loot` and `[HWP:luck] loot chest factor 1.6`.

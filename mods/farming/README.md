@@ -142,6 +142,11 @@ watered.
   farm wild pick` harvests the last one placed) and `hwp farm herb <strain>
   [n]` (herb wares to roll joints from).
 
+- **Luck.** Every puff also gives the core Luck buff
+  (`HWP::Luck::GiveBuff`, `tweak/hwp/buffs_luck.sval`, 10 minutes, refreshed by the
+  next puff): +10 Luck, Lucky Leaf +25 (`docs/design/luck.md`). Log:
+  `[HWP:luck] buff +N for 600000 ms (herb <strain>)`.
+
 ## Test checklist
 
 1. `python -m gamelab run mod-farming --mode lab`: `[HWP:farming] self-check done: 8 seeds, 3 herb buffs, 30 joint items`, no

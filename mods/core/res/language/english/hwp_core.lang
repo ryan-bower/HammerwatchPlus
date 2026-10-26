@@ -33,4 +33,15 @@
 	<string name="hwp.bag.shop_sub">Your bag: %cap% slots (up to %max%)</string>
 	<string name="hwp.bag.shop_sub_full">Your bag is full size (%max% slots)</string>
 	<string name="hwp.bag.bought">Bag slot (%cap%)</string>
+	<string name="hwp.luck.status">Luck: %luck% (factor %factor%; party factor %party%; cheat %cheat%)</string>
+	<string name="hwp.luck.buffed">Lucky Charm: +%n% Luck for a while.</string>
+	<string name="hwp.luck.item">Equipped %item% (Luck affix tier %tier%).</string>
+	<string name="hwp.luck.provider">Luck cheat</string>
+	<string name="hwp.luck.mod.suffix">of Fortune</string>
+	<string name="hwp.luck.mod.desc">+%amnt% Luck</string>
+	<string name="hwp.luck.buff.name">Lucky Charm</string>
+	<string name="hwp.luck.buff.desc">Luck is up: the rarer drops come up more often.</string>
+	<string name="hwp.luck.trinket.name">Rabbit's Foot</string>
+	<string name="hwp.luck.trinket.desc">+%amnt% Luck. Rarer loot comes up more often: chests, strongboxes, abyss cracks, keys and fish.</string>
+	<string name="stat.custom.hwpluck">Luck</string>
 </lang>

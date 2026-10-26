@@ -314,20 +314,27 @@ namespace HWP
 
 			vec2 pos = xy(killed.m_unit.GetPosition());
 			bool elite = HasTag(killed, "elite");
+			// Luck (core HWP::Luck): the killer's own factor scales the boss key chance
+			// and the share of normal kills that become candidates (capped at 1)
+			float luck = HWP::Luck::Factor(player);
 			if (HasTag(killed, "boss"))
 			{
 				int level = CurrentLevel();
 				if (g_bossKeyLevel != level)
 				{
 					g_bossKeyLevel = level;
-					if (randf() < clamp(HWP::Settings::GetFloat("keys.boss_chance", 0.2f), 0.0f, 1.0f))
+					HWP::Luck::LogRoll("keys", "boss key roll", luck);
+					if (randf() < HWP::Luck::Chance(clamp(HWP::Settings::GetFloat("keys.boss_chance", 0.2f), 0.0f, 1.0f), luck))
 						RequestDrop(pos, BossTier(), false, true);
 					return;
 				}
 				elite = true;
 			}
-			if (elite || randf() < g_normalTry)
+			if (elite || randf() < HWP::Luck::Chance(g_normalTry, luck))
+			{
+				HWP::Luck::LogRoll("keys", (elite ? "elite" : "normal") + " kill drop candidate", luck);
 				RequestDrop(pos, 0, elite, false);
+			}
 		}
 
 		// ---- the floor's key budget (host) ---------------------------------------
@@ -640,7 +647,10 @@ namespace HWP
 			}
 			else
 			{
-				if (randf() >= g_accept)
+				// Luck: the party's factor scales the host's accept chance (capped at 1)
+				float luck = HWP::Luck::PartyFactor();
+				HWP::Luck::LogRoll("keys", "candidate accept roll", luck);
+				if (randf() >= HWP::Luck::Chance(g_accept, luck))
 					return;
 				tier = PickBudgetTier(HWP::SV::Int(data, "elite", 0) != 0);
 				if (tier == 0)
