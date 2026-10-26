@@ -43,7 +43,8 @@
       "puzzles",
       "stash",
       "tavern",
-      "trinkets"
+      "trinkets",
+      "waygates"
     ],
     "forbidden_mods": [
       "gamelab-*"

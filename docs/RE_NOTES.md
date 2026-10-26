@@ -4155,3 +4155,52 @@ With these, all 38 pass on the merged tree (last reruns 20261026-135938 to -1411
   (attuned +90) and max health is 15 higher. Searing Torch 80 with its 2 s cooldown kept,
   Chicken Feet 3.5, Arctic Step 60, Tincture 8 s, Flask +2/+4 at NG+ 4, and NG+ 0 restores
   the originals.
+
+## 2026-10-26: Way Gates (teleporters across town)
+
+### Engine facts
+- **Every vanilla town building is plotless.** None of the 16 building svals names a plot.
+  `TownRecord.m_plots` is empty in the lab town. `gl build` adds the building with
+  `plotHash 0`. The base town segment (`tweak/town/prefabs_segments.sval`, set
+  `town_segment_base`) places each building prefab at a fixed cell. `PlaceTownPlacedPrefab`
+  matches the prefab to its BuildingDef (`GetBuildingDef`, any tier or the unbuilt
+  prefab). Nested prefabs (chapel, guild hall, magic shop) carry the apothecary, enchanter,
+  pyre and treasury. The cells are: tavern (-4,-11), guild hall (-53,4), blacksmith
+  (-30,28), general store (-40,28), magic shop (-64,28), chapel (40,0), library (36,22),
+  hunter's cabin (66,48), architect (9,67), tailor (-9,33), trading post (-96,16), training
+  grounds (-47,-35), apothecary (-66,48), enchanter (-55,34), pyre (61,-15), treasury
+  (-49,-18). Core's pyre lookup (`Town.as`) already walks the same table.
+- **Building variations carry no `grid-pos` or `grid-size`.** There is no footprint to aim
+  at, and the cell is the prefab's origin (inside the walk-in buildings).
+- **Vanilla keeps one NPC per unit type on the host.** `CompositeActorBehaviorNPC.
+  CheckForExistance` removes the others. With three gates, two died within a second and
+  were respawned every second. Core's `HWPLocalNPC` (an empty `CheckForExistance`) fixes
+  it.
+- **A cloned widget needs `m_idHash`.** `Widget.GetWidgetById` matches children by
+  `m_idHash` (`GetWidgetByIdImpl`), so setting only `m_id` on a `Clone()` leaves `gl press`
+  (and any lookup) unable to find it.
+- **`array.sort` with a callback throws "Index out of bounds" on an empty array.**
+- **The lab player drifts after any teleport,** at about 90 px/s. The direction differs
+  each time. There is no stick input and the Pilot is idle (`gl controller`,
+  `gl pilot status`); the cause is unknown. Read the position at once after a teleport.
+- `Scene.QueryRect(..., RaycastType::Any)` returns the walls of town buildings as
+  `:Physics_Rectangle` and `:Physics_Freeform` units, alongside furniture and actors.
+
+### Built
+- `waygates` (new mod, no overrides): `HWP/WayGates/WayGatesModule.as` (gate list, spawns,
+  the town-reload watch, `Go`) and `WayGateShop.as` (`HWPWayGateShop` and
+  `HWPWayGateMenu`, one cloned button per gate, the current one disabled).
+  `doodads/hwp/hwp_waygate.unit` uses the teleport beacon's lit pad sprite.
+  `gui/hwp_waygates.gui`, lang, settings `waygates.enabled` and `waygates.square_x/_y`,
+  and `hwp waygates [go <n>]`.
+- Where the gates go: the building's cell plus three cells south, then the nearest spot with
+  nothing solid in a 20x20 box. Actors are ignored, so the spots come out the same on
+  every machine and every reload. At every building's last tier, each gate lands within
+  about 150 px of the building's vendor.
+
+### Tests
+- mod-waygates PASS (20261026-150438). It builds a guild hall and a tavern in the fixture
+  town and reloads it. Then 3 gates are listed (square first), with a unit at each spot.
+  The square's gate opens HWPWayGateMenu with 3 buttons, the square's disabled. Pressing
+  the tavern's button puts the player on the tavern gate. After a guild hall upgrade
+  reloads the town, the gates are back.

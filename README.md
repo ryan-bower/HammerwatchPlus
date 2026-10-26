@@ -57,6 +57,7 @@ needs `pets`.
 | `gambler` | A gambler in the tavern plays Higher/Lower for gold. He buys crops and herbs for gold and fish for bet tokens, and rerolls equipped gear for 2000 gold × item level, or 1 bet token per 5 item levels. |
 | `goldpet` | A pet vendor in the Hunter's Lodge sells the Gold Collector cat, with two upgrades (materials and scrolls, then valuables). |
 | `tavern` | Three more tavern levels (guild hall 6, 7 and 8): a run can start with up to 3 foods and 5 drinks. |
+| `waygates` | Way Gates: teleport gates in the town square and at every building you have built. Use one and pick where to go (a remake of Tyraen's Teleport in City). |
 | `stash` | A Sort button on the town stash: by class, then weapon type, then item level. |
 | `laststats` | The last run's stats for the whole party, on a notice board by the town fountain: every player on one page as bars per stat, with a search field. |
 
