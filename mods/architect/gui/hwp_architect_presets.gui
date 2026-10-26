@@ -1,0 +1,32 @@
+<!-- The preset row of the Architect picker (SelectArchitectSelector.HWPBuildPresets,
+     mods/architect/scripts/Missions/MissionArchitect.as): three slots, each a Load button
+     with the preset's name and a small Save button that asks for a name. Built from this
+     file and added under the picker's list, which it shrinks by its height. -->
+<gui>
+	<doc>
+		<group id="hwp-presets" width="242" height="20">
+			<text id="hwp-preset-label" font="text" text=".hwp.architect.presets" anchor="0 0.5" offset="2 1" width="40" />
+
+			<rectbutton id="hwp-preset-1" nav-pos="0 1" func="hwp-preset load 1" width="52" height="18" anchor="0 0.5" offset="44 0" spriteset="gui/sprite_rect.sval:loadout-architect-button" spritesethover="gui/sprite_rect.sval:loadout-architect-button-hover" spritesetclick="gui/sprite_rect.sval:loadout-architect-button-hover" >
+				<text id="hwp-preset-name-1" font="text" text="" anchor="0.5 0.5" offset="0 0" align="center" width="50" />
+			</rectbutton>
+			<rectbutton id="hwp-preset-save-1" nav-pos="1 1" func="hwp-preset save 1" width="12" height="18" anchor="0 0.5" offset="97 0" spriteset="gui/sprite_rect.sval:loadout-architect-button" spritesethover="gui/sprite_rect.sval:loadout-architect-button-hover" spritesetclick="gui/sprite_rect.sval:loadout-architect-button-hover" >
+				<text font="text" text="S" anchor="0.5 0.5" offset="0 0" align="center" width="12" />
+			</rectbutton>
+
+			<rectbutton id="hwp-preset-2" nav-pos="2 1" func="hwp-preset load 2" width="52" height="18" anchor="0 0.5" offset="110 0" spriteset="gui/sprite_rect.sval:loadout-architect-button" spritesethover="gui/sprite_rect.sval:loadout-architect-button-hover" spritesetclick="gui/sprite_rect.sval:loadout-architect-button-hover" >
+				<text id="hwp-preset-name-2" font="text" text="" anchor="0.5 0.5" offset="0 0" align="center" width="50" />
+			</rectbutton>
+			<rectbutton id="hwp-preset-save-2" nav-pos="3 1" func="hwp-preset save 2" width="12" height="18" anchor="0 0.5" offset="163 0" spriteset="gui/sprite_rect.sval:loadout-architect-button" spritesethover="gui/sprite_rect.sval:loadout-architect-button-hover" spritesetclick="gui/sprite_rect.sval:loadout-architect-button-hover" >
+				<text font="text" text="S" anchor="0.5 0.5" offset="0 0" align="center" width="12" />
+			</rectbutton>
+
+			<rectbutton id="hwp-preset-3" nav-pos="4 1" func="hwp-preset load 3" width="52" height="18" anchor="0 0.5" offset="176 0" spriteset="gui/sprite_rect.sval:loadout-architect-button" spritesethover="gui/sprite_rect.sval:loadout-architect-button-hover" spritesetclick="gui/sprite_rect.sval:loadout-architect-button-hover" >
+				<text id="hwp-preset-name-3" font="text" text="" anchor="0.5 0.5" offset="0 0" align="center" width="50" />
+			</rectbutton>
+			<rectbutton id="hwp-preset-save-3" nav-pos="5 1" func="hwp-preset save 3" width="12" height="18" anchor="0 0.5" offset="229 0" spriteset="gui/sprite_rect.sval:loadout-architect-button" spritesethover="gui/sprite_rect.sval:loadout-architect-button-hover" spritesetclick="gui/sprite_rect.sval:loadout-architect-button-hover" >
+				<text font="text" text="S" anchor="0.5 0.5" offset="0 0" align="center" width="12" />
+			</rectbutton>
+		</group>
+	</doc>
+</gui>

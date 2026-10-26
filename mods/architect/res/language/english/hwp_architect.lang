@@ -16,4 +16,16 @@
 	<string name="hwp.architect.challenge.sharp_traps.desc">Traps deal double damage. Takes 1000 gold and 5 wood off your alterations.</string>
 	<string name="hwp.architect.challenge.slim_pickings.name">Challenge: Slim Pickings</string>
 	<string name="hwp.architect.challenge.slim_pickings.desc">Half the wood, stone, iron, crystals, dust and ore. Takes 1500 gold and 10 wood off your alterations.</string>
+	<string name="hwp.architect.start_ngp">Start NG+ %ngp%</string>
+	<string name="hwp.architect.ngp_row">Starting on New Game+ %ngp%</string>
+	<string name="hwp.architect.ngp_row0">Starting on New Game+ 0 (base game)</string>
+	<string name="hwp.architect.confirm_ngp">Start this run on New Game+ %ngp%?</string>
+	<string name="hwp.architect.client_left">You left the run-start setup. Pick any mission on the board to rejoin it while the host's is open.</string>
+	<string name="hwp.architect.client_pick">Only the host picks the mission. Once the host has opened the run-start setup, pick any mission here to join it.</string>
+	<string name="hwp.architect.presets">Presets</string>
+	<string name="hwp.architect.preset_empty">empty</string>
+	<string name="hwp.architect.preset_default">Preset %slot%</string>
+	<string name="hwp.architect.preset_prompt">Name this preset (your alterations and New Game+ level)</string>
+	<string name="hwp.architect.preset_loaded">Preset '%name%' loaded</string>
+	<string name="hwp.architect.preset_saved">Preset '%name%' saved</string>
 </lang>

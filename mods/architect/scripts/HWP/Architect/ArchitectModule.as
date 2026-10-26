@@ -242,10 +242,21 @@ namespace HWP
 				CmdTry(args);
 				return;
 			}
+			if (args.length() > 0 && args[0] == "preset")
+			{
+				CmdPreset(args);
+				return;
+			}
 			HWP::Commands::Reply(Resources::GetString(".hwp.architect.status", {
 				{ "count", "" + g_ids.length() }, { "split", g_split ? "on" : "off" }, { "players", "" + ActivePlayers() } }));
 			for (uint i = 0; i < g_ids.length(); i++)
 				HWP::Commands::Reply("- " + BuffName(g_ids[i]) + " (" + PayerName(uint8(i < g_payers.length() ? g_payers[i] : 0)) + ")");
+			// the run-start memory (Memory.as): what comes back when the setup opens
+			auto last = LastPicks();
+			string names = "";
+			for (uint i = 0; i < last.length(); i++)
+				names += (i > 0 ? ", " : "") + BuffName(last[i]);
+			HWP::Commands::Reply("remembered: " + last.length() + " pick(s) [" + names + "], NG+ " + LastNGP() + " (-1 = none yet)");
 		}
 
 		// hwp architect challenges [id...]: every challenge with its discount,
@@ -322,7 +333,7 @@ namespace Modules
 			HWP::Net::OnRequest(HWP::Architect::PICK, HWP::Net::RequestHandler(HWP::Architect::OnPick));
 			HWP::Net::OnRequest(HWP::Architect::QUERY, HWP::Net::RequestHandler(HWP::Architect::OnQuery));
 			HWP::Net::OnEvent(HWP::Architect::SYNC, HWP::Net::EventHandler(HWP::Architect::OnSync));
-			HWP::Commands::Register("architect", " [challenges [id...] | try <id...>] show the party's architect picks, the challenges and a cost multiplier", HWP::Commands::Handler(HWP::Architect::CmdStatus));
+			HWP::Commands::Register("architect", " [challenges [id...] | try <id...> | preset [save <n> [name] | load <n> | clear <n>]] the party's architect picks and what the run-start remembers, the challenges and a cost multiplier, the three presets", HWP::Commands::Handler(HWP::Architect::CmdStatus));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Architect::OnSettingChanged));
 			int n = HWP::Architect::AddChallengeSetup();
 			if (n > 0)

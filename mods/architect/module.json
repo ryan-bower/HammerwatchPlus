@@ -1,6 +1,11 @@
 {
   "id": "architect",
   "requires": ["core"],
-  "overrides": ["scripts/Missions/MissionArchitect.as"],
+  "overrides": [
+    "scripts/Missions/MissionArchitect.as",
+    "scripts/GUI/MissionLoadoutMenu.as",
+    "scripts/Town/MissionShopContent.as",
+    "gui/mission_loadout.gui"
+  ],
   "exclude": []
 }
