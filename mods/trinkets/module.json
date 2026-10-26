@@ -1,6 +1,11 @@
 {
   "id": "trinkets",
-  "requires": ["core"],
+  "requires": [
+    "core"
+  ],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "class_swaps": {
+    "TrinketShopShopContent": "HWPTrinketShopContent"
+  }
 }

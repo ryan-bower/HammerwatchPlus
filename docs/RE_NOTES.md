@@ -4204,3 +4204,51 @@ With these, all 38 pass on the merged tree (last reruns 20261026-135938 to -1411
   The square's gate opens HWPWayGateMenu with 3 buttons, the square's disabled. Pressing
   the tavern's button puts the player on the tavern gate. After a guild hall upgrade
   reloads the town, the gates are back.
+
+## 2026-10-26: the HoH1 trinkets, new trinket sets, and vanilla set changes
+
+### Engine facts
+- `Item::TrinketSet` with `merge-set-bonuses` true appends each lower tier's merged list to
+  the next. A set with 3 or more tiers therefore gets its lower tiers more than once (tier 3
+  gets tier 1 twice). New sets list every tier's modifiers by hand with the merge off.
+  `GetModifiers(num)` returns the highest tier with `m_num <= num`.
+- The bonus loop in `TrinketSet` only reads keys 1..`items.length()`, so a tier can't be
+  past the piece count. Patching a set at run time (`HoH1.as`): set `trinket.m_set`,
+  `set.m_totItems++`, then rebuild `m_bonuses` with `LoadIModifiers(..., SyncVerb::TrinketSet,
+  set.m_idHash)`. Netsync matches the modifier's index within one list, so cumulative tiers
+  keep the indices unique.
+- Modifier conditionals on functions that take a second `Actor@` (`DamageMul`,
+  `NonLethalDamage`) test `m_condTargetOther ? enemy : player`. Self conditions on those
+  (Pendant of Penance, the 6-piece Spheres) need `cond-target-self` true.
+  `CheckConditionals(null)` is false.
+- `HitscanRandomEnemy` and `ShootRandomEnemy` are `IEffect` only, not `IAction`, so a unit's
+  `CompositeActorSkill` can't use them. The Nimbus uses a `ChannelingBeamSkill` instead.
+  `Nova` is both.
+- `Player.Update` calls `RefreshStats()` every frame, so a stat modifier that reads missing
+  health stays current without a trigger.
+- The trinket shop is `TrinketShopShopContent` (`m_toBuy` 2, `priceRate` 1 + 0.2 x shop
+  level). A class swap can add picks in `GetItems` and rebuild the items at a new price
+  rate; save the "picked already" flag with the shop.
+
+### Built
+- `mods/trinkets`: 37 trinkets (`tweak/hwp/trinkets_hoh1.sval`), 10 buffs, the Nimbus unit,
+  8 sets, the Emblems of Hermes, Apothecary's Supplies and Trader's Coin changes, and 134
+  strings. `HoH1.as` holds the set patching, `HWPTrinketComboKills`,
+  `HWPTrinketMissingHealthSpeed`, `HWPTrinketShopContent`, `hwp trinkets hoh1` and
+  `hwp trinkets set <id>`. NG+ scaling covers Judgement and the Talisman of Conflagration
+  (58 trinkets).
+- `mods/keys` `HWPGiveKey.as`: the Key Ring's `hwp-key-ring` stat gives a chance of a second
+  key (tier 1/2/3 at 60/30/10).
+- Tuned from the plan: Spreading Corruption is +30% damage taken (+60% attuned), not x3.
+  Talisman of Decay's attuned aura is the vanilla greater vulnerability (x1.3). Charms of
+  Fortune's Luck uses the x5 HoH1 scale (+5, then +20 in all). Elven Ruby is a rare with no
+  set (its note), though its verdict says remove.
+
+### Tests
+- `mod-trinkets` (lab) PASS: `gamelab/results/20261026-163716-mod-trinkets-lab`. All 37
+  load. Apothecary's 4-piece tier holds 3 modifiers (no merge duplicate). Spheres of Power
+  has tiers 2-6. Lucky Hat + Lucky Horseshoe + the Charms 2-piece read Luck 35. Trader's
+  Coin, Fancy Plume and Key Ring read shop price x0.75, stock +2 and key ring 50%.
+  Judgement reads 12, then 14 at NG+ 2.
+- Not run in a dungeon yet: the procs in combat, the Nimbus, the guardian, the trinket
+  shop's extra stock and the key ring's extra key.

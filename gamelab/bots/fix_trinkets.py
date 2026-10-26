@@ -11,7 +11,17 @@
 - `hwp trinkets ng 4`: Apothecary's Flask holds 2 charges, 4 attuned.
 - `hwp trinkets ng 0`: "+30 Health" and the max health back.
 
-Sections: trinkets."""
+HoH1 trinkets (HWP/Trinkets/HoH1.as), section hoh1:
+- `hwp trinkets hoh1`: all 37 loaded; the vanilla changes applied (Apothecary's Supplies 7
+  pieces and 5 tiers, Emblems of Hermes 5 pieces and 4 tiers, Trader's Coin +1 modifier).
+- `hwp trinkets set <id>`: Spheres of Power has 6 pieces and tiers 2-6; Apothecary's 4-piece
+  tier holds 3 modifiers (the vanilla merge would give it 4: its 2-piece twice); Pyromancer
+  holds the vanilla Fire Salts.
+- Lucky Hat and Lucky Horseshoe given: Luck 35 (20 + 10 + the Charms of Fortune 2-piece 5).
+- Trader's Coin, Fancy Plume and Key Ring given: shop price x0.75, stock +2, key ring 50%.
+- Judgement reads "Adds 12 Physical"; at `hwp trinkets ng 2`, 14 (NGScaling SPEC).
+
+Sections: trinkets, hoh1."""
 import re
 import time
 
@@ -36,7 +46,7 @@ class Checks(Base):
     def trinkets(self):
         self.g.console("e_cheats 1")
         log = self.hwp("trinkets", 0.6, until="trinket NG+ scaling")
-        self.flag("tr_status", "trinket NG+ scaling (on): 56/56 trinket(s) found" in log and "no trinket" not in self.g.read_log(),
+        self.flag("tr_status", "trinket NG+ scaling (on): 58/58 trinket(s) found" in log and "no trinket" not in self.g.read_log(),
                   log[-300:])
 
         self.gl("cheat", "cht_give_specific_trinket", "amulet_health")
@@ -76,6 +86,50 @@ class Checks(Base):
                   f"{back}")
         errs = [ln for ln in self.g.read_log().splitlines() if "HWP:trinkets" in ln and ("rror" in ln or "no trinket" in ln)]
         self.flag("tr_no_errors", not errs, "; ".join(errs[:5]))
+
+
+    def give(self, tid):
+        self.gl("cheat", "cht_give_specific_trinket", tid)
+        time.sleep(0.6)
+
+    def setinfo(self, sid):
+        log = self.hwp("trinkets set " + sid, 0.5, until="set " + sid + " (")
+        line = [ln for ln in log.splitlines() if "set " + sid + " (" in ln]
+        return line[-1] if line else ""
+
+    def hoh1(self):
+        self.g.console("e_cheats 1")
+        log = self.hwp("trinkets hoh1", 0.6, until="hoh1 trinkets:")
+        self.flag("h1_loaded", "hoh1 trinkets: 37 loaded" in log, log[-400:])
+        self.flag("h1_vanilla", "apothecarys +3 piece(s) (7), 5 tier(s)" in log and "emblems_of_hermes +2 piece(s) (5), 4 tier(s)" in log
+                  and "traders_coin +1/1 modifier(s)" in log, log[-400:])
+        sp = self.setinfo("hwp_spheres_of_power")
+        self.flag("h1_spheres", "6 piece(s)" in sp and all(f" {n}:" in " " + sp.split("tiers ", 1)[-1].replace("| ", " ") for n in range(2, 7)), sp)
+        ap = self.setinfo("apothecarys")
+        self.flag("h1_apothecary_merge", "7 piece(s)" in ap and "4:3 " in ap and "7:" in ap, ap)
+        py = self.setinfo("hwp_pyromancer")
+        self.flag("h1_pyromancer", "fire_salts" in py and "4 piece(s)" in py, py)
+
+        for t in ("hwp_lucky_hat", "hwp_lucky_horseshoe"):
+            self.give(t)
+        luck = self.hwp("luck", 0.6, until="Luck:")
+        m = re.findall(r"Luck: (-?[\d.]+)", luck)
+        self.flag("h1_luck", bool(m) and abs(float(m[-1]) - 35) < 0.01, luck[-200:])
+
+        for t in ("traders_coin", "hwp_fancy_plume", "hwp_key_ring"):
+            self.give(t)
+        log = self.hwp("trinkets hoh1", 0.6, until="hoh1 trinkets:")
+        self.flag("h1_shop_stats", "shop price x0.75" in log and "stock +2" in log and "key ring 50%" in log, log[-300:])
+
+        j = self.show("hwp_judgement")
+        self.ng(2)
+        j2 = self.show("hwp_judgement")
+        self.ng(0)
+        self.flag("h1_judgement_ng", j is not None and j2 is not None and "Adds 12 Physical" in j[0] and "Adds 14 Physical" in j2[0]
+                  and "Adds 28 Physical" in j2[1], f"{j} -> {j2}")
+        errs = [ln for ln in self.g.read_log().splitlines()
+                if "Couldn't find trinket" in ln or ("HWP:trinkets" in ln and ("not a set" in ln or "no trinket" in ln))]
+        self.flag("h1_no_errors", not errs, "; ".join(errs[:5]))
 
 
 def run(p, sections="trinkets", **_):

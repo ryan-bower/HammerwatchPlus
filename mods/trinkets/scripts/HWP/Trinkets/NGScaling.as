@@ -144,12 +144,19 @@ namespace HWP
 			"spiked_pauldrons add attune-modifiers.0.armor 10", "spiked_pauldrons add attune-modifiers.1.thorns 10",
 			"spiked_pauldrons desc desc:armr 5", "spiked_pauldrons desc desc:num 5",
 			"spiked_pauldrons desc attune-desc:armr 10", "spiked_pauldrons desc attune-desc:num 10",
-			"thunderbird_feather mul modifiers.1.effects 20 100", "thunderbird_feather desc desc:dmg 20"
+			"thunderbird_feather mul modifiers.1.effects 20 100", "thunderbird_feather desc desc:dmg 20",
+			// HoH1 trinkets (HoH1.as)
+			"hwp_judgement add modifiers.0.physical 1", "hwp_judgement add attune-modifiers.0.physical 2",
+			"hwp_judgement desc desc:add 1", "hwp_judgement desc attune-desc:add 2",
+			"hwp_talisman_of_conflagration add modifier.effects.0.effects.0.fire 10",
+			"hwp_talisman_of_conflagration add attune-modifier.effects.0.effects.0.fire 10",
+			"hwp_talisman_of_conflagration desc desc:dmg 10", "hwp_talisman_of_conflagration desc attune-desc:dmg 10"
 		};
 
 		// the trinket files Item::Trinket::LoadMultiple reads these from
 		const array<string> FILES = { "tweak/trinkets/common.sval", "tweak/trinkets/uncommon.sval",
-			"tweak/trinkets/rare.sval", "tweak/trinkets/epic.sval", "tweak/trinkets/cursed.sval" };
+			"tweak/trinkets/rare.sval", "tweak/trinkets/epic.sval", "tweak/trinkets/cursed.sval",
+			"tweak/hwp/trinkets_hoh1.sval" };
 
 		class Patch
 		{
@@ -495,6 +502,16 @@ namespace HWP
 		// hwp trinkets [show <id> | ng <n>]
 		void Cmd(array<string>@ args)
 		{
+			if (args.length() >= 2 && args[0] == "set")
+			{
+				SetCmd(args[1]);
+				return;
+			}
+			if (args.length() >= 1 && args[0] == "hoh1")
+			{
+				HoH1Cmd();
+				return;
+			}
 			if (args.length() >= 2 && args[0] == "show")
 			{
 				Init();
@@ -574,13 +591,14 @@ namespace Modules
 		HWPTrinketsModule()
 		{
 			super("hwp-trinkets");
-			HWP::Commands::Register("trinkets", " NG+ scaling of flat trinket bonuses; 'show <id>' a trinket's tooltip; cheats: 'ng <n>' sets the NG+ level",
+			HWP::Commands::Register("trinkets", " NG+ scaling of flat trinket bonuses; 'show <id>' a trinket's tooltip; 'set <id>' a set's pieces and tiers; 'hoh1' the HoH1 trinkets and vanilla changes; cheats: 'ng <n>' sets the NG+ level",
 				HWP::Commands::Handler(HWP::Trinkets::Cmd));
 		}
 
 		void Start(StartMode sMode)
 		{
 			HWP::Trinkets::RefreshSettings();
+			HWP::Trinkets::ApplyVanilla();
 			HWP::Trinkets::Update();
 		}
 

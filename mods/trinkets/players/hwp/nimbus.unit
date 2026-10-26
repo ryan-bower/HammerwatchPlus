@@ -1,0 +1,78 @@
+<!-- Golden Lamp's Nimbus (tweak/hwp/trinkets_hoh1.sval:hwp_golden_lamp): a floating light that
+     beams lightning at the nearest enemy for 8 seconds (8 damage every 250 ms), then fades. Built on the priest's
+     Celestial Light orb (players/priest/units/celestial_light.unit), with its art. -->
+<unit netsync="position" save="false">
+	<behavior class="PlayerOwnedActor">
+		<string name="team">player</string>
+		<int name="hp">1000</int>
+		<int name="aggro-range">120</int>
+		<int name="max-range">120</int>
+		<int name="target-spread-range">0</int>
+		<int name="teleport-leash">10000</int>
+		<bool name="counts-as-kill">false</bool>
+		<bool name="targetable">false</bool>
+		<bool name="targetable-friendly">false</bool>
+		<bool name="targeting">true</bool>
+		<bool name="no-buffs">true</bool>
+		<bool name="must-see-target">true</bool>
+		<bool name="hide-health">true</bool>
+		<bool name="immortal">true</bool>
+
+		<array name="tags">
+			<string>hwp_nimbus</string>
+			<string>summon</string>
+		</array>
+
+		<dict name="movement">
+			<string name="class">PassiveMovement</string>
+			<string name="anim-idle">default</string>
+		</dict>
+
+		<int name="ttl">8000</int>
+
+		<array name="skills">
+			<dict>
+				<string name="class">ChannelingBeamSkill</string>
+				<string name="snd">event:/sfx/actors/aberrations/wisps/wisp_lightning/wisp_lightning_attack_loop</string>
+				<int name="cooldown">300</int>
+				<int name="castpoint">1</int>
+				<int name="range">120</int>
+				<bool name="must-see">true</bool>
+				<bool name="is-attack">false</bool>
+				<bool name="is-spell">true</bool>
+				<int name="distance">120</int>
+				<float name="intensity-hit-mul">1.0</float>
+				<bool name="immediate">false</bool>
+				<int name="effect-tick">250</int>
+				<int name="duration">800</int>
+				<float name="turn-speed">1000</float>
+				<string name="fx">effects/generic/raycast/lightning_beam_1.effect</string>
+				<array name="effects">
+					<dict>
+						<string name="class">Damage</string>
+						<int name="lightning">8</int>
+					</dict>
+				</array>
+			</dict>
+
+			<dict>
+				<string name="class">CompositeActorTriggeredSkill</string>
+				<string name="trigger">OnDeath</string>
+				<int name="cooldown">0</int>
+				<int name="range">2000</int>
+				<array name="actions">
+					<dict>
+						<string name="class">SpawnEffect</string>
+						<string name="effect">players/priest/effects/priest_orb_end.effect</string>
+					</dict>
+				</array>
+			</dict>
+		</array>
+	</behavior>
+
+	<scenes default="default">
+		<scene name="default">
+			<effect src="players/priest/effects/priest_orb.effect" />
+		</scene>
+	</scenes>
+</unit>
