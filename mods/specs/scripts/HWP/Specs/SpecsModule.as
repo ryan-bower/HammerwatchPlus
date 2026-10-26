@@ -50,6 +50,12 @@ namespace HWP
 		void CmdStatus(array<string>@ args)
 		{
 			auto plr = cast<PlayerBase>(GetLocalPlayer());
+			if (args.length() > 0 && args[0] == "arcane")
+			{
+				// the Living Mana pool, the one bar and the last Blink (Arcane.as)
+				HWP::Commands::Reply(ArcaneStatus(plr));
+				return;
+			}
 			string ret = "specs: " + g_standards.length() + " standard(s)";
 			for (uint i = 0; i < g_standards.length(); i++)
 			{
@@ -99,7 +105,7 @@ namespace Modules
 		HWPSpecsModule()
 		{
 			super("hwp-specs");
-			HWP::Commands::Register("specs", "  4th specializations status (standards, stacks)", HWP::Commands::Handler(HWP::Specs::CmdStatus));
+			HWP::Commands::Register("specs", "  4th specializations status (standards, stacks) | arcane (the Living Mana pool and bar, Blink)", HWP::Commands::Handler(HWP::Specs::CmdStatus));
 			HWP::Specs::SelfCheck();
 			HWP::Net::OnRequest("specs.conduit", HWP::Net::RequestHandler(HWP::Specs::OnConduit));
 			HWP::Net::OnEvent("specs.conduit_mana", HWP::Net::EventHandler(HWP::Specs::OnConduitMana));

@@ -5,7 +5,8 @@
 	times within tt-radius (HWPSpecsZap, scripts/HWP/Specs/Invocation.as): new targets first,
 	so a pack is swept and a lone target takes them all.
 	Planner numbers: 5/6/7/8/10 per zap, 2/2.5/2.5/3/3 s, mana 40/50/50/60/60, cooldown 12 s,
-	3 zaps within 70, the orb about 50 px/s.
+	3 zaps within 70, the orb about 60 px/s (2.0 px a tick since 2026-10-25, 1.6 before; its
+	body a 3 px circle, its look 1.5x: torrent.unit).
 	Orbs: Focal Point (tt-overcharge: +4/7% per earlier zap of the orb on that enemy, up to 10),
 	Lightning Rod (tt-zaps 4/4/5, tt-radius 77/84/95: +10/20/35%), Lingering Storm (tt-ttl-add:
 	+1/2 s), Thunderclap (tt-clap: on expiry every enemy within tt-radius takes 150% of a zap).

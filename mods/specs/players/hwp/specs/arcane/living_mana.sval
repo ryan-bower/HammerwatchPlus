@@ -1,6 +1,8 @@
 %include "players/skills_cost.inc"
 <!--
 	Living Mana (Arcane passive). Max health is added to max mana (ConvertStat health to mana).
+	One pool, one bar (2026-10-25): the HUD shows the pool as one big blue bar in place of the
+	health and mana bars for the local player (HWPSpecsPoolHUD, scripts/HWP/Specs/ArcaneHUD.as).
 	Health follows the mana: each frame the health the game moved (heals, potions, food,
 	regeneration, leech, damage over time from buffs) is turned into mana, then health is set
 	to the mana fraction, so a heal is only refused at full mana. A hit drains the mana

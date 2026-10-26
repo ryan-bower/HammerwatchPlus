@@ -1,8 +1,10 @@
 %include "players/skills_cost.inc"
 <!--
-	Blink (Arcane active). A teleport of the dodge's distance (90, players/attacks/dash.sval)
-	along the aim, then bl-dmg pure on every enemy within bl-radius of where the sorcerer lands
+	Blink (Arcane active). A teleport of 112 px (BLINK_DIST; the dodge's 90 x 1.25 since
+	2026-10-25) along the aim, over ledges and stairs (the Shot ray, not the vanilla Teleport's
+	Any ray), then bl-dmg pure on every enemy within bl-radius of where the sorcerer lands
 	(HWPSpecsBlink, scripts/HWP/Specs/Arcane.as; the hit-effects at intensity damage / 100).
+	Effects: players/hwp/specs/effects/blink_out, blink_trail, blink_in.
 	With a dash charge, Blink spends it to replay the last elemental spell (fire, ice or
 	lightning tagged, or the Elemental Orb) at the start point, whatever its cooldown; that
 	spell's cost is paid down to 1 mana and its cooldown starts over.

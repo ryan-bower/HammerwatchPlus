@@ -316,5 +316,8 @@ class HWPSpecsTtlAdd : ProjectileModifier
 	void Initialize(NewProjectile@ behavior, SValue& params, Actor@ owner, ProjectileTarget@ target, uint weapon) override
 	{
 		behavior.m_ttl += m_add;
+		// the orb's numbers, for the lab (torrent.unit: speed 2.0 px a tick since 2026-10-25)
+		if (owner !is null && HWP::Specs::IsLocal(owner))
+			HWP::Log("specs", "thunder orb: speed " + formatFloat(behavior.m_speed, "", 0, 2) + " px/tick, ttl " + behavior.m_ttl + " ms");
 	}
 }

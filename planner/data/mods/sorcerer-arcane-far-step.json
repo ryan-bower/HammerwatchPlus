@@ -17,9 +17,9 @@
     }
   ],
   "name": "Far Step",
-  "notes": "Range increases with each orb level. Exact distances are left for tuning.\n\nIn game (hwp_sor_bl_far_step, tested): Blink goes 15/25/35% farther.",
+  "notes": "Range increases with each orb level. Exact distances are left for tuning.\n\nIn game (hwp_sor_bl_far_step): Blink goes 15/25/35% farther: 129/140/151 px from the 112 px base (since 2026-10-25; 103.5/112.5/121.5 from 90 before). Built on the new base, not yet run in the lab (fix-specs-arcane blink_range reads the rare rank).",
   "order": 1,
   "skill": "sorcerer-spec4-active",
-  "status": "tested",
+  "status": "built",
   "summary": "Blink travels progressively farther with each level of this orb."
 }

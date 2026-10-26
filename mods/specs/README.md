@@ -104,7 +104,73 @@ checks every generated unit offline.
   longest free lane (20261025-180859: a priest teleported 260 px east stood in rock, as did
   both brutes, and nothing could path or see anything).
 
+## Arcane (Sorcerer)
+
+Files: `scripts/HWP/Specs/Arcane.as` (Blink, Living Mana), `scripts/HWP/Specs/ArcaneHUD.as` (the
+pool bar), `players/hwp/specs/arcane/*.sval`, `players/hwp/specs/effects/blink_*.effect`. Status:
+`hwp specs arcane` (the pool, the bar, the last Blink); the general `hwp specs` line keeps the
+blink/recast/drain counters.
+
+- **Blink** (2026-10-25): 112 px along the aim (`BLINK_DIST`; 90, the dodge's, before: +24%,
+  "a little longer"), the full 112 when nothing is in the way and x 0.95 only when a wall cuts it
+  short (the vanilla Teleport's margin). Far Step: 129/140/151 px. It **crosses ledges and
+  stairs** the dash can't: the teleport is the module's own (`BlinkPath`), raycasting with
+  `RaycastType::Shot` (what projectiles move by, which ignores `shoot-through` fixtures: every
+  ledge and stair rail under `doodads/ledges/`) instead of the vanilla Teleport's
+  `RaycastType::Any`, which stopped at them. Walls (and impenetrable actors) still stop it; the
+  landing is checked for room with the Any query (so the sorcerer never stands in a rail) and
+  nudged along the aim, then back, up to 24 px. Log: `blink: <px> px of <wanted>, <n> hit[,
+  recast X][, over ledge][, wall][, nudged], fx <count>`.
+- **Blink effects**: `blink_out.effect` at the start (a blue ring bursting out, a flash lifting
+  off, blue smoke and speckles), a `blink_trail.effect` bead every 16 px along the skipped path,
+  `blink_in.effect` where it lands (the ring collapsing, a pop,
+  speckles rushing in) plus the vanilla `magic_blink` and `arcane_explosion_1` that were there.
+- **Living Mana, one pool, one bar** (2026-10-25, the user's call): the pool was already one
+  number (max mana = base mana + max health, a hit drains mana, heals and regeneration fill it,
+  spells spend it, health is set to the mana fraction every frame). The HUD now shows it as one
+  big blue bar with `cur/max` in place of the health and mana bars: `HWPSpecsPoolHUD`, a
+  `HUDComponent` added after `HUDPlayer` through the `HUDConstructor` hook, hides
+  `m_wBarHealth`/`m_wHealth`/`m_wBarMana`/`m_wMana` while the shown record is the local player
+  with Living Mana learned and draws the mana spriteset (`gui/value_bar_hori.sval` variation 1)
+  over the frame from the health window's top to the mana window's bottom (75 x 14 px at the
+  "background" group's origin + 109, 30). Everyone else, and a spectated Arcane, keeps the
+  vanilla bars. Why not `HWPSpecsModule.RenderFrame` (the Forgemaster bar's hook): a module's
+  RenderFrame draws before the HUD and the frame is opaque between its two bar windows, so a bar
+  under it would show as two slits. Networking: nothing new is sent; hp and mana reach teammates
+  through the vanilla `PlayerSyncStats`, so their co-op list shows the pool as both bars. Log:
+  `living mana bar: on, health and mana bars hidden` / `off, vanilla bars back`.
+
+Test checklist (`gamelab/scenarios/fix-specs-arcane.json`, bot `gamelab/bots/fix_specs_arcane.py`;
+`plan-specs.json`'s `arc_blink`/`arc_far_step` bounds follow the new distance):
+
+- `blink_range`: an unobstructed Blink moves 104-118 px (112 wanted, `px of 112` in the log, fx
+  count >= 8: out, six beads, in and the vanilla blink, a shot right after the cast for the effects); Far Step rare 143-158 px.
+- `blink_ledge`: a 48 px line of `doodads/ledges/barracks/e_16.unit` rails (shoot-through, 2 px
+  wide) spawned 46 px ahead; `gl bodies` sees the rail bodies on the way, `gl rayhit` (the Shot
+  ray) does not stop at them; Blink lands past the rail (>= 100 px, `over ledge` in the log) and
+  a shot shows the sorcerer on the far side.
+- `pool`: `hwp specs arcane` reads `living 1 bar on`, the pool equals the state's manaExact,
+  health is the pool fraction after `gl mana` and a `damageme` hit drains the pool by the hit;
+  a shot of the HUD with the one bar.
+
+## Aerotheurge (Wizard)
+
+Files: `scripts/HWP/Specs/Invocation.as` (Thunder Orb's zaps, Static Charge),
+`players/hwp/specs/invocation/*.sval`, `invocation/torrent.unit` (the orb),
+`players/hwp/specs/effects/orb.effect`.
+
+- **Thunder Orb** (2026-10-25): speed 2.0 px a tick (about 60 px/s; 1.6, about 48, before:
+  +25%), the collision body a 3 px circle (6 before) so a corner of the geometry snags it less
+  (`NewProjectile` moves it along a Shot raycast and `SetPosition`, so the body only matters where
+  it overlaps a wall and bounces to a stop), the look bigger: the vanilla
+  `lightning_projectile_ball_2` at radius 5 (3 before) under `orb.effect` drawn at 1.5x.
+  `HWPSpecsTtlAdd` logs every orb shot by the local player: `thunder orb: speed 2.00 px/tick,
+  ttl <ms> ms`.
+- Test (`fix-specs-arcane.json`, `orb`): the unit file on disk reads speed 2.0, radius 3, ball
+  radius 5 and the sprite scale 1.5; a cast logs `speed 2.00 px/tick`; the orb's position read
+  twice through `gl near` gives 45-75 px/s; a shot of the orb in flight.
+
 ## The other six
 
-Stormbringer (Ranger), Invocation (Wizard), Arcane (Sorcerer), Winddancer (Rogue),
-Bannerlord (Warrior), Branding (Warlock): `plan-specs*.json` scenarios, `hwp specs` status.
+Stormbringer (Ranger), Winddancer (Rogue), Bannerlord (Warrior), Branding (Warlock):
+`plan-specs*.json` scenarios, `hwp specs` status.

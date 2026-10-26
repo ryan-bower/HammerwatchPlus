@@ -1,6 +1,7 @@
 <effect looping="true">
-<!-- Invocation's Tempest Torrent orb (invocation/torrent.unit): the crackling ball (fx_tempest_orb in fx.png, tools/make_specs_fx.py) over a faint vanilla lightning ball for its light. Hand-written. -->
-	<sprite origin="12 12" looping="true" texture="players/hwp/specs/effects/fx.png" material="effects/effects.mats:add">
+<!-- Invocation's Tempest Torrent orb (invocation/torrent.unit): the crackling ball (fx_tempest_orb in fx.png, tools/make_specs_fx.py) over a faint vanilla lightning ball for its light. Hand-written.
+     2026-10-25: drawn at 1.5x (the user: "a little larger"); the orb's body shrank to 3 px at the same time, so the look and the hitbox are no longer the same size. -->
+	<sprite origin="12 12" looping="true" texture="players/hwp/specs/effects/fx.png" material="effects/effects.mats:add" scale-x="1.5" scale-y="1.5">
 		<frame time="60">96 0 24 24</frame>
 		<frame time="60">120 0 24 24</frame>
 		<frame time="60">144 0 24 24</frame>
