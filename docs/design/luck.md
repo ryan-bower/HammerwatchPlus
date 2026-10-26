@@ -7,6 +7,16 @@ is which entry comes up when it does pay. On a generated floor the party's Luck 
 the floor's reward counts toward their vanilla maximum and raises a few spawn chances
 (below). This file holds the settled decisions and where each is built.
 
+**Luck is not HoH1's Luck.** In HoH1, Luck also raised the chance of on-hit and proc
+effects. Here it never does: no skill, item, trinket or set effect reads it, and new
+content must not either (the user's ruling, 2026-10-26). Luck is for finding things and
+for winnings:
+- loot: chest, strongbox, abyss, fishing and floor-reward rolls, blueprints, keys and ace
+  chests, the combo orb drop;
+- reward rooms and encounters: secret rooms, the imp, fishing holes;
+- gambling winnings: the roulette payout bonus.
+A HoH1 trinket whose HoH1 effect was luck-scaled keeps a fixed chance.
+
 ## Who rolls in co-op
 
 A shared drop rolls once, on the host, and every player gets what it picked (vanilla's

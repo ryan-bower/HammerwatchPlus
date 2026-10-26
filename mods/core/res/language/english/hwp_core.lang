@@ -42,7 +42,9 @@
 	<string name="hwp.luck.buff.name">Lucky Charm</string>
 	<string name="hwp.luck.buff.desc">Luck is up: the rarer drops come up more often.</string>
 	<string name="hwp.luck.trinket.name">Rabbit's Foot</string>
-	<string name="hwp.luck.stat.tip">Rarer loot comes up more often: chests, strongboxes, abyss cracks, keys and fish. A chest never drops more often, only better, except its dyes, which Luck finds more of.\n\nYour Luck %luck%: rarer outcomes x%factor%. A chest or strongbox rolls at the Luck of whoever opens it, and the whole party gets what it rolled; an abyss crack, which nobody opens, at the party's average (x%party%).\n\nThe party's average also reaches each new floor: a chance of an extra secret room and of the imp, more and better food, potions, chests and other floor rewards, rarer blueprints, more fishing holes, more and higher keys and more ace chests.</string>
-	<string name="hwp.luck.trinket.desc">+%amnt% Luck. Rarer loot comes up more often: chests, strongboxes, abyss cracks, keys and fish.</string>
+	<string name="hwp.luck.stat.tip">Rarer loot comes up more often: chests, strongboxes, abyss cracks, keys and fish. A chest never drops more often, only better, except its dyes, which Luck finds more of.\n\nYour Luck %luck%: rarer outcomes x%factor%. A chest or strongbox rolls at the Luck of whoever opens it, and the whole party gets what it rolled; an abyss crack, which nobody opens, at the party's average (x%party%).\n\nThe party's average also reaches each new floor: a chance of an extra secret room and of the imp, more and better food, potions, chests and other floor rewards, rarer blueprints, more fishing holes, more and higher keys and more ace chests. At the roulette table it raises your winnings by the same percent.
+
+Luck never changes the chance of a skill, item or trinket effect.</string>
+	<string name="hwp.luck.trinket.desc">+%amnt% Luck. Rarer loot comes up more often: chests, strongboxes, abyss cracks, keys, fish and floor rewards.</string>
 	<string name="stat.custom.hwpluck">Luck</string>
 </lang>
