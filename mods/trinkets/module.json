@@ -1,0 +1,6 @@
+{
+  "id": "trinkets",
+  "requires": ["core"],
+  "overrides": [],
+  "exclude": []
+}

@@ -45,6 +45,7 @@ needs `pets`.
 | `abyss` | Abyss cracks: step close and waves crawl out, ending in elites (more in a bigger party). Clear them for a reward that grows the deeper the run goes. |
 | `maps` | Three new layouts for the equipment-map drops: Goblin Warrens, Sunken Dungeon, The High Court. |
 | `valuables` | Valuables (vases, chalices, gems, furs, scales: the pickups that turn straight into gold) are worth twice their vanilla gold. |
+| `trinkets` | Trinkets keep up in NG+: flat bonuses (health, mana, armor, power, regen, resistances, thorns, proc damage) grow by a fixed amount per NG+ level, twice as much on an attuned trinket when attuning doubles the number. Tooltips show the scaled numbers. |
 | `wavemode` | **Wave Arena**: a survival arena started from a statue in town; every boss kill raises your arena rank, which is the arena's NG+ level next time. |
 
 ### Town
@@ -53,8 +54,9 @@ needs `pets`.
 |---|---|
 | `fishing` | Six fishing spots on the town coast (a timing minigame), more in the water of run floors' potion wells (always one in a boss room), greyed on the map once fished out. A pirate sells bait, rods (priced per tier; new characters start with the wooden rod) and fish traps from the trading post's wreck, later its boat. Fish are swords, sell for bet tokens and can be eaten (100 HP per star, plus Luck). Catches can hold keys and ace keys, and a hole's loot goes to whoever caught it. |
 | `farming` | The town's field grooves become farm plots: food crops and four Holy Herb strains grow with each completed run, faster when watered (the farmer sells the can and seeds; the well refills it). Smoke a herb for a buff that lasts 10 floors (hotboxing works outdoors too), or roll it into a joint: an off-hand with 5 puffs that a friend can take from you, with smoke that fills the room; a second joint goes in the main hand, left and right click puffing each. |
-| `gambler` | A gambler in the tavern plays Higher/Lower for gold. He buys crops and herbs for gold and fish for bet tokens, and rerolls equipped gear for 2000 gold Ã— item level, or 1 bet token per 5 item levels. |
+| `gambler` | A gambler in the tavern plays Higher/Lower for gold. He buys crops and herbs for gold and fish for bet tokens, and rerolls equipped gear for 2000 gold × item level, or 1 bet token per 5 item levels. |
 | `goldpet` | A pet vendor in the Hunter's Lodge sells the Gold Collector cat, with two upgrades (materials and scrolls, then valuables). |
+| `tavern` | Three more tavern levels (guild hall 6, 7 and 8): a run can start with up to 3 foods and 5 drinks. |
 | `stash` | A Sort button on the town stash: by class, then weapon type, then item level. |
 | `laststats` | The last run's stats for the whole party, on a notice board by the town fountain: every player on one page as bars per stat, with a search field. |
 

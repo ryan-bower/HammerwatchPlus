@@ -4108,3 +4108,50 @@ GameLab changes meeting this branch's bots, not from the mods:
 - fix-combo-orb and fix-firearms-aim-diagonal failed once and passed on rerun.
 
 With these, all 38 pass on the merged tree (last reruns 20261026-135938 to -141120).
+
+## 2026-10-26: tavern levels 4-6, and trinkets that scale with NG+
+
+### Engine facts
+- **The loadout's tavern row needs a guild hall.** `tweak/town/loadouts.sval` gives the
+  `tavern` loadout the conditional `town building guild_hall ge 0`. Without it,
+  MissionLoadoutMenu skips the row and never calls `BuildGUI`. `gl func tavern open` still
+  reaches `MissionLoadout::Get("tavern")`, so a picker opens over a loadout with no row.
+  Its Apply then hits a null `m_groupW` in `UpdateIcons` (vanilla code; run
+  20261026-141417). A fresh lab town has no guild hall. The mod now returns early when
+  there is no row, and fix_tavern builds the guild hall first.
+- **A fresh town offers no Simple Broth.** The `tavern_simple_broth` checkbox is missing from
+  the picker; hearty, elemental breakfast, beasts and foragers' feast are there.
+- **Trinket modifiers can be rebuilt live.** `Item::Trinket.m_modifiers` and `m_modifiers2`
+  (the attuned set) are public arrays. `Modifiers::LoadIModifiers(u, dict, Role::Both,
+  "" / "attune-", SyncVerb::Trinket, m_idHash)` builds them again from any dict. Then
+  `PlayerRecord.RefreshModifiers()` and `RefreshStats()` apply them. Max health followed in
+  the same frame (190 to 205 at NG+ 3 with the Amulet of Health).
+- **An attuned trinket uses only `m_modifiers2`.** A trinket whose attuned set changes only a
+  cooldown still needs its numbers patched in both sets.
+- **`intensity-mul` in a trigger's effects.** A class-less dict in an effects array is an
+  EffectListMod (`LoadEffect`, IEffect.as:117-133). Its `intensity-mul` vec2 scales every
+  effect after it. TriggerEffect loads its list through `LoadEffects`, so one entry put first
+  scales proc damage that lives in a projectile or unit file.
+- **`Modifiers::Buff` hard-codes intensity 1** (`ActorBuff(player, m_buff, 1.0f, false)`).
+  Arctic Step's frost gets its intensity through a subclass.
+- `Resources::GetString` fills `%param%` from the `?a=1&b=2` query of the key, so a patched
+  `desc` string gives the scaled tooltip.
+
+### Built
+- `tavern`: the README row, and `docs/modules.md` rows for tavern and trinkets.
+- `trinkets` (new mod, no overrides): `HWP/Trinkets/NGScaling.as` has the spec table of 56
+  trinkets from the Trinket Map verdicts. It patches a copy of each trinket's sval dict per
+  NG+ level (`int(g_ngp + 0.5)`) and checks the level every frame, so the loadout's NG+
+  picker takes effect at once. It also has `HWPTrinketNGBuff`, the setting
+  `trinkets.ngp_scaling`, and `hwp trinkets [show <id> | ng <n>]`.
+- Assumptions: "+5 res" on the books is read as +5 attack or spell power. The Chicken Feet
+  amount is per 500 ms tick (+0.25), which shows as +0.5 mana per second. Apothecary's
+  Flask is 2 charges (4 attuned) from NG+ 4.
+
+### Tests
+- mod-tavern PASS (20261026-144247): slots per level, a full pick of 4 foods (the oldest
+  drops) and 6 drinks, the picks kept, and a run started with 3 foods and 5 drinks.
+- mod-trinkets PASS (20261026-143558): all 56 found. Amulet of Health at NG+ 3 shows +45
+  (attuned +90) and max health is 15 higher. Searing Torch 80 with its 2 s cooldown kept,
+  Chicken Feet 3.5, Arctic Step 60, Tincture 8 s, Flask +2/+4 at NG+ 4, and NG+ 0 restores
+  the originals.

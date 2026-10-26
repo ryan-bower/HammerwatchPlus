@@ -41,7 +41,9 @@
       "specs",
       "mercenary",
       "puzzles",
-      "stash"
+      "stash",
+      "tavern",
+      "trinkets"
     ],
     "forbidden_mods": [
       "gamelab-*"

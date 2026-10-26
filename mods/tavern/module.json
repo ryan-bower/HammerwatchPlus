@@ -1,0 +1,6 @@
+{
+  "id": "tavern",
+  "requires": ["core"],
+  "overrides": ["tweak/town/buildings/tavern.sval", "scripts/Missions/MissionFoods.as"],
+  "exclude": []
+}
