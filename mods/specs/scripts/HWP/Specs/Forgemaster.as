@@ -105,6 +105,8 @@ namespace HWP
 			int m_pulseC;
 			int m_pulses;
 			int m_dashRefused;  // dash presses seen while pinned
+			int m_dashReal = -1;  // the dash's own cooldown when the pin first took over (-1: not pinned)
+			int m_dashPinLeft;    // m_left at that moment, so UnpinDash knows how much of it ran out
 			string m_label;     // the bar's text
 
 			float Progress() { return m_total > 0 ? clamp(1.0f - float(m_left) / float(m_total), 0.0f, 1.0f) : 1.0f; }
@@ -525,6 +527,11 @@ namespace HWP
 			auto dash = cast<Skills::Charge>(FindSkill(c.m_plr, DASH));
 			if (dash is null)
 				return;
+			if (c.m_dashReal < 0)
+			{
+				c.m_dashReal = max(0, dash.m_cooldownC);
+				c.m_dashPinLeft = c.m_left;
+			}
 			int want = c.m_left + DASH_PIN_MS;
 			if (dash.m_cooldownC < want)
 				dash.m_cooldownC = want;
@@ -539,8 +546,14 @@ namespace HWP
 			if (c is null || c.m_plr is null)
 				return;
 			auto dash = cast<Skills::Charge>(FindSkill(c.m_plr, DASH));
+			// still the pin's cooldown: back to what is left of the dash's own (a dash just
+			// before the channel keeps its cooldown when the channel is cut short)
 			if (dash !is null && dash.m_cooldownC > 0 && dash.m_cooldownC <= c.m_left + DASH_PIN_MS)
-				dash.m_cooldownC = 0;
+			{
+				int real = c.m_dashReal < 0 ? 0 : max(0, c.m_dashReal - (c.m_dashPinLeft - c.m_left));
+				dash.m_cooldownC = real;
+			}
+			c.m_dashReal = -1;
 		}
 
 		// the beam: a raise's runs from the priest to the body in necrotic green; a Penance's rises
@@ -1961,10 +1974,13 @@ namespace HWP
 		int g_pyreUses = 0, g_pyreHeresyRemoved = 0, g_pyreNoCurseUses = 0;
 
 		// the vanilla CanUse wants a curse: a local Forgemaster with Heresy may use the pyre without
-		// one (the user, 2026-10-25: "pyres shouldn't require you to have curse if you have heresy")
+		// one (the user, 2026-10-25: "pyres shouldn't require you to have curse if you have heresy"),
+		// when Pyre Sacrifice would take some Heresy off; without the orb the use would only spend
+		// the pyre
 		bool PyreHeresyAllows(PlayerBase@ player)
 		{
-			return player !is null && IsLocal(player) && Learned(player, NR) && Heresy(player) > 0;
+			return player !is null && IsLocal(player) && Learned(player, NR) && Heresy(player) > 0
+				&& BindI(player, NR, "ps-reduce", 0) > 0;
 		}
 
 		// after the vanilla Use on the user's own client: Pyre Sacrifice's Heresy, counted and logged

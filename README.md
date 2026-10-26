@@ -128,6 +128,12 @@ screen, Luck, the boss and last-run recaps, the HoH1 campaign version with Battl
 per-player map colours, the trapped-chest banner and the new `objectives` module. `mod-all` (32 modules)
 and `plan-t9` are the integration gates; the session's notes are in `docs/RE_NOTES.md`
 ("Bug list 10.22.26").
+A code review of those commits found ten problems (puzzle room offsets, client fishing loot, Luck buff
+refreshes, map dots hidden with names, the Forgemaster's dash cooldown, pyre Heresy without the orb,
+Luck raising drop rates, DoT missing from the boss recap, Blink past rails, duplicated carving code);
+all are fixed and the nine affected scenarios pass again (batch `review-fixes-003`). Luck now has a
+cell on the character tab's stat bar with a tooltip giving its factor ("code review, applied" in
+`docs/RE_NOTES.md`).
 
 The full QA sweep is paused and incomplete. The [current checkpoint](docs/generated/qa_pr_checkpoint.json)
 records 10 gameplay repairs and scoped passing coverage for the six original

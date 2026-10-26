@@ -37,8 +37,8 @@ Spec (the numbers are the planner's, `planner/data/skills/priest-spec4-*.json`):
   (`RenderForgemaster`, called from `HWPSpecsModule.RenderFrame`).
 - **Pyres**: using a pyre removes Pyre Sacrifice's Heresy (1/3), the brazier (class swap
   `HWPSpecsPyre`) and the large WorldScript pyre (the `Pyre.as` override) alike. A Forgemaster
-  with Heresy can use either with no curse (`PyreHeresyAllows`); with neither the vanilla rule
-  stands. Each use logs `<kind> pyre used[ with no curse]: heresy -N -> M`.
+  with Heresy and the Pyre Sacrifice orb can use either with no curse (`PyreHeresyAllows`);
+  otherwise the vanilla rule stands (without the orb such a use would only spend the pyre). Each use logs `<kind> pyre used[ with no curse]: heresy -N -> M`.
 - **Heresy lunge / eating**, **risen decay**, **Rot Bloom**, **the cap**: see the file header
   of `Forgemaster.as`.
 

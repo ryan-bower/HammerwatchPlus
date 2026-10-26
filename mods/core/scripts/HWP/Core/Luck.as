@@ -15,8 +15,8 @@
 // (herbs, food, fish: an ActorBuffDef or a MissionBuff, both go through
 // PlayerRecord.RefreshModifiers). Factor(plr) = 1 + luck / 100 is what drop code
 // multiplies the weight of its rarer outcomes by: SpawnLoot rolls a loot table with
-// every entry lighter than the pool's heaviest one scaled by the factor (the empty
-// share of a pool keeps its weight, so Luck shifts what drops, it never makes more
+// every entry lighter than the pool's heaviest one scaled by the factor (a pool pays
+// nothing at its vanilla odds first, so Luck shifts what drops, it never makes more
 // things drop); Chance(base, factor) scales a plain drop chance, capped at 1;
 // TierUpChance(factor) is the abyss' chance of paying the next reward tier.
 // Shared host-rolled drops (chests, strongboxes, abyss cracks) use PartyFactor(): the
@@ -110,9 +110,10 @@ namespace HWP
 
 		// The luck-weighted pick of one loot pool: the index into pool.m_items, or -1 for
 		// nothing. Vanilla rolls randi(1000) against the entries' chances (a pool whose
-		// chances sum below 1000 pays nothing the rest of the time). Here every entry
-		// lighter than the pool's heaviest one has its chance multiplied by factor; the
-		// empty share keeps its vanilla weight.
+		// chances sum below 1000 pays nothing the rest of the time). Here the pool pays
+		// nothing at its vanilla odds first; when it does pay, every entry lighter than the
+		// pool's heaviest one has its chance multiplied by factor for the pick between them,
+		// so Luck changes which entry drops, never how often one does.
 		int RollPool(Item::LootTablePool@ pool, float factor)
 		{
 			if (pool is null || pool.m_items.length() == 0)
@@ -124,9 +125,10 @@ namespace HWP
 				top = max(top, pool.m_items[i].m_chance);
 				sum += pool.m_items[i].m_chance;
 			}
-			float empty = float(max(0, 1000 - sum));
+			if (sum <= 0 || randf() * float(max(1000, sum)) >= float(sum))
+				return -1;
 			array<float> w;
-			float total = empty;
+			float total = 0;
 			for (uint i = 0; i < pool.m_items.length(); i++)
 			{
 				float c = float(pool.m_items[i].m_chance);
@@ -142,6 +144,10 @@ namespace HWP
 				if (r < 0)
 					return int(i);
 			}
+			// float rounding past the last entry: the pool still pays
+			for (int i = int(w.length()) - 1; i >= 0; i--)
+				if (w[i] > 0)
+					return i;
 			return -1;
 		}
 
@@ -151,11 +157,21 @@ namespace HWP
 		// only, like the vanilla call. Logs the picks as "[HWP:luck] loot <table> ...".
 		int SpawnLoot(Item::LootTable@ table, PlayerBase@ looter, vec3 pos, float factor, const string &in what = "")
 		{
-			if (table is null || table.m_pools.length() == 0)
-				return 0;
 			PlayerRecord@ rec;
 			if (looter !is null)
 				@rec = looter.m_record;
+			return SpawnLootFor(table, rec, pos, factor, what, false);
+		}
+
+		// SpawnLoot for a record; personal: the instanced entries (gear, trinkets) spawn
+		// for that player alone instead of once per player in the lobby (a catch, not a
+		// chest). Shared entries (gold, valuables, quest items) still spawn once, through
+		// the host's own record: vanilla LootItem.SpawnLoot drops a shared item only for
+		// a local looter on the server, so a client looter would get none.
+		int SpawnLootFor(Item::LootTable@ table, PlayerRecord@ rec, vec3 pos, float factor, const string &in what = "", bool personal = false)
+		{
+			if (table is null || table.m_pools.length() == 0)
+				return 0;
 			if (rec is null)
 				@rec = GetLocalPlayerRecord();
 			if (rec is null)
@@ -181,6 +197,19 @@ namespace HWP
 				auto entry = pool.m_items[pick];
 				auto rayRes = g_scene.RaycastClosest(xy(pos), xy(spawnPos), ~0, RaycastType::Any);
 				vec3 at = vec3(rayRes.point.x, rayRes.point.y, spawnPos.z);
+				if (personal)
+				{
+					// counted per rolled entry: a LootUnit (gold, pickups) returns -1
+					auto who = rec;
+					if (!entry.CanBeInstanced())
+						@who = GetLocalPlayerRecord();
+					if (who !is null)
+					{
+						entry.SpawnLoot(who, at);
+						numSpawned++;
+					}
+					continue;
+				}
 				for (uint i = 0; i < g_players.length(); i++)
 				{
 					auto plr = g_players[i];
@@ -222,8 +251,24 @@ namespace HWP
 		// The timed Luck buff (BUFF, +points for durationMs, the def's 10 minutes when
 		// -1), for herbs, food and fish: the buff's add lerps 0..100 by intensity, so
 		// points is capped at 100. Applying it again refreshes the one already running
-		// (ActorBuffList.Add: same def, Refresh). Server or local, as the caller's
-		// ApplyBuff would be. False when the player or the buff def is missing.
+		// to the longer duration and the stronger of the two, so a weaker source never
+		// lowers it. ActorBuffList.Add (same def) calls ActorBuff.Refresh, which averages
+		// the intensities on every peer the buff is sent to, so the new application
+		// carries 2 * stronger - running: the average is the stronger one. Server or
+		// local, as the caller's ApplyBuff would be. False when the player or the buff
+		// def is missing.
+		// the Luck buff already on the player, or null
+		ActorBuff@ RunningBuff(PlayerBase@ plr, ActorBuffDef@ def)
+		{
+			auto list = plr.GetBuffList();
+			if (list is null)
+				return null;
+			for (uint i = 0; i < list.m_buffs.length(); i++)
+				if (list.m_buffs[i].m_def is def)
+					return list.m_buffs[i];
+			return null;
+		}
+
 		bool GiveBuff(PlayerBase@ plr, float points, int durationMs = -1, const string &in why = "")
 		{
 			if (plr is null || plr.m_record is null)
@@ -235,13 +280,21 @@ namespace HWP
 				return false;
 			}
 			float n = clamp(points, 0.0f, 100.0f);
-			plr.ApplyBuff(ActorBuff(plr, def, n / 100.0f, false, 0, durationMs));
+			float intensity = n / 100.0f;
+			auto running = RunningBuff(plr, def);
+			if (running !is null)
+			{
+				float keep = max(running.m_intensity, intensity);
+				intensity = 2.0f * keep - running.m_intensity;
+				n = keep * 100.0f;
+			}
+			plr.ApplyBuff(ActorBuff(plr, def, intensity, false, 0, durationMs));
 			if (plr.m_record.local)
 			{
 				plr.m_record.RefreshModifiers();
 				plr.m_record.RefreshStats();
 			}
-			HWP::Log("luck", "buff +" + int(n + 0.5f) + " for " + (durationMs < 0 ? def.m_duration : durationMs) + " ms" + (why.isEmpty() ? "" : " (" + why + ")"));
+			HWP::Log("luck", "buff +" + int(n + 0.5f) + (running is null ? "" : " (refreshed)") + " for " + (durationMs < 0 ? def.m_duration : durationMs) + " ms" + (why.isEmpty() ? "" : " (" + why + ")"));
 			return true;
 		}
 
@@ -290,6 +343,14 @@ namespace HWP
 			if (HWP::Commands::IsDecimal(args[i]))
 				return parseFloat(args[i]);
 			return def;
+		}
+
+		// the stat's tooltip text (the character tab's bar, the Mods tab's row)
+		string TooltipText(float luck)
+		{
+			return Resources::GetString(".hwp.luck.stat.tip", {
+				{ "luck", int(luck + (luck < 0 ? -0.5f : 0.5f)) }, { "factor", Fmt(FactorOf(luck)) },
+				{ "party", Fmt(PartyFactor()) } });
 		}
 
 		string Status(PlayerRecord@ rec)
@@ -359,22 +420,26 @@ namespace HWP
 			gen.m_slots = Equipment::Slot::Chest;
 			gen.m_ilvl = 1;
 			gen.m_qualities = Item::Quality::Common;
-			auto item = gen.GenerateItem();
+			// a base whose requirement the character fails (chest_dex_t1a on a paladin) adds no
+			// modifiers (PlayerRecord.RefreshModifiers skips gear that fails MayEquip), so
+			// generate until the base is one the character can wear
+			Equipment::Item@ item = null;
+			for (int i = 0; i < 64 && item is null; i++)
+			{
+				@item = gen.GenerateItem();
+				if (item !is null && !rec.equipped.MayEquip(item))
+					@item = null;
+			}
 			if (item is null)
 			{
-				Reply("no chest armour to generate");
+				Reply("no chest armour this character can wear");
 				return;
 			}
 			item.quality = Item::Quality::Uncommon;
 			item.mods.removeRange(0, item.mods.length());
 			item.mods.insertLast(mod);
 			item.Finalize(item.intensity, int(item.itemLevel), int(item.upgradeLevel), item.colorA, item.colorB);
-			// a cheat: the generated base may carry a class or attribute requirement the
-			// character fails (chest_dex_t1a on a paladin), so the check is off for this one Equip
-			bool ignoreWas = g_dbg_ignore_equipment_requirements;
-			g_dbg_ignore_equipment_requirements = true;
 			auto unequipped = rec.equipped.Equip(item);
-			g_dbg_ignore_equipment_requirements = ignoreWas;
 			if (unequipped is item)
 			{
 				Reply("could not equip " + item.baseItem.m_id);
@@ -493,8 +558,59 @@ namespace HWP
 	}
 }
 
+// The Luck value on the character tab's stat bar (core gui/playermenu/character.gui, beside
+// movement speed): a text that reads the local player's Luck each frame, and the hover tooltip
+// of the button it sits in (tooltip-enabled) with the factor it gives.
+class HWPLuckStatWidget : TextWidget
+{
+	int m_shown = -999999;
+	string m_shownParty;
+
+	HWPLuckStatWidget()
+	{
+		super();
+	}
+
+	Widget@ Clone() override
+	{
+		HWPLuckStatWidget@ w = HWPLuckStatWidget();
+		CloneInto(w);
+		return w;
+	}
+
+	void Update(int dt) override
+	{
+		auto rec = GetLocalPlayerRecord();
+		float luck = HWP::Luck::OfRecord(rec);
+		int n = int(luck + (luck < 0 ? -0.5f : 0.5f));
+		string party = HWP::Luck::Fmt(HWP::Luck::PartyFactor());
+		if (n != m_shown || party != m_shownParty)
+		{
+			m_shown = n;
+			m_shownParty = party;
+			SetText("" + n);
+			if (m_parent !is null && m_parent.m_tooltip !is null)
+				m_parent.m_tooltip.m_tooltipText = HWP::Luck::TooltipText(luck);
+		}
+		TextWidget::Update(dt);
+	}
+}
+
+ref@ LoadHWPLuckStatWidget(WidgetLoadingContext &ctx)
+{
+	HWPLuckStatWidget@ w = HWPLuckStatWidget();
+	w.Load(ctx);
+	return w;
+}
+
 namespace HWPLuck
 {
+	[Hook]
+	void LoadWidgetProducers(GUIBuilder@ builder)
+	{
+		builder.AddWidgetProducer("hwp-luck-stat", LoadHWPLuckStatWidget);
+	}
+
 	// the cheat value (hwp luck <n>), on the local record only
 	[Hook]
 	void PlayerRecordRefreshModifiers(PlayerRecord@ record)

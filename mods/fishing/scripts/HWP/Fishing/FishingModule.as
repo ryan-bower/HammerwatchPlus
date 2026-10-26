@@ -806,34 +806,14 @@ namespace HWP
 
 		// Item::LootTable.SpawnLoot drops every instanced entry (gear, trinkets) once
 		// per player in the lobby, as a chest does, so a catch handed everyone gear.
-		// This walks the table's pools like LootTablePool.SpawnLoot but spawns each
-		// rolled entry for the catcher only: gear and trinkets owned by them, gold and
-		// pickups a shared pile at their feet. Returns the entries spawned.
+		// HWP::Luck::SpawnLootFor, personal, spawns each rolled entry for the catcher
+		// only: gear and trinkets owned by them, gold, valuables and pickups a shared
+		// pile at their feet (dropped through the host's record, so a client's catch
+		// pays them too). Factor 1: the pools roll at their vanilla odds; the fisher's
+		// Luck already went into the bite tier. Returns the entries spawned.
 		int SpawnCatchLoot(Item::LootTable@ table, PlayerRecord@ rec, vec3 pos)
 		{
-			int spawned = 0;
-			for (uint i = 0; i < table.m_pools.length(); i++)
-			{
-				auto pool = table.m_pools[i];
-				if (!CheckConditionals(pool.m_conditionals, rec.actor))
-					continue;
-				vec3 at = pos + pool.m_offset;
-				at.x += (randf() - 0.5f) * pool.m_spread.x;
-				at.y += (randf() - 0.5f) * pool.m_spread.y;
-				at.z += randf() * pool.m_spread.z;
-				int n = randi(1000);
-				for (uint j = 0; j < pool.m_items.length(); j++)
-				{
-					n -= pool.m_items[j].m_chance;
-					if (n >= 0)
-						continue;
-					auto hit = g_scene.RaycastClosest(xy(pos), xy(at), ~0, RaycastType::Any);
-					pool.m_items[j].SpawnLoot(rec, vec3(hit.point.x, hit.point.y, at.z));
-					spawned++;
-					break;
-				}
-			}
-			return spawned;
+			return HWP::Luck::SpawnLootFor(table, rec, pos, 1.0f, "fishing catch", true);
 		}
 
 		// ---- the marker's motion, measured (hwp fishing smooth) ---------------------

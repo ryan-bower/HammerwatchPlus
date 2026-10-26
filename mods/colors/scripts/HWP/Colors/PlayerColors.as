@@ -222,8 +222,6 @@ namespace HWP
 		// SpriteBatch space, so widget origins are screen positions.
 		void DrawMapTab(SpriteBatch& sb)
 		{
-			if (!g_names)
-				return;
 			auto gm = cast<BaseGameMode>(g_gameMode);
 			if (gm is null || gm.m_windowManager is null)
 				return;
@@ -277,7 +275,8 @@ class HWPPlayerColorsHUD : HUDComponent
 
 	void Draw(SpriteBatch& sb, int idt) override
 	{
-		if (!HWP::PlayerColors::g_names || !GetVarBool("ui_hud_visible"))
+		// playercolors.names hides the names only; DrawPlayers still draws the dots
+		if (!GetVarBool("ui_hud_visible"))
 			return;
 		Look();
 		auto gm = cast<BaseGameMode>(g_gameMode);

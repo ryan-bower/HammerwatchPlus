@@ -185,7 +185,9 @@
 
 					<text id="player-ng" font="text" text="" anchor="0.5 0.5" offset="0 49"/>
 
-					<group width="233" height="21" offset="-1 127" flow="hbox" padding="24 4" spacing="8">
+					<!-- HammerwatchPlus core: six cells (Luck after movement speed), so the padding and spacing
+					     shrink from vanilla's 24 / 8 -->
+					<group width="233" height="21" offset="-1 127" flow="hbox" padding="6 4" spacing="7">
 						<!-- Attack Damage-->
 						<button only-mouse="true" func-hover="tooltip attackpwr" func-leave="untooltip" width="31" height="13" offset="0 0">
 							<sprite src="icon-attack-power" offset="0 1" />
@@ -214,6 +216,12 @@
 						<button only-mouse="true" func-hover="tooltip movespeed" func-leave="untooltip" width="31" height="13" offset="0 0">
 							<sprite src="icon-movespeed" offset="0 1" />
 							<text text="N/A" id="movespeed-text" anchor="0 1" offset="16 -1" font="text" color="#ffffff" />
+						</button>
+
+						<!-- HammerwatchPlus core: Luck (HWP::Luck, the hwp-luck custom stat) -->
+						<button id="hwp-luck-stat" only-mouse="true" tooltip-enabled="true" tooltip-title=".stat.custom.hwpluck" tooltip=".hwp.luck.stat.tip" width="31" height="13" offset="0 0">
+							<sprite src="icon-luck" offset="0 0" />
+							<hwp-luck-stat text="0" id="hwp-luck-text" anchor="0 1" offset="16 -1" font="text" color="#ffffff" />
 						</button>
 					</group>
 

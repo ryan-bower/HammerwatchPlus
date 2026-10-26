@@ -31,7 +31,9 @@ comes up when it does pay. This file holds the settled decisions and where each 
   - `bool GiveBuff(PlayerBase@, float points, int durationMs = -1, why)`: the timed Luck
     buff (`tweak/hwp/buffs_luck.sval:hwp_luck_charm`, 10 minutes by default); points up
     to 100 (the buff's `add` is `0 100` lerped by intensity). Applying it again refreshes
-    the running one (`ActorBuffList.Add`, same def).
+    the running one to the longer duration and the stronger of the two strengths, so a
+    weaker source never lowers it (`ActorBuffList.Add` averages a same-def refresh, so
+    the new application is sent at `2 * stronger - running`).
   - `void LogRoll(module, what, factor)`: the one log line per roll,
     `[HWP:<module>] luck x<factor> <what>`, so a test can read the factor a site used.
 - **Where Luck comes from.**
@@ -44,21 +46,27 @@ comes up when it does pay. This file holds the settled decisions and where each 
     uncommon, +10, attuned +20; drops and sells like any uncommon trinket.
   - Buffs: a puff of any herb +10, Lucky Leaf +25 (farming `ApplyHerb`); eating a fish
     +5 a star (fishing `EatFish`); `hwp luck buff [n] [ms]`. All the same 10-minute buff,
-    refreshed by the next; whether a timed actor buff survives a floor change is the
+    refreshed by the next (the stronger strength stays); whether a timed actor buff survives a floor change is the
     engine's rule for actor buffs (untested here).
   - The cheat `hwp luck <n>` (needs `e_cheats 1`): an exact modifier on the local record
     through the `PlayerRecordRefreshModifiers` hook.
 - **Shown.** The character sheet's stats list (the Mods tab, utility section, after
   Thorns) has a "Luck" row, widget id `hwp-luck`, lang `stat.custom.hwpluck` (the
-  `AddStat` helper forces the `stat.custom.` prefix; every other key is `hwp.luck.*`).
+  `AddStat` helper forces the `stat.custom.` prefix; every other key is `hwp.luck.*`), with
+  the vanilla `icn-luck` glyph and a tooltip (`hwp.luck.stat.tip`: your factor, the
+  party's). The character (inventory) tab's stat bar has a sixth cell after movement speed:
+  `icon-luck` and the value (`HWPLuckStatWidget`, widget `hwp-luck-stat`, id
+  `hwp-luck-text`, read each frame), same tooltip on hover.
   `hwp luck` prints `Luck: N (factor F; party factor P; cheat C)` to chat and the log.
 
 ## The formulas
 
 - **Loot tables** (`RollPool`). Vanilla rolls `randi(1000)` against the entries' chances;
   a pool whose chances sum below 1000 pays nothing the rest of the time. With Luck every
-  entry lighter than the pool's heaviest entry has its chance multiplied by the factor;
-  the heaviest entry and the empty share keep their vanilla weight. In a 700 rare / 300
+  entry lighter than the pool's heaviest entry has its chance multiplied by the factor
+  and the heaviest entry keeps its vanilla weight. The pool first pays nothing at its
+  vanilla odds (the empty share of 1000), so Luck changes which entry drops, never how
+  often one does. In a 700 rare / 300
   epic trinket pool, factor 1.5 gives 700 : 450 (39 % epic instead of 30 %), factor 6
   (500 Luck) 700 : 1800 (72 %). A one-entry pool is unchanged.
 - **Plain chances** (`Chance`): the chance times the factor, capped at 1 (keys).

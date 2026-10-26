@@ -45,12 +45,21 @@ the player record, `deathrecap.boss_last`) and logs `boss panel shown: N lines`
   attacker's `DamagedActor`; the others get a `UnitDamaged` message and no hook),
   so a client records its hits on boss-tagged actors (`Tags` has the `boss`
   actor tag, as `gl kill tag:boss` tests) by skill (`PlayerBase.GetSkill(di.Weapon)`,
-  "Other" without one; DoT ticks skip `DamagedActor` in vanilla too) and the
-  damage it took while a hit boss was alive (`PlayerDamageTaken`).
+  "Other" without one) and the damage it took while a hit boss was alive
+  (`PlayerDamageTaken`).
+- Burn, poison and bleed skip `DamagedActor`: they are the boss's affliction
+  pools, filled by hits on the machine that dealt them (`AddAffliction`, right
+  after the hook) and ticked as DoT with no hook. Each fight keeps the pools'
+  total as it has counted it: a hit adds what `AddAffliction` will add (the
+  same arithmetic), and each frame the drop since the last look is counted as
+  "Afflictions" (times `AfflictionDamageTakenMul`) when the local player filled
+  the pools last (`m_affectionAttacker`). Effects marked `dot` (three vanilla
+  files) are still not counted.
 - The fight ends when the hit boss is dead or gone (polled each frame: `IsDead`
   is set everywhere by `UnitKilled`). The machine sends `bossrecap.report` to
   the host, which gathers the party's reports for 1 s per boss unit and
   broadcasts `bossrecap.show`; everyone shows / prints / logs the same list.
+  The host keeps one report per peer (two players may share a display name).
   Two bosses alive at once are two fights (keyed by unit).
 - A player who never hit the boss is not listed.
 

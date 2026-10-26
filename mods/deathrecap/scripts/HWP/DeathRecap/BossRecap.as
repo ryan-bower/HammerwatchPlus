@@ -1,7 +1,11 @@
 // Boss-fight damage recap. Every machine records its own player's hits on
 // boss-tagged actors (PlayerDamagedActor fires only on the attacker's machine:
 // CompositeActorBehavior.Damage calls DamagedActor on the local attacker and
-// sends the others a UnitDamaged message with no hook) and the damage it took
+// sends the others a UnitDamaged message with no hook). Burn, poison and bleed
+// skip that hook: they are the boss's affliction pools, filled by the hits of the
+// machine that dealt them and ticked as DoT damage with no hook, so each fight
+// follows the pools (BossFight.pool) and counts what ticked off them while the
+// local player filled them last ("Afflictions"). It also records the damage it took
 // while such a fight was on (PlayerDamageTaken). When the boss dies (polled:
 // IsDead / destroyed, set on every machine by UnitKilled) the machine reports
 // its share to the host (bossrecap.report); the host gathers the party's reports
@@ -25,6 +29,7 @@ namespace HWP
 			string boss;
 			int dealt;
 			int taken;
+			int pool;      // the boss's affliction pools as far as this fight has counted them
 			array<Source@> sources;
 		}
 
@@ -86,6 +91,63 @@ namespace HWP
 			return null;
 		}
 
+		void AddSource(BossFight@ fight, const string &in src, int amount)
+		{
+			fight.dealt += amount;
+			for (uint i = 0; i < fight.sources.length(); i++)
+			{
+				if (fight.sources[i].name == src)
+				{
+					fight.sources[i].amount += amount;
+					return;
+				}
+			}
+			Source s;
+			s.name = src;
+			s.amount = amount;
+			fight.sources.insertLast(s);
+		}
+
+		int PoolSum(ActorBuffList@ b)
+		{
+			return b.m_physicalDmgPool + b.m_fireDmgPool + b.m_iceDmgPool + b.m_lightningDmgPool + b.m_poisonDmgPool;
+		}
+
+		// what ActorBuffList.AddAffliction adds to the pools for this hit: Damage calls it
+		// right after PlayerDamagedActor, with the same mitigated per-type damage
+		int AfflictionAdded(CompositeActorBehavior@ boss, DamageInfo@ dmg)
+		{
+			auto p = boss.m_props;
+			if (p is null)
+				return 0;
+			int physical = int(p.m_afflPhysMul * dmg.PhysicalDamage);
+			int fire = int(p.m_afflFireMul * dmg.FireDamage);
+			int ice = int(p.m_afflIceMul * dmg.IceDamage);
+			int lightning = int(p.m_afflLightnMul * dmg.LightningDamage);
+			int poison = int(p.m_afflPoisonMul * dmg.PoisonDamage);
+			if (physical <= 0 && fire <= 0 && ice <= 0 && lightning <= 0 && poison <= 0)
+				return 0;
+			float pm = 0, fm = 0, im = 0, lm = 0, om = 0;
+			boss.m_buffs.AfflictionPoolSizeMul(pm, fm, im, lm, om);
+			return int(physical * pm) + int(int(fire * fm) * Tweak::FireDmgScale) + int(ice * im)
+				+ int(lightning * lm) + int(int(poison * om) * Tweak::PoisonDmgScale);
+		}
+
+		// the pools' ticks since the last look: counted when the local player filled them
+		// last (m_affectionAttacker; another machine's hits fill that machine's copy of
+		// the boss, not this one)
+		void CountPoolTicks(BossFight@ fight, CompositeActorBehavior@ boss, PlayerRecord@ rec)
+		{
+			int now = PoolSum(boss.m_buffs);
+			int ticked = fight.pool - now;
+			fight.pool = now;
+			if (ticked <= 0 || rec is null || rec.actor is null || boss.m_buffs.m_affectionAttacker !is rec.actor)
+				return;
+			int amount = damage_round(ticked * boss.m_buffs.AfflictionDamageTakenMul());
+			if (amount > 0)
+				AddSource(fight, Resources::GetString(".hwp.deathrecap.boss_dot"), amount);
+		}
+
 		// PlayerDamagedActor: the local player hit something
 		void RecordHit(Player@ player, Actor@ actor, DamageInfo@ dmg)
 		{
@@ -102,29 +164,19 @@ namespace HWP
 				f.boss = BossName(actor);
 				f.dealt = 0;
 				f.taken = 0;
+				auto b = cast<CompositeActorBehavior>(actor);
+				f.pool = b is null ? 0 : PoolSum(b.m_buffs);
 				@fight = f;
 				g_fights.insertLast(f);
 				HWP::Log("deathrecap", "boss fight started: " + f.boss + " (unit " + actor.m_unit.GetId() + ")");
 			}
 
-			fight.dealt += dmg.Damage;
-			string src = HitSource(player, dmg);
-			bool found = false;
-			for (uint i = 0; i < fight.sources.length(); i++)
+			AddSource(fight, HitSource(player, dmg), dmg.Damage);
+			auto boss = cast<CompositeActorBehavior>(actor);
+			if (boss !is null)
 			{
-				if (fight.sources[i].name == src)
-				{
-					fight.sources[i].amount += dmg.Damage;
-					found = true;
-					break;
-				}
-			}
-			if (!found)
-			{
-				Source s;
-				s.name = src;
-				s.amount = dmg.Damage;
-				fight.sources.insertLast(s);
+				CountPoolTicks(fight, boss, player.m_record);
+				fight.pool += AfflictionAdded(boss, dmg);
 			}
 		}
 
@@ -198,6 +250,12 @@ namespace HWP
 			for (int i = int(g_fights.length()) - 1; i >= 0; i--)
 			{
 				auto f = g_fights[i];
+				if (f.unit.IsValid() && !f.unit.IsDestroyed())
+				{
+					auto boss = cast<CompositeActorBehavior>(f.unit.GetScriptBehavior());
+					if (boss !is null)
+						CountPoolTicks(f, boss, rec);
+				}
 				if (!FightOver(f))
 					continue;
 				g_fights.removeAt(i);
@@ -229,11 +287,11 @@ namespace HWP
 				@g = ng;
 				g_gathers.insertLast(ng);
 			}
-			// one report per player name
-			auto name = HWP::SV::Str(data, "name");
+			// one report per player (peer: two players may share a display name)
+			int from = HWP::SV::Int(data, "peer", int(peer));
 			for (int i = int(g.reports.length()) - 1; i >= 0; i--)
 			{
-				if (HWP::SV::Str(g.reports[i], "name") == name)
+				if (HWP::SV::Int(g.reports[i], "peer", -1) == from)
 				{
 					g.reports[i].Delete();
 					g.reports.removeAt(i);

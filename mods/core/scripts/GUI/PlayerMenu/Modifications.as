@@ -274,9 +274,15 @@ class PlayerMenuModificationsTab : MenuTab
 			luckRow.m_visible = true;
 			luckRow.SetID("hwp-luck");
 			auto luckIcon = cast<TextWidget>(luckRow.GetWidgetById("icon"));
-			luckIcon.SetText("  ");
+			luckIcon.SetText("\\\"icn-luck\"");
 			float luckVal = HWP::Luck::OfRecord(record);
-			cast<TextWidget>(luckIcon.GetWidgetById("value")).SetText("" + int(luckVal + (luckVal < 0 ? -0.5f : 0.5f)) + " " + Resources::GetString(".stat.custom.hwpluck"));
+			auto luckValue = cast<TextWidget>(luckIcon.GetWidgetById("value"));
+			luckValue.SetText("" + int(luckVal + (luckVal < 0 ? -0.5f : 0.5f)) + " " + Resources::GetString(".stat.custom.hwpluck"));
+			auto luckTip = WidgetTooltip();
+			luckTip.m_tooltipTitle = Resources::GetString(".stat.custom.hwpluck");
+			luckTip.m_tooltipText = HWP::Luck::TooltipText(luckVal);
+			@luckRow.m_tooltip = luckTip;
+			@luckValue.m_tooltip = luckTip;
 			m_statsList.AddChild(luckRow);
 		}
 		//AddStat(Modifiers::ConvertableStat::BloodyBullionStat, StatsText::FloatStr(stats.BloodyBullionStat * 100.0f) + "%");

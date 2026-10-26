@@ -1,6 +1,6 @@
 {
  "name": "fix-core-luck",
- "about": "The Luck stat (mods/core/scripts/HWP/Core/Luck.as, docs/design/luck.md): a custom stat hwp-luck from rolled gear (of Fortune affixes), the Rabbit's Foot trinket and timed buffs; Factor = 1 + luck/100 weights the rarer entries of drop rolls. In town as the host: `hwp luck 50` reads back in the status line and in the character sheet's Mods tab (widget hwp-luck); `hwp luck item 2` equips a chest piece with the rare affix (+10); `hwp luck buff 25 4000` is a timed buff that adds 25 and expires; `hwp luck roll` at 0 vs 500 Luck pays more epics / more hits / more tier-ups without spawning; a spawned strongbox and a spawned resource cache, used, log the luck factor they rolled with ([HWP:strongbox] / [HWP:keys] luck x1.6) and the luck-rolled loot ([HWP:luck] loot ... factor 1.6).",
+ "about": "The Luck stat (mods/core/scripts/HWP/Core/Luck.as, docs/design/luck.md): a custom stat hwp-luck from rolled gear (of Fortune affixes), the Rabbit's Foot trinket and timed buffs; Factor = 1 + luck/100 weights the rarer entries of drop rolls. In town as the host: `hwp luck 50` reads back in the status line and in the character sheet's Mods tab (widget hwp-luck); `hwp luck item 2` equips a chest piece with the rare affix (+10); `hwp luck buff 25 4000` is a timed buff that adds 25 and expires; `hwp luck roll` at 0 vs 500 Luck pays more epics / more hits / more tier-ups without spawning; a spawned strongbox and a spawned resource cache, used, log the luck factor they rolled with ([HWP:strongbox] / [HWP:keys] luck x1.6) and the luck-rolled loot ([HWP:luck] loot ... factor 1.6). The character tab's stat bar shows the Luck cell (hwp-luck-stat, after movement speed).",
  "fixture": "town-paladin",
  "mods": [
   "core",
@@ -95,6 +95,32 @@
   {
    "do": "shot",
    "name": "after-luck"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character",
+    "-",
+    "hwp-luck-stat"
+   ],
+   "expect": {
+    "tab": "PlayerMenuCharacterTab",
+    "shown": true
+   },
+   "name": "character tab shows the Luck cell"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "character-tab"
+  },
+  {
+   "do": "key",
+   "key": "escape"
   },
   {
    "do": "log_clean"

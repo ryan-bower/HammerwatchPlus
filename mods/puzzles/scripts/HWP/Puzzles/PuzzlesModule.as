@@ -56,7 +56,6 @@ namespace HWP
 	namespace Puzzles
 	{
 		const int ROOM_CHANCE = 60;    // percent a floor
-		const int MAX_CORRIDOR = 40;   // cells
 		const int PAD = 3;             // cells kept free along the grid edge (the padding blocks)
 		const int CELL = 16;           // px
 		const string CONSTELLATION_FLAG = "hwp_constellation_placed";
@@ -94,116 +93,6 @@ namespace HWP
 		int RoomChance()
 		{
 			return clamp(HWP::Settings::GetInt("puzzles.room_chance", ROOM_CHANCE), 0, 100);
-		}
-
-		bool Walkable(CellGrid@ grid, int x, int y)
-		{
-			Cell c = grid.GetCell(x, y);
-			return c == Cell::Floor || c == Cell::Breakables || c == Cell::Bridge;
-		}
-
-		// a cell the room, its rim or its corridor may take: in the grid, not consumed, plain
-		// wall. Nothing is painted as black blocks that spill a cell past their own, and a
-		// cliff keeps its cliff tiles: a room on either came out partly covered.
-		bool Free(CellGrid@ grid, int x, int y)
-		{
-			if (grid.IsConsumed(x, y))
-				return false;
-			return grid.GetCell(x, y) == Cell::Wall;
-		}
-
-		// the room's door: the junction cells on one edge of its pattern, and the way out
-		class Door
-		{
-			ivec2 m_from;    // first door cell on the pattern edge
-			ivec2 m_along;   // step along the door
-			ivec2 m_out;     // step out of the room
-			int m_width;
-		}
-
-		// the run of Walkable cells on one edge of the pattern: the doorway the room's
-		// tiles leave open (the keep's 19x20 rooms: column 18, rows 7-12). The junction is
-		// only a hint for the vanilla matcher and its centre is shifted (MissionPrefabDef
-		// SVO_Init_Post), so it is not used here.
-		bool EdgeRun(MissionPrefabDef@ def, ivec2 start, ivec2 along, ivec2 outDir, Door@ door)
-		{
-			ivec2 sz = def.m_gridSz;
-			int first = -1;
-			int n = 0;
-			for (int i = 0; ; i++)
-			{
-				ivec2 c = start + along * i;
-				if (c.x < 0 || c.y < 0 || c.x >= sz.x || c.y >= sz.y)
-					break;
-				bool walk = Pattern(def.m_gridPattern[c.y * sz.x + c.x]) == Pattern::Walkable;
-				if (walk && first < 0)
-					first = i;
-				if (walk && first >= 0 && n == i - first)
-					n++;
-			}
-			if (first < 0 || n < 2)
-				return false;
-			door.m_from = start + along * first;
-			door.m_along = along;
-			door.m_out = outDir;
-			door.m_width = n;
-			return true;
-		}
-
-		bool GetDoor(MissionPrefabDef@ def, Door@ door)
-		{
-			if (def.m_gridPattern is null)
-				return false;
-			ivec2 sz = def.m_gridSz;
-			if (EdgeRun(def, ivec2(sz.x - 1, 0), ivec2(0, 1), ivec2(1, 0), door))
-				return true;
-			if (EdgeRun(def, ivec2(0, 0), ivec2(0, 1), ivec2(-1, 0), door))
-				return true;
-			if (EdgeRun(def, ivec2(0, sz.y - 1), ivec2(1, 0), ivec2(0, 1), door))
-				return true;
-			if (EdgeRun(def, ivec2(0, 0), ivec2(1, 0), ivec2(0, -1), door))
-				return true;
-			return false;
-		}
-
-		// cells out of the door until the corridor meets the level, or -1
-		int CorridorLength(CellGrid@ grid, ivec2 pos, Door@ door)
-		{
-			ivec2 base = pos + door.m_from;
-			for (int k = 1; k <= MAX_CORRIDOR; k++)
-			{
-				bool all = true;
-				for (int w = 0; w < door.m_width; w++)
-				{
-					ivec2 c = base + door.m_out * k + door.m_along * w;
-					if (!Walkable(grid, c.x, c.y))
-					{
-						all = false;
-						if (!Free(grid, c.x, c.y))
-							return -1;
-					}
-				}
-				if (all)
-					return k;
-			}
-			return -1;
-		}
-
-		// summed-area table of the cells a room may not take (not Free)
-		array<array<int>>@ BlockedSums(CellGrid@ grid)
-		{
-			int w = grid.m_width;
-			int h = grid.m_height;
-			array<array<int>> s(w + 1, array<int>(h + 1, 0));
-			for (int x = 0; x < w; x++)
-				for (int y = 0; y < h; y++)
-					s[x + 1][y + 1] = (Free(grid, x, y) ? 0 : 1) + s[x][y + 1] + s[x + 1][y] - s[x][y];
-			return s;
-		}
-
-		int Blocked(array<array<int>>@ s, int x, int y, int w, int h)
-		{
-			return s[x + w][y + h] - s[x][y + h] - s[x + w][y] + s[x][y];
 		}
 
 		// a def the set may still give out: CanGet (max count, conditionals, run-unique
@@ -283,75 +172,29 @@ namespace HWP
 			room.m_forced = forced;
 			room.m_offset = brush.m_posOffset;
 			room.m_gen = g_genNumId;
-			Door door;
-			if (GetDoor(def, door))
+			HWP::Carve::Door door;
+			if (HWP::Carve::GetDoor(def, door))
 				for (int w = 0; w < door.m_width; w++)
 					room.m_doorCells.insertLast(pos + door.m_from + door.m_along * w);
 			g_rooms.insertLast(room);
 			return room;
 		}
 
-		// the rooms PlacePrefabs just added: the new points of interest of the set
+		// the rooms PlacePrefabs just added: the new points of interest of the set. A point of
+		// interest sits at the top-left cell plus the def's m_gridOffset
+		// (PrefabPlacement.PlacePrefabAt), so that offset comes back off here
 		void RecordPlaced(DungeonBrush@ brush, uint firstPoi)
 		{
 			for (uint i = firstPoi; i < brush.m_pointsOfInterest.length(); i++)
 			{
-				if (brush.m_pointsOfInterest[i].m_type is null)
+				auto type = brush.m_pointsOfInterest[i].m_type;
+				if (type is null)
 					continue;
-				ivec2 at = brush.m_pointsOfInterest[i].m_pos;
-				auto room = Record(brush, brush.m_pointsOfInterest[i].m_type, at, false);
+				ivec2 at = brush.m_pointsOfInterest[i].m_pos - type.m_gridOffset;
+				auto room = Record(brush, type, at, false);
 				vec4 r = room.WorldRect();
 				HWP::Log("puzzles", "room " + room.m_id + " at cell " + at.x + "," + at.y + " world " + int(r.x) + "," + int(r.y) + " " + int(r.z) + "x" + int(r.w) + " door " + room.m_doorCells.length() + " cells (matched)");
 			}
-		}
-
-		class Spot
-		{
-			MissionPrefabDef@ m_def;
-			ivec2 m_pos;
-			Door m_door;
-			int m_len;
-			float m_score;
-		}
-
-		// a def's best spot on the grid: the farthest from the middle, a short corridor
-		// breaking ties; null if none fits
-		Spot@ BestSpot(CellGrid@ grid, array<array<int>>@ sums, MissionPrefabDef@ def)
-		{
-			def.UnpackGrid();
-			Door door;
-			if (def.m_gridPattern is null || !GetDoor(def, door))
-				return null;
-			float cx = grid.m_width / 2.0f;
-			float cy = grid.m_height / 2.0f;
-			Spot@ best = null;
-			ivec2 sz = def.m_gridSz;
-			// the room plus a one-cell wall rim, PAD cells off every grid edge
-			for (int y = PAD; y + sz.y <= grid.m_height - PAD; y++)
-			{
-				for (int x = PAD; x + sz.x <= grid.m_width - PAD; x++)
-				{
-					if (Blocked(sums, x - 1, y - 1, sz.x + 2, sz.y + 2) > 0)
-						continue;
-					int len = CorridorLength(grid, ivec2(x, y), door);
-					if (len < 0)
-						continue;
-					float dx = (x + sz.x / 2.0f - cx) / cx;
-					float dy = (y + sz.y / 2.0f - cy) / cy;
-					float score = dx * dx + dy * dy - len * 0.01f;
-					if (best is null || score > best.m_score)
-					{
-						if (best is null)
-							@best = Spot();
-						@best.m_def = def;
-						best.m_pos = ivec2(x, y);
-						best.m_door = door;
-						best.m_len = len;
-						best.m_score = score;
-					}
-				}
-			}
-			return best;
 		}
 
 		// the vanilla way failed: put the room on the outskirts and carve its corridor
@@ -369,20 +212,20 @@ namespace HWP
 			if (defs.length() == 0)
 				return "no rooms left in " + set;
 
-			auto sums = BlockedSums(grid);
+			auto sums = HWP::Carve::BlockedSums(grid);
 
 			// each def's best spot. UsePrefab may hand back any of the def's variations, whose
 			// size or door can differ, and it uses the room up (count, run flags) as it does: a
 			// def is only a candidate when every variation has a spot of its own too
-			array<Spot@> spots;
+			array<HWP::Carve::Spot@> spots;
 			for (uint i = 0; i < defs.length(); i++)
 			{
-				auto best = BestSpot(grid, sums, defs[i]);
+				auto best = HWP::Carve::BestSpot(grid, sums, defs[i], PAD);
 				if (best is null)
 					continue;
 				bool all = true;
 				for (uint v = 0; v < defs[i].m_variations.length() && all; v++)
-					all = BestSpot(grid, sums, defs[i].m_variations[v]) !is null;
+					all = HWP::Carve::BestSpot(grid, sums, defs[i].m_variations[v], PAD) !is null;
 				if (all)
 					spots.insertLast(best);
 			}
@@ -391,7 +234,7 @@ namespace HWP
 
 			// best first; a def UsePrefab turns down (used up meanwhile) passes to the next
 			MissionPrefabDef@ room = null;
-			Spot@ spot = null;
+			HWP::Carve::Spot@ spot = null;
 			while (room is null && spots.length() > 0)
 			{
 				uint top = 0;
@@ -408,12 +251,12 @@ namespace HWP
 			// candidate check above made sure it has one
 			if (room !is spot.m_def)
 			{
-				@spot = BestSpot(grid, sums, room);
+				@spot = HWP::Carve::BestSpot(grid, sums, room, PAD);
 				if (spot is null)
 					return "variation " + room.m_id + " has no free wall block on the outskirts";
 			}
 			ivec2 bestPos = spot.m_pos;
-			Door@ bestDoor = spot.m_door;
+			HWP::Carve::Door@ bestDoor = spot.m_door;
 			int bestLen = spot.m_len;
 			room.UnpackGrid();
 			placer.PlacePrefabAt(room, bestPos);

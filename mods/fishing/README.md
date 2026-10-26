@@ -76,10 +76,13 @@ keys module, a catch can bring up a key of any tier, ace keys included.
 - **A hole's loot is the fisher's alone.** `Item::LootTable.SpawnLoot` drops
   every instanced entry (gear, trinkets) once per player in the lobby, as a
   chest does, so until 2026-10-25 one player's catch gave everyone gear.
-  `HWP::Fishing::SpawnCatchLoot` walks the table's pools itself and spawns each
-  rolled entry for the catcher only: gear and trinkets owned by them (an owned
-  `Item::DropItem`, sent to a client catcher the way chests do), gold and
-  pickups a shared pile at their feet. Logged as `caught tier N (M casts
+  `HWP::Fishing::SpawnCatchLoot` rolls the table through
+  `HWP::Luck::SpawnLootFor(..., personal)` at factor 1 and spawns each rolled
+  entry for the catcher only: gear and trinkets owned by them (an owned
+  `Item::DropItem`, sent to a client catcher the way chests do), gold,
+  valuables and pickups a shared pile at their feet. Shared entries drop
+  through the host's own record, since vanilla drops a shared item only for a
+  local looter on the server (until 2026-10-26 a client's catch lost them). Logged as `caught tier N (M casts
   left): loot for them alone, K drop(s)`.
 - **Fish traps.** The pirate sells up to 3 (500 / 1000 / 2000 g). They sit in
   the water off three of the coast spots (`fish_trap.unit`, `fish_trap_full.unit` with a fish

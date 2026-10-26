@@ -7,7 +7,8 @@
 //   dash can't either (the user, 2026-10-25). BlinkPath asks the ray the projectiles ask
 //   (RaycastType::Shot: shoot-through fixtures don't count), so walls still stop it short (x
 //   BLINK_WALL_MARGIN, like the vanilla one) and ledges and stairs are crossed; the landing is
-//   checked for room with the Any query and nudged along the aim (then back) up to BLINK_NUDGE.
+//   checked for room with the Any query (past a rail, over a floor tileset too) and nudged along
+//   the aim (then back) up to BLINK_NUDGE.
 //   Effects: blink_out at the start, blink_trail beads along the path, blink_in and the arcane
 //   explosion where it lands (players/hwp/specs/effects/). With a
 //   dash charge it spends one to replay the last elemental spell's timeline actions at the
@@ -105,7 +106,10 @@ namespace HWP
 		// or stair's rail), so those are crossed; sensors, passable actors and damage takers are
 		// skipped as the vanilla Teleport skips them. Then the landing needs room for the body:
 		// the Any query (rails count, the sorcerer must not stand in one) with actors ignored,
-		// nudged on along the aim up to BLINK_NUDGE, then back toward the start.
+		// nudged on along the aim up to BLINK_NUDGE, then back toward the start. A landing past
+		// a rail (beyond where the Any ray stopped) must also be over a floor tileset: the Shot ray
+		// ignores every shoot-through fixture, so without that a rail on the level's edge could be
+		// crossed into the void. With no such spot the Blink stops where the vanilla Teleport would.
 		class BlinkPath
 		{
 			vec2 m_at;
@@ -126,18 +130,19 @@ namespace HWP
 				m_wall = shotFrac < 1;
 				m_ledge = anyFrac < shotFrac - 0.01f;
 				float d = m_wall ? dist * shotFrac * BLINK_WALL_MARGIN : dist;
+				float railAt = m_ledge ? dist * anyFrac : dist + BLINK_NUDGE + 1;
 				vec2 at = from + dir * d;
-				if (!HasRoom(at))
+				if (!HasRoom(at, d > railAt))
 				{
 					bool found = false;
 					for (float n = BLINK_NUDGE_STEP; n <= BLINK_NUDGE && !found; n += BLINK_NUDGE_STEP)
 					{
-						if (!m_wall && HasRoom(from + dir * (d + n)))
+						if (!m_wall && HasRoom(from + dir * (d + n), d + n > railAt))
 						{
 							at = from + dir * (d + n);
 							found = true;
 						}
-						else if (d - n > 0 && HasRoom(from + dir * (d - n)))
+						else if (d - n > 0 && HasRoom(from + dir * (d - n), d - n > railAt))
 						{
 							at = from + dir * (d - n);
 							found = true;
@@ -169,8 +174,10 @@ namespace HWP
 				return 1.0f;
 			}
 
-			bool HasRoom(vec2 at)
+			bool HasRoom(vec2 at, bool pastRail)
 			{
+				if (pastRail && g_scene.FetchTilesets(at).length() == 0)
+					return false;
 				auto hits = g_scene.QueryCircle(at, BLINK_RAY_W, ~0, RaycastType::Any, false);
 				for (uint i = 0; i < hits.length(); i++)
 				{

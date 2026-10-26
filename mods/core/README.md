@@ -26,7 +26,8 @@ Shared library every other HammerwatchPlus module depends on. It adds no gamepla
 | `scripts/HWP/Core/SubclassPick.as` | **Subclass Picker skill row by type.** The vanilla picker shows a spec's last two skill defs as "Active" and "Passive", wrong for the HWP specs (Sniper's Flashbang and Decoy are both actives, Snipe never shows). Core patches the open picker in place each time it shows another class: the spec's own skills (those its parent class lacks), actives first then passives, each labelled by its real type, up to four slots across the row. Vanilla specs look the same as before. GameLab: slots are `skill-active-name`, `skill-passive-name`, `hwp-pick-name2`..; labels `hwp-pick-label0`..; `gl classskills <classId>` lists the defs it is checked against |
 | `scripts/HWP/Core/SkillKeys.as` + `SkillKeysHUD.as` | **Extra skill keys.** The game has three skill buttons and gives the 3rd and every later active spell Skill3, so they all fire on one press. Core swaps the local player's `PlayerTargetingHelper` for `HWPSkillKeysHelper`, whose `GetSkillInput` override gives the 4th, 5th and 6th active their own raw key (Plus tab rows `skill4`-`skill6`, settings `skillkeys.skill4`-`6`, default the 4, 5, 6 keys; vanilla binds 1 2 3 Q E V). The vanilla targeting code then serves them like any skill button; Skill3 fires only the 3rd. Keys are ignored while a text field or the chat has the keyboard and on the Plus tab. `HWPSkillKeysHUDPlayer` replaces the HUD's player bar: more than four skill slots, the extra key's name above each extra skill. Keyboard only (no gamepad buttons are left). `hwp skillkeys` lists the keys and what each casts. GameLab: `gl input ... hwp_skill4` holds the key (GlobalCache `hwp_skillkeys_held`) |
 | `scripts/HWP/Core/CoreModule.as` | boot self-checks; prints every mod id's save hash for `gamelab/hps.py` |
-| `scripts/HWP/Core/Luck.as` + `tweak/hwp/modifiers_luck.sval`, `trinkets_luck.sval`, `buffs_luck.sval` | `HWP::Luck`: the **Luck** stat (below, and `docs/design/luck.md`): `Of`, `Factor` (1 + luck/100), `PartyFactor`, `Chance`, `TierUpChance`, `RollPool` / `SpawnLoot` (a luck-weighted loot table roll), `GiveBuff` (the timed Luck buff), `LogRoll`; `hwp luck` |
+| `scripts/HWP/Core/Carve.as` | `HWP::Carve`: places a prefab room into a generated floor's solid wall with a straight corridor from its doorway to the nearest floor (`GetDoor`, `BlockedSums`, `BestSpot`); used by `puzzles` (forced rooms) and `objectives` (vaults) |
+| `scripts/HWP/Core/Luck.as` + `tweak/hwp/modifiers_luck.sval`, `trinkets_luck.sval`, `buffs_luck.sval` | `HWP::Luck`: the **Luck** stat (below, and `docs/design/luck.md`): `Of`, `Factor` (1 + luck/100), `PartyFactor`, `Chance`, `TierUpChance`, `RollPool` / `SpawnLoot` / `SpawnLootFor` (a luck-weighted loot table roll; personal: for one player), `GiveBuff` (the timed Luck buff), `LogRoll`; `hwp luck` |
 
 ## Why character.gui is overridden
 
@@ -89,7 +90,10 @@ pass, so anything with modifiers gives it: the rolled "of Fortune" armour affixe
 exclusive group), the Rabbit's Foot trinket (`hwp_trinket_rabbit_foot`, +10, attuned
 +20), and the 10-minute buff `tweak/hwp/buffs_luck.sval:hwp_luck_charm` that herbs
 (farming), fish (fishing) and `hwp luck buff` apply through `HWP::Luck::GiveBuff`. The
-character sheet's Mods tab lists it after Thorns (row `hwp-luck`, "N Luck").
+character sheet's Mods tab lists it after Thorns (row `hwp-luck`, "N Luck", the vanilla
+luck glyph and a tooltip), and the character (inventory) tab's stat bar shows it after
+movement speed (`icon-luck`, button `hwp-luck-stat`, text widget `hwp-luck-stat` id
+`hwp-luck-text`, hover tooltip with your factor and the party's).
 
 `Factor = 1 + luck / 100` is what a drop site multiplies its rarer outcomes by:
 `SpawnLoot` rolls a loot table with every entry lighter than the pool's heaviest one

@@ -14,7 +14,7 @@
     }
   ],
   "name": "Pyre Sacrifice",
-  "notes": "In game (hwp_pri_nr_pyre_sacrifice, built): using a pyre removes 1/3 Heresy, the brazier (class swap) and the large WorldScript pyre alike (the module overrides scripts/WorldScript/Pyre.as; the user 2026-10-25: large pyres did not count). A Forgemaster with Heresy can use either pyre with no curse (the user, 2026-10-25). plan-forgemaster 20261022-102006 for the brazier; fix-forgemaster-channels (pyre_heresy) for the no-curse use and the large pyre.",
+  "notes": "In game (hwp_pri_nr_pyre_sacrifice, built): using a pyre removes 1/3 Heresy, the brazier (class swap) and the large WorldScript pyre alike (the module overrides scripts/WorldScript/Pyre.as; the user 2026-10-25: large pyres did not count). A Forgemaster with Heresy and this orb can use either pyre with no curse (the user, 2026-10-25; without the orb the use would remove nothing, so 2026-10-26 needs ps-reduce > 0). plan-forgemaster 20261022-102006 for the brazier; fix-forgemaster-channels (pyre_heresy) for the no-curse use and the large pyre.",
   "order": null,
   "skill": "priest-spec4-active",
   "status": "built",

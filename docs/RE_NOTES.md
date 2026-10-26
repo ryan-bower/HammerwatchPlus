@@ -3407,3 +3407,73 @@ gates: `mod-all` with all 32 content modules `20261026-084909` PASS; `fix-object
 Open from the list: enemies and pets may not follow into a vault (the corridor is off the
 nav graph, above); co-op behaviour of the objectives sync, the map colours of other players
 and the trapped banner on clients need a two-machine lobby; the vault room has no light.
+
+## The bug-list branch's code review, applied (2026-10-26)
+
+A high-effort review of the 17 commits above found ten problems; all ten are fixed, and Luck
+got a place on the character sheet. Batch `review-fixes-003` re-ran every affected `fix-*`
+scenario: all nine PASS: `fix-fishing-personal-loot` 20261026-094048, `fix-core-luck` 20261026-094252 (and 20261026-095714 with the character-tab step), `fix-puzzles-room-integrity` 20261026-094344, `fix-puzzles-summon-hold` 20261026-094455, `fix-objectives` 20261026-094545, `fix-recaps` 20261026-094637, `fix-forgemaster-channels` 20261026-094735, `fix-specs-arcane` 20261026-095343, `fix-map-colors` 20261026-095602; `mod-all` 20261026-095829 PASS with the same engine errors as 20261026-084909.
+
+### Engine facts found by the review
+
+- **A brush's points of interest are stored at the top-left plus the def's `m_gridOffset`**
+  (`CellGrid` brush POIs), so a room's cell is `poi.m_pos - type.m_gridOffset`. The puzzle
+  room check read them raw and checked a cell offset from the room.
+- **Shared and quest loot drops only on the server, for the local looter**: vanilla
+  `LootItem.SpawnLoot` returns early unless `Network::IsServer() && looter.local`, and
+  `CanBeInstanced()` is `!m_shared`. A per-player roll that is "personal" must hand any
+  shared entry to the local record (`HWP::Luck::SpawnLootFor(..., personal = true)`), or a
+  client's fishing catch lost its shared entries.
+- **`ActorBuffList.Add` with a running def calls `ActorBuff.Refresh`**, which averages the two
+  intensities and keeps the longer duration (and sends it to peers). A weaker Luck buff
+  after a stronger one used to halve the difference; `GiveBuff` now passes
+  `2 * keep - running` so the average comes out at the stronger value.
+- **Affliction pools tick with no hook**: `CompositeActorBehavior.Damage` fires
+  `PlayerDamagedActor` only for non-DoT damage on the attacker's machine, and the pools
+  (`ActorBuffList.Update`) deal their ticks as DoT afterwards, recording only
+  `m_affectionAttacker`. The boss recap now polls the pool sum and books the drop as
+  "Afflictions" to the last attacker. Effects with `dot=true` (three vanilla files) are still
+  not counted.
+- **Equipped gear that fails its requirements adds no modifiers**:
+  `PlayerRecord.RefreshModifiers` skips any item `MayEquip` rejects, even when
+  `g_dbg_ignore_equipment_requirements` let it be equipped. `hwp luck item <tier>` generated
+  `chest_dex_t1a` on a paladin about half the time and the Luck never counted; it now
+  generates until the base passes `MayEquip`.
+- **`LootUnit.SpawnLoot` returns -1** (gold, pickups) and the item entries 1 or 0, so a sum of
+  the returns is no count of drops; the personal walk counts each rolled entry, as the old
+  fishing loop did (`review-fixes-002` caught a catch that dropped two units logged as 0).
+- **`RaycastType::Shot` passes over shoot-through rails into the void**: Blink checks
+  `g_scene.FetchTilesets(at)` past the rail and refuses a spot with no floor tiles.
+
+### The ten fixes
+
+1. Puzzles: rooms are recorded at `poi - m_gridOffset` (a `puzzle_room_e_20x18_a` was
+   208x256 px off), so the summon hold and `hwp puzzles check` use the room's real cells.
+2. Fishing: a client's catch keeps its shared entries (above).
+3. Luck buffs: a weaker source no longer lowers a stronger one (above).
+4. Map colours: `playercolors.names 0` hides only the far-player names, not the dots on the
+   minimap, the Tab overlay and the Map tab; the HUD labels follow `ui_hud_visible`.
+5. Forgemaster channel: `UnpinDash` gives back the dash cooldown the pin overrode, minus the
+   time it held, instead of zeroing any cooldown under `m_left + DASH_PIN_MS`.
+6. Pyre Heresy needs the Pyre Sacrifice orb (`ps-reduce > 0`); without it the pyre was spent
+   for nothing.
+7. Luck `RollPool`: the chance a pool pays anything stays vanilla (factor 2 had lowered a
+   chest pool's no-drop share from 85% to about 81%); only the pick among entries is weighted.
+8. Boss recap: affliction pool damage counted (above); reports keyed by peer id, not name.
+9. Arcane Blink: no landing past a rail where there is no floor (above).
+10. One copy of the room carving (`HWP::Carve`, `mods/core/scripts/HWP/Core/Carve.as`,
+    bounds-checked) for puzzles and objectives, the vault asking for its south door first;
+    fishing's hand-written pool walk is `HWP::Luck::SpawnLootFor`.
+
+### Luck on the character sheet
+
+The character tab's stat bar has a sixth cell after movement speed: the vanilla `icon-luck`
+sprite and a `hwp-luck-stat` widget (registered through `LoadWidgetProducers`) that reads
+the local Luck each frame and rewrites its button's tooltip with the factor and the party
+factor. The bar's padding and spacing went from 24 / 8 to 6 / 7 to fit. The Mods tab's Luck
+row uses the `icn-luck` glyph and the same tooltip (`.hwp.luck.stat.tip`). `fix-core-luck` opens
+the tab (`gl menu character - hwp-luck-stat`) and shoots it (`character-tab.png`).
+
+Still open: `dot=true` effects are not in the boss recap; a peer whose copy of a Luck buff is
+out of step can see the refresh overshoot until the next sync; Blink keeps vanilla Teleport
+rules where no floor tileset is found.
