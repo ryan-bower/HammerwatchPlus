@@ -16,7 +16,7 @@
 // - Key Ring is read by the keys mod (HWPGiveKey), by its custom stat name.
 // - ApplyArt (with ApplyVanilla): the HoH1 icons. `tools/import_hoh1.py trinkets` cuts them
 //   from the player's own HoH1 install into gui/hwp/icons_trinkets_hoh1.png (16x16 cells,
-//   ART_COLS a row) and lists the ids in sheet order in the string .hwp.trinket.hoh1art.
+//   ART_COLS a row) and lists the ids in sheet order in the string .hwp.trinkets.hoh1art.
 //   Without the import the trinkets keep their placeholder icons from the sval.
 namespace HWP
 {
@@ -28,7 +28,7 @@ namespace HWP
 		const string STAT_SHOP_DISCOUNT = "hwp-shop-discount"; // Trader's Coin: % off
 		const float MIN_PRICE_MUL = 0.25f;
 		const string ART_SHEET = "gui/hwp/icons_trinkets_hoh1.png";
-		const string ART_IDS = ".hwp.trinket.hoh1art";
+		const string ART_IDS = ".hwp.trinkets.hoh1art";
 		const int ART_COLS = 8;
 		int g_artIcons = 0;
 
@@ -36,18 +36,7 @@ namespace HWP
 		string g_vanillaLast;
 
 		// a custom stat's total for a player (Modifiers::CustomStat), 0 when absent
-		float StatOf(PlayerRecord@ rec, const string &in id)
-		{
-			if (rec is null)
-				return 0;
-			auto stats = rec.currStats.m_customStats;
-			for (uint i = 0; i < stats.length(); i++)
-			{
-				if (stats[i].id == id && stats[i].svalue !is null)
-					return stats[i].svalue.GetFloat();
-			}
-			return 0;
-		}
+		float StatOf(PlayerRecord@ rec, const string &in id) { return HWP::CustomStat(rec, id); }
 
 		// the dungeon trinket shop's price factor: Trader's Coin's discount, floored
 		float ShopPriceMul(PlayerRecord@ rec)

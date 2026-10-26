@@ -28,13 +28,7 @@ class HWPGiveKey : GiveKey
 
 	void KeyRing(PlayerRecord@ player)
 	{
-		float chance = 0;
-		auto stats = player.currStats.m_customStats;
-		for (uint i = 0; i < stats.length(); i++)
-		{
-			if (stats[i].id == "hwp-key-ring" && stats[i].svalue !is null)
-				chance = stats[i].svalue.GetFloat();
-		}
+		float chance = HWP::CustomStat(player, "hwp-key-ring");
 		if (chance <= 0 || randf() * 100.0f >= chance)
 			return;
 		float roll = randf();

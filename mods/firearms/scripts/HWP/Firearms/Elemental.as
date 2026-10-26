@@ -20,15 +20,7 @@ namespace HWP
 
 		float CustomStat(PlayerBase@ plr, const string &in name)
 		{
-			if (plr is null || plr.m_record is null)
-				return 0;
-			auto stats = plr.m_record.currStats.m_customStats;
-			for (uint i = 0; i < stats.length(); i++)
-			{
-				if (stats[i].id == name && stats[i].svalue !is null)
-					return stats[i].svalue.GetFloat();
-			}
-			return 0;
+			return plr is null ? 0 : HWP::CustomStat(plr.m_record, name);
 		}
 
 		// -1 for a plain round, else an index into ELEMENTS

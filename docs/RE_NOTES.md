@@ -4259,7 +4259,7 @@ With these, all 38 pass on the merged tree (last reruns 20261026-135938 to -1411
   HoH1 id (`hwp_` dropped, `_` to `-`).
 - `tools/import_hoh1.py trinkets` puts each one in the middle of a 16x16 cell of
   `mods/trinkets/gui/hwp/icons_trinkets_hoh1.png`. `hwp_trinkets_hoh1art.lang` lists the
-  ids in sheet order (`.hwp.trinket.hoh1art`). Both are the module's `local` files and
+  ids in sheet order (`.hwp.trinkets.hoh1art`). Both are the module's `local` files and
   gitignored. At load, `HoH1.as` checks `Resources::HasString` for that string and sets
   `Item::Trinket.m_icon` to a `ScriptSprite` on the sheet. The inventory, shop and tooltip
   read `GetIcon()` each time, so nothing else is needed. Without the import: placeholders.
@@ -4351,3 +4351,58 @@ With these, all 38 pass on the merged tree (last reruns 20261026-135938 to -1411
   - The four Plus tab rows show next to colors and weaponswap, and the mode row cycles.
 - The gamepad path was not exercised; the lab has no pad.
 - mod-all PASS (20261026-174550).
+
+## 2026-10-26: Code review fixes (69ba108..e1f1fc7)
+
+A /code-review high over the commits since the last review (tavern levels 4 to 6, Way Gates,
+roulette, Auto Aim, trinket NG+ scaling, the trinket map, the HoH1 trinkets and the Luck rule
+of e1f1fc7). Ten findings, all fixed.
+
+### Engine facts
+- `CondTownBuilding` "my town building guild_hall ge N" compares the building's variation
+  (`GetVariationOnBuilding`): -1 unbuilt, 0 to 7 for guild hall levels 1 to 8. `ge 8` can
+  never hold; vanilla's highest condition is `ge 7`.
+- `PlayerRecord.GiveMaterial` / `GetMaterial` go to `g_myTownRecord` (the town's gold) only
+  while a `TownGameMode` is running. Out of town they use the record's own `materials`, the
+  run's gold. Gold taken in town has to be paid back with `g_myTownRecord.GiveMaterial`, or a
+  refund in a run lands in the run's gold.
+- Script globals reset with every level, before any module's `Start`, so state that has to
+  outlive a level change goes in a save bag (`HWP::SaveData`) or GlobalCache.
+
+### Findings and fixes
+1. Tavern level 6 needed `guild_hall ge 8`: never true. Now `ge 7`, the same top guild hall as
+   level 5 (`mods/tavern/tweak/town/buildings/tavern.sval`; the README table gives the
+   in-game guild hall levels).
+2. Roulette chips on the table were lost when a run started. `Owe()` keeps the local
+   player's stake in the town's save (`roulette.owed`) after every bet and clear;
+   `RefundOwed()` pays it back to `g_myTownRecord` on the next level's Start (or the first
+   frame with a town record) when no round holds the stake.
+3. A client's Way Gate list went stale after a building upgrade (only the host's watch
+   rebuilt it). The gate's menu now rebuilds the list when it opens.
+4. Auto Aim wrote `m_gamepadRelTarget`, so the pad's aim itself locked onto the nearest enemy.
+   Only the shown reticle moves now.
+5. Auto skill fired without `SetSkill`, skipping vanilla's StartCharge. It now calls
+   `helper.SetSkill(skill)` and then `HWP::Aim::FireTargeted`, which returns whether the skill
+   activated; returning true matches vanilla's own activation frame.
+6. `BlueprintBank.as` logged the picked blueprint before its null check (food and drink,
+   enchantments, trinkets), and the quality loops did not skip null entries.
+7. The trinket strings used `hwp.trinket.` beside `hwp.trinkets.`; all are `hwp.trinkets.` now
+   (lang, svals, `HoH1.as`, `tools/import_hoh1.py`).
+8. A roulette payout could overflow `int`. It is computed in `double` and capped at
+   2,000,000,000; `roulette.max_stake` is capped at 10,000,000.
+9. The auto skill scan ran every frame; it runs at most every 150 ms now.
+10. The custom stat lookup was copied in Luck, Keys, Trinkets and Firearms, each copying
+    `m_customStats`. One core helper, `HWP::CustomStat(rec, id)` (`HWP/Core/CustomStats.as`),
+    reads it in place.
+
+### Tests
+- mod-roulette PASS (20261026-181251) with a new `leave` section: 7000 on black, then
+  `gl mission bandit_keep` before the result. The log shows "7000 back (left on the table at a
+  level change)", the run's gold stays 0, and after `gl abort` the town's gold is back to the
+  gold before the bet. Its first try (20261026-181101) found the refund landing in the run's
+  gold (the GiveMaterial fact above).
+- mod-all PASS (20261026-181551) after the town-gold refund.
+- PASS before the leave check: mod-all (20261026-180630), mod-roulette (180646), mod-autoaim
+  (180728), mod-tavern (180808), mod-waygates (180907), mod-trinkets (180934).
+- Not covered: Auto Aim's gamepad path (the lab has no pad). plan-newa-a's settings-search
+  failure predates this work.

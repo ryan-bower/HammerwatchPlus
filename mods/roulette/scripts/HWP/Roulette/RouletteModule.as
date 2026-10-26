@@ -79,6 +79,7 @@ namespace Modules
 	{
 		int m_delay = 0;
 		bool m_placed = false;
+		bool m_owedChecked = false;
 		// a building upgrade reloads the town and destroys both: the wheel (the host's) and
 		// the table it sits on (every machine bares the new one)
 		HWP::Town::Kept m_wheel;
@@ -103,12 +104,16 @@ namespace Modules
 			m_placed = false;
 			m_wheel.Reset();
 			m_table.Reset();
+			// chips still on the table when the last level ended
+			m_owedChecked = HWP::Roulette::RefundOwed();
 			if (!g_inTown)
 				HWP::Roulette::Close();
 		}
 
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
+			if (!m_owedChecked)
+				m_owedChecked = HWP::Roulette::RefundOwed();
 			if (!g_inTown)
 				return;
 			HWP::Roulette::Tick(ms);

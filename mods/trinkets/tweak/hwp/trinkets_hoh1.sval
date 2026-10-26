@@ -5,7 +5,7 @@
 <array>
 	<dict>
 		<string name="id">hwp_cape_of_withdrawal</string>
-		<string name="name">.hwp.trinket.cape_of_withdrawal.name</string>
+		<string name="name">.hwp.trinkets.cape_of_withdrawal.name</string>
 		<string name="quality">common</string>
 		<int name="price">200</int>
 		<a name="icon">
@@ -13,7 +13,7 @@
 			<i>100</i>
 			<vec4>112 32 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.cape_of_withdrawal.desc?dur=3</string>
+		<string name="desc">.hwp.trinkets.cape_of_withdrawal.desc?dur=3</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">hurt</string>
@@ -25,7 +25,7 @@
 				</dict>
 			</array>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.cape_of_withdrawal.desc?dur=6</string>
+		<string name="attune-desc">.hwp.trinkets.cape_of_withdrawal.desc?dur=6</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">hurt</string>
@@ -40,7 +40,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_coated_arrow</string>
-		<string name="name">.hwp.trinket.coated_arrow.name</string>
+		<string name="name">.hwp.trinkets.coated_arrow.name</string>
 		<string name="quality">common</string>
 		<int name="price">200</int>
 		<a name="icon">
@@ -48,7 +48,7 @@
 			<i>100</i>
 			<vec4>144 64 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.coated_arrow.desc?chnc=20&dmg=15</string>
+		<string name="desc">.hwp.trinkets.coated_arrow.desc?chnc=20&dmg=15</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::SkillTriggerEffect</string>
 			<array name="skill-tags">
@@ -64,7 +64,7 @@
 				</dict>
 			</array>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.coated_arrow.desc?chnc=40&dmg=15</string>
+		<string name="attune-desc">.hwp.trinkets.coated_arrow.desc?chnc=40&dmg=15</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::SkillTriggerEffect</string>
 			<array name="skill-tags">
@@ -83,7 +83,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_defenders_halberd</string>
-		<string name="name">.hwp.trinket.defenders_halberd.name</string>
+		<string name="name">.hwp.trinkets.defenders_halberd.name</string>
 		<string name="quality">common</string>
 		<int name="price">200</int>
 		<a name="icon">
@@ -91,7 +91,7 @@
 			<i>100</i>
 			<vec4>224 48 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.defenders_halberd.desc?dur=1.5&cd=1</string>
+		<string name="desc">.hwp.trinkets.defenders_halberd.desc?dur=1.5&cd=1</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">hurt</string>
@@ -104,7 +104,7 @@
 				</dict>
 			</array>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.defenders_halberd.desc?dur=3&cd=1</string>
+		<string name="attune-desc">.hwp.trinkets.defenders_halberd.desc?dur=3&cd=1</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">hurt</string>
@@ -120,7 +120,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_gladiators_net</string>
-		<string name="name">.hwp.trinket.gladiators_net.name</string>
+		<string name="name">.hwp.trinkets.gladiators_net.name</string>
 		<string name="quality">common</string>
 		<int name="price">200</int>
 		<a name="icon">
@@ -128,7 +128,7 @@
 			<i>100</i>
 			<vec4>112 16 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.gladiators_net.desc?chnc=10</string>
+		<string name="desc">.hwp.trinkets.gladiators_net.desc?chnc=10</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::SkillTriggerEffect</string>
 			<array name="skill-tags">
@@ -144,7 +144,7 @@
 				</dict>
 			</array>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.gladiators_net.desc?chnc=20</string>
+		<string name="attune-desc">.hwp.trinkets.gladiators_net.desc?chnc=20</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::SkillTriggerEffect</string>
 			<array name="skill-tags">
@@ -163,7 +163,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_lesser_sphere_of_time</string>
-		<string name="name">.hwp.trinket.lesser_sphere_of_time.name</string>
+		<string name="name">.hwp.trinkets.lesser_sphere_of_time.name</string>
 		<string name="quality">common</string>
 		<int name="price">200</int>
 		<a name="icon">
@@ -171,12 +171,12 @@
 			<i>100</i>
 			<vec4>112 80 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.lesser_sphere_of_time.desc?num=0.5</string>
+		<string name="desc">.hwp.trinkets.lesser_sphere_of_time.desc?num=0.5</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::Combo</string>
 			<int name="sustain-reset-timer">500</int>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.lesser_sphere_of_time.desc?num=1</string>
+		<string name="attune-desc">.hwp.trinkets.lesser_sphere_of_time.desc?num=1</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::Combo</string>
 			<int name="sustain-reset-timer">1000</int>
@@ -184,7 +184,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_pot_helm</string>
-		<string name="name">.hwp.trinket.pot_helm.name</string>
+		<string name="name">.hwp.trinkets.pot_helm.name</string>
 		<string name="quality">common</string>
 		<int name="price">200</int>
 		<a name="icon">
@@ -192,13 +192,13 @@
 			<i>100</i>
 			<vec4>16 48 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.pot_helm.desc?chnc=10</string>
+		<string name="desc">.hwp.trinkets.pot_helm.desc?chnc=10</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::BlockProjectile</string>
 			<int name="arc">360</int>
 			<float name="chance">0.1</float>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.pot_helm.desc?chnc=20</string>
+		<string name="attune-desc">.hwp.trinkets.pot_helm.desc?chnc=20</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::BlockProjectile</string>
 			<int name="arc">360</int>
@@ -207,7 +207,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_circlet_of_willpower</string>
-		<string name="name">.hwp.trinket.circlet_of_willpower.name</string>
+		<string name="name">.hwp.trinkets.circlet_of_willpower.name</string>
 		<string name="quality">uncommon</string>
 		<int name="price">750</int>
 		<a name="icon">
@@ -215,7 +215,7 @@
 			<i>100</i>
 			<vec4>64 144 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.circlet_of_willpower.desc?num=25</string>
+		<string name="desc">.hwp.trinkets.circlet_of_willpower.desc?num=25</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::SpellCost</string>
 			<float name="mana-mul">0.75</float>
@@ -226,7 +226,7 @@
 			</array>
 			<bool name="cond-target-self">true</bool>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.circlet_of_willpower.desc?num=50</string>
+		<string name="attune-desc">.hwp.trinkets.circlet_of_willpower.desc?num=50</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::SpellCost</string>
 			<float name="mana-mul">0.5</float>
@@ -240,7 +240,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_greaves_of_the_barbarian</string>
-		<string name="name">.hwp.trinket.greaves_of_the_barbarian.name</string>
+		<string name="name">.hwp.trinkets.greaves_of_the_barbarian.name</string>
 		<string name="quality">uncommon</string>
 		<int name="price">750</int>
 		<a name="icon">
@@ -248,7 +248,7 @@
 			<i>100</i>
 			<vec4>240 48 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.greaves_of_the_barbarian.desc?num=20</string>
+		<string name="desc">.hwp.trinkets.greaves_of_the_barbarian.desc?num=20</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">kill</string>
@@ -260,7 +260,7 @@
 				</dict>
 			</array>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.greaves_of_the_barbarian.desc?num=40</string>
+		<string name="attune-desc">.hwp.trinkets.greaves_of_the_barbarian.desc?num=40</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">kill</string>
@@ -275,7 +275,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_apothecarys_mortar_pestle</string>
-		<string name="name">.hwp.trinket.apothecarys_mortar_pestle.name</string>
+		<string name="name">.hwp.trinkets.apothecarys_mortar_pestle.name</string>
 		<string name="quality">uncommon</string>
 		<int name="price">750</int>
 		<a name="icon">
@@ -283,7 +283,7 @@
 			<i>100</i>
 			<vec4>128 96 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.apothecarys_mortar_pestle.desc?num=50&dur=5</string>
+		<string name="desc">.hwp.trinkets.apothecarys_mortar_pestle.desc?num=50&dur=5</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">potion</string>
@@ -295,7 +295,7 @@
 				</dict>
 			</array>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.apothecarys_mortar_pestle.desc?num=50&dur=10</string>
+		<string name="attune-desc">.hwp.trinkets.apothecarys_mortar_pestle.desc?num=50&dur=10</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">potion</string>
@@ -310,7 +310,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_apothecarys_satchel</string>
-		<string name="name">.hwp.trinket.apothecarys_satchel.name</string>
+		<string name="name">.hwp.trinkets.apothecarys_satchel.name</string>
 		<string name="quality">uncommon</string>
 		<int name="price">750</int>
 		<a name="icon">
@@ -318,13 +318,13 @@
 			<i>100</i>
 			<vec4>128 80 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.apothecarys_satchel.desc?num=50</string>
+		<string name="desc">.hwp.trinkets.apothecarys_satchel.desc?num=50</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::PotionMul</string>
 			<float name="healing">1.5</float>
 			<float name="mana">1.5</float>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.apothecarys_satchel.desc?num=100</string>
+		<string name="attune-desc">.hwp.trinkets.apothecarys_satchel.desc?num=100</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::PotionMul</string>
 			<float name="healing">2</float>
@@ -333,7 +333,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_apothecarys_sphere</string>
-		<string name="name">.hwp.trinket.apothecarys_sphere.name</string>
+		<string name="name">.hwp.trinkets.apothecarys_sphere.name</string>
 		<string name="quality">uncommon</string>
 		<int name="price">750</int>
 		<a name="icon">
@@ -341,7 +341,7 @@
 			<i>100</i>
 			<vec4>144 96 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.apothecarys_sphere.desc</string>
+		<string name="desc">.hwp.trinkets.apothecarys_sphere.desc</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">potion</string>
@@ -352,7 +352,7 @@
 				</dict>
 			</array>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.apothecarys_sphere.attune</string>
+		<string name="attune-desc">.hwp.trinkets.apothecarys_sphere.attune</string>
 		<array name="attune-modifiers">
 			<dict>
 				<string name="class">Modifiers::TriggerEffect</string>
@@ -372,7 +372,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_blowgun</string>
-		<string name="name">.hwp.trinket.blowgun.name</string>
+		<string name="name">.hwp.trinkets.blowgun.name</string>
 		<string name="quality">uncommon</string>
 		<int name="price">750</int>
 		<a name="icon">
@@ -380,7 +380,7 @@
 			<i>100</i>
 			<vec4>96 48 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.blowgun.desc?num=3&dmg=10&cd=1</string>
+		<string name="desc">.hwp.trinkets.blowgun.desc?num=3&dmg=10&cd=1</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::SkillTriggerEffect</string>
 			<array name="skill-tags">
@@ -410,7 +410,7 @@
 				</dict>
 			</array>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.blowgun.desc?num=3&dmg=10&cd=0.5</string>
+		<string name="attune-desc">.hwp.trinkets.blowgun.desc?num=3&dmg=10&cd=0.5</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::SkillTriggerEffect</string>
 			<array name="skill-tags">
@@ -443,7 +443,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_fancy_plume</string>
-		<string name="name">.hwp.trinket.fancy_plume.name</string>
+		<string name="name">.hwp.trinkets.fancy_plume.name</string>
 		<string name="quality">uncommon</string>
 		<int name="price">750</int>
 		<a name="icon">
@@ -451,13 +451,13 @@
 			<i>100</i>
 			<vec4>176 48 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.fancy_plume.desc?num=2</string>
+		<string name="desc">.hwp.trinkets.fancy_plume.desc?num=2</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::CustomStat</string>
 			<string name="name">hwp-shop-stock</string>
 			<float name="add">2</float>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.fancy_plume.attune?num=2</string>
+		<string name="attune-desc">.hwp.trinkets.fancy_plume.attune?num=2</string>
 		<array name="attune-modifiers">
 			<dict>
 				<string name="class">Modifiers::CustomStat</string>
@@ -473,7 +473,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_frying_pan</string>
-		<string name="name">.hwp.trinket.frying_pan.name</string>
+		<string name="name">.hwp.trinkets.frying_pan.name</string>
 		<string name="quality">uncommon</string>
 		<int name="price">750</int>
 		<a name="icon">
@@ -481,13 +481,13 @@
 			<i>100</i>
 			<vec4>224 96 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.frying_pan.desc?arc=90</string>
+		<string name="desc">.hwp.trinkets.frying_pan.desc?arc=90</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::BlockProjectile</string>
 			<int name="arc">90</int>
 			<int name="offset">180</int>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.frying_pan.desc?arc=180</string>
+		<string name="attune-desc">.hwp.trinkets.frying_pan.desc?arc=180</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::BlockProjectile</string>
 			<int name="arc">180</int>
@@ -496,7 +496,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_key_ring</string>
-		<string name="name">.hwp.trinket.key_ring.name</string>
+		<string name="name">.hwp.trinkets.key_ring.name</string>
 		<string name="quality">uncommon</string>
 		<int name="price">750</int>
 		<a name="icon">
@@ -504,13 +504,13 @@
 			<i>100</i>
 			<vec4>128 144 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.key_ring.desc?chnc=50</string>
+		<string name="desc">.hwp.trinkets.key_ring.desc?chnc=50</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::CustomStat</string>
 			<string name="name">hwp-key-ring</string>
 			<float name="add">50</float>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.key_ring.desc?chnc=100</string>
+		<string name="attune-desc">.hwp.trinkets.key_ring.desc?chnc=100</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::CustomStat</string>
 			<string name="name">hwp-key-ring</string>
@@ -519,7 +519,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_lucky_horseshoe</string>
-		<string name="name">.hwp.trinket.lucky_horseshoe.name</string>
+		<string name="name">.hwp.trinkets.lucky_horseshoe.name</string>
 		<string name="quality">uncommon</string>
 		<int name="price">750</int>
 		<a name="icon">
@@ -527,7 +527,7 @@
 			<i>100</i>
 			<vec4>192 48 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.lucky_horseshoe.desc?luck=10&mov=5</string>
+		<string name="desc">.hwp.trinkets.lucky_horseshoe.desc?luck=10&mov=5</string>
 		<array name="modifiers">
 			<dict>
 				<string name="class">Modifiers::CustomStat</string>
@@ -539,7 +539,7 @@
 				<float name="move-speed">0.05</float>
 			</dict>
 		</array>
-		<string name="attune-desc">.hwp.trinket.lucky_horseshoe.desc?luck=20&mov=10</string>
+		<string name="attune-desc">.hwp.trinkets.lucky_horseshoe.desc?luck=20&mov=10</string>
 		<array name="attune-modifiers">
 			<dict>
 				<string name="class">Modifiers::CustomStat</string>
@@ -554,7 +554,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_pendant_of_penance</string>
-		<string name="name">.hwp.trinket.pendant_of_penance.name</string>
+		<string name="name">.hwp.trinkets.pendant_of_penance.name</string>
 		<string name="quality">uncommon</string>
 		<int name="price">750</int>
 		<a name="icon">
@@ -562,7 +562,7 @@
 			<i>100</i>
 			<vec4>160 48 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.pendant_of_penance.desc?num=50</string>
+		<string name="desc">.hwp.trinkets.pendant_of_penance.desc?num=50</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::Damage</string>
 			<float name="mul">1.5</float>
@@ -573,7 +573,7 @@
 			</array>
 			<bool name="cond-target-self">true</bool>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.pendant_of_penance.desc?num=100</string>
+		<string name="attune-desc">.hwp.trinkets.pendant_of_penance.desc?num=100</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::Damage</string>
 			<float name="mul">2</float>
@@ -587,7 +587,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_seal_of_the_martyr</string>
-		<string name="name">.hwp.trinket.seal_of_the_martyr.name</string>
+		<string name="name">.hwp.trinkets.seal_of_the_martyr.name</string>
 		<string name="quality">uncommon</string>
 		<int name="price">750</int>
 		<a name="icon">
@@ -595,13 +595,13 @@
 			<i>100</i>
 			<vec4>192 96 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.seal_of_the_martyr.desc?num=100</string>
+		<string name="desc">.hwp.trinkets.seal_of_the_martyr.desc?num=100</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::LowHealthDamage</string>
 			<float name="mul-low">2</float>
 			<float name="mul-high">1</float>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.seal_of_the_martyr.desc?num=200</string>
+		<string name="attune-desc">.hwp.trinkets.seal_of_the_martyr.desc?num=200</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::LowHealthDamage</string>
 			<float name="mul-low">3</float>
@@ -610,7 +610,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_seal_of_souls</string>
-		<string name="name">.hwp.trinket.seal_of_souls.name</string>
+		<string name="name">.hwp.trinkets.seal_of_souls.name</string>
 		<string name="quality">uncommon</string>
 		<int name="price">750</int>
 		<a name="icon">
@@ -618,13 +618,13 @@
 			<i>100</i>
 			<vec4>240 96 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.seal_of_souls.desc?num=50</string>
+		<string name="desc">.hwp.trinkets.seal_of_souls.desc?num=50</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::LowManaDamage</string>
 			<float name="mul-low">1.5</float>
 			<float name="mul-high">1</float>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.seal_of_souls.desc?num=100</string>
+		<string name="attune-desc">.hwp.trinkets.seal_of_souls.desc?num=100</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::LowManaDamage</string>
 			<float name="mul-low">2</float>
@@ -633,7 +633,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_sphere_of_time</string>
-		<string name="name">.hwp.trinket.sphere_of_time.name</string>
+		<string name="name">.hwp.trinkets.sphere_of_time.name</string>
 		<string name="quality">uncommon</string>
 		<int name="price">750</int>
 		<a name="icon">
@@ -641,12 +641,12 @@
 			<i>100</i>
 			<vec4>112 80 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.sphere_of_time.desc?num=1</string>
+		<string name="desc">.hwp.trinkets.sphere_of_time.desc?num=1</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::Combo</string>
 			<int name="sustain-reset-timer">1000</int>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.sphere_of_time.desc?num=2</string>
+		<string name="attune-desc">.hwp.trinkets.sphere_of_time.desc?num=2</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::Combo</string>
 			<int name="sustain-reset-timer">2000</int>
@@ -654,7 +654,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_sphere_of_warriors</string>
-		<string name="name">.hwp.trinket.sphere_of_warriors.name</string>
+		<string name="name">.hwp.trinkets.sphere_of_warriors.name</string>
 		<string name="quality">uncommon</string>
 		<int name="price">750</int>
 		<a name="icon">
@@ -662,12 +662,12 @@
 			<i>100</i>
 			<vec4>32 112 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.sphere_of_warriors.desc?num=2</string>
+		<string name="desc">.hwp.trinkets.sphere_of_warriors.desc?num=2</string>
 		<dict name="modifier">
 			<string name="class">HWPTrinketComboKills</string>
 			<int name="num">2</int>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.sphere_of_warriors.desc?num=4</string>
+		<string name="attune-desc">.hwp.trinkets.sphere_of_warriors.desc?num=4</string>
 		<dict name="attune-modifier">
 			<string name="class">HWPTrinketComboKills</string>
 			<int name="num">4</int>
@@ -675,7 +675,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_talisman_of_decay</string>
-		<string name="name">.hwp.trinket.talisman_of_decay.name</string>
+		<string name="name">.hwp.trinkets.talisman_of_decay.name</string>
 		<string name="quality">uncommon</string>
 		<int name="price">750</int>
 		<a name="icon">
@@ -683,7 +683,7 @@
 			<i>100</i>
 			<vec4>144 16 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.talisman_of_decay.desc?num=20</string>
+		<string name="desc">.hwp.trinkets.talisman_of_decay.desc?num=20</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::Aura</string>
 			<string name="buff">tweak/buffs/status_effects.sval:vulnerability_area</string>
@@ -691,7 +691,7 @@
 			<int name="freq">250</int>
 			<bool name="friendly">false</bool>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.talisman_of_decay.desc?num=30</string>
+		<string name="attune-desc">.hwp.trinkets.talisman_of_decay.desc?num=30</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::Aura</string>
 			<string name="buff">tweak/buffs/status_effects.sval:vulnerability_area_greater</string>
@@ -702,7 +702,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_elven_ruby</string>
-		<string name="name">.hwp.trinket.elven_ruby.name</string>
+		<string name="name">.hwp.trinkets.elven_ruby.name</string>
 		<string name="quality">rare</string>
 		<int name="price">3000</int>
 		<a name="icon">
@@ -710,7 +710,7 @@
 			<i>100</i>
 			<vec4>112 0 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.elven_ruby.desc?cd=7</string>
+		<string name="desc">.hwp.trinkets.elven_ruby.desc?cd=7</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">castspell</string>
@@ -723,7 +723,7 @@
 				</dict>
 			</array>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.elven_ruby.desc?cd=5</string>
+		<string name="attune-desc">.hwp.trinkets.elven_ruby.desc?cd=5</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">castspell</string>
@@ -739,7 +739,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_amulet_of_vengeance</string>
-		<string name="name">.hwp.trinket.amulet_of_vengeance.name</string>
+		<string name="name">.hwp.trinkets.amulet_of_vengeance.name</string>
 		<string name="quality">rare</string>
 		<int name="price">3000</int>
 		<a name="icon">
@@ -747,7 +747,7 @@
 			<i>100</i>
 			<vec4>16 112 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.amulet_of_vengeance.desc?chnc=10</string>
+		<string name="desc">.hwp.trinkets.amulet_of_vengeance.desc?chnc=10</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">hurt</string>
@@ -759,7 +759,7 @@
 				</dict>
 			</array>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.amulet_of_vengeance.desc?chnc=20</string>
+		<string name="attune-desc">.hwp.trinkets.amulet_of_vengeance.desc?chnc=20</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">hurt</string>
@@ -774,7 +774,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_bloodthirst_ring</string>
-		<string name="name">.hwp.trinket.bloodthirst_ring.name</string>
+		<string name="name">.hwp.trinkets.bloodthirst_ring.name</string>
 		<string name="quality">rare</string>
 		<int name="price">3000</int>
 		<a name="icon">
@@ -782,14 +782,14 @@
 			<i>100</i>
 			<vec4>0 32 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.bloodthirst_ring.desc?num=2.5</string>
+		<string name="desc">.hwp.trinkets.bloodthirst_ring.desc?num=2.5</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::DamageLeeching</string>
 			<float name="life">0.025</float>
 			<bool name="weapon-leech">true</bool>
 			<bool name="spell-leech">false</bool>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.bloodthirst_ring.desc?num=5</string>
+		<string name="attune-desc">.hwp.trinkets.bloodthirst_ring.desc?num=5</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::DamageLeeching</string>
 			<float name="life">0.05</float>
@@ -799,7 +799,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_golden_lamp</string>
-		<string name="name">.hwp.trinket.golden_lamp.name</string>
+		<string name="name">.hwp.trinkets.golden_lamp.name</string>
 		<string name="quality">rare</string>
 		<int name="price">3000</int>
 		<a name="icon">
@@ -807,7 +807,7 @@
 			<i>100</i>
 			<vec4>80 112 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.golden_lamp.desc?cd=8</string>
+		<string name="desc">.hwp.trinkets.golden_lamp.desc?cd=8</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">pickup-mana</string>
@@ -821,7 +821,7 @@
 				</dict>
 			</array>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.golden_lamp.attune?cd=4</string>
+		<string name="attune-desc">.hwp.trinkets.golden_lamp.attune?cd=4</string>
 		<array name="attune-modifiers">
 			<dict>
 				<string name="class">Modifiers::ModifySummons</string>
@@ -845,7 +845,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_greater_sphere_of_regen</string>
-		<string name="name">.hwp.trinket.greater_sphere_of_regen.name</string>
+		<string name="name">.hwp.trinkets.greater_sphere_of_regen.name</string>
 		<string name="quality">rare</string>
 		<int name="price">3000</int>
 		<a name="icon">
@@ -853,7 +853,7 @@
 			<i>100</i>
 			<vec4>224 0 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.greater_sphere_of_regen.desc?hp=50&mp=75</string>
+		<string name="desc">.hwp.trinkets.greater_sphere_of_regen.desc?hp=50&mp=75</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::AttribMul</string>
 			<float name="health-regen">1.5</float>
@@ -864,7 +864,7 @@
 			</array>
 			<bool name="cond-target-self">true</bool>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.greater_sphere_of_regen.desc?hp=100&mp=150</string>
+		<string name="attune-desc">.hwp.trinkets.greater_sphere_of_regen.desc?hp=100&mp=150</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::AttribMul</string>
 			<float name="health-regen">2</float>
@@ -878,7 +878,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_guardian_figurine</string>
-		<string name="name">.hwp.trinket.guardian_figurine.name</string>
+		<string name="name">.hwp.trinkets.guardian_figurine.name</string>
 		<string name="quality">rare</string>
 		<int name="price">3000</int>
 		<a name="icon">
@@ -886,7 +886,7 @@
 			<i>100</i>
 			<vec4>176 144 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.guardian_figurine.desc?cd=12</string>
+		<string name="desc">.hwp.trinkets.guardian_figurine.desc?cd=12</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">hurt</string>
@@ -906,7 +906,7 @@
 				</dict>
 			</array>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.guardian_figurine.desc?cd=8</string>
+		<string name="attune-desc">.hwp.trinkets.guardian_figurine.desc?cd=8</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">hurt</string>
@@ -929,7 +929,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_judgement</string>
-		<string name="name">.hwp.trinket.judgement.name</string>
+		<string name="name">.hwp.trinkets.judgement.name</string>
 		<string name="quality">rare</string>
 		<int name="price">3000</int>
 		<a name="icon">
@@ -937,7 +937,7 @@
 			<i>100</i>
 			<vec4>144 112 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.judgement.desc?add=12&num=2.5</string>
+		<string name="desc">.hwp.trinkets.judgement.desc?add=12&num=2.5</string>
 		<array name="modifiers">
 			<dict>
 				<string name="class">Modifiers::DamageAdd</string>
@@ -960,7 +960,7 @@
 				</array>
 			</dict>
 		</array>
-		<string name="attune-desc">.hwp.trinket.judgement.desc?add=24&num=5</string>
+		<string name="attune-desc">.hwp.trinkets.judgement.desc?add=24&num=5</string>
 		<array name="attune-modifiers">
 			<dict>
 				<string name="class">Modifiers::DamageAdd</string>
@@ -986,7 +986,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_seal_of_rage</string>
-		<string name="name">.hwp.trinket.seal_of_rage.name</string>
+		<string name="name">.hwp.trinkets.seal_of_rage.name</string>
 		<string name="quality">rare</string>
 		<int name="price">3000</int>
 		<a name="icon">
@@ -994,12 +994,12 @@
 			<i>100</i>
 			<vec4>208 96 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.seal_of_rage.desc?num=50</string>
+		<string name="desc">.hwp.trinkets.seal_of_rage.desc?num=50</string>
 		<dict name="modifier">
 			<string name="class">HWPTrinketMissingHealthSpeed</string>
 			<float name="attack">0.5</float>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.seal_of_rage.desc?num=100</string>
+		<string name="attune-desc">.hwp.trinkets.seal_of_rage.desc?num=100</string>
 		<dict name="attune-modifier">
 			<string name="class">HWPTrinketMissingHealthSpeed</string>
 			<float name="attack">1</float>
@@ -1007,7 +1007,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_spreading_corruption</string>
-		<string name="name">.hwp.trinket.spreading_corruption.name</string>
+		<string name="name">.hwp.trinkets.spreading_corruption.name</string>
 		<string name="quality">rare</string>
 		<int name="price">3000</int>
 		<a name="icon">
@@ -1015,7 +1015,7 @@
 			<i>100</i>
 			<vec4>208 64 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.spreading_corruption.desc?num=30</string>
+		<string name="desc">.hwp.trinkets.spreading_corruption.desc?num=30</string>
 		<array name="modifiers">
 			<dict>
 				<string name="class">Modifiers::SkillTriggerEffect</string>
@@ -1056,7 +1056,7 @@
 				</array>
 			</dict>
 		</array>
-		<string name="attune-desc">.hwp.trinket.spreading_corruption.desc?num=60</string>
+		<string name="attune-desc">.hwp.trinkets.spreading_corruption.desc?num=60</string>
 		<array name="attune-modifiers">
 			<dict>
 				<string name="class">Modifiers::SkillTriggerEffect</string>
@@ -1100,7 +1100,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_talisman_of_conflagration</string>
-		<string name="name">.hwp.trinket.talisman_of_conflagration.name</string>
+		<string name="name">.hwp.trinkets.talisman_of_conflagration.name</string>
 		<string name="quality">rare</string>
 		<int name="price">3000</int>
 		<a name="icon">
@@ -1108,7 +1108,7 @@
 			<i>100</i>
 			<vec4>208 16 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.talisman_of_conflagration.desc?chnc=25&dmg=40</string>
+		<string name="desc">.hwp.trinkets.talisman_of_conflagration.desc?chnc=25&dmg=40</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">kill</string>
@@ -1130,7 +1130,7 @@
 				</dict>
 			</array>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.talisman_of_conflagration.desc?chnc=50&dmg=40</string>
+		<string name="attune-desc">.hwp.trinkets.talisman_of_conflagration.desc?chnc=50&dmg=40</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::TriggerEffect</string>
 			<string name="trigger">kill</string>
@@ -1155,7 +1155,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_lucky_hat</string>
-		<string name="name">.hwp.trinket.lucky_hat.name</string>
+		<string name="name">.hwp.trinkets.lucky_hat.name</string>
 		<string name="quality">rare</string>
 		<int name="price">3000</int>
 		<a name="icon">
@@ -1163,13 +1163,13 @@
 			<i>100</i>
 			<vec4>80 48 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.lucky_hat.desc?luck=20</string>
+		<string name="desc">.hwp.trinkets.lucky_hat.desc?luck=20</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::CustomStat</string>
 			<string name="name">hwp-luck</string>
 			<float name="add">20</float>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.lucky_hat.desc?luck=40</string>
+		<string name="attune-desc">.hwp.trinkets.lucky_hat.desc?luck=40</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::CustomStat</string>
 			<string name="name">hwp-luck</string>
@@ -1178,7 +1178,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_boots_of_freedom</string>
-		<string name="name">.hwp.trinket.boots_of_freedom.name</string>
+		<string name="name">.hwp.trinkets.boots_of_freedom.name</string>
 		<string name="quality">epic</string>
 		<int name="price">6000</int>
 		<a name="icon">
@@ -1186,14 +1186,14 @@
 			<i>100</i>
 			<vec4>176 32 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.boots_of_freedom.desc</string>
+		<string name="desc">.hwp.trinkets.boots_of_freedom.desc</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::BuffImmune</string>
 			<array name="tags">
 				<s>slow</s>
 			</array>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.boots_of_freedom.attune</string>
+		<string name="attune-desc">.hwp.trinkets.boots_of_freedom.attune</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::BuffImmune</string>
 			<array name="tags">
@@ -1204,7 +1204,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_ring_of_arcane_powers</string>
-		<string name="name">.hwp.trinket.ring_of_arcane_powers.name</string>
+		<string name="name">.hwp.trinkets.ring_of_arcane_powers.name</string>
 		<string name="quality">epic</string>
 		<int name="price">6000</int>
 		<a name="icon">
@@ -1212,7 +1212,7 @@
 			<i>100</i>
 			<vec4>16 32 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.ring_of_arcane_powers.desc?chnc=10</string>
+		<string name="desc">.hwp.trinkets.ring_of_arcane_powers.desc?chnc=10</string>
 		<array name="modifiers">
 			<dict>
 				<string name="class">Modifiers::SpellCost</string>
@@ -1233,7 +1233,7 @@
 				</array>
 			</dict>
 		</array>
-		<string name="attune-desc">.hwp.trinket.ring_of_arcane_powers.desc?chnc=20</string>
+		<string name="attune-desc">.hwp.trinkets.ring_of_arcane_powers.desc?chnc=20</string>
 		<array name="attune-modifiers">
 			<dict>
 				<string name="class">Modifiers::SpellCost</string>
@@ -1257,7 +1257,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_sphere_of_champions</string>
-		<string name="name">.hwp.trinket.sphere_of_champions.name</string>
+		<string name="name">.hwp.trinkets.sphere_of_champions.name</string>
 		<string name="quality">epic</string>
 		<int name="price">6000</int>
 		<a name="icon">
@@ -1265,7 +1265,7 @@
 			<i>100</i>
 			<vec4>208 0 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.sphere_of_champions.desc?num=30</string>
+		<string name="desc">.hwp.trinkets.sphere_of_champions.desc?num=30</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::Damage</string>
 			<float name="mul">1.3</float>
@@ -1275,7 +1275,7 @@
 			</array>
 			<bool name="cond-target-self">true</bool>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.sphere_of_champions.desc?num=60</string>
+		<string name="attune-desc">.hwp.trinkets.sphere_of_champions.desc?num=60</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::Damage</string>
 			<float name="mul">1.6</float>
@@ -1288,7 +1288,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_wylmirs_wand</string>
-		<string name="name">.hwp.trinket.wylmirs_wand.name</string>
+		<string name="name">.hwp.trinkets.wylmirs_wand.name</string>
 		<string name="quality">epic</string>
 		<int name="price">6000</int>
 		<a name="icon">
@@ -1296,7 +1296,7 @@
 			<i>100</i>
 			<vec4>32 144 16 16</vec4>
 		</a>
-		<string name="desc">.hwp.trinket.wylmirs_wand.desc?num=20</string>
+		<string name="desc">.hwp.trinkets.wylmirs_wand.desc?num=20</string>
 		<array name="modifiers">
 			<dict>
 				<string name="class">Modifiers::SpeedAdd</string>
@@ -1308,7 +1308,7 @@
 				<float name="slow-scale">0</float>
 			</dict>
 		</array>
-		<string name="attune-desc">.hwp.trinket.wylmirs_wand.desc?num=40</string>
+		<string name="attune-desc">.hwp.trinkets.wylmirs_wand.desc?num=40</string>
 		<array name="attune-modifiers">
 			<dict>
 				<string name="class">Modifiers::SpeedAdd</string>

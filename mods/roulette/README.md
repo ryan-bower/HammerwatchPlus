@@ -24,7 +24,7 @@ and fast while the ball runs. Use it to open the table.
 
 | Setting | Default | |
 |---|---|---|
-| `roulette.max_stake` | 1000000 | the most gold one player can have on the table in a round |
+| `roulette.max_stake` | 1000000 | the most gold one player can have on the table in a round (at most 10000000) |
 
 Commands: `hwp roulette` prints the round, phase, your bets, your bonus and the history.
 `hwp roulette bet <key> <gold>` places a chip (keys like `s:17`, `sp:17-20`, `c:13`,

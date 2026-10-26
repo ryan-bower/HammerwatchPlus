@@ -38,6 +38,8 @@ namespace HWP
 		int g_snaps = 0;
 
 		int g_lastAutoSkill = -100000;
+		int g_lastScan = -100000;
+		const int SCAN_MS = 150;   // Auto Skill looks for a target at most this often
 		// what the last shot went at, for `hwp autoaim` and GameLab
 		string g_lastShot = "none";
 		int g_shots = 0;
@@ -154,9 +156,8 @@ namespace HWP
 				@g_snapSkill = null;
 				return pos;
 			}
-			// the stick keeps steering from the snapped spot
-			if (gamepad)
-				helper.m_gamepadRelTarget = snapped - me;
+			// only the shown reticle moves: the stick's own (m_gamepadRelTarget) stays where the
+			// stick put it, so steering it toward another enemy (or away from all) still works
 			@g_snapSkill = helper.m_targetingSkill;
 			g_snapUnit = target;
 			g_snapPos = snapped;
@@ -178,7 +179,7 @@ namespace HWP
 			if (!g_skill || plr is null || plr.IsDead())
 				return false;
 			int now = g_scene.GetTime();
-			if (now - g_lastAutoSkill < g_skillBuffer)
+			if (now - g_lastAutoSkill < g_skillBuffer || now - g_lastScan < SCAN_MS)
 				return false;
 			if (plr.m_record.mana * 100.0f < g_skillMana)
 				return false;
@@ -187,6 +188,7 @@ namespace HWP
 				if (plr.m_uncancellableSkills[i].IsUncancellableActive())
 					return false;
 			}
+			g_lastScan = now;
 			vec2 me = xy(plr.m_unit.GetPosition());
 			for (uint i = 0; i < plr.m_skills.length(); i++)
 			{
@@ -203,10 +205,12 @@ namespace HWP
 				if (!target.IsValid())
 					continue;
 				g_lastAutoSkill = now;
-				if (skill.Activate(pos, 1.0f))
+				// vanilla's own steps: the skill button's SetSkill (StartCharge), then the
+				// attack press. Returning true skips CheckUseSkill this frame, as vanilla
+				// Update's activation frame does.
+				helper.SetSkill(skill);
+				if (HWP::Aim::FireTargeted(helper, pos, aimDir))
 				{
-					helper.CancelOther(skill, aimDir);
-					helper.TriggerModifierEffects(skill);
 					g_skillShots++;
 					g_lastShot = "auto skill " + skill.m_id + " at " + Where(target, pos);
 					Debug(g_lastShot);
@@ -331,6 +335,7 @@ namespace Modules
 			HWP::AutoAim::RefreshSettings();
 			@HWP::AutoAim::g_snapSkill = null;
 			HWP::AutoAim::g_lastAutoSkill = -100000;
+			HWP::AutoAim::g_lastScan = -100000;
 		}
 	}
 }

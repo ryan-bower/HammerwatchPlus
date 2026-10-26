@@ -9,8 +9,9 @@
 // ("roulette.hello"). The host keeps its own copy of the round (h_*): Broadcast hands the
 // host its own message at once, and the g_* state changes only there (OnState), on every
 // machine alike. A round runs only while the host is in town; leaving town (a run
-// starting) refunds what is still on the table. A player's chips in one round are capped
-// by the setting roulette.max_stake (1,000,000).
+// starting) refunds what is still on the table, from the town's save (Owe). A player's
+// chips in one round are capped by the setting roulette.max_stake (1,000,000; at most
+// 10,000,000).
 //
 // Bets are each player's own: a chip comes out of the local player's gold when it is
 // placed (Clear gives it back while the betting is open) and the local machine pays its
@@ -41,7 +42,9 @@ namespace HWP
 		const int HISTORY = 12;
 		const string WHEEL_UNIT = "doodads/hwp/hwp_roulette_wheel.unit";
 
-		int MaxStake() { return max(100, HWP::Settings::GetInt("roulette.max_stake", 1000000)); }
+		// capped so a straight bet's payout (36 times, raised by the bonus) stays inside an int
+		const int STAKE_CAP = 10000000;
+		int MaxStake() { return max(100, min(STAKE_CAP, HWP::Settings::GetInt("roulette.max_stake", 1000000))); }
 
 		enum Phase { Betting = 0, Spinning = 1, Result = 2, Closed = 3 }
 
@@ -213,7 +216,8 @@ namespace HWP
 		// what a winning stake pays back: the stake and its winnings, the winnings raised
 		int Payout(int stake, int odds)
 		{
-			return stake + int(float(stake) * float(odds) * (1.0f + Bonus()));
+			double pay = double(stake) + double(stake) * double(odds) * (1.0 + double(Bonus()));
+			return pay >= 2000000000.0 ? 2000000000 : int(pay);
 		}
 
 		// ---- placing chips (the local player, while the betting is open)
@@ -252,6 +256,7 @@ namespace HWP
 			}
 			else
 				g_myStakes[i] += chip;
+			Owe();
 			HWP::Log("roulette", "round " + g_round + ": " + chip + " on " + key + " (" + MyStake(key) + " there, " + MyTotal() + " in all)");
 			ReportStake();
 			return true;
@@ -261,6 +266,37 @@ namespace HWP
 		{
 			g_myKeys.removeRange(0, g_myKeys.length());
 			g_myStakes.removeRange(0, g_myStakes.length());
+			Owe();
+		}
+
+		// The chips on the table, also kept in the town's save. They came out of the town's
+		// gold (PlayerRecord.GiveMaterial goes to g_myTownRecord in town), and a level change (a
+		// run starting, a quit to the menu) resets these globals before the module's Start can
+		// refund them, so RefundOwed pays them back to the town from the save instead. In a run
+		// the record's GiveMaterial would pay the run's own gold, hence the town record here.
+		const string OWED = "roulette.owed";
+
+		void Owe()
+		{
+			if (g_myTownRecord !is null)
+				HWP::SaveData::MyTownForWrite().SetInt(OWED, MyTotal());
+		}
+
+		// false while there is no town record yet (try again next frame)
+		bool RefundOwed()
+		{
+			if (g_myTownRecord is null)
+				return false;
+			if (MyTotal() > 0)
+				return true;
+			auto bag = HWP::SaveData::MyTown();
+			int owed = bag.GetInt(OWED, 0);
+			if (owed <= 0)
+				return true;
+			g_myTownRecord.GiveMaterial(MaterialType::Gold, owed);
+			HWP::SaveData::MyTownForWrite().SetInt(OWED, 0);
+			HWP::Log("roulette", owed + " back (left on the table at a level change)");
+			return true;
 		}
 
 		// every chip back to the player (Clear, or the table closing mid round)

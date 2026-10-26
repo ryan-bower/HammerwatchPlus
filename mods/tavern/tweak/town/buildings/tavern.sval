@@ -78,7 +78,7 @@
 
 		<dict>
 			<array name="conditionals"><a>
-				<s>my town building</s><s>guild_hall</s><s>ge</s><i>8</i>
+				<s>my town building</s><s>guild_hall</s><s>ge</s><i>7</i>
 			</a></array>
 
 			<string name="name">.building.tavern.name</string>

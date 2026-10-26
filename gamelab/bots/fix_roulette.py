@@ -15,10 +15,15 @@
 
 - Tiers (section tiers): the tavern upgraded to tiers 2 and 3, the wheel comes back each
   time, one of it, on a table in the main hall.
+- Leaving (section leave, last): 7000 on black, then a run starts (`gl mission
+  bandit_keep`) before the result. The level change resets the script's stakes; the
+  module's Start pays the 7000 back to the town's gold from the town's save ("7000 back
+  (left on the table at a level change)"), not to the run's gold (still 0). Back in town
+  (`gl abort`) the town's gold equals the gold before the bet.
 
 Shots: roulette-wheel, roulette-menu, roulette-spin, roulette-result, roulette-tier2/3.
 
-Sections: roulette, tiers."""
+Sections: roulette, tiers, leave."""
 import re
 import time
 
@@ -171,6 +176,40 @@ class Checks(Base):
             self.notes.append(f"tier {tier} (buildup ok {r.get('ok')}): {on[-1:]}; {len(units)} wheel(s)")
         self.flag("rl_tiers", all(seen), f"{seen}")
 
+
+    def leave(self):
+        self.gl("material", "gold", 50000)
+        self.wait_phase(0)
+        self.hwp("roulette clear", 0.3)
+        g0 = self.gold()
+        self.hwp("roulette bet black 7000", 0.3, until="on black")
+        g1 = self.gold()
+        mark = len(self.g.read_log())
+        r = self.gl("mission", "bandit_keep", 0)
+        end = time.time() + 120
+        phase = None
+        while time.time() < end:
+            phase = self.gl("state", timeout=4).get("phase")
+            if phase == "mission":
+                break
+            time.sleep(1)
+        time.sleep(2)
+        run_gold = self.gold()
+        log = self.g.read_log()[mark:]
+        back = "7000 back (left on the table at a level change)" in log
+        self.gl("abort")
+        end = time.time() + 90
+        town = None
+        while time.time() < end:
+            town = self.gl("state", timeout=4).get("phase")
+            if town == "town":
+                break
+            time.sleep(1)
+        time.sleep(2)
+        g2 = self.gold()
+        self.flag("rl_leave", g0 - g1 == 7000 and phase == "mission" and back and run_gold == 0 and town == "town" and g2 == g0,
+                  f"town gold {g0} -> {g1} (bet); run gold {run_gold}; phase {phase}; refund logged {back}; "
+                  f"back in {town}: town gold {g2}; mission {r}")
 
 def run(p, sections="roulette", **_):
     c = Checks(p)

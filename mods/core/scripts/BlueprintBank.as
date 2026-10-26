@@ -45,12 +45,12 @@ class TavernBlueprintFactory : IBlueprintFactory
 		// HWP: the rarer qualities weigh the party's Luck factor
 		array<int> quals;
 		for (uint i = 0; i < buffs.length(); i++)
-			quals.insertLast(int(buffs[i].m_quality));
+			quals.insertLast(buffs[i] is null ? 0 : int(buffs[i].m_quality));
 		float luck = HWP::Luck::FloorFactor();
 		auto picked = buffs[HWP::Luck::PickByQuality(quals, luck)];
-		HWP::Luck::LogBlueprint("food/drink", buffs.length(), int(picked.m_quality), luck);
 		if (picked is null)
 			return false;
+		HWP::Luck::LogBlueprint("food/drink", buffs.length(), int(picked.m_quality), luck);
 		
 		
 		behavior.m_name = picked.m_name;
@@ -113,12 +113,12 @@ class EquipmentModifierBlueprintFactory : IBlueprintFactory
 		// HWP: the rarer qualities weigh the party's Luck factor
 		array<int> quals;
 		for (uint i = 0; i < mods.length(); i++)
-			quals.insertLast(int(mods[i].quality));
+			quals.insertLast(mods[i] is null ? 0 : int(mods[i].quality));
 		float luck = HWP::Luck::FloorFactor();
 		auto picked = mods[HWP::Luck::PickByQuality(quals, luck)];
-		HWP::Luck::LogBlueprint("enchantment", mods.length(), int(picked.quality), luck);
 		if (picked is null)
 			return false;
+		HWP::Luck::LogBlueprint("enchantment", mods.length(), int(picked.quality), luck);
 		
 		behavior.m_category = ".blueprint.category.enchantment";
 		behavior.m_name = picked.prefixName.isEmpty() ? picked.suffixName : picked.prefixName;
@@ -176,12 +176,12 @@ class TrinketBlueprintFactory : IBlueprintFactory
 		// HWP: the rarer qualities weigh the party's Luck factor
 		array<int> quals;
 		for (uint i = 0; i < trinkets.length(); i++)
-			quals.insertLast(int(trinkets[i].m_quality));
+			quals.insertLast(trinkets[i] is null ? 0 : int(trinkets[i].m_quality));
 		float luck = HWP::Luck::FloorFactor();
 		auto picked = trinkets[HWP::Luck::PickByQuality(quals, luck)];
-		HWP::Luck::LogBlueprint("trinket", trinkets.length(), int(picked.m_quality), luck);
 		if (picked is null)
 			return false;
+		HWP::Luck::LogBlueprint("trinket", trinkets.length(), int(picked.m_quality), luck);
 		
 		behavior.m_category = ".blueprint.category.trinket";
 		behavior.m_name = picked.m_name;

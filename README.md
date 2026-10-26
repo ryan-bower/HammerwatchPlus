@@ -57,7 +57,7 @@ needs `pets`.
 | `farming` | The town's field grooves become farm plots: food crops and four Holy Herb strains grow with each completed run, faster when watered (the farmer sells the can and seeds; the well refills it). Smoke a herb for a buff that lasts 10 floors (hotboxing works outdoors too), or roll it into a joint: an off-hand with 5 puffs that a friend can take from you, with smoke that fills the room; a second joint goes in the main hand, left and right click puffing each. |
 | `gambler` | A gambler in the tavern plays Higher/Lower for gold. He buys crops and herbs for gold and fish for bet tokens, and rerolls equipped gear for 2000 gold × item level, or 1 bet token per 5 item levels. |
 | `goldpet` | A pet vendor in the Hunter's Lodge sells the Gold Collector cat, with two upgrades (materials and scrolls, then valuables). |
-| `tavern` | Three more tavern levels (guild hall 6, 7 and 8): a run can start with up to 3 foods and 5 drinks. |
+| `tavern` | Three more tavern levels (from guild hall levels 7 and 8, the top one): a run can start with up to 3 foods and 5 drinks. |
 | `waygates` | Way Gates: teleport gates in the town square and at every building you have built. Use one and pick where to go (a remake of Tyraen's Teleport in City). |
 | `roulette` | A roulette wheel on a table in the tavern: one single-zero table for the whole lobby with all 157 bets at true odds (click near an edge or a corner for splits and corners), a remake of the Workshop roulette table. Luck and gold find raise the winnings by their percentage, so a smoked herb tips the odds your way. |
 | `stash` | A Sort button on the town stash: by class, then weapon type, then item level. |
@@ -145,6 +145,17 @@ also reaches generated floors: an extra secret room, more and better floor rewar
 the vanilla ranges (food, mana, chests, caches, scrolls, valuables, the blueprint chance),
 rarer blueprint recipes, more fishing holes, a likelier imp, more and higher keys and
 more ace chests (`docs/design/luck.md`, `fix-luck-floors`, `fix-luck-imp`).
+
+A second code review (69ba108..e1f1fc7: tavern levels, Way Gates, roulette, Auto Aim, the trinket
+work) found ten more problems, all fixed: the sixth tavern level could never be built (it asked for a
+guild hall level past the top); roulette chips on the table were lost when a run started (they now go
+back to the town's gold from the town's save); a client's Way Gate list went stale after a building
+upgrade; Auto Aim moved the gamepad's own aim, skipped vanilla's SetSkill for auto skill and scanned
+every frame; a null blueprint check came after its use; trinket strings used a second prefix; a big
+roulette payout could overflow (the stake setting is now capped at 10,000,000); and the custom stat
+lookup was copied four times (now `HWP::CustomStat`, core `CustomStats.as`). mod-all, mod-roulette
+(with a new leave check), mod-autoaim, mod-tavern, mod-waygates and mod-trinkets pass
+("Code review fixes (69ba108..e1f1fc7)" in `docs/RE_NOTES.md`).
 
 The full QA sweep is paused and incomplete. The [current checkpoint](docs/generated/qa_pr_checkpoint.json)
 records 10 gameplay repairs and scoped passing coverage for the six original

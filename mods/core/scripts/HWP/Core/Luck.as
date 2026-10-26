@@ -50,18 +50,7 @@ namespace HWP
 
 		// ---- reading ---------------------------------------------------------
 
-		float OfRecord(PlayerRecord@ rec)
-		{
-			if (rec is null)
-				return 0;
-			auto stats = rec.currStats.m_customStats;
-			for (uint i = 0; i < stats.length(); i++)
-			{
-				if (stats[i].id == STAT && stats[i].svalue !is null)
-					return stats[i].svalue.GetFloat();
-			}
-			return 0;
-		}
+		float OfRecord(PlayerRecord@ rec) { return HWP::CustomStat(rec, STAT); }
 
 		// total luck points of a player (gear + trinkets + buffs + cheat); 0 for null
 		float Of(PlayerBase@ plr)

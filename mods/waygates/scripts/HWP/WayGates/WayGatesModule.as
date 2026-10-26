@@ -8,7 +8,9 @@
 // Every machine builds the same gate list from the synced town record (Build); only the
 // host spawns the units (actors, netsynced). A building upgrade reloads the town without
 // a new Start and takes the units with it: once a second the host checks they are still
-// there and spawns the whole set again when one is gone, as HWP::Town::Kept does.
+// there and spawns the whole set again when one is gone, as HWP::Town::Kept does. Every
+// machine also rebuilds the list when a gate's menu opens, so a client's list follows the
+// rebuilt town too.
 // Settings: waygates.enabled (default on), waygates.square_x / square_y (the square's
 // gate). `hwp waygates` lists the gates; `hwp waygates go <n>` takes the n-th (cheats).
 namespace HWP

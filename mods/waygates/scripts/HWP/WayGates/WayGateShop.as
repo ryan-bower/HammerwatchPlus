@@ -34,6 +34,9 @@ class HWPWayGateMenu : AWindowObject
 		@m_shop = shop;
 		@m_list = m_widget.GetWidgetById("list");
 		@m_template = m_widget.GetWidgetById("template");
+		// the list fresh from the town record: a building upgrade reloads the town, and only
+		// the host's watch notices (it respawns the gates); a client's list would be stale
+		HWP::WayGates::Build();
 		if (shop.m_unit.IsValid())
 			m_here = HWP::WayGates::Here(xy(shop.m_unit.GetPosition()));
 		Fill();

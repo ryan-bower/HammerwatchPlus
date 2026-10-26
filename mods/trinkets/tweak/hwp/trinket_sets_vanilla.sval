@@ -23,7 +23,7 @@
 			</dict>
 		</dict>
 		<dict name="4">
-			<string name="desc">.hwp.trinket.set.emblems_of_hermes.4</string>
+			<string name="desc">.hwp.trinkets.set.emblems_of_hermes.4</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::SpeedAdd</string>
@@ -38,7 +38,7 @@
 			</array>
 		</dict>
 		<dict name="5">
-			<string name="desc">.hwp.trinket.set.emblems_of_hermes.5?mov=20</string>
+			<string name="desc">.hwp.trinkets.set.emblems_of_hermes.5?mov=20</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::SpeedAdd</string>
@@ -106,7 +106,7 @@
 			</array>
 		</dict>
 		<dict name="5">
-			<string name="desc">.hwp.trinket.set.apothecarys.5</string>
+			<string name="desc">.hwp.trinkets.set.apothecarys.5</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::ConvertStat</string>
@@ -130,7 +130,7 @@
 			</array>
 		</dict>
 		<dict name="7">
-			<string name="desc">.hwp.trinket.set.apothecarys.7</string>
+			<string name="desc">.hwp.trinkets.set.apothecarys.7</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::ConvertStat</string>
@@ -166,13 +166,13 @@
 		</dict>
 	</dict>
 	<dict name="traders_coin">
-		<string name="desc">.hwp.trinket.traders_coin.desc?num=25&disc=25</string>
+		<string name="desc">.hwp.trinkets.traders_coin.desc?num=25&disc=25</string>
 		<dict name="modifier">
 			<string name="class">Modifiers::CustomStat</string>
 			<string name="name">hwp-shop-discount</string>
 			<float name="add">25</float>
 		</dict>
-		<string name="attune-desc">.hwp.trinket.traders_coin.desc?num=50&disc=50</string>
+		<string name="attune-desc">.hwp.trinkets.traders_coin.desc?num=50&disc=50</string>
 		<dict name="attune-modifier">
 			<string name="class">Modifiers::CustomStat</string>
 			<string name="name">hwp-shop-discount</string>

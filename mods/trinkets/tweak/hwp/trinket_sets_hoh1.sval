@@ -5,7 +5,7 @@
 <array>
 	<dict>
 		<string name="id">hwp_charms_of_fortune</string>
-		<string name="name">.hwp.trinket.set.charms_of_fortune.name</string>
+		<string name="name">.hwp.trinkets.set.charms_of_fortune.name</string>
 		<array name="items">
 			<s>hwp_lucky_hat</s>
 			<s>hwp_lucky_horseshoe</s>
@@ -14,7 +14,7 @@
 		</array>
 		<bool name="merge-set-bonuses">false</bool>
 		<dict name="2">
-			<string name="desc">.hwp.trinket.set.charms_of_fortune.2</string>
+			<string name="desc">.hwp.trinkets.set.charms_of_fortune.2</string>
 			<dict name="modifier">
 				<string name="class">Modifiers::CustomStat</string>
 				<string name="name">hwp-luck</string>
@@ -22,7 +22,7 @@
 			</dict>
 		</dict>
 		<dict name="3">
-			<string name="desc">.hwp.trinket.set.charms_of_fortune.3</string>
+			<string name="desc">.hwp.trinkets.set.charms_of_fortune.3</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::CustomStat</string>
@@ -36,7 +36,7 @@
 			</array>
 		</dict>
 		<dict name="4">
-			<string name="desc">.hwp.trinket.set.charms_of_fortune.4</string>
+			<string name="desc">.hwp.trinkets.set.charms_of_fortune.4</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::CustomStat</string>
@@ -52,7 +52,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_disarmament</string>
-		<string name="name">.hwp.trinket.set.disarmament.name</string>
+		<string name="name">.hwp.trinkets.set.disarmament.name</string>
 		<array name="items">
 			<s>hwp_defenders_halberd</s>
 			<s>hwp_gladiators_net</s>
@@ -61,7 +61,7 @@
 		</array>
 		<bool name="merge-set-bonuses">false</bool>
 		<dict name="2">
-			<string name="desc">.hwp.trinket.set.disarmament.2</string>
+			<string name="desc">.hwp.trinkets.set.disarmament.2</string>
 			<dict name="modifier">
 				<string name="class">Modifiers::Damage</string>
 				<float name="mul">1.2</float>
@@ -73,7 +73,7 @@
 			</dict>
 		</dict>
 		<dict name="3">
-			<string name="desc">.hwp.trinket.set.disarmament.3</string>
+			<string name="desc">.hwp.trinkets.set.disarmament.3</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::Damage</string>
@@ -91,7 +91,7 @@
 			</array>
 		</dict>
 		<dict name="4">
-			<string name="desc">.hwp.trinket.set.disarmament.4</string>
+			<string name="desc">.hwp.trinkets.set.disarmament.4</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::Damage</string>
@@ -116,7 +116,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_plague_doctor</string>
-		<string name="name">.hwp.trinket.set.plague_doctor.name</string>
+		<string name="name">.hwp.trinkets.set.plague_doctor.name</string>
 		<array name="items">
 			<s>hwp_coated_arrow</s>
 			<s>hwp_blowgun</s>
@@ -125,14 +125,14 @@
 		</array>
 		<bool name="merge-set-bonuses">false</bool>
 		<dict name="2">
-			<string name="desc">.hwp.trinket.set.plague_doctor.2</string>
+			<string name="desc">.hwp.trinkets.set.plague_doctor.2</string>
 			<dict name="modifier">
 				<string name="class">Modifiers::DamageMulAdd</string>
 				<float name="poison">0.15</float>
 			</dict>
 		</dict>
 		<dict name="3">
-			<string name="desc">.hwp.trinket.set.plague_doctor.3</string>
+			<string name="desc">.hwp.trinkets.set.plague_doctor.3</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::DamageMulAdd</string>
@@ -154,7 +154,7 @@
 			</array>
 		</dict>
 		<dict name="4">
-			<string name="desc">.hwp.trinket.set.plague_doctor.4</string>
+			<string name="desc">.hwp.trinkets.set.plague_doctor.4</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::DamageMulAdd</string>
@@ -191,7 +191,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_pyromancer</string>
-		<string name="name">.hwp.trinket.set.pyromancer.name</string>
+		<string name="name">.hwp.trinkets.set.pyromancer.name</string>
 		<array name="items">
 			<s>hwp_talisman_of_conflagration</s>
 			<s>fire_salts</s>
@@ -200,14 +200,14 @@
 		</array>
 		<bool name="merge-set-bonuses">false</bool>
 		<dict name="2">
-			<string name="desc">.hwp.trinket.set.pyromancer.2</string>
+			<string name="desc">.hwp.trinkets.set.pyromancer.2</string>
 			<dict name="modifier">
 				<string name="class">Modifiers::ArmorAdd</string>
 				<int name="fire">20</int>
 			</dict>
 		</dict>
 		<dict name="3">
-			<string name="desc">.hwp.trinket.set.pyromancer.3</string>
+			<string name="desc">.hwp.trinkets.set.pyromancer.3</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::ArmorAdd</string>
@@ -229,7 +229,7 @@
 			</array>
 		</dict>
 		<dict name="4">
-			<string name="desc">.hwp.trinket.set.pyromancer.4</string>
+			<string name="desc">.hwp.trinkets.set.pyromancer.4</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::ArmorAdd</string>
@@ -257,7 +257,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_spheres_of_power</string>
-		<string name="name">.hwp.trinket.set.spheres_of_power.name</string>
+		<string name="name">.hwp.trinkets.set.spheres_of_power.name</string>
 		<array name="items">
 			<s>hwp_lesser_sphere_of_time</s>
 			<s>hwp_sphere_of_time</s>
@@ -268,7 +268,7 @@
 		</array>
 		<bool name="merge-set-bonuses">false</bool>
 		<dict name="2">
-			<string name="desc">.hwp.trinket.set.spheres_of_power.2</string>
+			<string name="desc">.hwp.trinkets.set.spheres_of_power.2</string>
 			<dict name="modifier">
 				<string name="class">Modifiers::TriggerEffect</string>
 				<string name="trigger">combo</string>
@@ -284,7 +284,7 @@
 			</dict>
 		</dict>
 		<dict name="3">
-			<string name="desc">.hwp.trinket.set.spheres_of_power.3</string>
+			<string name="desc">.hwp.trinkets.set.spheres_of_power.3</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::TriggerEffect</string>
@@ -311,7 +311,7 @@
 			</array>
 		</dict>
 		<dict name="4">
-			<string name="desc">.hwp.trinket.set.spheres_of_power.4</string>
+			<string name="desc">.hwp.trinkets.set.spheres_of_power.4</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::TriggerEffect</string>
@@ -338,7 +338,7 @@
 			</array>
 		</dict>
 		<dict name="5">
-			<string name="desc">.hwp.trinket.set.spheres_of_power.5</string>
+			<string name="desc">.hwp.trinkets.set.spheres_of_power.5</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::TriggerEffect</string>
@@ -369,7 +369,7 @@
 			</array>
 		</dict>
 		<dict name="6">
-			<string name="desc">.hwp.trinket.set.spheres_of_power.6</string>
+			<string name="desc">.hwp.trinkets.set.spheres_of_power.6</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::TriggerEffect</string>
@@ -410,7 +410,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_seals_of_torment</string>
-		<string name="name">.hwp.trinket.set.seals_of_torment.name</string>
+		<string name="name">.hwp.trinkets.set.seals_of_torment.name</string>
 		<array name="items">
 			<s>hwp_seal_of_the_martyr</s>
 			<s>hwp_seal_of_souls</s>
@@ -418,7 +418,7 @@
 		</array>
 		<bool name="merge-set-bonuses">false</bool>
 		<dict name="3">
-			<string name="desc">.hwp.trinket.set.seals_of_torment.3</string>
+			<string name="desc">.hwp.trinkets.set.seals_of_torment.3</string>
 			<dict name="modifier">
 				<string name="class">HWPTrinketMissingHealthSpeed</string>
 				<float name="cast">0.5</float>
@@ -427,7 +427,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_arcanists_regalia</string>
-		<string name="name">.hwp.trinket.set.arcanists_regalia.name</string>
+		<string name="name">.hwp.trinkets.set.arcanists_regalia.name</string>
 		<array name="items">
 			<s>hwp_circlet_of_willpower</s>
 			<s>hwp_ring_of_arcane_powers</s>
@@ -435,14 +435,14 @@
 		</array>
 		<bool name="merge-set-bonuses">false</bool>
 		<dict name="2">
-			<string name="desc">.hwp.trinket.set.arcanists_regalia.2</string>
+			<string name="desc">.hwp.trinkets.set.arcanists_regalia.2</string>
 			<dict name="modifier">
 				<string name="class">Modifiers::SpellCost</string>
 				<float name="mana-mul">0.9</float>
 			</dict>
 		</dict>
 		<dict name="3">
-			<string name="desc">.hwp.trinket.set.arcanists_regalia.3</string>
+			<string name="desc">.hwp.trinkets.set.arcanists_regalia.3</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::SpellCost</string>
@@ -457,7 +457,7 @@
 	</dict>
 	<dict>
 		<string name="id">hwp_conjurers_relics</string>
-		<string name="name">.hwp.trinket.set.conjurers_relics.name</string>
+		<string name="name">.hwp.trinkets.set.conjurers_relics.name</string>
 		<array name="items">
 			<s>hwp_golden_lamp</s>
 			<s>hwp_guardian_figurine</s>
@@ -465,14 +465,14 @@
 		</array>
 		<bool name="merge-set-bonuses">false</bool>
 		<dict name="2">
-			<string name="desc">.hwp.trinket.set.conjurers_relics.2</string>
+			<string name="desc">.hwp.trinkets.set.conjurers_relics.2</string>
 			<dict name="modifier">
 				<string name="class">Modifiers::SummonStatMulAdd</string>
 				<float name="damage-mul">0.2</float>
 			</dict>
 		</dict>
 		<dict name="3">
-			<string name="desc">.hwp.trinket.set.conjurers_relics.3</string>
+			<string name="desc">.hwp.trinkets.set.conjurers_relics.3</string>
 			<array name="modifiers">
 				<dict>
 					<string name="class">Modifiers::SummonStatMulAdd</string>

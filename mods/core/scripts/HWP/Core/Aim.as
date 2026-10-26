@@ -43,18 +43,21 @@ namespace HWP
 
 		// What vanilla Update does when the targeted skill is fired: activate it at target,
 		// let the other skills' charges go, trigger the cast effects, and stop targeting.
-		void FireTargeted(PlayerTargetingHelper@ helper, vec2 target, vec2 aimDir)
+		// True when the skill activated.
+		bool FireTargeted(PlayerTargetingHelper@ helper, vec2 target, vec2 aimDir)
 		{
 			auto skill = helper.m_targetingSkill;
 			if (skill is null)
-				return;
-			if (skill.Activate(target, 1.0f))
+				return false;
+			bool fired = skill.Activate(target, 1.0f);
+			if (fired)
 			{
 				helper.CancelOther(skill, aimDir);
 				helper.TriggerModifierEffects(skill);
 			}
 			skill.m_isActive = false;
 			@helper.m_targetingSkill = null;
+			return fired;
 		}
 	}
 }
