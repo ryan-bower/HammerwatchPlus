@@ -282,7 +282,8 @@
 		<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>192 120 14 14</vec4></array>
 	</dict>
 	<!-- Devil Forgemaster: the Necrotic Resurrection / Sacrificial Penance channel (3 s, an
-	     elite's body 5 s, a boss's 10 s; the duration is given by the script) -->
+	     elite's body 5 s, a boss's 10 s; the duration is given by the script). The rotation is
+	     locked too (the user, 2026-10-25: locked onto the body; Forgemaster.as LockOn sets the facing) -->
 	<dict name="raising">
 		<bool name="debuff">false</bool>
 		<int name="duration">3000</int>
@@ -290,6 +291,7 @@
 		<bool name="silence">true</bool>
 		<bool name="disarm">true</bool>
 		<bool name="lock-movement">true</bool>
+		<bool name="lock-rotation">true</bool>
 		<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>24 144 14 14</vec4></array>
 	</dict>
 	<!-- Devil Forgemaster: the Penance channel's stance, under the body facing up: the rotation

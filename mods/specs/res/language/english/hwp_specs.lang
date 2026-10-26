@@ -138,13 +138,13 @@
 	<string name="hwp.specs.necrotic_resurrection.name">Necrotic Resurrection</string>
 	<string name="hwp.specs.necrotic_resurrection.desc">Reanimate the intact body you aim at as a loyal summon with %pct% of the enemy's health and damage, up to %count% at a time; the oldest falls past that. Takes 3 seconds, 5 for an elite, 10 for a boss. Risen can't be healed and lose 1% health every 3 seconds (a boss every 9). Each raise adds Heresy: 1 for a normal enemy, 2 for an elite, 3 for a boss; at 5 Heresy you can no longer raise the dead. At max Divine Favor the skill becomes Sacrificial Penance: channel 3 seconds on an intact body to sacrifice it, consuming your Divine Favor and removing %penance% Heresy, 1 more for an elite's body and 2 more for a boss's, for 50 mana and no cooldown.</string>
 	<string name="hwp.specs.pyre_sacrifice.name">Pyre Sacrifice</string>
-	<string name="hwp.specs.pyre_sacrifice.desc">Using a Pyre also removes %reduce% Heresy.</string>
+	<string name="hwp.specs.pyre_sacrifice.desc">Using a Pyre also removes %reduce% Heresy. While you have Heresy you can use a Pyre, large or small, even with no curse.</string>
 	<string name="hwp.specs.rot_bloom.name">Rot Bloom</string>
 	<string name="hwp.specs.rot_bloom.desc">When a risen summon dies, its body bursts, dealing %damage% as Poison damage to enemies within 60.</string>
 	<string name="hwp.specs.call_of_heresy.name">Call of Heresy</string>
 	<string name="hwp.specs.call_of_heresy.desc">Slain enemies have a %body% chance to fall with their body intact, ready for Necrotic Resurrection. Bodies last 60 seconds. Each stack of Heresy gives your risen %damage% more damage, but adds %lunge% to the chance, rolled once per intact body you come near, that you lunge at it and consume its flesh: 3 seconds during which you can't move, attack or cast, with +50 health regeneration per second.</string>
 	<string name="hwp.specs.deeper_depravity.name">Deeper Depravity</string>
-	<string name="hwp.specs.deeper_depravity.desc">%elite% chance that an elite leaves an intact body. %boss% chance that a boss does: a risen boss keeps its attacks at a fraction of its strength, decays slower and fits the hallways.</string>
+	<string name="hwp.specs.deeper_depravity.desc">%elite% chance that an elite leaves an intact body. %boss% chance that a boss does (every boss, at the highest quality): a risen boss keeps its attacks at a fraction of its strength, decays slower and fits the hallways.</string>
 	<string name="hwp.specs.ravenous_lunge.name">Ravenous Lunge</string>
 	<string name="hwp.specs.ravenous_lunge.desc">Your flesh-eating lunge slams into the enemies around the body for %damage% before you start to eat. At the higher quality it knocks them back.</string>
 	<string name="hwp.specs.stack.heresy.name">Heresy</string>

@@ -39,7 +39,7 @@ namespace HWP
 			}
 
 			// the buffs the scripts load by name (the svals' own are checked when they load)
-			array<string> buffs = { "standard_dr", "standard_dr_planted", "crusade_5", "gale_share_20_0", "gale_share_60_3", "conduit_1_1", "conduit_2_5", "tailwind_1_1", "tailwind_5_5", "wind_ward", "pyrebrand", "raising", "devouring" };
+			array<string> buffs = { "standard_dr", "standard_dr_planted", "crusade_5", "gale_share_20_0", "gale_share_60_3", "conduit_1_1", "conduit_2_5", "tailwind_1_1", "tailwind_5_5", "wind_ward", "pyrebrand", "raising", "penance_stance", "devouring" };
 			for (uint i = 0; i < buffs.length(); i++)
 			{
 				if (Buff(buffs[i]) is null)
@@ -144,7 +144,13 @@ namespace Modules
 			HWP::Specs::UpdateTailwind(ms);
 			HWP::Specs::UpdateBrands(ms);
 			HWP::Specs::UpdateArcane(ms);
-			HWP::Specs::UpdateForgemaster(ms);
+			HWP::Specs::UpdateForgemaster(ms, gameInput.Dash.Pressed);
+		}
+
+		// the Forgemaster's channel bar over the priest (the UI-scaled batch)
+		void RenderFrame(int idt, SpriteBatch& sb) override
+		{
+			HWP::Specs::RenderForgemaster(idt, sb);
 		}
 	}
 }

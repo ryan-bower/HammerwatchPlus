@@ -19,7 +19,7 @@ Sections:
 - heresy: the block at 5, the overshoot, the carry to the next floor, the reset in town.
 - lunge: the forced lunge's effects, then the real roll (Heresy x coh-lunge) over many bodies.
 - decay: 1% every 3 s to death, Rot Bloom on the way out; the cap kills the oldest.
-- channel_lock (fix-forgemaster-channels): a channel locks the priest onto the body: the facing
+- channel_lock (fix-forgemaster-channels): the Penance first, then a boss raise (10 s): the facing
   holds against a turned aim, a dash press is refused (and logged) and moves nothing, the beam
   and the pulses run, the bar is drawn; the dash is free again after; the same for a Penance.
 - penance_icon: the skill's icon is the Penance one at max Divine Favor, the raise one below.
@@ -678,52 +678,26 @@ class Checks(Base):
         x1, y1 = self.pos()
         return ((x1 - x0) ** 2 + (y1 - y0) ** 2) ** 0.5
 
+    def channel_ms(self, st):
+        m = re.findall(r"channel (?:raise|penance) (-?\d+) ms", st)
+        return int(m[-1]) if m else None
+
+    def wait_channel_end(self, limit=12.0):
+        end = time.time() + limit
+        while time.time() < end:
+            if not self.has("raising")["raising"].get("on"):
+                return True
+            time.sleep(0.2)
+        return False
+
     def channel_lock(self):
+        """The Penance first (the skill has no cooldown yet: a raise's 20 s would refuse the
+        press, lab 20261025-171508), then a raise on a boss's body (10 s: room for the reads;
+        the 5 s elite channel had ended before the dash press in that run)."""
         self.setup_forge("lock")
         if not self.to_arena("lock"):
             return
         fav = self.favor_path()
-        # a raise on an elite's body (5 s channel: room for the reads) 70 px east: the lock faces east (0)
-        self.set_stacks(fav, 0)
-        self.set_heresy(0)
-        self.body("humans/bandits/bandit_brute_elite.unit", 70, 0)
-        time.sleep(0.4)
-        mark = len(self.g.read_log())
-        presses, spent, button = self.cast_skill("lock", NR, 70, done=lambda: self.has("raising")["raising"].get("on"))
-        st, a = self.lock_status()
-        self.flag("lock_raise_locked", presses > 0 and a["locked"] == 1 and a["angle"] is not None and abs(a["angle"]) <= 12,
-                  f"locked {a['locked']}, facing {a['angle']} (the body is east: 0), dash pinned {a['dashpin']} cd {a['dashcd']}")
-        self.flag("lock_beam", a["beam"] == 1, f"beam unit alive {a['beam']}")
-        self.flag("lock_bar", a["bar"] == 1, f"bar drawn this frame {a['bar']}")
-        # the aim turned south for 1.2 s: the facing holds east
-        self.gl("input", 1200, 0, 0, 0, 1)
-        time.sleep(0.6)
-        st, b = self.lock_status()
-        self.flag("lock_facing_held", b["locked"] == 1 and b["angle"] is not None and abs(b["angle"]) <= 12,
-                  f"facing {b['angle']} with the aim turned south (90), still channelling {self.fnum(st, 'channel') is not None}")
-        time.sleep(0.7)
-        # a dash press mid-channel: refused (the pinned cooldown), nothing moves, the log says so
-        moved = self.dash_try()
-        st, c = self.lock_status()
-        log = self.g.read_log()[mark:]
-        self.flag("lock_dash_refused", moved < 4 and ((c["dashrefused"] or 0) >= 1 or "dash refused during raise channel" in log),
-                  f"moved {moved:.1f} px, refused count {c['dashrefused']}, log line {'dash refused during raise channel' in log}, dash cd {c['dashcd']}")
-        self.flag("lock_fx", (c["pulses"] or 0) >= 8 and (c["beamframes"] or 0) >= 30,
-                  f"pulses {c['pulses']} (150 ms each), beam frames {c['beamframes']}")
-        # the channel completes: the risen, Heresy +2, the beam gone, the dash free again
-        time.sleep(3.0)
-        for _ in range(20):
-            if not self.has("raising")["raising"].get("on"):
-                break
-            time.sleep(0.2)
-        time.sleep(0.4)
-        st, d = self.lock_status()
-        self.flag("lock_raise_done", len(self.risen()) == 1 and self.heresy() == 2 and d["beam"] in (0, None) and d["dashpin"] == 0,
-                  f"risen {len(self.risen())}, heresy {self.heresy()}, beam {d['beam']}, dash pinned {d['dashpin']} cd {d['dashcd']}")
-        moved = self.dash_try(0, 1)
-        self.flag("lock_dash_after", moved >= 20, f"a dash after the channel moved {moved:.1f} px")
-        self.cull()
-        self.origin()
         # a Penance: the dodge lands, then the lock (facing up, -90), the dash refused, the golden beam
         self.set_heresy(4)
         self.body("humans/bandits/bandit_brute.unit", 70, 0)
@@ -731,24 +705,60 @@ class Checks(Base):
         self.set_stacks(fav, 5)
         mark = len(self.g.read_log())
         presses, spent, button = self.cast_skill("lock_pen", NR, 50, done=lambda: self.has("raising")["raising"].get("on"))
-        time.sleep(0.9)   # the dodge (DODGE_MAX_MS 600) has landed
+        # no wait for the dodge: the lock is logged in the same second as the channel starts, the
+        # cast itself already costs ~1.4 s of the 3 s channel and every status read ~0.3 s (labs
+        # 20261025-185758 and -190659: the lock read or the dash press landed after the channel)
         st, e = self.lock_status()
         self.flag("lock_pen_locked", presses > 0 and e["locked"] == 1 and e["angle"] is not None and abs(e["angle"] + 90) <= 12 and e["beam"] == 1,
-                  f"locked {e['locked']}, facing {e['angle']} (up is -90), beam {e['beam']}, bar {e['bar']}")
+                  f"locked {e['locked']}, facing {e['angle']} (up is -90), beam {e['beam']}, bar {e['bar']}, {self.channel_ms(st)} ms left")
         moved = self.dash_try()
-        st, f = self.lock_status()
+        f = e
         log = self.g.read_log()[mark:]
         self.flag("lock_pen_dash_refused", moved < 4 and ((f["dashrefused"] or 0) >= 1 or "dash refused during penance channel" in log),
-                  f"moved {moved:.1f} px, refused {f['dashrefused']}, log {'dash refused during penance channel' in log}")
-        time.sleep(2.5)
-        for _ in range(20):
-            if not self.has("raising")["raising"].get("on"):
-                break
-            time.sleep(0.2)
-        time.sleep(0.4)
+                  f"moved {moved:.1f} px, refused {f['dashrefused']}, log {'dash refused during penance channel' in log}, {self.channel_ms(st)} ms left at the read")
+        self.wait_channel_end(6)
+        time.sleep(0.5)
         st = self.forge_status()
         self.flag("lock_pen_done", self.heresy() == 3 and (self.fnum(st, "favor") or 0) == 0 and self.fnum(st, "bodies") == 0,
                   f"heresy 4 -> {self.heresy()}, favor {self.fnum(st, 'favor')}, bodies {self.fnum(st, 'bodies')}")
+        self.cull()
+        self.origin()
+        # a raise on a boss's body (10 s channel) 70 px east: the lock faces east (0)
+        self.set_stacks(fav, 0)
+        self.set_heresy(0)
+        self.body("bosses/boss_bandit/boss_bandit_encounter.unit", 70, 0)
+        time.sleep(0.4)
+        mark = len(self.g.read_log())
+        presses, spent, button = self.cast_skill("lock", NR, 70, done=lambda: self.has("raising")["raising"].get("on"))
+        st, a = self.lock_status()
+        self.flag("lock_raise_locked", presses > 0 and a["locked"] == 1 and a["angle"] is not None and abs(a["angle"]) <= 12,
+                  f"locked {a['locked']}, facing {a['angle']} (the body is east: 0), dash pinned {a['dashpin']} cd {a['dashcd']}, {self.channel_ms(st)} ms left")
+        self.flag("lock_beam", a["beam"] == 1, f"beam unit alive {a['beam']}")
+        self.flag("lock_bar", a["bar"] == 1, f"bar drawn this frame {a['bar']}")
+        # a dash press mid-channel: refused (the pinned cooldown), nothing moves, the log says so
+        moved = self.dash_try()
+        st, c = self.lock_status()
+        log = self.g.read_log()[mark:]
+        self.flag("lock_dash_refused", moved < 4 and ((c["dashrefused"] or 0) >= 1 or "dash refused during raise channel" in log),
+                  f"moved {moved:.1f} px, refused count {c['dashrefused']}, log line {'dash refused during raise channel' in log}, dash cd {c['dashcd']}, {self.channel_ms(st)} ms left")
+        # the aim turned south for 1.2 s: the facing holds east
+        self.gl("input", 1200, 0, 0, 0, 1)
+        time.sleep(0.6)
+        st, b = self.lock_status()
+        self.flag("lock_facing_held", b["locked"] == 1 and b["angle"] is not None and abs(b["angle"]) <= 12,
+                  f"facing {b['angle']} with the aim turned south (90), {self.channel_ms(st)} ms left")
+        time.sleep(0.7)
+        st, c2 = self.lock_status()
+        self.flag("lock_fx", (c2["pulses"] or 0) >= 8 and (c2["beamframes"] or 0) >= 60 and c2["beam"] == 1,
+                  f"pulses {c2['pulses']} (150 ms each), beam frames {c2['beamframes']}, beam alive {c2['beam']}, {self.channel_ms(st)} ms left")
+        # the channel completes: the risen, Heresy +3, the beam gone, the dash free again
+        self.wait_channel_end(12)
+        time.sleep(0.6)
+        st, d = self.lock_status()
+        self.flag("lock_raise_done", len(self.risen()) == 1 and self.heresy() == 3 and d["beam"] in (0, None) and d["dashpin"] == 0,
+                  f"risen {len(self.risen())}, heresy {self.heresy()}, beam {d['beam']}, dash pinned {d['dashpin']} cd {d['dashcd']}")
+        moved = self.dash_try(0, 1)
+        self.flag("lock_dash_after", moved >= 20, f"a dash after the channel moved {moved:.1f} px")
         self.cull()
 
     # --- the Penance icon
@@ -829,11 +839,21 @@ class Checks(Base):
         self.flag("pyre_large_present", bool(ws), f"WorldScript Pyre scripts {ws[:2]}")
         if not ws:
             return
-        comment = ws[0].get("c", "")
+        # goto wants the script's comment, which a pyre has none of (lab 20261025-171508: "no Pyre '0'"),
+        # and the script's own position is not its use area: that is the sensor circle (radius 32) on
+        # the pyre_tower doodad, which sits 56 px off the script in every pyre prefab (west in
+        # pyre_crn_nw, lab 20261025-185758). Teleport to the script, find the tower, stand 40 px
+        # under it and walk north into the sensor.
         self.set_heresy(4)
-        r = self.gl("goto", "Pyre", comment, 0, 24)
+        sx, sy = round(float(ws[0].get("x", 0)), 1), round(float(ws[0].get("y", 0)), 1)
+        self.gl("teleport", sx, sy)
+        time.sleep(0.3)
+        towers = self.gl("near", 120, "pyre_tower").get("units") or []
+        tx, ty = (round(float(towers[0]["x"]), 1), round(float(towers[0]["y"]), 1)) if towers else (sx, sy)
+        r = self.gl("teleport", tx, ty + 40)
+        r["tower"] = towers[0].get("name", "").split("/")[-1] if towers else None
         time.sleep(0.4)
-        u3 = self.walk_into("Pyre", 0, -1)
+        u3 = self.walk_into("Pyre", 0, -1, tries=6)
         self.flag("pyre_large_canuse", u3 is not None and u3.get("canUse") is True, f"goto {r}, usables entry {u3}")
         mark = len(self.g.read_log())
         self.gl("use", "Pyre")   # the nearest usable whose type name has Pyre: the large one under the priest

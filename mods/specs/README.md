@@ -48,13 +48,16 @@ Test checklist (`gamelab/scenarios/`, bot `gamelab/bots/plan_forgemaster.py`):
   Heresy rules, lunge, decay.
 - `plan-forgemaster-eat.json`: the eating and Penance stances.
 - `plan-forgemaster-bosses.json`, `plan-forgemaster-units.json`: every raisable unit.
-- `fix-forgemaster-channels.json` (2026-10-25): `channel_lock` (facing held against a turned
-  aim, dash refused and nothing moves, beam/pulses/bar, dash free after, the Penance lock),
+- `fix-forgemaster-channels.json` (2026-10-25): `channel_lock` (the Penance first, since a raise
+  leaves the skill on its 20 s cooldown: dodge, lock facing up, dash refused; then a boss raise,
+  10 s: facing held against a turned aim, dash refused and nothing moves, beam/pulses/bar, dash
+  free after),
   `penance_icon` (raise icon below max Favor, Penance icon at max, back), `pyre_heresy`
   (brazier usable with Heresy and no curse, Heresy removed, refused with neither; the large
   pyre from the floor or a fabricated `pyre_crn_nw.pfb`), `orb_boss` (dd-boss 0 at rare, 1.0
   at epic, three boss deaths leave bodies). Status fields read: `locked`, `beam`, `pulses`,
-  `lockface`, `beamframes`, `bar`, `dashpin`, `dashrefused`, `dashcd`, `icon`, `pyres`.
+  `lockface`, `beamframes`, `bar`, `dashpin`, `dashrefused`, `dashcd`, `icon`, `pyreuses`,
+  `pyreremoved`, `pyrenocurse`.
 
 ### The risen and the bodies (the units, 2026-10-25)
 

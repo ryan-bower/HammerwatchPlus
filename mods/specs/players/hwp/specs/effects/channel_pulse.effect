@@ -1,0 +1,54 @@
+<effect layer="-1">
+<!-- Devil Forgemaster: the necrotic pulse on an intact body during a Necrotic Resurrection
+     channel. Pulsed every 150 ms by Forgemaster.as UpdateChannelFx with scale rising 0.4 -> 2.4
+     over the channel, so the overlapping pulses grow brighter and wider as it runs (the user,
+     2026-10-25: the channel must be dramatic and obvious). The penance_light sparkle in the
+     body_glow green over a green light. -->
+	<param name="scale" default="1" />
+	<sprite looping="false" origin="24 24" layer="-4" texture="effects/spritesheets/effects.png" material="system/default.mats:default-simple"
+			scale-x="0.25*scale"
+			scale-y="0.25*scale"
+			color-r="0.35"
+			color-g="1"
+			color-b="0.45"
+			color-a="0.3*scale"
+			angle="rand(u)*pi*2"
+			pos-x="-6+12*rand(u+1)"
+			pos-y="-10+8*rand(u+2)"
+			>
+			<frame time="90" x="365" y="768" w="48" h="48" />
+			<frame time="90" x="414" y="768" w="48" h="48" />
+			<frame time="90" x="463" y="768" w="48" h="48" />
+	</sprite>
+	<sprite looping="false" origin="24 24" layer="-4" texture="effects/spritesheets/effects.png" material="system/default.mats:default-simple"
+			scale-x="0.15*scale"
+			scale-y="0.15*scale"
+			color-r="0.6"
+			color-g="0.2"
+			color-b="0.9"
+			color-a="0.25*scale"
+			angle="rand(u+3)*pi*2"
+			pos-x="-8+16*rand(u+4)"
+			pos-y="-14+10*rand(u+5)"
+			>
+			<frame time="90" x="463" y="768" w="48" h="48" />
+			<frame time="90" x="414" y="768" w="48" h="48" />
+			<frame time="90" x="365" y="768" w="48" h="48" />
+	</sprite>
+	<light>
+		<sprite texture="system/default_L.png">
+			<frame time="270">0 0 128 128</frame>
+		</sprite>
+		<looping value="false" />
+		<length value="270" />
+		<cast-shadows value="false" />
+		<shadow-cast-pos-x value="0" />
+		<shadow-cast-pos-y value="0" />
+		<shadow-cast-pos-jitter value="0 0 0 0" />
+		<size value="72" />
+		<color-r value="0.3"/>
+		<color-g value="0.9"/>
+		<color-b value="0.4"/>
+		<color-a value="0.0"/>
+	</light>
+</effect>

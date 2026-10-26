@@ -2,6 +2,6 @@
   "id": "specs",
   "requires": ["core"],
   "class_swaps": {"PyreUnitBehavior": "HWPSpecsPyre"},
-  "overrides": [],
+  "overrides": ["scripts/WorldScript/Pyre.as"],
   "exclude": []
 }
