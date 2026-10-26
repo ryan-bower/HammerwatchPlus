@@ -28,7 +28,7 @@ class HWPKeyShopItem : IShopItem
 
 	ScriptSprite@ GetIcon()
 	{
-		return ScriptSprite(Resources::GetTexture2D("items/special/base.png"), HWP::Keys::KeyIconFrame(m_tier));
+		return ScriptSprite(Resources::GetTexture2D(HWP::Keys::KeyIconTexture(m_tier)), HWP::Keys::KeyIconFrame(m_tier));
 	}
 
 	Sprite@ GetBackground() { return GetQualitySprite(HWP::Keys::TierQuality(m_tier)); }

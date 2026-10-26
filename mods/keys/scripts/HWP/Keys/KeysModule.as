@@ -35,9 +35,11 @@ namespace HWP
 
 		// ---- tiers (index = tier - 1) ------------------------------------------
 		const array<string> TIERS = { "bronze", "silver", "gold", "ace" };
-		const array<int> DEFAULT_PRICE = { 500, 2000, 8000, 50000 };
-		// sprites in items/special/base.png (vanilla items/special/keys.unit)
-		const array<vec4> ICON_FRAME = { vec4(0, 0, 16, 16), vec4(16, 0, 16, 16), vec4(32, 0, 16, 16), vec4(112, 16, 16, 16) };
+		const array<int> DEFAULT_PRICE = { 500, 2000, 8000, 20000 };
+		// sprites in items/special/base.png (vanilla items/special/keys.unit); the ace key is
+		// our red tint of the vanilla skull key (48 0), a sheet of its own
+		const array<vec4> ICON_FRAME = { vec4(0, 0, 16, 16), vec4(16, 0, 16, 16), vec4(32, 0, 16, 16), vec4(0, 0, 16, 16) };
+		const array<string> ICON_TEXTURE = { "items/special/base.png", "items/special/base.png", "items/special/base.png", "items/hwp/keys/key_ace.png" };
 		const array<vec4> TINT = { vec4(0.85f, 0.55f, 0.3f, 1.0f), vec4(0.85f, 0.88f, 0.95f, 1.0f), vec4(1.0f, 0.85f, 0.25f, 1.0f), vec4(1.0f, 0.25f, 0.2f, 1.0f) };
 		const array<Item::Quality> QUALITY = { Item::Quality::Common, Item::Quality::Uncommon, Item::Quality::Rare, Item::Quality::Legendary };
 
@@ -90,6 +92,7 @@ namespace HWP
 			return HWP::Settings::GetInt("keys.price_" + TIERS[tier - 1], DEFAULT_PRICE[tier - 1]);
 		}
 		vec4 KeyIconFrame(int tier) { return ValidTier(tier) ? ICON_FRAME[tier - 1] : vec4(0, 0, 16, 16); }
+		string KeyIconTexture(int tier) { return ValidTier(tier) ? ICON_TEXTURE[tier - 1] : ICON_TEXTURE[0]; }
 		vec4 TierColor(int tier) { return ValidTier(tier) ? TINT[tier - 1] : vec4(1, 1, 1, 1); }
 		Item::Quality TierQuality(int tier) { return ValidTier(tier) ? QUALITY[tier - 1] : Item::Quality::Common; }
 
@@ -934,6 +937,7 @@ namespace Modules
 			HWP::Commands::Register("keys", " show your keys and the chest lock settings", HWP::Commands::Handler(HWP::Keys::CmdKeys));
 			HWP::Commands::Register("keygive", "<tier> [n]  (debug) give yourself keys", HWP::Commands::Handler(HWP::Keys::CmdKeyGive));
 			HWP::Commands::Register("keydrop", "<tier>  (debug) drop a key at your feet", HWP::Commands::Handler(HWP::Keys::CmdKeyDrop));
+			HWP::Commands::Register("chestart", "[area <n>|off]  the floor's chest art area; area n is a keys.debug test", HWP::Commands::Handler(HWP::Keys::ChestArt::CmdChestArt));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Keys::OnSettingChanged));
 		}
 

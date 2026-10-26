@@ -3637,3 +3637,63 @@ Design and the site table: `docs/design/luck.md`.
   orb gone, a second orb left alone while in combo, taken once combo lapsed.
 - `mod-groupcombo` 20261026-113919 and `mod-all` 20261026-113935 pass.
 - Not run on two machines: each player getting their own orb.
+
+## 2026-10-26: alt-art chests by area, and the red skull ace key
+
+### Engine facts
+
+- **Areas are acts.** `MissionLevel.m_actNameBase` is the level's `act-name`, from the level
+  dict or its theme (`tweak/missions/themes_*.sval`: `.location.act.forest`, ...); boss and
+  some story levels set their own, a few have none. The game shows it as the region banner
+  (`MissionGameMode`, `AddAnnounce(m_actName, m_levelName, "region_enter")`). Counting act
+  changes along `MissionDef.m_levels` gives Dark Citadel 9 areas (forest, dark caves, forest
+  again, temple, crypt, dungeon, barracks, courts, dark halls; the shortcut level after them
+  is a 10th), the story missions up to 8, Bandit Keep 1. The level being played is
+  `cast<MissionGameModeBase>(g_gameMode).m_missionLevel` on every machine (set from the
+  level's save data), and its `m_mission.m_levels` index matches the gamelab `mission`
+  verb's floor index.
+- **A unit can carry art variants as named scenes** and switch with
+  `UnitPtr.SetUnitScene(name, false)`; collision, lights and minimap sprite come with the
+  scene, so each variant is a full copy. `<scenes start="vanilla">` keeps the original as
+  the start scene (the attribute vanilla's `items/equipment_map_reward.unit` uses).
+- **The items material draws an occluded item as a magenta silhouette** (`items/items.mats`
+  `item`: `<xray value="255 0 255 255">`). A key dropped behind a wall top looks magenta;
+  that is not a missing texture.
+- **Gold pickups already scale their sprite by amount.** `Material::MaterialPickup.Initialize`
+  picks the scene from the unit's `sets` (`items/materials/gold.unit`: 1g, several (2-5
+  coins), 10g, 50g, 250g, the highest set at or below the amount) when the drop is made, so
+  the amount is known before anyone picks it up. Unused gold art in `items/misc/base.png`:
+  the pile at 80 112 (between the 10g and 50g piles) and four HoH1 coin-stack sprites at
+  0 0, 16 0, 0 16 and 16 16.
+
+### Built
+
+- `mods/keys/tweak/hwp/chest_art.sval`: the Chest Art Picker's picks (`picks/main`, read
+  2026-10-26) plus the user's notes: trinket chests plain (1-3), vanilla (4-5), strapped
+  (6-8); cursed chests blue steel rimmed (1-4) and large (5-8); ace trinket chests gold
+  rimmed (1-5) and gold large (6-8); ace equipment chests the map reward chest; equipment
+  and platinum chests unchanged; areas past 8 use 8. The picker's platinum trinket picks
+  (steel plain 1-2, the unused platinum trinket chest 3-4, steel strapped 5-8) have no chest
+  to go on: the game has no platinum trinket chest.
+- `tools/class_units.py`: module.json `scene_art` adds one scene per sprite to the generated
+  class-swap copies (the floor sprite swapped, kept bottom-centred); `tools/build.py`
+  documents the key.
+- `mods/keys/scripts/HWP/Keys/ChestArt.as` (area count, table, `hwp chestart [area <n>|off]`)
+  and `HWPChest.ApplyArt`: the area's scene on the first tick, the ace scene once a gold chest
+  rolls ace (the red tint only when there is no ace art).
+- The ace key is the vanilla skull key (`items/special/keys.unit:key_skull`, base.png 48 0)
+  multiplied by (1, 0.25, 0.2): `mods/keys/items/hwp/keys/key_ace.png`, used by
+  `key_ace.unit`, the HUD (`gui/hwp_keys.gui`) and the merchant (`KeyIconTexture`). The ace
+  key's default price is 20000 (was 50000).
+
+### Tests
+
+- `fix-chest-art` 20261026-124741 (and 20261026-124547, whose first two screenshots failed
+  to save: a colon in the shot name): area 1 on bandit keep floor 0, area 5 on Dark Citadel
+  index 7 (crypt_1), area 9 on index 19 (dark_halls_1), whose own floor chests logged the
+  area 8 art; spawned chests at override areas 1, 4, 6 and 9 took the expected scenes; ace
+  chests at 3 and 7 took gold rimmed / gold large and the map reward chest; the ace key
+  dropped as `items/hwp/keys/key_ace.unit` and shows red in the HUD.
+- `mod-keys` 20261026-124945 and `mod-all` 20261026-125000 pass.
+- Not checked in game: the merchant's ace key price and icon (data only), two machines
+  (each counts the area itself, nothing is sent).

@@ -14,11 +14,17 @@
 // share of gold chests become the red ace chest (ace key; loot + a legendary
 // for everyone on half of the openings); the party's floor Luck raises that share
 // (core HWP::Luck::AceChance), so a client also waits for the host's floor value.
+//
+// Chest art (ChestArt.as, tweak/hwp/chest_art.sval): on its first tick a chest shows
+// the sprite picked for its area of the run, and an ace chest the ace one, in place
+// of the red tint.
 namespace HWP { namespace Keys { bool g_chestClassLogged = false; } }
 
 class HWPChest : Chest
 {
 	bool m_decided = false;
+	bool m_artDone = false;
+	string m_art = ""; // the chest art scene shown ("": the unit's own)
 	int m_waited = 0; // ms spent waiting for the host's settings (clients)
 	int m_tier = 0; // 0 = plain chest, 1..4 = bronze/silver/gold/ace lock
 	UnitPtr m_lockUnit;
@@ -39,6 +45,11 @@ class HWPChest : Chest
 	// with what it has and logs).
 	void Update(int dt)
 	{
+		if (!m_artDone)
+		{
+			m_artDone = true;
+			ApplyArt(false);
+		}
 		if (m_decided)
 			return;
 		if (!HWP::Settings::RemoteReady() || !HWP::Luck::FloorReady())
@@ -50,6 +61,25 @@ class HWPChest : Chest
 		}
 		m_decided = true;
 		Decide();
+	}
+
+	// Switch to the area's art scene (ace: the ace one); true when one was applied
+	bool ApplyArt(bool ace)
+	{
+		if (!m_unit.IsValid() || m_unit.IsDestroyed())
+			return false;
+		auto prod = m_unit.GetUnitProducer();
+		if (prod is null)
+			return false;
+		string name = prod.GetResourceName();
+		int area = HWP::Keys::ChestArt::Area();
+		string scene = HWP::Keys::ChestArt::SceneFor(name, ace, area);
+		if (scene.isEmpty())
+			return false;
+		m_unit.SetUnitScene(scene, false);
+		m_art = scene;
+		HWP::Log("keys", "chest art " + name + (ace ? " (ace)" : "") + ": " + scene + " (area " + area + ")");
+		return true;
 	}
 
 	float Roll(const string &in salt)
@@ -104,7 +134,7 @@ class HWPChest : Chest
 				HWP::LogError("keys", "missing loot table hwp_chest_ace");
 		}
 
-		if (ace)
+		if (ace && !ApplyArt(true))
 			m_unit.SetMultiplyColor(vec4(1.0f, 0.45f, 0.45f, 1.0f));
 		SpawnLock(pos);
 		HWP::Keys::g_chestsLocked++;

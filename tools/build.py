@@ -17,6 +17,7 @@ from it) and an optional `module.json`:
       "requires": ["core"],            # modules that must be enabled alongside
       "overrides": ["scripts/GUI/PlayerMenu/Character.as"],  # wholesale base-file overrides
       "class_swaps": {"Chest": "HWPChest"},  # base units using Chest are copied with HWPChest (tools/class_units.py)
+      "scene_art": "tweak/hwp/chest_art.sval",  # extra art scenes in those copies (tools/class_units.py)
       "exclude": ["notes.md"],         # files not to package
       "local": ["hoh1/"],              # generated from the player's own HoH1 install:
                                        # packed only with --with-local, never released

@@ -22,11 +22,28 @@ slots, trinkets for the next run) and red legendaries.
   sound, lang `hwp.keys.trapped`) and logs `trapped chest banner at x,y`;
   farther away it logs `out of range`. If the style failed to load it falls
   back to the vanilla `region_enter` style and logs an error.
-- **Ace chests.** 15 % of gold chests (`keys.ace_chance`) turn red and
-  need an ace key. Opening one spawns the chest's own loot plus, 50/50
+- **Ace chests.** 15 % of gold chests (`keys.ace_chance`) become ace chests
+  (the art below; red-tinted where there is none) and need an ace key, the
+  vanilla skull key tinted red (`items/hwp/keys/key_ace.png`, on the floor, in
+  the HUD and at the merchant). Opening one spawns the chest's own loot plus, 50/50
   (`keys.legendary_chance`), either an epic equipment drop or one red
   legendary **per player in the lobby** (instanced through `Item::DropItem`;
   tables in `tweak/hwp/loot_chests_ace.sval`).
+- **Chest art by area** (`ChestArt.as`, `tweak/hwp/chest_art.sval`, picked in the
+  Chest Art Picker). An area is an act of the mission: it changes where a floor's
+  act-name (the region banner) changes, so Dark Citadel's forest, dark caves,
+  forest, temple, crypt, dungeon, barracks, courts and dark halls are areas 1-9;
+  past area 8 the area 8 art is used. Trinket chests (bronze, silver, gold) are the
+  plain unused chests in areas 1-3, their own art in 4-5 and the strapped ones
+  from 6; cursed chests the blue steel rimmed chest in 1-4 and the large one from
+  5; ace trinket chests the gold chest with the red lid in 1-5 and the red and gold
+  large one from 6; ace equipment chests the map reward chest. Equipment and
+  platinum chests keep their art. `tools/class_units.py` (module.json `scene_art`)
+  gives the generated chest units one scene per sprite; `HWPChest` switches to the
+  area's on its first tick (log `chest art <unit>: <scene> (area n)`) and to the ace
+  one when the chest rolls ace. Every machine counts the area from the mission
+  definition, so nothing is sent. `hwp chestart` shows the floor's area; with
+  `keys.debug`, `hwp chestart area <n>|off` sets it for chests made afterwards.
 - **Party key pool.** Keys found in a run (drops, the imp's offer) go into
   one pool for the whole party, held by the host (`HWP::Keys::g_pool`, kept on
   the host's record so it outlives the level, broadcast as `keys.pool`). Every
@@ -68,7 +85,7 @@ slots, trinkets for the next run) and red legendaries.
   row); when it closes,
   NPCBehavior moves on to his vanilla speech bubble. Each key lists the loot
   quality of its chests. Prices `keys.price_<tier>` (500 / 2000 / 8000 /
-  50000); only one ace key can be held at a time.
+  20000); only one ace key can be held at a time.
   He also sells **bag slots** (core `HWP::Bag`): one more equipment bag slot
   per purchase for the buyer's character, 1000 g rising to 20000 g, up to a
   full extra row (32 slots).
@@ -93,8 +110,8 @@ slots, trinkets for the next run) and red legendaries.
   values (core `settings.sync`), so every machine rolls the same locks.
 - HUD: left of the bottom bar, one key icon per tier you can use (party pool
   plus your own) with its count, while you can use any.
-- Commands: `hwp keys` (counts + settings), `hwp keygive <tier> [n]` and
-  `hwp keydrop <tier>` when `keys.debug` is on.
+- Commands: `hwp keys` (counts + settings), `hwp chestart`, `hwp keygive <tier> [n]`,
+  `hwp keydrop <tier>` and `hwp chestart area <n>|off` when `keys.debug` is on.
 
 Open decisions: the budget share (`keys.budget_share`), legendary balance and slots,
 whether resource caches should want keys too.

@@ -9,5 +9,6 @@
   "class_swaps": {
     "Chest": "HWPChest"
   },
+  "scene_art": "tweak/hwp/chest_art.sval",
   "exclude": []
 }

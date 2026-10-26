@@ -1,0 +1,56 @@
+<!-- Alt-art chests: which sprite a chest shows in each area of a run (Chest Art Picker,
+     https://claude.ai/artifact/CVPvFos2M39nHRdkMWL6qH). An area is an act of the mission: it
+     changes where a floor's act-name changes (the region banner), so Dark Citadel's forest,
+     dark caves, forest, temple, crypt, dungeon, barracks, courts and dark halls are areas 1-9.
+
+     tools/class_units.py (module.json "scene_art") copies each listed unit's scene once per
+     sprite named here, as a scene of that name with the sprite swapped (bottom-centred like
+     the original); the original scene is "vanilla". HWPChest (ChestArt.as) shows the scene
+     for the chest's area: areas[area - 1], the last entry past the end. An ace entry is used
+     instead of the plain one once the gold chest rolls ace, and replaces the red tint. -->
+<dict>
+	<!-- the sprites, in items/misc/base.png: x y w h -->
+	<dict name="art">
+		<vec4 name="u_bronze_plain">32 0 12 18</vec4>
+		<vec4 name="u_bronze_strapped">44 0 12 18</vec4>
+		<vec4 name="u_silver_plain">32 18 12 18</vec4>
+		<vec4 name="u_silver_strapped">44 18 12 18</vec4>
+		<vec4 name="u_steel_rimmed">56 36 14 18</vec4>
+		<vec4 name="u_steel_large">70 36 14 18</vec4>
+		<vec4 name="u_gold_plain">32 54 12 18</vec4>
+		<vec4 name="u_gold_strapped">44 54 12 18</vec4>
+		<vec4 name="u_gold_rimmed">56 54 14 18</vec4>
+		<vec4 name="u_gold_large">70 54 14 18</vec4>
+		<vec4 name="map_reward">171 0 18 19</vec4>
+	</dict>
+
+	<!-- areas 1 to 8; the equipment chests and the treasuries' platinum chest keep their art -->
+	<array name="chests">
+		<dict>
+			<string name="unit">items/chests/chest_bronze_trinket.unit</string>
+			<array name="areas"><s>u_bronze_plain</s><s>u_bronze_plain</s><s>u_bronze_plain</s><s>vanilla</s><s>vanilla</s><s>u_bronze_strapped</s><s>u_bronze_strapped</s><s>u_bronze_strapped</s></array>
+		</dict>
+		<dict>
+			<string name="unit">items/chests/chest_silver_trinket.unit</string>
+			<array name="areas"><s>u_silver_plain</s><s>u_silver_plain</s><s>u_silver_plain</s><s>vanilla</s><s>vanilla</s><s>u_silver_strapped</s><s>u_silver_strapped</s><s>u_silver_strapped</s></array>
+		</dict>
+		<dict>
+			<string name="unit">items/chests/chest_gold_trinket.unit</string>
+			<array name="areas"><s>u_gold_plain</s><s>u_gold_plain</s><s>u_gold_plain</s><s>vanilla</s><s>vanilla</s><s>u_gold_strapped</s><s>u_gold_strapped</s><s>u_gold_strapped</s></array>
+		</dict>
+		<dict>
+			<string name="unit">items/chests/chest_gold_trinket.unit</string>
+			<bool name="ace">true</bool>
+			<array name="areas"><s>u_gold_rimmed</s><s>u_gold_rimmed</s><s>u_gold_rimmed</s><s>u_gold_rimmed</s><s>u_gold_rimmed</s><s>u_gold_large</s><s>u_gold_large</s><s>u_gold_large</s></array>
+		</dict>
+		<dict>
+			<string name="unit">items/chests/chest_gold_equipment.unit</string>
+			<bool name="ace">true</bool>
+			<array name="areas"><s>map_reward</s></array>
+		</dict>
+		<dict>
+			<string name="unit">items/chests/chest_cursed.unit</string>
+			<array name="areas"><s>u_steel_rimmed</s><s>u_steel_rimmed</s><s>u_steel_rimmed</s><s>u_steel_rimmed</s><s>u_steel_large</s><s>u_steel_large</s><s>u_steel_large</s><s>u_steel_large</s></array>
+		</dict>
+	</array>
+</dict>
