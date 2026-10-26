@@ -5,7 +5,8 @@
 // the condition holds. All living players in combo -> Group Unity: 2 s of no
 // damage taken, once per 30 s, announced in chat.
 //
-// The combo orb (ComboOrb.as) is a 1 % drop from boxes, barrels, sacks and vases:
+// The combo orb (ComboOrb.as) is a 0.1 % drop from boxes, barrels, sacks and vases,
+// up to 1 % with the breaker's Luck:
 // every player with combo unlocked gets their own, and picking it up starts combo.
 //
 // Buff delivery: the host's own player gets a real ActorBuff (the engine then
@@ -32,7 +33,8 @@ namespace HWP
 		void RefreshSettings()
 		{
 			g_enabled = HWP::Settings::GetBool("groupcombo.enabled", true);
-			SetOrbChance(HWP::Settings::GetInt("groupcombo.orb.permille", 10));
+			g_orbPermille = clamp(HWP::Settings::GetInt("groupcombo.orb.permille", 1), 0, 1000);
+			g_orbMaxPermille = clamp(HWP::Settings::GetInt("groupcombo.orb.max_permille", 10), 0, 1000);
 		}
 
 		void OnSettingChanged(const string &in key)

@@ -1,7 +1,12 @@
 """The combo orb (mods/groupcombo/scripts/HWP/GroupCombo/ComboOrb.as, scenario
 fix-combo-orb), solo on the first bandit keep floor:
 
-- `hwp comboorb` reports the default 10 per mille from 5 breakable loot tables.
+- `hwp comboorb` reports 0.1 % from 5 breakable loot tables, up to 1 %, and the
+  player's own chance: 0.10 % at 0 Luck, 0.60 % at 500 (`hwp luck 500`, factor 6),
+  capped at 1.00 % at 2000.
+- with base 100 per mille, max 1000, at 900 Luck (factor 10) a broken vase rolls the
+  orb for the breaker at "Luck 900, chance 100.00 %": the pool reads the breaker's
+  Luck on the game's own break path.
 - with `hwp set groupcombo.orb.permille 1000` every box, barrel, sack and vase drops
   one. A big vase spawned next to the player and broken (`hwp comboorb break`, the
   game's own Breakable.Damage) while combo is locked logs "none for us, combo is
@@ -56,9 +61,29 @@ class Checks(Base):
             return
         self.gl("cull")  # a measurement step: no bandit interrupts the vases
         st = self.hwp("comboorb", 0.6, until="Combo orb:")
-        self.flag("status_default", "10 per mille" in st and "(5 loot tables)" in st, st.strip()[-200:])
-        locked = "unlocked: no" in st
+        line = (re.findall(r"Combo orb:[^\n]*", st) or [""])[-1]
+        self.flag("status_default", "Combo orb: 0.1% from" in line and "up to 1.0%" in line
+                  and "(5 loot tables)" in line and "Yours at 0 Luck: 0.10%" in line, line)
+        locked = "unlocked: no" in line
         self.notes.append(f"combo locked at start: {locked}")
+
+        # the player's own chance follows their Luck, capped at 1 %
+        got = {}
+        for luck in (500, 2000):
+            self.hwp(f"luck {luck}", 0.6, until="Luck: ")
+            line = (re.findall(r"Combo orb:[^\n]*", self.hwp("comboorb", 0.6, until="Combo orb:")) or [""])[-1]
+            got[luck] = (re.findall(r"Luck: ([\d.]+)%", line) or [None])[-1]
+        self.flag("chance_by_luck", got == {500: "0.60", 2000: "1.00"}, f"{got}")
+
+        # a real break rolls at the breaker's Luck: 10 % x factor 10 = 100 %
+        self.hwp("luck 900", 0.6, until="Luck: ")
+        self.hwp("set groupcombo.orb.permille 100", 0.5)
+        self.hwp("set groupcombo.orb.max_permille 1000", 0.5)
+        sp, r, log = self.break_vase()
+        self.flag("breaker_luck", "Luck 900, chance 100.00 %" in log,
+                  f"spawn {sp.get('ok')}; " + repr(re.findall(r"\[HWP:groupcombo\][^\n]*", log)[-3:]))
+        self.hwp("luck 0", 0.6, until="Luck: ")
+        self.hwp("set groupcombo.orb.max_permille 10", 0.5)
 
         self.hwp("set groupcombo.orb.permille 1000", 0.6)
         if locked:
@@ -75,7 +100,7 @@ class Checks(Base):
         sp, r, log = self.break_vase()
         orbs = self.orbs()
         before = self.combo()
-        self.flag("orb_dropped", "combo orb at " in log and len(orbs) == 1 and not before,
+        self.flag("orb_dropped", "combo orb rolled for " in log and "combo orb at " in log and len(orbs) == 1 and not before,
                   f"spawn {sp.get('ok')}; {r.strip()[-120:]!r}; orbs {orbs}; combo {before}; "
                   + repr(re.findall(r"\[HWP:groupcombo\][^\n]*", log)[-3:]))
         if not orbs:
@@ -121,7 +146,7 @@ class Checks(Base):
         else:
             self.flag("taken_after_lapse", False, f"lapsed {lapsed}, orbs {orbs}")
 
-        self.hwp("set groupcombo.orb.permille 10", 0.6)
+        self.hwp("set groupcombo.orb.permille 1", 0.6)
 
 
 SECTIONS = ["orb"]

@@ -3587,30 +3587,49 @@ Design and the site table: `docs/design/luck.md`.
   can apply, so a `PlaySound` effect would make anything pickable; the orb plays its sound
   through the Pickup's own `sound`. `Player.GiveCombo` does nothing when
   `currStats.ComboCountMax <= 0` (combo not unlocked) or combo is already on.
+- **Who broke it.** `Breakable.DamageEffects` passes its attacker to
+  `LootTable.SpawnLoot(Actor@)`, which hands every pool that player's record (null: the
+  local, host, record). A client's hit arrives on the host as `NetDamage` with the client's
+  husk as attacker, so the record is the client's.
 - **The orb art** is `items/misc/base.png` 0 96 16 16, the vanilla skill point pickup
   (`items/misc/upgrade_skill.unit`), which no level or loot table places.
 
 ### Built
 
-- `mods/groupcombo/scripts/HWP/GroupCombo/ComboOrb.as`: `ComboOrbLoot` (a not-instanced
-  `LootEntry`) in a one-entry pool appended to the five container tables at
-  `groupcombo.orb.permille` (default 10, 1 %). The host broadcasts `groupcombo.orb` with the
+- `mods/groupcombo/scripts/HWP/GroupCombo/ComboOrb.as`: a `ComboOrbPool` (a
+  `LootTablePool` subclass; its `SpawnLoot` override is called) appended to the five
+  container tables. It rolls once per break at the breaker's own Luck:
+  `groupcombo.orb.permille` (default 1, 0.1 %) times `1 + Luck / 100`, at most
+  `groupcombo.orb.max_permille` (default 10, 1 %, at 900 Luck). The first version was a
+  one-entry `LootEntry` pool at 1 %; an entry cannot see the breaker, because
+  `LootTablePool.SpawnLoot` replaces `looter` with each player in turn (the local one for a
+  not-instanced entry), so the roll moved up to the pool, which still gets the breaker from
+  `LootTable.SpawnLootPlr`. The host broadcasts `groupcombo.orb` with the
   position; every machine gives its own player a local `items/hwp/combo_orb.unit` there if
   that player has combo unlocked. `HWPComboOrb` (global, the unit's effect) calls
   `GiveCombo`; while combo is on the orb stays on the floor. `hwp comboorb [drop|break
   [radius]]` (drop and break are host cheats; `break` is the game's `Breakable.Damage` on the
   nearest breakable with loot).
 - The **Chest Art Picker** page (https://claude.ai/artifact/CVPvFos2M39nHRdkMWL6qH, source
-  `.screenshots/chest-art/chest-art-picker.html`, git-ignored): the 19 closed chest sprites
-  (eight vanilla chests in `items/misc/base.png` including the unused platinum trinket chest
-  at 134 54, four caches in `doodads/containers/containers.png`, five HoH1 chests, two red
-  ace tints), each with a chest type (bronze, silver, gold, ace, platinum) and areas 1 to 8.
+  `.screenshots/chest-art/chest-art-picker.html`, git-ignored): every chest in
+  `items/misc/base.png`, each with a chest type (bronze, silver, gold, ace, platinum) and
+  areas 1 to 8. Used (8): the equipment chests at 100 0/18/36/54 (16 x 18), the trinket
+  chests at 134 0/18/36 (12 x 18), the map reward chest at 171 0 (18 x 19,
+  `items/equipment_map_reward.unit`). Unused (17): the trinket chest at 134 54, and a 4 x 4
+  block at 32-84 x 0-72, rows bronze, silver, blue steel and gold (18 px each), columns at
+  x 32, 44 and 56 (12 px, trinket size: plain, strapped, rimmed; the gold rimmed one has a
+  red lid) and 68 (16 px, large and ornate). The chests in the block touch, so the columns
+  were found from their bright 2 px side rims (32-33 ... 42-43, 44-45 ... 54-55, 56-57 ...,
+  68-69 ... 82-83).
   The picks are in its database (`picks/main`); the alt-art chests are built from them.
   The frames at 116 0 and 84 0 in base.png are chest shadows, not chests.
 
 ### Tests
 
-- `fix-combo-orb` 20261026-113813 (solo, bandit keep floor 0, chance 1000): the status line,
+- `fix-combo-orb` 20261026-115538 (solo, bandit keep floor 0): the chance at 0, 500 and 2000
+  Luck reads 0.10, 0.60 and 1.00 %; with base 100 and max 1000 per mille a vase broken at
+  900 Luck logs `combo orb rolled for Pilot (Luck 900, chance 100.00 %)`. Then at chance
+  1000 (as 20261026-113813 did for the first version): the status line,
   no orb while combo is locked ("none for us, combo is locked"), an orb at the broken vase
   once `combo_kills` is learned with combo still off, combo on after stepping on it and the
   orb gone, a second orb left alone while in combo, taken once combo lapsed.

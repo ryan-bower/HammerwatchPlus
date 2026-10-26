@@ -3,11 +3,11 @@
 // point pickup (items/misc/upgrade_skill.unit, base.png 0 96 16 16), which no
 // level spawns.
 //
-// The hook: a pool of one ComboOrbLoot entry (chance groupcombo.orb.permille,
-// default 10 = 1 %) appended to the container loot tables. Breakable.DamageEffects
-// rolls its table on the host only; the entry is not instanced (CanBeInstanced
-// false), so LootTablePool.SpawnLoot runs it once, for the host's record, with the
-// break position. It broadcasts ORB_EVENT, and every machine (the host too) gives
+// The hook: a ComboOrbPool appended to the container loot tables.
+// Breakable.DamageEffects rolls its table on the host only, and the pool rolls once
+// per break at the breaker's own Luck: groupcombo.orb.permille (default 1, 0.1 %)
+// times the Luck factor, at most groupcombo.orb.max_permille (default 10, 1 %, at
+// 900 Luck). A hit broadcasts ORB_EVENT, and every machine (the host too) gives
 // its own player a local orb there when that player has combo unlocked
 // (currStats.ComboCountMax > 0, the test GiveCombo makes). So each player gets one
 // orb, sees only their own, and nobody can take another's.
@@ -57,52 +57,60 @@ namespace HWP
 		// sacks, big vases and urns, small vases
 		const array<string> ORB_TABLES = { "barrel_wood_normal", "barrel_wood_poor", "sack", "vase", "vase_small" };
 
-		int g_orbPermille = 10;
-		array<ComboOrbLoot@> g_orbEntries;
+		// per mille: the base chance and the most Luck can raise it to
+		int g_orbPermille = 1;
+		int g_orbMaxPermille = 10;
+		int g_orbPools = 0;
 
-		class ComboOrbLoot : Item::LootEntry
+		// The chance (0..1) for a breaker with this Luck factor: the base times the
+		// factor (1 + Luck / 100, HWP::Luck::FactorOf), at most the max. A base set above
+		// the max (a test's 1000) is used as is.
+		float OrbChance(float factor)
 		{
-			ComboOrbLoot(int chance)
-			{
-				super(chance);
-			}
+			float base = float(g_orbPermille) / 1000.0f;
+			float cap = float(max(g_orbMaxPermille, g_orbPermille)) / 1000.0f;
+			return min(HWP::Luck::Chance(base, factor), cap);
+		}
 
-			// once per break, on the host, whoever broke it
-			bool CanBeInstanced() override { return false; }
+		// The orb's own pool. LootTable.SpawnLoot hands every pool the breaker's record
+		// (Breakable passes its attacker: a client's player arrives as its husk, a
+		// projectile as its owner; no attacker counts as the host), while a pool's
+		// entries only see the local record. So the pool itself rolls, once per break,
+		// at that one player's Luck (OpenerLuck: what their machine reported), never
+		// the party's.
+		class ComboOrbPool : Item::LootTablePool
+		{
+			ComboOrbPool(SValue& params)
+			{
+				super(params);
+			}
 
 			int SpawnLoot(PlayerRecord@ looter, vec3 pos) override
 			{
+				float luck = HWP::Luck::OpenerLuck(looter);
+				float chance = OrbChance(HWP::Luck::FactorOf(luck));
+				if (randf() >= chance)
+					return 0;
+				HWP::Log("groupcombo", "combo orb rolled for " + (looter is null ? "nobody" : looter.GetName())
+					+ " (Luck " + int(luck) + ", chance " + formatFloat(chance * 100.0f, "", 0, 2) + " %)");
 				DropOrb(pos);
 				return 0;
 			}
 		}
 
-		void SetOrbChance(int permille)
-		{
-			g_orbPermille = clamp(permille, 0, 1000);
-			for (uint i = 0; i < g_orbEntries.length(); i++)
-				g_orbEntries[i].m_chance = g_orbPermille;
-		}
-
-		// the table's own orb pool when it has one: the tables can outlive a module
-		ComboOrbLoot@ FindOrbEntry(Item::LootTable@ table)
+		bool HasOrbPool(Item::LootTable@ table)
 		{
 			for (uint i = 0; i < table.m_pools.length(); i++)
 			{
-				auto pool = table.m_pools[i];
-				if (pool.m_items.length() == 1)
-				{
-					auto entry = cast<ComboOrbLoot>(pool.m_items[0]);
-					if (entry !is null)
-						return entry;
-				}
+				if (cast<ComboOrbPool>(table.m_pools[i]) !is null)
+					return true;
 			}
-			return null;
+			return false;
 		}
 
 		void InstallOrbLoot()
 		{
-			g_orbEntries.removeRange(0, g_orbEntries.length());
+			g_orbPools = 0;
 			int added = 0;
 			for (uint i = 0; i < ORB_TABLES.length(); i++)
 			{
@@ -113,24 +121,19 @@ namespace HWP
 					continue;
 				}
 
-				auto entry = FindOrbEntry(table);
-				if (entry is null)
+				if (!HasOrbPool(table))
 				{
 					SValueBuilder b;
 					b.PushDictionary();
 					b.PushArray("drops");
 					b.PopArray();
 					b.PopDictionary();
-					auto pool = Item::LootTablePool(b.Build());
-					@entry = ComboOrbLoot(g_orbPermille);
-					pool.m_items.insertLast(entry);
-					table.m_pools.insertLast(pool);
+					table.m_pools.insertLast(ComboOrbPool(b.Build()));
 					added++;
 				}
-				g_orbEntries.insertLast(entry);
+				g_orbPools++;
 			}
-			SetOrbChance(g_orbPermille);
-			HWP::Log("groupcombo", "combo orb in " + g_orbEntries.length() + " breakable loot tables (" + added + " new), " + g_orbPermille + " per mille");
+			HWP::Log("groupcombo", "combo orb in " + g_orbPools + " breakable loot tables (" + added + " new)");
 		}
 
 		// host: one orb for every player, at pos
@@ -191,8 +194,8 @@ namespace HWP
 			return best;
 		}
 
-		// hwp comboorb                 the chance and whether you can get one
-		//                              (hwp set groupcombo.orb.permille <0-1000> changes it)
+		// hwp comboorb                 the chances, yours at your Luck, and whether you can get one
+		//                              (hwp set groupcombo.orb.permille / .max_permille <0-1000>)
 		// hwp comboorb drop            (cheat, host) an orb for everyone, 40 px right of you
 		// hwp comboorb break [radius]  (cheat, host) break the nearest breakable that has loot
 		void CmdOrb(array<string>@ args)
@@ -240,8 +243,12 @@ namespace HWP
 			}
 
 			bool unlocked = rec !is null && rec.currStats.ComboCountMax > 0;
+			float luck = HWP::Luck::OpenerLuck(rec);
 			HWP::Commands::Reply(Resources::GetString(".hwp.groupcombo.orb.status", {
-				{ "permille", "" + g_orbPermille }, { "tables", "" + g_orbEntries.length() },
+				{ "base", formatFloat(g_orbPermille / 10.0f, "", 0, 1) + "%" },
+				{ "max", formatFloat(max(g_orbMaxPermille, g_orbPermille) / 10.0f, "", 0, 1) + "%" },
+				{ "tables", "" + g_orbPools }, { "luck", "" + int(luck) },
+				{ "chance", formatFloat(OrbChance(HWP::Luck::FactorOf(luck)) * 100.0f, "", 0, 2) + "%" },
 				{ "unlocked", unlocked ? "yes" : "no" } }));
 		}
 	}

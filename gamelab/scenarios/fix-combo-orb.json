@@ -1,6 +1,6 @@
 {
  "name": "fix-combo-orb",
- "about": "The combo orb (mods/groupcombo ComboOrb.as): a 1 % drop from boxes, barrels, sacks and vases, one per player with combo unlocked, starting combo on pickup. Solo on the first bandit keep floor with the chance at 1000 per mille: no orb while combo is locked, an orb at a broken vase once it is unlocked, combo on when stepped on, an orb left alone while already in combo and taken after combo lapses.",
+ "about": "The combo orb (mods/groupcombo ComboOrb.as): a 0.1 % drop from boxes, barrels, sacks and vases, raised by the breaker's own Luck up to 1 %, one per player with combo unlocked, starting combo on pickup. Solo on the first bandit keep floor: the chance at 0, 500 and 2000 Luck, a vase break rolled at the breaker's Luck, then with the chance at 1000 per mille: no orb while combo is locked, an orb at a broken vase once it is unlocked, combo on when stepped on, an orb left alone while in combo and taken after combo lapses.",
  "fixture": "mission-ranger",
  "mods": [
   "core",
@@ -30,6 +30,8 @@
    "bot": "fix_combo_orb",
    "expect": {
     "status_default": true,
+    "chance_by_luck": true,
+    "breaker_luck": true,
     "unlocked": true,
     "orb_dropped": true,
     "picked_combo": true,

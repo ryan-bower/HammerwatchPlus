@@ -62,7 +62,7 @@ needs `pets`.
 
 | Module | What it does |
 |---|---|
-| `groupcombo` | A party-wide combo bonus that grows with how many players are in combo, and brief invulnerability when everyone is. Boxes, barrels, sacks and vases also drop a rare **combo orb** (1 %): everyone with combo unlocked gets their own, and picking it up puts you in combo at once (pets leave it alone). |
+| `groupcombo` | A party-wide combo bonus that grows with how many players are in combo, and brief invulnerability when everyone is. Boxes, barrels, sacks and vases also drop a rare **combo orb** (0.1 %, up to 1 % with the Luck of whoever breaks them): everyone with combo unlocked gets their own, and picking it up puts you in combo at once (pets leave it alone). |
 | `architect` | Any player can pick and pay for Architect alterations; the host's picks are split across the party. Seven HoH1 challenges discount them, down to free. The run-start screen keeps three named presets of picks and NG+ level per character, shows NG+ last with the start hint, and lets a non-host leave. |
 | `droptrade` | Drop equipment on the ground for friends: a Drop button (Q) next to Destroy in the inventory. |
 | `deathrecap` | Who killed you: the top damage sources of the last 10 s, on screen and in chat. After a boss falls, a boss-fight recap of everyone's damage by skill and damage taken. |
