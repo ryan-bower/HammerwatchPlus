@@ -5,6 +5,9 @@
 // the condition holds. All living players in combo -> Group Unity: 2 s of no
 // damage taken, once per 30 s, announced in chat.
 //
+// The combo orb (ComboOrb.as) is a 1 % drop from boxes, barrels, sacks and vases:
+// every player with combo unlocked gets their own, and picking it up starts combo.
+//
 // Buff delivery: the host's own player gets a real ActorBuff (the engine then
 // mirrors it to clients as a husk buff). Remote players are husks on the host
 // and refuse non-husk buffs, so they get the vanilla "UnitBuffed" message,
@@ -29,6 +32,7 @@ namespace HWP
 		void RefreshSettings()
 		{
 			g_enabled = HWP::Settings::GetBool("groupcombo.enabled", true);
+			SetOrbChance(HWP::Settings::GetInt("groupcombo.orb.permille", 10));
 		}
 
 		void OnSettingChanged(const string &in key)
@@ -145,6 +149,9 @@ namespace Modules
 			super("hwp-groupcombo");
 			HWP::Net::OnEvent(HWP::GroupCombo::UNITY_EVENT, HWP::Net::EventHandler(HWP::GroupCombo::OnUnity));
 			HWP::Commands::Register("groupcombo", " show the group combo state", HWP::Commands::Handler(HWP::GroupCombo::CmdStatus));
+			HWP::Net::OnEvent(HWP::GroupCombo::ORB_EVENT, HWP::Net::EventHandler(HWP::GroupCombo::OnOrb));
+			HWP::Commands::Register("comboorb", "[drop|break [radius]]  the combo orb drop (drop and break: cheats, host)", HWP::Commands::Handler(HWP::GroupCombo::CmdOrb));
+			HWP::GroupCombo::InstallOrbLoot();
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::GroupCombo::OnSettingChanged));
 
 			// resolve the buff file at boot so a broken sval shows in the log

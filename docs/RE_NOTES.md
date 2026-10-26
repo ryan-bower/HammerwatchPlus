@@ -3560,3 +3560,59 @@ Design and the site table: `docs/design/luck.md`.
   20261026-103556 (rolled, placed 1); `mod-keys`, `mod-strongbox`, `mod-all`,
   `mod-abyss`, `mod-fishing`, `mod-fishing-spots`, `fix-fishing-personal-loot` pass.
 - Not run on two machines: the client reports reaching the host.
+
+## 2026-10-26: the combo orb, and chest art for the alt-art chests
+
+### Engine facts
+
+- **Breakable loot.** `Breakable.DamageEffects` rolls `m_lootTable.SpawnLoot(attacker, pos)`
+  on the host only and never in town. The tables are `Item::GetLootTable(id)` objects shared
+  by every unit that names them (`loot` param), so a pool appended to one reaches every box,
+  vase or barrel using it. Boxes, crates and barrels use `barrel_wood_normal` and
+  `barrel_wood_poor`, sacks `sack`, big vases and urns `vase`, small vases `vase_small`
+  (`tweak/loot/containers.sval`); 53 other breakables (furniture and the like) have no table.
+  Tables are rebuilt per script context, so the module appends its pool again each time
+  ("(5 new)" on every load).
+- **A script loot entry.** `Item::LootEntry` subclasses work in a table:
+  `LootTablePool.SpawnLoot` rolls `randi(1000)` against the entries' `m_chance`, then calls
+  the picked entry once per player, or only for the local (host) record when
+  `CanBeInstanced()` is false, with the break position.
+- **A local pickup.** A `netsync="none"` unit with a `Pickup` works per machine: `Picked`
+  applies the effects for the local Player (not a husk), hides it and destroys it, with no
+  message. `player-only` (the default) takes only a `Player`, which pets and husks are not.
+  `MiniPet.IsPickupOkay` takes a plain `Pickup` only for the health, mana and experience
+  pickup triggers, so a pickup without `pickup-trigger` is never fetched by a pet (the pets
+  module calls the same check).
+- **Can it be picked up.** `CanApplyEffects` is true when any effect but `ShowFloatingText`
+  can apply, so a `PlaySound` effect would make anything pickable; the orb plays its sound
+  through the Pickup's own `sound`. `Player.GiveCombo` does nothing when
+  `currStats.ComboCountMax <= 0` (combo not unlocked) or combo is already on.
+- **The orb art** is `items/misc/base.png` 0 96 16 16, the vanilla skill point pickup
+  (`items/misc/upgrade_skill.unit`), which no level or loot table places.
+
+### Built
+
+- `mods/groupcombo/scripts/HWP/GroupCombo/ComboOrb.as`: `ComboOrbLoot` (a not-instanced
+  `LootEntry`) in a one-entry pool appended to the five container tables at
+  `groupcombo.orb.permille` (default 10, 1 %). The host broadcasts `groupcombo.orb` with the
+  position; every machine gives its own player a local `items/hwp/combo_orb.unit` there if
+  that player has combo unlocked. `HWPComboOrb` (global, the unit's effect) calls
+  `GiveCombo`; while combo is on the orb stays on the floor. `hwp comboorb [drop|break
+  [radius]]` (drop and break are host cheats; `break` is the game's `Breakable.Damage` on the
+  nearest breakable with loot).
+- The **Chest Art Picker** page (https://claude.ai/artifact/CVPvFos2M39nHRdkMWL6qH, source
+  `.screenshots/chest-art/chest-art-picker.html`, git-ignored): the 19 closed chest sprites
+  (eight vanilla chests in `items/misc/base.png` including the unused platinum trinket chest
+  at 134 54, four caches in `doodads/containers/containers.png`, five HoH1 chests, two red
+  ace tints), each with a chest type (bronze, silver, gold, ace, platinum) and areas 1 to 8.
+  The picks are in its database (`picks/main`); the alt-art chests are built from them.
+  The frames at 116 0 and 84 0 in base.png are chest shadows, not chests.
+
+### Tests
+
+- `fix-combo-orb` 20261026-113813 (solo, bandit keep floor 0, chance 1000): the status line,
+  no orb while combo is locked ("none for us, combo is locked"), an orb at the broken vase
+  once `combo_kills` is learned with combo still off, combo on after stepping on it and the
+  orb gone, a second orb left alone while in combo, taken once combo lapsed.
+- `mod-groupcombo` 20261026-113919 and `mod-all` 20261026-113935 pass.
+- Not run on two machines: each player getting their own orb.
