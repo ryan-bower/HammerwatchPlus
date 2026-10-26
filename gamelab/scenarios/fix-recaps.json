@@ -1,0 +1,71 @@
+{
+ "name": "fix-recaps",
+ "about": "Boss-fight damage recap (mods/deathrecap BossRecap.as) and the last-run board's search + one-page bar graphs (mods/laststats): the fix_recaps bot spawns the Bandit boss on Bandit Keep floor 0, the ranger shoots it, `kill tag:boss me` ends the fight and the recap must log 'boss recap Boss Bandit: Pilot dealt N (100%) took T: <sources>' with N > 0 and show the HUD panel (hwp bossrecap: 'boss panel shown'); then the run is aborted as failed, two sample snapshots fill the board, `gl use laststats_board` opens it and 'hwp laststats board' + `gl wtext` prove two players on one page with bars, the 'search damage' filter (window OnFunc, what the field's func-edit calls) and its clear. The typed search (press + type) is recorded as board_typed, not asserted (the console's key can end the field's focus). Shots: boss-recap, board, board-search (the bars, the panel: by eye).",
+ "fixture": "mission-ranger",
+ "mods": [
+  "core",
+  "deathrecap",
+  "laststats"
+ ],
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:laststats\\] spawned the notice board",
+   "timeout": 30
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "fix_recaps",
+   "kwargs": {
+    "sections": "boss"
+   },
+   "name": "boss recap",
+   "expect": {
+    "boss_floor": true,
+    "boss_spawned": true,
+    "boss_hit": true,
+    "boss_killed": true,
+    "boss_recap_logged": true,
+    "boss_recap_damage": true,
+    "boss_recap_sources": true,
+    "boss_panel": true
+   }
+  },
+  {
+   "do": "bot",
+   "bot": "fix_recaps",
+   "kwargs": {
+    "sections": "board"
+   },
+   "name": "board search and bars",
+   "expect": {
+    "board_town": true,
+    "board_sample": true,
+    "board_opens": true,
+    "board_status": true,
+    "board_one_page": true,
+    "board_bars": true,
+    "board_row_players": true,
+    "board_filter": true,
+    "board_filter_clear": true,
+    "board_closed": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

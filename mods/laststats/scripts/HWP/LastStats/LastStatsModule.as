@@ -73,6 +73,7 @@ namespace HWP
 				b.PushString("cat", stat.m_category);
 				b.PushString("title", Resources::GetString(stat.m_name));
 				b.PushString("text", stat.GetStatFormatted(val));
+				b.PushInteger("value", int(val)); // the board's bars scale on this (2026-10-25)
 				b.PopDictionary();
 				n++;
 			}
@@ -178,8 +179,75 @@ namespace HWP
 			return u;
 		}
 
+		// hwp laststats sample [n]: n (2) made-up snapshots ("Sample 1".. and the local
+		// player's name first) over the first visible stats, deterministic values, so the
+		// board can be looked at without a run. In memory only (not the bag); the host
+		// syncs them to the party like real reports. A test aid.
+		void Sample(int count)
+		{
+			if (count < 1)
+				count = 1;
+			if (count > 4)
+				count = 4;
+			auto local = GetLocalPlayerRecord();
+			for (int k = 0; k < count; k++)
+			{
+				SValueBuilder b;
+				b.PushDictionary();
+				string name = (k == 0 && local !is null) ? local.GetName() : ("Sample " + (k + 1));
+				b.PushString("player", name);
+				b.PushInteger("peer", k);
+				b.PushString("mission", "Sample run");
+				b.PushInteger("state", int(MissionManager::MissionState::Failed));
+				int n = 0;
+				b.PushArray("lines");
+				for (uint i = 0; i < Stats::StatDef::Instances.length() && n < 24; i++)
+				{
+					auto stat = Stats::StatDef::Instances[i];
+					if (stat.m_hidden || stat.m_category.isEmpty())
+						continue;
+					// a different spread per player; the 2nd player skips every 5th stat
+					if (k > 0 && (n % 5) == 4 && k == 1)
+					{
+						n++;
+						continue;
+					}
+					int val = 100 + 37 * n + 251 * k * (1 + (n % 3));
+					b.PushDictionary();
+					b.PushString("cat", stat.m_category);
+					b.PushString("title", Resources::GetString(stat.m_name));
+					b.PushString("text", stat.GetStatFormatted(val));
+					b.PushInteger("value", val);
+					b.PopDictionary();
+					n++;
+				}
+				b.PopArray();
+				b.PushInteger("count", n);
+				b.PopDictionary();
+				auto snap = b.Build();
+				Remember(snap);
+				snap.Delete(); // Remember keeps a copy
+			}
+			HWP::Log("laststats", "sample: " + count + " snapshots, party size " + g_party.length());
+			if (Network::IsServer())
+				HWP::Net::Broadcast(SYNC, PackParty());
+		}
+
 		void CmdLastStats(array<string>@ args)
 		{
+			if (args.length() > 0 && args[0] == "sample")
+			{
+				Sample(args.length() > 1 ? int(parseInt(args[1])) : 2);
+				HWP::Commands::Reply("laststats: " + g_party.length() + " snapshots on the board");
+				return;
+			}
+			if (args.length() > 0 && args[0] == "board")
+			{
+				string status = g_openMenu is null ? "board closed" : g_openMenu.Status();
+				HWP::Log("laststats", status);
+				HWP::Commands::Reply(status);
+				return;
+			}
 			auto mine = Mine();
 			if (mine is null)
 			{
@@ -208,7 +276,7 @@ namespace Modules
 			super("hwp-laststats");
 			HWP::Net::OnRequest(HWP::LastStats::REPORT, HWP::Net::RequestHandler(HWP::LastStats::OnReport));
 			HWP::Net::OnEvent(HWP::LastStats::SYNC, HWP::Net::EventHandler(HWP::LastStats::OnSync));
-			HWP::Commands::Register("laststats", " show what the notice board knows", HWP::Commands::Handler(HWP::LastStats::CmdLastStats));
+			HWP::Commands::Register("laststats", " [sample [n] | board]: what the notice board knows; sample makes test snapshots, board logs the open window", HWP::Commands::Handler(HWP::LastStats::CmdLastStats));
 			TakeSnapshot();
 		}
 

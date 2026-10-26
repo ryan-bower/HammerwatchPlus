@@ -6,4 +6,9 @@
 	<string name="hwp.deathrecap.none">No damage recorded in the last %seconds%s</string>
 	<string name="hwp.deathrecap.chat">was killed by %sources%</string>
 	<string name="hwp.deathrecap.last">Last death: %sources%</string>
+	<string name="hwp.deathrecap.boss_title">%boss% defeated - %total% damage</string>
+	<string name="hwp.deathrecap.boss_player">%name%  %dealt% dealt (%pct%%)  -  %taken% taken</string>
+	<string name="hwp.deathrecap.boss_chat">dealt %dealt% to %boss% (%pct%%): %sources% - took %taken%</string>
+	<string name="hwp.deathrecap.boss_other">Other</string>
+	<string name="hwp.deathrecap.boss_none">No boss fight recorded yet</string>
 </lang>
