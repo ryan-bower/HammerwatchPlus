@@ -215,6 +215,7 @@ class HWPChest : Chest
 			@m_lootTable = null;
 			HWP::Luck::LogRoll("keys", "chest " + (m_key.isEmpty() ? "open" : m_key) + " loot", luckFactor);
 		}
+		HWP::Keys::Trapped::OnChestUse(m_unit, player); // cursed chest: the banner (Trapped.as), before Use destroys the unit
 		Chest::Use(player);
 		if (luckTable !is null)
 		{

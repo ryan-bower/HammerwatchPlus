@@ -161,6 +161,44 @@ namespace HWP
 		{
 			if (key.findFirst("colors.") == 0)
 				Refresh();
+			if (key.findFirst("playercolors.") == 0)
+				HWP::PlayerColors::Refresh();
+		}
+
+		// hwp playercolors [default|safe] [names on|off] [distance N]: the map
+		// colours of PlayerColors.as (per machine)
+		void CmdPlayerColors(array<string>@ args)
+		{
+			bool changed = false;
+			for (uint i = 0; i < args.length(); i++)
+			{
+				auto what = args[i].toLower();
+				if (what == "default" || what == "safe")
+				{
+					HWP::Settings::SetString(HWP::PlayerColors::KEY_PALETTE, what);
+					changed = true;
+				}
+				else if (what == "names" && i + 1 < args.length())
+				{
+					auto v = args[++i].toLower();
+					HWP::Settings::SetBool(HWP::PlayerColors::KEY_NAMES, v == "on" || v == "1" || v == "true");
+					changed = true;
+				}
+				else if (what == "distance" && i + 1 < args.length())
+				{
+					HWP::Settings::SetInt(HWP::PlayerColors::KEY_DISTANCE, int(parseInt(args[++i])));
+					changed = true;
+				}
+				else
+				{
+					HWP::Commands::Reply(Resources::GetString(".hwp.colors.players.usage"));
+					return;
+				}
+			}
+			HWP::PlayerColors::Refresh();
+			HWP::Commands::Reply(HWP::PlayerColors::Status());
+			if (changed)
+				HWP::Log("colors", "player colours set: " + HWP::PlayerColors::Status());
 		}
 
 		void Tint(UnitPtr unit, Actor@ owner)
@@ -266,15 +304,30 @@ namespace Modules
 			HWP::Commands::Register("colors", "[preset|enemy RRGGBB|friendly RRGGBB|off]  projectile colours", HWP::Commands::Handler(HWP::Colors::CmdColors));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Colors::OnSettingChanged));
 			HWP::Options::Register("colors", HWP::Colors::PresetOption());
+			HWP::Commands::Register("playercolors", "[default|safe] [names on|off] [distance N]  player colours on the maps", HWP::Commands::Handler(HWP::Colors::CmdPlayerColors));
 		}
 
 		void Start(StartMode sMode)
 		{
 			HWP::Colors::Refresh();
+			HWP::PlayerColors::Refresh();
+			HWP::PlayerColors::g_loggedTint = false;
+			HWP::Log("colors", "player colours: " + HWP::PlayerColors::Status());
 			HWP::Log("colors", "preset " + HWP::Colors::g_presetName + (HWP::Colors::g_active ? "" : " (no tint)"));
 			if (HWP::Colors::g_active)
 				HWP::Log("colors", "tint " + HWP::Colors::g_presetName + " enemy #" + HWP::Colors::ToHex(HWP::Colors::g_enemy)
 					+ " friendly #" + HWP::Colors::ToHex(HWP::Colors::g_friendly));
+		}
+
+		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
+		{
+			HWP::PlayerColors::Tick(ms);
+		}
+
+		// after the window manager: the Map tab's own players
+		void RenderWidgets(PlayerRecord@ player, int idt, SpriteBatch& sb) override
+		{
+			HWP::PlayerColors::DrawMapTab(sb);
 		}
 	}
 }

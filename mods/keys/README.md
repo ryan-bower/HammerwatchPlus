@@ -12,6 +12,16 @@ slots, trinkets for the next run) and red legendaries.
   its own vanilla loot. `keys.lock_chance` (default 1) can make it a share;
   the roll is a hash of the chest's position, the mission reward seed and the
   level index, so host and clients agree without a message.
+- **"The chest was trapped!!"** (bugs 10.22.26 line 41, `Trapped.as`).
+  `HWPChest::Use` calls `HWP::Keys::Trapped::OnChestUse` before the vanilla
+  `Chest::Use` destroys the unit: on the host, a cursed chest
+  (`items/chests/*cursed*`, the ones whose loot is an ambush) logs
+  `trapped chest opened by <name> at x,y` and broadcasts `keys.trapped` with
+  the position; every machine within 900 px shows the `hwp_trapped` announce
+  (`tweak/hwp/announce_keys.sval`: arial24, mid-screen, 2 s, trip-wire alert
+  sound, lang `hwp.keys.trapped`) and logs `trapped chest banner at x,y`;
+  farther away it logs `out of range`. If the style failed to load it falls
+  back to the vanilla `region_enter` style and logs an error.
 - **Ace chests.** 15 % of gold chests (`keys.ace_chance`) turn red and
   need an ace key. Opening one spawns the chest's own loot plus, 50/50
   (`keys.legendary_chance`), either an epic equipment drop or one red
@@ -124,5 +134,9 @@ whether resource caches should want keys too.
    drop keys the host spawned into the shared pool; either player can open a
    chest with a party key, and the client with their own bought key.
 8. Disable the module: vanilla saves still load, keys remain in the record.
-9. `python -m gamelab run fix-core-luck --mode lab`: a spawned cache used at 60 Luck
+9. `python -m gamelab run fix-map-trapped --mode lab`: a cursed chest beside the
+   player logs the opening and the banner (shot `trapped-banner`), one 1500 px
+   away logs `out of range` without a banner, a plain chest logs nothing.
+   Co-op: the client near the chest sees the banner too.
+10. `python -m gamelab run fix-core-luck --mode lab`: a spawned cache used at 60 Luck
    logs `[HWP:keys] luck x1.6 chest open loot` and `[HWP:luck] loot chest factor 1.6`.

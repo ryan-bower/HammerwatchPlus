@@ -918,6 +918,7 @@ namespace Modules
 			HWP::Net::OnRequest(HWP::Keys::POOL_GET, HWP::Net::RequestHandler(HWP::Keys::OnPoolGetRequest));
 			HWP::Net::OnEvent(HWP::Keys::POOL, HWP::Net::EventHandler(HWP::Keys::OnPoolEvent));
 			HWP::Net::OnEvent(HWP::Keys::CHEST_PAID, HWP::Net::EventHandler(HWP::Keys::OnChestPaidEvent));
+			HWP::Keys::Trapped::Register(); // "The chest was trapped!!" banner (Trapped.as)
 			HWP::Commands::Register("keys", " show your keys and the chest lock settings", HWP::Commands::Handler(HWP::Keys::CmdKeys));
 			HWP::Commands::Register("keygive", "<tier> [n]  (debug) give yourself keys", HWP::Commands::Handler(HWP::Keys::CmdKeyGive));
 			HWP::Commands::Register("keydrop", "<tier>  (debug) drop a key at your feet", HWP::Commands::Handler(HWP::Keys::CmdKeyDrop));

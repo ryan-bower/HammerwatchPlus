@@ -8,4 +8,8 @@
 	<string name="hwp.colors.preset.tritanopia">Tritanopia</string>
 	<string name="hwp.colors.option">Projectile colors</string>
 	<string name="hwp.colors.custom">Custom</string>
+	<string name="hwp.colors.players.status">Player colours: palette %palette%, you are peer %peer% #%color%, map names %names% beyond %distance% px</string>
+	<string name="hwp.colors.players.usage">hwp playercolors [default|safe] [names on|off] [distance N]</string>
+	<string name="hwp.colors.players.on">on</string>
+	<string name="hwp.colors.players.off">off</string>
 </lang>

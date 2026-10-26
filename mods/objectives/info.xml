@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">HammerwatchPlus Objectives</string>
+	<string name="author">Ryan Bower</string>
+	<string name="description">Floor objectives for generated dungeons: locked loot vaults opened by a switch elsewhere on the floor, and the exit sealed until the floor's exit switch is pressed. Part of HammerwatchPlus; requires HWP Core.</string>
+</dict>

@@ -1,0 +1,118 @@
+{
+ "name": "fix-map-colors",
+ "about": "Per-player colours on the maps (bugs 10.22.26 line 24, mods/colors PlayerColors.as): the module logs the local player's palette, peer and colour in town and on a keep floor tints the player's own minimap marker (the vanilla white dot) in that colour; hwp playercolors switches the palette (safe = Okabe-Ito), the names flag and the distance, and rejects junk with the usage line. Shots of the small minimap (ui_minimap 1) and the overlay map (Tab) are eye checks: in single player only the local marker is on them, the other players' coloured dots and far names need a lobby. The player menu's Map tab cannot open in the lab: vanilla MapWidget::NavigationBarText reads GetInput().GetCurrentMap(), null without a real input device (BaseGameMode::UsingMouseLook), so that tab is a manual check. Mods core + colors. About 3 minutes.",
+ "fixture": "mission-ranger",
+ "mods": ["core", "colors"],
+ "timeout": 420,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:colors\\] player colours: Player colours: palette default, you are peer \\d+ #[0-9a-f]{6}, map names on beyond 300 px",
+   "timeout": 20,
+   "name": "defaults logged at the town start"
+  },
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "bandit_keep",
+    0
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 150
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:colors\\] player markers tinted: 1 of 1 \\(palette default\\)",
+   "timeout": 10,
+   "name": "the player's own minimap sprite took the colour"
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp god"
+  },
+  {
+   "do": "bot",
+   "bot": "fix_map",
+   "kwargs": {
+    "section": "colors"
+   },
+   "expect": {
+    "status_reply": true,
+    "safe_palette": true,
+    "names_off": true,
+    "distance_set": true,
+    "junk_usage": true,
+    "reset_default": true
+   },
+   "name": "hwp playercolors"
+  },
+  {
+   "do": "console",
+   "line": "ui_minimap 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "minimap"
+  },
+  {
+   "do": "key",
+   "key": "tab",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "overlay-map"
+  },
+  {
+   "do": "key",
+   "key": "tab",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "console",
+   "line": "ui_minimap 0"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:colors\\] (ERROR|exception)",
+   "name": "no colours errors"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}
