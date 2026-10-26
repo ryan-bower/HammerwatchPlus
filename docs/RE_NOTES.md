@@ -4252,3 +4252,17 @@ With these, all 38 pass on the merged tree (last reruns 20261026-135938 to -1411
   Judgement reads 12, then 14 at NG+ 2.
 - Not run in a dungeon yet: the procs in combat, the Nimbus, the guardian, the trinket
   shop's extra stock and the key ring's extra key.
+
+### HoH1 trinket icons (local import)
+- HoH1 item icons are 12x12 cells of `items/items.png`, named in `items/<quality>.sval`
+  (`<array name="icon">` texture, frame count, rect). All 37 of ours are there under the
+  HoH1 id (`hwp_` dropped, `_` to `-`).
+- `tools/import_hoh1.py trinkets` puts each one in the middle of a 16x16 cell of
+  `mods/trinkets/gui/hwp/icons_trinkets_hoh1.png`. `hwp_trinkets_hoh1art.lang` lists the
+  ids in sheet order (`.hwp.trinket.hoh1art`). Both are the module's `local` files and
+  gitignored. At load, `HoH1.as` checks `Resources::HasString` for that string and sets
+  `Item::Trinket.m_icon` to a `ScriptSprite` on the sheet. The inventory, shop and tooltip
+  read `GetIcon()` each time, so nothing else is needed. Without the import: placeholders.
+- `mod-trinkets` (lab) PASS: `20261026-165100-mod-trinkets-lab`, "HoH1 icons: 37 of 37",
+  bot flag `h1_icons`. `shots/trinket-inventory.png` shows the Lucky Hat, Horseshoe,
+  Fancy Plume and Key Ring with their HoH1 icons in the trinket inventory.

@@ -14,6 +14,10 @@
 // - HWPTrinketShopContent: the dungeon trinket shop (module.json class_swaps) with
 //   Fancy Plume's extra stock and purchase and Trader's Coin's discount.
 // - Key Ring is read by the keys mod (HWPGiveKey), by its custom stat name.
+// - ApplyArt (with ApplyVanilla): the HoH1 icons. `tools/import_hoh1.py trinkets` cuts them
+//   from the player's own HoH1 install into gui/hwp/icons_trinkets_hoh1.png (16x16 cells,
+//   ART_COLS a row) and lists the ids in sheet order in the string .hwp.trinket.hoh1art.
+//   Without the import the trinkets keep their placeholder icons from the sval.
 namespace HWP
 {
 	namespace Trinkets
@@ -23,6 +27,10 @@ namespace HWP
 		const string STAT_SHOP_BUYS = "hwp-shop-buys";         // Fancy Plume attuned: one more purchase
 		const string STAT_SHOP_DISCOUNT = "hwp-shop-discount"; // Trader's Coin: % off
 		const float MIN_PRICE_MUL = 0.25f;
+		const string ART_SHEET = "gui/hwp/icons_trinkets_hoh1.png";
+		const string ART_IDS = ".hwp.trinket.hoh1art";
+		const int ART_COLS = 8;
+		int g_artIcons = 0;
 
 		bool g_vanillaDone = false;
 		string g_vanillaLast;
@@ -153,12 +161,38 @@ namespace HWP
 			}
 			g_vanillaLast = join(done, "; ");
 			HWP::Log("trinkets", "vanilla changes: " + g_vanillaLast);
+			ApplyArt();
 			for (uint i = 0; i < g_players.length(); i++)
 			{
 				if (g_players[i] is null || g_players[i].peer == 255)
 					continue;
 				g_players[i].RefreshModifiers();
 			}
+		}
+
+		void ApplyArt()
+		{
+			if (!Resources::HasString(ART_IDS))
+			{
+				HWP::Log("trinkets", "HoH1 icons not imported (tools/import_hoh1.py trinkets): placeholder icons");
+				return;
+			}
+			auto tex = Resources::GetTexture2D(ART_SHEET);
+			if (tex is null)
+			{
+				HWP::LogError("trinkets", "no " + ART_SHEET + " for " + ART_IDS);
+				return;
+			}
+			auto ids = Resources::GetString(ART_IDS).split(" ");
+			for (uint i = 0; i < ids.length(); i++)
+			{
+				auto t = Item::Trinket::Get(ids[i]);
+				if (t is null)
+					continue;
+				@t.m_icon = ScriptSprite(tex, vec4((i % ART_COLS) * 16, (i / ART_COLS) * 16, 16, 16));
+				g_artIcons++;
+			}
+			HWP::Log("trinkets", "HoH1 icons: " + g_artIcons + " of " + ids.length());
 		}
 
 		// hwp trinkets set <id>: a set's pieces and tiers as the game now has them
@@ -207,7 +241,8 @@ namespace HWP
 					ids.insertLast(id);
 			}
 			auto rec = GetLocalPlayerRecord();
-			HWP::Commands::Reply("hoh1 trinkets: " + ids.length() + " loaded; vanilla: " + g_vanillaLast
+			HWP::Commands::Reply("hoh1 trinkets: " + ids.length() + " loaded; icons: " + (g_artIcons > 0 ? g_artIcons + " from HoH1" : "placeholders")
+				+ "; vanilla: " + g_vanillaLast
 				+ (rec is null ? "" : "; shop price x" + ShopPriceMul(rec) + ", stock +" + StatOf(rec, STAT_SHOP_STOCK)
 					+ ", buys +" + StatOf(rec, STAT_SHOP_BUYS) + ", key ring " + StatOf(rec, "hwp-key-ring") + "%"));
 		}

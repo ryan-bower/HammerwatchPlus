@@ -11,8 +11,12 @@
               "tr_ng3_searing_torch": true, "tr_ng3_chicken_feet": true, "tr_ng3_arctic_step": true,
               "tr_ng3_apothecarys_tincture": true, "tr_ng4_flask": true, "tr_ng0_back": true, "tr_no_errors": true}},
   {"do": "bot", "bot": "fix_trinkets", "kwargs": {"sections": "hoh1"}, "name": "HoH1 trinkets and sets",
-   "expect": {"h1_loaded": true, "h1_vanilla": true, "h1_spheres": true, "h1_apothecary_merge": true, "h1_pyromancer": true,
+   "expect": {"h1_loaded": true, "h1_icons": true, "h1_vanilla": true, "h1_spheres": true, "h1_apothecary_merge": true, "h1_pyromancer": true,
               "h1_luck": true, "h1_shop_stats": true, "h1_judgement_ng": true, "h1_no_errors": true}},
+  {"do": "gl", "verb": "menu", "args": ["character", "trinket-inventory"], "expect": {"tab": "PlayerMenuCharacterTab"},
+   "name": "trinket inventory open (the HoH1 icons, when imported, in the shot)"},
+  {"do": "sleep", "seconds": 0.5},
+  {"do": "shot", "name": "trinket-inventory"},
   {"do": "log_clean"}
  ]
 }

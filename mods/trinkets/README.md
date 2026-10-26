@@ -87,8 +87,16 @@ effects get an `intensity-mul` of (b + a x NG) / b, with b the tooltip's damage.
 ## The HoH1 trinkets (2026-10-26)
 
 37 trinkets from Heroes of Hammerwatch, built from the Trinket Map's "add" verdicts. Ids are
-`hwp_<name>`, so `cht_give_specific_trinket hwp_lucky_hat` gives one. Icons are vanilla
-`icons_trinkets.png` cells for now. Prices: common 200, uncommon 750, rare 3000, epic 6000.
+`hwp_<name>`, so `cht_give_specific_trinket hwp_lucky_hat` gives one. Prices: common 200,
+uncommon 750, rare 3000, epic 6000.
+
+**Icons.** Every trinket has its HoH1 icon once `tools/import_hoh1.py trinkets` (or
+`python -m gamelab doctor --fix`) has run on a machine with HoH1 installed. It cuts them from
+the player's own install into `gui/hwp/icons_trinkets_hoh1.png` and lists their order in
+`res/language/english/hwp_trinkets_hoh1art.lang`. Both are gitignored `local` files, packed
+only with `build.py --with-local`, never released. `HoH1.as` (`ApplyArt`) points the
+trinkets at the sheet when that string is there. Without it, they keep the placeholder
+icons in the sval (vanilla `items/icons_trinkets.png` cells).
 
 | Trinket | Quality | Effect | Attuned |
 |---|---|---|---|

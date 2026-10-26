@@ -7,5 +7,9 @@
   "exclude": [],
   "class_swaps": {
     "TrinketShopShopContent": "HWPTrinketShopContent"
-  }
+  },
+  "local": [
+    "gui/hwp/icons_trinkets_hoh1.png",
+    "res/language/english/hwp_trinkets_hoh1art.lang"
+  ]
 }

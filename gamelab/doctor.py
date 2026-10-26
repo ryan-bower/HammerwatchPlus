@@ -12,7 +12,7 @@ dependency order, with the safe ones fixed on request.
 --fix never writes the user's saves, config or install: bootstrap writes gamecode/ and
 tools/bin/ (the patched PACKAGER is a copy there, not in the install), env_link writes
 gamelab/env/userdata/, tools/class_units.py writes the class-swapped base units into
-mods/keys/, mods/pets/ and mods/colors/, and tools/import_hoh1.py (pets, levels, campaign, classes; only
+mods/keys/, mods/pets/ and mods/colors/, and tools/import_hoh1.py (pets, levels, campaign, classes, trinkets; only
 the ones whose output is missing, never --force) writes the HoH1 content into mods/ and
 hoh1_import/, tools/make_pet_dyes.py the dye-ready pet copies into mods/pets/, and
 tools/make_forgemaster_risen.py the Devil Forgemaster's risen and body units into mods/specs/.
@@ -303,6 +303,8 @@ IMPORTS = {
     "classes": lambda: [CLASSES / "hoh1art" / "players" / "hwp" / c / f
                         for c in HOH1_CLASSES for f in ("class_showcase.png", "icons.png")]
                        + [CLASSES / "hoh1art" / "players" / "hwp" / "remastered" / "icons.png"],
+    "trinkets": lambda: [gamepaths.MODS / "trinkets" / "gui" / "hwp" / "icons_trinkets_hoh1.png",
+                         gamepaths.MODS / "trinkets" / "res" / "language" / "english" / "hwp_trinkets_hoh1art.lang"],
 }
 NEEDS_BASE = {"levels", "campaign"}
 
