@@ -292,6 +292,12 @@ namespace HWP
 
 		void CmdStatus(array<string>@ args)
 		{
+			// "snipe": the Marksman's Sniper Shot rank, channel, armor penetration, Recoil Roll (Marksman.as)
+			if (args.length() > 0 && args[0] == "snipe")
+			{
+				HWP::Firearms::Marksman::CmdSnipe(args);
+				return;
+			}
 			if (args.length() > 0 && args[0] == "sound")
 			{
 				CmdSound(args);
@@ -487,7 +493,7 @@ namespace Modules
 		HWPFirearmsModule()
 		{
 			super("hwp-firearms");
-			HWP::Commands::Register("firearms", "[empty|shots|reload|pose|aim|hands|muzzle|startranks [run|set id n]|elements [reset|roll n]|sound [n|next|prev|again|list]]  Firearms Specialist status; empty (cheat) empties the clip without reloading; reload is the reload bar, pose the gun poses, aim the last shot's cursor aim, hands the guns and their markers; startranks shows the rank-1 skills' saved ranks (run and set are cheats); sound (cheat) plays a firing-sound candidate", HWP::Commands::Handler(HWP::Firearms::CmdStatus));
+			HWP::Commands::Register("firearms", "[snipe|empty|shots|reload|pose|aim|hands|muzzle|startranks [run|set id n]|elements [reset|roll n]|sound [n|next|prev|again|list]]  Firearms Specialist status; empty (cheat) empties the clip without reloading; reload is the reload bar, pose the gun poses, aim the last shot's cursor aim, hands the guns and their markers; startranks shows the rank-1 skills' saved ranks (run and set are cheats); sound (cheat) plays a firing-sound candidate", HWP::Commands::Handler(HWP::Firearms::CmdStatus));
 			HWP::Firearms::PoseNetRegister();
 			HWP::Firearms::SelfCheck(false);
 			HWP::Bag::OnEquip(HWP::Bag::EquipPrepare(HWP::Firearms::PistolEquip));
@@ -525,6 +531,7 @@ namespace Modules
 			HWP::Firearms::UpdatePistols(ms);
 			HWP::Firearms::UpdateAudition(ms);
 			HWP::Firearms::UpdateLaserDot();
+			HWP::Firearms::Marksman::UpdateRecoil();
 		}
 
 		void PreRenderFrame(int idt) override

@@ -6,6 +6,15 @@
 	that merge into one hit); a two-handed gun's damage sits in the main hand alone
 	(Modifiers.as SlotToRole), so a rifle counts once. Without Piercing Bullet the shot stops
 	at the first enemy (snipe-pierce 0; NewProjectile.as: penetration + 1 hits).
+	The wind-up (the channel, castpoint) is a rank value: 650 ms at rank 1 down to half, 325 ms,
+	at rank 5 (the user, 2026-10-22), so each upgrade dict sets castpoint, anim-length,
+	move-speed, blocking, update-aim, the timeline and the hold's duration together, as Reload
+	does (fs_reload.sval; the rank's dict comes first in the level params, PlayerBase.as
+	AddPlayerSkill, so its keys win). The shot lands 250 ms before the animation ends at every
+	rank. Armor penetration runs 30/35/45/50/60 %.
+	Recoil Roll (orb hwp_fs_snipe_recoil): the orb's dict names HWPFirearmsSnipeRecoil as the
+	skill's class (the orb's dict is first, so its class wins): Snipe as it is, and the shot
+	throws the shooter back with their dash, evading meanwhile (Marksman.as).
 -->
 <dict>
 	<string name="name">.skills.hwp_firearms.snipe.name</string>
@@ -14,7 +23,8 @@
 
 	<array name="description-params">
 		<array><s>damage</s><s>.skills.desc.params.damage.weapon</s><s>300%</s><s>400%</s><s>500%</s><s>600%</s><s>750%</s></array>
-		<array><s>armor-pen</s><s>.skills.desc.params.armor_pen</s><s>25%</s><s>25%</s><s>40%</s><s>40%</s><s>60%</s></array>
+		<array><s>armor-pen</s><s>.skills.desc.params.armor_pen</s><s>30%</s><s>35%</s><s>45%</s><s>50%</s><s>60%</s></array>
+		<array><s>channel</s><b>t</b><s>.skills.desc.params.hwp_channel</s><s>0.65s</s><s>0.57s</s><s>0.49s</s><s>0.41s</s><s>0.33s</s></array>
 		<array><s>mana-cost</s><s>.skills.desc.params.mana_cost</s><s>20</s><s>20</s><s>25</s><s>25</s><s>30</s></array>
 		<array><s>cooldown</s><b>t</b><s>.skills.desc.params.cooldown</s><s>3s</s></array>
 	</array>
@@ -44,7 +54,7 @@
 
 		<dict name="binds">
 			<float name="snipe-mul">3</float>
-			<float name="snipe-pen">0.25</float>
+			<float name="snipe-pen">0.3</float>
 			<ivec2 name="snipe-pierce">0 0</ivec2>
 		</dict>
 
@@ -77,37 +87,111 @@
 	</dict>
 
 	<array name="upgrades">
+		<!-- each rank: the channel (castpoint) and the windows that follow it, the damage and the
+		     armor penetration; the hold action is the base one with a shorter duration -->
 		<dict>
 			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
 			<int name="mana-cost">20</int>
+			<int name="anim-length">820</int>
+			<int name="castpoint">570</int>
+			<ivec2 name="move-speed">0 820</ivec2>
+			<ivec2 name="blocking">0 820</ivec2>
+			<ivec2 name="update-aim">0 570</ivec2>
 			<dict name="binds">
 				<float name="snipe-mul">4</float>
-				<float name="snipe-pen">0.25</float>
+				<float name="snipe-pen">0.35</float>
 			</dict>
+			<dict name="actions">
+				<array name="hold">
+					<dict>
+						<string name="class">HWPFirearmsHoldModel</string>
+						<string name="model">players/models/equipment/hwp_sniper.model</string>
+						<int name="duration">920</int>
+					</dict>
+				</array>
+			</dict>
+			<array name="timeline">
+				<i>0</i><s>hold</s>
+				<i>570</i><s>cast</s>
+			</array>
 		</dict>
 		<dict>
 			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
 			<int name="mana-cost">25</int>
+			<int name="anim-length">740</int>
+			<int name="castpoint">490</int>
+			<ivec2 name="move-speed">0 740</ivec2>
+			<ivec2 name="blocking">0 740</ivec2>
+			<ivec2 name="update-aim">0 490</ivec2>
 			<dict name="binds">
 				<float name="snipe-mul">5</float>
-				<float name="snipe-pen">0.4</float>
+				<float name="snipe-pen">0.45</float>
 			</dict>
+			<dict name="actions">
+				<array name="hold">
+					<dict>
+						<string name="class">HWPFirearmsHoldModel</string>
+						<string name="model">players/models/equipment/hwp_sniper.model</string>
+						<int name="duration">840</int>
+					</dict>
+				</array>
+			</dict>
+			<array name="timeline">
+				<i>0</i><s>hold</s>
+				<i>490</i><s>cast</s>
+			</array>
 		</dict>
 		<dict>
 			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
 			<int name="mana-cost">25</int>
+			<int name="anim-length">660</int>
+			<int name="castpoint">410</int>
+			<ivec2 name="move-speed">0 660</ivec2>
+			<ivec2 name="blocking">0 660</ivec2>
+			<ivec2 name="update-aim">0 410</ivec2>
 			<dict name="binds">
 				<float name="snipe-mul">6</float>
-				<float name="snipe-pen">0.4</float>
+				<float name="snipe-pen">0.5</float>
 			</dict>
+			<dict name="actions">
+				<array name="hold">
+					<dict>
+						<string name="class">HWPFirearmsHoldModel</string>
+						<string name="model">players/models/equipment/hwp_sniper.model</string>
+						<int name="duration">760</int>
+					</dict>
+				</array>
+			</dict>
+			<array name="timeline">
+				<i>0</i><s>hold</s>
+				<i>410</i><s>cast</s>
+			</array>
 		</dict>
 		<dict>
 			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
 			<int name="mana-cost">30</int>
+			<int name="anim-length">575</int>
+			<int name="castpoint">325</int>
+			<ivec2 name="move-speed">0 575</ivec2>
+			<ivec2 name="blocking">0 575</ivec2>
+			<ivec2 name="update-aim">0 325</ivec2>
 			<dict name="binds">
 				<float name="snipe-mul">7.5</float>
 				<float name="snipe-pen">0.6</float>
 			</dict>
+			<dict name="actions">
+				<array name="hold">
+					<dict>
+						<string name="class">HWPFirearmsHoldModel</string>
+						<string name="model">players/models/equipment/hwp_sniper.model</string>
+						<int name="duration">675</int>
+					</dict>
+				</array>
+			</dict>
+			<array name="timeline">
+				<i>0</i><s>hold</s>
+				<i>325</i><s>cast</s>
+			</array>
 		</dict>
 	</array>
 
@@ -135,6 +219,26 @@
 						</dict>
 					</array>
 				</array>
+			</dict>
+		</dict>
+
+		<!-- Recoil Roll: the shot kicks the shooter back along its line with their own dash (the
+		     dash's 90 px, no dash charge spent), evading everything while they roll (the
+		     snipe_recoil buff, buffs_firearms.sval). The class swap is the whole orb: Marksman.as
+		     HWPFirearmsSnipeRecoil, a Snipe that reads its castpoint going by. -->
+		<dict>
+			<string name="name">.skills.hwp_firearms.snipe_recoil.name</string>
+			<string name="description">.skills.hwp_firearms.snipe_recoil.desc</string>
+
+			<array name="icon"><s>players/hwp/firearms/icons.png</s><i>100</i><vec4>48 144 24 24</vec4></array>
+
+			<array name="tags"><s>spell</s><s>physical</s><s>hwp_firearm</s></array>
+			<string name="id">hwp_fs_snipe_recoil</string>
+			<string name="quality">rare</string>
+			<int name="starting-level">0</int>
+
+			<dict name="skill">
+				<string name="class">HWPFirearmsSnipeRecoil</string>
 			</dict>
 		</dict>
 

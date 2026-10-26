@@ -160,6 +160,8 @@ ICONS = {
     "hcannon_dual": ("skills", 9, 5, None, []),
     "flamer_attack": ("skills", 0, 6, None, []),
     "autofire_attack": ("skills", 1, 6, None, []),
+    # Recoil Roll (Snipe orb): placeholder, the sniper rifle with the dash badge
+    "snipe_recoil": ("skills", 2, 6, "phys", [L("rifle", 2, 8), badge("b_dash")]),
     # items: the guns' inventory icons, one per item tier
     "rifle_01": ("items", 0, 0, None, [L("rifle")]),
     "rifle_02": ("items", 1, 0, None, [L("rifle", swap=DARKWOOD)]),

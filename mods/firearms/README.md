@@ -142,11 +142,24 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
   - Frag orbs, mutually exclusive: **Stun Grenade** (lightning, stun and slow
     1/2/3 s), **Incendiary** (a burning, blinding fire patch), **Gas** (a
     poison cloud that fire ignites).
-- **Marksman:** **Snipe** (both hands' damage, 300-750 %, armor penetration,
-  20-30 mana, no rounds; a red laser dot marks the aim while it charges) and **Critical Aim** (passive: a gun round that
-  hits gives Focus, crit chance and damage per stack; one that hits nothing
-  loses it all). Orbs: Headshot (the first enemy a Snipe hits is crit),
-  Piercing Bullet (2/4/6 more enemies), BOOM Headshot! and Elemental Exposure.
+- **Marksman:** **Snipe** (both hands' damage, 300-750 %, armor penetration
+  30/35/45/50/60 %, 20-30 mana, no rounds; a red laser dot marks the aim while it
+  channels). The channel is a rank value: 650 ms at rank 1, 570/490/410 and 325 at
+  rank 5, half of rank 1 (the user, 2026-10-22). Each upgrade dict in
+  `sniper_snipe.sval` sets castpoint, anim-length, the move/blocking/update-aim
+  windows, the timeline and the held model's duration together, as Reload does;
+  the shot lands 250 ms before the animation ends at every rank, and the tooltip
+  shows the aim time (`%channel%`). `hwp firearms snipe` reads the live skill's
+  rank, channel, armor penetration and damage (`Marksman.as`). **Critical Aim**
+  (passive: a gun round that hits gives Focus, crit chance and damage per stack;
+  one that hits nothing loses it all). Orbs: Headshot (the first enemy a Snipe
+  hits is crit), Piercing Bullet (2/4/6 more enemies), **Recoil Roll** (rare: the
+  shot throws the shooter back along its line with their own dash, 90 px, no
+  dash charge spent, and the `snipe_recoil` buff evades everything for 400 ms;
+  the orb's dict swaps Snipe's class to `HWPFirearmsSnipeRecoil`, `Marksman.as`,
+  which ends the cast at the shot and starts the dash as Rocket Jump does;
+  placeholder icon: the rifle with the dash badge, `make_firearms_icons.py`),
+  BOOM Headshot! and Elemental Exposure.
 - **Demolitionist:** the **Rocket Launcher** (200-400 fire blast, 6 mana, no rounds) and
   **Ordinance Hoarder** (passive: Frag and the rocket recharge faster and bank
   charges while ready; a charge clears the cooldown after a cast). Its buff icon
@@ -165,7 +178,8 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
   at the game's 6 px a metre, the turret is repaired and boosted; Belt Feed adds
   an elemental chance).
 - The orb scripts (Focus, Headshot, Exposure, Hoarder charges, the reload
-  bar and Over-Reload, the magazine throw) are in `scripts/HWP/Firearms/Combat.as`.
+  bar and Over-Reload, the magazine throw) are in `scripts/HWP/Firearms/Combat.as`;
+  Recoil Roll and the `hwp firearms snipe` status are in `scripts/HWP/Firearms/Marksman.as`.
 - **Aim** (`Combat.as` AimAtCursor, 2026-10-25): a local gun shot (mouse, not gamepad)
   aims from the gun's height (11 px above the player's feet, where the rounds are
   drawn) at the world point under the cursor, not along the engine's `AimDir`,
@@ -259,22 +273,29 @@ design. Final icons remain an art task. See `docs/design/firearms.md`.
    SkillTempUp). `plan-firearms-reload-cut`: an ability or the swap cuts a
    reload, and the saved-rank move for skills that start at rank 1
    (`hwp firearms startranks`).
-7. Over-Reload by hand: empty the clip, watch the bar over the player,
+7. `python -m gamelab run fix-firearms-snipe --mode lab` (the `fix_firearms_snipe`
+   bot): `hwp firearms snipe` at ranks 1-5 reports channel 650/570/490/410/325 ms
+   and armor penetration 30/35/45/50/60 %, a Snipe hits at ranks 1 and 5 and the
+   rank-5 hit lands sooner after the press; with Recoil Roll a Snipe throws the
+   shooter at least 60 px back along the shot line, the `snipe_recoil` buff shows
+   in `gl state`, "snipe recoil:" is logged and the round still hits; without the
+   orb, and after it is taken off, nothing moves.
+8. Over-Reload by hand: empty the clip, watch the bar over the player,
    press Reload (or left click) in the gold; rank 1 adds 5 rounds. Then Reload
    with rounds left and press Reload again in the gold: the bonus stays +5.
    Miss it: the white turns red and a second press does nothing. Without the
    orb the white bar still fills on every reload.
-8. Ordinance Hoarder by hand: wait 8 s with the rocket ready, fire twice in a
+9. Ordinance Hoarder by hand: wait 8 s with the rocket ready, fire twice in a
    row.
-9. Co-op: a client sees the host's bullets, grenades and rockets, and the
+10. Co-op: a client sees the host's bullets, grenades and rockets, and the
    other way round.
-10. `fix-firearms-aim-diagonal`: the rifle's rounds pass within 5 px of the
+11. `fix-firearms-aim-diagonal`: the rifle's rounds pass within 5 px of the
     crosshair at the 8 compass points (gl cursor + gl track).
-11. `fix-firearms-reload-world`: the reload bar draws over the player, centred
+12. `fix-firearms-reload-world`: the reload bar draws over the player, centred
     34 px up, and `hwp firearms reload` says so; a frame of it.
-12. `fix-firearms-cannon-pistol-right`: Hand Cannon main + pistol off, and the
+13. `fix-firearms-cannon-pistol-right`: Hand Cannon main + pistol off, and the
     other way round: the right click spends 2 rounds, a held one keeps firing,
     one round left fires alone, no "cycle fired no round" line.
-13. `fix-firearms-poses`: the rifle and pistol pose log lines per state, a frame of
+14. `fix-firearms-poses`: the rifle and pistol pose log lines per state, a frame of
     each pose (rifle down/straight/up/high, pistols up/kick/down), `hwp firearms pose`.
     By hand in co-op: the other player's guns follow their state (not the kicks).
