@@ -18,8 +18,8 @@ needs `pets`.
 
 | Module | What it does |
 |---|---|
-| `firearms` | The **Firearms Specialist**, a new class. Guns fire from a clip that counts down per shot and reloads (automatically at 0, or with the Reload skill, which a dodge cancels); mana pays for gadgets. A rifle (30 rounds, 3-round bursts; the Grenade Launching Rifle has an under-barrel grenade launcher, the Flamethrower Rifle a mana-fed flamethrower held on right click, the Full Auto Rifle a wild full-auto spray) or pistols, one or two (10 rounds each, 20 dual), or Hand Cannons (half a pistol's rate, 1.5 times its damage, 6 rounds; with a pistol, a pistol-cannon-pistol burst). Base kit: Reload and Frag Grenade, whose orbs give Explosive Reload, Over-Reload's timed perfect reload, and Stun, Incendiary or Gas grenades. Four specializations, each with orbs: **Marksman** (Snipe, Critical Aim), **Demolitionist** (Rocket Launcher, Ordinance Hoarder), **Assault** (Double Barrel Burst, Adrenaline) and **Engineer** (Deploy Turret, My Turret!). New characters start with a Service Pistol. Details: `mods/firearms/README.md`; design: `docs/design/firearms.md`. |
-| `specs` | A **4th specialization** for seven vanilla classes, one active and one passive each, with orbs: **Deadeye** Ranger (Lightning Arrow, Gathering Winds), **Aerotheurge** Wizard (Thunder Orb, Static Charge), **Arcane** Sorcerer (Blink, Living Mana), **Winddancer** Rogue (Protective Gale, Second Wind), **Bannerlord** Warrior (Battlefield Standard, Righteous Crusade), **Branding** Warlock (Pyrebrand, Essence Extraction) and the **Devil Forgemaster** Priest (Necrotic Resurrection, Call of Heresy: raise the enemies that fall with their body intact, bosses included, as summons that keep their own skills; Sacrificial Penance at max Divine Favor). Icons and sounds are the user's picks (`art/specs/`). The Forgemaster's risen and body units are generated from the base game by `tools/make_forgemaster_risen.py` (gitignored; `doctor --fix` makes them). |
+| `firearms` | The **Firearms Specialist**, a new class. Guns fire from a clip that counts down per shot and reloads (automatically at 0, or with the Reload skill, which a dodge cancels; the reload bar sits over the player); mana pays for gadgets. Rounds leave the gun for the point under the cursor, so diagonal shots land on the crosshair, and the gun model changes pose as you idle, fire, reload or use a gadget. A rifle (30 rounds, 3-round bursts; the Grenade Launching Rifle has an under-barrel grenade launcher, the Flamethrower Rifle a mana-fed flamethrower held on right click, the Full Auto Rifle a wild full-auto spray) or pistols, one or two (10 rounds each, 20 dual), or Hand Cannons (half a pistol's rate, 1.5 times its damage, 6 rounds; with a pistol, a pistol-cannon-pistol burst). Base kit: Reload and Frag Grenade, whose orbs give Explosive Reload, Over-Reload's timed perfect reload, and Stun, Incendiary or Gas grenades. Four specializations, each with orbs: **Marksman** (Snipe, whose aim time shortens per rank and whose Recoil Roll orb dashes you back along the shot; Critical Aim), **Demolitionist** (Rocket Launcher, Ordinance Hoarder), **Assault** (Double Barrel Burst, Adrenaline) and **Engineer** (Deploy Turret, My Turret!). New characters start with a Service Pistol. Details: `mods/firearms/README.md`; design: `docs/design/firearms.md`. |
+| `specs` | A **4th specialization** for seven vanilla classes, one active and one passive each, with orbs: **Deadeye** Ranger (Lightning Arrow, Gathering Winds), **Aerotheurge** Wizard (Thunder Orb, Static Charge), **Arcane** Sorcerer (Blink, which crosses ledges and stairs; Living Mana, one pooled blue bar for health and mana), **Winddancer** Rogue (Protective Gale, Second Wind), **Bannerlord** Warrior (Battlefield Standard, Righteous Crusade), **Branding** Warlock (Pyrebrand, Essence Extraction) and the **Devil Forgemaster** Priest (Necrotic Resurrection, Call of Heresy: raise the enemies that fall with their body intact, bosses included, as summons that keep their own skills and run with you; the raise and Sacrificial Penance channels lock you in place with a beam; braziers and pyres burn off Heresy). Icons and sounds are the user's picks (`art/specs/`). The Forgemaster's risen and body units are generated from the base game by `tools/make_forgemaster_risen.py` (gitignored; `doctor --fix` makes them). |
 | `classes` | The HoH1 classes HoH2 lacks: **Thief**, **Gladiator** and **Witch Hunter**, three masteries each. The Thief's extra actives cast on core's Skill 4 key. The real HoH1 art comes from your own HoH1 install (`tools/import_hoh1.py classes`). |
 | `weapons` | Twelve new endgame weapons (ilvl 35, four per slot) with new modifier profiles on vanilla visuals and attacks. |
 | `weaponswap` | A second weapon set on a hotkey (default X): a 2 s channel standing still, cancelled by a dodge or a second press. |
@@ -29,17 +29,18 @@ needs `pets`.
 
 | Module | What it does |
 |---|---|
-| `campaign` | **The Forsaken Tower**: the HoH1 campaign (Mines to Battlements, 18 floors, 6 bosses), started from a portal in town. NG+ swaps in HoH1's NG+ bosses and enemies. With HoH1 installed, a second version plays the real HoH1 boss rooms and Battlements (`tools/import_hoh1.py campaign`). |
-| `keys` | HoH1-style keys: every chest but the cursed ones needs a key of its tier. Keys drop in runs (a party can share a key pool), and the exit guard's General Merchant sells keys, bag slots and six trinkets to take into your next run. Also ace chests and seven red legendaries. |
+| `campaign` | **The Forsaken Tower**: the HoH1 campaign (Mines to Battlements, 18 floors, 6 bosses), started from a portal in town. NG+ swaps in HoH1's NG+ bosses and enemies. With HoH1 installed, the portal offers the version with the real HoH1 boss rooms, two Dark Halls and the two Battlements floors (`tools/import_hoh1.py campaign`). HoH1's traps (spike floors, flame jets, bomb, dart and confusion glyphs) and one teleporter pad per floor appear on generated floors, and the Dark Halls eyes confuse again. |
+| `keys` | HoH1-style keys: every chest but the cursed ones needs a key of its tier. Keys drop in runs (a party can share a key pool), and the exit guard's General Merchant sells keys, bag slots and six trinkets to take into your next run. Also ace chests, seven red legendaries, and a banner for everyone when a chest turns out to be trapped. |
 | `mercenary` | HoH1's mercenary mode: once a class has a level-20 hero, a fresh character of it can enlist (`hwp merc enlist`), climb the ranks from Private to General for more gold and experience, and die for good. |
 | `legacy` | HoH1-style class titles: your best hero of each class buffs every character. One "Title Bonuses" buff lists them, and Guild Hall > Titles shows every class. |
-| `pets` | Pets level up (from kills, pickups, and farm crops at the feeding bowl) and learn utility skills. Per-pet pickup toggles, pet dyes at the tailor, pets wait outside puzzle rooms, and every HoH1 pet is in the Pet Shop (imported from your own HoH1 install). |
+| `pets` | Pets level up (from kills, pickups, and farm crops) and learn utility skills; the Pet Shop keeper trains them and the character tab shows the pet's level. Per-pet pickup toggles, pet dyes at the tailor, pets wait outside puzzle rooms, and every HoH1 pet is in the Pet Shop (imported from your own HoH1 install). |
 
 ### Runs and dungeons
 
 | Module | What it does |
 |---|---|
-| `puzzles` | Puzzle rooms are back on most floors (HoH2 ships 88 but never places them), and HoH1's Constellation puzzle is one they can roll, also in a clearing on forest and heaven floors. |
+| `puzzles` | Puzzle rooms are back on most floors (HoH2 ships 88 but never places them), checked and repaired after generation, and HoH1's Constellation puzzle is one they can roll, also in a clearing on forest and heaven floors. Summons wait at the door while you solve. |
+| `objectives` | Floor objectives on generated floors: a locked loot vault (two chests behind a door) opened by a lever somewhere else on the floor, and the way down sealed until the floor's exit lever is pressed. The HUD says what is left to find. |
 | `strongbox` | Path of Exile-style strongboxes: open one, a pack of the floor's enemies spawns (elites possible), clear it for the box's loot. |
 | `abyss` | Abyss cracks: step close and waves crawl out, ending in elites (more in a bigger party). Clear them for a reward that grows the deeper the run goes. |
 | `maps` | Three new layouts for the equipment-map drops: Goblin Warrens, Sunken Dungeon, The High Court. |
@@ -50,25 +51,25 @@ needs `pets`.
 
 | Module | What it does |
 |---|---|
-| `fishing` | Six fishing spots on the town coast (a timing minigame), more in the water of run floors' potion wells (always one in a boss room), greyed on the map once fished out. A pirate sells bait, rods and fish traps from the trading post's wreck, later its boat. Fish are swords, sell for bet tokens and can be eaten (100 HP per star). |
-| `farming` | The town's field grooves become farm plots: food crops and four Holy Herb strains grow with each completed run, faster when watered (the farmer sells the can and seeds; the well refills it). Smoke a herb for a buff that lasts 10 floors, or roll it into a joint: an off-hand with 5 puffs that a friend can take from you, with smoke that fills the room. |
+| `fishing` | Six fishing spots on the town coast (a timing minigame), more in the water of run floors' potion wells (always one in a boss room), greyed on the map once fished out. A pirate sells bait, rods (priced per tier; new characters start with the wooden rod) and fish traps from the trading post's wreck, later its boat. Fish are swords, sell for bet tokens and can be eaten (100 HP per star, plus Luck). Catches can hold keys and ace keys, and a hole's loot goes to whoever caught it. |
+| `farming` | The town's field grooves become farm plots: food crops and four Holy Herb strains grow with each completed run, faster when watered (the farmer sells the can and seeds; the well refills it). Smoke a herb for a buff that lasts 10 floors (hotboxing works outdoors too), or roll it into a joint: an off-hand with 5 puffs that a friend can take from you, with smoke that fills the room; a second joint goes in the main hand, left and right click puffing each. |
 | `gambler` | A gambler in the tavern plays Higher/Lower for gold. He buys crops and herbs for gold and fish for bet tokens, and rerolls equipped gear for 2000 gold Ã— item level, or 1 bet token per 5 item levels. |
 | `goldpet` | A pet vendor in the Hunter's Lodge sells the Gold Collector cat, with two upgrades (materials and scrolls, then valuables). |
 | `stash` | A Sort button on the town stash: by class, then weapon type, then item level. |
-| `laststats` | The last run's stats for the whole party, on a notice board by the town fountain. |
+| `laststats` | The last run's stats for the whole party, on a notice board by the town fountain: every player on one page as bars per stat, with a search field. |
 
 ### Co-op and quality of life
 
 | Module | What it does |
 |---|---|
 | `groupcombo` | A party-wide combo bonus that grows with how many players are in combo, and brief invulnerability when everyone is. |
-| `architect` | Any player can pick and pay for Architect alterations; the host's picks are split across the party. Seven HoH1 challenges discount them, down to free. |
+| `architect` | Any player can pick and pay for Architect alterations; the host's picks are split across the party. Seven HoH1 challenges discount them, down to free. The run-start screen keeps three named presets of picks and NG+ level per character, shows NG+ last with the start hint, and lets a non-host leave. |
 | `droptrade` | Drop equipment on the ground for friends: a Drop button (Q) next to Destroy in the inventory. |
-| `deathrecap` | Who killed you: the top damage sources of the last 10 s, on screen and in chat. |
+| `deathrecap` | Who killed you: the top damage sources of the last 10 s, on screen and in chat. After a boss falls, a boss-fight recap of everyone's damage by skill and damage taken. |
 | `bufftips` | Hover a buff icon to see what it does and how many seconds it has left. |
 | `chatlinks` | Linked items stay in chat with their slot and item level; `hwp link` links an equipped item. |
-| `colors` | Colour-blind and high-contrast tints for enemy and friendly projectiles (player menu > Plus tab). |
-| `core` | Required by every module: settings (the Plus tab and the `hwp` console command), save data and networking. It also adds keys 4, 5 and 6 for a class's 4th to 6th active skill, a Plants & Herbs section in the Materials tab with Eat and Roll actions, a warning on orbs that close off other orbs, the use key picking up a dropped item before it talks to an NPC, and "Mm-hmm!" hats (a quarter of rare and epic hats play the Material Trader's "mm-hmm" on every crit, for everyone). |
+| `colors` | Colour-blind and high-contrast tints for enemy and friendly projectiles (player menu > Plus tab), and each player in their own colour on the minimap and the overlay map, with names for players far away. |
+| `core` | Required by every module: settings (the Plus tab and the `hwp` console command), save data and networking. It also adds **Luck**, a stat from gear affixes of Fortune, the Rabbit's Foot trinket and timed buffs from herbs and fish, which weights chest, strongbox, abyss and key drops towards the rarer results; keys 4, 5 and 6 for a class's 4th to 6th active skill; a Plants & Herbs section in the Materials tab with Eat and Roll actions; a warning on orbs that close off other orbs; the use key picking up a dropped item before it talks to an NPC; and "Mm-hmm!" hats (a quarter of rare and epic hats play the Material Trader's "mm-hmm" on every crit, for everyone). |
 
 Each module's full spec and test checklist is in `mods/<id>/README.md`.
 
@@ -119,6 +120,14 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 
 ## Status
+
+2026-10-25 to 2026-10-26: the bug and feature list of 2026-10-22 (`temp/bugs 10.22.26.txt`) landed in 16 commits,
+each with its own lab scenario (`gamelab/scenarios/fix-*.json`, all passing): Firearms feel and Snipe,
+Arcane and Aerotheurge, the Forgemaster's risen and channels, fishing, farming, puzzles, pets, the run-start
+screen, Luck, the boss and last-run recaps, the HoH1 campaign version with Battlements, traps and teleporters,
+per-player map colours, the trapped-chest banner and the new `objectives` module. `mod-all` (32 modules)
+and `plan-t9` are the integration gates; the session's notes are in `docs/RE_NOTES.md`
+("Bug list 10.22.26").
 
 The full QA sweep is paused and incomplete. The [current checkpoint](docs/generated/qa_pr_checkpoint.json)
 records 10 gameplay repairs and scoped passing coverage for the six original

@@ -3333,3 +3333,77 @@ not on it). `mod-all` loads all 31 modules, so the lab never noticed. The list n
   pacing differs. The fix is therefore reasoned, and the user's game is the test.
 - **Regression:** `plan-firearms-arm 20261022-203851` PASS (held, lowers after 1 s, on a dodge,
   on a reload, rifle and pistol). `mod-all 20261022-203531` PASS compiled it.
+
+## Bug list 10.22.26: sixteen commits, each with a lab scenario (2026-10-25 to 2026-10-26)
+
+The user's list (`temp/bugs 10.22.26.txt`, kept out of git) was worked in priority order,
+bugs first, then the four big features (Battlements floors in HoH2 runs, floor objectives as
+their own module, Luck, the Arcane pooled bar), one agent at a time once the user asked for
+that. Every area got a `fix-*` scenario (`gamelab/scenarios`, bots in `gamelab/bots/fix_*.py`)
+that passes in lab mode; the commit messages (35ead89..bcd12bc) carry the run ids. The final
+gates: `mod-all` with all 32 content modules `20261026-084909` PASS; `fix-objectives`
+`20261026-084617` PASS; `plan-t9` (31 modules, the plan_checks bot) `20261026-084939` PASS;
+`mod-town-rebuild` `20261026-085151` PASS.
+
+### Engine and lab facts measured this session
+
+- **A .pfb unit entry with no params must be the flat form** `<array name="x.unit"><vec2>..</vec2><int>id</int></array>`.
+  The nested `<array><vec2/><int/></array>` form is only valid with a third `<dict>` of
+  params; without it the engine reads past the array and the game dies with exit
+  3221225477 (0xC0000005) at floor start, after "Executing scripts on start" /
+  "MissionGameMode::LoadDifficulty: true", with nothing in the log. Found by bisecting the
+  campaign's trap prefabs; generation prefabs carry no `special/_origin.unit` and need no
+  `tiles`.
+- **Textures must be power-of-two**: the engine refuses a 24x24 dead-core texture at boot;
+  the Forgemaster's body core is 32x32 (0aa229e).
+- **The keep's exit is a `LevelExitNext` world script fired by a `UseTrigger`**
+  (`prefabs/keep/level_exit_part_*.pfb`), picked by a PrefabPicker in `level_exit.pfb` that
+  fabricates after a module's `Start`; the cave and citadel exits are `LevelExitAreaNext`.
+  A disabled world script does not execute (vanilla `ToggleScripts` pattern), so
+  `SetEnabled(false)` seals both kinds. The objectives module retries its seal for 3 s and
+  logs "exits sealed after start" when the keep's part arrives late.
+- **The next floor preloads while the current one runs** and logs its own generation lines
+  tagged `[preload]`; a bot reading placement lines must skip them.
+- **The pathfinder ignores generator-carved corridors**: `gl pathfind` / `gl reachmap`
+  answer empty from every cell of the objectives vault's corridor (sealed or open, and
+  even 64 px into the floor it meets), while the prefab room's own cells path fine
+  (`20261026-084617`, notes in `bot-results.jsonl`). The player walks it. The puzzles
+  module's corridors are carved the same way. Doors are therefore tested by walking the
+  player into them (`fix_objectives.walk_in`): the locked door's static collision stops the
+  walk at the doorway, the open scene lets it through.
+- **`gl usables` never lists a static sensor after a teleport** (no overlap begin), but
+  `gl use <filter>` acts on the nearest match from anywhere; `gl hurt <fraction>` sets the
+  hp fraction (1.0 heals); `hwp god` needs `e_cheats 1`. A level-1 Paladin dies in about a
+  second on spikes or fire or among enemies: heal and god before measuring traps.
+- **The player menu's Map tab cannot open in the lab**: vanilla `MapWidget::NavigationBarText`
+  reads `GetInput().GetCurrentMap()`, null without a real input device
+  (`BaseGameMode::UsingMouseLook`). `fix-map-colors` shoots the minimap and the overlay map
+  instead; the tab is a hand check.
+- **Bash heredocs halve backslashes** on this machine: a JSON `\\d` written through a
+  heredoc arrives as `\d`. Regex patterns in scenarios and bots go through the Edit tool.
+
+### What landed, by area
+
+- Firearms (5167447, bbcc5e1): rounds from the gun to the cursor point, the reload bar in
+  the world, gun poses, Snipe aim time per rank (650..325 ms), armor penetration
+  30/35/45/50/60, the Recoil Roll orb (`HWPFirearmsSnipeRecoil` starts the player's own dash
+  backwards along the shot).
+- Specs (445bde7, f70c7fc, 0aa229e): Blink along a Shot-type ray at 112 px with effects,
+  Thunder Orb 2.0 speed / 3 px body, Living Mana as one blue bar; the Forgemaster's pyres
+  take Heresy, channel lock with beam and bar, boss bodies always orb; the risen run,
+  summon-green with an elite ring in the summon bar's orange (255,84,0), bodies grey and
+  shoot-through, a floor safety net in `summons`.
+- Town (baf4dea, 8a82745, 1ca404e, 0f39987): fishing keys and personal hole loot, the
+  starter rod; outdoor hotboxing, dual joints on left and right click, wild plots for
+  clients; pet training at the keeper and the pet level in the character tab; the run-start
+  screen's presets, NG+ row and non-host leave.
+- Runs (80d69f4, 7fa662f, 06d1a0c): puzzle room check and repair, summons held at the
+  door; Luck (`docs/design/luck.md`); the boss recap and the one-page last-run board.
+- Campaign (7bfa624): the portal offers the HoH1 version, Dark Citadel as two Dark Halls and
+  two Battlements floors, HoH1 traps and a teleporter per generated floor, Confusion.
+- Co-op map (bcd12bc): per-player map colours and names, the trapped-chest banner, and the
+  `objectives` module (locked vaults, a sealed way down). `docs/modules.md` has the rows.
+
+Open from the list: enemies and pets may not follow into a vault (the corridor is off the
+nav graph, above); co-op behaviour of the objectives sync, the map colours of other players
+and the trapped banner on clients need a two-machine lobby; the vault room has no light.
