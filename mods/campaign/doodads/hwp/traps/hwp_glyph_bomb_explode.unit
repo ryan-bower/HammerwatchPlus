@@ -1,0 +1,45 @@
+<!-- The HoH1 bomb trap's bomb: 1125 ms fuse (HoH1 TRAP bomb delay), a 36 px blast of
+     fire and lightning plus a share of current health, so it scales with the floor.
+     Spawned by hwp_glyph_bomb.unit; team enemy so it hurts players, not enemies. -->
+<unit layer="0" netsync="position">
+	<behavior class="BombBehavior">
+		<string name="team">enemy</string>
+		<string name="spawn-sound">event:/sfx/actors/bosses/boss_face/boss_face_bomb_spawn</string>
+		<string name="explode-sound">event:/sfx/actors/bosses/boss_face/boss_face_bomb_explode</string>
+		<int name="delay">1125</int>
+
+		<array name="actions">
+			<dict>
+				<string name="class">Explode</string>
+				<int name="radius">36</int>
+				<float name="dist-scaling">1000</float>
+				<bool name="hit-different-team">true</bool>
+
+				<array name="effects">
+					<dict>
+						<string name="class">Damage</string>
+						<int name="fire">20</int>
+						<int name="lightning">15</int>
+						<bool name="true-strike">true</bool>
+					</dict>
+					<dict>
+						<string name="class">HPBasedDamage</string>
+						<float name="fire">0.15</float>
+						<bool name="curr-hp">true</bool>
+						<bool name="true-strike">true</bool>
+					</dict>
+				</array>
+			</dict>
+			<dict>
+				<string name="class">SpawnEffect</string>
+				<string name="effect">effects/generic/explosions/bomb_explosion_1.effect</string>
+			</dict>
+		</array>
+	</behavior>
+
+	<scenes>
+		<scene>
+			<effect src="effects/generic/other/shadow_indicator_38.effect"/>
+		</scene>
+	</scenes>
+</unit>

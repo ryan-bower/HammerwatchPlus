@@ -1,0 +1,58 @@
+{
+  "name": "fix-campaign-portal-version",
+  "about": "bugs 10.22.26 lines 40, 39 (data side) and 28: in town as the host, the chapel portal offers the HoH1 mission alone once the story intro is done (the import is packed in the lab; the log names the version), `hwp campaign citadel` lists the Dark Citadel as dark_halls_1, dark_halls_2, hwp_battlements_1, hwp_battlements_2, dark_halls_boss with the chain in that order, and `hwp campaign confuse 4000` puts the HoH1 confusion buff on the player: holding right moves them left, right again once it has run out; a confusion glyph spawned under the player applies the 1 s trap buff. About 3 minutes.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "campaign"
+  ],
+  "timeout": 400,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "log_has",
+      "pattern": "\\[HWP:campaign\\] self-check done: mission ok, \\d+/\\d+ schemes, HoH1 floors installed, [1-9]\\d* trap prefabs, traps on [1-9]\\d* floors",
+      "timeout": 20,
+      "name": "self-check: the mission, the HoH1 import, the hwp_traps prefab set and the generator command on the indoor floors"
+    },
+    {
+      "do": "bot",
+      "bot": "fix_campaign",
+      "kwargs": {
+        "sections": "portal,citadel,confusion"
+      },
+      "expect": {
+        "ok": true
+      },
+      "name": "portal lists the HoH1 mission alone and logs it; citadel floors in order; confusion buff inverts the input, expires, trap glyph applies it"
+    },
+    {
+      "do": "log_has",
+      "pattern": "\\[HWP:campaign\\] portal: offering hwp_forsaken_tower_hoh1 \\(HoH1 levels\\)(?=\\r?\\n|$)",
+      "timeout": 5,
+      "name": "the portal offered the HoH1 version only (line 40)"
+    },
+    {
+      "do": "log_has",
+      "pattern": "\\[HWP:campaign\\] Dark Citadel: \\d+:dark_halls_1, \\d+:dark_halls_2, \\d+:hwp_battlements_1, \\d+:hwp_battlements_2, \\d+:dark_halls_boss(, \\d+:\\w+)*; chain dark_halls_1 -> dark_halls_2 -> hwp_battlements_1 -> hwp_battlements_2 -> dark_halls_boss",
+      "timeout": 5,
+      "name": "two Dark Halls floors then two Battlements floors before the Avatar (line 39)"
+    },
+    {
+      "do": "log_has",
+      "pattern": "\\[HWP:campaign\\] confusion: hwp campaign confuse confused the player for 4000 ms",
+      "timeout": 5,
+      "name": "the cheat logged the confusion (line 28)"
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

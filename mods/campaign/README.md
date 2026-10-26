@@ -23,8 +23,13 @@ generated floors in the closest HoH2 theme plus a vanilla boss level.
   (`tools/import_hoh1.py levels` reports them).
 - **Portal.** `doodads/hwp/forsaken_portal.unit` is an NPC doodad whose
   interact is `HWPCampaignShopContent`, the vanilla `MissionShopContent` limited to set
-  `hwp_campaign` (`num` 2: both missions when the HoH1 one is imported), so the host picks
-  the mission and the normal loadout menu opens. The missions need the story intro flag
+  `hwp_campaign`, so the host picks the mission and the normal loadout menu opens.
+  **Which version:** whenever the HoH1 mission (`hwp_forsaken_tower_hoh1`) exists at
+  runtime, the portal offers it alone (`HWP::Campaign::PreferHoH1`, decided per
+  interact, so a fresh import is picked up without a module change); without the
+  import it offers the HoH2-theme mission. `campaign.portal_both` (default off) lists
+  both. The log says what it offered (`portal: offering hwp_forsaken_tower_hoh1 (HoH1
+  levels)`) and what the host started (`portal: starting <id> (<version>, N floors)`). The missions need the story intro flag
   (`mission_story_intro_find_npcs`), like the vanilla mission boards; before that the portal
   shows "The portal is dormant..." over the player instead of opening (vanilla would throw:
   sorting an empty array is an "Index out of bounds" in this engine). Clients see the host's portal (netsynced doodad). The host spawns
@@ -57,11 +62,18 @@ Converts `levels/boss_{mines,prison,armory,archives,chambers,dragon}.lvl` and
 textures, effects, prefabs, tilesets) into `mods/campaign/hoh1/` (in-game
 paths `hoh1/...`) and writes
 `tweak/hwp/missions/missions_hwp_forsaken_tower_hoh1.sval`, plus
-`tweak/missions/missions_dark_citadel.sval`: the main game's Dark Citadel with
-both Battlements floors (clouds, glass walkways, giants; diff 21 and 22) before
-the Avatar, a declared override (`.orig` committed) that only the import
-generates. A save in the middle of a Dark Citadel run shifts by two floors
-when it appears or goes away. All of them are
+`tweak/missions/missions_dark_citadel.sval`: the main game's Dark Citadel as
+**two Dark Halls floors (`dark_halls_1`, `dark_halls_2`: vanilla ships the second one
+commented out) then both HoH1 Battlements floors (clouds, breaking bridges, glass
+walkways, giants) before the Avatar**, every floor at diff 22 / NG+ 22 like the
+surrounding floors; a declared override (`.orig` committed) that only the import
+generates. `Citadel.as` repairs the list at runtime as well (`HWP::Campaign::Citadel::Fix`
+on every level load): an import made before this change (doctor does not re-import an
+existing one) gets `dark_halls_2` inserted and the Battlements raised to 22, and when the
+import is absent the vanilla floors stay with the log line `vanilla Dark Citadel floors
+(HoH1 import absent): ...`. `hwp campaign citadel` prints the floor list
+(`N:id, ...`) and the `m_idNext` chain. A save in the middle of a Dark Citadel run shifts
+by two floors when the import appears or goes away. All of them are
 gitignored and only exist on a machine with HoH1 installed; `build.py`
 leaves them out unless `--with-local`. The log is
 `hoh1_import/campaign/convert.md` (every rewrite counted, plus the 14
@@ -105,6 +117,53 @@ Design calls to look at:
   the aimed spot within its time to live).
 - Wraith statues (`TransferDamageActor`) get one empty state injected; HoH2
   requires a "states" list.
+
+## HoH1 traps, Confusion and teleporters in HoH2 runs
+
+HoH2 runs and the campaign floors get three HoH1 mechanics, built from HoH2 units
+(`Traps.as`, `Confusion.as`, `Teleporters.as`). They are placed by the dungeon
+generator: `Traps::Install` appends one `HWPTrapSpawn` generation command to every
+indoor `DungeonGenerator` (outdoor `ForestBrush` floors are skipped) and the command
+places prefab set `hwp_traps` (`tweak/hwp/campaign_prefabs.sval`,
+`prefabs/hwp/traps/*.pfb`, 3x3 walkable-floor patterns) then one `hwp_teleporters`
+pad, host side like every prefab. The log says `traps: placed N/M on a WxH floor
+(C floor cells, density D%)`.
+
+| Trap | Unit | HoH1 feel |
+|---|---|---|
+| Spike floor, spike row | vanilla `doodads/traps/floors/floor_spikes.unit` (on) | the always-on spikes of the Mines |
+| Flame jet | vanilla `doodads/traps/floors/floor_fire.unit` (proximity) | Armory floor burners |
+| Bomb glyph | `doodads/hwp/traps/hwp_glyph_bomb.unit` (`TripMine`, shows at 48 px, triggers at 24, 1.1 s fuse, fire + lightning blast, re-arms after 8 s) | the Archives' exploding glyphs |
+| Dart glyph | `hwp_glyph_dart.unit` (fan of 8 vanilla arrows after 0.2 s, re-arms after 5 s) | dart traps |
+| Confusion glyph | `hwp_glyph_confusion.unit` (1 s Confused on everyone in 40 px) | the Chambers' confusion glyphs |
+
+**Confusion** (`tweak/hwp/campaign_buffs.sval:hwp_confusion`, 2.5 s, engine `confuse`
+flag: movement input inverted, with an icon and a purple pulsing screen tint while it
+lasts; `hwp_trap_confusion` is the 1 s trap version). HoH2 has no enemy that applies it,
+so the sources are HoH1's: the eyes (`actors/aberrations/eyes/*`, 35 % per hit,
+`campaign.confusion_eye_chance`) through the `PlayerDamageTaken` hook, and the glyph.
+`hwp campaign confuse [ms]` applies it (cheats on).
+
+**Teleporters** (`doodads/hwp/teleport_pad.unit`, `HWPTeleportPad : IUsable`): a pad
+with one fixed destination the player cannot see, the same on every use, like HoH1's
+Archives pads. The generator picks it when it places the pad: the farthest trap, puzzle or
+treasure point of interest on the floor (so it sometimes lands you in a trap room),
+else the farthest floor cell, logged as `teleporter placed at X,Y (cell x,y) -> DX,DY
+(cell x,y, why)`. The host moves the user (`UnitTeleported` message like a vanilla
+teleport); a client's use reaches the host as `NetUse`. The destination survives a
+save (`Save`/`Load`). `hwp campaign teleporter [dx dy]` spawns a pad next to the player
+on the host and prints every pad with its destination.
+
+| Setting | Default | What |
+|---|---|---|
+| `campaign.portal_both` | false | the portal lists both tower versions |
+| `campaign.traps` | true | HoH1 traps on generated indoor floors |
+| `campaign.trap_density` | 100 | % of one trap per 120 floor cells (0..400, 1..24 traps a floor) |
+| `campaign.confusion` | true | Confusion from eyes and glyphs |
+| `campaign.confusion_eye_chance` | 35 | % chance an eye's hit confuses |
+| `campaign.teleporters` | true | one teleporter pad per indoor floor |
+
+`hwp campaign traps` prints the settings and how many floors carry the command.
 
 ## HoH1 level import (`tools/import_hoh1.py levels`)
 
@@ -171,12 +230,26 @@ What that means for a real port, in order:
    back on the campfire.
 5. Co-op: a client sees the portal and can read the mission; only the host
    can start it (vanilla rule).
-6. With HoH1 installed: `python tools/import_hoh1.py campaign`, then the
-   portal offers both missions and the self-check line ends in
-   "HoH1 floors installed". Loading each HoH1 floor (mines_boss, prison_boss,
-   armory_boss, archives_boss, chambers_boss, battlements_1, battlements_2,
-   battlements_boss) is a GameLab scenario still to write. It will use the `gamelab-hands`
-   verb `mission <id> [floor]`, which replaces the retired `dev_check.py --level`.
+6. With HoH1 installed (`python -m gamelab doctor --fix` imports it), the
+   portal offers the HoH1 mission alone and the self-check line reads
+   "HoH1 floors installed, N trap prefabs, traps on N floors; Dark Citadel: ...".
+   `python -m gamelab run fix-campaign-portal-version` (core + campaign, about 3 min)
+   checks the portal version in the log and the dialog, `hwp campaign citadel` =
+   dark_halls_1, dark_halls_2, hwp_battlements_1, hwp_battlements_2, dark_halls_boss,
+   and the Confusion cheat (buff on, right moves left, expiry, glyph applies it).
+   Loading each other HoH1 floor (mines_boss, prison_boss, armory_boss, archives_boss,
+   chambers_boss, battlements_2, battlements_boss) is still to script with
+   `gl mission <id> [floor]`.
+8. `python -m gamelab run fix-campaign-battlements` (about 3 min): `gl mission
+   dark_citadel <index of hwp_battlements_1>` loads `hoh1/levels/battlements_1.lvl`
+   with no script exception, screenshot `battlements-1`.
+9. `python -m gamelab run fix-campaign-traps` (about 4 min): the indoor Dark Citadel
+   floor (`gl mission dark_citadel 2`, retried on another seed) logs `traps: placed N/M`,
+   `gl unitsof` finds the trap units, standing on spikes / a bomb blast costs health,
+   the generator's teleporter pad moves the player to the logged destination and to the
+   same spot on a second use; screenshot `traps-floor`. Without the import the same
+   scenario still passes (traps and pads need no HoH1 file; the HoH1 teleport effect
+   falls back to the vanilla smoke puff).
 7. Play each HoH1 boss once, solo and in co-op: the Stone Guardian's ground
    spikes, the Warden's whirlwind and bombs, the councilors teleporting
    between nodes (client sees the same node), the Watcher's wisps circling

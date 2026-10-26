@@ -1,0 +1,26 @@
+<!-- Confusion, back from HoH1 (scripts/HWP/Campaign/Confusion.as). HoH2 keeps the engine
+     side (confuse=true inverts the player's move and aim input, Player.as) and the vanilla
+     icon, but nothing in HoH2 applies it to the player. hwp_confusion is HoH1's gaze
+     confusion (2500 ms), applied by the Dark Halls eyes' hits and by `hwp campaign
+     confuse`; hwp_trap_confusion is HoH1's trap confusion (1000 ms), applied by the
+     confusion glyph (doodads/hwp/traps/hwp_glyph_confusion_explode.unit). -->
+<svals>
+	<dict name="hwp_confusion">
+		<string name="name">.hwp.campaign.confusion.name</string>
+		<string name="description">.hwp.campaign.confusion.desc</string>
+		<string name="icon">special/icons/confusion.unit</string>
+		<array name="tags"><string>debuff</string><string>confusion</string></array>
+		<bool name="debuff">true</bool>
+		<int name="duration">2500</int>
+		<bool name="confuse">true</bool>
+	</dict>
+	<dict name="hwp_trap_confusion">
+		<string name="name">.hwp.campaign.confusion.name</string>
+		<string name="description">.hwp.campaign.confusion.trap_desc</string>
+		<string name="icon">special/icons/confusion.unit</string>
+		<array name="tags"><string>debuff</string><string>confusion</string></array>
+		<bool name="debuff">true</bool>
+		<int name="duration">1000</int>
+		<bool name="confuse">true</bool>
+	</dict>
+</svals>

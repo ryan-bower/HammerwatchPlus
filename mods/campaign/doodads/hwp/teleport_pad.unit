@@ -1,0 +1,43 @@
+<!-- HoH1 teleporter pad (scripts/HWP/Campaign/Teleporters.as, HWPTeleportPad): a fixed
+     destination elsewhere on the floor, the same every use. The host spawns it from the
+     hwp_teleporters prefab set at generation (netsync="position": clients get the unit,
+     their use goes to the host). Visuals: the vanilla teleport beacon's lit frame
+     (doodads/generic/generic.png) with a blue light; the HoH1 teleport effect plays on
+     use when the import is packed. -->
+<unit slot="doodad" layer="-10" netsync="position">
+	<behavior class="HWPTeleportPad">
+	</behavior>
+	<scenes>
+		<scene name="default">
+			<collision static="true">
+				<circle sensor="true" shoot-through="true" aim-through="true" offset="0 0" radius="12" />
+			</collision>
+			<minimap_sprite layer="15" origin="5 6" texture="gui/minimap.png" frame="90 82 10 11" />
+			<sprite origin="16 16" texture="doodads/generic/generic.png" material="system/default.mats:floor">
+				<frame>0 800 32 33</frame>
+			</sprite>
+			<light pos="0 0">
+				<sprite texture="effects/lights/light_L.png">
+					<frame>0 0 128 128</frame>
+				</sprite>
+				<length value="1200" />
+				<overbright value="3" />
+				<looping value="true" />
+				<overlay value="true" />
+				<cast-shadows value="false" />
+				<shadow-cast-pos value="0 0" />
+				<shadow-cast-pos-jitter value="0 0 0 0" />
+				<sizes>
+					<size value="64" />
+					<size value="80" />
+					<size value="64" />
+				</sizes>
+				<colors>
+					<color value="0 90 200 20" />
+					<color value="0 150 255 30" />
+					<color value="0 90 200 20" />
+				</colors>
+			</light>
+		</scene>
+	</scenes>
+</unit>

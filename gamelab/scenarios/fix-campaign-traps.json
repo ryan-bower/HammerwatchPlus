@@ -1,0 +1,62 @@
+{
+  "name": "fix-campaign-traps",
+  "about": "bugs 10.22.26 line 29 and the HoH1 teleporters: a generated indoor Dark Citadel floor (index 2, cave_dark_1; another floor on a retry) places the hwp_traps set (`traps: placed N/M`, N > 0), the trap units are in the scene, standing on a spike floor (or a bomb glyph's blast) costs health, and the teleporter pad the generator placed (or a cheat pad) moves the player to its logged destination on use, the same spot on a second use. A screenshot of the floor at the end. About 4 minutes.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "campaign"
+  ],
+  "timeout": 420,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "retry",
+      "times": 3,
+      "timeout": 8,
+      "until": "\\[HWP:campaign\\] traps: placed [1-9]\\d*/\\d+ on a \\d+x\\d+ floor",
+      "name": "a generated indoor floor placed at least one HoH1 trap",
+      "steps": [
+        {
+          "do": "gl",
+          "verb": "mission",
+          "args": ["dark_citadel", 2],
+          "expect": {
+            "ok": true
+          }
+        },
+        {
+          "do": "wait_phase",
+          "phase": "mission",
+          "timeout": 150
+        }
+      ]
+    },
+    {
+      "do": "log_has",
+      "pattern": "\\[HWP:campaign\\] teleporter (placed at -?\\d+,-?\\d+ \\(cell \\d+,\\d+\\) -> -?\\d+,-?\\d+ \\(cell \\d+,\\d+, [^)]*\\)|at cell \\d+,\\d+: no destination, the pad picks one at use|: no spot on this floor)",
+      "timeout": 5,
+      "name": "the generator reported the teleporter pad (placed with a destination, or why not)"
+    },
+    {
+      "do": "bot",
+      "bot": "fix_campaign",
+      "kwargs": {
+        "sections": "traps,teleporter"
+      },
+      "expect": {
+        "ok": true
+      },
+      "name": "trap units present and damaging; the teleporter jumps to its fixed destination twice"
+    },
+    {
+      "do": "shot",
+      "name": "traps-floor"
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

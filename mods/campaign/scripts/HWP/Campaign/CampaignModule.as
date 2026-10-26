@@ -2,7 +2,10 @@
 // (tweak/hwp/missions/missions_hwp_forsaken_tower.sval, set hwp_campaign); this
 // module spawns the town portal (doodads/hwp/forsaken_portal.unit) on the host
 // in place of the chapel courtyard's campfire, self-checks the data and answers
-// hwp campaign.
+// hwp campaign. The portal offers the HoH1 levels first (PortalShop.as), the Dark
+// Citadel gets its second Dark Halls floor and the two Battlements floors
+// (Citadel.as), every indoor floor gets HoH1 traps and a teleporter (Traps.as,
+// Teleporters.as) and the eyes confuse again (Confusion.as).
 namespace HWP
 {
 	namespace Campaign
@@ -78,6 +81,9 @@ namespace HWP
 		void RefreshSettings()
 		{
 			g_enabled = HWP::Settings::GetBool("campaign.enabled", true);
+			Confusion::RefreshSettings();
+			Traps::RefreshSettings();
+			Teleporters::RefreshSettings();
 		}
 
 		void OnSettingChanged(const string &in key)
@@ -128,7 +134,23 @@ namespace HWP
 			auto hoh1 = MissionDef::Get(HashString(HOH1_MISSION_ID));
 			if (hoh1 !is null && int(hoh1.m_levels.length()) != FLOORS)
 				HWP::LogError("campaign", "HoH1 mission has " + hoh1.m_levels.length() + " levels, expected " + FLOORS);
-			HWP::Log("campaign", "self-check done: mission " + (def is null ? "missing" : "ok") + ", " + schemes + "/" + SCHEMES.length() + " schemes, HoH1 floors " + (hoh1 is null ? "not imported" : "installed"));
+			if (hoh1 !is null)
+			{
+				// every floor's level file must be the import's (hoh1/levels/...) or a generated one
+				string bad;
+				for (uint i = 0; i < hoh1.m_levels.length(); i++)
+				{
+					string lvl = hoh1.m_levels[i].m_level;
+					if (lvl.findFirst("hoh1/") != 0 && lvl != "levels/generated.lvl")
+						bad += (bad.isEmpty() ? "" : ", ") + hoh1.m_levels[i].m_id + "=" + lvl;
+				}
+				if (!bad.isEmpty())
+					HWP::LogError("campaign", "HoH1 mission floors not from the import: " + bad);
+			}
+			int trapDefs = int(MissionPrefabDef::GetPossiblePrefabs(HashString(Traps::SET)).length());
+			if (trapDefs == 0)
+				HWP::LogError("campaign", "no prefab in set " + Traps::SET + " (" + Traps::DEFS + " not loaded?)");
+			HWP::Log("campaign", "self-check done: mission " + (def is null ? "missing" : "ok") + ", " + schemes + "/" + SCHEMES.length() + " schemes, HoH1 floors " + (hoh1 is null ? "not imported" : "installed") + ", " + trapDefs + " trap prefabs, traps on " + Traps::g_installed + " floors; " + Citadel::g_summary);
 		}
 
 		void CmdCampaign(array<string>@ args)
@@ -141,6 +163,30 @@ namespace HWP
 			if (args.length() >= 1 && args[0] == "reset")
 			{
 				g_portal.Reset();
+				return;
+			}
+			if (args.length() >= 1 && args[0] == "citadel")
+			{
+				// index:id of every Dark Citadel floor from the first Dark Halls on, as
+				// gl mission dark_citadel <index> wants it
+				HWP::Commands::Reply(Resources::GetString(".hwp.campaign.citadel", { { "floors", Citadel::Fix() } }));
+				return;
+			}
+			if (args.length() >= 1 && args[0] == "traps")
+			{
+				Traps::RefreshSettings();
+				Teleporters::RefreshSettings();
+				HWP::Commands::Reply("traps " + (Traps::g_enabled ? "on" : "off") + ", density " + Traps::g_density + "%, " + MissionPrefabDef::GetPossiblePrefabs(HashString(Traps::SET)).length() + " prefabs, generator command on " + Traps::g_installed + " indoor floors; teleporters " + (Teleporters::g_enabled ? "on" : "off") + ", " + Teleporters::g_links.length() + " link(s) this floor; confusion " + (Confusion::g_enabled ? "on" : "off") + ", eye chance " + Confusion::g_eyeChance + "%");
+				return;
+			}
+			if (args.length() >= 1 && args[0] == "confuse")
+			{
+				Confusion::Cheat(args);
+				return;
+			}
+			if (args.length() >= 1 && args[0] == "teleporter")
+			{
+				Teleporters::Cheat(args);
 				return;
 			}
 			auto rec = GetLocalPlayerRecord();
@@ -171,12 +217,17 @@ namespace Modules
 			super("hwp-campaign");
 			HWP::Settings::Sync("campaign.");
 			HWP::Campaign::RefreshSettings();
+			HWP::Campaign::Citadel::Fix();      // before Traps::Install: the new floor gets the command too
+			HWP::Campaign::Traps::Install();
 			@HWP::Campaign::g_portal = HWP::Town::Placeable("campaign", "campaign.portal", HWP::Campaign::PORTAL_UNIT, -1700, 250);
 			@HWP::Campaign::g_portal.m_locate = HWP::Town::PlaceableLocate(HWP::Campaign::LocatePortal);
 			@HWP::Campaign::g_portal.m_stale = HWP::Town::PlaceableStale(HWP::Campaign::PortalStale);
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Campaign::OnSettingChanged));
-			HWP::Commands::Register("campaign", " Forsaken Tower status; 'here' moves the town portal (host), 'reset' puts it back on the chapel campfire", HWP::Commands::Handler(HWP::Campaign::CmdCampaign));
-			HWP::CheckUnits("campaign", { HWP::Campaign::PORTAL_UNIT });
+			HWP::Commands::Register("campaign", " Forsaken Tower status; 'here' moves the town portal (host), 'reset' puts it back on the chapel campfire; 'citadel' the Dark Citadel floors; 'traps' the trap/teleporter/confusion state; cheats: 'confuse [ms]', 'teleporter [dx dy]'", HWP::Commands::Handler(HWP::Campaign::CmdCampaign));
+			array<string> units = { HWP::Campaign::PORTAL_UNIT };
+			for (uint i = 0; i < HWP::Campaign::Traps::UNITS.length(); i++)
+				units.insertLast(HWP::Campaign::Traps::UNITS[i]);
+			HWP::CheckUnits("campaign", units);
 			HWP::HoH1::RegisterNet();       // boss sync for the HoH1 levels (hoh1.* events)
 		}
 

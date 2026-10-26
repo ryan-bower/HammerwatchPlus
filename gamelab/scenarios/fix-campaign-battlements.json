@@ -1,0 +1,45 @@
+{
+  "name": "fix-campaign-battlements",
+  "about": "bugs 10.22.26 line 39 (the level side): the first HoH1 Battlements floor of the normal Dark Citadel loads. The bot reads its mission index from `hwp campaign citadel` (the two Dark Halls floors come first), starts it with `gl mission dark_citadel <index>`, and checks the level file is the imported hoh1/levels/battlements_1.lvl, the player is alive and no script exception or missing resource was logged; then a screenshot. Needs the HoH1 import (the lab has it). About 3 minutes.",
+  "fixture": "town-paladin",
+  "mods": [
+    "core",
+    "campaign"
+  ],
+  "timeout": 400,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "bot",
+      "bot": "fix_campaign",
+      "kwargs": {
+        "sections": "battlements"
+      },
+      "expect": {
+        "ok": true
+      },
+      "save_as": "bat",
+      "name": "hwp_battlements_1 is in the Dark Citadel and loads as the HoH1 level"
+    },
+    {
+      "do": "sleep",
+      "seconds": 3
+    },
+    {
+      "do": "shot",
+      "name": "battlements-1"
+    },
+    {
+      "do": "log_has",
+      "pattern": "\\[HWP:campaign\\] Dark Citadel: \\d+:dark_halls_1, \\d+:dark_halls_2, \\d+:hwp_battlements_1, \\d+:hwp_battlements_2, \\d+:dark_halls_boss",
+      "timeout": 5,
+      "name": "the floor list the module built"
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}
