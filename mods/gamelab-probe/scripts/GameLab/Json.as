@@ -75,6 +75,13 @@ namespace GameLab
 		return res + "]";
 	}
 
+	// gamelab-pilot's plan runner (Plan.as) reads the replies of the verbs it runs from here,
+	// so it can act on them in-engine without a console round trip. Capped; null when unused.
+	// Only lines holding g_emitCaptureKey are kept, the newest EMIT_CAPTURE_CAP of them.
+	array<string>@ g_emitCapture;
+	string g_emitCaptureKey;
+	const uint EMIT_CAPTURE_CAP = 64;
+
 	// The game died right after printing a 16,401-char reply (plan-t8 074605, exit
 	// 0xE06D7363); every longer-than-14,596 reply before it was fine. Assumed: a log line
 	// over 16 KB is fatal. A reply over EMIT_MAX is replaced by a short failure that keeps
@@ -98,6 +105,12 @@ namespace GameLab
 			}
 			line = "{\"id\":" + (id == "" ? "\"\"" : id) + ",\"ok\":false,\"error\":\"reply of " + line.length()
 				+ " chars is over the " + EMIT_MAX + "-char print limit\"}";
+		}
+		if (g_emitCapture !is null && line.findFirst(g_emitCaptureKey) >= 0)
+		{
+			if (g_emitCapture.length() >= EMIT_CAPTURE_CAP)
+				g_emitCapture.removeAt(0);
+			g_emitCapture.insertLast(line);
 		}
 		print("[GL] " + line);
 	}

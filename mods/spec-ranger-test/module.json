@@ -1,0 +1,8 @@
+{
+  "id": "spec-ranger-test",
+  "requires": [
+    "core"
+  ],
+  "overrides": [],
+  "exclude": []
+}

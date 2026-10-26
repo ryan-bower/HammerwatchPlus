@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import ctypes
 import os
+import struct
 import subprocess
 import threading
 import time
@@ -40,6 +41,8 @@ WM_MOUSEMOVE, WM_LBUTTONDOWN, WM_LBUTTONUP = 0x0200, 0x0201, 0x0202
 VK = {"enter": 0x0D, "escape": 0x1B, "console": 0xC0, "backspace": 0x08, "tab": 0x09,
       "up": 0x26, "down": 0x28, "left": 0x25, "right": 0x27, "space": 0x20}
 VK.update({c: ord(c.upper()) for c in "abcdefghijklmnopqrstuvwxyz0123456789"})
+VK.update({f"f{i}": 0x6F + i for i in range(1, 13)})          # VK_F1..VK_F12 (Dev Arena hotkeys)
+VK.update({"ctrl": 0xA2, "shift": 0xA0})                      # VK_LCONTROL, VK_LSHIFT: modifiers for "ctrl+z"
 
 
 def windows_of(pid: int) -> list[dict]:
@@ -76,18 +79,112 @@ def game_window(pid: int) -> int | None:
 # (probe-options-menu 20261018-005245: four posted downs left "Continue" selected).
 EXTENDED = {0x25, 0x26, 0x27, 0x28}
 
+# Watch mode input through the capture shim (tools/capture_shim, "input"): SDL events written to
+# the mailslot \\.\mailslot\gamelab_input_<pid>, which the shim's SDL_PollEvent hook hands to the
+# game. Unlike a posted WM_KEYDOWN it does not depend on SDL's keyboard focus, so it works while
+# the user types in another window, and it is not real input. hwnd -> mailslot handle.
+_SHIM_SLOTS: dict[int, int] = {}
+SDL_KEYDOWN, SDL_KEYUP, SDL_TEXTINPUT = 0x300, 0x301, 0x303
+# VK -> (SDL scancode, SDL keycode), SDL 2.30 SDL_scancode.h / SDL_keycode.h
+_SDL_KEYS = {0x0D: (40, 13), 0x1B: (41, 27), 0xC0: (53, 96), 0x08: (42, 8), 0x09: (43, 9),
+             0x26: (82, 0x40000052), 0x28: (81, 0x40000051), 0x25: (80, 0x40000050),
+             0x27: (79, 0x4000004F), 0x20: (44, 32)}
+_SDL_KEYS.update({ord(c.upper()): (4 + i, ord(c)) for i, c in enumerate("abcdefghijklmnopqrstuvwxyz")})
+_SDL_KEYS.update({ord(c): (30 + i, ord(c)) for i, c in enumerate("1234567890")})
+_SDL_KEYS.update({0x70 + i: (58 + i, 0x4000003A + i) for i in range(12)})   # F1..F12
+_SDL_KEYS.update({0xA2: (224, 0x400000E0), 0xA0: (225, 0x400000E1)})     # LCtrl, LShift
+_SDL_KMOD = {0xA2: 0x0040, 0xA0: 0x0001}                                   # KMOD_LCTRL, KMOD_LSHIFT
+SDL_KP_ENTER = (88, 0x40000058)
+_k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+_k32.CreateFileW.restype = wintypes.HANDLE
+_k32.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, ctypes.c_void_p,
+                             wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
+_k32.WriteFile.argtypes = [wintypes.HANDLE, ctypes.c_void_p, wintypes.DWORD,
+                           ctypes.POINTER(wintypes.DWORD), ctypes.c_void_p]
 
-def key(hwnd: int, vk: int, hold: float = 0.05) -> None:
-    sc = u32.MapVirtualKeyW(vk, 0) | (0x100 if vk in EXTENDED else 0)
+
+def use_shim_input(hwnd: int, pid: int) -> bool:
+    """Send this window's key() / text() through the shim's mailslot. False when the shim did not
+    open one (GAMELAB_SHIM_INPUT unset, or an old hwr2_capture.dll): PostMessage stays in use."""
+    h = _k32.CreateFileW(rf"\\.\mailslot\gamelab_input_{pid}", 0x40000000, 0x1, None, 3, 0, None)
+    if not h or h == wintypes.HANDLE(-1).value:
+        return False
+    _SHIM_SLOTS[hwnd] = h
+    return True
+
+
+def drop_shim_input(hwnd: int) -> None:
+    h = _SHIM_SLOTS.pop(hwnd, None)
+    if h:
+        _k32.CloseHandle(h)
+
+
+def _shim_send(hwnd: int, data: bytes) -> None:
+    n = wintypes.DWORD()
+    if not _k32.WriteFile(_SHIM_SLOTS[hwnd], data, len(data), ctypes.byref(n), None):
+        raise OSError(f"mailslot write failed: {ctypes.get_last_error()}")
+
+
+SHIM_HANDOFF = 0x7F00
+
+
+def shim_handoff(hwnd: int, keep_focus: bool = False) -> bool:
+    """Give the game to the human: the shim stops hiding the real mouse and focus changes
+    from it (tools/capture_shim "hand-off"). GameLab's own keys still go through the mailslot.
+    keep_focus frees the mouse only and SDL stays told it has focus, as after a player's click
+    into the window: a scripted test's stand-in, as it may not take the foreground.
+    False when this window has no shim input (lab without GAMELAB_SHIM_INPUT)."""
+    if hwnd not in _SHIM_SLOTS:
+        return False
+    _shim_send(hwnd, struct.pack("<II", SHIM_HANDOFF, 1 if keep_focus else 0))
+    return True
+
+
+def _shim_key(hwnd: int, vk: int, hold: float, extended: bool, mods: tuple = ()) -> None:
+    sc, sym = SDL_KP_ENTER if (extended and vk == 0x0D) else _SDL_KEYS[vk]
+    kmod = 0
+    for m in mods:                    # modifiers go down first and come up last, as typed
+        kmod |= _SDL_KMOD[m]
+        _shim_send(hwnd, struct.pack("<IiiH", SDL_KEYDOWN, *_SDL_KEYS[m], kmod))
+        time.sleep(0.04)
+    _shim_send(hwnd, struct.pack("<IiiH", SDL_KEYDOWN, sc, sym, kmod))
+    if hold:
+        time.sleep(hold)
+    _shim_send(hwnd, struct.pack("<IiiH", SDL_KEYUP, sc, sym, kmod))
+    for m in reversed(mods):
+        time.sleep(0.04)
+        kmod &= ~_SDL_KMOD[m]
+        _shim_send(hwnd, struct.pack("<IiiH", SDL_KEYUP, *_SDL_KEYS[m], kmod))
+    if hold:
+        time.sleep(0.03)
+
+
+def key(hwnd: int, vk: int, hold: float = 0.05, extended: bool = False, mods: tuple = ()) -> None:
+    """extended sets the extended-key bit (lParam bit 24): VK_RETURN with it is the keypad Enter.
+    mods are modifier VKs (VK["ctrl"]) held around the key."""
+    if hwnd in _SHIM_SLOTS:
+        _shim_key(hwnd, vk, hold, extended, mods)
+        return
+    for m in mods:
+        u32.PostMessageW(hwnd, WM_KEYDOWN, m, 1 | (u32.MapVirtualKeyW(m, 0) << 16))
+    sc = u32.MapVirtualKeyW(vk, 0) | (0x100 if extended or vk in EXTENDED else 0)
     u32.PostMessageW(hwnd, WM_KEYDOWN, vk, 1 | (sc << 16))
     if hold:
         time.sleep(hold)
     u32.PostMessageW(hwnd, WM_KEYUP, vk, 1 | (sc << 16) | (0xC0 << 24))
+    for m in reversed(mods):
+        u32.PostMessageW(hwnd, WM_KEYUP, m, 1 | (u32.MapVirtualKeyW(m, 0) << 16) | (0xC0 << 24))
     if hold:
         time.sleep(0.03)
 
 
 def text(hwnd: int, s: str, gap: float = 0.004) -> None:
+    if hwnd in _SHIM_SLOTS:
+        for ch in s:              # one SDL_TEXTINPUT per character, as a keyboard sends them
+            _shim_send(hwnd, struct.pack("<I", SDL_TEXTINPUT) + ch.encode("utf-8"))
+            if gap:
+                time.sleep(gap)
+        return
     for ch in s:
         u32.PostMessageW(hwnd, WM_CHAR, ord(ch), 1)
         if gap:
@@ -102,6 +199,33 @@ def click(hwnd: int, x: int, y: int) -> None:
     u32.PostMessageW(hwnd, WM_LBUTTONDOWN, 1, lp)
     time.sleep(0.05)
     u32.PostMessageW(hwnd, WM_LBUTTONUP, 0, lp)
+
+
+# button: (down message, up message, MK_ flag, XBUTTON number); x1/x2 are mouse_4/mouse_5
+_BUTTONS = {"left": (0x0201, 0x0202, 0x0001, 0), "right": (0x0204, 0x0205, 0x0002, 0),
+            "middle": (0x0207, 0x0208, 0x0010, 0),
+            "x1": (0x020B, 0x020C, 0x0020, 1), "x2": (0x020B, 0x020C, 0x0040, 2)}
+
+
+def client_size(hwnd: int) -> tuple[int, int]:
+    r = wintypes.RECT()
+    u32.GetClientRect(wintypes.HWND(hwnd), ctypes.byref(r))
+    return r.right - r.left, r.bottom - r.top
+
+
+def mouse(hwnd: int, x: int, y: int, button: str | None = None, hold: float = 0.05) -> None:
+    """A posted WM_MOUSEMOVE to client (x, y), then with `button` a press held `hold` seconds
+    and its release there: messages only, the cursor never moves. In watch mode they reach the
+    game only after the shim hand-off (shim_handoff)."""
+    lp = (y << 16) | (x & 0xFFFF)
+    u32.PostMessageW(hwnd, WM_MOUSEMOVE, 0, lp)
+    if button is None:
+        return
+    down, up, mk, xb = _BUTTONS[button]
+    time.sleep(0.03)
+    u32.PostMessageW(hwnd, down, mk | (xb << 16), lp)
+    time.sleep(hold)
+    u32.PostMessageW(hwnd, up, xb << 16, lp)
 
 
 def minimize(hwnd: int) -> bool:
@@ -142,6 +266,14 @@ def taskbar_add(hwnd: int) -> bool:
     ok = method(3)(obj) == 0 and method(4, wintypes.HWND)(obj, hwnd) == 0             # HrInit, AddTab
     method(2)(obj)                                                                    # Release
     return ok
+
+
+def sdl_focus(hwnd: int) -> None:
+    """Watch mode: post WM_ACTIVATE + WM_SETFOCUS so SDL re-checks its focus. The shim answers
+    SDL's GetForegroundWindow with the game window (tools/capture_shim), so SDL takes keyboard
+    focus and delivers posted keys. Messages only: the real foreground is unchanged."""
+    u32.PostMessageW(hwnd, 0x0006, 1, 0)   # WM_ACTIVATE, WA_ACTIVE
+    u32.PostMessageW(hwnd, 0x0007, 0, 0)   # WM_SETFOCUS
 
 
 def allow_activation(hwnd: int) -> dict:

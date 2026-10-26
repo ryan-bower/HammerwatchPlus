@@ -1,0 +1,21 @@
+{
+ "name": "export-boot",
+ "about": "Both files that leave the tuner, read back at boot. Before the run, tools/devarena/run_export_boot.py writes (1) devarena's override file from the tuner-dock run's last override line (3 versions, live v3 in B, one pin) and (2) a vanilla-tuning export with ran_mark cooldown 1234 and castpoint 77. It restores both committed defaults afterwards. The tuner must come back on v3 (Entangle castpoint 100, L5 area-dmg 81), and vanilla-tuning must patch ran_mark with no devarena involvement.",
+ "fixture": "mission-ranger",
+ "mods": ["core", "devarena", "vanilla-tuning"],
+ "timeout": 300,
+ "steps": [
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] override file: 3 versions, live v3", "timeout": 60, "name": "the override file was read at boot"},
+  {"do": "log_has", "pattern": "\\[HWP:vanilla-tuning\\] loaded 2 edits", "timeout": 5, "name": "the export was read at boot"},
+  {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},
+  {"do": "wait_phase", "phase": "mission", "timeout": 120},
+  {"do": "sleep", "seconds": 3},
+  {"do": "gl", "verb": "cull", "args": ["all"], "expect": {"ok": true}, "name": "setup: clear the floor (cheat)"},
+  {"do": "log_has", "pattern": "\\[HWP:vanilla-tuning\\] patched 1 skill defs \\(2 edits applied, 0 failed\\)", "timeout": 10, "name": "ran_mark patched once"},
+  {"do": "gl", "verb": "da-tune", "expect": {"ok": true, "versions": 3, "want": 3, "live": 3, "a": 0, "b": 3, "slot": "B", "pinsTotal": 1, "pending": false}, "name": "the tuner is back on v3 in B with its pin"},
+  {"do": "gl", "verb": "da-skill", "args": ["nature_entangle", "area-dmg"], "expect": {"ok": true, "castpoint": 100, "timeline.1": 100, "binds.area-dmg": "81"}, "name": "v3 is live: castpoint 100, L5 area-dmg 81"},
+  {"do": "gl", "verb": "da-skill", "args": ["ran_mark"], "expect": {"ok": true, "cooldown": 1234, "castpoint": 77}, "name": "the vanilla-tuning edits are live on ran_mark"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] live v3", "timeout": 5},
+  {"do": "log_clean"}
+ ]
+}

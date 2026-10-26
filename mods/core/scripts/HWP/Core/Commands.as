@@ -87,11 +87,29 @@ namespace HWP
 		// the console's "hwp <rest of the line>"
 		void ConsoleHwp(cvar_t@ arg)
 		{
-			auto line = strTrim(arg.GetString());
+			RunLine(arg.GetString());
+		}
+
+		// what the console's hwp and the hwp_line cvar both run
+		void RunLine(const string &in text)
+		{
+			auto line = strTrim(text);
 			// hwp "material all 5" arrives with its quotes
 			if (line.length() >= 2 && line.substr(0, 1) == "\"" && line.substr(line.length() - 1) == "\"")
 				line = strTrim(line.substr(1, line.length() - 2));
 			Handle(line);
+		}
+
+		// the cvar hwp_line runs its value as "hwp <value>": a command that does not open the
+		// console, which pauses the game (GameLab sends "setvar hwp_line <rest>" through its
+		// inbox, gamelab/session.py). TriggerChanged runs it again for the same line; the "" it
+		// is set back to first is the one value that is not a command.
+		void OnHwpLine(string val)
+		{
+			if (strTrim(val).isEmpty())
+				return;
+			SetVar("hwp_line", "");
+			RunLine(val);
 		}
 
 		void Handle(const string &in line)
@@ -259,6 +277,7 @@ namespace HWP
 			// the main menu's copy of the console (see the top of this file)
 			AddFunction("hwp", { cvar_type::String }, ConsoleHwp, 0,
 				"HammerwatchPlus commands: hwp help");
+			AddVar("hwp_line", "", OnHwpLine, cvar_flags::TriggerChanged);
 			Register("version", " show the mod version", Handler(CmdVersion));
 			Register("settings", " list changed settings", Handler(CmdSettings));
 			Register("get", "<setting>  show one setting", Handler(CmdGet));

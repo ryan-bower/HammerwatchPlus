@@ -79,6 +79,8 @@ namespace GameLab
 		string id = args[0];
 		string verb = args[1];
 		args.removeRange(0, 2);
+		if (RanRecently(id, verb))
+			return;
 		g_commands++;
 		// a command typed while the next level preloads can reach a script module whose verb
 		// registry isn't there yet (null access on g_verbs, probe-keys2 20261018-103121): the
@@ -118,8 +120,13 @@ namespace GameLab
 		Emit(Reply(id, true).Int("n", n));
 	}
 
+	// verbs run so far: a verb may change the scene mid-frame (spawn, teleport, ...), so the
+	// Pilot's per-frame scene snapshot is keyed on this as well as the frame
+	uint g_verbRuns = 0;
+
 	void RunVerb(const string &in id, const string &in verb, array<string>@ args)
 	{
+		g_verbRuns++;
 		for (uint i = 0; i < g_verbs.length(); i++)
 		{
 			if (g_verbs[i].name == verb)
@@ -142,6 +149,23 @@ namespace GameLab
 	uint g_boots = 0;        // GameLabProbeModule constructions this process (identity across levels)
 
 	// ---- phase ----------------------------------------------------------------
+
+	// "town" | "<mission id>/<level id>" | the level file outside a mission. The same answer as
+	// gamelab-pilot's Place(), kept here so the probe does not depend on the pilot.
+	// MissionManager::GetCurrentMission() dereferences g_module, null before a mission module
+	// is built (Missions/MissionManager.as)
+	string LevelPlace()
+	{
+		if (g_inTown)
+			return "town";
+		if (MissionManager::g_module is null)
+			return GetCurrentLevelFilename();
+		auto def = MissionManager::GetCurrentMission();
+		if (def is null)
+			return GetCurrentLevelFilename();
+		uint i = MissionManager::g_module.m_missionLevelIndex;
+		return def.m_id + "/" + (i < def.m_levels.length() ? def.m_levels[i].m_id : ("" + i));
+	}
 
 	// no_record | no_character | dead | town | mission
 	string Phase()
@@ -198,6 +222,10 @@ namespace GameLab
 		p.Int("skillFree", record.GetFreeSkillPoints()).Int("bonusSkillPoints", record.bonusSkillPts);
 		p.Int("hp", record.CurrentHealth()).Int("hpMax", record.MaxHealth());
 		p.Int("mana", record.CurrentMana()).Int("manaMax", record.MaxMana());
+		// dashes is the current charge count (saved as "dash-charges", recharging over time,
+		// Player.as:1254); maxDashes is what the build grants
+		p.Int("dashes", record.dashCharges).Int("maxDashes", record.currStats.MaxDashes);
+		p.Int("portrait", record.portrait.length());
 		p.Bool("dead", record.IsDead());
 		auto plr = GetLocalPlayer();
 		p.Bool("spawned", plr !is null);
@@ -345,8 +373,12 @@ namespace GameLab
 		string filter = args.length() > 1 ? args[1] : "";
 		vec2 center = xy(plr.m_unit.GetPosition());
 		auto units = g_scene.FetchAllUnits(~0, center, radius);
+		// only the nearest NEAR_CAP are kept in order: a sorted insert of all of them was O(n^2)
+		// over ~14k units at radius 600 (doodads count) and held the frame ~1 s per call
+		// (combat-escalate 20261019-065554, shim pace hitches)
 		array<UnitPtr> keep;
 		array<float> dists;
+		uint count = 0;
 		for (uint i = 0; i < units.length(); i++)
 		{
 			if (!units[i].IsValid() || units[i].IsDestroyed() || units[i] == plr.m_unit)
@@ -361,18 +393,327 @@ namespace GameLab
 			if (filter != "" && (b is null || Reflect::GetTypeName(b).findFirst(filter) < 0)
 				&& units[i].GetDebugName().findFirst(filter) < 0)
 				continue;
+			count++;
+			if (dists.length() >= NEAR_CAP && d >= dists[dists.length() - 1])
+				continue;
 			uint at = 0;
 			while (at < dists.length() && dists[at] <= d)
 				at++;
 			keep.insertAt(at, units[i]);
 			dists.insertAt(at, d);
+			if (dists.length() > NEAR_CAP)
+			{
+				keep.removeLast();
+				dists.removeLast();
+			}
 		}
 		array<string> items;
-		for (uint i = 0; i < keep.length() && i < NEAR_CAP; i++)
+		for (uint i = 0; i < keep.length(); i++)
 			items.insertLast(UnitJson(keep[i], center));
-		int truncated = keep.length() > NEAR_CAP ? int(keep.length() - NEAR_CAP) : 0;
-		Emit(Reply(id, true).Int("radius", radius).Int("count", keep.length()).Int("truncated", truncated)
+		int truncated = count > NEAR_CAP ? int(count - NEAR_CAP) : 0;
+		Emit(Reply(id, true).Int("radius", radius).Int("count", count).Int("truncated", truncated)
 			.Raw("units", RawArray(items)));
+	}
+
+	const uint TRAPS_CAP = 96;
+
+	void TrapList(Json@ r, const string &in name, array<string>@ list)
+	{
+		array<string> cut;
+		for (uint i = 0; i < list.length() && i < TRAPS_CAP; i++)
+			cut.insertLast(list[i]);
+		r.Int(name + "Count", list.length())
+			.Int(name + "Truncated", list.length() > TRAPS_CAP ? int(list.length() - TRAPS_CAP) : 0)
+			.Raw(name, RawArray(cut));
+	}
+
+	// traps [radius]: read-only. The hazards within radius (default 800) of the player, by kind,
+	// nearest first, each list capped at TRAPS_CAP with its truncation. "shooters": every
+	// WorldScript::ProjectileShooter (position, Direction in degrees, Spread, enabled; the trigger
+	// that fires it is native and not readable). "areas": units whose behavior is a
+	// DangerAreaBehavior (sawblades, floor_fire/curse/spikes, ProximityTrap): debug name, freq,
+	// current scene names ("on"/"off" for toggled ones). "actors": trap-team actors (statues).
+	// "rays": live RayProjectiles with no owner (trap fire balls), with their direction.
+	void VerbTraps(const string &in id, array<string>@ args)
+	{
+		auto plr = GetLocalPlayer();
+		if (plr is null)
+		{
+			Fail(id, "no spawned local player");
+			return;
+		}
+		float radius = args.length() > 0 ? parseFloat(args[0]) : 800;
+		vec2 center = xy(plr.m_unit.GetPosition());
+
+		array<string> shooters;
+		array<float> sd;
+		auto ws = g_scene.FetchAllWorldScripts("ProjectileShooter");
+		for (uint i = 0; i < ws.length(); i++)
+		{
+			auto u = ws[i].GetUnit();
+			float d = dist(center, xy(u.GetPosition()));
+			if (d > radius)
+				continue;
+			auto sh = cast<WorldScript::ProjectileShooter>(u.GetScriptBehavior());
+			Json e;
+			e.Int("unit", u.GetId()).Num("x", u.GetPosition().x).Num("y", u.GetPosition().y).Num("dist", d)
+				.Int("dir", sh is null ? -1 : sh.Direction).Int("spread", sh is null ? 0 : sh.Spread)
+				.Bool("enabled", ws[i].IsEnabled());
+			uint at = 0;
+			while (at < sd.length() && sd[at] <= d)
+				at++;
+			shooters.insertAt(at, e.Close());
+			sd.insertAt(at, d);
+		}
+
+		array<string> areas, actors, rays;
+		array<float> ad, td, rd;
+		auto units = g_scene.FetchAllUnits(~0, center, int(radius));
+		for (uint i = 0; i < units.length(); i++)
+		{
+			if (!units[i].IsValid() || units[i].IsDestroyed())
+				continue;
+			ref@ b = units[i].GetScriptBehavior();
+			if (b is null)
+				continue;
+			auto da = cast<DangerAreaBehavior>(b);
+			auto ac = cast<Actor>(b);
+			auto rp = cast<RayProjectile>(b);
+			// classified before the entry is built: building one per unit (~14k with a behavior on
+			// a floor) cost more than the traps themselves
+			if (da is null && (ac is null || ac.Team != g_team_trap) && (rp is null || rp.m_owner !is null))
+				continue;
+			vec2 p = xy(units[i].GetPosition());
+			float d = dist(center, p);
+			Json e;
+			e.Int("unit", units[i].GetId()).Str("name", units[i].GetDebugName()).Num("x", p.x).Num("y", p.y).Num("dist", d);
+			array<string>@ list = null;
+			array<float>@ ds = null;
+			if (da !is null)
+			{
+				auto sc = units[i].GetAllCurrentUnitSceneNames();
+				string scs = "";
+				for (uint k = 0; sc !is null && k < sc.length(); k++)
+					scs += (k > 0 ? "," : "") + sc[k];
+				e.Str("behavior", Reflect::GetTypeName(b)).Int("freq", da.m_freq).Str("scenes", scs);
+				@list = areas;
+				@ds = ad;
+			}
+			else if (ac !is null && ac.Team == g_team_trap)
+			{
+				e.Str("behavior", Reflect::GetTypeName(b));
+				@list = actors;
+				@ds = td;
+			}
+			else if (rp !is null && rp.m_owner is null)
+			{
+				e.Num("dx", rp.m_dir.x).Num("dy", rp.m_dir.y);
+				@list = rays;
+				@ds = rd;
+			}
+			if (list is null)
+				continue;
+			uint at = 0;
+			while (at < ds.length() && ds[at] <= d)
+				at++;
+			list.insertAt(at, e.Close());
+			ds.insertAt(at, d);
+		}
+		Json@ r = Reply(id, true);
+		r.Num("radius", radius).Num("x", center.x).Num("y", center.y);
+		TrapList(r, "shooters", shooters);
+		TrapList(r, "areas", areas);
+		TrapList(r, "actors", actors);
+		TrapList(r, "rays", rays);
+		Emit(r);
+	}
+
+	// areatriggers [radius]: read-only. The level's area triggers (WorldScript::AreaTrigger and
+	// AllPlayersAreaTrigger, WorldScript/Triggers/) within radius (default 12000) of the player,
+	// nearest first, capped at AREA_TRIGGER_CAP with truncation reported: the script unit's position,
+	// enabled, the number of areas and how many units each holds right now. A CollisionArea's
+	// shape is native and not readable, so the position is the script's, which an editor places
+	// by its area. A boss level spawns its boss from one of these (SpawnUnit on enter), so a bot
+	// walks into them to start the fight. The script can sit far from its area (boss_arista.lvl:
+	// AreaTrigger 1449 at -384,448, its area unit 16 a 480x128 sensor at 0,240; maps-floors-low
+	// 20261020-162214 had no route to the script's spot), so ax/ay is the mean position of the
+	// units inside the areas, the best estimate of where the area is (absent when none are).
+	const uint AREA_TRIGGER_CAP = 20; // ~160 bytes each, under the ~4 KB reply budget
+
+	void VerbAreaTriggers(const string &in id, array<string>@ args)
+	{
+		auto plr = GetLocalPlayer();
+		if (plr is null)
+		{
+			Fail(id, "no spawned local player");
+			return;
+		}
+		float radius = args.length() > 0 ? parseFloat(args[0]) : 12000;
+		vec2 center = xy(plr.m_unit.GetPosition());
+		array<string> list;
+		array<float> ds;
+		array<string> types = { "AreaTrigger", "AllPlayersAreaTrigger" };
+		for (uint t = 0; t < types.length(); t++)
+		{
+			auto ws = g_scene.FetchAllWorldScripts(types[t]);
+			for (uint i = 0; i < ws.length(); i++)
+			{
+				auto u = ws[i].GetUnit();
+				float d = dist(center, xy(u.GetPosition()));
+				if (d > radius)
+					continue;
+				int nAreas = 0, inside = 0;
+				vec2 sum;
+				auto at = cast<WorldScript::AreaTrigger>(u.GetScriptBehavior());
+				auto ap = cast<WorldScript::AllPlayersAreaTrigger>(u.GetScriptBehavior());
+				array<CollisionArea@>@ areas = at !is null ? at.Areas : (ap !is null ? ap.Areas : null);
+				if (areas !is null)
+				{
+					nAreas = int(areas.length());
+					for (uint a = 0; a < areas.length(); a++)
+						if (areas[a] !is null)
+						{
+							auto got = areas[a].FetchAllInside(g_scene);
+							for (uint j = 0; j < got.length(); j++)
+								sum += xy(got[j].GetPosition());
+							inside += int(got.length());
+						}
+				}
+				Json e;
+				e.Str("type", types[t]).Int("unit", u.GetId()).Num("x", u.GetPosition().x).Num("y", u.GetPosition().y)
+					.Num("dist", d).Bool("enabled", ws[i].IsEnabled()).Int("areas", nAreas).Int("inside", inside);
+				if (inside > 0)
+					e.Int("ax", int(sum.x / inside)).Int("ay", int(sum.y / inside));
+				uint k = 0;
+				while (k < ds.length() && ds[k] <= d)
+					k++;
+				list.insertAt(k, e.Close());
+				ds.insertAt(k, d);
+			}
+		}
+		Json@ r = Reply(id, true);
+		r.Num("radius", radius).Num("x", center.x).Num("y", center.y);
+		array<string> cut;
+		for (uint i = 0; i < list.length() && i < AREA_TRIGGER_CAP; i++)
+			cut.insertLast(list[i]);
+		r.Int("count", list.length())
+			.Int("truncated", list.length() > AREA_TRIGGER_CAP ? int(list.length() - AREA_TRIGGER_CAP) : 0)
+			.Raw("triggers", RawArray(cut));
+		Emit(r);
+	}
+
+	// run: the current run's build state, as the record holds it right now (the save writes
+	// the same fields: PlayerRecord.as:600-880). Trinkets (trinketInventory, attuned or not),
+	// temporary skill levels from spheres and the like (pickedTempSkills), equipped gear and the
+	// gear inventory, run buffs (missionBuffs: tavern food and drinks, boons, the travelling
+	// cook; architectBuffs), elixirs, carried materials, keys, potion charges, rerolls, shadow
+	// curses. Lists are capped at RUN_CAP each, with truncation reported.
+	const uint RUN_CAP = 40;
+
+	void VerbRun(const string &in id, array<string>@ args)
+	{
+		auto rec = GetLocalPlayerRecord();
+		if (rec is null || rec.playerClass is null)
+		{
+			Fail(id, "no local character");
+			return;
+		}
+		bool truncated = false;
+
+		array<string> trinkets;
+		for (uint i = 0; i < rec.trinketInventory.m_items.length(); i++)
+		{
+			if (trinkets.length() >= RUN_CAP) { truncated = true; break; }
+			auto t = rec.trinketInventory.m_items[i];
+			if (t is null)
+				continue;
+			Json e;
+			e.Str("id", t.m_id).Str("name", Resources::GetString(t.m_name)).Int("quality", int(t.m_quality))
+				.Bool("attuned", rec.attunedTrinkets.findByRef(t) >= 0);
+			trinkets.insertLast(e.Close());
+		}
+
+		Json temp;
+		auto keys = rec.pickedTempSkills.getKeys();
+		for (uint i = 0; i < keys.length() && i < RUN_CAP; i++)
+		{
+			int lvl = 0;
+			rec.pickedTempSkills.get(keys[i], lvl);
+			temp.Int(keys[i], lvl);
+		}
+		truncated = truncated || keys.length() > RUN_CAP;
+
+		array<string> equipped;
+		for (uint i = 0; i < rec.equipped.m_items.length(); i++)
+		{
+			auto it = rec.equipped.m_items[i];
+			if (it is null)
+				continue;
+			auto gi = cast<Equipment::Item>(it);
+			Json e;
+			e.Int("slot", i).Str("id", gi !is null && gi.baseItem !is null ? gi.baseItem.m_id : "")
+				.Str("name", it.GetName()).Int("quality", int(it.GetQuality())).Int("ilvl", it.GetItemLevel());
+			equipped.insertLast(e.Close());
+		}
+
+		array<string> bag;
+		for (uint i = 0; i < rec.equipInventory.m_items.length(); i++)
+		{
+			if (bag.length() >= RUN_CAP) { truncated = true; break; }
+			auto it = rec.equipInventory.m_items[i];
+			if (it is null)
+				continue;
+			auto gi = cast<Equipment::Item>(it);
+			Json e;
+			e.Str("id", gi !is null && gi.baseItem !is null ? gi.baseItem.m_id : "")
+				.Str("name", it.GetName()).Int("quality", int(it.GetQuality())).Int("ilvl", it.GetItemLevel());
+			bag.insertLast(e.Close());
+		}
+
+		array<string> buffs;
+		for (uint i = 0; i < rec.missionBuffs.length() && buffs.length() < RUN_CAP; i++)
+		{
+			auto b = rec.missionBuffs[i].m_buff;
+			if (b is null)
+				continue;
+			Json e;
+			e.Str("id", b.m_id).Str("name", b.m_name).Int("quality", int(b.m_quality)).Int("slot", int(rec.missionBuffs[i].m_id));
+			buffs.insertLast(e.Close());
+		}
+		array<string> arch;
+		for (uint i = 0; i < rec.architectBuffs.length() && arch.length() < RUN_CAP; i++)
+		{
+			auto b = rec.architectBuffs[i];
+			if (b is null)
+				continue;
+			Json e;
+			e.Str("id", b.m_id).Str("name", b.m_name).Int("quality", int(b.m_quality));
+			arch.insertLast(e.Close());
+		}
+
+		array<string> mats;
+		for (uint i = 0; i < rec.materials.length(); i++)
+			mats.insertLast("" + int(rec.materials[i]));
+		Json keysJ;
+		auto kk = rec.keys.getKeys();
+		for (uint i = 0; i < kk.length() && i < RUN_CAP; i++)
+		{
+			int n = 0;
+			rec.keys.get(kk[i], n);
+			keysJ.Int(kk[i], n);
+		}
+
+		Json elix;
+		elix.Int("str", rec.elixirStr).Int("dex", rec.elixirDex).Int("int", rec.elixirInt).Int("foc", rec.elixirFoc).Int("vit", rec.elixirVit);
+
+		Emit(Reply(id, true).Str("class", rec.playerClass.m_id).Int("level", rec.level)
+			.Raw("trinkets", RawArray(trinkets)).Raw("tempSkills", temp.Close())
+			.Raw("equipped", RawArray(equipped)).Raw("bag", RawArray(bag)).Int("valuables", rec.valuableInventory.m_valuables.length())
+			.Raw("missionBuffs", RawArray(buffs)).Raw("architectBuffs", RawArray(arch))
+			.Raw("elixirs", elix.Close()).Raw("materials", "[" + join(mats, ",") + "]").Raw("keys", keysJ.Close())
+			.Int("potionCharges", rec.currStats.PotionCharges).Int("potionChargesUsed", rec.potionChargesUsed)
+			.Int("rerollsUsed", rec.rerollsUsed).Int("shadowCurses", rec.shadowCurses)
+			.Bool("truncated", truncated));
 	}
 
 	// usables: what the player could interact with right now, top (the one Use acts on) first
@@ -478,6 +819,74 @@ namespace GameLab
 		Emit(Reply(id, true).Int("count", g_currTownRecord.m_buildings.length()).Raw("buildings", b.Close()));
 	}
 
+	const int FETCHBENCH_REPS = 1000;
+
+	// fetchbench <radius> [reps] [all|foes|units]: measurement. g_scene.FetchAllUnits(~0, ...) (or
+	// FetchActorsWithOtherTeam(player team, ...), or FetchUnits(~0, ...)) around the player, `reps` times in one frame;
+	// scripts have no wall clock, so time it from outside: the reply's latency minus reps=0's.
+	// Also what one call returns: how many, how many lie within the radius, the farthest
+	void VerbFetchBench(const string &in id, array<string>@ args)
+	{
+		auto plr = GetLocalPlayer();
+		if (plr is null)
+		{
+			Fail(id, "no spawned local player");
+			return;
+		}
+		int radius = args.length() > 0 ? int(parseInt(args[0])) : 100;
+		int reps = args.length() > 1 ? int(parseInt(args[1])) : 0;
+		string kind = args.length() > 2 ? args[2] : "all";
+		if (kind != "all" && kind != "foes" && kind != "units")
+		{
+			Fail(id, "kind is all|foes|units");
+			return;
+		}
+		bool capped = reps > FETCHBENCH_REPS;
+		if (capped)
+			reps = FETCHBENCH_REPS;
+		vec2 center = xy(plr.m_unit.GetPosition());
+		uint total = 0;
+		for (int k = 0; k < reps; k++)
+			total += FetchBenchOnce(kind, center, radius).length();
+		auto one = FetchBenchOnce(kind, center, radius);
+		int inside = 0;
+		float far = 0;
+		dictionary got;
+		for (uint i = 0; i < one.length(); i++)
+		{
+			float d = dist(center, xy(one[i].GetPosition()));
+			if (d <= radius)
+				inside++;
+			far = max(far, d);
+			got.set("" + one[i].GetId(), true);
+		}
+		// missing: units FetchAllUnits returns with their centre inside the radius that this
+		// kind's result lacks (0 for kind all); what a caller filtering on centre distance loses
+		int missing = 0;
+		if (kind == "units")
+		{
+			auto all = g_scene.FetchAllUnits(~0, center, radius);
+			for (uint i = 0; i < all.length(); i++)
+				if (dist(center, xy(all[i].GetPosition())) <= radius && !got.exists("" + all[i].GetId()))
+					missing++;
+		}
+		// farCount: the same fetch centred 100000 px off the level, radius 1 (the whole scene
+		// again when FetchAllUnits ignores its centre too)
+		int farCount = int(FetchBenchOnce(kind, center + vec2(100000, 100000), 1).length());
+		Emit(Reply(id, true).Int("radius", radius).Int("reps", reps).Bool("repsCapped", capped)
+			.Str("kind", kind).Int("count", one.length()).Int("inside", inside)
+			.Num("farthest", far).Int("missing", missing).Int("farCount", farCount).Int("total", total));
+	}
+
+	array<UnitPtr>@ FetchBenchOnce(const string &in kind, vec2 center, int radius)
+	{
+		if (kind == "foes")
+			return g_scene.FetchActorsWithOtherTeam(g_team_player, center, radius);
+		if (kind == "units")
+			return g_scene.FetchUnits(~0, center, radius);
+		return g_scene.FetchAllUnits(~0, center, radius);
+	}
+
 	// clock: scene time (g_scene.GetTime(), what behaviours time themselves with), the
 	// probe's own frame count, and the time-scale / hour cvars
 	uint g_frames = 0;
@@ -488,39 +897,56 @@ namespace GameLab
 	}
 
 	const uint WIDGET_CAP = 400;
+	// the game's log cuts a line at ~16400 characters, and printing one that long
+	// crashed the game (deathrecap-death 20261020-112418, the DeadMenu plus every HUD
+	// tree at depth 14), so the nodes stop at this many bytes
+	const uint WIDGET_BYTES = 11000;
 
-	// widgets [depth]: the UI widget tree of every open window (top last) and the HUD,
-	// depth-first, capped at WIDGET_CAP nodes and `depth` levels (default 6); reports
-	// truncation. Per node: depth, script class, id, visible, size, text (TextWidget),
-	// enabled (buttons), item (item slots). A tabbed window's open tab is a root of its own.
+	// widgets [depth] [root] [type]: the UI widget tree of every open window (top last) and the
+	// HUD, depth-first, capped at WIDGET_CAP nodes, WIDGET_BYTES of nodes and `depth` levels
+	// (default 6); reports truncation. `root` keeps only the root of that name
+	// ("DeadMenu", "HUD", "HUD:HWPDeathRecapHUD"); a window's root keeps its open tab too. A
+	// tabbed window's open tab is a root of its own, "<window>:<tab class>"
+	// ("PlayerMenu:PlayerMenuCharacterTab"). Per node: depth, script class, id, visible, size,
+	// text (TextWidget), enabled (buttons), item (item slots), and where it is on screen
+	// (WidgetPos, ProbeUi.as): x/y in GUI units, px/py its centre in window pixels, the
+	// coordinates a `click`/`hover` step posts.
 	int g_widgetCut = 0;    // nodes left out by the current widgets call
-	uint g_widgetChars = 0; // characters the current widgets call has used
-	const uint WIDGET_CHARS = 13000; // under Json's EMIT_MAX, with room for the roots
+	string g_widgetType;    // the current call's type filter, "" for every node
+	uint g_widgetBytes = 0; // node bytes the current widgets call holds
 
-	void WidgetNodes(Widget@ w, int depth, int maxDepth, array<string>@ acc)
+	void WidgetNodes(Widget@ w, int depth, int maxDepth, array<string>@ acc, vec2 origin = vec2(), float hostScale = 1.0f)
 	{
 		if (w is null)
 			return;
-		if (acc.length() >= WIDGET_CAP || g_widgetChars >= WIDGET_CHARS)
+		if (acc.length() >= WIDGET_CAP || g_widgetBytes >= WIDGET_BYTES)
 		{
 			g_widgetCut++;
 			return;
 		}
-		Json n;
-		n.Int("d", depth).Str("type", Reflect::GetTypeName(w)).Str("id", w.m_id).Bool("visible", w.m_visible)
-			.Int("w", w.m_width).Int("h", w.m_height);
-		auto t = cast<TextWidget>(w);
-		if (t !is null)
-			n.Str("text", t.m_str);
-		auto iw = cast<AInteractableWidget>(w);
-		if (iw !is null)
-			n.Bool("enabled", iw.m_enabled);
-		auto slot = cast<ItemWidgetBase>(w);
-		if (slot !is null && slot.m_item !is null)
-			n.Str("item", slot.m_item.GetName());
-		string node = n.Close();
-		g_widgetChars += node.length() + 1;
-		acc.insertLast(node);
+		string type = Reflect::GetTypeName(w);
+		// a type filter skips the node but walks its children: the byte cap spent on the
+		// menu's frames left out every bag item (droptrade-drop 20261020-145826, 7 of 11)
+		bool keep = g_widgetType == "" || type == g_widgetType;
+		if (keep)
+		{
+			Json n;
+			n.Int("d", depth).Str("type", type).Str("id", w.m_id).Bool("visible", w.m_visible)
+				.Int("w", w.m_width).Int("h", w.m_height);
+			WidgetPos(n, w, origin, hostScale);
+			auto t = cast<TextWidget>(w);
+			if (t !is null)
+				n.Str("text", t.m_str);
+			auto iw = cast<AInteractableWidget>(w);
+			if (iw !is null)
+				n.Bool("enabled", iw.m_enabled);
+			auto slot = cast<ItemWidgetBase>(w);
+			if (slot !is null && slot.m_item !is null)
+				n.Str("item", slot.m_item.GetName());
+			string node = n.Close();
+			g_widgetBytes += node.length();
+			acc.insertLast(node);
+		}
 		if (w.m_children is null)
 			return;
 		if (depth >= maxDepth)
@@ -529,7 +955,7 @@ namespace GameLab
 			return;
 		}
 		for (uint i = 0; i < w.m_children.length(); i++)
-			WidgetNodes(w.m_children[i], depth + 1, maxDepth, acc);
+			WidgetNodes(w.m_children[i], depth + 1, maxDepth, acc, origin, hostScale);
 	}
 
 	// A tabbed window's open tab is its own AWindowObject (GUI/MenuTabSystem.as), whose
@@ -555,8 +981,10 @@ namespace GameLab
 	}
 
 	// a MenuTab's own m_tabSystem is the one it sits in, unless it has tabs of its own:
-	// only a different system is a nested row
-	void TabRoots(IWidgetHoster@ w, const string &in name, int maxDepth, array<string>@ roots, MenuTabSystem@ parent)
+	// only a different system is a nested row. Kept when `only` is empty, the window's own
+	// root (`keepAll`) or this tab's name; positioned from the tab's m_origin
+	void TabRoots(IWidgetHoster@ w, const string &in name, int maxDepth, array<string>@ roots, MenuTabSystem@ parent,
+		const string &in only, bool keepAll)
 	{
 		auto tabs = TabsOf(w);
 		if (tabs is null || tabs is parent || tabs.m_currentIndex < 0 || tabs.m_currentIndex >= int(tabs.m_tabs.length()))
@@ -565,57 +993,74 @@ namespace GameLab
 		if (tab is null)
 			return;
 		string tname = name + ":" + Reflect::GetTypeName(tab);
-		array<string> nodes;
-		WidgetNodes(tab.m_widget, 0, maxDepth, nodes);
-		Json r;
-		r.Str("root", tname).Raw("nodes", RawArray(nodes));
-		roots.insertLast(r.Close());
-		TabRoots(tab, tname, maxDepth, roots, tabs);
+		bool keep = keepAll || only == "" || only == tname;
+		if (keep)
+		{
+			array<string> nodes;
+			WidgetNodes(tab.m_widget, 0, maxDepth, nodes, tab.m_origin);
+			Json r;
+			r.Str("root", tname).Raw("nodes", RawArray(nodes));
+			roots.insertLast(r.Close());
+		}
+		TabRoots(tab, tname, maxDepth, roots, tabs, only, keep && only != "");
 	}
 
-	// widgets [depth]: the UI widget tree of every open window (and its open tab) and the HUD, capped, with truncation reported.
+	// widgets [depth] [root] [type]: the UI widget tree of every open window (and its open tab) and the HUD (or only the root named `root`; a window keeps its tabs too; with `type`, only nodes of that script class, children still walked), capped, with truncation reported. Each node has its screen position (x/y GUI units, px/py centre in window pixels) and the reply a "screen" block (GUI scale and size, where the game sees the mouse).
 	void VerbWidgets(const string &in id, array<string>@ args)
 	{
 		int maxDepth = args.length() > 0 ? int(parseInt(args[0])) : 6;
+		string only = args.length() > 1 ? args[1] : "";
+		g_widgetType = args.length() > 2 ? args[2] : "";
 		array<string> roots;
 		g_widgetCut = 0;
-		g_widgetChars = 0;
+		g_widgetBytes = 0;
 		auto gm = cast<BaseGameMode>(g_gameMode);
 		if (gm !is null && gm.m_windowManager !is null)
 		{
 			for (uint i = 0; i < gm.m_windowManager.m_objects.length(); i++)
 			{
+				string name = Reflect::GetTypeName(gm.m_windowManager.m_objects[i]);
 				auto win = cast<IWidgetHoster>(gm.m_windowManager.m_objects[i]);
-				array<string> nodes;
+				if (only == "" || name == only)
+				{
+					array<string> nodes;
+					if (win !is null)
+						WidgetNodes(win.m_widget, 0, maxDepth, nodes, win.m_origin);
+					Json r;
+					r.Str("root", name).Raw("nodes", RawArray(nodes));
+					roots.insertLast(r.Close());
+				}
 				if (win !is null)
-					WidgetNodes(win.m_widget, 0, maxDepth, nodes);
-				Json r;
-				r.Str("root", Reflect::GetTypeName(gm.m_windowManager.m_objects[i])).Raw("nodes", RawArray(nodes));
-				roots.insertLast(r.Close());
-				if (win !is null)
-					TabRoots(win, Reflect::GetTypeName(gm.m_windowManager.m_objects[i]), maxDepth, roots, null);
+					TabRoots(win, name, maxDepth, roots, null, only, only != "" && name == only);
 			}
 		}
 		auto hud = GetHUD();
 		if (hud !is null)
 		{
-			array<string> nodes;
-			WidgetNodes(hud.m_widget, 0, maxDepth, nodes);
-			Json r;
-			r.Str("root", "HUD").Raw("nodes", RawArray(nodes));
-			roots.insertLast(r.Close());
+			if (only == "" || only == "HUD")
+			{
+				array<string> nodes;
+				WidgetNodes(hud.m_widget, 0, maxDepth, nodes, hud.m_origin);
+				Json r;
+				r.Str("root", "HUD").Raw("nodes", RawArray(nodes));
+				roots.insertLast(r.Close());
+			}
 			// each HUD component hosts its own tree (HUD.m_components, GUI/HUD/HUD.as)
 			for (uint i = 0; i < hud.m_components.length(); i++)
 			{
+				string cname = "HUD:" + Reflect::GetTypeName(hud.m_components[i]);
+				if (only != "" && cname != only)
+					continue;
 				array<string> cnodes;
-				WidgetNodes(hud.m_components[i].m_widget, 0, maxDepth, cnodes);
+				// drawn at (origin + m_offset) * m_scale (HUDComponent::Draw's transform)
+				WidgetNodes(hud.m_components[i].m_widget, 0, maxDepth, cnodes, hud.m_components[i].m_offset, hud.m_components[i].m_scale);
 				Json cr;
-				cr.Str("root", "HUD:" + Reflect::GetTypeName(hud.m_components[i])).Bool("visible", hud.m_components[i].m_visible)
+				cr.Str("root", cname).Bool("visible", hud.m_components[i].m_visible)
 					.Raw("nodes", RawArray(cnodes));
 				roots.insertLast(cr.Close());
 			}
 		}
-		Emit(Reply(id, true).Int("depth", maxDepth).Int("truncated", g_widgetCut).Raw("roots", RawArray(roots)));
+		Emit(Reply(id, true).Int("depth", maxDepth).Int("truncated", g_widgetCut).Raw("screen", ScreenJson()).Raw("roots", RawArray(roots)));
 	}
 
 	const int TERRAIN_CELLS = 48;
@@ -818,8 +1263,11 @@ namespace GameLab
 	}
 
 	// fixture verb: char <classId> <name>
-	// The same steps as CreateCharacterWindow's "create" (GUI/CreateCharacterWindow.as),
-	// minus the portrait/colour pickers, which CreateCharacter defaults.
+	// The same steps as CreateCharacterWindow's "create" (GUI/CreateCharacterWindow.as:136-141)
+	// without its pickers. CreateCharacter defaults the colours (PlayerRecord.as:468-471) but not
+	// the portrait: an empty one null-derefs the vanilla dyer window (GetPortraitModel,
+	// CreateCharacterCustomize.as:610; pets-dye 20261020-144606). So SetPortrait gets each
+	// category's default piece after it.
 	void VerbChar(const string &in id, array<string>@ args)
 	{
 		if (args.length() < 2)
@@ -890,7 +1338,7 @@ namespace GameLab
 		RegisterVerb("overlays", "", Verb(VerbOverlays));
 		RegisterVerb("buildings", "", Verb(VerbBuildings));
 		RegisterVerb("clock", "", Verb(VerbClock));
-		RegisterVerb("widgets", "[depth]", Verb(VerbWidgets));
+		RegisterVerb("widgets", "[depth] [root] [type]", Verb(VerbWidgets));
 		RegisterVerb("terrain", "[radius] [step]", Verb(VerbTerrain));
 		RegisterVerb("members", "<TypeName>", Verb(VerbMembers));
 		RegisterVerb("inspect", "<player|town> [dotted.path]", Verb(VerbInspect));
@@ -899,7 +1347,11 @@ namespace GameLab
 		RegisterVerb("cvars", "<name>...", Verb(VerbCvars));
 		RegisterVerb("inv", "", Verb(VerbInv));
 		RegisterVerb("near", "[radius] [behaviorOrUnitName]", Verb(VerbNear));
+		RegisterVerb("fetchbench", "<radius> [reps] [all|foes|units]", Verb(VerbFetchBench));
+		RegisterVerb("traps", "[radius]", Verb(VerbTraps));
+		RegisterVerb("areatriggers", "[radius]", Verb(VerbAreaTriggers));
 		RegisterVerb("usables", "", Verb(VerbUsables));
+		RegisterVerb("run", "", Verb(VerbRun));
 		RegisterVerb("sval", "<file.sval>", Verb(VerbSval));
 		RegisterVerb("char", "<classId> <name>", Verb(VerbChar));
 	}
@@ -912,6 +1364,8 @@ namespace Modules
 		int m_sinceBeat = 0;
 		uint m_frames = 0;
 		uint m_beats = 0;
+		int m_maxMs = 0;         // the longest frame since the last beat (a script stall shows here)
+		uint m_beatFrames = 0;   // frames since the last beat
 
 		GameLabProbeModule()
 		{
@@ -925,19 +1379,36 @@ namespace Modules
 
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
 		{
+			// the command channel (Inbox.as): read every frame, paused ones too
+			try {
+				GameLab::InboxFrame();
+			} catch {
+				GameLab::g_exceptions++;
+			}
 			m_frames++;
+			m_beatFrames++;
 			GameLab::g_frames++;
 			m_sinceBeat += ms;
+			if (ms > m_maxMs)
+				m_maxMs = ms;
 			if (m_sinceBeat < 1000)
 				return;
 			m_sinceBeat = 0;
 			m_beats++;
 			// the heartbeat must not be able to break the frame (repro playbook 1.4)
 			try {
+				// place: every event after this beat belongs to it (the harness tags them,
+				// gamelab/session.py); maxMs/beatFrames: a frame the scripts held for seconds
+				// left no line at all (cube-run 20261018-222736: 15 silent gaps of ~24 s)
 				GameLab::Json j;
 				j.Str("ev", "hb").Int("n", m_beats).Int("frames", m_frames).Str("phase", GameLab::Phase())
 					.Str("window", GameLab::TopWindow()).Bool("paused", paused).Int("cmds", GameLab::g_commands)
-					.Int("exceptions", GameLab::g_exceptions);
+					.Int("exceptions", GameLab::g_exceptions).Str("place", GameLab::LevelPlace())
+					.Int("maxMs", m_maxMs).Int("beatFrames", m_beatFrames)
+					.Int("inLines", GameLab::g_inboxLines).Int("inDropped", GameLab::g_inboxDropped).Int("inDups", GameLab::g_inboxDups)
+					.Bool("textIn", GameLab::InboxExpecting());
+				m_maxMs = 0;
+				m_beatFrames = 0;
 				GameLab::Emit(j);
 			} catch {
 				GameLab::g_exceptions++;

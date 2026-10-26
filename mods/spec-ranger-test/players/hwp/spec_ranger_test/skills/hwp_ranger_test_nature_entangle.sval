@@ -1,0 +1,212 @@
+%include "players/skills_cost.inc"
+<dict>
+	<string name="name">.skills.hwp_ranger_test.nature_entangle.name</string>
+	<string name="type-name">.skills.type.spell</string>
+	<string name="description">.skills.ranger.mastery_3.spell_1.desc</string>
+	<array name="shown-icons"><s>cripple</s></array>
+
+	<array name="description-params">
+		<array><s>tick-rate</s><b>t</b><s>.skills.desc.params.tick_rate</s><s>0.5s</s></array>
+		<array><s>mana-cost</s><s>.skills.desc.params.mana_cost</s><s>20</s><s>20</s><s>20</s><s>20</s><s>20</s></array>
+		<array><s>cooldown</s><b>t</b><s>.skills.desc.params.cooldown</s><s>3s</s></array>
+	</array>
+
+	<array name="icon">
+		<string>players/icons_skills.png</string>
+		<int>100</int><vec4>120 72 24 24</vec4>
+	</array>
+
+	<string name="id">hwp_ranger_test_nature_entangle</string>
+	<string name="type">spell</string>
+	<array name="tags"><s>spell</s><s>physical</s></array>
+	<int name="starting-level">1</int>
+
+	<dict name="skill">
+		<string name="anim">cast</string>
+		<string name="class">Skills::PlayerSkillDirectional</string>
+		<dict name="binds">
+			<string name="proj-unit">players/ranger/projectiles/marked_shot_arrow.unit</string>
+			<int name="proj-dmg">40</int>
+			<int name="burst-dmg">40</int>
+			<int name="burst-radius">48</int>
+		</dict>
+		<int name="anim-length">600</int>
+		<ivec2 name="move-speed">0 250</ivec2>
+		<ivec2 name="blocking">0 250</ivec2>
+		<float name="move-speed-mul">0.5</float>
+		<float name="cast-speed-mul">1</float>
+		<int name="skill-cost">5</int>
+		<array name="timeline">
+			<int>150</int>
+			<string>cast</string>
+		</array>
+		<bool name="repeating">false</bool>
+		<int name="castpoint">150</int>
+		<int name="cooldown">3000</int>
+		<int name="mana-cost">20</int>
+		<dict name="actions">
+			<array name="cast">
+				<dict>
+					<string name="class">ShootProjectile</string>
+					<string name="projectile-bind">proj-unit</string>
+					<int name="dist">8</int>
+				</dict>
+				<dict>
+					<int name="rot-add">-15</int>
+				</dict>
+				<dict>
+					<string name="class">ShootProjectile</string>
+					<string name="projectile-bind">proj-unit</string>
+					<int name="dist">8</int>
+				</dict>
+				<dict>
+					<int name="rot-add">30</int>
+				</dict>
+				<dict>
+					<string name="class">ShootProjectile</string>
+					<string name="projectile-bind">proj-unit</string>
+					<int name="dist">8</int>
+				</dict>
+				<dict>
+					<int name="rot-add">-15</int>
+				</dict>
+				<dict>
+					<string name="class">SpawnEffect</string>
+					<string name="effect">effects/generic/explosions/fire_nova_1.effect?radius=48</string>
+				</dict>
+				<dict>
+					<string name="class">Explode</string>
+					<string name="radius-bind">burst-radius</string>
+					<float name="dist-scaling">1000</float>
+					<int name="min-radius">8</int>
+					<array name="effects">
+						<dict>
+							<string name="class">Damage</string>
+							<string name="fire-bind">burst-dmg</string>
+						</dict>
+						<dict>
+							<string name="class">ApplyBuff</string>
+							<string name="buff">tweak/buffs/status_effects.sval:marked</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+
+	<array name="upgrades">
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
+		</dict>
+	</array>
+
+	<array name="modifier-skills">
+		<dict>
+			<string name="name">.skills.ranger.mastery_3.spell_1.up1.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.skills.ranger.mastery_3.spell_1.up1.desc</string>
+
+			<array name="description-params">
+				<array><s>heal</s><s>.skills.desc.params.heal</s><s>3%</s><s>5%</s><s>7%</s></array>
+				<array><s>tick-rate</s><b>t</b><s>.skills.desc.params.tick_rate</s><s>1s</s></array>
+				<array><s>duration</s><b>t</b><s>.skills.desc.params.duration</s><s>6s</s></array>
+			</array>
+
+			<array name="icon">
+				<string>players/icons_skills.png</string>
+				<int>100</int><vec4>120 72 24 24</vec4>
+			</array>
+
+			<string name="id">hwp_ranger_test_nature_entangle_heal</string>
+			<string name="quality">uncommon</string>
+			<array name="blocked-by-skills"><s>hwp_ranger_test_nature_entangle_poison</s></array>
+			<int name="starting-level">0</int>
+
+			<dict name="skill">
+			</dict>
+
+			<array name="upgrades">
+				<dict>
+				</dict>
+				<dict>
+				</dict>
+			</array>
+		</dict>
+
+		<dict>
+			<string name="name">.skills.ranger.mastery_3.spell_1.up2.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.skills.ranger.mastery_3.spell_1.up2.desc</string>
+
+			<array name="description-params">
+				<array><s>damage</s><s>.skills.desc.params.damage</s><s>30%</s><s>60%</s><s>100%</s></array>
+			</array>
+
+			<array name="icon">
+				<string>players/icons_skills.png</string>
+				<int>100</int><vec4>120 72 24 24</vec4>
+			</array>
+
+			<string name="id">hwp_ranger_test_nature_entangle_poison</string>
+			<string name="quality">uncommon</string>
+			<array name="tags"><s>spell</s><s>physical</s><s>poison</s></array>
+			<array name="blocked-by-skills"><s>hwp_ranger_test_nature_entangle_heal</s></array>
+			<int name="starting-level">0</int>
+
+			<dict name="skill">
+			</dict>
+
+			<array name="upgrades">
+				<dict>
+				</dict>
+				<dict>
+				</dict>
+			</array>
+		</dict>
+
+<!-- 		<dict>
+			<string name="name">.skills.ranger.spell_1.up3.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.skills.ranger.spell_1.up3.desc</string>
+
+			<array name="description-params">
+				<array><s>debuff</s><s>.skills.desc.params.status_effect</s><s>.status_effect.armor_break_minor</s><s>.status_effect.armor_break</s><s>.status_effect.armor_break_greater</s></array>
+			</array>
+
+			<array name="icon">
+				<string>players/icons_skills.png</string>
+				<int>100</int><vec4>120 72 24 24</vec4>
+			</array>
+
+			<string name="id">hwp_ranger_test_nature_entangle_armor</string>
+
+			<dict name="skill">
+				<dict name="binds">
+					<string name="area-armor-buff">tweak/buffs/status_effects.sval:armor_break_minor</string>
+				</dict>
+			</dict>
+
+			<array name="upgrades">
+				<dict>
+					<dict name="binds">
+						<string name="area-armor-buff">tweak/buffs/status_effects.sval:armor_break</string>
+					</dict>
+				</dict>
+				<dict>
+					<dict name="binds">
+						<string name="area-armor-buff">tweak/buffs/status_effects.sval:armor_break_greater</string>
+					</dict>
+				</dict>
+			</array>
+		</dict> -->
+	</array>
+</dict>

@@ -1,0 +1,237 @@
+class DungeonInstanceBrush : DungeonBrush
+{
+	UnitProducer@ m_torch;
+	int m_torchMinDist;
+	
+	UnitProducer@ m_deco_chains;
+	UnitProducer@ m_deco_ivy;
+	UnitProducer@ m_deco_ivy_small;
+
+	array<DungeonBrushDeco@> m_spawnedDeco;
+	array<DungeonBrushDeco@> m_spawnedTorches;
+
+
+	void LoadParams(array<SValue@>@ params, MissionThemeDef@ themeDef) override
+	{
+		DungeonBrush::LoadParams(params, themeDef);
+		
+		UnitPtr u;
+		
+		@m_torch = Resources::GetUnitProducer(GetParamString(u, params, "torch", false, "doodads/lamps/torch_default.unit"));
+		m_torchMinDist = GetParamInt(u, params, "torch-min-dist", false, 125);
+		
+		@m_deco_chains = Resources::GetUnitProducer("doodads/walls/dungeon/_deco_wall_chains.unit");
+		@m_deco_ivy = Resources::GetUnitProducer("doodads/walls/dungeon/_deco_wall_ivy.unit");
+		@m_deco_ivy_small = Resources::GetUnitProducer("doodads/walls/dungeon/_deco_wall_ivy_small.unit");
+	}
+	
+	bool SpawnTorchDeco(Scene@ scene, vec3 pos, int x, int y) override
+	{
+		if (m_torch is null)
+			return false;
+		
+		if (!IsOpen(x, y + 1))
+			return false;
+			
+		if (randi(100) < 50)
+			return false;
+		
+		m_spawnedTorches.insertLast(DungeonBrushDeco(m_torch, pos + vec3(0, 16, 0)));
+		return true;
+	}
+	
+	void SpawnHorizontalWallDeco(Scene@ scene, vec3 pos, int x, int y) override
+	{
+		if (!IsOpen(x, y + 1))
+			return;
+	
+		if (SpawnTorchDeco(scene, pos + vec3(8, 0, 0), x, y))
+			return;
+		/*
+		if (randi(100) < 75)
+			m_spawnedDeco.insertLast(m_deco_ivy_small.Produce(scene, pos + vec3(8, 16, 0)));
+		*/
+	}
+	
+	void SpawnHorizontalWall2Deco(Scene@ scene, vec3 pos, int x, int y) override
+	{
+		if (!IsOpen(x, y + 1))
+			return;
+			
+		if (randi(100) < 50 && SpawnTorchDeco(scene, pos + vec3(16, 0, 0), x, y))
+			return;
+		/*
+		if (randi(100) < 75)
+		{
+			if (randi(100) < 66)
+				m_spawnedDeco.insertLast(m_deco_ivy.Produce(scene, pos + vec3(16, 16, 0)));
+			else
+				m_spawnedDeco.insertLast(m_deco_ivy_small.Produce(scene, pos + vec3(16, 16, 0)));
+		}
+		else
+			m_spawnedDeco.insertLast(m_deco_chains.Produce(scene, pos + vec3(16, 16, 0)));
+		*/
+		
+	}
+	
+	void SpawnCornerSEWallDeco(Scene@ scene, vec3 pos, int x, int y) override
+	{
+		SpawnTorchDeco(scene, pos + vec3(8, 0, 0), x, y);
+	}
+	
+	void SpawnCornerSWWallDeco(Scene@ scene, vec3 pos, int x, int y) override
+	{
+		SpawnTorchDeco(scene, pos + vec3(8, 0, 0), x, y);
+	}
+	/*
+	bool CanUseBreakables(int x, int y)
+	{
+		if (x < 0 || y < 0 || x >= m_width || y >= m_height)
+			return false;
+		return !m_gridConsumed[x][y] && m_grid[x][y] == Cell::Breakables;
+	}
+	*/
+	bool IsFloorOrBreakables(int x, int y)
+	{
+		auto cell = GetCell(x, y);
+		return cell == Cell::Breakables || cell == Cell::Floor;
+	}
+		
+	void Build(Scene@ scene) override
+	{
+		auto bt = LoadBaseBrushTiles(m_theme);
+		
+		auto arch = Resources::GetUnitProducer("doodads/walls/dungeon/_deco_ceiling_support.unit");
+		auto reserved = Resources::GetUnitProducer("doodads/special/color_archives_16.unit");
+		
+		
+		SpawnPointsOfInterest(scene);
+		
+		
+		for (uint i = 0; i < m_painting.length(); i++)
+			m_painting[i].Paint(scene, this);
+		
+		
+		DoLighting(scene);
+		
+		
+		for (int y = 0; y < m_height; y++)
+		{
+			for (int x = 0; x < m_width; x++)
+			{
+				if (m_gridConsumed[x][y])
+					continue;
+			
+				auto cell = m_grid[x][y];
+				
+				if(cell == Cell::Nothing)
+					FillCellNothing(scene, bt, x, y);
+				else if(cell == Cell::Wall)
+					FillCellWall(scene, bt, x, y);
+				else if(cell == Cell::Cliff)
+					FillCellCliff(scene, bt, x, y);
+				else if (cell == Cell::MaggotEnemies)
+					FillCellMaggotEnemies(scene, bt, x, y);
+					
+				else if (cell == Cell::Floor)
+				{
+				/*
+					if (randi(100) < 33 && GetCell(x - 1, y) == Cell::Wall && GetCell(x + 2, y) == Cell::Wall &&
+						IsFloorOrBreakables(x + 1, y) && IsFloorOrBreakables(x, y + 1) && IsFloorOrBreakables(x + 1, y + 1))
+						m_spawnedDeco.insertLast(arch.Produce(scene, vec3(16 * x + m_posOffset.x + 16, 16 * y + m_posOffset.y, 0)));
+				*/
+					//m_gridConsumed[x][y] = true;
+				}
+				else if (cell == Cell::Bridge)
+				{
+					/*
+					vec3 pos = vec3(16 * x + m_posOffset.x, 16 * y + m_posOffset.y, 0);
+					reserved.Produce(scene, pos);
+					*/
+				
+					m_gridConsumed[x][y] = true;
+				}
+				else if (cell == Cell::Reserved)
+				{
+					
+					vec3 pos = vec3(16 * x + m_posOffset.x, 16 * y + m_posOffset.y, 0);
+					reserved.Produce(scene, pos);
+					
+				
+					m_gridConsumed[x][y] = true;
+				}
+			}
+		}
+		
+		if (m_totBreakableChance > 0)
+		{
+			for (int y = 0; y < m_height; y++)
+			{
+				for (int x = 0; x < m_width; x++)
+				{
+					if (m_gridConsumed[x][y])
+						continue;
+					
+					auto cell = m_grid[x][y];
+					if(cell != Cell::Breakables)
+						continue;
+					
+					int zoneW = 1;
+					int zoneH = 1;
+					
+					bool zoneWExpand = true;
+					bool zoneHExpand = true;
+					
+					while (zoneWExpand || zoneHExpand)
+					{
+						if (zoneWExpand)
+						{
+							for (int ny = 0; ny < zoneH; ny++)
+							{
+								if (m_grid[x + zoneW][y + ny] != Cell::Breakables || m_gridConsumed[x + zoneW][y + ny])
+								{
+									zoneWExpand = false;
+									break;
+								}
+							}
+							if (zoneWExpand)
+								zoneW++;
+						}
+						
+						if (zoneHExpand)
+						{
+							for (int nx = 0; nx < zoneW; nx++)
+							{
+								if (m_grid[x + nx][y + zoneH] != Cell::Breakables || m_gridConsumed[x + nx][y + zoneH])
+								{
+									zoneHExpand = false;
+									break;
+								}
+							}
+							if (zoneHExpand)
+								zoneH++;
+						}
+					}
+					//print("Zone is " + zoneW + "x" + zoneH);
+					
+					for (int zy = 0; zy < zoneH; zy++)
+						for (int zx = 0; zx < zoneW; zx++)
+							m_gridConsumed[x + zx][y + zy] = true;
+					
+					auto pos = ivec3(16 * x + int(m_posOffset.x), 16 * y + int(m_posOffset.y), 0);
+					FillBreakablesZone(pos.x, pos.y, zoneW * 16, zoneH * 16);
+				}
+			}
+		}
+		
+		
+		PlacePaddingColor(scene, bt);
+		
+		
+		RemoveNearbySame(m_spawnedDeco, 50);
+		SpawnDeco(m_spawnedDeco);
+		
+		RemoveNearby(m_spawnedTorches, m_torchMinDist);
+		SpawnDeco(m_spawnedTorches);
+	}
+}

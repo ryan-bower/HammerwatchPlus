@@ -1,0 +1,857 @@
+class DungeonPointOfInterest
+{
+	MissionPrefabDef@ m_type;
+	ivec2 m_pos;
+}
+
+class DungeonBrushDeco
+{
+	UnitProducer@ m_type;
+	vec3 m_pos;
+	
+	DungeonBrushDeco(UnitProducer@ type, vec3 pos)
+	{
+		@m_type = type;
+		m_pos = pos;
+	}
+}
+
+class BaseBrushTiles
+{
+	UnitProducer@ wt;
+
+	UnitProducer@ no;
+	UnitProducer@ h1;
+	UnitProducer@ h2;
+	UnitProducer@ v1;
+	UnitProducer@ v2;
+	UnitProducer@ dx;
+	UnitProducer@ xu;
+	UnitProducer@ xd;
+	UnitProducer@ xl;
+	UnitProducer@ xr;
+	UnitProducer@ cl;
+	UnitProducer@ cr;
+	UnitProducer@ cu;
+	UnitProducer@ cd;
+	UnitProducer@ ld;
+	UnitProducer@ lu;
+	UnitProducer@ rd;
+	UnitProducer@ ru;
+
+	UnitProducer@ c16;
+	UnitProducer@ c32;
+	UnitProducer@ c48;
+	UnitProducer@ c64;
+	UnitProducer@ c256;
+	UnitProducer@ c512;
+	UnitProducer@ c1024;
+
+	UnitProducer@ l16;
+	UnitProducer@ l32;
+
+	UnitProducer@ ln;
+	UnitProducer@ ls;
+	UnitProducer@ lw;
+	UnitProducer@ le;
+	UnitProducer@ lnw;
+	UnitProducer@ lne;
+	UnitProducer@ lsw;
+	UnitProducer@ lse;
+	UnitProducer@ lnwo;
+	UnitProducer@ lneo;
+	UnitProducer@ lswo;
+	UnitProducer@ lseo;
+}
+
+class SizedUnitFillEntry
+{
+	int m_chance;
+	UnitProducer@ m_prod;
+	int m_width;
+	int m_height;
+	
+	SizedUnitFillEntry(int chance, UnitProducer@ prod, ivec2 size)
+	{
+		m_chance = chance;
+		@m_prod = prod;
+		m_width = size.x;
+		m_height = size.y;
+	}
+	
+	SizedUnitFillEntry(int chance, UnitProducer@ prod, int radius)
+	{
+		m_chance = chance;
+		@m_prod = prod;
+		m_width = m_height = radius * 2;
+	}
+}
+
+class DungeonBrush : CellGrid
+{
+	vec2 m_posOffset;
+
+	string m_theme;
+
+	Environment@ m_environment;
+	UnitProducer@ m_lightUnit;
+	int m_lightMinDist;
+	int m_lightTileChance;
+
+	array<DungeonBrush::IPainter@> m_painting;
+
+	array<SizedUnitFillEntry@> m_breakables;
+	int m_totBreakableChance;
+
+	bool m_ignorePaddingColor;
+	Cell m_cellTypeStart;
+
+	int m_dbgImageOutNum;
+	int m_dbgImageOutId;
+	bool m_dbgImageOut;
+
+
+
+	DungeonBrush()
+	{
+		AddVar("dbg_dungeon_generation_images", false, null, cvar_flags::Cheat);
+		m_dbgImageOut = GetVarBool("dbg_dungeon_generation_images");
+	}
+
+	void LoadParams(array<SValue@>@ params, MissionThemeDef@ themeDef)
+	{
+		UnitPtr u;
+		
+		m_theme = GetParamString(u, params, "theme", false, "dungeon");
+		
+		@m_environment = Resources::GetEnvironment(GetParamString(u, params, "environment", true));
+		@m_lightUnit = Resources::GetUnitProducer(GetParamString(u, params, "lights", true));
+		m_lightMinDist = GetParamInt(u, params, "lights-min-dist", false, 100);
+		m_lightTileChance = GetParamInt(u, params, "lights-tile-chance", false, 15);
+		m_cellTypeStart = Cell(GetParamInt(u, params, "cell-type-start", false, int(Cell::Wall)));
+		
+		m_ignorePaddingColor = GetParamBool(u, params, "ignore-pad-color", false, false);
+		
+		
+		auto paintingArr = GetParamArray(u, params, "painting", false);
+		uint numPainting = (paintingArr !is null) ? paintingArr.length() : 0;
+		for (uint i = 0; i < numPainting; i++)
+		{
+			auto painter = cast<DungeonBrush::IPainter>(InstantiateClass(GetParamString(u, paintingArr[i], "class", true), u, paintingArr[i]));
+			if (painter !is null)
+				m_painting.insertLast(painter);
+		}
+		
+		
+		auto breakablesArr = GetParamArray(u, params, "breakables", false);
+		uint numBreakables = (breakablesArr !is null) ? breakablesArr.length() : 0;
+		for (uint i = 0; i < numBreakables; i += 3)
+		{
+			int chance = breakablesArr[i+0].GetInteger();
+			auto unitProd = Resources::GetUnitProducer(breakablesArr[i+1].GetString());
+			
+			if (unitProd is null)
+				continue;
+			
+			if (breakablesArr[i+2].GetType() == SValueType::Integer)
+				m_breakables.insertLast(SizedUnitFillEntry(chance, unitProd, breakablesArr[i+2].GetInteger()));
+			else if (breakablesArr[i+2].GetType() == SValueType::IVector2)
+				m_breakables.insertLast(SizedUnitFillEntry(chance, unitProd, breakablesArr[i+2].GetIVector2()));
+		}
+		
+		m_totBreakableChance = 0;
+		for (uint i = 0; i < m_breakables.length(); i++)
+			m_totBreakableChance += m_breakables[i].m_chance;
+	}
+
+	void Initialize(int width, int height, vec2 posOffset)
+	{
+		MakeGrid(width, height, m_cellTypeStart);
+		
+		m_posOffset = posOffset;
+		m_posOffset.x = int(m_posOffset.x / 64.0) * 64.0;
+		m_posOffset.y = int(m_posOffset.y / 64.0) * 64.0;
+		
+		m_dbgImageOutNum = 1;
+		m_dbgImageOutId = randi(9999999);
+	}
+
+	void OutputDebugImage()
+	{
+		if (!m_dbgImageOut)
+			return;
+%if !EDITOR
+		OutputDebugGridImage(m_dbgImageOutId, m_dbgImageOutNum++, m_grid, m_gridConsumed);
+%endif
+	}
+
+	BaseBrushTiles@ LoadBaseBrushTiles(const string &in theme, bool snakePits = false)
+	{
+		// What a nice hack :/
+		ConvertPlaceGrid();
+		
+		
+		BaseBrushTiles tiles;
+		
+		@tiles.no = Resources::GetUnitProducer("doodads/walls/" + theme + "/single.unit");
+		@tiles.h1 = Resources::GetUnitProducer("doodads/walls/" + theme + "/h_16.unit");
+		@tiles.h2 = Resources::GetUnitProducer("doodads/walls/" + theme + "/h_32.unit");
+		@tiles.v1 = Resources::GetUnitProducer("doodads/walls/" + theme + "/v_16.unit");
+		@tiles.v2 = Resources::GetUnitProducer("doodads/walls/" + theme + "/v_32.unit");
+		@tiles.dx = Resources::GetUnitProducer("doodads/walls/" + theme + "/x_x.unit");
+		@tiles.xu = Resources::GetUnitProducer("doodads/walls/" + theme + "/x_n.unit");
+		@tiles.xd = Resources::GetUnitProducer("doodads/walls/" + theme + "/x_s.unit");
+		@tiles.xl = Resources::GetUnitProducer("doodads/walls/" + theme + "/x_w.unit");
+		@tiles.xr = Resources::GetUnitProducer("doodads/walls/" + theme + "/x_e.unit");
+		@tiles.cl = Resources::GetUnitProducer("doodads/walls/" + theme + "/cap_h_e.unit");
+		@tiles.cr = Resources::GetUnitProducer("doodads/walls/" + theme + "/cap_h_w.unit");
+		@tiles.cu = Resources::GetUnitProducer("doodads/walls/" + theme + "/cap_v_s.unit");
+		@tiles.cd = Resources::GetUnitProducer("doodads/walls/" + theme + "/cap_v_n.unit");
+		@tiles.ld = Resources::GetUnitProducer("doodads/walls/" + theme + "/crn_sw.unit");
+		@tiles.lu = Resources::GetUnitProducer("doodads/walls/" + theme + "/crn_nw.unit");
+		@tiles.rd = Resources::GetUnitProducer("doodads/walls/" + theme + "/crn_se.unit");
+		@tiles.ru = Resources::GetUnitProducer("doodads/walls/" + theme + "/crn_ne.unit");
+		
+		@tiles.c16 = Resources::GetUnitProducer("doodads/walls/" + theme + "/__color_16.unit");
+		@tiles.c32 = Resources::GetUnitProducer("doodads/walls/" + theme + "/__color_32.unit");
+		@tiles.c48 = Resources::GetUnitProducer("doodads/walls/" + theme + "/__color_48.unit");
+		@tiles.c64 = Resources::GetUnitProducer("doodads/walls/" + theme + "/__color_64.unit");
+		@tiles.c256 = Resources::GetUnitProducer("doodads/walls/" + theme + "/__color_256.unit");
+		@tiles.c512 = Resources::GetUnitProducer("doodads/walls/" + theme + "/__color_512.unit");
+		@tiles.c1024 = Resources::GetUnitProducer("doodads/walls/" + theme + "/__color_1024.unit");
+		
+		@tiles.l16 = Resources::GetUnitProducer("doodads/ledges/__shadow_ledges_16.unit");
+		@tiles.l32 = Resources::GetUnitProducer("doodads/ledges/__shadow_ledges.unit");
+		
+		@tiles.ln	= Resources::GetUnitProducer("doodads/ledges/" + theme + "/n_16.unit");
+		@tiles.ls	= Resources::GetUnitProducer("doodads/ledges/" + theme + "/s_16.unit");
+		@tiles.lw	= Resources::GetUnitProducer("doodads/ledges/" + theme + "/w_16.unit");
+		@tiles.le	= Resources::GetUnitProducer("doodads/ledges/" + theme + "/e_16.unit");
+		@tiles.lnw	= Resources::GetUnitProducer("doodads/ledges/" + theme + "/nw.unit");
+		@tiles.lne	= Resources::GetUnitProducer("doodads/ledges/" + theme + "/ne.unit");
+		@tiles.lsw	= Resources::GetUnitProducer("doodads/ledges/" + theme + "/sw.unit");
+		@tiles.lse	= Resources::GetUnitProducer("doodads/ledges/" + theme + "/se.unit");
+		@tiles.lnwo	= Resources::GetUnitProducer("doodads/ledges/" + theme + "/nw_i.unit");
+		@tiles.lneo	= Resources::GetUnitProducer("doodads/ledges/" + theme + "/ne_i.unit");
+		@tiles.lswo	= Resources::GetUnitProducer("doodads/ledges/" + theme + "/sw_i.unit");
+		@tiles.lseo	= Resources::GetUnitProducer("doodads/ledges/" + theme + "/se_i.unit");
+		
+		
+		return tiles;
+	}
+	
+	void PlacePaddingColor(Scene@ scene, BaseBrushTiles@  bt)
+	{
+		if (m_ignorePaddingColor)
+			return;
+	
+		int tilesz = 1024;
+	
+		int w = int(ceil(m_width / (tilesz / 16.0f)));
+		int h = int(ceil(m_height / (tilesz / 16.0f)));
+	
+		
+		for (int x = -1; x < (w + 1); x++)
+		{
+			bt.c1024.Produce(scene, vec3(tilesz * x + m_posOffset.x, m_posOffset.y - 24, 0));
+			bt.c1024.Produce(scene, vec3(tilesz * x + m_posOffset.x, m_height * 16 + m_posOffset.y + tilesz - 40, 0));
+		}
+		
+		for (int y = 0; y < h; y++)
+		{
+			bt.c1024.Produce(scene, vec3(m_posOffset.x - tilesz + 8, tilesz * y + m_posOffset.y + tilesz - 24, 0));
+			bt.c1024.Produce(scene, vec3(m_posOffset.x + m_width * 16 - 8, tilesz * y + m_posOffset.y + tilesz - 24, 0));
+		}
+	}
+	
+	void FillCellNothing(Scene@ scene, BaseBrushTiles@  bt, int x, int y)
+	{
+		vec3 pos = vec3(16 * x + m_posOffset.x, 16 * y + m_posOffset.y, 0);
+	
+		if (IsNothing(x + 1, y) && IsNothing(x, y + 1) && IsNothing(x + 1, y + 1))
+		{
+			if (IsNothing(x + 2, y) && IsNothing(x + 2, y + 1) && IsNothing(x + 2, y + 2) && IsNothing(x + 1, y + 2) && IsNothing(x, y + 2))
+			{
+				bt.c64.Produce(scene, pos - vec3(8, 8 - 32, 0));
+				
+				m_gridConsumed[x + 2][y] = true;
+				m_gridConsumed[x + 2][y + 1] = true;
+				m_gridConsumed[x + 2][y + 2] = true;
+				m_gridConsumed[x + 1][y + 2] = true;
+				m_gridConsumed[x][y + 2] = true;
+			}
+			else 
+				bt.c48.Produce(scene, pos - vec3(8, 8 - 16, 0));
+			
+			m_gridConsumed[x + 1][y] = true;
+			m_gridConsumed[x][y + 1] = true;
+			m_gridConsumed[x + 1][y + 1] = true;
+		}
+		else
+			bt.c32.Produce(scene, pos - vec3(8, 8, 0));
+		
+		m_gridConsumed[x][y] = true;
+	}
+	
+	bool SpawnTorchDeco(Scene@ scene, vec3 pos, int x, int y) { return false; }
+	void SpawnHorizontalWallDeco(Scene@ scene, vec3 pos, int x, int y) {}
+	void SpawnHorizontalWall2Deco(Scene@ scene, vec3 pos, int x, int y) {}
+	void SpawnVerticalWallDeco(Scene@ scene, vec3 pos, int x, int y) {}
+	void SpawnVerticalWall2Deco(Scene@ scene, vec3 pos, int x, int y) {}
+	void SpawnCornerSEWallDeco(Scene@ scene, vec3 pos, int x, int y) {}
+	void SpawnCornerNEWallDeco(Scene@ scene, vec3 pos, int x, int y) {}
+	void SpawnCornerSWWallDeco(Scene@ scene, vec3 pos, int x, int y) {}
+	void SpawnCornerNWWallDeco(Scene@ scene, vec3 pos, int x, int y) {}
+	
+	void FillCellWall(Scene@ scene, BaseBrushTiles@  bt, int x, int y)
+	{
+		vec3 nPos = vec3(16 * x + m_posOffset.x, 16 * y + m_posOffset.y, 0);
+
+		if (IsWall(x + 1, y) && IsWall(x, y + 1) && IsWall(x + 1, y + 1))
+			bt.c16.Produce(scene, nPos + vec3(8, -8, 0));
+		
+		if (IsWall(x - 1, y) && IsWall(x + 1, y) && IsWall(x, y - 1) && IsWall(x, y + 1))
+		{
+			bt.dx.Produce(scene, nPos);
+		}
+			
+		else if (IsWall(x - 1, y) && IsWall(x + 1, y) && IsWall(x, y - 1) && !IsWall(x, y + 1) &&
+			IsWall(x + 2, y) && IsWall(x + 1, y - 1) && !IsWall(x + 1, y + 1) && IsWall(x - 1, y - 1) && IsWall(x + 2, y - 1))
+		{
+			bt.h2.Produce(scene, nPos);
+			m_gridConsumed[x + 1][y] = true;
+			SpawnHorizontalWall2Deco(scene, nPos, x, y);
+		}
+
+		else if (IsWall(x + 1, y) && IsWall(x, y - 1) && IsWall(x, y + 1))
+		{
+			bt.xl.Produce(scene, nPos);
+		}
+		else if (IsWall(x - 1, y) && IsWall(x, y - 1) && IsWall(x, y + 1))
+		{
+			bt.xr.Produce(scene, nPos);
+		}
+		else if (IsWall(x - 1, y) && IsWall(x + 1, y) && IsWall(x, y + 1))
+		{
+			bt.xu.Produce(scene, nPos);
+		}
+		else if (IsWall(x - 1, y) && IsWall(x + 1, y) && IsWall(x, y - 1))
+		{
+			bt.xd.Produce(scene, nPos);
+			SpawnHorizontalWallDeco(scene, nPos, x, y);
+		}
+		
+		else if (IsWall(x - 1, y) && IsWall(x, y - 1))
+		{
+			bt.rd.Produce(scene, nPos);
+			SpawnCornerSEWallDeco(scene, nPos, x, y);
+		}
+		else if (IsWall(x - 1, y) && IsWall(x, y + 1))
+		{
+			bt.ru.Produce(scene, nPos);
+			SpawnCornerNEWallDeco(scene, nPos, x, y);
+		}
+		else if (IsWall(x + 1, y) && IsWall(x, y - 1))
+		{
+			bt.ld.Produce(scene, nPos);
+			SpawnCornerSWWallDeco(scene, nPos, x, y);
+		}
+		else if (IsWall(x + 1, y) && IsWall(x, y + 1))
+		{
+			bt.lu.Produce(scene, nPos);
+			SpawnCornerNWWallDeco(scene, nPos, x, y);
+		}
+
+		else if (IsWall(x - 1, y) && IsWall(x + 1, y))
+		{
+			if (IsWall(x + 2, y) &&
+				!IsWall(x + 1, y - 1) &&
+				!IsWall(x + 1, y + 1) && !IsConsumed(x + 1, y))
+			{
+				bt.h2.Produce(scene, nPos);
+				m_gridConsumed[x + 1][y] = true;
+				SpawnHorizontalWall2Deco(scene, nPos, x, y);
+			}
+			else
+			{
+				bt.h1.Produce(scene, nPos);
+				SpawnHorizontalWallDeco(scene, nPos, x, y);
+			}
+		}
+		else if (IsWall(x, y - 1) && IsWall(x, y + 1))
+		{
+			if (IsWall(x, y + 2) &&
+				!IsWall(x - 1, y + 1) &&
+				!IsWall(x + 1, y + 1) && !IsConsumed(x, y + 1))
+			{
+				bt.v2.Produce(scene, nPos + vec3(0, -16, 0));
+				m_gridConsumed[x][y + 1] = true;
+				SpawnVerticalWall2Deco(scene, nPos, x, y);
+			}
+			else
+			{
+				bt.v1.Produce(scene, nPos + vec3(0, 0, 0));
+				SpawnVerticalWallDeco(scene, nPos, x, y);
+			}
+		}
+
+		else if (IsWall(x - 1, y))
+		{
+			bt.cl.Produce(scene, nPos);
+		}
+		else if (IsWall(x + 1, y))
+		{
+			bt.cr.Produce(scene, nPos);
+		}
+		else if (IsWall(x, y - 1))
+		{
+			bt.cu.Produce(scene, nPos);
+		}
+		else if (IsWall(x, y + 1))
+		{
+			bt.cd.Produce(scene, nPos);
+		}
+
+		else
+		{
+			bt.no.Produce(scene, nPos);
+			SpawnTorchDeco(scene, nPos + vec3(8, 0, 0), x, y);
+		}
+		
+		m_gridConsumed[x][y] = true;
+	}
+	
+	void FillCellCliff(Scene@ scene, BaseBrushTiles@  bt, int x, int y)
+	{
+		vec3 pos = vec3(16 * x + m_posOffset.x, 16 * y + m_posOffset.y, 0);
+
+		if (!IsCliff(x, y - 1))
+		{
+			bt.ln.Produce(scene, pos - vec3(0, 8, 0));
+		
+			if (!IsCliff(x - 1, y))
+			{
+				bt.lnw.Produce(scene, pos + vec3(-8, -8, 0));
+				bt.lw.Produce(scene, pos + vec3(-8, 0, 0));
+			}
+			
+			if (!IsCliff(x + 1, y))
+			{
+				bt.lne.Produce(scene, pos + vec3(16, -8, 0));
+				bt.le.Produce(scene, pos + vec3(16, 0, 0));
+			}
+		}
+		else
+		{
+			bool w = false;
+			bool e = false;
+		
+			if (!IsCliff(x - 1, y))
+			{
+				bt.lw.Produce(scene, pos - vec3(8, 0, 0));
+				w = true;
+			}
+
+			if (!IsCliff(x + 1, y))
+			{
+				bt.le.Produce(scene, pos + vec3(16, 0, 0));
+				e = true;
+			}
+				
+			if (!IsCliff(x, y + 1))
+			{
+				bt.ls.Produce(scene, pos + vec3(0, 16, 0));
+				
+				if (w)
+					bt.lsw.Produce(scene, pos + vec3(-8, 16, 0));
+				if (e)
+					bt.lse.Produce(scene, pos + vec3(16, 16, 0));
+			}
+			
+			bt.l16.Produce(scene, pos + vec3(0, 16, 0));
+		}
+	
+		m_gridConsumed[x][y] = true;
+	}
+	
+	vec3 MakeSpread(int x, int y)
+	{
+		return vec3(randi(x) - x/2, randi(y) - y/2, 0);
+	}
+	
+	void FillCellMaggotEnemies(Scene@ scene, BaseBrushTiles@  bt, int x, int y)
+	{
+		auto cell = GetCell(x - 1, y);
+		if (cell == Cell::Cliff || cell == Cell::Reserved)
+			return;
+		cell = GetCell(x + 1, y);
+		if (cell == Cell::Cliff || cell == Cell::Reserved)
+			return;
+
+		m_gridConsumed[x][y] = true;
+	}
+	
+	void DoLighting(Scene@ scene)
+	{
+		scene.SetEnvironment(m_environment);
+		
+		if (m_lightUnit is null)
+			return;
+		
+		PreloaderYield();
+		
+		array<DungeonBrushDeco@> spawnedLights;
+		for (int y = 0; y < m_height; y++)
+		{
+			for (int x = 0; x < m_width; x++)
+			{
+				//if (m_gridConsumed[x][y])
+				//	continue;
+			
+				auto cell = m_grid[x][y];
+				
+				if (randi(1000) > m_lightTileChance)
+					continue;
+					
+				bool valid = false;
+				for (int yd = -2; yd < 2; yd++)
+				{
+					for (int xd = -2; xd < 2; xd++)
+					{
+						auto cl = GetCell(x + xd, y + yd);
+						if (cl == Cell::Floor || cl == Cell::Breakables || cl == Cell::Reserved)
+						{
+							valid = true;
+							break;
+						}
+					}
+					
+					if (valid)
+						break;
+				}
+				
+				if (!valid)
+					continue;
+				
+				spawnedLights.insertLast(DungeonBrushDeco(m_lightUnit, vec3(16 * x + m_posOffset.x, 16 * y + m_posOffset.y - 32, 0)));
+			}
+		}
+		
+		RemoveNearby(spawnedLights, m_lightMinDist);
+		SpawnDeco(spawnedLights);
+	}
+	
+	void SpawnPointsOfInterest(Scene@ scene)
+	{
+		bool printPfb = GetVarBool("debug_dungeon_prefabs");
+		
+		print("Making " + m_pointsOfInterest.length() + " prefabs to spawn");
+		for (uint i = 0; i < m_pointsOfInterest.length(); i++)
+		{
+			if (m_pointsOfInterest[i].m_type.m_prefab is null)
+			{
+				PrintError("Failed to open prefab '" + m_pointsOfInterest[i].m_type.m_id + "'");
+				continue;
+			}
+			
+			if (printPfb)
+				print("Spawning '" + m_pointsOfInterest[i].m_type.m_id + "'");
+			
+			vec2 offset = randdir(false) * m_pointsOfInterest[i].m_type.m_posJitter + m_posOffset;
+			vec3 pos = vec3(16 * m_pointsOfInterest[i].m_pos.x + offset.x, 16 * m_pointsOfInterest[i].m_pos.y + offset.y, 0);
+			g_prefabsToSpawn.insertLast(PrefabToSpawn(m_pointsOfInterest[i].m_type.m_prefab, pos));
+		}
+	}
+	
+	void Build(Scene@ scene) {}
+	
+	void FillBreakablesZone(int x, int y, int w, int h)
+	{
+		//print("FillBreakablesZone " + ivec4(x, y, w, h));
+	
+		int xPos = 0;
+		int yPos = 0;
+		int largestHThisRow = 0;
+		
+		int numFails = 0;
+		while (numFails < 5)
+		{
+			SizedUnitFillEntry@ breakable = null;
+			
+			int r = randi(m_totBreakableChance);
+			for (uint j = 0; j < m_breakables.length(); j++)
+			{
+				r -= m_breakables[j].m_chance;
+				if (r < 0)
+				{
+					//print("Got breakable "+j+", (" + m_totBreakableChance + ")");
+					@breakable = m_breakables[j];
+					break;
+				}
+			}
+			
+			if (breakable is null || (yPos + breakable.m_height) > h)
+			{
+				numFails++;
+				continue;
+			}
+			
+			if ((xPos + breakable.m_width) > w)
+			{
+				yPos += largestHThisRow;
+				xPos = 0;
+				largestHThisRow = 0;
+			}
+			
+			if (breakable.m_height > largestHThisRow)
+				largestHThisRow = breakable.m_height + randi(2);
+			
+			if (breakable.m_prod !is null)
+			{
+				float yOffset = breakable.m_height / 2 + (largestHThisRow - breakable.m_height) * randf();
+				auto pos = vec3(x + xPos + breakable.m_width / 2 + randi(-1, 1), y + yPos + yOffset, 0);
+				breakable.m_prod.Produce(g_scene, pos);
+				//print("Adding breakable, w: " + breakable.m_width + ", h: " + breakable.m_height);
+			}
+			
+			xPos += breakable.m_width;
+			//print("At pos " + xPos + ", " + yPos);
+		}
+	}
+	
+	void PlaceEnemySpots(Scene@ scene, DungeonEnemyPlacer@ enemyPlacer)
+	{
+		if (enemyPlacer is null)
+			return;
+		
+		PreloaderYield();
+		
+		for (int y = 0; y < m_height; y++)
+		{
+			for (int x = 0; x < m_width; x++)
+			{
+				if (m_gridConsumed[x][y])
+					continue;
+				
+				auto cell = m_grid[x][y];
+				if(cell != Cell::Floor)
+					continue;
+				
+				ivec3 center = FindFloorCenter(x, y);
+				if (center.z <= enemyPlacer.m_autoSpotMinRadius)
+					continue;
+				
+				if (randf() >= enemyPlacer.m_autoSpotChance)
+					continue;
+				
+				PlaceEnemyPlacement(scene, enemyPlacer, center);
+			}
+		}
+	}
+	
+	void PlaceEnemyPlacement(Scene@ scene, DungeonEnemyPlacer@ enemyPlacer, ivec3 center)
+	{
+		PreloaderYield();
+		
+		int px = center.x;
+		int py = center.y;
+		int totd = 0;
+		
+		for (int d = 0; d <= center.z; d++)
+		{
+			int startx = max(0, px - d);
+			int starty = max(0, py - d);
+			int endx = min(m_width - 1, px + d);
+			int endy = min(m_height - 1, py + d);
+			
+			for (int x = startx; x < endx; x++)
+			{
+				for (int y = starty; y < endy; y++)
+				{
+					auto cell = m_grid[x][y];
+					if(cell != Cell::Floor || m_gridConsumed[x][y])
+					{
+						totd = d;
+						d = center.z + 100;
+						x = px + d + 100;
+						y = py + d + 100;
+						break;
+					}
+				}
+			}
+		}
+		
+		int minx = max(0, px - totd);
+		int miny = max(0, py - totd);
+		int maxx = min(m_width - 1, px + totd);
+		int maxy = min(m_height - 1, py + totd);
+		
+		for (int x = minx; x < maxx; x++)
+			for (int y = miny; y < maxy; y++)
+				m_gridConsumed[x][y] = true;
+		
+		if (totd <= enemyPlacer.m_autoSpotMinRadius)
+			return;
+		
+		vec2 pos(16 * center.x + m_posOffset.x, 16 * center.y + m_posOffset.y);
+		auto script = scene.PlaceWorldScript("EnemyPlacement", pos);
+		if (script !is null)
+		{
+			script.SetParamString("Type", "few");
+			script.SetParamInt("Spread", (totd + 1) * 16 / 2 - 4, false);
+			script.SetParamBool("Generated", true);
+		}
+	}
+	
+	ivec3 FindFloorCenter(int px, int py)
+	{
+		const int maxSteps = 8;
+		ivec3 ret;
+		
+		{
+			int minx = 0;
+			int maxx = 0;
+			
+			for (uint i = 0; i < maxSteps; i++)
+			{
+				minx = px - i;
+				if (minx <= 0 || minx >= (m_width - 1) || m_gridConsumed[minx][py] || m_grid[minx][py] != Cell::Floor)
+					break;
+			}
+			
+			for (uint i = 0; i < maxSteps; i++)
+			{
+				maxx = px + i;
+				if (maxx <= 0 || maxx >= (m_width - 1) || m_gridConsumed[maxx][py] || m_grid[maxx][py] != Cell::Floor)
+					break;
+			}
+			
+			ret.z = maxx - minx;
+			
+			ret.x = roll_round((maxx - minx) / 2.0f) + minx;
+			px = ret.x;
+		}
+		
+		{
+			int miny = 0;
+			int maxy = 0;
+			
+			for (uint i = 0; i < maxSteps; i++)
+			{
+				miny = py - i;
+				if (miny <= 0 || miny >= (m_height - 1) || m_gridConsumed[px][miny] || m_grid[px][miny] != Cell::Floor)
+					break;
+			}
+			
+			for (uint i = 0; i < maxSteps; i++)
+			{
+				maxy = py + i;
+				if (maxy <= 0 || maxy >= (m_height - 1) || m_gridConsumed[px][maxy] || m_grid[px][maxy] != Cell::Floor)
+					break;
+			}
+			
+			ret.z = min(ret.z, maxy - miny);
+			ret.y = roll_round((maxy - miny) / 2.0f) + miny;
+		}
+		
+		return ret;
+	}
+	
+	void RemoveNearbySame(array<DungeonBrushDeco@>@ deco, int dist)
+	{
+		PreloaderYield();
+		dist = dist * dist;
+		
+		while(true)
+		{
+			bool removed = false;
+			for (uint i = 0; i < deco.length(); i++)
+			{
+				for (uint j = 0; j < deco.length(); j++)
+				{
+					if (i == j)
+						continue;
+					
+					if (deco[i].m_type !is deco[j].m_type)
+						continue;
+					
+					if (distsq(deco[i].m_pos, deco[j].m_pos) > dist)
+						continue;
+					
+					if (randi(2) == 0)
+						deco.removeAt(i--);
+					else
+						deco.removeAt(j);
+					
+					removed = true;
+					break;
+				}
+			}
+			
+			if (!removed)
+				break;
+		}
+	}
+	
+	
+	void RemoveNearby(array<DungeonBrushDeco@>@ deco, int dist)
+	{
+		PreloaderYield();
+		dist = dist * dist;
+		
+		while(true)
+		{
+			bool removed = false;
+			for (uint i = 0; i < deco.length(); i++)
+			{
+				for (uint j = 0; j < deco.length(); j++)
+				{
+					if (i == j)
+						continue;
+					
+					if (distsq(deco[i].m_pos, deco[j].m_pos) > dist)
+						continue;
+					
+					/*
+					if (randi(2) == 0)
+					{
+						deco.removeAt(i--);
+						removed = true;
+						break;
+					}
+					else
+					{
+						deco.removeAt(j--);
+						removed = true;
+					}
+					
+					//removed = true;
+					//break;
+					*/
+					
+					if (randi(2) == 0)
+						deco.removeAt(i--);
+					else
+						deco.removeAt(j);
+					
+					removed = true;
+					break;
+				}
+			}
+			
+			if (!removed)
+				break;
+		}
+	}
+	
+	
+	void SpawnDeco(array<DungeonBrushDeco@>@ deco)
+	{
+		PreloaderYield();
+		
+		for (uint i = 0; i < deco.length(); i++)
+			deco[i].m_type.Produce(g_scene, deco[i].m_pos);
+		
+		deco.removeRange(0, deco.length());
+	}
+}

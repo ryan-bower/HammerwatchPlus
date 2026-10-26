@@ -207,7 +207,9 @@ class Checks(Base):
         self.wait_log(r"\(firing\)", pos, 1.0)
         self.gl("input", 120, 0, 1, 0, 1, "dash")
         dodge = self.wait_log(r"pose: main down, off - \(idle \(another skill\)\)", pos, 1.5)
-        self.flag("rifle_down_on_dodge", dodge is not None and time.time() - t0 < 1.0, f"{dodge and dodge.group(0)}")
+        # the reason is the check: "(another skill)", not the 1000 ms idle; the time is a note
+        # (the inbox's round trips put the dodge itself ~1 s after the shot, poses 20261026-140606)
+        self.flag("rifle_down_on_dodge", dodge is not None, f"{dodge and dodge.group(0)} {time.time() - t0:.2f} s after the shot")
         time.sleep(1.2)
 
         pos, t0 = self.shoot()

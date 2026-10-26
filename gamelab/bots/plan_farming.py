@@ -607,7 +607,9 @@ class Checks(Base):
         self.close_windows()
         rolled = self.give_joint("lucky_leaf")
         eq = self.gl("wield", "hwp_joint_lucky_leaf_5")
-        time.sleep(0.5)
+        # the off hand's puff skill comes with the next stats refresh: a click 1 s after the
+        # wield did nothing (hotbox 20261026-140459; the console's round trip used to wait)
+        time.sleep(1.5)
         f0 = self.joint_fields()
         mark = len(self.g.read_log())
         self.gl("input", 300, 0, 0, 1, 0, "off")

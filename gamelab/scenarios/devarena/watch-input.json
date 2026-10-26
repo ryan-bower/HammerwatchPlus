@@ -1,0 +1,758 @@
+{
+ "name": "devarena-watch-input",
+ "about": "Watch-mode e2e of the player's hands in the Dev Arena (user report 2026-10-21: the mouse did nothing). Same setup as devarena/arena, then the shim hand-off with focus kept (a player who clicked into the window), and every kbm binding of res/controls_default.cfg pressed with posted mouse messages and the shim's SDL keys: the aim follows the mouse in four directions, and each of mouse_left/right/4/5, 1/2/3, q/e/v and space casts its skill (skill1, ran_mark, is TargetAOE: the press shows the marker and a left click places it, as in the game), r drinks, f uses, WASD move (da-inputlog, mods/devarena/scripts/HWP/DevArena/InputLog.as). \"on reset\" is a test cheat (mana refilled, cooldowns zeroed every frame, so presses can run back to back); while it is on, a red all-caps banner says so at the top of the screen, and the warning goes to the log and the chat. Posted messages stand in for the hardware; the OS foreground is never taken. Run: python -m gamelab run devarena/watch-input --mode watch.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "core",
+  "devarena",
+  "spec-ranger-test"
+ ],
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "mark",
+   "name": "preset"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_nature/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: ranger_nature/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_nature/mid ok",
+   "since": "preset",
+   "timeout": 15,
+   "name": "ready"
+  },
+  {
+   "do": "mark",
+   "name": "cheats-on"
+  },
+  {
+   "do": "gl",
+   "verb": "da-inputlog",
+   "args": [
+    "on",
+    "reset"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "input log on (cooldown and mana reset)"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-warn GAMELAB TEST ENVIRONMENT: INFINITE MANA AND NO COOLDOWNS",
+   "since": "cheats-on",
+   "timeout": 10,
+   "name": "test-cheat warning logged"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "handoff",
+   "keep_focus": true,
+   "name": "hand the mouse to the player (focus kept, as after a click into the window)"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "mark",
+   "name": "aim-right"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.83,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.85,
+    0.5
+   ]
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-mouse \\d+,\\d+ aim (0\\.[5-9]\\d|1\\.00),",
+   "since": "aim-right",
+   "timeout": 5,
+   "name": "mouse moved right: the cursor and aim follow"
+  },
+  {
+   "do": "mark",
+   "name": "aim-left"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.13,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.15,
+    0.5
+   ]
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-mouse \\d+,\\d+ aim -(0\\.[5-9]\\d|1\\.00),",
+   "since": "aim-left",
+   "timeout": 5,
+   "name": "mouse moved left: the cursor and aim follow"
+  },
+  {
+   "do": "mark",
+   "name": "aim-up"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.48,
+    0.1
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.5,
+    0.1
+   ]
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-mouse \\d+,\\d+ aim -?\\d\\.\\d\\d,-(0\\.[5-9]\\d|1\\.00)",
+   "since": "aim-up",
+   "timeout": 5,
+   "name": "mouse moved up: the cursor and aim follow"
+  },
+  {
+   "do": "mark",
+   "name": "aim-down"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.48,
+    0.9
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.5,
+    0.9
+   ]
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-mouse \\d+,\\d+ aim -?\\d\\.\\d\\d,(0\\.[5-9]\\d|1\\.00)",
+   "since": "aim-down",
+   "timeout": 5,
+   "name": "mouse moved down: the cursor and aim follow"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "mark",
+   "name": "press-mouse-left"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn main down",
+   "since": "press-mouse-left",
+   "timeout": 5,
+   "name": "mouse_left: main pressed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "press-mouse-left",
+   "timeout": 5,
+   "name": "mouse_left: the main skill cast"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "press-mouse-right"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn off down",
+   "since": "press-mouse-right",
+   "timeout": 5,
+   "name": "mouse_right: off pressed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "press-mouse-right",
+   "timeout": 5,
+   "name": "mouse_right: the off skill cast"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "press-mouse-x1"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "x1",
+   "hold": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn skill1 down",
+   "since": "press-mouse-x1",
+   "timeout": 5,
+   "name": "mouse_x1: skill1 pressed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill 1 \\S+ skill1 active",
+   "since": "press-mouse-x1",
+   "timeout": 5,
+   "name": "mouse_x1: ran_mark (TargetAOE) shows its marker"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.1
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill 1 \\S+ skill1 (cooldown|cast)",
+   "since": "press-mouse-x1",
+   "timeout": 5,
+   "name": "mouse_x1: a left click places ran_mark"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "press-mouse-x2"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "x2",
+   "hold": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn skill2 down",
+   "since": "press-mouse-x2",
+   "timeout": 5,
+   "name": "mouse_x2: skill2 pressed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ skill2",
+   "since": "press-mouse-x2",
+   "timeout": 5,
+   "name": "mouse_x2: the skill2 skill cast"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "press-key-1"
+  },
+  {
+   "do": "key",
+   "key": "1",
+   "hold": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn skill1 down",
+   "since": "press-key-1",
+   "timeout": 5,
+   "name": "key 1: skill1 pressed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill 1 \\S+ skill1 active",
+   "since": "press-key-1",
+   "timeout": 5,
+   "name": "key 1: ran_mark (TargetAOE) shows its marker"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.1
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill 1 \\S+ skill1 (cooldown|cast)",
+   "since": "press-key-1",
+   "timeout": 5,
+   "name": "key 1: a left click places ran_mark"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "press-key-2"
+  },
+  {
+   "do": "key",
+   "key": "2",
+   "hold": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn skill2 down",
+   "since": "press-key-2",
+   "timeout": 5,
+   "name": "key 2: skill2 pressed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ skill2",
+   "since": "press-key-2",
+   "timeout": 5,
+   "name": "key 2: the skill2 skill cast"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "press-key-3"
+  },
+  {
+   "do": "key",
+   "key": "3",
+   "hold": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn skill3 down",
+   "since": "press-key-3",
+   "timeout": 5,
+   "name": "key 3: skill3 pressed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ skill3",
+   "since": "press-key-3",
+   "timeout": 5,
+   "name": "key 3: the skill3 skill cast"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "press-key-q"
+  },
+  {
+   "do": "key",
+   "key": "q",
+   "hold": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn skill1 down",
+   "since": "press-key-q",
+   "timeout": 5,
+   "name": "key q: skill1 pressed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill 1 \\S+ skill1 active",
+   "since": "press-key-q",
+   "timeout": 5,
+   "name": "key q: ran_mark (TargetAOE) shows its marker"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.1
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill 1 \\S+ skill1 (cooldown|cast)",
+   "since": "press-key-q",
+   "timeout": 5,
+   "name": "key q: a left click places ran_mark"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "press-key-e"
+  },
+  {
+   "do": "key",
+   "key": "e",
+   "hold": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn skill2 down",
+   "since": "press-key-e",
+   "timeout": 5,
+   "name": "key e: skill2 pressed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ skill2",
+   "since": "press-key-e",
+   "timeout": 5,
+   "name": "key e: the skill2 skill cast"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "press-key-v"
+  },
+  {
+   "do": "key",
+   "key": "v",
+   "hold": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn skill3 down",
+   "since": "press-key-v",
+   "timeout": 5,
+   "name": "key v: skill3 pressed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ skill3",
+   "since": "press-key-v",
+   "timeout": 5,
+   "name": "key v: the skill3 skill cast"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "press-key-space"
+  },
+  {
+   "do": "key",
+   "key": "space",
+   "hold": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn dash down",
+   "since": "press-key-space",
+   "timeout": 5,
+   "name": "key space: dash pressed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ dash",
+   "since": "press-key-space",
+   "timeout": 5,
+   "name": "key space: the dash skill cast"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "press-r"
+  },
+  {
+   "do": "key",
+   "key": "r",
+   "hold": 0.2
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn potion down",
+   "since": "press-r",
+   "timeout": 5,
+   "name": "key r: potion pressed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-potion \\d+",
+   "since": "press-r",
+   "timeout": 5,
+   "name": "key r: a potion drunk"
+  },
+  {
+   "do": "mark",
+   "name": "press-f"
+  },
+  {
+   "do": "key",
+   "key": "f",
+   "hold": 0.2
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn use down",
+   "since": "press-f",
+   "timeout": 5,
+   "name": "key f: use pressed (nothing to use here)"
+  },
+  {
+   "do": "mark",
+   "name": "move-w"
+  },
+  {
+   "do": "key",
+   "key": "w",
+   "hold": 0.5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-move 0,-1",
+   "since": "move-w",
+   "timeout": 5,
+   "name": "key w: moves 0,-1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "move-a"
+  },
+  {
+   "do": "key",
+   "key": "a",
+   "hold": 0.5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-move -1,0",
+   "since": "move-a",
+   "timeout": 5,
+   "name": "key a: moves -1,0"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "move-s"
+  },
+  {
+   "do": "key",
+   "key": "s",
+   "hold": 0.5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-move 0,1",
+   "since": "move-s",
+   "timeout": 5,
+   "name": "key s: moves 0,1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "move-d"
+  },
+  {
+   "do": "key",
+   "key": "d",
+   "hold": 0.5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-move 1,0",
+   "since": "move-d",
+   "timeout": 5,
+   "name": "key d: moves 1,0"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "shot",
+   "name": "after-inputs"
+  },
+  {
+   "do": "gl",
+   "verb": "da-inputlog",
+   "args": [
+    "off"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "input log off"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-log off \\(\\d+ lines(, capped)?\\) banner [1-9]\\d*",
+   "since": "after-inputs",
+   "timeout": 10,
+   "name": "test-cheat banner drawn on screen"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-warn GAMELAB TEST CHEATS OFF",
+   "since": "after-inputs",
+   "timeout": 10,
+   "name": "cheats-off line logged"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "input-log off \\(\\d+ lines, capped\\)",
+   "name": "input log not capped"
+  }
+ ]
+}

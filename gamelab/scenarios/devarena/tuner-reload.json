@@ -1,0 +1,230 @@
+{
+ "name": "devarena-tuner-reload",
+ "about": "Review 6: Reload floor keeps the tuner's versions, slots and the live version (they ride the town save, fingerprinted against the boot override file), so the next edit's override line still holds the earlier work.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "core",
+  "devarena",
+  "spec-ranger-test"
+ ],
+ "timeout": 400,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "mark",
+   "name": "p1"
+  },
+  {
+   "do": "gl",
+   "verb": "da-preset",
+   "args": [
+    "ranger_nature/mid"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "preset ranger_nature/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_nature\\/mid ok",
+   "since": "p1",
+   "timeout": 15,
+   "name": "preset applied"
+  },
+  {
+   "do": "gl",
+   "verb": "da-set",
+   "args": [
+    "ran_trap",
+    "0",
+    "cooldown",
+    "7777"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "v1: ran_trap cooldown 7777"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "ran_trap"
+   ],
+   "expect": {
+    "ok": true,
+    "cooldown": 7777
+   },
+   "name": "v1 live"
+  },
+  {
+   "do": "gl",
+   "verb": "da-tune",
+   "expect": {
+    "ok": true,
+    "versions": 1,
+    "live": 1
+   },
+   "save_as": "before",
+   "name": "one version, live v1"
+  },
+  {
+   "do": "key",
+   "key": "f1",
+   "name": "F1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "click",
+   "dock": "tab-arena",
+   "verify": false,
+   "name": "the Arena tab"
+  },
+  {
+   "do": "mark",
+   "name": "reload"
+  },
+  {
+   "do": "click",
+   "dock": "reload",
+   "verify": false,
+   "name": "Reload floor"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] arena floor .* seed \\d+",
+   "since": "reload",
+   "timeout": 120,
+   "name": "the floor came back"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 60
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] tuner from the town save: 1 versions, live v1",
+   "since": "reload",
+   "timeout": 5,
+   "name": "the tuner rode the town save"
+  },
+  {
+   "do": "gl",
+   "verb": "da-tune",
+   "expect": {
+    "ok": true,
+    "versions": 1,
+    "live": 1,
+    "pending": false
+   },
+   "name": "still one version, live v1"
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "ran_trap"
+   ],
+   "expect": {
+    "ok": true,
+    "cooldown": 7777
+   },
+   "name": "v1 is back on the new level's defs"
+  },
+  {
+   "do": "mark",
+   "name": "edit2"
+  },
+  {
+   "do": "gl",
+   "verb": "da-set",
+   "args": [
+    "nature_entangle",
+    "0",
+    "cooldown",
+    "6666"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "v2: entangle cooldown 6666"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] override \\{.*\\[\"ran_trap\",0,\"cooldown\",\"7777\"].*\\[\"nature_entangle\",0,\"cooldown\",\"6666\"]",
+   "since": "edit2",
+   "timeout": 5,
+   "name": "the next override line still holds v1's edit"
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "ran_trap"
+   ],
+   "expect": {
+    "ok": true,
+    "cooldown": 7777
+   },
+   "name": "ran_trap kept"
+  },
+  {
+   "do": "gl",
+   "verb": "da-skill",
+   "args": [
+    "nature_entangle"
+   ],
+   "expect": {
+    "ok": true,
+    "cooldown": 6666
+   },
+   "name": "entangle edited"
+  }
+ ]
+}

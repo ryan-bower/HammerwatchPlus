@@ -1,0 +1,31 @@
+{
+ "name": "spike-rng",
+ "about": "Spike 8 (docs/devarena/SPEC.md build order): RNG reseed for a fixed-seed bench. srand(seed) then 8 randi(1000) draws, in the same frame and 5 and 60 gameplay frames later, each probe twice, with mobs alive on a mission floor (their AI draws too). Measured 20261020-222444: same-frame probes repeat, delayed probes do not, so a reseed cannot fix a fight's outcome and the bench is statistics only.",
+ "fixture": "mission-ranger",
+ "mods": ["core", "devarena"],
+ "timeout": 300,
+ "steps": [
+  {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},
+  {"do": "wait_phase", "phase": "mission", "timeout": 120},
+  {"do": "sleep", "seconds": 3},
+  {"do": "gl", "verb": "da-rng", "args": [777, 0], "expect": {"ok": true, "done": true}, "save_as": "f0a", "name": "same frame, probe 1"},
+  {"do": "gl", "verb": "da-rng", "args": [777, 0], "expect": {"ok": true, "done": true}, "save_as": "f0b", "name": "same frame, probe 2"},
+  {"do": "compare", "a": "f0a", "b": "f0b", "same": ["draws"], "name": "same frame: srand repeats (rand-frames 20261018-161957)"},
+  {"do": "gl", "verb": "da-rng", "args": [777, 5], "expect": {"ok": true}, "name": "start: +5 frames, probe 1"},
+  {"do": "sleep", "seconds": 1},
+  {"do": "gl", "verb": "da-rng", "expect": {"ok": true, "done": true, "frames": 5}, "save_as": "f5a", "name": "+5 frames, probe 1"},
+  {"do": "gl", "verb": "da-rng", "args": [777, 5], "expect": {"ok": true}, "name": "start: +5 frames, probe 2"},
+  {"do": "sleep", "seconds": 1},
+  {"do": "gl", "verb": "da-rng", "expect": {"ok": true, "done": true, "frames": 5}, "save_as": "f5b", "name": "+5 frames, probe 2"},
+  {"do": "gl", "verb": "da-rng", "args": [777, 60], "expect": {"ok": true}, "name": "start: +60 frames, probe 1"},
+  {"do": "sleep", "seconds": 3},
+  {"do": "gl", "verb": "da-rng", "expect": {"ok": true, "done": true, "frames": 60}, "save_as": "f60a", "name": "+60 frames, probe 1"},
+  {"do": "gl", "verb": "da-rng", "args": [777, 60], "expect": {"ok": true}, "name": "start: +60 frames, probe 2"},
+  {"do": "sleep", "seconds": 3},
+  {"do": "gl", "verb": "da-rng", "expect": {"ok": true, "done": true, "frames": 60}, "save_as": "f60b", "name": "+60 frames, probe 2"},
+  {"do": "compare", "a": "f0a", "b": "f5a", "differ": ["draws"], "name": "frames do draw (the delay changes the draws)"},
+  {"do": "compare", "a": "f5a", "b": "f5b", "differ": ["draws"], "name": "+5 frames does not repeat (measured 20261020-222444: the frames between draw a varying amount)"},
+  {"do": "compare", "a": "f60a", "b": "f60b", "differ": ["draws"], "name": "+60 frames does not repeat (measured 20261020-222444)"},
+  {"do": "log_clean"}
+ ]
+}

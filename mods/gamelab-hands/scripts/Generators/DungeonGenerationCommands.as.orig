@@ -1,0 +1,462 @@
+abstract class DungeonGenerationCommands
+{
+	float m_execChance;
+	ConditionalList@ m_conditionals;
+
+	void LoadParams(array<SValue@>@ params)
+	{
+		UnitPtr u;
+		
+		m_execChance = GetParamFloat(u, params, "exec-chance", false, 1.0f);
+		@m_conditionals = LoadConditionals(u, params);
+	}
+
+	bool Execute(DungeonBrush@ brush, PrefabPlacement@ pfbPlacer) { return false; }
+}
+
+class SpawnPrefabSet : DungeonGenerationCommands
+{
+	string m_set;
+	int m_min;
+	int m_max;
+	int m_numIters;
+	float m_numBoost;
+	int m_typeMinLimit;
+	
+	void LoadParams(array<SValue@>@ params) override
+	{
+		DungeonGenerationCommands::LoadParams(params);
+		
+		UnitPtr u;
+		m_set = GetParamString(u, params, "set", false);
+		if (m_set.isEmpty())
+			m_set = GetParamString(u, params, "theme", true);
+		m_min = GetParamInt(u, params, "min", false, 0);
+		m_max = GetParamInt(u, params, "max", false, 10000);
+		m_numIters = GetParamInt(u, params, "num-iterations", false, 1);
+		m_numBoost = GetParamFloat(u, params, "num-boost", false, 1.0f);
+		m_typeMinLimit = GetParamInt(u, params, "type-min-limit", false, 100);
+	}
+	
+	bool Execute(DungeonBrush@ brush, PrefabPlacement@ pfbPlacer) override
+	{
+		print("SpawnPrefabSet: " + m_set);
+		%PROFILE_SCOPE SpawnPrefabSet "+m_set+"
+		
+		int num = 0;
+		for (int i = 0; i < m_numIters; i++)
+		{
+			int n = pfbPlacer.PlacePrefabs(HashString(m_set), m_max - num, m_numBoost, m_typeMinLimit);
+			if (n <= 0)
+				break;
+			num += n;
+		}
+		
+		if (num < m_min)
+		{
+			PrintError("Couldn't spawn " + m_min + " of " + m_set);
+			return false;
+		}
+		
+		return true;
+	}
+}
+
+class SpawnPrefabSetPair : DungeonGenerationCommands
+{
+	string m_themeA;
+	string m_themeB;
+	
+	int m_minDistSq;
+	int m_minDistX;
+	int m_minDistY;
+	int m_maxDistSq;
+	int m_maxDistX;
+	int m_maxDistY;
+	
+	void LoadParams(array<SValue@>@ params) override
+	{
+		DungeonGenerationCommands::LoadParams(params);
+		
+		UnitPtr u;
+		m_themeA = GetParamString(u, params, "set1", true);
+		m_themeB = GetParamString(u, params, "set2", true);
+		m_minDistSq = GetParamInt(u, params, "min-dist", false, 0);
+		m_maxDistSq = GetParamInt(u, params, "max-dist", false, 10000);
+		
+		m_minDistX = GetParamInt(u, params, "min-dist-x", false, 0);
+		m_maxDistX = GetParamInt(u, params, "max-dist-x", false, 10000);
+		m_minDistY = GetParamInt(u, params, "min-dist-y", false, 0);
+		m_maxDistY = GetParamInt(u, params, "max-dist-y", false, 10000);
+		
+		m_minDistSq = m_minDistSq * m_minDistSq;
+		m_maxDistSq = m_maxDistSq * m_maxDistSq;
+	}
+	
+	bool Execute(DungeonBrush@ brush, PrefabPlacement@ pfbPlacer) override
+	{
+		print("SpawnPrefabSetPair: " + m_themeA + ", " + m_themeB);
+		%PROFILE_SCOPE SpawnPrefabSetPair
+
+		MissionPrefabDef@ typeA = null;
+		auto posA = pfbPlacer.GetPossiblePrefabPositions(HashString(m_themeA), typeA);
+		
+		if (typeA is null)
+		{
+			PrintError("Couldn't place " + m_themeA);
+			return false;
+		}
+		
+		MissionPrefabDef@ typeB = null;
+		auto posB = pfbPlacer.GetPossiblePrefabPositions(HashString(m_themeB), typeB);
+		
+		if (typeB is null)
+		{
+			PrintError("Couldn't place " + m_themeB);
+			return false;
+		}
+		
+		ivec2 finalPosA;
+		ivec2 finalPosB;
+		bool found = false;
+		
+		for (uint a = 0; a < posA.length() && !found; a++)
+		{
+			for (uint b = 0; b < posB.length(); b++)
+			{
+				auto d = posA[a] - posB[b];
+				if (d.x < m_minDistX || d.x > m_maxDistX)
+					continue;
+				if (d.y < m_minDistY || d.y > m_maxDistY)
+					continue;
+				
+				float dist = float(d.x) * float(d.x) + float(d.y) * float(d.y);
+				if (dist > m_minDistSq && dist < m_maxDistSq)
+				{
+					finalPosA = posA[a];
+					finalPosB = posB[b];
+					found = true;
+					break;
+				}
+			}
+		}
+		
+		if (!found)
+		{
+			PrintError("Couldn't find two appropriate spots for " + m_themeA + ", and " + m_themeB);
+			return false;
+		}
+		
+		pfbPlacer.PlacePrefabAt(typeA.UsePrefab(), finalPosA);
+		pfbPlacer.PlacePrefabAt(typeB.UsePrefab(), finalPosB);
+		
+		return true;
+	}
+}
+
+class ApplyErosion : DungeonGenerationCommands
+{
+	int m_numIters;
+	float m_wallChance;
+	float m_floorChance;
+
+	void LoadParams(array<SValue@>@ params) override
+	{
+		DungeonGenerationCommands::LoadParams(params);
+		
+		UnitPtr u;
+		
+		m_numIters = GetParamInt(u, params, "num-iterations", false, 2);
+		m_wallChance = GetParamFloat(u, params, "wall-chance", false, 0.25);
+		m_floorChance = GetParamFloat(u, params, "floor-chance", false, 0.25);
+	}
+	
+	bool Execute(DungeonBrush@ brush, PrefabPlacement@ pfbPlacer) override
+	{
+		print("ApplyErosion: " + m_numIters + " steps");
+		%PROFILE_SCOPE ApplyErosion: "+m_numIters+"
+
+		int w = brush.m_width;
+		int h = brush.m_height;
+
+		for (int i = 0; i < m_numIters; i++)
+		{
+			for (int y = 0; y < h; y++)
+			{
+				for (int x = 0; x < w; x++)
+				{
+					if (brush.IsConsumed(x, y))
+						continue;
+
+					auto cellType = brush.GetCell(x, y);
+
+					if (cellType == Cell::Wall)
+					{
+						if (randf() > m_wallChance)
+							continue;
+
+						if (IsFloor(brush.GetCell(x - 1, y)) || 
+							IsFloor(brush.GetCell(x + 1, y)) || 
+							IsFloor(brush.GetCell(x, y - 1)) || 
+							IsFloor(brush.GetCell(x, y + 1)))
+							brush.SetCell(x, y, Cell::Floor);
+					}
+					else if (cellType == Cell::Floor)
+					{
+						if (randf() > m_floorChance)
+							continue;
+
+						int wl = 0;
+						if (IsWall(brush.GetCell(x, y - 1))) wl++;
+						if (IsWall(brush.GetCell(x - 1, y))) wl++;
+						if (IsWall(brush.GetCell(x + 1, y))) wl++;
+						if (IsWall(brush.GetCell(x, y + 1))) wl++;
+						
+						if (wl == 1)
+							brush.SetCell(x, y, Cell::Wall);
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+
+	bool IsWall(Cell cell)
+	{
+		return (cell == Cell::Wall || cell == Cell::PlaceWall || cell == Cell::Nothing || cell == Cell::Outside);
+	}
+
+	bool IsFloor(Cell cell)
+	{
+		return (cell == Cell::Floor || cell == Cell::PlaceFloor);
+	}
+}
+
+class ContractWalls : DungeonGenerationCommands
+{
+	int m_numIters;
+
+	void LoadParams(array<SValue@>@ params) override
+	{
+		DungeonGenerationCommands::LoadParams(params);
+		
+		UnitPtr u;
+		
+		m_numIters = GetParamInt(u, params, "num-iterations", false, 2);
+	}
+	
+	bool Execute(DungeonBrush@ brush, PrefabPlacement@ pfbPlacer) override
+	{
+		print("ContractWalls: " + m_numIters + " steps");
+		%PROFILE_SCOPE ContractWalls: "+m_numIters+" steps
+
+		int w = brush.m_width;
+		int h = brush.m_height;
+
+		for (int i = 0; i < m_numIters; i++)
+		{
+			for (int y = 0; y < h; y++)
+			{
+				for (int x = 0; x < w; x++)
+				{
+					if (brush.IsConsumed(x, y))
+						continue;
+
+					int wl = 0;
+					if (IsWall(brush.GetCell(x - 1, y - 1))) wl++;
+					if (IsWall(brush.GetCell(x, y - 1))) wl++;
+					if (IsWall(brush.GetCell(x + 1, y - 1))) wl++;
+					if (IsWall(brush.GetCell(x - 1, y))) wl++;
+					if (IsWall(brush.GetCell(x + 1, y))) wl++;
+					if (IsWall(brush.GetCell(x - 1, y + 1))) wl++;
+					if (IsWall(brush.GetCell(x, y + 1))) wl++;
+					if (IsWall(brush.GetCell(x + 1, y + 1))) wl++;
+					
+					if (brush.GetCell(x, y) == Cell::Wall)
+					{
+						if ((wl == 0 && randi(100) < 50) ||
+							(wl == 2 && randi(100) < 66) ||
+							(wl == 3 && randi(100) < 20) ||
+							 wl == 1)
+							brush.SetCell(x, y, Cell::Floor);
+					}
+					/*
+					else if (brush.GetCell(x, y) == Cell::Floor)
+					{
+						if ((wl == 6 && randi(100) < 33) ||
+							(wl == 7 && randi(100) < 50) ||
+							 wl == 8)
+							brush.SetCell(x, y, Cell::Wall);
+					}
+					*/
+				}
+			}
+		}
+
+		return true;
+	}
+
+	bool IsWall(Cell cell)
+	{
+		return (cell == Cell::Wall || cell == Cell::PlaceWall || cell == Cell::Nothing || cell == Cell::Outside);
+	}
+}
+
+class FillDeadEndPaths : DungeonGenerationCommands
+{
+	int m_numIters;
+
+	int m_pathWidth;
+	int m_pathHeight;
+
+
+	void LoadParams(array<SValue@>@ params) override
+	{
+		DungeonGenerationCommands::LoadParams(params);
+		
+		UnitPtr u;
+		
+		m_numIters = GetParamInt(u, params, "num-iterations", false, 10);
+		
+		m_pathWidth = GetParamInt(u, params, "path-width", false, 0);
+		m_pathHeight = GetParamInt(u, params, "path-height", false, 0);
+	}
+
+	bool Execute(DungeonBrush@ brush, PrefabPlacement@ pfbPlacer) override
+	{
+		print("FillDeadEndPaths: " + m_numIters + " steps");
+		%PROFILE_SCOPE FillDeadEndPaths: "+m_numIters+" steps
+
+		auto w = uint8(Pattern::Wall);
+		auto f = uint8(Pattern::Floor);
+
+		array<uint8> down;
+		array<uint8> up;
+		array<uint8> left;
+		array<uint8> right;
+
+		if (m_pathHeight > 0)
+		{
+			for (int i = 0; i < m_pathWidth + 2; i++)
+				up.insertLast(w);
+
+			down.insertLast(w);
+			up.insertLast(w);
+
+			for (int i = 0; i < m_pathWidth; i++)
+			{
+				down.insertLast(f);
+				up.insertLast(f);
+			}
+
+			down.insertLast(w);
+			up.insertLast(w);
+
+			for (int i = 0; i < m_pathWidth + 2; i++)
+				down.insertLast(w);
+		}
+
+		if (m_pathHeight > 0)
+		{
+			left.insertLast(w);
+			left.insertLast(w);
+			right.insertLast(w);
+			right.insertLast(w);
+
+			for (int i = 0; i < m_pathHeight; i++)
+			{
+				left.insertLast(w);
+				left.insertLast(f);
+				right.insertLast(f);
+				right.insertLast(w);
+			}
+
+			left.insertLast(w);
+			left.insertLast(w);
+			right.insertLast(w);
+			right.insertLast(w);
+		}
+
+		int totFilled = 0;
+		for (int i = 0; i < m_numIters; i++)
+		{
+			int filled = 0;
+			if (m_pathWidth > 0)
+			{
+				filled += FillDeadEnd(brush, up, ivec2(m_pathWidth + 2, 2), ivec2(1, 1), m_pathWidth, 1);
+				filled += FillDeadEnd(brush, down, ivec2(m_pathWidth + 2, 2), ivec2(1, 0), m_pathWidth, 1);
+			}
+
+			if (m_pathHeight > 0)
+			{
+				filled += FillDeadEnd(brush, left, ivec2(2, m_pathHeight + 2), ivec2(1, 1), 1, m_pathHeight);
+				filled += FillDeadEnd(brush, right, ivec2(2, m_pathHeight + 2), ivec2(0, 1), 1, m_pathHeight);
+			}
+
+			totFilled += filled;
+			if (filled <= 0)
+				break;
+		}
+
+		print("Filled in " + totFilled + " dead ends");
+		return true;
+	}
+
+	int FillDeadEnd(DungeonBrush@ brush, array<uint8>@ pattern, ivec2 patternSz, ivec2 offset, int w, int h)
+	{
+		auto ends = PatternMatcher::FindAllPatterns(brush, pattern, patternSz, true);
+		int numFilled = 0;
+		for (uint i = 0; i < ends.length(); i++)
+		{
+			int xs = ends[i].x + offset.x;
+			int ys = ends[i].y + offset.y;
+			
+			bool consumed = false;
+			for (int x = 0; x < w; x++)
+			{
+				for (int y = 0; y < h; y++)
+				{
+					if (brush.IsConsumed(xs + x, ys + y))
+					{
+						consumed = true;
+						break;
+					}
+				}
+			}
+			
+			if (consumed)
+				continue;
+			
+			numFilled++;
+			for (int x = 0; x < w; x++)
+				for (int y = 0; y < h; y++)
+					brush.SetCell(xs + x, ys + y, Cell::Wall);
+		}
+		
+		return numFilled;
+	}
+}
+
+
+class RemoveThinWalls : DungeonGenerationCommands
+{
+	bool Execute(DungeonBrush@ brush, PrefabPlacement@ pfbPlacer) override
+	{
+		print("RemoveThinWalls");
+		%PROFILE_SCOPE RemoveThinWalls
+
+		array<uint8> pattern = { uint8(Pattern::Floor), uint8(Pattern::Wall), uint8(Pattern::Floor) };
+
+		auto wallH = PatternMatcher::FindAllPatterns(brush, pattern, ivec2(1, 3));
+		for (uint i = 0; i < wallH.length(); i++)
+			brush.SetCell(wallH[i].x, wallH[i].y + 1, Cell::Floor);
+
+		auto wallV = PatternMatcher::FindAllPatterns(brush, pattern, ivec2(3, 1));
+		for (uint i = 0; i < wallV.length(); i++)
+			brush.SetCell(wallV[i].x + 1, wallV[i].y, Cell::Floor);
+
+		print("Removed " + (wallH.length() + wallV.length()) + " walls");
+		return true;
+	}
+}

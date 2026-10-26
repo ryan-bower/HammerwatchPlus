@@ -32,6 +32,27 @@ from gamelab import env, winproc  # noqa: E402
 SHIM = REPO / "tools" / "bin" / "hwr2_capture.dll"
 GL_LINE = re.compile(r"\[GL\] (\{.*\})\s*$")
 ECHO_LINE = re.compile(r"> gl (c\d+) ")       # the console echoes every line it executes
+CONSOLE_ECHO = re.compile(r"^\[\w{3}\] \[[\d:]+\] > (\S[^\n]{0,120})", re.M)   # any line it executed
+# The transport: "inbox" (default) sends lines as text the probe reads with the console shut
+# (mods/gamelab-probe Inbox.as); an open console pauses the game. "console" types them into the
+# console as before: only the console-measurement bots (console_bench/_trace/_keys/_enter) and
+# GAMELAB_TRANSPORT=console use it.
+TRANSPORTS = ("inbox", "console")
+# console lines with a console-free form (Game.console_verb): the cheat functions, run by their
+# bodies (gamelab-hands ConsoleLines.as); "hwp <rest>" sets core's hwp_line; "<cvar> <value>" is setvar
+CHEAT_FUNCS = {"ply_kill": 0, "cht_revive": 0, "cht_set_flag": 3, "cht_give_material": 2, "cht_add_all_dyes": 0, "cht_unlock_town_flags": 0,
+               "mission_start": 1, "cht_finish_level": 0, "dbg_show_stash": 0, "show_chat": 0,
+               "cht_give_health": 1, "cht_damage": 1, "cht_give_mana": 1, "cht_clear_trinkets": 0,
+               "cht_give_specific_trinket": 1, "cht_spawn_specific_equipment": 1, "cht_add_blueprint": 1,
+               "cht_add_all_blueprints": 0}
+CVAR_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+LOG_TS = re.compile(r"^\[\w{3}\] \[(\d\d):(\d\d):(\d\d)\]")   # "[NFO] [22:29:08] ..."
+# Seconds between two consecutive log lines, once heartbeats run, that make a "stall": the
+# probe beats every 1000 ms of frames, so a longer silence is a frame the scripts held (cube-run
+# 20261018-222736: 15 gaps of 23.7-25.0 s inside the pilot's loot scan, 386 s of a 651 s run)
+# or a level load. Measured on the log's own clock, so a late pump does not fake one.
+STALL_S = 6
+STALL_NOTES_CAP = 500
 WM_CLOSE = 0x0010
 
 
@@ -55,6 +76,24 @@ class Game:
         self._gl_seen_at_cmd = 0          # len(self.gl) then (a "boot" since = a level load)
         self.events = open(results / "gl.jsonl", "a", encoding="utf-8")
         self._next_id = 0
+        self._hb_paused = False
+        # context every event is tagged with: _place = the last "place" a non-preload line
+        # carried (hb, scans), _lvl = how many non-preload boots so far (level loads, town = 1)
+        self.place = ""
+        self.lvl = 0
+        # stall detector state (STALL_S)
+        self._log_sec: int | None = None      # the last log line's [HH:MM:SS], seconds of day
+        self._last_ev = ""                    # the last [GL] line before a silence: ev or id
+        self._hb_seen = False
+        self.stall_s = 0                      # total stalled seconds this run
+        self.stalls = 0
+        self.transport = os.environ.get("GAMELAB_TRANSPORT", "inbox")
+        if self.transport not in TRANSPORTS:
+            raise GameError(f"GAMELAB_TRANSPORT={self.transport!r}: one of {TRANSPORTS}")
+        self.inbox_sent = 0                   # lines sent through the inbox / typed into the console
+        self.console_typed = 0
+        self.paused_fallbacks: set[str] = set()   # ids typed while paused (Run.check_console exempts them)
+        self.inbox_resends = 0
 
     # ---- lifecycle --------------------------------------------------------
 
@@ -70,6 +109,12 @@ class Game:
             # SDL's activating calls whenever another process owns the foreground (focus gate:
             # docs/RE_NOTES.md 2026-10-17 "watch-mode focus")
             child_env["GAMELAB_NO_ACTIVATE"] = "1"
+            # keys go into SDL_PollEvent through the shim's mailslot, never through SDL's
+            # keyboard focus (posted Enters lost while the user works elsewhere: chest-watch
+            # 20261018-163015, -165101). GAMELAB_SHIM_INPUT=1 in the runner's environment
+            # opts a lab run in too, to measure it.
+            child_env["GAMELAB_SHIM_INPUT"] = "1"
+        self.shim_input = child_env.get("GAMELAB_SHIM_INPUT") == "1"
         self.proc = subprocess.Popen([str(self.game_dir / "HWR2.exe")], cwd=str(self.game_dir),
                                      env=child_env, creationflags=winproc.CREATE_SUSPENDED)
         injected = winproc.inject(self.proc, str(SHIM))
@@ -138,7 +183,18 @@ class Game:
         self._log_tail = lines.pop()          # partial last line, finished next pump
         self._log_pos += len(chunk)
         for line in lines:
+            ts = LOG_TS.match(line)
+            stall = None
+            if ts:
+                sec = int(ts.group(1)) * 3600 + int(ts.group(2)) * 60 + int(ts.group(3))
+                if self._log_sec is not None and self._hb_seen:
+                    gap = (sec - self._log_sec) % 86400      # past midnight
+                    if gap >= STALL_S:
+                        stall = (gap, self._log_sec, sec)
+                self._log_sec = sec
             e = ECHO_LINE.search(line)
+            if stall:
+                self._stall(*stall, line)
             if e:
                 self.echoed.add(e.group(1))
                 continue
@@ -154,9 +210,45 @@ class Game:
             # mod module again; its lines carry "[preload]" (pilot-consumables 20261017-152746)
             if "[preload]" in line[:m.start()]:
                 obj["_preload"] = True
+            else:
+                if obj.get("ev") == "boot":
+                    self.lvl += 1
+                    self.place = ""           # the hb after it names the new one
+                if isinstance(obj.get("place"), str) and obj["place"]:
+                    self.place = obj["place"]
+            obj["_place"] = self.place
+            obj["_lvl"] = self.lvl
+            if obj.get("ev") == "hb":
+                self._hb_seen = True
+                self._hb_paused = bool(obj.get("paused"))
+            # the inbox's receipt, as the console's echo was; "cid", not "id", so it is never
+            # taken for the reply
+            if obj.get("ev") == "rx" and isinstance(obj.get("cid"), str) and not obj.get("_preload"):
+                self.echoed.add(obj["cid"])
+            self._last_ev = str(obj.get("ev") or obj.get("id") or "")
             self.gl.append(obj)
             self.events.write(json.dumps(obj) + "\n")
         self.events.flush()
+
+    def _stall(self, gap: int, a: int, b: int, line: str) -> None:
+        """A silence of gap s in the game log between [a] and [b] (seconds of day), ended by
+        line. One harness.stall each, capped; stall_s keeps the total either way."""
+        self.stall_s += gap
+        self.stalls += 1
+        if self.stalls > STALL_NOTES_CAP:
+            return
+        hms = lambda s: f"{s // 3600:02d}:{s // 60 % 60:02d}:{s % 60:02d}"
+        m = GL_LINE.search(line)
+        after = line[m.start():][:160] if m else line[LOG_TS.match(line).end():].strip()[:160]
+        self.note("stall", s=gap, log_from=hms(a), log_to=hms(b), before=self._last_ev, after=after,
+                  total_s=self.stall_s, capped=self.stalls == STALL_NOTES_CAP)
+
+    def game_silent_s(self) -> float:
+        """Wall seconds since the game log last grew (a frozen frame or a load)."""
+        try:
+            return round(time.time() - self.log_path.stat().st_mtime, 1)
+        except OSError:
+            return -1.0
 
     def wait_log(self, text: str, timeout: float = 60) -> bool:
         end = time.time() + timeout
@@ -199,12 +291,19 @@ class Game:
         while time.time() < end:
             self.hwnd = winproc.game_window(self.proc.pid)
             if self.hwnd:
+                if getattr(self, "shim_input", False) and not getattr(self, "_shim_noted", False):
+                    self._shim_noted = True
+                    ok = winproc.use_shim_input(self.hwnd, self.proc.pid)
+                    self.note("shim_input", ok=ok)
+                    if not ok:
+                        raise GameError("shim input asked for but no mailslot (stale tools/bin/hwr2_capture.dll?)")
                 return self.hwnd
             time.sleep(0.2)
         raise GameError("no SDL_app window")
 
     def key(self, name: str, hold: float = 0.05) -> None:
-        winproc.key(self.window(), winproc.VK[name], hold)
+        *mods, last = name.split("+") if len(name) > 1 else [name]   # "ctrl+z": modifiers first
+        winproc.key(self.window(), winproc.VK[last], hold, mods=tuple(winproc.VK[m] for m in mods))
         self.note("key", key=name, hold=hold)
 
     def type_text(self, s: str, gap: float = 0.03) -> None:
@@ -212,6 +311,10 @@ class Game:
         textinput. A gap of a frame per char lets the game read each."""
         winproc.text(self.window(), s, gap)
         self.note("type", text=s)
+    def text(self, s: str, gap: float = 0.03) -> None:
+        """Typed text, one SDL_TEXTINPUT per character, into whatever is taking text input."""
+        winproc.text(self.window(), s, gap)
+        self.note("text", text=s)
 
     # console() pauses, seconds: after opening the console, typing gap per char, before Enter,
     # after Enter, after closing; and key hold. The old fixed values (0.15/0.004/0.05/0.1/0.1,
@@ -232,12 +335,67 @@ class Game:
     FAST_TIMING = {"open": 0.07, "gap": 0.0, "pre_enter": 0.0, "post_enter": 0.07,
                    "close": 0.0, "hold": 0.0}
     CLOSE_SETTLE = 0.15
+    # submit console lines with the keypad Enter (console()). Off: the console takes it, but
+    # console-enter 20261018-104534 did not show the main Enter leaving stray presses either
+    console_kp_enter = False
     # the closed console keeps sliding out of view after CLOSE_SETTLE; a screenshot inside
     # this window shows the panel (blind observer, open-chest 20261017-190827). Measured by
     # console-slide 20261017-191646: in the frame right after the reply, gone 100 ms later
     SHOT_SETTLE = 0.25
 
-    def console(self, line: str, already_open: bool = False, timing: dict | None = None) -> None:
+    @staticmethod
+    def inbox_frame(line: str) -> str:
+        """The text the probe's inbox reads as one line: "!" + line + "~", with "%", "!" and
+        "~" inside it escaped (Inbox.as InboxUnescape)."""
+        if "\n" in line or "\r" in line:
+            raise GameError(f"inbox lines are one line: {line!r}")
+        esc = line.replace("%", "%25").replace("!", "%21").replace("~", "%7E")
+        return "!" + esc + "~"
+
+    def send_inbox(self, line: str) -> None:
+        """One line to the probe's inbox: text events with the console shut (no console key,
+        no Enter), so the game never pauses for it."""
+        winproc.text(self.window(), self.inbox_frame(line), 0)
+        self.inbox_sent += 1
+
+    @staticmethod
+    def console_verb(line: str) -> list[str]:
+        """A console line as the gl verb that does the same without the console:
+        `hwp <rest>` -> setvar hwp_line <rest> (core Commands.as OnHwpLine); a cheat function
+        (CHEAT_FUNCS) -> cheat <fn> <args>; `<cvar> <value...>` -> setvar. Anything else (a
+        console function with no mirror) raises: add its mirror to ConsoleLines.as."""
+        parts = line.split()
+        if not parts:
+            raise GameError("empty console line")
+        head, rest = parts[0], parts[1:]
+        if head == "gl":
+            raise GameError(f"a gl line goes through gl_cmd, not console(): {line!r}")
+        if head == "hwp":
+            return ["setvar", "hwp_line", *(rest or ["help"])]
+        if head in CHEAT_FUNCS:
+            if len(rest) != CHEAT_FUNCS[head]:
+                raise GameError(f"{head} takes {CHEAT_FUNCS[head]} args: {line!r}")
+            return ["cheat", head, *rest]
+        if CVAR_NAME.match(head) and rest:
+            return ["setvar", head, *rest]
+        raise GameError(f"no console-free form for {line!r} (a console function without a "
+                        "mirror in gamelab-hands ConsoleLines.as)")
+
+    def console(self, line: str, already_open: bool = False, timing: dict | None = None) -> dict | None:
+        """A console line. With the inbox transport it runs as its console_verb (the reply is
+        returned and must be ok); with GAMELAB_TRANSPORT=console it is typed into the console."""
+        if self.transport == "inbox":
+            verb, *args = self.console_verb(line)
+            reply = self.gl_cmd(verb, *args)
+            if not reply.get("ok"):
+                raise GameError(f"console line {line!r} as {verb}: {reply.get('error', reply)}")
+            return reply
+        return self.type_console(line, already_open, timing)
+
+    def type_console(self, line: str, already_open: bool = False, timing: dict | None = None) -> None:
+        """Type a line into the console: opens it, which pauses the game. The console-measurement
+        bots only (and GAMELAB_TRANSPORT=console)."""
+        self.console_typed += 1
         t = timing or getattr(self, "console_timing", None) or self.CONSOLE_TIMING
         h = self.window()
         settle = getattr(self, "_closed_at", 0.0) + self.CLOSE_SETTLE - time.time()
@@ -248,14 +406,22 @@ class Game:
             time.sleep(t["open"])
         winproc.text(h, line, t["gap"])
         time.sleep(t["pre_enter"])
-        winproc.key(h, winproc.VK["enter"], t["hold"])
+        # console_kp_enter (opt-in, bots/console_enter.py measures it): submit with the keypad
+        # Enter. The main Enter is MenuForward (res/controls_default.cfg:32); whether it presses the
+        # widget an open window's mouse rests on is open (docs/RE_NOTES.md, stray presses)
+        winproc.key(h, winproc.VK["enter"], t["hold"], extended=self.console_kp_enter)
         time.sleep(t["post_enter"])
         winproc.key(h, winproc.VK["console"], t["hold"])
         self._closed_at = time.time()
         time.sleep(t["close"])
 
-    def gl_cmd(self, verb: str, *args, timeout: float = 15) -> dict:
-        """Send `gl <id> <verb> args` and return its [GL] reply (raises on timeout)."""
+    def gl_cmd(self, verb: str, *args, timeout: float = 15, via: str | None = None) -> dict:
+        """Send `gl <id> <verb> args` and return its [GL] reply (raises on timeout). via
+        overrides the transport for this line: "console" for the main menu, where no module
+        ticks and so the inbox is not read (Run.boot's menu probe and menu-continue)."""
+        transport = via or self.transport
+        if transport not in TRANSPORTS:
+            raise GameError(f"via={transport!r}: one of {TRANSPORTS}")
         self._next_id += 1
         cid = f"c{self._next_id}"
         line = " ".join(["gl", cid, verb, *map(str, args)])
@@ -269,10 +435,35 @@ class Game:
         # on heartbeats, not a fixed time, keeps a line whose echo is stuck behind a level
         # load's log flush from running twice.
         reply = None
+        if transport == "inbox":
+            # resent once two heartbeats pass with no rx (the text was lost, e.g. in a level
+            # load); a line whose rx arrived is never sent again
+            for attempt in range(3):
+                if attempt:
+                    self.inbox_resends += 1
+                    self.note("inbox_resend", id=cid, attempt=attempt, line=line[:120],
+                              silent_s=self.game_silent_s(), stall_s=self.stall_s)
+                self.send_inbox(line)
+                reply = self.wait_gl(lambda o: o.get("id") == cid, timeout, echo=cid, beats=2)
+                if reply is not None or cid in self.echoed:
+                    break
+        # three sends and no rx while the game says it is paused: the pause menu's frames read
+        # no text (architect-errors 20261020-105836: c108 after an Escape, paused, inLines flat).
+        # The game is stopped already, so the console costs nothing there; Inbox.as drops the
+        # line if a late inbox copy arrives too. Unpaused, a lost line stays an error.
+        fallback = transport == "inbox" and reply is None and cid not in self.echoed and self._hb_paused
+        if fallback:
+            self.note("inbox_fallback", id=cid, line=line[:120], silent_s=self.game_silent_s())
+            self.paused_fallbacks.add(cid)
         for attempt, already_open in enumerate((False, False, True)):
+            if transport == "inbox" and not fallback:
+                break
             if attempt:
-                self.note("console_retype", id=cid, attempt=attempt, already_open=already_open)
-            self.console(line, already_open=already_open, timing=timing if not attempt else self.CONSOLE_TIMING)
+                # silent_s: a frozen frame (harness.stall) echoes nothing, so a retype then is
+                # not a lost keystroke (cube-run 20261018-222736: c70 retyped twice inside a 24 s stall)
+                self.note("console_retype", id=cid, attempt=attempt, already_open=already_open,
+                          line=line[:120], silent_s=self.game_silent_s(), stall_s=self.stall_s)
+            self.type_console(line, already_open=already_open, timing=timing if not attempt else self.CONSOLE_TIMING)
             reply = self.wait_gl(lambda o: o.get("id") == cid, timeout, echo=cid, beats=2)
             if reply is not None or cid in self.echoed:
                 break
@@ -357,11 +548,15 @@ class Game:
 
     def note(self, ev: str, **kw) -> None:
         obj = {"ev": "harness." + ev, "_t": round(time.time() - self.t0, 3), **kw}
+        obj.setdefault("_place", getattr(self, "place", ""))
+        obj.setdefault("_lvl", getattr(self, "lvl", 0))
         self.events.write(json.dumps(obj) + "\n")
         self.events.flush()
         print(json.dumps(obj), flush=True)
 
     def close(self) -> None:
+        if self.hwnd:
+            winproc.drop_shim_input(self.hwnd)
         self.events.close()
 
 

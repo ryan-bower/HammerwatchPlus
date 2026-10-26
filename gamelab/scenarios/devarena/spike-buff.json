@@ -1,0 +1,20 @@
+{
+ "name": "spike-buff",
+ "about": "Spike 7 (docs/devarena/SPEC.md build order): buff LoadParams retune. The ranger's dodge_roll buff (duration 2000, one SpeedAdd modifier) is given to the player, retuned to 6000 ms and move-speed 0.5 on its cached def, and given again: the new instance runs 6 s, the running one kept its 2 s, and the modifier list reloads.",
+ "fixture": "mission-ranger",
+ "mods": ["core", "devarena"],
+ "timeout": 300,
+ "steps": [
+  {"do": "sleep", "seconds": 2},
+  {"do": "gl", "verb": "da-buff", "args": ["players/ranger/buffs_ranger.sval:dodge_roll", "get"], "expect": {"ok": true, "duration": 2000, "debuff": false, "modifiers": 1, "liveLeft": -1}, "name": "before: dodge_roll 2000 ms, not on the player"},
+  {"do": "gl", "verb": "da-buff", "args": ["players/ranger/buffs_ranger.sval:dodge_roll", "give"], "expect": {"ok": true, "given": true, "liveLeft": {"between": [1000, 2000]}}, "name": "setup: give the stock buff (cheat)"},
+  {"do": "gl", "verb": "da-buff", "args": ["players/ranger/buffs_ranger.sval:dodge_roll", "set", "duration", "6000"], "expect": {"ok": true, "duration": 6000, "liveLeft": {"between": [1, 2000]}}, "name": "retune duration 6000: the running instance keeps its 2 s"},
+  {"do": "gl", "verb": "da-buff", "args": ["players/ranger/buffs_ranger.sval:dodge_roll", "set", "modifiers.0.move-speed", "0.5"], "expect": {"ok": true, "duration": 6000, "modifiers": 1}, "name": "retune the modifier: patches stack, modifiers reload"},
+  {"do": "sleep", "seconds": 2.5},
+  {"do": "gl", "verb": "da-buff", "args": ["players/ranger/buffs_ranger.sval:dodge_roll", "get"], "expect": {"ok": true, "liveLeft": -1}, "name": "the stock instance ran out"},
+  {"do": "gl", "verb": "da-buff", "args": ["players/ranger/buffs_ranger.sval:dodge_roll", "give"], "expect": {"ok": true, "given": true, "liveLeft": {"between": [5000, 6000]}}, "name": "a new instance runs the retuned 6 s"},
+  {"do": "gl", "verb": "da-buff", "args": ["players/ranger/buffs_ranger.sval:dodge_roll", "set", "nope.0", "1"], "expect": {"ok": false}, "name": "a bad path is refused"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] buff players/ranger/buffs_ranger.sval:dodge_roll duration=6000", "timeout": 5},
+  {"do": "log_clean"}
+ ]
+}

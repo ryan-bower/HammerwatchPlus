@@ -68,10 +68,19 @@ class Checks:
         """The first open widget with this id (the widgets dump: type, visible, text for
         TextWidgets, enabled for buttons), or {}. A button's own caption is a BitmapString
         the dump can't read back."""
-        for root in self.gl("widgets", depth).get("roots", []):
+        r = self.gl("widgets", depth)
+        for root in r.get("roots", []):
             for n in root.get("nodes", []):
                 if n.get("id") == wid:
                     return n
+        if not r.get("truncated"):
+            return {}
+        # the whole dump was cut (its byte cap, each node with its screen position): each root alone
+        for name in [root.get("root") for root in r.get("roots", [])]:
+            for root in self.gl("widgets", depth, name).get("roots", []):
+                for n in root.get("nodes", []):
+                    if n.get("id") == wid:
+                        return n
         return {}
 
     def flag(self, name, ok, note=""):

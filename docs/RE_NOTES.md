@@ -3296,6 +3296,338 @@ measurement.
   Magazine.as, Combat.as, StashSort.as and the regenerated attack table; no script errors in our
   files). `qa-firearms-magazine-crit 20261022-194932` PASS (12 assertions: the per-gun split with the explicit flags). `qa-content-stash-families 20261022-195143` PASS (the typed ids still group by family). `build.py --check`, `list_verbs.py --check`, pytest as above.
 
+## 2026-10-18 (afternoon): reproducible generated floors (`mission ... seed=N`)
+
+- **The generator's RNG is the engine's global one, and it is shared.** Every draw in
+  `Generators/*.as` is `randi`/`randf`/`randdir`/`roll_round` (no `RandomSequence`, no script
+  `srand`). `srand(seed)` does drive `randi()` (rand-check 20261018-161345, verified), but:
+  - the engine draws from it every frame: srand, then a draw one frame later, differs; in the
+    same frame it matches (rand-frames 20261018-161957, verified);
+  - inside `MissionGameMode::Generate` another thread draws concurrently: srand, a CPU-only
+    spin, then `randi()` gave a different value on each load (seed-repeat 20261018-162919,
+    verified). Reseeding after every `PreloaderYield` was not enough (seed-repeat 20261018-162502).
+- **Script globals do not survive `ChangeLevel`** (seed-repeat 20261018-160442: a global set by
+  the verb read 0 on the new floor, verified). Generate and Start of one level share globals.
+- **What works:** gamelab-hands overrides the 11 drawing `Generators/*.as` files (made by
+  `tools/make_seeded_generators.py`, `.orig` beside each, `--check` for drift) with the draws
+  routed through `GameLab::GenRand*`: a private `RandomSequence` while a seeded floor builds,
+  the vanilla calls otherwise. The seed rides in the town save (TownRecordSave hook, read by
+  the TownRecordLoad that `Generate` fires at MissionGameMode.as:434, before the generator at
+  :456); GameModeStart srands the global RNG for the Start draws and re-saves the town without
+  it; the module's first UpdateFrame ends the private sequence.
+  - seed-repeat 20261018-163350 and 20261018-163508: PASS. Seed 12345 from town gives the same
+    floor before and after a restart, and across the two runs: spawn (-16,-352), secret walls,
+    chests, piles, reward spots, 173234 generator draws each time. Seed 777 differs.
+  - Same-seed re-entry from a floor of the same run is NOT the same floor: Run flags pick
+    run-unique set pieces (MissionPrefabDef.as:83) and are only cleared in town
+    (TownGameMode.as:33) or by the loadout menu (MissionLoadoutMenu.as:209), which `mission`
+    skips. Enter from town to compare.
+  - Assumed, not measured: `randi(lo, hi)` taken as inclusive (one 1-unit jitter), `randdir(false)`
+    as a point in the unit disc; draws outside `Generators/` during Start (RewardSpot,
+    post-gen commands) are seeded only through the shared global RNG, yet matched in both runs.
+
+## 2026-10-18 (evening): watch-mode input without focus; chest-watch clean
+
+- **Watch input goes through the shim, not the window.** With `GAMELAB_SHIM_INPUT=1` (set by
+  watch mode) the capture shim opens mailslot `gamelab_input_<pid>` and hands keys/text to the
+  game from its `SDL_PollEvent` hook. The user's real input and foreground are untouched.
+  Verified: a `gl ping` typed into a live watch game with the window unfocused (user saw the console).
+- **Focus belief** (shim input only): one `FOCUS_GAINED` injected, `FOCUS_LOST`/`LEAVE` dropped,
+  `SDL_GetWindowFlags` carries input+mouse focus, `SDL_GetMouseFocus` falls back to the game window.
+  Needed for keys to be taken (chest-watch 20261018-170421 failed without the mouse-focus part; -170545 worked).
+- **Why Enter was lost on the main menu:** any mouse-position change puts the menu in mouse mode
+  (`GUI/WindowInput.as:84-91`), where MenuForward clicks only the hovered widget
+  (`GUI/WindowObject.as:96-113`), so nothing. Watch 20261018-172146 lost three Enters after the
+  user's pointer crossed the window; lab -172828 reproduced it with one posted WM_MOUSEMOVE
+  (`GAMELAB_SIM_BLUR=1`). Fix: with shim input the shim drops SDL mouse events 0x400-0x403 and
+  `SDL_GetMouseState` answers 0,0 with no buttons. Verified: lab -173744 (same repro) PASS, watch
+  -174021 PASS (session on the first Enter). `gl pointer` writes the engine MousePos and is unaffected.
+- `menu-continue` (native `ContinueGame()` from a gl line) replies ok but starts nothing (lab
+  -172530); kept only as a measured dead end.
+- **Unit ids are reused.** Gold 8740 taken at one trinket chest, then the other chest's Infused
+  Amethyst spawned as 8740 and was skipped as already tried (lab -173358). Pilot's tried set and
+  chest-drop diff now key on the unit's identity (`LootKey`: debug name + item name).
+- **Kiting through walls:** threats are fought only if engageable (clear shot or a route within
+  half kite range, cached 5 s); fire needs `ClearShot`; the strafe side flips when stuck. Lab -171345:
+  61 fights, 0 timeouts, 0 stuck.
+- **Far walls no longer beat near loot:** the quarter-distance pull of a secret wall with a pending
+  reward applies only within `WALL_PULL_R` 200. Watch -174021 walked to wall 13007 (335 away,
+  counted 84) past the just-released chest 8704 (130); lab -174309 looted the first room first.
+- Hidden units (blueprints with no factory) are skipped as loot targets (lab -164438).
+
+## 2026-10-20 (night): Dev Arena spikes (docs/devarena/SPEC.md build order 1)
+All on the pinned build, scenarios in `gamelab/scenarios/devarena/`, code in `mods/devarena/`.
+- **A skill rebuild applies live.** Patching a skill's sval and calling `LoadSkills()` on the
+  frame no class skill is casting changes the next cast: cooldown 20000 to 3000 ms, area damage
+  60 to 99, and the second cast came 4026 ms after the first (spike-rebuild 20261020-222102).
+  The deferred apply (queue, then flush when nothing is casting) holds an edit made mid-cast
+  until the cast ends (spike-deferred 20261020-222134).
+- **A buff retune hits new instances only.** dodge_roll duration 2000 to 6000: the instance
+  already running kept 2 s, and a new one ran 6 s (spike-buff 20261020-222307).
+- **Freezing mobs takes three locks.** `m_frozen` plus a code-built lock-movement buff still let
+  mobs drift 3.8 and 3.9 px in 10 s (spike-freeze 20261020-222234 and -222411, even with the
+  velocity zeroed). With a third lock, a static body pinned every frame to its frozen position,
+  maxMoved was 0.0 and hpLost 0. The unfrozen control moved 79.7 px and dealt 233 damage
+  (20261020-222630).
+- **The RNG cannot be pinned for a bench.** Probes taken the same frame after `srand` repeat
+  ([735,559,771,...]), but probes 5 or 60 frames later do not (spike-rng 20261020-222444 and
+  -222702). Something else draws from the stream every frame. So the bench compares by
+  statistics, never by a fixed seed.
+- **A mod class loads through the engine's action loader.** Setting a skill action's `class` to
+  `HWP::DevArena::ProbeAction` and rebuilding built it once (Actions/IAction.as:282
+  InstantiateClass), and one cast fired it once: log `[HWP:devarena] probe action
+  'entangle-start' fired (1)` (spike-class 20261020-222728).
+- **A non-pausing dock with mouse capture.** The dock draws from the module's `RenderWidgets`
+  (hw8 font, UI units) and not as a window, so the game keeps running (paused false).
+  - With the pointer over it, the dock takes `Focus::Obtain(Focus::PLAYERMENU)`, as an open
+    window does, and the player then takes no attack, skill or move input: a Skill2 press over
+    the dock did not cast. Off the dock, focus stays 1, keys move the player and Skill2 casts.
+  - Clicks arrive as `MenuInput.Forward` (mouse_left is MenuForward, controls_default.cfg:31).
+  - F1 to F12 are unbound in the lab's `res/controls_default.cfg`. F1 is polled with
+    `Platform::IsKeyDown(Keyboard, 0, 58)`.
+  - The lab window is 640x360 px, which is 768x432 UI units at scale 0.833. At that size the
+    dock starts at px 416 (spike-dock 20261020-223329; the first run, 223151, failed only on an
+    over-tight px assert).
+  - Assumed until the end-of-goal visual run: the layout holds at 1080p and 1440p.
+- **The dock takes typed text without a window.** It uses the chat's mechanism
+  (GUI/Menus/InGameChat.as).
+  - A click on the field calls `ControlBindings.ExpectTextInput()` and
+    `m_windowManager.LockInput(true)`. The field then reads the frame's
+    `GameInput.GetTextInput(i)` events (spike-text 20261020-224031).
+  - Typed text lands in the field. Bound keys pressed while typing type their letters as well:
+    a posted d, m and i added "dmi". They do nothing else: the player did not move, and no
+    window opened (`gl ui` windows []).
+  - Backspace, Enter (Submit) and Escape (Cancel) each arrive as their own event.
+  - The window manager's input lock spends Escape (GUI/WindowManager.as Back), so no pause menu
+    opened.
+  - After `StopExpectTextInput` the keys move the player again.
+  - GameLab's inbox frames (`!gl ...~`) come through the same events, so the field skips them.
+    As a result "!" and "~" cannot be typed into dock fields.
+  - The first run, 20261020-223947, asserted the text without the bound keys' letters.
+
+## 2026-10-20 (night): Dev Arena tuner (docs/devarena/SPEC.md build order 2)
+- **The Tune tab works end to end as a player uses it** (tuner-dock 20261020-225735, every
+  input posted to the window, buttons aimed by id through `gl da-dock`):
+  - F1 opens the dock. A click picks Entangle.
+  - Typing 99 into the L5 area-dmg cell made v1 in slot B. It went live, and the skill read 99.
+  - The growth [+] stepper made v2: growth 15.2 put L2-L5 on 35/50/66/81 with the base kept
+    at 20. The vanilla curve is 20/25/35/45/60, a fitted growth of 9.
+  - Ctrl+Z and Ctrl+Y stepped B between v1 and v2.
+  - F2 swapped to A and the skill read vanilla 60, then swapped back.
+  - Castpoint 150 -> 100 moved the timeline's cast time to 100 as well (v3).
+  - Pin mode pinned L3 without making a version. Focus never left the user's window.
+- **Ctrl and Shift chords reach the game through PostMessage** (`gamelab/winproc.py` mods,
+  `{"do":"key","key":"ctrl+z"}`). The module saw them through `Platform::IsKeyDown` scancodes
+  224 (LCtrl), 29 (Z) and 28 (Y) (same run).
+- **The tuner state survives a restart.** The override file written by
+  `tools/devarena/overrides.py` from that run's last override line was read at boot. The tuner
+  came back on v3 in B with its pin, and Entangle was castpoint 100 with L5 area-dmg 81 before
+  any input (export-boot 20261020-230402).
+- **A runtime-patch mod changes vanilla skills without shadowing files.** `vanilla-tuning` with
+  two rows (ran_mark cooldown 1234, castpoint 77) logged `patched 1 skill defs (2 edits applied,
+  0 failed)` on the first frame with a player, and `da-skill ran_mark` read both values (same run).
+
+## 2026-10-20 (night): Dev Arena loadouts (docs/devarena/SPEC.md build order 3)
+- **All 74 presets apply on a live floor and read back** (loadout-all 20261020-233249): class,
+  level, picks, stats, gear base id with quality and ilvl per slot, trinkets, and budgets not
+  overspent. 76 applies, 0 mismatches, 0 new log errors.
+- **`ChangeClass` works mid-floor without a reload.** paladin_divine/end applied from a
+  ranger: `da-loadout` read class paladin_divine level 20, the HUD skill bar showed the paladin
+  skills, and `state` still read phase mission (same run). The re-skinned sprite is assumed.
+- **The Loadout tab works as a player uses it** (loadout-dock 20261020-232844, all input
+  posted, buttons aimed by id):
+  - Class and subclass chips, then one click applied paladin_divine/early.
+  - A star logged the favorite. Two compare ticks.
+  - str [+] was refused with `no stat points`, because a preset spends every point. level [+]
+    and then str [+] landed, and `da-loadout` read `edited` true at level 6.
+  - Save variant logged str 9 at level 6. Revert re-applied the preset (`edited` false, level 5).
+  - The favorites row re-applied it in one click from the ranger.
+  - The mini HUD showed `DEV | paladin_divine/early` with the dock closed.
+- **A skill level reads one upgrade over the base; upgrades do not stack.** `AddPlayerSkill`
+  builds `{ m_levelParams[lvl-1], m_levelParams[0] }` (PlayerBase.as:179-187), so an edit to
+  upgrade k only reaches level k+1. tools/devarena/tooltip_lint.py models it that way.
+- **Tooltip numbers are text, not field reads** (`LoadSkillDescriptionParams`,
+  PlayerClass.as:212-238). A tuner edit therefore leaves the tooltip stale, and the lint
+  reports it.
+- AngelScript: `string &inout` is refused on a non-handle type ("Only object types that support
+  object handles can use &inout"). Use `&in` plus `&out`.
+
+## 2026-10-20 (night): Dev Arena arena and golem (docs/devarena/SPEC.md build order 4)
+- **The Arena tab works as a player uses it** (arena-dock 20261020-235731, all input posted,
+  buttons by id): god/nocd/mana chips set `CVars::ChtGodmode`/`ChtNoCooldowns` (read back by
+  `da-arena`), a footman pack armed and placed with `pointer 150 180 mclick` (4 units, 205 units
+  left of the player), Cull ended the encounter (`clear 2112 ms taken 0 deaths 0`), F6 paused
+  and resumed, Esc disarmed without the pause menu, F3 reset, Reload regenerated floor 13 from
+  seed 4242 at the same start (928,112) with the toggles restored from the town save.
+- **A level change in the middle of an emulated click leaves `MenuInput.Forward.Pressed` set.**
+  The dock re-opened on the new floor and took it as a fresh click every frame: a reload loop
+  (arena-dock 20261020-235104). Reload now waits 10 frames, and a new floor ignores dock clicks
+  for 10 frames and clears the press.
+- **Esc reaches `g_gameMode.MenuBack()` before the pause menu.** The HUD asks its components in
+  order (HUD.as:538-547); one that returns true keeps the menu shut (20261020-235519 without,
+  20261020-235731 with).
+- **The golem pull measures** (golem-room 20261020-235415): F4 in, footman elite 1M at
+  armor 60 res 30, the ranger's main attack held 4 s north, `golem-pull` dps 441 / 28 hits,
+  breakdown attributes all of it (unattributed 0). Profile, NG+, pool and debuff chips each
+  respawned it as asked (`golem spawn dummy ngp 1 hp 4000000`), F4 out.
+- Golem damage feeds the game's statistics: the pull unlocked the "Heavy Hitters I"
+  accomplishment (shot `pulling`).
+- AngelScript: `out` is a keyword; a local named `out` fails with "Expected '('".
+- **Wall pieces produced at run time block and render** (golem-room 20261021-000718):
+  `Resources::GetUnitProducer("doodads/walls/barracks/v_32.unit").Produce(...)` on a
+  dark_citadel floor stood in the corridor and stopped the player 6 units short of it.
+- **A float round trip through `dictionary` is not reliable**: per-skill damage stored with
+  `set(k, float)` and read with `get(k, float &out)` came back as INT_MIN (cast to int) in one
+  of two identical runs (golem-room 20261021-000549). Parallel arrays replace it.
+- While the dock is hovered it eats movement: an `input` walk with the mouse left over a chip
+  did not move the player. Park the pointer off the dock first.
+
+## 2026-10-21: Dev Arena composer, HPs, acceptance
+
+Verified on the pinned build unless marked; run ids are `gamelab/results/<id>-<scenario>-lab/`.
+
+- **`ButtonState` is a value type** (no `@` handles; Bench.as:239 keeps them by value).
+- **A gl reply must not carry an `"of"` key**: `gamelab/session.py:465` reads it as a chunked
+  reply and waits for the rest.
+- **Entangle's per-pull damage swings 75 to 2490** on the same golem and loadout (bench-dock
+  20261021-002300, -002422, -002810, -004957). Benches need several pulls and a noise verdict.
+- **Some presses never take**: paladin_divine/early's skill2 reads CanActivate but casts
+  nothing (76 presses a pull). Bench.as:835-855 backs a press that is still ready 400 ms on off
+  for 2 s and logs `bench-stuck` once per bench.
+- **A typed dock field holds `Focus::Obtain(PLAYERMENU)`** (Dock.as:515), so no skill casts
+  while typing; edits are deferred to the next frame (spike-deferred 20261020-222134).
+- **Composing a skill goes through `AddPlayerSkill`**, which stacks level dicts on the base
+  (PlayerBase.as:189-215). `GetSkillLevel` is 1-based; the values index is `level - 1`
+  (PlayerBase.as:187).
+- **`PlayerSkillDef.m_name` is resolved text**, not a string key
+  (Behaviors/Actors/Player/PlayerClass.as:69, 145).
+- **SValue dict key order is not preserved** in log output; log regexes must not assume it.
+- **gl replies contain `lastError`**: a `log_lacks` regex for errors needs `\b(error|...)\b`.
+- **MissionEndMenu clears the run's trinkets** (`ResetForNewMission`, GUI/MissionEndMenu.as:428;
+  hp5-relaunch 20261021-012907).
+- **A fresh town has no buildings**; the Subclass Picker stands in guild hall tier 3 (the second
+  upgrade, variation 2). Its index wraps: `(index + numPicks) % numPicks`
+  (SubclassPickShopContent.as:70).
+- `da-skill` returns bind values as strings (compare `"99"`, not `99`).
+- HP runs: hp1-feel 20261021-012123, hp2-golem-tuning 20261021-003613, hp3-loadout-compare
+  20261021-003510, hp4-compose 20261021-011713, spec-clone 20261021-011648, hp5-relaunch
+  20261021-013132, hp6-ship 20261021-014726, hp7-autotune 20261021-015752.
+- **UI units by resolution** (ui_scale default): 1920x1080 is 960x540 at `m_wndScale` 2,
+  2560x1440 is 854x480 at 3 (res 20261021-022008, `gl da-res`). `SetVar("v_resolution")` resizes
+  the window live within 2 s (the options window's path, GUI/Options/ResolutionsWindow.as:44).
+- **The HUD's bottom bar draws over a mod's GUI** (res 20261021-021235: the dock footer under the
+  pet icons). Measured bar: centred, about 142 UI units each side, 30 tall.
+- **Adversarial review, fixed** (edge 20261021-025759, hp5-relaunch 20261021-025859, bench-bleed
+  20261021-025945): AngelScript `parseInt` wraps past int32 (4294967396 landed as 100), so int
+  leaves now check the range; a typed field past its limit is refused, not committed cut off
+  (164 vanilla string binds are over the old 48-char limit, now 160); a castpoint edit no longer
+  moves timeline entry 0; negative castpoint/cooldown are refused. **A pull's area units and
+  projectiles outlive it** and hit the next pull's golem (A after a strong B: 190346 damage):
+  `FetchUnitsWithBehavior("IProjectile"/"IOwnedUnit", ...)` takes interface names; each reset
+  clears the player's projectiles and owned non-actor units (3 per pull here), and A then read
+  798/625/760 dps.
+- **Second review** (acceptance 20261021-030146, hp1 030856, hp4 030920 PASS; its own edge runs
+  failed): 30 of 47 vanilla skills with a castpoint open their timeline on the cast
+  (`[100,"cast"]`, Trap), so the castpoint move now skips only an entry followed by `"start"`.
+  **The dock's layout pass runs the clicked button before the field commits**, so a castpoint
+  typed on Entangle went onto Trap when the Trap chip was the click (and onto the other A/B
+  slot via the swap); the press now commits first, against last pass's field rect. Compose's
+  int fields check int32 too. Known: the NUMBERS castpoint cell doesn't move the timeline
+  (only FEEL does). edge 20261021-031450 covers all of it.
+- **Third review** (acceptance 20261021-032125 PASS): committing first reflowed a filter or
+  search under the pointer, so the click went to a row never drawn there (lsearch "paladin" +
+  a click on ranger_nature/end applied paladin_divine/end). The press is now bound to the
+  button drawn under it in the last pass (`Ui.targeted`/`target`). Known, non-blocking: a
+  `[0,"pre",X,"cast"]` timeline (warcry, pal_judgement, ...) still moves its "pre" entry when
+  the castpoint was 0; a castpoint past later events leaves the timeline unsorted
+  (rog_grappling_hook); flame_step's castpoint (100) matches no timeline entry, so it moves
+  nothing. edge 20261021-032945.
+- **Fourth review** (acceptance 20261021-033739, hp3 034401 PASS; its rev4-commit 034134 FAIL):
+  a growth +/- clicked while a cell was still being typed fitted the curve to the old values.
+  The commit only queues the edit and Flush runs next frame, so area-ttl L1=5000 plus grow+
+  wrote [5000,8350,9700,11050,12400] (base 7000, step 5% of 7000). TickDock now calls Flush()
+  right after that pre-commit, and ApplyGrowth refuses while an edit is pending (a cast in
+  flight), with "growth refused <path>: edit pending" in the log and the footer. Measured: the
+  same clicks give growth 1916.667 (fit 1666.667 + step 250) and [5000,6917,8833,10750,12667]
+  (edge 20261021-034903). Known, non-blocking: a click on a row the commit moves is dropped
+  (the user clicks again), not misdirected.
+- **Fifth review** (its rev5-class 20261021-040148): every class builds its own skill defs
+  (`PlayerClass.as:452`), so `ran_trap` on ranger_nature and on ranger_beasts are different
+  objects, and the tuner edits only the current class's. A preset that changed class left the
+  new class vanilla under "live v1" (ran_trap cooldown 2000 instead of 7777), and switching back
+  put the old class's stale version live. ApplyPreset now restores the old class's defs and
+  drops the snapshots before `ChangeClass`, then forces a Flush of `g_want` onto the new class
+  ("class <id>: re-applying v<n>"). class-switch 20261021-040406 measures nature v1 7777 ->
+  beasts 7777 -> beasts v2 5555 -> nature 5555 -> Ctrl+Z 7777. TuneSubmit's "same as live, skip"
+  shortcut is now skipped while an edit is pending (read in code, not measured). Known,
+  non-blocking (read in code): Ctrl+Z after A/B swaps walks the global version list; the Compose
+  source field can commit its placeholder; ComposeSubmit drops `;`, `=` and `|` silently;
+  re-applying a compose draft replaces that skill's Tune edits; the bench's variant swap doesn't
+  rewrite the override file until the next change.
+- **Sixth review** (rev6-reload 20261021-041452, rev6-compose 041840):
+  - Reload floor reset the tuner to the boot file. Script globals die with the level, and the
+    module re-reads `devarena_overrides.sval` as cached at boot, so v1 was gone and the next edit's
+    override line no longer held it. The tuner (versions, slots, live, pins, needs-relaunch) now
+    rides the town save with the arena toggles (`SaveTuner`/`LoadTuner` in Overrides.as).
+  - That save is stamped with `HashString(OverrideJson())` of the file as read at boot. It is taken
+    back only while the process still sees that file, so a relaunch after `overrides.py sync`
+    (or a hand-emptied file) reads the file. TownRecordLoad runs twice per level; the load is idempotent.
+    tuner-reload 20261021-042320 measures v1 7777 through a reload and a v2 line holding both edits.
+  - `clone_spec.py --version a|b|N` took each slot's last `compose-dict` line in the log, which can
+    belong to another version (A shipped B's 9000 cooldown under A's name). It now takes the
+    compose-dicts logged just before that version's last `live vN (` line, and refuses a composed
+    version that was never live in the log. Re-run offline on 041840's log: `--version a` gives 3000.
+  - Known, non-blocking: `da-set` drops arguments past the 4th (values with spaces); a class change
+    not made by a preset (the Subclass Picker NPC) is not followed until the next level; the
+    Compose CHECK cache key can show a stale result across a class change (display only).
+- **Seventh review** (rev7-levels 20261021-044701, 50 of 51 assertions; the one failure was the
+  reviewer's own click on a control a projectile draft doesn't offer): **no blocking defects**.
+  Measured: a compose v1 + Tune v2 survive a floor change with A live ("tuner from the town save:
+  2 versions, live v0, A v0, B v2, slot A"), F2 brings back cooldown 4444 and "Thorn Volley"; a
+  ranger_beasts preset then a floor change then back to nature keeps v2; Ctrl+Z after the reloads
+  gives v1. clone_spec `--version 2|1|b|live|a` on that log each baked the right version's
+  compose-dict. Known, non-blocking: the Compose form shows the default draft after a level change
+  until a preset reloads it (the live skill and the version are right; a re-compose from the blank
+  form would overwrite the draft); `overrides.py` has `sync` and `show`, no `clear`; the preload
+  module logs a stale "tuner from the town save: 0 versions" before the real level (harmless).
+
+## 2026-10-21: watch-mode mouse, the shim hand-off, the input e2e
+
+User report: in `devarena/arena --mode watch` the mouse did nothing. Verified from the shim log of
+the user's run 20261021-061402-arena-watch: with GAMELAB_SHIM_INPUT=1 and GAMELAB_NO_ACTIVATE=1
+(`gamelab/session.py` start) the shim drops SDL mouse events 0x400-0x403, freezes
+SDL_GetMouseState at 0,0 and fakes focus for the whole run, including the human's `play` step.
+Those are hidden-desktop requirements, not watch-mode ones.
+
+- **Hand-off** (`tools/capture_shim/hwr2_capture.c`, mailslot message `GAMELAB_HANDOFF` 0x7F00,
+  `winproc.shim_handoff`): the `play`/`handoff` step stops the shim's lies. Without
+  `keep_focus` the mouse, focus and window events pass and focus is answered truthfully (log:
+  "input handed to the player: SDL mouse, focus and window events pass through"). With
+  `keep_focus` (the e2e: a player who clicked in) only the mouse is freed and SDL still sees focus.
+- **TrackMouseEvent**: SDL 2.30.7 tracks mouse-leave on each move; with the real cursor outside
+  the window WM_MOUSELEAVE comes back at once and SDL resets to the real cursor position, so a
+  posted WM_MOUSEMOVE never shows in GameInput.MousePos (lab 20261021-155630). The shim hooks
+  TrackMouseEvent in SDL2.dll and skips it only in the keep_focus hand-off. Lab mode has no shim
+  input path, so the four mouse-aim assertions of watch-input fail there by design.
+- **End shot**: after the player closes the window the runner no longer calls
+  `winproc.restore_noactivate` on the dead window (`closed_by_player`).
+- **TargetAOE skills** (ran_mark): the press shows the marker and MainHandAttack.Pressed places
+  it; OffHand/Skill1 cancel it (PlayerTargetingHelper.as:280). While aiming, other skills report
+  m_wasBlocked, which is the game's behaviour, not an input loss.
+- **`da-inputlog on reset` is a test cheat**: mana refilled and cooldowns zeroed every frame so
+  the e2e can press every binding back to back. `devarena/arena` never turns it on. Since the user
+  saw "instant mana" in a test window and asked for it to be obvious, the mod draws a red banner
+  "GAMELAB TEST ENVIRONMENT: INFINITE MANA, NO COOLDOWNS" at the top of the screen while it is on
+  (arial14_bold), and logs and chats an all-caps `input-warn` line on "on", every 15 s, and on
+  "off". The chat itself only shows in a lobby or after the menu script's `show_chat` (a console
+  function that mods can't reach, core Commands.as:13), so the banner is what a single player sees.
+  Verified in lab 20261021-161444: `input-log off (168 lines) banner 2762`, and the banner is
+  readable in `shots/after-inputs.png`.
+- Open (assumed, not chased): in the same lab run the second skill3 press (`v`) reached the game
+  (`input-btn skill3 down`) but nature_entangle stayed `input-skill-blocked`, so it didn't cast.
+  The first press (`3`) did. Watch run 20261021-160710 also missed later presses while the user
+  was interacting with the window; rerun it with nobody in the window.
+
 ## The deploy list was missing three modules (2026-10-22, night)
 
 Reading the install's `mods/` back after `deploy.py modded-prod --beta` (29 bins identical to
@@ -3735,3 +4067,44 @@ below, and 1000 and 5000 stayed on gold_5. Walking onto the 300 pile paid gold (
 725 with neighbours). The screenshots show three rows: bronze, silver, gold. `mod-all`
 20261026-131915 passed; `build.py --check` and `list_verbs.py --check` are OK. Not seen:
 how it reads at full resolution (the lab renders 640x360).
+
+## 2026-10-26: the October work merged with main's Dev Arena (branch features-20261026)
+
+The 28 commits from 2026-10-22 to 10-26 sat on a base older than main's Dev Arena merge
+(PRs #10-#12), so origin/main was merged into the branch. Conflicts were in RE_NOTES (both
+sides appended sessions: main's 10-18 to 10-21 come first), `docs/modules.md` (the campaign
+row from here; devarena and vanilla-tuning from main), the mission-ranger fixture's `about`
+(main's Warden build plus the note on the dropped dash-charges probe) and the generated
+verb list (regenerated).
+
+Main's GameLab sends a scenario's `hwp <rest>` line as `setvar hwp_line <rest>` through the
+inbox (`gamelab/session.py` console_verb). That needs core's `hwp_line` cvar
+(`Commands.as` OnHwpLine, `cvar_flags::TriggerChanged`), which was only in the dev-arena
+WIP snapshot 6ee00a1 and never reached core on main: every `hwp` line failed with
+"setvar: no cvar hwp_line of a settable type (type 10)" (fix-chest-art 20261026-132440).
+It is ported unchanged from 6ee00a1; fix-chest-art and mod-core then passed (132631,
+132724).
+
+The merged tree's first batch passed 29 of 38 scenarios. The other nine came from main's
+GameLab changes meeting this branch's bots, not from the mods:
+- **sval `file:entry`.** Main's probe split the path at `.sval:` before the lookup, but a file
+  of named roots (`fishing_keys.sval`, `<svals><dict name="keys">`) resolves only as the
+  whole `file:entry` path. SvalDump now tries the whole path first and splits only when that
+  fails (fix-fishing-keys).
+- **The widgets dump truncates.** Main's dump carries every node's screen position and fills
+  its byte cap before the HUD's components. `plan_checks.widget()` now retries one root at a
+  time when the dump says `truncated` (fix-objectives).
+- **Cheat mirrors.** The inbox sends a CHEAT_FUNCS name as `cheat <fn>`, and gamelab-hands
+  needs a mirror for each one. Added cht_give_health, cht_damage, cht_give_mana,
+  cht_clear_trinkets, cht_give_specific_trinket, cht_spawn_specific_equipment,
+  cht_add_blueprint and cht_add_all_blueprints (fix-firearms-snipe).
+- **The inbox types into a focused field.** The inbox's text frames also reach a focused text
+  field: "!gl c33 state~" landed in the character-name field. fix_runstart clears the field
+  before typing.
+- **Inbox latency.** Round trips are slower, so three bots changed. fix-farming-hotbox waits
+  1.5 s after `gl wield`. fix-firearms-poses checks that the rifle is down on dodge without a
+  time limit (the elapsed time goes in the note). fix-puzzles-summon-hold leaves the room
+  with `gl teleport`, because the `_b` rooms have puzzle units by the door.
+- fix-combo-orb and fix-firearms-aim-diagonal failed once and passed on rerun.
+
+With these, all 38 pass on the merged tree (last reruns 20261026-135938 to -141120).

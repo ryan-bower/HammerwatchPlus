@@ -1,6 +1,6 @@
 {
  "name": "mission-ranger",
- "about": "Full-build fixture over the MECHANICS.md section 8 run-state schema: a level-20 ranger (experience 1301032, the level cap: GiveExperience(5000000) stopped there), every placeable attribute point in Dex (picked-dex 57), a character flag, ilvl-20 t3 gear in the three starting slots (bow, chest, feet; t4 at ilvl 20 is refused by MayEquip), the apothecary's potion-charges upgrade at step 4 (5 charges), all through the game's own functions (gamelab-hands Build.as). Why level 20: enemy health and armour scale with NG+ only, not with the player's level (CompositeActorBehavior.as:335-337, 718-719). The level-5 build died to a 13-enemy beetle and wasp swarm on dark_citadel floor 0 (pilot-crosslevel 20261017-160229), and so did a level-12 t2 build (20261017-160659). Materials given in town go to the town store (measured, fixture-ranger 20261017-152033), so they are read back from the town record. Every field below is read back through `inspect`; a mismatch fails the run. Values measured in fixture-ranger 20261017-160925. Item hashes are HashString of the base item id (gamelab/hps.py), and the saved item array is [quality, baseHash, intensity, ilvl, upgrade, colorA, colorB, mods...] (Items/Equipment.as:183-200). Quality: a 'rare' mask gave quality 2 for t1 items (20261017-151727) and 4 for t2/t3 items; the generator's RollQuality ignores a mask without the Common bit (RE_NOTES), so the quality comes from elsewhere (assumed: the base item's own quality). The dash-charges probe was dropped on 2026-10-25: dashCharges recharges after the load (MECHANICS.md section 8 marks it non-persistent) and read 0 one second after the town loaded (fix-recaps 20261025-231047).",
+ "about": "Full-build fixture over the MECHANICS.md section 8 run-state schema: a level-20 ranger (experience 1301032, the level cap: GiveExperience(5000000) stopped there), a Warden build (docs/MECHANICS.md section 2b): subclass ranger_nature, stars into Entangle 5 (4 bought), Wind Weaver 3 (2 bought), Survivalist 2, bows mastery 3, 2 stars left (fixture-ranger 20261018-003225); attributes Dex 43 / Vit 14, because the rare t3 bow's GetRequirements asks 62 Dex (req-dex is [20, 40], so the lerp factor is not the saved intensity 0.31; how 62 arises is not traced) and the base is 19 (measured, fixture-ranger 20261018-003152: 38 Dex was refused), a character flag, ilvl-20 t3 gear in the three starting slots (bow, chest, feet; t4 at ilvl 20 is refused by MayEquip), the apothecary's potion-charges upgrade at step 4 (5 charges), all through the game's own functions (gamelab-hands Build.as). Why level 20: enemy health and armour scale with NG+ only, not with the player's level (CompositeActorBehavior.as:335-337, 718-719). The level-5 build died to a 13-enemy beetle and wasp swarm on dark_citadel floor 0 (pilot-crosslevel 20261017-160229), and so did a level-12 t2 build (20261017-160659). Materials given in town go to the town store (measured, fixture-ranger 20261017-152033), so they are read back from the town record. Every field below is read back through `inspect`; a mismatch fails the run. Values measured in fixture-ranger 20261017-160925. Item hashes are HashString of the base item id (gamelab/hps.py), and the saved item array is [quality, baseHash, intensity, ilvl, upgrade, colorA, colorB, mods...] (Items/Equipment.as:183-200). Quality: a 'rare' mask gave quality 2 for t1 items (20261017-151727) and 4 for t2/t3 items; the generator's RollQuality ignores a mask without the Common bit (RE_NOTES), so the quality comes from elsewhere (assumed: the base item's own quality). The dash-charges probe was dropped on 2026-10-25: dashCharges recharges after the load (MECHANICS.md section 8 marks it non-persistent) and read 0 one second after the town loaded (fix-recaps 20261025-231047).",
  "slot": 0,
  "binary_edits": {
   "enable_mods": [
@@ -68,10 +68,76 @@
    "verb": "assign",
    "args": [
     "dex",
-    "all"
+    43
    ],
    "expect": {
     "ok": true
+   }
+  },
+  {
+   "verb": "assign",
+   "args": [
+    "vit",
+    "all"
+   ],
+   "expect": {
+    "ok": true,
+    "placed": 14
+   }
+  },
+  {
+   "verb": "subclass",
+   "args": [
+    "ranger_nature"
+   ],
+   "expect": {
+    "ok": true,
+    "class": "ranger_nature"
+   }
+  },
+  {
+   "verb": "skillup",
+   "args": [
+    "nature_entangle",
+    4
+   ],
+   "expect": {
+    "ok": true,
+    "picked": 4
+   }
+  },
+  {
+   "verb": "skillup",
+   "args": [
+    "nature_wind_weaver",
+    2
+   ],
+   "expect": {
+    "ok": true,
+    "picked": 2
+   }
+  },
+  {
+   "verb": "skillup",
+   "args": [
+    "ran_survivalist",
+    2
+   ],
+   "expect": {
+    "ok": true,
+    "picked": 2
+   }
+  },
+  {
+   "verb": "mastery",
+   "args": [
+    "bows",
+    "all"
+   ],
+   "expect": {
+    "ok": true,
+    "mastery": "bows",
+    "level": 3
    }
   },
   {
@@ -111,11 +177,13 @@
  "save_town": true,
  "readback": {
   "phase": "town",
-  "player.class": "ranger",
+  "player.class": "ranger_nature",
   "player.name": "Pilot",
+    "player.portrait": 5,
   "player.dead": false,
   "player.level": 20,
-  "player.xp": 1301032
+  "player.xp": 1301032,
+  "player.maxDashes": 1
  },
  "readback_probes": [
   {
@@ -145,7 +213,68 @@
     "picked-dex"
    ],
    "expect": {
-    "value": 57
+    "value": 43
+   }
+  },
+  {
+   "verb": "inspect",
+   "args": [
+    "player",
+    "picked-vit"
+   ],
+   "expect": {
+    "value": 14
+   }
+  },
+  {
+   "verb": "inspect",
+   "args": [
+    "player",
+    "class"
+   ],
+   "expect": {
+    "value": "ranger_nature"
+   }
+  },
+  {
+   "verb": "inspect",
+   "args": [
+    "player",
+    "picked-skills.nature_entangle"
+   ],
+   "expect": {
+    "value": 4
+   }
+  },
+  {
+   "verb": "inspect",
+   "args": [
+    "player",
+    "picked-skills.nature_wind_weaver"
+   ],
+   "expect": {
+    "value": 2
+   }
+  },
+  {
+   "verb": "inspect",
+   "args": [
+    "player",
+    "picked-skills.ran_survivalist"
+   ],
+   "expect": {
+    "value": 2
+   }
+  },
+  {
+   "verb": "inspect",
+   "args": [
+    "player",
+    "weapon-masteries"
+   ],
+   "expect": {
+    "value.0": 443022800,
+    "value.1": 3
    }
   },
   {

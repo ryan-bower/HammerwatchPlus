@@ -1,0 +1,69 @@
+{
+ "name": "tuner-dock",
+ "about": "Tuner milestone (docs/devarena/SPEC.md build order 2), through the dock as a player uses it: F1 opens the Tune tab, a click picks Entangle, a typed cell edit (L5 area-dmg 60->99) makes v1 in slot B and goes live, the growth [+] stepper makes v2, Ctrl+Z / Ctrl+Y step the live slot, F2 swaps to A (vanilla) and back, a FEEL castpoint edit (150->100) moves the timeline's cast event with it, pin mode pins a cell, and each change logs the override JSON line. Buttons are aimed by id (gl da-dock), so the layout can move.",
+ "fixture": "mission-ranger",
+ "mods": ["core", "devarena"],
+ "timeout": 500,
+ "steps": [
+  {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},
+  {"do": "wait_phase", "phase": "mission", "timeout": 120},
+  {"do": "sleep", "seconds": 3},
+  {"do": "gl", "verb": "cull", "args": ["all"], "expect": {"ok": true}, "name": "setup: clear the floor (cheat)"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] override file: ", "timeout": 5, "name": "the override file was read at boot"},
+  {"do": "gl", "verb": "da-tune", "expect": {"ok": true, "versions": 0, "want": 0, "live": 0, "a": 0, "b": -1, "slot": "A", "pending": false}, "name": "before: vanilla only, slot A"},
+
+  {"do": "key", "key": "f1", "name": "F1"},
+  {"do": "sleep", "seconds": 0.5},
+  {"do": "gl", "verb": "da-dock", "args": ["tab-"], "expect": {"ok": true, "open": true, "tab": "tune"}, "name": "the dock opens on the Tune tab"},
+  {"do": "click", "dock": "skill|nature_entangle", "verify": false, "name": "click the Entangle chip"},
+  {"do": "gl", "verb": "da-dock", "args": ["cell|binds.area-dmg"], "expect": {"ok": true, "skill": "nature_entangle", "lastButton": "skill|nature_entangle"}, "name": "Entangle is the tuned skill"},
+  {"do": "shot", "name": "tune-entangle"},
+
+  {"do": "click", "dock": "cell|binds.area-dmg|5", "verify": false, "name": "click the L5 area-dmg cell"},
+  {"do": "gl", "verb": "da-dock", "expect": {"ok": true, "typing": true, "editing": "cell|binds.area-dmg|5", "text": "60"}, "name": "the cell is being edited, showing 60"},
+  {"do": "text", "text": "99", "name": "type 99 (replaces the selected value)"},
+  {"do": "key", "key": "enter", "name": "Enter"},
+  {"do": "sleep", "seconds": 0.5},
+  {"do": "gl", "verb": "da-tune", "args": ["nature_entangle", "binds.area-dmg"], "expect": {"ok": true, "versions": 1, "want": 1, "live": 1, "a": 0, "b": 1, "slot": "B", "values.4": "99"}, "name": "v1 made in slot B and live"},
+  {"do": "gl", "verb": "da-skill", "args": ["nature_entangle", "area-dmg"], "expect": {"ok": true, "binds.area-dmg": "99"}, "name": "the live skill reads 99"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] override \\{\"schema\":1,\"live\":1,\"a\":0,\"b\":1,\"slot\":\"B\"", "timeout": 5, "name": "the override line was logged"},
+
+  {"do": "click", "dock": "grow+|binds.area-dmg", "verify": false, "name": "growth [+]"},
+  {"do": "sleep", "seconds": 0.5},
+  {"do": "gl", "verb": "da-tune", "args": ["nature_entangle", "binds.area-dmg"], "expect": {"ok": true, "versions": 2, "want": 2, "live": 2, "slot": "B", "values.0": "20"}, "save_as": "grown", "name": "growth made v2 (the base stays)"},
+
+  {"do": "key", "key": "ctrl+z", "name": "Ctrl+Z"},
+  {"do": "sleep", "seconds": 0.5},
+  {"do": "gl", "verb": "da-tune", "args": ["nature_entangle", "binds.area-dmg"], "expect": {"ok": true, "want": 1, "live": 1, "b": 1, "values.4": "99"}, "name": "undo: B back on v1"},
+  {"do": "key", "key": "ctrl+y", "name": "Ctrl+Y"},
+  {"do": "sleep", "seconds": 0.5},
+  {"do": "gl", "verb": "da-tune", "expect": {"ok": true, "want": 2, "live": 2, "b": 2}, "name": "redo: B on v2"},
+
+  {"do": "key", "key": "f2", "name": "F2"},
+  {"do": "sleep", "seconds": 0.5},
+  {"do": "gl", "verb": "da-tune", "args": ["nature_entangle", "binds.area-dmg"], "expect": {"ok": true, "slot": "A", "want": 0, "live": 0, "values.4": "60"}, "name": "F2: slot A, vanilla live"},
+  {"do": "gl", "verb": "da-skill", "args": ["nature_entangle", "area-dmg"], "expect": {"ok": true, "binds.area-dmg": "60"}, "name": "the live skill reads 60 again"},
+  {"do": "key", "key": "f2", "name": "F2 again"},
+  {"do": "sleep", "seconds": 0.5},
+  {"do": "gl", "verb": "da-tune", "expect": {"ok": true, "slot": "B", "want": 2, "live": 2}, "name": "F2: back on B"},
+
+  {"do": "click", "dock": "feel|castpoint", "verify": false, "name": "click the castpoint field"},
+  {"do": "text", "text": "100", "name": "type 100"},
+  {"do": "key", "key": "enter", "name": "Enter"},
+  {"do": "sleep", "seconds": 0.5},
+  {"do": "gl", "verb": "da-skill", "args": ["nature_entangle"], "expect": {"ok": true, "castpoint": 100, "timeline.1": 100}, "name": "castpoint 100 and the timeline's cast event moved with it"},
+  {"do": "gl", "verb": "da-tune", "expect": {"ok": true, "versions": 3, "want": 3, "b": 3, "a": 0}, "name": "v3 in B"},
+
+  {"do": "click", "dock": "pin-mode", "verify": false, "name": "pin mode on"},
+  {"do": "click", "dock": "cell|binds.area-dmg|3", "verify": false, "name": "click L3 area-dmg (pins it)"},
+  {"do": "gl", "verb": "da-tune", "expect": {"ok": true, "pinsTotal": 1, "versions": 3}, "name": "one pin, no new version"},
+  {"do": "click", "dock": "pin-mode", "verify": false, "name": "pin mode off"},
+  {"do": "shot", "name": "tune-after"},
+
+  {"do": "key", "key": "f1", "name": "F1 closes the dock"},
+  {"do": "sleep", "seconds": 0.5},
+  {"do": "shot", "name": "mini-hud"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] live v3", "timeout": 5},
+  {"do": "log_clean"}
+ ]
+}

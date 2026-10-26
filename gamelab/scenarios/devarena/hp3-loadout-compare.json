@@ -1,0 +1,286 @@
+{
+ "name": "hp3-loadout-compare",
+ "about": "HP3 (docs/devarena/SPEC.md, happy paths): on the Loadout tab tick two ranger loadouts for compare, 'Bench these on the golem' opens the Bench tab with them as A and B, F4, 3 pulls of 5 s, Start: each pull applies its side's loadout first (the Loadout.as queue), then a verdict, the CSV, and Star winner makes the winner a favorite. The bench restores the loadout applied before it. Buttons are aimed by id (gl da-dock).",
+ "fixture": "mission-ranger",
+ "mods": [
+  "core",
+  "devarena"
+ ],
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "key",
+   "key": "f1",
+   "name": "F1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "click",
+   "dock": "tab-loadout",
+   "verify": false,
+   "name": "the Loadout tab"
+  },
+  {
+   "do": "click",
+   "dock": "lclass|ranger",
+   "verify": false,
+   "name": "ranger chip"
+  },
+  {
+   "do": "click",
+   "dock": "lsub|nature",
+   "verify": false,
+   "name": "nature chip"
+  },
+  {
+   "do": "mark",
+   "name": "apply"
+  },
+  {
+   "do": "click",
+   "dock": "preset|ranger_nature/mid",
+   "verify": false,
+   "name": "apply ranger_nature/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_nature/mid (ok|mismatch)",
+   "since": "apply",
+   "timeout": 10,
+   "name": "ranger_nature/mid applied"
+  },
+  {
+   "do": "click",
+   "dock": "cmp|ranger_nature/early",
+   "verify": false,
+   "name": "tick early"
+  },
+  {
+   "do": "click",
+   "dock": "cmp|ranger_nature/end",
+   "verify": false,
+   "name": "tick end"
+  },
+  {
+   "do": "shot",
+   "name": "two-ticked"
+  },
+  {
+   "do": "click",
+   "dock": "lbench",
+   "verify": false,
+   "name": "Bench these on the golem"
+  },
+  {
+   "do": "gl",
+   "verb": "da-bench",
+   "expect": {
+    "ok": true,
+    "source": "loadouts",
+    "running": false
+   },
+   "name": "the bench is on loadouts"
+  },
+  {
+   "do": "gl",
+   "verb": "da-dock",
+   "args": [
+    "b"
+   ],
+   "expect": {
+    "ok": true,
+    "tab": "bench"
+   },
+   "name": "the Bench tab is open"
+  },
+  {
+   "do": "mark",
+   "name": "in"
+  },
+  {
+   "do": "key",
+   "key": "f4",
+   "name": "F4: into the room"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] golem room in",
+   "since": "in",
+   "timeout": 5,
+   "name": "in the room"
+  },
+  {
+   "do": "click",
+   "dock": "bmode|bot",
+   "verify": false,
+   "name": "driver: bot"
+  },
+  {
+   "do": "click",
+   "dock": "bwhich|A+B",
+   "verify": false,
+   "name": "slots: A+B"
+  },
+  {
+   "do": "click",
+   "dock": "bpulls|3",
+   "verify": false,
+   "name": "3 pulls"
+  },
+  {
+   "do": "click",
+   "dock": "bsecs|5s",
+   "verify": false,
+   "name": "5 s"
+  },
+  {
+   "do": "shot",
+   "name": "bench-set"
+  },
+  {
+   "do": "mark",
+   "name": "bench"
+  },
+  {
+   "do": "click",
+   "dock": "bstart",
+   "verify": false,
+   "name": "Start bench"
+  },
+  {
+   "do": "gl",
+   "verb": "pointer",
+   "args": [
+    "320",
+    "130",
+    "move"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: the mouse over the golem, off the dock"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] bench 1 start bot 6 pulls of 5s, A ranger_nature/early, B ranger_nature/end",
+   "since": "bench",
+   "timeout": 5,
+   "name": "bench started: early vs end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_nature/end (ok|mismatch)",
+   "since": "bench",
+   "timeout": 60,
+   "name": "a pull applied the B loadout"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] bench-result \\{\"bench\":1,.*\"source\":\"loadouts\"",
+   "since": "bench",
+   "timeout": 180,
+   "name": "the bench finished on loadouts"
+  },
+  {
+   "do": "log_has",
+   "pattern": "bench-pull \\{\"bench\":1,\"variant\":\"A\",.*\"preset\":\"ranger_nature/early\".*\"dps\":[1-9]",
+   "since": "bench",
+   "timeout": 5,
+   "name": "an A pull ran on early"
+  },
+  {
+   "do": "log_has",
+   "pattern": "bench-pull \\{\"bench\":1,\"variant\":\"B\",.*\"preset\":\"ranger_nature/end\".*\"dps\":[1-9]",
+   "since": "bench",
+   "timeout": 5,
+   "name": "a B pull ran on end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_nature/mid (ok|mismatch)",
+   "since": "bench",
+   "timeout": 15,
+   "name": "the bench re-applied mid at the end"
+  },
+  {
+   "do": "bench_csv",
+   "since": "bench",
+   "min_rows": 6,
+   "name": "CSV: 6 rows, the game's stats agree with bench.py"
+  },
+  {
+   "do": "gl",
+   "verb": "da-bench",
+   "expect": {
+    "ok": true,
+    "running": false,
+    "runs": 1
+   },
+   "save_as": "res",
+   "name": "da-bench: done, a winner"
+  },
+  {
+   "do": "shot",
+   "name": "verdict"
+  },
+  {
+   "do": "mark",
+   "name": "star"
+  },
+  {
+   "do": "click",
+   "dock": "bstar",
+   "verify": false,
+   "name": "Star winner"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout-favorites \\[.*\"ranger_nature/(early|end)\"",
+   "since": "star",
+   "timeout": 5,
+   "name": "the winner is a favorite"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:devarena\\].*(error|ERR)",
+   "name": "no devarena errors"
+  }
+ ]
+}

@@ -1,0 +1,390 @@
+{
+ "name": "devarena-autotune",
+ "about": "HP7 (docs/devarena/SPEC.md, Decided during build 28): the auto-tuner. hp2's arena (ranger_nature/mid on dark_citadel 13, the golem room, a footman elite golem at NG+3, the bot driver, 3 pulls of 10 s). gamelab/bots/devarena_autotune.py (tools/devarena/autotune.py) refuses a feel-locked field, then searches ran_mark's proj-dmg at the player's level for +15% dps vs A: da-set into B, the dock's Start bench, the bench-result; the first hit (after one halving toward the last miss in the second search) is filed with da-propose and shows PENDING on the Bench tab. The first proposal is discarded there, the second accepted. tools/devarena/autotune.py --run <this run> writes docs/devarena/proposals/<run>.md.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "core",
+  "devarena"
+ ],
+ "timeout": 1500,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "key",
+   "key": "f1",
+   "name": "F1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "click",
+   "dock": "tab-loadout",
+   "verify": false,
+   "name": "the Loadout tab"
+  },
+  {
+   "do": "click",
+   "dock": "lclass|ranger",
+   "verify": false,
+   "name": "ranger chip"
+  },
+  {
+   "do": "click",
+   "dock": "lsub|nature",
+   "verify": false,
+   "name": "nature chip"
+  },
+  {
+   "do": "mark",
+   "name": "apply"
+  },
+  {
+   "do": "click",
+   "dock": "preset|ranger_nature/mid",
+   "verify": false,
+   "name": "apply ranger_nature/mid"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] loadout ranger_nature/mid (ok|mismatch)",
+   "since": "apply",
+   "timeout": 10,
+   "name": "ranger_nature/mid applied"
+  },
+  {
+   "do": "mark",
+   "name": "in"
+  },
+  {
+   "do": "key",
+   "key": "f4",
+   "name": "F4: into the room"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] golem room in",
+   "since": "in",
+   "timeout": 5,
+   "name": "in the room"
+  },
+  {
+   "do": "click",
+   "dock": "tab-golem",
+   "verify": false,
+   "name": "the Golem tab"
+  },
+  {
+   "do": "click",
+   "dock": "gprof|footman elite",
+   "verify": false,
+   "name": "profile: footman elite"
+  },
+  {
+   "do": "click",
+   "dock": "gngp|+",
+   "verify": false,
+   "name": "NG+ 1"
+  },
+  {
+   "do": "click",
+   "dock": "gngp|+",
+   "verify": false,
+   "name": "NG+ 2"
+  },
+  {
+   "do": "click",
+   "dock": "gngp|+",
+   "verify": false,
+   "name": "NG+ 3"
+  },
+  {
+   "do": "click",
+   "dock": "gpool|4M",
+   "verify": false,
+   "name": "pool 4M"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] golem spawn footman elite ngp 3 ",
+   "since": "in",
+   "timeout": 5,
+   "name": "footman elite at NG+3"
+  },
+  {
+   "do": "click",
+   "dock": "tab-bench",
+   "verify": false,
+   "name": "the Bench tab"
+  },
+  {
+   "do": "click",
+   "dock": "bmode|bot",
+   "verify": false,
+   "name": "driver: bot"
+  },
+  {
+   "do": "click",
+   "dock": "bpulls|3",
+   "verify": false,
+   "name": "3 pulls"
+  },
+  {
+   "do": "click",
+   "dock": "bsecs|10s",
+   "verify": false,
+   "name": "10 s"
+  },
+  {
+   "do": "gl",
+   "verb": "da-bench",
+   "expect": {
+    "ok": true,
+    "pulls": 3,
+    "secs": 10,
+    "driver": "bot",
+    "source": "versions",
+    "proposal": null
+   },
+   "name": "settings took, nothing pending"
+  },
+  {
+   "do": "shot",
+   "name": "hp7-bench-set"
+  },
+  {
+   "do": "mark",
+   "name": "tune1"
+  },
+  {
+   "do": "bot",
+   "bot": "devarena_autotune",
+   "kwargs": {
+    "fields": [
+     "ran_mark:castpoint"
+    ],
+    "target": "+15%"
+   },
+   "expect": {
+    "terminal": "locked",
+    "lock": "castpoint"
+   },
+   "name": "feel lock: castpoint is refused without unlock, before any edit"
+  },
+  {
+   "do": "gl",
+   "verb": "da-tune",
+   "expect": {
+    "ok": true,
+    "a": 0,
+    "b": -1
+   },
+   "name": "the refused field made no version"
+  },
+  {
+   "do": "bot",
+   "bot": "devarena_autotune",
+   "kwargs": {
+    "fields": [
+     "ran_mark:binds.proj-dmg"
+    ],
+    "target": "+15%",
+    "muls": [
+     4
+    ],
+    "bisect": 0,
+    "bench_timeout": 240
+   },
+   "save_as": "tune1",
+   "timeout": 900,
+   "expect": {
+    "terminal": "proposed",
+    "proposal.ok": true
+   },
+   "name": "auto-tuner 1: ran_mark:binds.proj-dmg, +15% dps vs A, ladder x[4], 0 halving(s): a proposal"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] autotune-proposal \\{\"version\":\\d+,\"base\":0,\"bench\":\\d+,\"note\":\"ran_mark binds.proj-dmg .*\"evidence\":\\{\"bench\":",
+   "since": "tune1",
+   "timeout": 5,
+   "name": "the proposal is logged with its bench evidence"
+  },
+  {
+   "do": "gl",
+   "verb": "da-bench",
+   "expect": {
+    "ok": true,
+    "proposals": 1,
+    "proposal.base": 0,
+    "proposal.evidence.verdict": "B better",
+    "running": false
+   },
+   "name": "pending in the Bench tab, evidence B better"
+  },
+  {
+   "do": "shot",
+   "name": "hp7-pending"
+  },
+  {
+   "do": "click",
+   "dock": "pdis",
+   "verify": false,
+   "name": "Discard the proposal"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] autotune-discard \\{\"version\":",
+   "since": "tune1",
+   "timeout": 5,
+   "name": "discarded"
+  },
+  {
+   "do": "gl",
+   "verb": "da-tune",
+   "expect": {
+    "ok": true,
+    "a": 0,
+    "b": -1,
+    "slot": "A"
+   },
+   "name": "discarded: A is still vanilla, B empty"
+  },
+  {
+   "do": "gl",
+   "verb": "da-bench",
+   "expect": {
+    "ok": true,
+    "proposal": null,
+    "proposalLast": {
+     "match": "^discarded v"
+    }
+   },
+   "name": "nothing pending"
+  },
+  {
+   "do": "mark",
+   "name": "tune2"
+  },
+  {
+   "do": "bot",
+   "bot": "devarena_autotune",
+   "kwargs": {
+    "fields": [
+     "ran_mark:binds.proj-dmg"
+    ],
+    "target": "+15%",
+    "muls": [
+     1.25,
+     4
+    ],
+    "bisect": 1,
+    "bench_timeout": 240
+   },
+   "save_as": "tune2",
+   "timeout": 900,
+   "expect": {
+    "terminal": "proposed",
+    "proposal.ok": true
+   },
+   "name": "auto-tuner 2: ran_mark:binds.proj-dmg, +15% dps vs A, ladder x[1.25, 4], 1 halving(s): a proposal"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] autotune-proposal ",
+   "since": "tune2",
+   "timeout": 5,
+   "name": "the second proposal is logged"
+  },
+  {
+   "do": "shot",
+   "name": "hp7-pending2"
+  },
+  {
+   "do": "click",
+   "dock": "pacc",
+   "verify": false,
+   "name": "Accept the proposal"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] autotune-accept \\{\"version\":",
+   "since": "tune2",
+   "timeout": 5,
+   "name": "accepted"
+  },
+  {
+   "do": "gl",
+   "verb": "da-tune",
+   "expect": {
+    "ok": true,
+    "a": {
+     "not": 0
+    },
+    "b": -1,
+    "slot": "A"
+   },
+   "name": "accepted: A is the proposed version, B empty"
+  },
+  {
+   "do": "gl",
+   "verb": "da-bench",
+   "expect": {
+    "ok": true,
+    "proposal": null,
+    "proposals": 2,
+    "proposalLast": {
+     "match": "^accepted v"
+    }
+   },
+   "name": "nothing pending, two filed"
+  },
+  {
+   "do": "shot",
+   "name": "hp7-accepted"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:devarena\\].*\\b(error|ERR|rejected)\\b",
+   "name": "no devarena errors"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "(?i)\\b(script error|compile error|null pointer)\\b"
+  }
+ ]
+}

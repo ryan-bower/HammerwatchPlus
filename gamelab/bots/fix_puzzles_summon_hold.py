@@ -79,9 +79,11 @@ def run(p, settle=3.0, samples=8, unit="players/ranger/units/wolf"):
            f"{len(bad)} sample(s) inside the room {room}, farthest {worst:.0f} px from the player")
     held = re.findall(r"\[HWP:puzzles\] summons of \S+ held outside (\S+)", g.read_log()[mark:])
     c.flag("hold_logged", bool(held), held[-1] if held else "no hold line")
-    # back out: released, following again
+    # back out to the corridor spot: released, following again. Not just past the door: the
+    # _b rooms keep puzzle units near it, within puzzles.radius, which still counts as inside
+    # (summon-hold 20261026-135047 and -140708: no release 16 px out)
     mark = len(g.read_log())
-    c.gl("teleport", spot[0] - d["ox"] * 32, spot[1] - d["oy"] * 32)
+    c.gl("teleport", spot[0], spot[1])
     time.sleep(settle)
     released = "[HWP:puzzles] summons of" in g.read_log()[mark:] and "released" in g.read_log()[mark:]
     near = [u for u in summons() if u.get("dist", 1e9) < 400]

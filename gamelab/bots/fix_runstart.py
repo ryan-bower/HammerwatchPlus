@@ -121,6 +121,10 @@ class Checks(Base):
         w3 = self.window()
         self.flag("rs_name_dialog", "DialogWindow" in w3, f"window {w3}")
         if "DialogWindow" in w3:
+            # the focused field also took the inbox line of the window() check
+            # ("!gl c33 state~"): clear it first
+            for _ in range(32):
+                self.g.key("backspace", 0.02)
             self.g.type_text("Tanky")
             time.sleep(0.4)
             self.g.key("enter")

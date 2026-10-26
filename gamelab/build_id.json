@@ -3,13 +3,13 @@
  "build_id": "25932569",
  "exe_sha256": "232cfb7a784c4851618afae1f9b7481deb60e1b46e7e4fcae79c4b4c35751100",
  "exe_pe_timestamp": 1791978318,
- "game_version": "Build 170",
+ "game_version": "Build 176",
  "engine": "Crackshell custom C++ (bgfx, SDL2, FMOD, Box2D, ozz) + AngelScript",
- "pinned_at": "2026-10-19",
- "pinned_by": "Steam updated HoH2 to build 25932569 (2026-10-19); owner chose to re-pin before the firearms demo",
+ "pinned_at": "2026-10-20",
+ "pinned_by": "Steam update 25509441 (Build 170) -> 25932569 (Build 176), landed 2026-10-19 mid-session; user asked to move everything to the latest build; re-dumped with bootstrap.py --force; patch diff docs/updates/25509441-to-25932569.md",
  "probe": {
   "build_id": "steamapps/appmanifest_619820.acf::buildid",
   "exe_sha256": "sha256 of <install>/HWR2.exe",
-  "game_version": "HWR2.exe.log line 2 'Build N: ...' (checked by the launcher on the live run)"
+  "game_version": "HWR2.exe.log line 2 'Build N: ...' (asserted by the launcher on every pass; 'unknown' passes and reports it)"
  }
 }
