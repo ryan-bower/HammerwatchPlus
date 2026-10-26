@@ -4306,3 +4306,48 @@ With these, all 38 pass on the merged tree (last reruns 20261026-135938 to -1411
   won, each x1.2, plus the stakes). The wheel shows `spin` while the ball runs and `idle`
   after. Cleared chips come back in full; the eleventh 100K chip is refused. After
   upgrades to tiers 2 and 3 the one wheel is back on a hall table.
+
+## 2026-10-26: Auto Aim
+
+### Engine facts
+- **An AOE skill's reticle comes from two helper methods.** `PlayerTargetingHelper.Update`
+  takes the TargetAOE target from `CalcGamepadTargetPos` (the stick: `m_gamepadRelTarget`,
+  moved by the stick each frame, starting 150 px out along the aim) or
+  `CalcMouseTargetPos(ToWorldspace(input.MousePos))`. It then activates on
+  `MainHandAttack.Pressed`, or on the skill button's release with `g_quickcast`. Both
+  methods are script methods, so a subclass can override them. A gamepad override should
+  also set `m_gamepadRelTarget`, or the next frame's stick input starts from the old spot.
+- `GameInput.UsingGamepad` is false in the lab (no pad). `gl mouse` pins only the UI
+  cursor (the game mode's), not `GameInput.MousePos`; `gl inputtarget` writes the world
+  cursor every frame.
+- The settings-search checks in plan-newa-a fail with or without this session's changes
+  (20261026-174622, core changes stashed): the GameLab command text ("!gl c14 menu
+  hwp_options -") lands in the focused search field. Their last pass was 20261018-132014.
+  Not fixed here.
+
+### Built
+- Core: `scripts/HWP/Core/Aim.as` (`HWP::Aim::OnAdjust`, `OnPreUpdate`, `FireTargeted`).
+  `HWPSkillKeysHelper` overrides `CalcGamepadTargetPos` and `CalcMouseTargetPos` to pass
+  the vanilla reticle through the adjusters, and runs the pre-update hooks before the
+  vanilla `Update`. The Plus tab gets four rows (`autoaim`, `aimcone`, `autofire`,
+  `autoskill`); all rows are now 22 px high so nine fit above the hint.
+- `autoaim` (new mod, no overrides), a remake of Workshop 3732392493.
+  - Target: the enemy nearest the vanilla reticle, among targetable, living
+    `FetchActorsWithOtherTeam` actors within range (`rangeMax` plus half the reticle,
+    the spot clamped to `rangeMax`). It must be inside the cone around the reticle's
+    direction and in plain sight (the ShootRandomEnemy Shot raycast).
+  - Auto fire: the snap recorded by the adjuster fires on the next frame's pre-update.
+  - Auto skill: the first ready TargetAOE spell, with mana at or over the share, at most
+    once every `autoaim.skill_buffer_ms`.
+  - Modes: 0 off, 1 controller (the default), 2 controller and mouse.
+
+### Tests
+- mod-autoaim PASS (20261026-174359): a town ranger and a target dummy 80 px south, mode 2.
+  - Holding Skill 1 fires Marked Shot at the dummy (auto fire).
+  - With auto fire off, the reticle snaps to the dummy's spot and nothing fires.
+  - A 90 degree cone does not pick the dummy with the cursor north, and does with it south.
+  - Unpressed, Marked Shot casts itself at the dummy (auto skill).
+  - Mode off does neither.
+  - The four Plus tab rows show next to colors and weaponswap, and the mode row cycles.
+- The gamepad path was not exercised; the lab has no pad.
+- mod-all PASS (20261026-174550).

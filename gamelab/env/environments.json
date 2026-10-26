@@ -45,7 +45,8 @@
       "tavern",
       "trinkets",
       "waygates",
-      "roulette"
+      "roulette",
+      "autoaim"
     ],
     "forbidden_mods": [
       "gamelab-*"

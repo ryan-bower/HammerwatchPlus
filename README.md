@@ -23,6 +23,7 @@ needs `pets`.
 | `classes` | The HoH1 classes HoH2 lacks: **Thief**, **Gladiator** and **Witch Hunter**, three masteries each. The Thief's extra actives cast on core's Skill 4 key. The real HoH1 art comes from your own HoH1 install (`tools/import_hoh1.py classes`). |
 | `weapons` | Twelve new endgame weapons (ilvl 35, four per slot) with new modifier profiles on vanilla visuals and attacks. |
 | `weaponswap` | A second weapon set on a hotkey (default X): a 2 s channel standing still, cancelled by a dodge or a second press. |
+| `autoaim` | Auto aim for the skills you aim with a reticle (Marked Shot, Leap, Firewall): it snaps to a nearby enemy in your aim cone and can fire by itself, and ready AOE skills can cast themselves when your mana allows. On for controllers by default, an option for mouse play; settings on the character menu's Plus tab (a remake of kearneyTim's controller auto aim). |
 | `summons` | Summons come through a floor change with the HP they had. The game already carries the Priest's Crusaders; this tops up any that go missing, and the `summons.all` setting covers every summon (wolves, Warlock minions). |
 
 ### Heroes of Hammerwatch 1

@@ -5,12 +5,13 @@
 // the thief specs, the HoH1 paladin) fires all of them on one press.
 //
 // The local player's PlayerTargetingHelper is swapped for HWPSkillKeysHelper
-// (script methods are virtual): its GetSkillInput answers the 4th, 5th and
-// 6th active with raw keys set on the Plus tab (default 4, 5, 6; vanilla binds
-// 1 2 3 Q E V). Everything else in the helper (the targeting modes, the input
-// buffer, another skill's button cancelling a charge, quickcast) is vanilla
-// code reading those keys, so Skill3 fires only the 3rd active. The HUD shows
-// the extra skills with their key (SkillKeysHUD.as).
+// (script methods are virtual): its GetSkillInput answers the 4th, 5th and 6th
+// active with raw keys set on the Plus tab (default 4, 5, 6; vanilla binds 1 2
+// 3 Q E V). It also calls the aim hooks (Aim.as). Everything else in the helper
+// (the targeting modes, the input buffer, another skill's button cancelling a
+// charge, quickcast) is vanilla code reading those keys, so Skill3 fires only
+// the 3rd active. The HUD shows the extra skills with their key
+// (SkillKeysHUD.as).
 //
 // Keyboard only: a gamepad still reaches only the first three actives (the
 // vanilla skill wheel, RadialMenuItemType::ExpandPlayerSkill, is never added
@@ -205,7 +206,20 @@ class HWPSkillKeysHelper : PlayerTargetingHelper
 	bool Update(int dt, vec2 aimDir) override
 	{
 		HWP::SkillKeys::Poll();
+		if (HWP::Aim::Pre(this, dt, aimDir))
+			return true;
 		return PlayerTargetingHelper::Update(dt, aimDir);
+	}
+
+	// the aim hooks (Aim.as) get the reticle vanilla worked out
+	vec2 CalcGamepadTargetPos(float targetingDist, vec2 aimDir, Skills::TargetingParams@ params, int dt) override
+	{
+		return HWP::Aim::Apply(this, params, PlayerTargetingHelper::CalcGamepadTargetPos(targetingDist, aimDir, params, dt), true);
+	}
+
+	vec2 CalcMouseTargetPos(vec2 mousePos, Skills::TargetingParams@ params, int idt = -1) override
+	{
+		return HWP::Aim::Apply(this, params, PlayerTargetingHelper::CalcMouseTargetPos(mousePos, params, idt), false);
 	}
 
 	// the vanilla answer is Skill3 for every active past the 3rd; those read

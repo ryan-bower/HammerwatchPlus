@@ -91,6 +91,9 @@ a posted Enter key, which starts Singleplayer/Continue. It never uses the real m
   `IEventPlayerLinkedItem`.
 - **Console commands** – register an `hwp <name>` sub-command with
   `HWP::Commands::Register` (core), no override needed in the module.
+- **Skill aim** – core's `HWP::Aim::OnAdjust(f)` moves the AOE reticle (gamepad or
+  mouse) and `HWP::Aim::OnPreUpdate(f)` runs before the targeting step
+  (`scripts/HWP/Core/Aim.as`), through core's swapped-in `HWPSkillKeysHelper`.
 
 ## Script API gotchas (verified by compiling)
 
