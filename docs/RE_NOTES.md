@@ -4266,3 +4266,43 @@ With these, all 38 pass on the merged tree (last reruns 20261026-135938 to -1411
 - `mod-trinkets` (lab) PASS: `20261026-165100-mod-trinkets-lab`, "HoH1 icons: 37 of 37",
   bot flag `h1_icons`. `shots/trinket-inventory.png` shows the Lucky Hat, Horseshoe,
   Fancy Plume and Key Ring with their HoH1 icons in the trinket inventory.
+
+## 2026-10-26: Roulette
+
+### Engine facts
+- **`HWP::Net::Broadcast` runs the host's own handler synchronously,** inside the call
+  (`Net.as` `DispatchEvent` after `SendToAll`). Host code that broadcasts its state and
+  also reacts to that event in the handler sees the change before the broadcast returns.
+  The roulette host keeps its round in separate `h_*` variables and every machine,
+  the host included, changes the shared `g_*` view only in `OnState`.
+- **A tavern table's food is its unit scene.** The `table_wood_*` units start in scenes
+  like `food1`, `food_less1` or `feast1`; `UnitPtr.SetUnitScene("default", true)` shows the
+  bare table. Each tier lays its tables out differently (tier 1 has six, tier 3 adds the
+  back room's feast tables at y -304 and -339). A table right behind the tavern's front
+  wall (tier 1's `table_wood_poor_v` at -82,-132) is mostly hidden by the wall.
+- `AInteractableWidget` has no `Update` of its own: a subclass that overrides `Update`
+  calls `Widget::Update(dt)`.
+- A 768x22 sprite sheet was refused at boot (power of two, as noted before). The wheel's
+  24 frames sit on a 256x128 grid.
+
+### Built
+- `roulette` (new mod, no overrides): `HWP/Roulette/RouletteTable.as` (the 157 bets, the
+  host's rounds, settlement, refunds, `hwp roulette`), `RouletteMenu.as`
+  (`HWPRouletteShop`, `HWPRouletteMenu`, the board widget with edge and corner hit-testing,
+  the scrolling number strip) and `RouletteModule.as` (the wheel on the table).
+  `doodads/hwp/hwp_roulette_wheel.unit` (`HWPLocalNPC`, scenes `idle` and `spin`),
+  `roulette_wheel.png` from `tools/make_roulette_art.py`, `gui/hwp_roulette.gui`, lang,
+  setting `roulette.max_stake`.
+- The payout is stake + stake x odds x (1 + Luck/100 + gold find), where gold find is the
+  record's `MaterialGainMul * MaterialGainMulMul` minus 1, without the NG+ material bonus.
+- The wheel goes on the main-hall table nearest (-165,-210) with y between -280 and -150:
+  tier 1 `table_wood_poor_round` (-168,-224), tier 2 `table_wood_common_round` (-167,-218),
+  tier 3 `table_wood_common_v` (-200,-152). It falls back to the table nearest the
+  gambler's spot.
+
+### Tests
+- mod-roulette PASS (20261026-172759). With Luck 20, 1000 each on s:17, c:13, odd and
+  red and a forced 17: gold 200000 -> 196000 -> 251800, paid 55800 (35000, 8000 and 1000
+  won, each x1.2, plus the stakes). The wheel shows `spin` while the ball runs and `idle`
+  after. Cleared chips come back in full; the eleventh 100K chip is refused. After
+  upgrades to tiers 2 and 3 the one wheel is back on a hall table.

@@ -58,6 +58,7 @@ needs `pets`.
 | `goldpet` | A pet vendor in the Hunter's Lodge sells the Gold Collector cat, with two upgrades (materials and scrolls, then valuables). |
 | `tavern` | Three more tavern levels (guild hall 6, 7 and 8): a run can start with up to 3 foods and 5 drinks. |
 | `waygates` | Way Gates: teleport gates in the town square and at every building you have built. Use one and pick where to go (a remake of Tyraen's Teleport in City). |
+| `roulette` | A roulette wheel on a table in the tavern: one single-zero table for the whole lobby with all 157 bets at true odds (click near an edge or a corner for splits and corners), a remake of the Workshop roulette table. Luck and gold find raise the winnings by their percentage, so a smoked herb tips the odds your way. |
 | `stash` | A Sort button on the town stash: by class, then weapon type, then item level. |
 | `laststats` | The last run's stats for the whole party, on a notice board by the town fountain: every player on one page as bars per stat, with a search field. |
 

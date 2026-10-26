@@ -1,0 +1,44 @@
+<gui>
+	<sprites>
+		%include "gui/scalablebutton_sprites.inc"
+		%include "gui/panel_decoration.inc"
+		%include "gui/closebutton_sprites.inc"
+	</sprites>
+
+	<doc>
+		<group>
+			<!-- HWPRouletteMenu (scripts/HWP/Roulette/RouletteMenu.as). The board and the strip
+			     are drawn in code (HWPRouletteBoard, HWPRouletteStrip). -->
+			<panel width="340" height="318" anchor="0.5 0.5" style="standard">
+				<panel anchor="0.5 0" width="220" height="22" offset="0 0" style="character_pick_top">
+					<text text=".hwp.roulette.title" color="#ed9331" font="title" align="center" anchor="0.5 0.5" width="200" offset="0 1" />
+				</panel>
+
+				<spritebutton id="close-btn" nav-pos="5 0" spriteset="close" anchor="1 0" offset="-1 1" func="close" />
+
+				<hwp-roulette-strip id="strip" width="306" height="22" anchor="0.5 0" offset="0 28" />
+				<text id="phase" text="" color="#ffd27f" font="text" align="center" anchor="0.5 0" offset="0 54" width="306" />
+
+				<hwp-roulette-board id="board" nav-pos="0 1" width="306" height="90" anchor="0.5 0" offset="0 70" />
+
+				<text id="hover" text="" color="#ffffff" font="text" align="center" anchor="0.5 0" offset="0 164" width="320" />
+
+				<group width="306" height="22" anchor="0.5 0" offset="0 184" flow="hbox" spacing="3">
+					<scalebutton id="chip-0" nav-pos="0 2" checkable="true" spriteset="scalebutton-regular" width="46" func="chip 0" text="100" font="gui/fonts/arial11.fnt" />
+					<scalebutton id="chip-1" nav-pos="1 2" checkable="true" spriteset="scalebutton-regular" width="46" func="chip 1" text="1K" font="gui/fonts/arial11.fnt" />
+					<scalebutton id="chip-2" nav-pos="2 2" checkable="true" spriteset="scalebutton-regular" width="46" func="chip 2" text="10K" font="gui/fonts/arial11.fnt" />
+					<scalebutton id="chip-3" nav-pos="3 2" checkable="true" spriteset="scalebutton-regular" width="46" func="chip 3" text="100K" font="gui/fonts/arial11.fnt" />
+					<scalebutton id="clear-btn" nav-pos="4 2" spriteset="scalebutton-regular" width="54" func="clear" text=".hwp.roulette.clear" font="gui/fonts/arial11.fnt" />
+					<scalebutton id="spin-btn" nav-pos="5 2" spriteset="scalebutton-regular" width="56" func="spin" text=".hwp.roulette.spin" font="gui/fonts/arial11.fnt" />
+				</group>
+
+				<text id="gold" text="" color="#ffd700" font="text" align="left" anchor="0 0" offset="17 212" width="150" />
+				<text id="mine" text="" color="#ffffff" font="text" align="right" anchor="1 0" offset="-17 212" width="170" />
+				<text id="bonus" text="" color="#9fe0a0" font="text" align="center" anchor="0.5 0" offset="0 228" width="320" />
+				<text id="last" text="" color="#ffffff" font="text" align="center" anchor="0.5 0" offset="0 246" width="320" />
+				<text id="history" text="" color="#c0c0c0" font="text" align="center" anchor="0.5 0" offset="0 264" width="320" />
+				<text id="lobby" text="" color="#a0a0a0" font="text" align="center" anchor="0.5 0" offset="0 282" width="320" />
+			</panel>
+		</group>
+	</doc>
+</gui>

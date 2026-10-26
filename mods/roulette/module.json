@@ -1,0 +1,6 @@
+{
+  "id": "roulette",
+  "requires": ["core"],
+  "overrides": [],
+  "exclude": []
+}
