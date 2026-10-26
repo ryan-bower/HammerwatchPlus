@@ -3520,8 +3520,16 @@ Design and the site table: `docs/design/luck.md`.
   among the candidates its buildings unlock. The lab town has none of those buildings
   ("No blueprint factory able to produce blueprint! 3 factories"), so the quality pick is
   sampled with `hwp luck roll quality` instead.
-- **Dyes** come from chest loot tables (`tweak/loot/chests.sval`), so the opener's Luck
-  already reaches them.
+- **Dyes** are chest and cache loot only. The pinned SDK references the dye bucket units
+  (`items/dyes/dye_bucket_*.unit`) in ten tables in `tweak/loot/chests.sval` (the
+  `chest_*` and `cache_*` ones) and nowhere else: not in a prefab, a level, a theme or a
+  script. `probe-dyes-floor` 20261026-104054 counted every dye bucket unit on two fresh
+  floors (`querycmp` levelType, nothing opened): 0 on the first bandit keep floor (5 chests
+  and caches) and 0 on the temple floor (3). Dyes seen lying on a floor are spilled from an
+  opened cache or chest. In the chest tables they are a pool of their own (bronze trinket
+  4 x 150, 60 % pays; silver and gold 40 %; equipment chests one bucket at 20-25 %), where
+  `RollPool`'s weighting does nothing (equal weights), so `DyePool` multiplies their pay
+  share instead (fix-core-luck 20261026-104254: none 1214 of 3000 at Luck 0, 0 at 500).
 - **The imp** is a per-theme `*_imp` SpawnPrefabSet with `exec-chance 0.1` (barracks,
   cave_dark, courts, crypt, dark_halls, dungeon, forest, temple; not the keep), each prefab
   with a `run-unique-flag`. `DungeonGenerator` rolls `randf() > m_execChance` before it

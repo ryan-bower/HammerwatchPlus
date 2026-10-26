@@ -1,0 +1,722 @@
+{
+ "name": "probe-dyes-floor",
+ "about": "Where floor dyes come from: on a fresh floor (nothing opened), how many dye bucket units (items/dyes/dye_bucket_*.unit) and chest / cache units the whole level holds (querycmp levelType, FetchAllUnitsOfType). In the pinned SDK the buckets appear only in the chest_* and cache_* loot tables (tweak/loot/chests.sval). First bandit keep floor, then the crypt mission's first (temple) floor.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "core"
+ ],
+ "timeout": 420,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "bandit_keep",
+    0
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 150
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_cloth_common.unit"
+   ],
+   "save_as": "keep_dye_bucket_cloth_common",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_cloth_uncommon.unit"
+   ],
+   "save_as": "keep_dye_bucket_cloth_uncommon",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_cloth_rare.unit"
+   ],
+   "save_as": "keep_dye_bucket_cloth_rare",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_leather_common.unit"
+   ],
+   "save_as": "keep_dye_bucket_leather_common",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_leather_uncommon.unit"
+   ],
+   "save_as": "keep_dye_bucket_leather_uncommon",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_leather_rare.unit"
+   ],
+   "save_as": "keep_dye_bucket_leather_rare",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_metal_common.unit"
+   ],
+   "save_as": "keep_dye_bucket_metal_common",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_metal_uncommon.unit"
+   ],
+   "save_as": "keep_dye_bucket_metal_uncommon",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_metal_rare.unit"
+   ],
+   "save_as": "keep_dye_bucket_metal_rare",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_wood_common.unit"
+   ],
+   "save_as": "keep_dye_bucket_wood_common",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_wood_uncommon.unit"
+   ],
+   "save_as": "keep_dye_bucket_wood_uncommon",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_wood_rare.unit"
+   ],
+   "save_as": "keep_dye_bucket_wood_rare",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_gem_common.unit"
+   ],
+   "save_as": "keep_dye_bucket_gem_common",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_gem_uncommon.unit"
+   ],
+   "save_as": "keep_dye_bucket_gem_uncommon",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_gem_rare.unit"
+   ],
+   "save_as": "keep_dye_bucket_gem_rare",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_sand.unit"
+   ],
+   "save_as": "keep_dye_bucket_sand",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/cache_bronze.unit"
+   ],
+   "save_as": "keep_cache_bronze",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/cache_silver.unit"
+   ],
+   "save_as": "keep_cache_silver",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/cache_gold.unit"
+   ],
+   "save_as": "keep_cache_gold",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/cache_wood.unit"
+   ],
+   "save_as": "keep_cache_wood",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/chest_bronze_trinket.unit"
+   ],
+   "save_as": "keep_chest_bronze_trinket",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/chest_bronze_equipment.unit"
+   ],
+   "save_as": "keep_chest_bronze_equipment",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/chest_silver_trinket.unit"
+   ],
+   "save_as": "keep_chest_silver_trinket",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/chest_silver_equipment.unit"
+   ],
+   "save_as": "keep_chest_silver_equipment",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/chest_gold_trinket.unit"
+   ],
+   "save_as": "keep_chest_gold_trinket",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/chest_gold_equipment.unit"
+   ],
+   "save_as": "keep_chest_gold_equipment",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/chest_platinum.unit"
+   ],
+   "save_as": "keep_chest_platinum",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "abort"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "town",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "crypt",
+    0
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 150
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_cloth_common.unit"
+   ],
+   "save_as": "temple_dye_bucket_cloth_common",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_cloth_uncommon.unit"
+   ],
+   "save_as": "temple_dye_bucket_cloth_uncommon",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_cloth_rare.unit"
+   ],
+   "save_as": "temple_dye_bucket_cloth_rare",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_leather_common.unit"
+   ],
+   "save_as": "temple_dye_bucket_leather_common",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_leather_uncommon.unit"
+   ],
+   "save_as": "temple_dye_bucket_leather_uncommon",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_leather_rare.unit"
+   ],
+   "save_as": "temple_dye_bucket_leather_rare",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_metal_common.unit"
+   ],
+   "save_as": "temple_dye_bucket_metal_common",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_metal_uncommon.unit"
+   ],
+   "save_as": "temple_dye_bucket_metal_uncommon",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_metal_rare.unit"
+   ],
+   "save_as": "temple_dye_bucket_metal_rare",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_wood_common.unit"
+   ],
+   "save_as": "temple_dye_bucket_wood_common",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_wood_uncommon.unit"
+   ],
+   "save_as": "temple_dye_bucket_wood_uncommon",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_wood_rare.unit"
+   ],
+   "save_as": "temple_dye_bucket_wood_rare",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_gem_common.unit"
+   ],
+   "save_as": "temple_dye_bucket_gem_common",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_gem_uncommon.unit"
+   ],
+   "save_as": "temple_dye_bucket_gem_uncommon",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_gem_rare.unit"
+   ],
+   "save_as": "temple_dye_bucket_gem_rare",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/dyes/dye_bucket_sand.unit"
+   ],
+   "save_as": "temple_dye_bucket_sand",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/cache_bronze.unit"
+   ],
+   "save_as": "temple_cache_bronze",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/cache_silver.unit"
+   ],
+   "save_as": "temple_cache_silver",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/cache_gold.unit"
+   ],
+   "save_as": "temple_cache_gold",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/cache_wood.unit"
+   ],
+   "save_as": "temple_cache_wood",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/chest_bronze_trinket.unit"
+   ],
+   "save_as": "temple_chest_bronze_trinket",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/chest_bronze_equipment.unit"
+   ],
+   "save_as": "temple_chest_bronze_equipment",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/chest_silver_trinket.unit"
+   ],
+   "save_as": "temple_chest_silver_trinket",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/chest_silver_equipment.unit"
+   ],
+   "save_as": "temple_chest_silver_equipment",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/chest_gold_trinket.unit"
+   ],
+   "save_as": "temple_chest_gold_trinket",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/chest_gold_equipment.unit"
+   ],
+   "save_as": "temple_chest_gold_equipment",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "querycmp",
+   "args": [
+    100,
+    "items/chests/chest_platinum.unit"
+   ],
+   "save_as": "temple_chest_platinum",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

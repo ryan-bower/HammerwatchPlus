@@ -105,6 +105,12 @@ its own copy of the record until the first one arrives.
   often one does. In a 700 rare / 300
   epic trinket pool, factor 1.5 gives 700 : 450 (39 % epic instead of 30 %), factor 6
   (500 Luck) 700 : 1800 (72 %). A one-entry pool is unchanged.
+- **Dyes** (`DyePool`): the one exception to "never more often". A pool whose entries are all
+  dye buckets (`items/dyes/`) pays at its vanilla share times the factor: the bronze trinket
+  chest's 60 % dye pool pays every time at factor 2 or more. The cache pools mix their dyes
+  with a heavier entry, so there the dyes come up more often through the pick instead. A
+  dye's quality follows the chest's tier (bronze common, silver uncommon, gold rare), which
+  the floor's Luck raises.
 - **Plain chances** (`Chance`): the chance times the factor, capped at 1 (keys).
 - **Tiers** (`TierUpChance`): 25 % per +1.0 of factor, at most 75 % (abyss).
 - **Secret rooms** (`SecretRoomChance`): one room more than the theme's `*_secrets` set
@@ -134,7 +140,7 @@ its own copy of the record until the first one arrives.
 
 | Site | Luck used | Built |
 |---|---|---|
-| Reward chests, caches, puzzle room rewards (any `Chest` unit, which the keys module swaps for `HWPChest`; a puzzle room's reward is a RewardSpot that spawns a chest). Dyes are chest loot, so they ride on this | the opener's factor on the chest's table | `mods/keys/scripts/HWP/Keys/HWPChest.as` `Use`: the table is taken off the behaviour around `Chest::Use` and rolled by `SpawnLoot`; log `[HWP:keys] luck x<f> chest <key\|open> loot (opener <name>, Luck <n>)` |
+| Reward chests, caches, puzzle room rewards (any `Chest` unit, which the keys module swaps for `HWPChest`; a puzzle room's reward is a RewardSpot that spawns a chest). Dyes are chest and cache loot only (no dye unit is placed on a floor; `probe-dyes-floor`), so they ride on this | the opener's factor on the chest's table | `mods/keys/scripts/HWP/Keys/HWPChest.as` `Use`: the table is taken off the behaviour around `Chest::Use` and rolled by `SpawnLoot`; log `[HWP:keys] luck x<f> chest <key\|open> loot (opener <name>, Luck <n>)` |
 | Strongbox payout | the opener's factor (who paid) | `mods/strongbox/.../Strongbox.as` `HWPStrongbox::Pay`; log `[HWP:strongbox] luck x<f> payout (opener ...)` |
 | Abyss crack payout | party factor: tier-up roll, then the table | `mods/abyss/.../Abyss.as` `Finish`; log `[HWP:abyss] luck x<f> payout hwp_abyss_reward_<t>[ (tier up)]` |
 | Key drops | killer's factor on the boss chance and the normal-kill candidate share; party factor on the host's accept roll | `mods/keys/.../KeysModule.as` `OnKill`, `OnDropRequest`; logs `[HWP:keys] luck x<f> boss key roll / <elite\|normal> kill drop candidate / candidate accept roll` |

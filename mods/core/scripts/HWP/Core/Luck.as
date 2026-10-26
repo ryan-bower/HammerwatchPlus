@@ -185,7 +185,9 @@ namespace HWP
 		// chances sum below 1000 pays nothing the rest of the time). Here the pool pays
 		// nothing at its vanilla odds first; when it does pay, every entry lighter than the
 		// pool's heaviest one has its chance multiplied by factor for the pick between them,
-		// so Luck changes which entry drops, never how often one does.
+		// so Luck changes which entry drops, never how often one does. The exception is a
+		// pool of dye buckets only (the chests' dye pool, tweak/loot/chests.sval): it pays at
+		// its vanilla share times the factor (Chance), so Luck finds more dyes.
 		int RollPool(Item::LootTablePool@ pool, float factor)
 		{
 			if (pool is null || pool.m_items.length() == 0)
@@ -197,7 +199,10 @@ namespace HWP
 				top = max(top, pool.m_items[i].m_chance);
 				sum += pool.m_items[i].m_chance;
 			}
-			if (sum <= 0 || randf() * float(max(1000, sum)) >= float(sum))
+			float pays = float(sum) / float(max(1000, sum));
+			if (DyePool(pool))
+				pays = Chance(pays, factor);
+			if (sum <= 0 || randf() >= pays)
 				return -1;
 			array<float> w;
 			float total = 0;
@@ -221,6 +226,18 @@ namespace HWP
 				if (w[i] > 0)
 					return i;
 			return -1;
+		}
+
+		// every entry a unit under items/dyes/ (the dye buckets)
+		bool DyePool(Item::LootTablePool@ pool)
+		{
+			for (uint i = 0; i < pool.m_items.length(); i++)
+			{
+				auto unit = cast<Item::LootUnit>(pool.m_items[i]);
+				if (unit is null || unit.m_unitProducerID.findFirst("items/dyes/") != 0)
+					return false;
+			}
+			return pool.m_items.length() > 0;
 		}
 
 		// Item::LootTable::SpawnLoot with RollPool in place of the vanilla pick: the

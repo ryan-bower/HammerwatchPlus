@@ -57,7 +57,8 @@
     "site_chest": true,
     "roll_quality_up": true,
     "roll_secret_up": true,
-    "roll_count_up": true
+    "roll_count_up": true,
+    "roll_dyes_up": true
    }
   },
   {

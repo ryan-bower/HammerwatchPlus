@@ -99,7 +99,7 @@ movement speed (`icon-luck`, button `hwp-luck-stat`, text widget `hwp-luck-stat`
 `Factor = 1 + luck / 100` is what a drop site multiplies its rarer outcomes by:
 `SpawnLoot` rolls a loot table with every entry lighter than the pool's heaviest one
 weighted by the factor (the empty share keeps its weight: Luck changes what drops, not
-how often), `Chance` scales a plain chance capped at 1, `TierUpChance` is 25 % per +1.0
+how often, except a pool of dye buckets only, which pays at its share times the factor), `Chance` scales a plain chance capped at 1, `TierUpChance` is 25 % per +1.0
 of factor capped at 75 %. A shared drop rolls once on the host and everyone gets what
 it picked. An opened one (chest, cache, strongbox, a catch's loot) rolls at the opener's
 Luck (`OpenerFactor`, as their machine reported it), so the luckiest player opening a chest

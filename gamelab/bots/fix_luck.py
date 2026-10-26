@@ -107,6 +107,11 @@ class Checks(Base):
         ua = re.findall(r"tier luck 0 factor 1 n 3000: ups (\d+)", self.hwp("luck roll tier 3000 0", 1.0, until="ups"))
         ub = re.findall(r"tier luck 500 factor 6 n 3000: ups (\d+)", self.hwp("luck roll tier 3000 500", 1.0, until="ups"))
         self.flag("roll_tier_up", ua and ub and int(ua[-1]) == 0 and 2000 < int(ub[-1]) < 2500, f"ups {ua} {ub}")
+        # dyes: chest_bronze_trinket's pool 3 is four dye buckets at 150 (60 % pays); at
+        # 500 Luck it pays every time (0.6 x 6, capped)
+        da = self.pool_counts(self.hwp("luck roll chest_bronze_trinket 3000 0", 1.2, until="pool 3:")).get(3)
+        db = self.pool_counts(self.hwp("luck roll chest_bronze_trinket 3000 500", 1.2, until="pool 3:")).get(3)
+        self.flag("roll_dyes_up", bool(da) and bool(db) and 1050 < da[-1] < 1350 and db[-1] == 0, f"dye pool {da} / {db}")
         # floors (LuckFloors.as): blueprint quality picks among {common, common, uncommon, rare}
         # weigh the rarer ones x6 at 500 Luck (rare ~750 -> ~1286 of 3000); the extra secret
         # room 0 -> 75 %; a reward count's lean, mean 1/2 -> 6/7
