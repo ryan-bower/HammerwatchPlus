@@ -157,6 +157,10 @@ lookup was copied four times (now `HWP::CustomStat`, core `CustomStats.as`). mod
 (with a new leave check), mod-autoaim, mod-tavern, mod-waygates and mod-trinkets pass
 ("Code review fixes (69ba108..e1f1fc7)" in `docs/RE_NOTES.md`).
 
+The Skill 4-6 keys now live in `classes`, since only the HoH1 Assassin, Shadow, Trickster
+and Retiarius have more than three actives. Core keeps a hook-only targeting helper
+(`TargetHelper.as`) for them and for Auto Aim.
+
 The full QA sweep is paused and incomplete. The [current checkpoint](docs/generated/qa_pr_checkpoint.json)
 records 10 gameplay repairs and scoped passing coverage for the six original
 fourth specs: 60/60 rank rows and 61/65 orb qualities; Firearms 60/60 rank rows and 74/75 orb qualities;

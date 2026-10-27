@@ -4406,3 +4406,33 @@ of e1f1fc7). Ten findings, all fixed.
   (180728), mod-tavern (180808), mod-waygates (180907), mod-trinkets (180934).
 - Not covered: Auto Aim's gamepad path (the lab has no pad). plan-newa-a's settings-search
   failure predates this work.
+
+## 2026-10-26: Skill 4-6 keys move to classes; doctor scene_art; valuables kept at 2x
+
+- **Who needs Skill 4-6.** Counting the active spells after `m_skills[0]` in every class
+  and spec the mods add: only the HoH1 thief's Assassin and Shadow (4), Trickster (5) and
+  the gladiator's Retiarius (4) have more than three. Firearms has 2 base actives plus 1
+  per spec (3). So `SkillKeys.as` and `SkillKeysHUD.as` moved from core to
+  `mods/classes/scripts/HWP/Classes/`, with the `hwp.skillkeys.option` string.
+- **Core keeps the helper.** Auto Aim still needs the swapped targeting helper, so core
+  has `HWPTargetingHelper` (`HWP/Core/TargetHelper.as`, replacing `HWPSkillKeysHelper`),
+  which does nothing itself. `HWP::TargetHelper::OnUpdate` callbacks run first in every
+  frame of player control, `OnSkillInput` callbacks rewrite the `ButtonState` vanilla
+  `GetSkillInput` returns (an engine value type; the funcdef takes and returns it by
+  value), and then the aim hooks run. gamelab-hands' `SpellButton` gives a 4th to 6th
+  spell its own key only while GlobalCache `hwp_skillkeys_on` is "1" (set by the classes
+  module's Start). Passing: mod-classes (20261026-212624), plan-classesb-a (212733:
+  slice and cloak on `hwp_skill4`), mod-autoaim (212922), mod-all (213022).
+- **Doctor false positive.** `class_units_problems` rebuilt each unit's expected text
+  without the keys module's `scene_art` scenes, so the five chests with area art always
+  read as stale, and `doctor --fix` ended "NOT ready" right after `class_units.py` wrote
+  them. Both now use `class_units.expected(cfg)`; doctor is green.
+- **Valuables and NG+.** Vanilla already adds `Tweak::NGPMaterialGain` (0.2) per NG+ level
+  to every material gain (`PlayerRecord.GetMaterialModifier`), valuables included; a vase
+  at NG+2 under a 1 + NG+ multiplier paid 150 x 3 x 1.4 = 630. Since vanilla already
+  scales it, the mod stays at a flat 2x (6a4836c reverted by 22fce28). mod-valuables can
+  flake when another valuable lies within 200 px of the drop (20261026-213539 picked up
+  250); its rerun passed (213621).
+- **Hero titles are vanilla** (`tweak/town/hero_titles.sval`, Guild Hall > Titles). The
+  class mods add one title file each; `legacy` only presents them (the crown buff and the
+  full list).
