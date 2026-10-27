@@ -1,25 +1,24 @@
-// Extra skill keys. The engine's GameInput has only Skill1, Skill2 and Skill3,
-// and PlayerTargetingHelper.GetSkillInput (Behaviors/Actors/Player/
-// PlayerTargetingHelper.as:713-750) gives the 3rd and every later active
-// spell Skill3, so a class with more than three actives fires all of them on one
-// press. Of ours, the HoH1 thief specs (assassin and shadow 4, trickster 5) and the
-// retiarius (4) need them; every other class and spec, Firearms included, has 3.
+// Extra skill keys for the HoH1 specs with more than three actives (the thief's
+// Assassin and Shadow 4, Trickster 5, the gladiator's Retiarius 4; every other class
+// has 3). The engine's GameInput has only Skill1, Skill2 and Skill3, and
+// PlayerTargetingHelper.GetSkillInput (Behaviors/Actors/Player/
+// PlayerTargetingHelper.as:713-750) gives the 3rd and every later active spell
+// Skill3, so all of them would fire on one press.
 //
-// The local player's PlayerTargetingHelper is swapped for HWPSkillKeysHelper
-// (script methods are virtual): its GetSkillInput answers the 4th, 5th and 6th
-// active with raw keys set on the Plus tab (default 4, 5, 6; vanilla binds 1 2
-// 3 Q E V). It also calls the aim hooks (Aim.as). Everything else in the helper
-// (the targeting modes, the input buffer, another skill's button cancelling a
-// charge, quickcast) is vanilla code reading those keys, so Skill3 fires only
-// the 3rd active. The HUD shows the extra skills with their key
-// (SkillKeysHUD.as).
+// Core's targeting helper (mods/core/scripts/HWP/Core/TargetHelper.as) runs two hooks
+// registered here: Poll every frame of player control, and SkillInput, which answers
+// the 4th, 5th and 6th active with raw keys set on the Plus tab (default 4, 5, 6;
+// vanilla binds 1 2 3 Q E V). Everything else (the targeting modes, the input buffer,
+// another skill's button cancelling a charge, quickcast) is vanilla code reading those
+// keys, so Skill3 fires only the 3rd active. The HUD shows the extra skills with their
+// key (SkillKeysHUD.as).
 //
 // Keyboard only: a gamepad still reaches only the first three actives (the
 // vanilla skill wheel, RadialMenuItemType::ExpandPlayerSkill, is never added
 // to the action menu, RadialMenu.as).
 // GameLab: gamelab-hands' input verb holds "hwp_skill4".."hwp_skill6" by
-// writing "4,5,..." to GlobalCache EMU_KEY (no symbol shared, so either mod
-// loads without the other).
+// writing "4,5,..." to GlobalCache EMU_KEY, and gives a spell its own key only
+// while ON_KEY is "1" (no symbol shared, so either mod loads without the other).
 namespace HWP
 {
 	namespace SkillKeys
@@ -27,6 +26,7 @@ namespace HWP
 		const int COUNT = 3;                          // Skill 4, 5, 6
 		const array<int> DEFAULTS = { 33, 34, 35 };   // SDL scancodes for 4, 5, 6
 		const string EMU_KEY = "hwp_skillkeys_held";
+		const string ON_KEY = "hwp_skillkeys_on";
 
 		array<int> g_scancode = { 33, 34, 35 };
 		array<bool> g_down = { false, false, false };
@@ -142,8 +142,7 @@ namespace HWP
 			return held.split(",").find("" + (k + 4)) >= 0;
 		}
 
-		// once per frame of player control, from HWPSkillKeysHelper.Update
-		// (Player.as only calls it while the controls are not frozen)
+		// once per frame of player control (core's targeting helper, OnUpdate)
 		void Poll()
 		{
 			string held = GlobalCache::Get(EMU_KEY);
@@ -158,20 +157,23 @@ namespace HWP
 			}
 		}
 
-		// the local player's helper, swapped in once its actor exists (the
-		// Player ctor makes a vanilla one, again on every spawn)
-		void Install()
+		void Tick(PlayerTargetingHelper@ helper, int dt)
 		{
-			auto plr = GetLocalPlayer();
-			if (plr is null || plr.m_targetHelper is null)
-				return;
-			if (cast<HWPSkillKeysHelper>(plr.m_targetHelper) !is null)
-				return;
-			if (plr.m_targetHelper.m_targetingSkill !is null)
-				return;
-			plr.m_targetHelper.OnDestroyed();
-			@plr.m_targetHelper = HWPSkillKeysHelper(plr);
-			HWP::Log("skillkeys", "input helper installed, " + ActiveCount(plr.m_skills) + " active skill(s)");
+			Poll();
+		}
+
+		// the vanilla answer is Skill3 for every active past the 3rd; those read
+		// their own key instead (the ButtonState is a copy, its fields rewritten)
+		ButtonState SkillInput(PlayerTargetingHelper@ helper, Skills::Skill@ skill, ButtonState btn)
+		{
+			int k = Extra(helper.m_player.m_skills, skill);
+			if (k >= 0)
+			{
+				btn.Down = g_down[k];
+				btn.Pressed = g_pressed[k];
+				btn.Released = g_released[k];
+			}
+			return btn;
 		}
 
 		// hwp skillkeys: the keys and which skill each one casts
@@ -192,50 +194,8 @@ namespace HWP
 					list += (list.isEmpty() ? "" : ", ") + plr.m_skills[i].m_id + " on " + KeyName(k);
 			}
 			HWP::Commands::Reply("active skills: " + ActiveCount(plr.m_skills) + (list.isEmpty() ? "" : "; " + list)
-				+ (cast<HWPSkillKeysHelper>(plr.m_targetHelper) is null ? " (helper not installed)" : ""));
+				+ (cast<HWPTargetingHelper>(plr.m_targetHelper) is null ? " (helper not installed)" : ""));
 		}
-	}
-}
-
-class HWPSkillKeysHelper : PlayerTargetingHelper
-{
-	HWPSkillKeysHelper(Player@ player)
-	{
-		super(player);
-	}
-
-	bool Update(int dt, vec2 aimDir) override
-	{
-		HWP::SkillKeys::Poll();
-		if (HWP::Aim::Pre(this, dt, aimDir))
-			return true;
-		return PlayerTargetingHelper::Update(dt, aimDir);
-	}
-
-	// the aim hooks (Aim.as) get the reticle vanilla worked out
-	vec2 CalcGamepadTargetPos(float targetingDist, vec2 aimDir, Skills::TargetingParams@ params, int dt) override
-	{
-		return HWP::Aim::Apply(this, params, PlayerTargetingHelper::CalcGamepadTargetPos(targetingDist, aimDir, params, dt), true);
-	}
-
-	vec2 CalcMouseTargetPos(vec2 mousePos, Skills::TargetingParams@ params, int idt = -1) override
-	{
-		return HWP::Aim::Apply(this, params, PlayerTargetingHelper::CalcMouseTargetPos(mousePos, params, idt), false);
-	}
-
-	// the vanilla answer is Skill3 for every active past the 3rd; those read
-	// their own key instead (a copy of the ButtonState, its fields rewritten)
-	ButtonState GetSkillInput(Skills::Skill@ skill) override
-	{
-		ButtonState btn = PlayerTargetingHelper::GetSkillInput(skill);
-		int k = HWP::SkillKeys::Extra(m_player.m_skills, skill);
-		if (k >= 0)
-		{
-			btn.Down = HWP::SkillKeys::g_down[k];
-			btn.Pressed = HWP::SkillKeys::g_pressed[k];
-			btn.Released = HWP::SkillKeys::g_released[k];
-		}
-		return btn;
 	}
 }
 
@@ -250,19 +210,17 @@ namespace Modules
 				HWP::Options::Register("skill" + (k + 4), HWP::SkillKeys::SkillKeyOption(k));
 			HWP::Commands::Register("skillkeys", " show the extra skill keys (Skill 4-6) and what they cast", HWP::Commands::Handler(HWP::SkillKeys::CmdSkillKeys));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::SkillKeys::OnSettingChanged));
+			HWP::TargetHelper::OnUpdate(HWP::TargetHelper::Tick(HWP::SkillKeys::Tick));
+			HWP::TargetHelper::OnSkillInput(HWP::TargetHelper::SkillInput(HWP::SkillKeys::SkillInput));
 		}
 
 		void Start(StartMode sMode)
 		{
 			GlobalCache::Set(HWP::SkillKeys::EMU_KEY, ""); // a GameLab hold does not outlive its level
+			GlobalCache::Set(HWP::SkillKeys::ON_KEY, "1");
 			HWP::SkillKeys::RefreshSettings();
 			for (int k = 0; k < HWP::SkillKeys::COUNT; k++)
 				HWP::SkillKeys::g_down[k] = false;
-		}
-
-		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
-		{
-			HWP::SkillKeys::Install();
 		}
 	}
 }

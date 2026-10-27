@@ -2,7 +2,7 @@
 // (Behaviors/Actors/Player/PlayerTargetingHelper.as) works out an AOE skill's target in
 // CalcGamepadTargetPos and CalcMouseTargetPos, and activates the skill in Update when the
 // attack button is pressed (or the skill button released, with quickcast). Core already
-// swaps the local player's helper for HWPSkillKeysHelper (SkillKeys.as); that helper calls
+// swaps the local player's helper for HWPTargetingHelper (TargetHelper.as); that helper calls
 // these hooks, so a module can steer the reticle or act before the targeting step without
 // a second helper class fighting over Player.m_targetHelper.
 //
