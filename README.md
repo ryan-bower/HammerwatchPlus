@@ -52,9 +52,9 @@ should run the same version of the same modules. Every module needs `core`.
 
 | Module | What it does |
 |---|---|
-| `fishing` | Six fishing spots on the town coast (a timing minigame), more in the water of run floors' potion wells (always one in a boss room), greyed on the map once fished out. A pirate sells bait, rods (priced per tier; new characters start with the wooden rod) and fish traps from the trading post's wreck, later its boat. Fish are swords, sell for bet tokens and can be eaten (100 HP per star, plus Luck). Catches can hold keys and ace keys, and a hole's loot goes to whoever caught it. |
+| `fishing` | Six fishing spots on the town coast (a timing minigame), more in the water of run floors' potion wells (always one in a boss room), greyed on the map once fished out. A pirate sells bait, rods (priced per tier; new characters start with the wooden rod) and fish traps from the trading post's wreck, later its boat. Fish are swords, sell for the gambler's bet tokens (for gold without the gambler) and can be eaten (100 HP per star, plus Luck). Catches can hold keys and ace keys, and a hole's loot goes to whoever caught it. |
 | `farming` | The town's field grooves become farm plots: food crops and four Holy Herb strains grow with each completed run, faster when watered (the farmer sells the can and seeds; the well refills it). Smoke a herb for a buff that lasts 10 floors (hotboxing works outdoors too), or roll it into a joint: an off-hand with 5 puffs that a friend can take from you, with smoke that fills the room; a second joint goes in the main hand, left and right click puffing each. |
-| `gambler` | A gambler in the tavern plays Higher/Lower for gold. He buys crops and herbs for gold and fish for bet tokens, and rerolls equipped gear for 2000 gold × item level, or 1 bet token per 5 item levels. |
+| `gambler` | A gambler in the tavern plays Higher/Lower for gold. He buys crops and herbs for gold and fish for bet tokens, and rerolls equipped gear for 2000 gold × item level, or 1 bet token per 5 item levels. Bet tokens are this module's: they show in the Materials tab, and without it fish sell for gold. |
 | `tavern` | Three more tavern levels (from guild hall levels 7 and 8, the top one): a run can start with up to 3 foods and 5 drinks. |
 | `waygates` | Way Gates: teleport gates in the town square and at every building you have built. Use one and pick where to go (a remake of Tyraen's Teleport in City). |
 | `roulette` | A roulette wheel on a table in the tavern: one single-zero table for the whole lobby with all 157 bets at true odds (click near an edge or a corner for splits and corners), a remake of the Workshop roulette table. Luck and gold find raise the winnings by their percentage, so a smoked herb tips the odds your way. |
@@ -67,14 +67,15 @@ should run the same version of the same modules. Every module needs `core`.
 |---|---|
 | `groupcombo` | A party-wide combo bonus that grows with how many players are in combo, and brief invulnerability when everyone is. Boxes, barrels, sacks and vases also drop a rare **combo orb** (0.1 %, up to 1 % with the Luck of whoever breaks them): everyone with combo unlocked gets their own, and picking it up puts you in combo at once (pets leave it alone). |
 | `architect` | Any player can pick and pay for Architect alterations; the host's picks are split across the party. Seven HoH1 challenges discount them, down to free. The run-start screen keeps three named presets of picks and NG+ level per character, shows NG+ last with the start hint, and lets a non-host leave. |
-| `droptrade` | Drop equipment on the ground for friends: a Drop button (Q) next to Destroy in the inventory. |
+| `droptrade` | Drop equipment on the ground for friends: a Drop button (Q) next to Destroy in the inventory. The use key picks up a dropped item before it talks to an NPC or opens a shop, chest or shrine underfoot. |
+| `orbwarn` | The orb picker says which orbs a pick would make unavailable (mutually exclusive orbs such as the Firearms grenades), with their icons and names. |
 | `deathrecap` | Who killed you: the top damage sources of the last 10 s, on screen and in chat. After a boss falls, a boss-fight recap of everyone's damage by skill and damage taken. |
 | `bufftips` | Hover a buff icon to see what it does and how many seconds it has left. |
 | `chatlinks` | Linked items stay in chat with their slot and item level; `hwp link` links an equipped item. |
 | `colors` | Colour-blind and high-contrast tints for enemy and friendly projectiles (player menu > Plus tab), and each player in their own colour on the minimap and the overlay map, with names for players far away. |
 | `goldworth` | Gold on the floor shows what it is worth: 15 coin and pile looks, from a bronze coin to a big pile of gold. |
 | `mmhmm` | **Mm-hmm!** A quarter of rare and epic hats carry the Mm-hmm! bonus: the Material Trader's "mm-hmm", for everyone, on every crit of the wearer, when the wearer revives someone or is revived, drinks from a pool, completes a trinket set, takes the last orb of an orb tree (trees with more than one orb), opens an Ace chest or opens a secret room. |
-| `core` | Required by every module: settings (the Plus tab and the `hwp` console command), save data and networking. It also adds **Luck**, a stat from gear affixes of Fortune, the Rabbit's Foot trinket and timed buffs from herbs and fish, which weights chest, strongbox, abyss and key drops towards the rarer results (a chest at its opener's Luck) and gives the party's average to generated floors (secret rooms, the imp, floor rewards, blueprints, fishing holes, keys and ace chests); keys 4, 5 and 6 for a class's 4th to 6th active skill; a Plants & Herbs section in the Materials tab with Eat and Roll actions; a warning on orbs that close off other orbs; and the use key picking up a dropped item before it talks to an NPC. |
+| `core` | Required by every module: settings (the Plus tab and the `hwp` console command), save data and networking. It also adds **Luck**, a stat from gear affixes of Fortune, the Rabbit's Foot trinket and timed buffs from herbs and fish, which weights chest, strongbox, abyss and key drops towards the rarer results (a chest at its opener's Luck) and gives the party's average to generated floors (secret rooms, the imp, floor rewards, blueprints, fishing holes, keys and ace chests); and the plumbing other modules fill: the targeting and aim hooks, a wares market, untitled Materials tab sections and gear slot frames. |
 
 Each module's full spec and test checklist is in `mods/<id>/README.md`.
 
@@ -166,6 +167,12 @@ out of core into `goldworth`, and Mm-hmm! is its own `mmhmm` module: besides cri
 revives, wells, secret rooms, completed trinket sets, the last orb of a multi-orb tree and Ace chests
 (mod-mmhmm, mod-all, mod-keys, fix-gold-sprites pass; a real two-player revive is untested). The Devil Forgemaster's eating now heals
 30% of max health a second instead of +50 regeneration (plan-forgemaster-eat).
+
+Core is plumbing only now: the orb warning is its own `orbwarn` module, the use key's
+pickup-first order belongs to `droptrade`, and the bet tokens belong to `gambler`, which
+registers them as the market's second currency (without it, fish sell for gold). The
+materials tab has two untitled sections the modules title and fill: Supplies (gambler,
+fishing) and Plants & Herbs (farming).
 
 The full QA sweep is paused and incomplete. The [current checkpoint](docs/generated/qa_pr_checkpoint.json)
 records 10 gameplay repairs and scoped passing coverage for the six original

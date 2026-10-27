@@ -70,7 +70,6 @@ namespace Modules
 
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
 		{
-			HWP::PickupFirst::Update();
 			if (m_announced)
 				return;
 			m_announced = true;

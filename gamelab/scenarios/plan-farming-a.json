@@ -177,7 +177,7 @@
    "args": [
     "character",
     "material-inventory",
-    "hwp-plants"
+    "hwp-materials-b"
    ],
    "name": "Plants & Herbs section",
    "expect": {

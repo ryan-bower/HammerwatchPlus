@@ -45,7 +45,7 @@ namespace HWP
 				}
 			}
 			if (moved)
-				HWP::Log("core", "pickup first: an item moved ahead of " + list.length() + " usable(s)");
+				HWP::Log("droptrade", "pickup first: an item moved ahead of " + list.length() + " usable(s)");
 		}
 	}
 }

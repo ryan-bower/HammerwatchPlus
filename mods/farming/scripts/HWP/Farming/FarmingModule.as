@@ -2365,10 +2365,12 @@ namespace Modules
 			HWP::Farming::g_endState = MissionManager::MissionState::None; // PlayerRecordLoad sets it
 			HWP::Farming::DefineSeeds();
 			HWP::Gear::Register("hwp-gear-can", HWPFarmCanSlot());
+			// Plants & Herbs: a row of seeds, then a row of what they grow
+			HWP::Materials::Title("b", ".hwp.farming.plants");
 			for (uint i = 0; i < HWP::Farming::g_seeds.length(); i++)
 			{
-				HWP::Materials::Register("hwp-mat-seed-" + HWP::Farming::g_seeds[i].id, HWPSeedMaterial(i));
-				HWP::Materials::Register("hwp-mat-crop-" + HWP::Farming::g_seeds[i].id, HWPHarvestMaterial(i));
+				HWP::Materials::Register("b", i, "hwp-mat-seed-" + HWP::Farming::g_seeds[i].id, HWPSeedMaterial(i));
+				HWP::Materials::Register("b", 100 + i, "hwp-mat-crop-" + HWP::Farming::g_seeds[i].id, HWPHarvestMaterial(i));
 			}
 			HWP::Settings::Sync("farm.");
 			HWP::Farming::RefreshSettings();

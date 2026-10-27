@@ -1,0 +1,8 @@
+{
+  "id": "orbwarn",
+  "requires": [
+    "core"
+  ],
+  "overrides": [],
+  "exclude": []
+}

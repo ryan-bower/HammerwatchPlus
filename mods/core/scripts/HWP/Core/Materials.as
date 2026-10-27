@@ -1,12 +1,14 @@
 // Extra materials in the character menu's materials tab (gui/playermenu/
 // character.gui): sections under the run and town rows for things a module
-// keeps per character ("Supplies": bet tokens, fishing bait; "Plants & Herbs":
-// farm seeds and the harvest). Each cell is a hwp-material widget in its
-// section's wrapping grid, filled by the provider a module registers under the
-// cell's id; a cell without a provider (its module is off) is hidden and the
-// grid closes the gap, and a section without any hides. Each section sits under
-// the one before it. Hovering a cell shows the provider's Title() / Text();
-// clicking it calls Click().
+// keeps per character. Core names none of them: the gui has two empty sections,
+// "a" (29x26 cells, hwp-mat-a0..a7) and "b" (28x24, drawn compact, hwp-mat-b0..b15),
+// and modules fill them (the gambler's bet tokens and fishing's bait in "a" as
+// Supplies, farming's seeds and harvest in "b" as Plants & Herbs). A module's
+// providers take a section's cells in their order; a cell takes its provider's id
+// (so `gl menu` finds it by that), a cell without one (its module is off) is hidden
+// and the grid closes the gap, and a section without any hides. Each section sits
+// under the one before it, with the title its first module gave it. Hovering a
+// cell shows the provider's Title() / Text(); clicking it calls Click().
 //
 // Providers register in their module ctor (script globals reset every level).
 // Counts are read every frame while the tab is open, so no change calls.
@@ -25,18 +27,59 @@ namespace HWP
 			void Click() {}
 		}
 
-		dictionary g_materials;
-
-		void Register(const string &in id, Material@ material)
+		class Entry
 		{
-			g_materials.set(id, @material);
+			string section;
+			int order;
+			string id;
+			Material@ material;
 		}
 
-		Material@ Get(const string &in id)
+		array<Entry@> g_entries; // by section, then order
+		dictionary g_titles;     // section -> lang key
+
+		// a cell in section ("a" or "b"), sorted by order; id names the cell
+		void Register(const string &in section, int order, const string &in id, Material@ material)
 		{
-			Material@ material;
-			if (g_materials.get(id, @material))
-				return material;
+			Entry@ e = Entry();
+			e.section = section;
+			e.order = order;
+			e.id = id;
+			@e.material = material;
+			uint at = 0;
+			while (at < g_entries.length() && (g_entries[at].section < section
+				|| (g_entries[at].section == section && g_entries[at].order <= order)))
+				at++;
+			g_entries.insertAt(at, e);
+		}
+
+		// the section's header (a lang key); the first module to give one wins
+		void Title(const string &in section, const string &in key)
+		{
+			if (!g_titles.exists(section))
+				g_titles.set(section, key);
+		}
+
+		string TitleOf(const string &in section)
+		{
+			string key;
+			if (g_titles.get(section, key))
+				return Resources::GetString(key);
+			return "";
+		}
+
+		// the index-th provider of a section, or null
+		Entry@ Get(const string &in section, int index)
+		{
+			int n = 0;
+			for (uint i = 0; i < g_entries.length(); i++)
+			{
+				if (g_entries[i].section != section)
+					continue;
+				if (n == index)
+					return g_entries[i];
+				n++;
+			}
 			return null;
 		}
 	}
@@ -53,6 +96,8 @@ class HWPMaterialWidget : AInteractableWidget
 	ScriptSprite@ m_icon;
 	TextWidget@ m_count;
 	int m_shown = -1;
+	string m_section; // from the gui id: hwp-mat-<section><index>
+	int m_index = -1;
 
 	HWPMaterialWidget()
 	{
@@ -72,12 +117,30 @@ class HWPMaterialWidget : AInteractableWidget
 		string src = ctx.GetString("src", false);
 		if (src != "")
 			@m_background = ctx.GetGUIDef().GetSprite(src);
+		if (m_id.findFirst("hwp-mat-") == 0 && m_id.length() > 9)
+		{
+			m_section = m_id.substr(8, 1);
+			m_index = parseInt(m_id.substr(9));
+		}
 	}
 
 	// called by the section, also while this cell is hidden
 	bool Refresh()
 	{
-		@m_material = HWP::Materials::Get(m_id);
+		HWP::Materials::Entry@ e = null;
+		if (m_index >= 0)
+			@e = HWP::Materials::Get(m_section, m_index);
+		HWP::Materials::Material@ material = null;
+		if (e !is null)
+			@material = e.material;
+		if (material !is m_material)
+		{
+			@m_material = material;
+			@m_icon = null;
+			m_shown = -1;
+			if (e !is null && m_id != e.id)
+				SetID(e.id);
+		}
 		bool show = m_material !is null;
 		if (m_visible != show)
 			m_visible = show;
@@ -177,6 +240,9 @@ class HWPMaterialsWidget : GroupWidget
 	int m_gridTop = -1;
 	bool m_any = false;
 	int m_bottom = -1; // in the tab, padding included; -1 while hidden
+	string m_section;  // from the gui id: hwp-materials-<section>
+	TextWidget@ m_title;
+	string m_titleShown;
 
 	HWPMaterialsWidget()
 	{
@@ -188,6 +254,13 @@ class HWPMaterialsWidget : GroupWidget
 		HWPMaterialsWidget@ w = HWPMaterialsWidget();
 		CloneInto(w);
 		return w;
+	}
+
+	void Load(WidgetLoadingContext &ctx) override
+	{
+		GroupWidget::Load(ctx);
+		if (m_id.findFirst("hwp-materials-") == 0)
+			m_section = m_id.substr(14);
 	}
 
 	// the sections of this tab, in gui order
@@ -244,6 +317,17 @@ class HWPMaterialsWidget : GroupWidget
 		}
 		bool any = shown > 0;
 		m_any = any;
+		if (m_title is null)
+			@m_title = cast<TextWidget>(GetWidgetById("title"));
+		if (any && m_title !is null)
+		{
+			string t = HWP::Materials::TitleOf(m_section);
+			if (t != m_titleShown)
+			{
+				m_titleShown = t;
+				m_title.SetText(t);
+			}
+		}
 		for (uint i = 0; i < m_children.length(); i++)
 		{
 			if (m_children[i] !is m_cells && m_children[i].m_visible != any)

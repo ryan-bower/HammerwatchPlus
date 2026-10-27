@@ -2,7 +2,7 @@
 
 Fishing along the town's coast, a pirate who sells bait, rods and fish traps,
 fishing spots in the water of run floors' potion wells (always one in a boss room),
-and fish that sell for the Gambler's bet tokens or fight as swords. With the
+and fish that sell for the Gambler's bet tokens (for gold without the gambler) or fight as swords. With the
 keys module, a catch can bring up a key of any tier, ace keys included.
 
 - **Coast spots.** Six `doodads/hwp/fishing_spot.unit` along the town's west
@@ -48,7 +48,9 @@ keys module, a catch can bring up a key of any tier, ace keys included.
   drop level cap), like gear.
 - **Stars and bet tokens.** Fish are 1, 2 or 3 star (tiers 1-2, 3, 4) and sell
   for 1 / 3 / 5 **bet tokens** (`HWP::Market` token price; the pirate's Sell
-  button, `hwp fishing sell`, the Gambler's Sell button or `hwp sell`). Only
+  button, `hwp fishing sell`, the Gambler's Sell button or `hwp sell`). The tokens are the
+  gambler's (core's market currency); without the gambler each fish sells for its own gold
+  price (`AddFish`) and the pirate says so. Only
   unworked fish in the bag sell: each catch stores its signature (base id,
   item level, quality, modifiers in order) in your HWP save data
   (`market_sigs`, core `HWP::Market::Remember`); enchanting, upgrading or
@@ -114,7 +116,8 @@ keys module, a catch can bring up a key of any tier, ace keys included.
   20 for 180 g), shrimp (5 for 400 g), glow squid (3 for 900 g) and the next
   rod (Sturdy, Sea, Captain's). The bait decides the coast's star range: worms 1-2, shrimp 2-3, squid
   3-4 (`BAIT_MIN_TIER`/`BAIT_MAX_TIER`); the rod's bonuses roll within it.
-  Each kind is a cell in the materials tab's Supplies section with a tooltip.
+  Each kind is a cell in the materials tab's Supplies section (core `HWP::Materials`
+  section a, after the gambler's tokens) with a tooltip.
   At trading post tier 3 (its last) the wreck becomes a whole boat and he stands
   in it (`ON_BOAT_X/Y`, 2 px below the boat's origin in that tier's prefab: the hull is
   drawn sorted by that origin and would hide him any higher up). His

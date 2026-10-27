@@ -44,4 +44,8 @@
 	<string name="hwp.gambler.slot_6">Back</string>
 	<string name="hwp.gambler.token_title">Bet Tokens</string>
 	<string name="hwp.gambler.token_text">Gamba tokens. Fish sell for them at the Gambler (Sell),\nand he takes them for gear rerolls: 1 token per 5 item levels.</string>
+	<string name="hwp.gambler.amount">%n% bet tokens</string>
+	<string name="hwp.gambler.amount_short">%n% tok</string>
+	<string name="hwp.gambler.token_count">Bet tokens: %n% (the Gambler rerolls gear for 1 token per 5 item levels)</string>
+	<string name="hwp.gambler.supplies">Supplies</string>
 </lang>

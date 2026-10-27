@@ -242,7 +242,7 @@ class HWPGamblerShop : AShopContent
 
 	int GetPlayerTokens()
 	{
-		return HWP::Market::Tokens(m_player);
+		return HWP::Gambler::Tokens(m_player);
 	}
 
 	void CycleRerollSlot(int dir)
@@ -286,7 +286,7 @@ class HWPGamblerShop : AShopContent
 		auto item = RerollItem();
 		if (tokens)
 		{
-			if (!HWP::Market::SpendTokens(m_player, RerollTokenCost()))
+			if (!HWP::Gambler::SpendTokens(m_player, RerollTokenCost()))
 				return false;
 		}
 		else

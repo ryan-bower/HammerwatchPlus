@@ -4485,3 +4485,41 @@ of e1f1fc7). Ten findings, all fixed.
   pushed the priest 3 px. The Penance section's last raise now gets 500 mana first (five
   Penances left 35, under the raise's 70: 222826). `pen_faces_up` once read the priest
   12 px beside the body (223301) and passed on the next run.
+
+## 2026-10-26: orb warnings, pickup-first and bet tokens leave core
+
+- **orbwarn** is a module of its own (`mods/orbwarn`, requires core): OrbWarn.as moved as it
+  was, with its `hwp.orbwarn.closes` line. **PickupFirst.as** moved to droptrade, whose
+  UpdateFrame calls it after its own poll; the log tag is `[HWP:droptrade] pickup first`.
+- **Bet tokens** moved to the gambler (`Tokens.as`, the same per-character `bet_tokens`
+  key, and the `hwp tokens` cheat). Core's market keeps a generic second currency:
+  `HWP::Market::Currency` (Held, Add, Amount, Status), which a module registers with
+  `SetCurrency`. A ware with a token price sells for gold when none is registered, so
+  fishing without the gambler sells fish for gold and says so (`*_gold` lang lines).
+  Modules compile into one script set, so the hook is how core reaches a module's code
+  without requiring it.
+- **Materials tab:** core's character.gui keeps two untitled sections, `hwp-materials-a`
+  (8 cells) and `hwp-materials-b` (16). A cell must exist when the menu collects its
+  interactables, so the cells are static and generic: `HWP::Materials::Register(section,
+  order, id, material)` fills them in order, and each cell takes its entry's id at refresh
+  (`Widget.SetID` sets the hash `GetWidgetById` matches). `Title(section, key)` names a
+  section (the first module wins); a section with no shown cell stays hidden. The gambler
+  and fishing title section a "Supplies", farming titles section b "Plants & Herbs" (its
+  Eat and Roll actions were already farming's).
+- Gear slots (`GearSlots.as`, the rod and can frames in core's gui) follow the same
+  pattern and stay in core for now.
+- mod-orbwarn's `gl skill` step expected level 1, but Firearms actives start at rank 1 since
+  23d8f08 (`RANK1_SKILLS`, so the raise gives 2); it expects `raised: 1`. mod-droptrade-pickup
+  walked off (200 ms) and back. That needs the step off to leave the trainer's use radius,
+  and 27 px does not (230213: back within 8 px, only the rifle usable); the walk back once
+  took 1 s of wall time for its 7 frames and overshot by 21 px (225001: no usables), and a
+  `gl teleport` back starts no collision from 58 px out (230300). The trainer and the rifle
+  now spawn 40 px ahead and the player walks onto them (300 ms), which starts both
+  collisions: 230401 passes, the rifle on top at 4 px, the trainer second.
+- plan-farming-a fails s2 (the walk onto the onion groove ends 40-100 px off, so the
+  cabbage goes on plot 16), s8 (it waters that groove) and s7's puff count (5/5 read
+  first, 1/5 last) on two runs (225133, 225726). The farming diff here only changes the
+  Materials registration, and the Plants & Herbs check passes; the last earlier run was
+  20261020, so they most likely came in between (unconfirmed: no run on the previous commit).
+- mod-all now lists orbwarn. Passing: mod-orbwarn (225637), mod-droptrade-pickup (230401),
+  mod-supplies-tokens (225023), plan-fishing-e (225039), mod-all with orbwarn (230506).

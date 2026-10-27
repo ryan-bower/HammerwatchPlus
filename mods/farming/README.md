@@ -65,7 +65,8 @@ watered.
   as the town loads its character, in the `PlayerRecordLoad` hook) adds 1 growth, 2
   if the plot was watered since the last run: food takes 2 runs (1 watered), herbs 4 (2 watered).
   Your seeds and what you harvested show in the materials tab's **Plants &
-  Herbs** section (core `HWP::Materials`, 8 cells across): a cell per seed
+  Herbs** section (core `HWP::Materials` section b, which this module titles; 8 cells
+  across, seeds first, then the harvest): a cell per seed
   (`gui/hwp_seeds.png`, tooltip: growth time and yield) and a cell per
   harvested crop or herb (`gui/hwp_harvest.png`, `HWPHarvestMaterial`).
   The herb plants and buff icons are drawn as cannabis in each strain's colour.

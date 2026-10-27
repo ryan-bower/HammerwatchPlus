@@ -431,14 +431,17 @@ namespace HWP
 			Say(Resources::GetString(".hwp.fishing.pirate.trap_bought", { { "n", have + 1 }, { "max", MAX_TRAPS } }));
 		}
 
-		// the pirate buys your fish for bet tokens
+		// the pirate buys your fish for the gambler's bet tokens, or for gold without the gambler
+		// (core Market.as: the currency the gambler registers)
 		void SellFish()
 		{
 			auto sale = HWP::Market::Sell(GetLocalPlayerRecord(), "fish");
 			if (sale.count <= 0)
 				Say(Resources::GetString(".hwp.fishing.pirate.no_fish"));
-			else
+			else if (HWP::Market::HasCurrency())
 				Say(Resources::GetString(".hwp.fishing.pirate.sold", { { "n", sale.count }, { "tokens", sale.tokens } }));
+			else
+				Say(Resources::GetString(".hwp.fishing.pirate.sold_gold", { { "n", sale.count }, { "gold", sale.gold } }));
 		}
 
 		// ms on the current run not yet written to the save (written every few s)
@@ -1662,8 +1665,8 @@ namespace HWP
 				minTier = BAIT_MIN_TIER[SelectedBait() - 1];
 				maxTier = BAIT_MAX_TIER[SelectedBait() - 1];
 			}
-			HWP::Commands::Reply(Resources::GetString(".hwp.fishing.stars_here", {
-				{ "min", StarOf(minTier) }, { "max", StarOf(maxTier) }, { "tokens", HWP::Market::Tokens(rec) } }));
+			HWP::Commands::Reply(Resources::GetString(HWP::Market::HasCurrency() ? ".hwp.fishing.stars_here" : ".hwp.fishing.stars_here_gold", {
+				{ "min", StarOf(minTier) }, { "max", StarOf(maxTier) }, { "tokens", HWP::Market::Held(rec) } }));
 			HWP::Commands::Reply(Resources::GetString(".hwp.fishing.status", {
 				{ "state", g_enabled ? "on" : "off" }, { "spots", g_coast ? int(COAST_X.length()) : 0 },
 				{ "x", int(g_piratePos.x) }, { "y", int(g_piratePos.y) }, { "rod", RodText(false) },
@@ -1789,7 +1792,7 @@ class HWPFishingMenu : AWindowObject
 		if (m_baitButton !is null)
 			m_baitButton.SetText(Resources::GetString(".hwp.fishing.bait_button", { { "bait", HWP::Fishing::BaitName(kind) }, { "stars", HWP::Fishing::BaitStars(kind) } }));
 		auto s = HWP::Market::Summary(rec, "fish");
-		m_wares.SetText(s.isEmpty() ? Resources::GetString(".hwp.fishing.wares_none")
+		m_wares.SetText(s.isEmpty() ? Resources::GetString(HWP::Market::HasCurrency() ? ".hwp.fishing.wares_none" : ".hwp.fishing.wares_none_gold")
 			: Resources::GetString(".hwp.fishing.wares", { { "list", s } }));
 	}
 
@@ -2152,7 +2155,7 @@ class HWPPirateMenu : AWindowObject
 		auto rec = GetLocalPlayerRecord();
 		m_message.SetText(HWP::Fishing::g_lastMessage);
 		m_status.SetText(HWP::Fishing::RodText());
-		m_gold.SetText(Resources::GetString(".hwp.fishing.pirate.gold", { { "n", rec is null ? 0 : rec.GetMaterial(MaterialType::Gold) }, { "tokens", HWP::Market::Tokens(rec) } }));
+		m_gold.SetText(Resources::GetString(HWP::Market::HasCurrency() ? ".hwp.fishing.pirate.gold" : ".hwp.fishing.pirate.gold_only", { { "n", rec is null ? 0 : rec.GetMaterial(MaterialType::Gold) }, { "tokens", HWP::Market::Held(rec) } }));
 		m_bait.SetText(BuyText(1, HWP::Fishing::BAIT_PACK[0], HWP::Fishing::BAIT_PACK_PRICE[0]));
 		m_baitBig.SetText(BuyText(1, HWP::Fishing::BAIT_BIG, HWP::Fishing::BAIT_BIG_PRICE));
 		m_shrimp.SetText(BuyText(2, HWP::Fishing::BAIT_PACK[1], HWP::Fishing::BAIT_PACK_PRICE[1]));
@@ -2171,7 +2174,9 @@ class HWPPirateMenu : AWindowObject
 		if (fish.count <= 0)
 			m_sell.SetText(Resources::GetString(".hwp.fishing.pirate.sell_none"));
 		else
-			m_sell.SetText(Resources::GetString(".hwp.fishing.pirate.sell", { { "n", fish.count }, { "tokens", fish.tokens } }));
+			m_sell.SetText(HWP::Market::HasCurrency()
+				? Resources::GetString(".hwp.fishing.pirate.sell", { { "n", fish.count }, { "tokens", fish.tokens } })
+				: Resources::GetString(".hwp.fishing.pirate.sell_gold", { { "n", fish.count }, { "gold", fish.gold } }));
 		m_widget.Invalidate();
 	}
 
@@ -2291,8 +2296,9 @@ namespace Modules
 			HWP::Fishing::RefreshSettings();
 			HWP::Gear::Register("hwp-gear-rod", HWPFishingRodSlot());
 			HWP::ItemActions::Register(HWP::Fishing::EatAction());
+			HWP::Materials::Title("a", ".hwp.fishing.supplies");
 			for (uint i = 0; i < HWP::Fishing::BAIT_IDS.length(); i++)
-				HWP::Materials::Register("hwp-mat-bait-" + HWP::Fishing::BAIT_IDS[i], HWPBaitMaterial(i + 1));
+				HWP::Materials::Register("a", 10 + i, "hwp-mat-bait-" + HWP::Fishing::BAIT_IDS[i], HWPBaitMaterial(i + 1));
 			HWP::Net::OnRequest(HWP::Fishing::CAST, HWP::Net::RequestHandler(HWP::Fishing::OnCastRequest));
 			HWP::Net::OnRequest(HWP::Fishing::CATCH, HWP::Net::RequestHandler(HWP::Fishing::OnCatch));
 			HWP::Net::OnRequest(HWP::Fishing::CAUGHT, HWP::Net::RequestHandler(HWP::Fishing::OnCaught));

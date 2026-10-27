@@ -117,6 +117,7 @@ namespace Modules
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
 		{
 			HWP::DropTrade::Poll();
+			HWP::PickupFirst::Update();
 		}
 	}
 }
