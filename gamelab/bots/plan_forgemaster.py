@@ -484,6 +484,8 @@ class Checks(Base):
         # no Penance below max Favor: the same cast is a raise
         self.set_stacks(self.favor_path(), 2)
         self.set_heresy(0)
+        # five Penances leave too little mana for the 70 a raise costs (20261026-222826: 35 left)
+        self.gl("cheat", "cht_give_mana", 500)
         self.body("humans/bandits/bandit_brute.unit")
         time.sleep(0.4)
         presses, spent, button = self.cast_skill("pen_raise", NR, 70, done=lambda: self.has("raising")["raising"].get("on"))
@@ -562,10 +564,22 @@ class Checks(Base):
                   f"devouring {dv}, bodies on the floor {self.fnum(st, 'bodies')} (the body stays while it is eaten)")
         self.flag("lunge_hit", hit, f"the target dummy 30 px past the body hit by Ravenous Lunge: {hit}")
         self.flag("lunge_lift", (self.fnum(st, "lift") or 0) in (0, -1), f"while eating the priest is 0 or 1 px above its spot: lift {self.fnum(st, 'lift')}")
+        # the devouring heal: 30% of the maximum health a second (HWPSpecsMaxHealthRegen), after
+        # the pose reads above (the second it takes would let the brute push the priest)
+        self.gl("hurt", 0.05)
+        def frac():
+            p = self.gl("state").get("player") or {}
+            return p.get("hp", 0) / max(1, p.get("hpMax", 1))
+        t0 = time.time()
+        hp0 = frac()
+        time.sleep(1.0)
+        hp1 = frac()
+        rate = (hp1 - hp0) / max(0.1, time.time() - t0)
+        self.flag("lunge_heal", 0.2 <= rate <= 0.4, f"hp {hp0:.2f} -> {hp1:.2f}: {rate:.2f} of the maximum a second while devouring (0.30)")
         # the shot lands 1-2 s into the eating (a shot is slow); the counters below are read after the
         # devouring ends, from the status's record of the last eating (facing at each bob, up is -90)
         self.g.shot("eating", settle=False)   # the pose: under the body, facing up, blood out of it
-        time.sleep(2.5)
+        time.sleep(1.5)
         st = self.forge_status()
         self.flag("lunge_faces_up", abs((self.fnum(st, "facing") or 0) + 90) <= 10, f"facing {self.fnum(st, 'facing')} at the bobs (up is -90)")
         self.flag("lunge_bobs", (self.fnum(st, "bobs") or 0) >= 6, f"{self.fnum(st, 'bobs')} bobs (1 px every 250 ms over the 3 s devouring, after the dodge)")

@@ -60,6 +60,7 @@
     "lunge_learned": true,
     "lunge_jump": true,
     "lunge_devour": true,
+    "lunge_heal": true,
     "lunge_hit": true,
     "lunge_faces_up": true,
     "lunge_bobs": true,

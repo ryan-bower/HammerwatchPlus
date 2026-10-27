@@ -303,7 +303,8 @@
 		<bool name="lock-rotation">true</bool>
 	</dict>
 	<!-- Devil Forgemaster: eating an intact body after a Heresy lunge: 3 s rooted, facing the body
-	     (rotation locked), silenced and disarmed, +50 health regeneration a second -->
+	     (rotation locked), silenced and disarmed, 30% of the maximum health regenerated a second
+	     (HWPSpecsMaxHealthRegen, Forgemaster.as) -->
 	<dict name="devouring">
 		<bool name="debuff">true</bool>
 		<int name="duration">3000</int>
@@ -315,8 +316,8 @@
 		<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>224 144 14 14</vec4></array>
 		<array name="modifiers">
 			<dict>
-				<string name="class">Modifiers::AttribAdd</string>
-				<vec2 name="health-regen">50 50</vec2>
+				<string name="class">HWPSpecsMaxHealthRegen</string>
+				<float name="pct">0.3</float>
 			</dict>
 		</array>
 	</dict>

@@ -1857,6 +1857,26 @@ class HWPSpecsRisenCap : Modifiers::Modifier
 	}
 }
 
+// the devouring buff's heal: health regeneration of pct of the maximum health a second. Post,
+// so stats.Health is the final maximum (Player.Update regen adds HealthRegen x HealthGain /
+// Health a second)
+class HWPSpecsMaxHealthRegen : Modifiers::StatModifier
+{
+	float m_pct;
+
+	HWPSpecsMaxHealthRegen(UnitPtr unit, SValue& params)
+	{
+		super(unit, params);
+		Ordering = int(Modifiers::ModifierOrdering::Post);
+		m_pct = GetParamFloat(unit, params, "pct", false, 0);
+	}
+
+	void Modify(PlayerRecord@ player, PlayerStats@ stats, float intensity) override
+	{
+		stats.HealthRegen += float(stats.Health) * m_pct;
+	}
+}
+
 // Necrotic Resurrection / Sacrificial Penance
 class HWPSpecsResurrection : Skills::PlayerSkillDirectional
 {

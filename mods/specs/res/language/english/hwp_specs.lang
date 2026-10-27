@@ -142,7 +142,7 @@
 	<string name="hwp.specs.rot_bloom.name">Rot Bloom</string>
 	<string name="hwp.specs.rot_bloom.desc">When a risen summon dies, its body bursts, dealing %damage% as Poison damage to enemies within 60.</string>
 	<string name="hwp.specs.call_of_heresy.name">Call of Heresy</string>
-	<string name="hwp.specs.call_of_heresy.desc">Slain enemies have a %body% chance to fall with their body intact, ready for Necrotic Resurrection. Bodies last 60 seconds. Each stack of Heresy gives your risen %damage% more damage, but adds %lunge% to the chance, rolled once per intact body you come near, that you lunge at it and consume its flesh: 3 seconds during which you can't move, attack or cast, with +50 health regeneration per second.</string>
+	<string name="hwp.specs.call_of_heresy.desc">Slain enemies have a %body% chance to fall with their body intact, ready for Necrotic Resurrection. Bodies last 60 seconds. Each stack of Heresy gives your risen %damage% more damage, but adds %lunge% to the chance, rolled once per intact body you come near, that you lunge at it and consume its flesh: 3 seconds during which you can't move, attack or cast, regenerating 30% of your maximum health every second.</string>
 	<string name="hwp.specs.deeper_depravity.name">Deeper Depravity</string>
 	<string name="hwp.specs.deeper_depravity.desc">%elite% chance that an elite leaves an intact body. %boss% chance that a boss does (every boss, at the highest quality): a risen boss keeps its attacks at a fraction of its strength, decays slower and fits the hallways.</string>
 	<string name="hwp.specs.ravenous_lunge.name">Ravenous Lunge</string>

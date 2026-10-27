@@ -4470,3 +4470,18 @@ of e1f1fc7). Ten findings, all fixed.
 - Passing: mod-mmhmm (20261026-222000: single orb quiet, last orb, well, ace, secret,
   trinket set, corpse swapped, self revive quiet, needs hat), mod-all (222221),
   mod-keys (222237). A real two-player revive is untested.
+
+## 2026-10-26: the Forgemaster's eating heals 30% of max health a second
+
+- The devouring buff (Call of Heresy's lunge) gave `Modifiers::AttribAdd` health-regen 50.
+  No vanilla modifier adds regeneration as a share of max health, so the specs module has
+  `HWPSpecsMaxHealthRegen` (Forgemaster.as, pct 0.3): `stats.HealthRegen += stats.Health *
+  pct` at `ModifierOrdering::Post`, where `stats.Health` is the final maximum. Player.Update
+  regenerates `HealthRegen x HealthGain / Health` of the bar a second, so it is 30% a second
+  (90% over the 3 s eat) unless healing is reduced.
+- plan-forgemaster-eat's new `lunge_heal` (`gl hurt 0.05` once the eating starts, the bar
+  read over 1 s) measured 0.30 a second (20261026-223750, all flags). The check runs after
+  the lunge's pose reads: placed before them it delayed `lunge_lift` until the brute had
+  pushed the priest 3 px. The Penance section's last raise now gets 500 mana first (five
+  Penances left 35, under the raise's 70: 222826). `pen_faces_up` once read the priest
+  12 px beside the body (223301) and passed on the next run.

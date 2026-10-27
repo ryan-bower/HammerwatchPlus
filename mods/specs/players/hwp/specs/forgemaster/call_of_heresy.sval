@@ -7,7 +7,7 @@
 	OnActorDestroyed). Heresy (stacks_specs.sval:heresy) comes from Necrotic Resurrection: each
 	stack adds coh-dmg to the risen's damage, and coh-lunge to the chance, rolled once per body
 	when the priest first comes within 40 of it, that the priest lunges at the body and eats it:
-	3 s of the devouring buff (silenced, disarmed, rooted, +50 health regeneration a second),
+	3 s of the devouring buff (silenced, disarmed, rooted, 30% of the maximum health regenerated a second),
 	the body gone. Heresy carries from floor to floor and resets in town; only Sacrificial
 	Penance and Pyre Sacrifice lower it. Picking the spec gives Divine Favor level 1 for free
 	(the PlayerInitialize hook).

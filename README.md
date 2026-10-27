@@ -164,7 +164,8 @@ and Retiarius have more than three actives. Core keeps a hook-only targeting hel
 The Gold Collector pet mod is gone (vanilla pets already pick up gold). The gold-worth looks moved
 out of core into `goldworth`, and Mm-hmm! is its own `mmhmm` module: besides crits, the hat now voices
 revives, wells, secret rooms, completed trinket sets, the last orb of a multi-orb tree and Ace chests
-(mod-mmhmm, mod-all, mod-keys, fix-gold-sprites pass; a real two-player revive is untested).
+(mod-mmhmm, mod-all, mod-keys, fix-gold-sprites pass; a real two-player revive is untested). The Devil Forgemaster's eating now heals
+30% of max health a second instead of +50 regeneration (plan-forgemaster-eat).
 
 The full QA sweep is paused and incomplete. The [current checkpoint](docs/generated/qa_pr_checkpoint.json)
 records 10 gameplay repairs and scoped passing coverage for the six original
