@@ -1,0 +1,10 @@
+{
+  "id": "goldworth",
+  "requires": [
+    "core"
+  ],
+  "overrides": [
+    "items/materials/gold.unit"
+  ],
+  "exclude": []
+}

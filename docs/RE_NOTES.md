@@ -4436,3 +4436,37 @@ of e1f1fc7). Ten findings, all fixed.
 - **Hero titles are vanilla** (`tweak/town/hero_titles.sval`, Guild Hall > Titles). The
   class mods add one title file each; `legacy` only presents them (the crown buff and the
   full list).
+
+## 2026-10-26: goldpet removed; goldworth and mmhmm split out of core
+
+- **goldpet removed.** Vanilla pets already collect gold, valuables and materials
+  (`petOptions`), so the mod, its four scenarios, the pets mod's external-pet API
+  (`RegisterExternal`) and the hunters' cabin vendor steps went; 173 scenarios dropped it
+  from their mods list (a minimal text edit: a json.dumps rewrite reformatted them).
+  Passing: mod-all (20261026-214721), mod-pets (214802), mod-town-rebuild (214816).
+- **goldworth.** core's `items/materials/gold.unit` override (15 coin and pile looks) is
+  its own module; fix-gold-sprites passes with it (215240).
+- **mmhmm.** MmHmm.as and its modifier left core. The non-crit moments have no vanilla
+  hook, so they are polled from what the game already counts:
+  - wells and secret rooms: the run stats `wells-used` (Well.as Use) and `secrets-found`
+    (SecretFound.as, on every peer), read with `statsRun.GetStatCurr(HashString(id))`;
+  - trinket sets: owned trinkets per `m_set` against `m_totItems`;
+  - the last orb: a `pickedTempSkills` entry reaching the tree's `m_levelParams` length,
+    skipped when the tree has one orb;
+  - Ace chests: vanilla's `chest-unlocked-ace` and keys' `hwp-chest-unlocked-*` stats are
+    not defined, so `Stats::Add` books nothing for them (the keys ones were a latent
+    no-op). keys now counts the opener's Ace chests in GlobalCache `hwp_keys_aces_opened`;
+  - revives: class swap `PlayerCorpse` -> `HWPMmHmmCorpse`, whose `NetRevive` runs on every
+    peer with both records. The swap needs `tools/class_units.py` to write the unit into
+    the mod (GameLab does not generate it).
+  A moment goes to the host (`mmhmm.say`), which drops the same key within 1.5 s and
+  broadcasts it. The first poll of a level only seeds the counts.
+- **Lab findings.** A Firearms gun aims at the mouse cursor (`Combat.as AimAtCursor`), so a
+  bench without `gl cursor` toward the dummy deals no damage. `gl near` fails while the
+  player is dead (no spawned local player); the corpse check reads its log line instead.
+  New gamelab-hands verb `statadd <stat> [n]` (`Stats::Add`). AngelScript rejects
+  `int &inout` parameters. A chest opened by the pilot's walk-up can lose to another
+  usable; `gl use <filter>` opens it in place.
+- Passing: mod-mmhmm (20261026-222000: single orb quiet, last orb, well, ace, secret,
+  trinket set, corpse swapped, self revive quiet, needs hat), mod-all (222221),
+  mod-keys (222237). A real two-player revive is untested.

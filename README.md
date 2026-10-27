@@ -72,7 +72,9 @@ should run the same version of the same modules. Every module needs `core`.
 | `bufftips` | Hover a buff icon to see what it does and how many seconds it has left. |
 | `chatlinks` | Linked items stay in chat with their slot and item level; `hwp link` links an equipped item. |
 | `colors` | Colour-blind and high-contrast tints for enemy and friendly projectiles (player menu > Plus tab), and each player in their own colour on the minimap and the overlay map, with names for players far away. |
-| `core` | Required by every module: settings (the Plus tab and the `hwp` console command), save data and networking. It also adds **Luck**, a stat from gear affixes of Fortune, the Rabbit's Foot trinket and timed buffs from herbs and fish, which weights chest, strongbox, abyss and key drops towards the rarer results (a chest at its opener's Luck) and gives the party's average to generated floors (secret rooms, the imp, floor rewards, blueprints, fishing holes, keys and ace chests); keys 4, 5 and 6 for a class's 4th to 6th active skill; a Plants & Herbs section in the Materials tab with Eat and Roll actions; a warning on orbs that close off other orbs; the use key picking up a dropped item before it talks to an NPC; "Mm-hmm!" hats (a quarter of rare and epic hats play the Material Trader's "mm-hmm" on every crit, for everyone); and gold on the floor that shows how much it is worth, with 15 coin sprites from a bronze coin to a big pile of gold. |
+| `goldworth` | Gold on the floor shows what it is worth: 15 coin and pile looks, from a bronze coin to a big pile of gold. |
+| `mmhmm` | **Mm-hmm!** A quarter of rare and epic hats carry the Mm-hmm! bonus: the Material Trader's "mm-hmm", for everyone, on every crit of the wearer, when the wearer revives someone or is revived, drinks from a pool, completes a trinket set, takes the last orb of an orb tree (trees with more than one orb), opens an Ace chest or opens a secret room. |
+| `core` | Required by every module: settings (the Plus tab and the `hwp` console command), save data and networking. It also adds **Luck**, a stat from gear affixes of Fortune, the Rabbit's Foot trinket and timed buffs from herbs and fish, which weights chest, strongbox, abyss and key drops towards the rarer results (a chest at its opener's Luck) and gives the party's average to generated floors (secret rooms, the imp, floor rewards, blueprints, fishing holes, keys and ace chests); keys 4, 5 and 6 for a class's 4th to 6th active skill; a Plants & Herbs section in the Materials tab with Eat and Roll actions; a warning on orbs that close off other orbs; and the use key picking up a dropped item before it talks to an NPC. |
 
 Each module's full spec and test checklist is in `mods/<id>/README.md`.
 
@@ -158,6 +160,11 @@ lookup was copied four times (now `HWP::CustomStat`, core `CustomStats.as`). mod
 The Skill 4-6 keys now live in `classes`, since only the HoH1 Assassin, Shadow, Trickster
 and Retiarius have more than three actives. Core keeps a hook-only targeting helper
 (`TargetHelper.as`) for them and for Auto Aim.
+
+The Gold Collector pet mod is gone (vanilla pets already pick up gold). The gold-worth looks moved
+out of core into `goldworth`, and Mm-hmm! is its own `mmhmm` module: besides crits, the hat now voices
+revives, wells, secret rooms, completed trinket sets, the last orb of a multi-orb tree and Ace chests
+(mod-mmhmm, mod-all, mod-keys, fix-gold-sprites pass; a real two-player revive is untested).
 
 The full QA sweep is paused and incomplete. The [current checkpoint](docs/generated/qa_pr_checkpoint.json)
 records 10 gameplay repairs and scoped passing coverage for the six original

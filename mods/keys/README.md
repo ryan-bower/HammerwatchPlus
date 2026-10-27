@@ -29,6 +29,9 @@ slots, trinkets for the next run) and red legendaries.
   (`keys.legendary_chance`), either an epic equipment drop or one red
   legendary **per player in the lobby** (instanced through `Item::DropItem`;
   tables in `tweak/hwp/loot_chests_ace.sval`).
+  The opener's machine counts its Ace chests in GlobalCache `hwp_keys_aces_opened`
+  (it outlives the level; vanilla's `chest-unlocked-<key>` stat is not defined for
+  "ace", so `Stats::Add` books nothing), which mods/mmhmm reads.
 - **Chest art by area** (`ChestArt.as`, `tweak/hwp/chest_art.sval`, picked in the
   Chest Art Picker). An area is an act of the mission: it changes where a floor's
   act-name (the region banner) changes, so Dark Citadel's forest, dark caves,

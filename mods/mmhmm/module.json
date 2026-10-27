@@ -1,0 +1,11 @@
+{
+  "id": "mmhmm",
+  "requires": [
+    "core"
+  ],
+  "overrides": [],
+  "exclude": [],
+  "class_swaps": {
+    "PlayerCorpse": "HWPMmHmmCorpse"
+  }
+}

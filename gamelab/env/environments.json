@@ -45,7 +45,9 @@
       "trinkets",
       "waygates",
       "roulette",
-      "autoaim"
+      "autoaim",
+      "goldworth",
+      "mmhmm"
     ],
     "forbidden_mods": [
       "gamelab-*"

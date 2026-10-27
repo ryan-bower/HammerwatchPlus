@@ -2,7 +2,7 @@
  "name": "mod-all",
  "about": "Every content mod enabled together loads in town with no script errors in our files: the pre-merge gate for mods that are only smoke-tested one at a time by mod-<id>.",
  "fixture": "town-paladin",
- "mods": ["core", "abyss", "architect", "bufftips", "campaign", "chatlinks", "classes", "colors", "deathrecap", "droptrade", "farming", "firearms", "fishing", "gambler", "groupcombo", "keys", "laststats", "legacy", "maps", "mercenary", "objectives", "pets", "puzzles", "specs", "stash", "strongbox", "tavern", "trinkets", "waygates", "roulette", "autoaim", "summons", "valuables", "wavemode", "weapons", "weaponswap"],
+ "mods": ["core", "abyss", "architect", "bufftips", "campaign", "chatlinks", "classes", "colors", "deathrecap", "droptrade", "farming", "firearms", "fishing", "gambler", "groupcombo", "keys", "laststats", "legacy", "maps", "mercenary", "objectives", "pets", "puzzles", "specs", "stash", "strongbox", "tavern", "trinkets", "waygates", "roulette", "autoaim", "summons", "valuables", "wavemode", "weapons", "weaponswap", "goldworth", "mmhmm"],
  "timeout": 180,
  "steps": [
   {"do": "log_has", "pattern": "\\[HWP:core\\] module created, version \\S+", "name": "core: module created"},

@@ -700,6 +700,10 @@ namespace HWP
 
 		// ---- chests --------------------------------------------------------------
 
+		// Ace chests the local player opened this session, for other modules (GlobalCache
+		// ACES_OPENED, a count as text: mods/mmhmm reads it without needing this module)
+		const string ACES_OPENED = "hwp_keys_aces_opened";
+
 		// Runs on every machine (UseUnit broadcast); only the opener's own
 		// machine books the stat, like vanilla Chest::Use.
 		void OnUnlocked(PlayerBase@ player, int tier)
@@ -707,6 +711,8 @@ namespace HWP
 			if (player is null || player.m_record is null || !player.m_record.local)
 				return;
 			Stats::Add(HashString("hwp-chest-unlocked-" + TIERS[tier - 1]), 1, player.m_record);
+			if (TIERS[tier - 1] == "ace")
+				GlobalCache::Set(ACES_OPENED, "" + (parseInt(GlobalCache::Get(ACES_OPENED)) + 1)); // outlives the level
 			RefreshHUD();
 			HWP::Log("keys", player.m_record.GetName() + " unlocked a " + TIERS[tier - 1] + " chest");
 		}

@@ -21,7 +21,6 @@ Shared library every other HammerwatchPlus module depends on. It adds no gamepla
 | `scripts/HWP/Core/Materials.as` + `gui/playermenu/character.gui` | `HWP::Materials`: sections in the materials tab for things a module keeps per character, each under the one before: **Supplies** (gambler bet tokens, the fishing baits) and **Plants & Herbs** (farming seeds and the harvested crops and herbs, 8 cells across). Cells are `hwp-material` widgets inside a section's wrapping grid (it grows to as many rows as it needs); a module registers a `HWP::Materials::Material` (icon, count, tooltip title and text, `Click()`) by cell id. Cells without one, or with none in stock, are hidden, and a section without any hides; hovering a cell shows its tooltip at the mouse (the player menu's tooltip anchor would put it top centre); clicking one calls its `Click()` (farming: a herb offers to roll a joint) |
 | `scripts/HWP/Core/ItemActions.as` | `HWP::ItemActions`: a module registers an `Action` for some bag items (`Label`, `Do`); droptrade shows it as an `[E] <label>` hint and the E key runs it. The fishing mod's **Eat** (100 health per star) is the one today |
 | `scripts/HWP/Core/OrbWarn.as` | **Orb warning.** Some orbs are mutually exclusive (`blocked-by-skills`: the Firearms grenade types, the RPG's warheads, vanilla ones too) and the vanilla picker never says so. While an orb picker (`GiveSkillSphereMenu`) is open, each pick that would close others gets a red row under its description: "Makes unavailable:" and every orb it closes, icon and name (icons only when the names don't fit); `[HWP:orbwarn]` logs it. Only the in-run picker, not the Sarcophagus or mission sphere selectors |
-| `scripts/HWP/Core/MmHmm.as` + `tweak/hwp/modifiers_mmhmm.sval` | **"Mm-hmm!" hats.** 25 % of rare and epic head items (a pure function of the item, so it never flips and every machine agrees) get a bonus modifier on top of their rolled ones, never one of their slots: every critical hit of the wearer plays the Material Trader's voice (`interact_male_8`, a 2D sound from a net-synced crit `TriggerEffect`, so everyone hears it), no cooldown. Checked twice a second on your worn and bagged hats, so a hat shows it once it is yours. `hwp mmhmm` (the worn hat), `hwp mmhmm give` (cheats) |
 | `scripts/HWP/Core/Options.as` + `gui/hwp/options.gui` + `gui/playermenu/playermenu.gui` | `HWP::Options`: the player menu's **Plus** tab, our settings screen. `playermenu.gui` (declared override) adds the tab button (tab padding 12 -> 8 so four fit) and an `hwp-options-hook` widget that adds `HWPOptionsTab` to the PlayerMenu on its first update. The tab has a row per option id (`hwp-opt-<id>`); a module registers an `HWP::Options::Option` (title, value, `Next()` on click) or a `KeyOption` (click: an `HWPKeyCaptureWindow` (`gui/hwp/keycapture.gui`) goes over the menu, so the menu gets no input, and binds the next key pressed; Esc cancels) under that id, and rows without one hide. A search field at the top filters the rows by title or value as you type (Esc clears it; the console key's ` and ~ are refused). `HWP::Options::TabOpen()` is true while the tab (or a capture) is up: a module polling a raw key skips it then. Tab id `HashString("hwp_options")`. Rows now: `colors`, `swapkey`, `skill4`-`skill6` |
 | `scripts/HWP/Core/SubclassPick.as` | **Subclass Picker skill row by type.** The vanilla picker shows a spec's last two skill defs as "Active" and "Passive", wrong for the HWP specs (Sniper's Flashbang and Decoy are both actives, Snipe never shows). Core patches the open picker in place each time it shows another class: the spec's own skills (those its parent class lacks), actives first then passives, each labelled by its real type, up to four slots across the row. Vanilla specs look the same as before. GameLab: slots are `skill-active-name`, `skill-passive-name`, `hwp-pick-name2`..; labels `hwp-pick-label0`..; `gl classskills <classId>` lists the defs it is checked against |
 | `scripts/HWP/Core/TargetHelper.as` | **Targeting helper.** Core swaps the local player's `PlayerTargetingHelper` for `HWPTargetingHelper` on every spawn. It changes nothing itself: `HWP::TargetHelper::OnUpdate` callbacks run first in every frame of player control, `OnSkillInput` callbacks rewrite the `ButtonState` vanilla `GetSkillInput` gives a skill, and it calls the aim hooks (`Aim.as`). Used by the classes module's Skill 4-6 keys and by `mods/autoaim`. |
@@ -84,32 +83,6 @@ The boot log shows `generator safety net: HWPOutdoorGenerator`.
 HoH2 declares all network messages in one file. There is no merge mechanism, so
 the core module ships a copy with two generic messages appended. `tools/build.py
 --check` flags the day a game update changes the original.
-
-## Why gold.unit is overridden
-
-A gold pickup (`items/materials/gold.unit`, `Material::MaterialPickup`) picks its look
-from the unit's `sets` array when it is dropped: the last entry whose amount is at most
-the pickup's. Vanilla has five looks (one coin, 2-5 coins, and three gold piles). The core
-copy uses all 15 coin sprites of `items/misc/base.png`, so the floor shows what a pickup
-is worth:
-
-| Metal | Coin | Pile 1 | Pile 2 | Pile 3 | Pile 4 |
-|---|---|---|---|---|---|
-| Bronze | 1-4 | 5-9 | 10-14 | 15-19 | 20-24 |
-| Silver | 25-49 | 50-74 | 75-99 | 100-149 | 150-199 |
-| Gold | 200-249 | 250-299 | 300-349 | 350-399 | 400+ |
-
-Silver glints white (`material_reflection.effect`, at 0.8 the strength of the gold glint
-because the white flare reads brighter); bronze and gold glint orange as vanilla. The
-amount is the dropped one: gold gain (trinkets, gear, NG+) is applied when the gold is
-picked up, so it never moves the sprite. The thresholds sit where real drops land: one
-wall-pile piece is mostly 1-12 (up to 375 on the biggest expert piles), boxes and barrels
-5-35, chests 20-300, platinum chests 200-400, a floor reward of gold up to about 340, and
-the modded strongbox and abyss drops up to 450. Nothing drops 1000 at once, which is why
-silver and gold start at 25 and 200. To change them, edit the `sets` array (and keep the
-scene names). `gold.unit.orig` is the base file for `build.py --check`.
-`gamelab/scenarios/fix-gold-sprites.json` drops each threshold and the amounts just under
-them and checks the scene (`gl near` reports a unit's scene and a pickup's amount).
 
 ## Luck
 
