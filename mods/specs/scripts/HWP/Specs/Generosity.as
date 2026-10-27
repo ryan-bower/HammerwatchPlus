@@ -412,10 +412,14 @@ namespace HWP
 				EndFury("the caster died");
 				return;
 			}
-			bool gone = !h.m_unit.IsValid() || h.m_unit.IsDestroyed() || h.m_target is null || h.m_target.IsDead();
+			// died: its hp (CompositeActorBehavior::IsDead reads m_hp and m_dead, so it answers on
+			// a destroyed unit's behavior too); gone without dying (a summon timing out, a boss
+			// phase swapping its unit) ends the hold with no Holy Sacrifice
+			bool died = h.m_target !is null && h.m_target.IsDead();
+			bool gone = died || !h.m_unit.IsValid() || h.m_unit.IsDestroyed() || h.m_target is null;
 			if (gone)
 			{
-				if (h.m_hsStacks > 0)
+				if (died && h.m_hsStacks > 0)
 				{
 					// Holy Sacrifice: half the cooldown off and Blessing back (no shared cooldown)
 					if (h.m_skill !is null)
@@ -426,7 +430,7 @@ namespace HWP
 					GainBlessing(h.m_plr, h.m_hsStacks, "holy sacrifice", true);
 					g_furySacrifices++;
 				}
-				EndFury("the target died");
+				EndFury(died ? "the target died" : "the target is gone");
 				return;
 			}
 			if (h.m_locked)

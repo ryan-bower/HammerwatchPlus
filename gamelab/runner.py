@@ -999,6 +999,8 @@ class Run:
             # mods under test: enabled on top of the fixture's set, in this run's copy of the save
             extra = env.expand_mods(self.scenario.get("mods", []))   # + what they require
             extra += env.package_ids(self.scenario.get("packages"))   # built packages: id = file stem
+            # a requires can reach a fixture mod (devarena requires gamelab-probe): each id once
+            extra = [m for m in extra if m not in fixture["recipe"]["binary_edits"]["enable_mods"]]
             if extra:
                 hps.enable(hps.current_save(0, env.GAME / "saves"), fixture["recipe"]["binary_edits"]["enable_mods"] + extra)
                 out["mods_under_test"] = extra

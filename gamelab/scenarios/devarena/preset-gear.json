@@ -3,7 +3,7 @@
  "about": "Every Dev Arena preset in turn must read back ok, including every equipped item passing the game's MayEquip: an item that fails it has its weapon skill blocked every frame (CheckSkillBlocked), so left/right click did nothing (user report 2026-10-21, priest and wizard). Run: python -m gamelab run devarena/preset-gear --mode lab.",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
   "devarena",
   "spec-ranger-test"
  ],

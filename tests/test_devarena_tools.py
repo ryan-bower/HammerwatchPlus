@@ -138,3 +138,14 @@ def test_export_refuses(tmp_path, edit, why):
     (tmp_path / "mods" / "devarena" / "x.sval").write_text(SKILL.replace("hwp_test_bolt", "da_bolt"), encoding="utf-8")
     _, refused, _ = export.bake([edit], tmp_path / "mods")
     assert len(refused) == 1 and why in refused[0]
+
+
+def test_export_refuses_a_generated_vanilla_copy(tmp_path):
+    # tools/make_specs_classes.py copies a vanilla skill with its vanilla id (the Generosity
+    # paladin's Lay on Hands): an edit to that id is a vanilla edit, not one to bake there
+    from tools.devarena import export
+    f = tmp_path / "mods" / "specs" / "generosity" / "bolt.sval"
+    f.parent.mkdir(parents=True)
+    f.write_text(SKILL.replace("\n", "\n<!-- " + export.GENERATED + "x.sval for the generosity spec -->\n", 1), encoding="utf-8")
+    texts, refused, _ = export.bake([["hwp_test_bolt", 0, "castpoint", "150"]], tmp_path / "mods")
+    assert texts == {} and len(refused) == 1 and "vanilla" in refused[0]

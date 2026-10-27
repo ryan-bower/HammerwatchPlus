@@ -2,7 +2,7 @@
  "name": "spike-rng",
  "about": "Spike 8 (docs/devarena/SPEC.md build order): RNG reseed for a fixed-seed bench. srand(seed) then 8 randi(1000) draws, in the same frame and 5 and 60 gameplay frames later, each probe twice, with mobs alive on a mission floor (their AI draws too). Measured 20261020-222444: same-frame probes repeat, delayed probes do not, so a reseed cannot fix a fight's outcome and the bench is statistics only.",
  "fixture": "mission-ranger",
- "mods": ["core", "devarena"],
+ "mods": ["hwplib", "devarena"],
  "timeout": 300,
  "steps": [
   {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},

@@ -3,7 +3,7 @@
  "about": "The override file that leaves the tuner, read back at boot. Before the run, tools/devarena/run_export_boot.py writes devarena's override file from the tuner-dock run's last override line (3 versions, live v3 in B, one pin) and restores the committed default afterwards. The tuner must come back on v3 (Entangle castpoint 100, L5 area-dmg 81). (Its second half, the vanilla-tuning export, went with that mod on 2026-10-26: tools/devarena/export.py now bakes a version into the mods' own skill files, tests/test_devarena_tools.py.)",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
   "devarena"
  ],
  "timeout": 300,

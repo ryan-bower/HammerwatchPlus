@@ -4599,3 +4599,45 @@ Measured while building `Generosity.as` (scenarios `plan-generosity*`, bot
 - **Runs:** plan-generosity 20261027-020522, plan-generosity-farm 20261027-015840 and
   plan-generosity-bosses 20261027-022232 (16 of 18 bosses held, the Serpent and the Shadow Face refused by design) pass. The boss spirits move off between the cast and its
   castpoint, so the bot finds the boss again before each retry (021757 reused a stale aim).
+
+## 2026-10-27: Code review fixes (1c5335c..def346d)
+
+`/code-review high` over the core removal, the packages, the vanilla-tuning removal, the
+goldworth and Mm-hmm! split, the Forgemaster's eating and Generosity found ten problems.
+Fixed:
+
+- **The Dev Arena scenarios still listed `core`** (35 of them), so preflight refused every
+  one ("mods/core has no info.xml"). They list `hwplib` now; `env.expand_mods` adds the rest of
+  devarena's `requires`. That then showed a runner bug the core removal brought in: devarena
+  requires `gamelab-probe` and `gamelab-hands`, which the fixture already enables, so the
+  wanted list held them twice and "enabled mods are exactly the fixture's + the scenario's"
+  failed (spike-class 20261027-024616). The runner now drops the fixture's own mods from the
+  expanded list (spike-class 024802 passes). `tests/test_devarena_clone.py` still expected
+  `requires == ["core"]` for a cloned spec; it expects `hwplib, hwplib-classui`.
+- **`tools/devarena/export.py` baked vanilla paladin edits into Generosity's copies.**
+  `make_specs_classes.py` copies Lay on Hands and Conviction with their vanilla ids, so an
+  edit to `pal_lay_on_hands` found that file instead of being refused as vanilla, and the next
+  regenerate would have dropped it. `skill_files` now skips those generated copies (a test
+  covers it).
+- **Holy Sacrifice paid out on any end of the target**, a despawn or a boss swapping its unit
+  included. It now needs the target's `IsDead()` (CompositeActorBehavior reads `m_hp` and
+  `m_dead`, so it answers on a destroyed unit's behavior too); otherwise the hold just ends
+  ("the target is gone"). plan-generosity 024132 passes.
+- **`build.py all qol` wrote all twelve packages**, and `build.py --no-all all` built nothing
+  and exited 0. Only the packages named (every one when none is) and the pack are written
+  now, and `--no-all all` is an error. pkg-pair-all-qol 025050 passes, writing only
+  `HWP-qol.bin` and the pack.
+- **A package's closure listed a library part before its base** when the base was reached
+  only through the part. The walk now adds each module after what it requires.
+- **`env.link` in check mode** called a previous `pkg-*` scenario's package copy a problem
+  but let a previous scenario's mod junction pass; it tolerates both now, and hashes each
+  package once a side instead of up to four times.
+- **The specs texts said seven specs** (`packages.json`, `mods/specs/info.xml`, which also
+  still used the old Stormbringer and Invocation names); they say eight and name Generosity.
+- `make_package_scenarios.requires_closure` is `env.expand_mods` now, and `run.mod_id` is
+  `env.package_file(p).stem`.
+
+Not changed: a `pkg-*` preflight still rebuilds the packages each run. Skipping it when
+`dist/` looks current would need every input of a build tracked, and a stale package in a
+test is worse than a rebuild. export-boot was not rerun: its wrapper needs a tuner-dock run's
+log and none is kept in `gamelab/results/`.

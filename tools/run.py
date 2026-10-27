@@ -44,6 +44,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import gamepaths  # noqa: E402
+from gamelab import env  # noqa: E402
 
 HOH2_STEAM_URL = f"steam://rungameid/{gamepaths.HOH2_APPID}"
 ENVIRONMENTS = gamepaths.GAMELAB / "env" / "environments.json"
@@ -67,10 +68,7 @@ def release_packages() -> list[str]:
 
 def mod_id(package: str) -> str:
     """The id the game's Resource Mods menu shows for a package: its .bin file stem."""
-    if package == "all":
-        doc = json.loads((gamepaths.REPO / "packages.json").read_text(encoding="utf-8"))
-        return doc["all"].get("file", "HammerwatchPlus-All")
-    return f"HWP-{package}"
+    return env.package_file(package).stem
 
 
 def game_running() -> bool:

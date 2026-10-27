@@ -3,7 +3,7 @@
  "about": "Every class's mid preset in turn: left and right click (posted mouse messages, shim hand-off with focus kept in watch) must cast the main and off skill, with no test cheats (a preset starts with its skills ready, Loadout.as ApplyPreset) (user report 2026-10-21: clicks fired on ranger but not priest or wizard). Run: python -m gamelab run devarena/class-clicks --mode lab (or --mode watch).",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
   "devarena",
   "spec-ranger-test"
  ],

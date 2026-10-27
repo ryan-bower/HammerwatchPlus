@@ -2,7 +2,7 @@
  "name": "arena-dock",
  "about": "The Arena tab as a player uses it (docs/devarena/SPEC.md, Arena): F1, the Arena tab, god / no-cooldown / free-mana chips (the engine's CVars::Cht* read back), a footman pack armed on the brush and placed with a middle click, Cull ends its encounter with a clear time, F3 resets the arena, and Reload floor regenerates the same seed with the toggles carried through the town save. Buttons are aimed by id (gl da-dock).",
  "fixture": "mission-ranger",
- "mods": ["core", "devarena"],
+ "mods": ["hwplib", "devarena"],
  "timeout": 400,
  "steps": [
   {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},

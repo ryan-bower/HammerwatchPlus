@@ -3,7 +3,7 @@
  "about": "HP7 (docs/devarena/SPEC.md, Decided during build 28): the auto-tuner. hp2's arena (ranger_nature/mid on dark_citadel 13, the golem room, a footman elite golem at NG+3, the bot driver, 3 pulls of 10 s). gamelab/bots/devarena_autotune.py (tools/devarena/autotune.py) refuses a feel-locked field, then searches ran_mark's proj-dmg at the player's level for +15% dps vs A: da-set into B, the dock's Start bench, the bench-result; the first hit (after one halving toward the last miss in the second search) is filed with da-propose and shows PENDING on the Bench tab. The first proposal is discarded there, the second accepted. tools/devarena/autotune.py --run <this run> writes docs/devarena/proposals/<run>.md.",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
   "devarena"
  ],
  "timeout": 1500,

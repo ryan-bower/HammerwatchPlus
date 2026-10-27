@@ -2,7 +2,7 @@
  "name": "spike-buff",
  "about": "Spike 7 (docs/devarena/SPEC.md build order): buff LoadParams retune. The ranger's dodge_roll buff (duration 2000, one SpeedAdd modifier) is given to the player, retuned to 6000 ms and move-speed 0.5 on its cached def, and given again: the new instance runs 6 s, the running one kept its 2 s, and the modifier list reloads.",
  "fixture": "mission-ranger",
- "mods": ["core", "devarena"],
+ "mods": ["hwplib", "devarena"],
  "timeout": 300,
  "steps": [
   {"do": "sleep", "seconds": 2},

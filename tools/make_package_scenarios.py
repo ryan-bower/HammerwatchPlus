@@ -20,6 +20,8 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO))
+from gamelab import env  # noqa: E402
 SCENARIOS = REPO / "gamelab" / "scenarios"
 # packages side by side: one without Luck beside one with it, two that both carry Luck, and the
 # all-in-one pack beside a package it already holds
@@ -36,19 +38,7 @@ PROBES = {
 
 
 def requires_closure(mods: list[str]) -> set[str]:
-    out: set[str] = set()
-
-    def add(m: str) -> None:
-        if m in out:
-            return
-        out.add(m)
-        cfg = REPO / "mods" / m / "module.json"
-        if cfg.is_file():
-            for r in json.loads(cfg.read_text(encoding="utf-8")).get("requires", []):
-                add(r)
-    for m in mods:
-        add(m)
-    return out
+    return set(env.expand_mods(mods))
 
 
 def scenario(name: str, about: str, packages: list[str], ids: list[str], luck: bool, probes: list[tuple],

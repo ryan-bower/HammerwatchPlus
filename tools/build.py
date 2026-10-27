@@ -230,9 +230,11 @@ def load_packages(mods: list[dict]) -> tuple[list[dict], dict]:
             sys.exit(f"packages.json: module {m['id']} is in no package; add it to one, or to the bench")
     for p in pkgs:
         closure: list[str] = []
+        seen: set[str] = set()
 
+        # each module after what it requires, so a library part follows its base
         def add(mid: str, via: str) -> None:
-            if mid in closure:
+            if mid in seen:
                 return
             if mid not in by_id:
                 sys.exit(f"{via} requires unknown module {mid!r}")
@@ -240,12 +242,13 @@ def load_packages(mods: list[dict]) -> tuple[list[dict], dict]:
             if not m["library"] and owner.get(mid) != p["id"]:
                 sys.exit(f"package {p['id']}: {via} requires {mid}, which is not in it; a package must work alone "
                          f"(move the shared code into a library part, module.json `library: true`)")
-            closure.append(mid)
+            seen.add(mid)
             for r in m["requires"]:
                 add(r, mid)
+            closure.append(mid)
         for mid in p["mods"]:
             add(mid, mid)
-        # libraries first, in the order they were reached: the base before its parts
+        # libraries first, each after the parts it builds on: the base before its parts
         p["closure"] = [x for x in closure if by_id[x]["library"]] + [x for x in closure if not by_id[x]["library"]]
     return pkgs, doc["all"]
 
@@ -331,10 +334,16 @@ def main(argv=None):
     unknown = set(args.packages) - known - {"all"}
     if unknown:
         sys.exit(f"unknown package(s): {', '.join(sorted(unknown))}; known: {', '.join(sorted(known))}, all")
+    named = set(args.packages) - {"all"}
+    if args.no_all and args.packages and not named:
+        sys.exit("--no-all with only `all` named: nothing to build")
     build_all = not args.no_all and (not args.packages or "all" in args.packages)
-    # the all-in-one pack is every package, so naming it builds them all (only it is written)
-    wanted = pkgs if (build_all or not args.packages) else [p for p in pkgs if p["id"] in args.packages]
-    write_each = not args.packages or any(p != "all" for p in args.packages)
+    # the all-in-one pack is every package, so naming it builds them all; only the packages
+    # named (every one when none is) and the pack itself are written
+    wanted = pkgs if (build_all or not named) else [p for p in pkgs if p["id"] in named]
+
+    def written(p: dict) -> bool:
+        return not args.packages or p["id"] in named
     used = {mid for p in wanted for mid in p["closure"]}
 
     if paths.BASE_HOH2.is_dir():
@@ -382,7 +391,7 @@ def main(argv=None):
         if local:
             print(f"  note: {PACKAGE_PREFIX}{p['id']}.bin contains locally generated content; do not publish it")
         meta.update({"author": AUTHOR, "name": p["name"], "description": p["description"]})
-        if write_each:
+        if written(p):
             write_package(PACKAGE_PREFIX + p["id"], meta, list(entries.values()), args.store)
         add_entries(all_entries, list(entries.values()), ALL_NAME + ".bin", p["id"])
         merge_meta(all_meta, meta, p["id"])

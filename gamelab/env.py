@@ -257,16 +257,19 @@ def link(fix: bool = True, mods: list[str] | None = None, packages: list[str] | 
         if not src.is_file():
             problems.append(f"{src} not built (tools/build.py)")
             continue
-        if fix and not (dst.is_file() and sha256(dst) == sha256(src)):
+        want = sha256(src)                  # a package is several MB: hash each side once
+        ok = dst.is_file() and sha256(dst) == want
+        if fix and not ok:
             shutil.copy2(src, dst)
-        if not dst.is_file() or sha256(dst) != sha256(src):
+            ok = sha256(dst) == want
+        if not ok:
             problems.append(f"{dst} differs from {src}")
     for p in list(mods_dir.iterdir()):
         if is_package_copy(p):
+            # a previous scenario's package: removed by the next fix, tolerated by a check like a
+            # previous scenario's mod junction (a pkg-* run is not a dirty environment)
             if p.name not in shipped and fix:
-                p.unlink()                  # a previous scenario's package
-            elif p.name not in shipped:
-                problems.append(f"{p} is a package copy no scenario declared")
+                p.unlink()
             continue
         t = link_target(p)
         if fix and p.name not in wanted and t is not None and (REPO / "mods") in t.parents:

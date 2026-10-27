@@ -3,7 +3,7 @@
  "about": "Spike 1 (docs/devarena/SPEC.md build order): live skill rebuild. Patch Entangle's base cooldown 20000->3000 and its level-5 area-dmg bind 60->99 by copy-on-write into PlayerSkillDef.m_levelParams, rebuild with PlayerBase.LoadSkills, read both back on the live skill (fields on the Skill object, the bind through FetchData), then cast twice and measure the gap between cast starts.",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
   "devarena"
  ],
  "timeout": 400,

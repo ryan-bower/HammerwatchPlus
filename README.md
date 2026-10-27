@@ -165,6 +165,10 @@ Face (immune to buffs) are refused by design and keep the stacks. The engine fac
 (spirits' sensor bodies, unflagged boss skills, a stunned bodiless unit's null body, the
 buffered press) are in `docs/RE_NOTES.md` ("the Paladin of Generosity"). Display of Generosity
 needs a party to check; the icons (round 2) await picks in the picker.
+A code review of 1c5335c..def346d found ten problems; the fixes include the 35 Dev Arena
+scenarios that still listed the removed core mod, an export that would bake vanilla paladin edits
+into Generosity's copies, Holy Sacrifice paying out on a despawn, and `build.py all qol` writing
+every package (`docs/RE_NOTES.md`, "Code review fixes (1c5335c..def346d)").
 
 2026-10-26, packages: there is no core mod any more. The modules ship as twelve Steam
 Workshop packages that each work alone, plus `HammerwatchPlus-All` (`packages.json`,

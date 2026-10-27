@@ -2,7 +2,7 @@
  "name": "hp4-compose",
  "about": "HP4 (docs/devarena/SPEC.md, happy paths; Decided 25): ranger_nature/mid, F1, the Compose tab. Entangle's slot becomes a projectile skill: marked_arrow with a fan and a burst on cast, fire damage, the marked status, named by typing. CHECK is clean, Apply makes v1 in slot B and it goes live under the new name. F4, bench A (vanilla) vs B (composed) 3 pulls of 5 s: the composed slot deals damage. Back on Compose, Revert puts the slot back. Buttons are aimed by id (gl da-dock).",
  "fixture": "mission-ranger",
- "mods": ["core", "devarena"],
+ "mods": ["hwplib", "devarena"],
  "timeout": 600,
  "steps": [
   {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},

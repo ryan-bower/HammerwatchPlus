@@ -3,7 +3,7 @@
  "about": "The Bench tab as a player uses it (docs/devarena/SPEC.md, Bench): Entangle tuned up into slot B, F4 into the golem room, the Bench tab set to 3 pulls of 5 s, Start: the bot runs A B A B A B hands off (bench-pull per pull, bench-result with mean / spread / n-for-3% and a Welch verdict), then an abort by walking (bench-aborted), then a 'me' pull records casts and a 'replay' bench plays them back. Buttons are aimed by id (gl da-dock).",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
   "devarena"
  ],
  "timeout": 500,
