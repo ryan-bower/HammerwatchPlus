@@ -1,0 +1,7 @@
+{
+  "id": "gamelab-guard",
+  "requires": ["hwplib"],
+  "overrides": [],
+  "exclude": [],
+  "gamelab": true
+}

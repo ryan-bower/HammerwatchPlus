@@ -1551,7 +1551,23 @@ namespace Modules
 			HWP::Pets::SelfCheck(true);
 		}
 
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardUpdateFrame;
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
+		{
+			if (m_guardUpdateFrame.Skip("pets", "HWPPetsModule.UpdateFrame"))
+				return;
+			if (m_guardUpdateFrame.Raw())
+			{
+				GuardedUpdateFrame(ms, gameInput, menuInput, paused);
+				m_guardUpdateFrame.Ok();
+				return;
+			}
+			try { GuardedUpdateFrame(ms, gameInput, menuInput, paused); m_guardUpdateFrame.Ok(); }
+			catch { m_guardUpdateFrame.Failed(); }
+		}
+
+		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
 			// the player menu pauses a solo game: the pet level line is kept up while paused
 			HWP::PetLevelTab::Tick();

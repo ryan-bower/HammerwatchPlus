@@ -77,7 +77,23 @@ namespace Modules
 			HWP::CheckUnits("core", { HWP::MapIcons::DYE_ICON });
 		}
 
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardUpdateFrame;
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
+		{
+			if (m_guardUpdateFrame.Skip("mapicons", "HWPMapIconsModule.UpdateFrame"))
+				return;
+			if (m_guardUpdateFrame.Raw())
+			{
+				GuardedUpdateFrame(ms, gameInput, menuInput, paused);
+				m_guardUpdateFrame.Ok();
+				return;
+			}
+			try { GuardedUpdateFrame(ms, gameInput, menuInput, paused); m_guardUpdateFrame.Ok(); }
+			catch { m_guardUpdateFrame.Failed(); }
+		}
+
+		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
 			m_timer -= ms;
 			if (m_timer > 0)

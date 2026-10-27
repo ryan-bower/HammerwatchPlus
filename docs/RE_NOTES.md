@@ -4641,3 +4641,77 @@ Not changed: a `pkg-*` preflight still rebuilds the packages each run. Skipping 
 `dist/` looks current would need every input of a build tracked, and a stale package in a
 test is worse than a rebuild. export-boot was not rerun: its wrapper needs a tuner-dock run's
 log and none is kept in `gamelab/results/`.
+
+## 2026-10-27: Script errors and game updates
+
+The question: can a game update that breaks a script crash the game for players, and can
+the scripts protect themselves? Measured on Build 176 with four probe mods (each a GameLab
+mod, never deployed to play).
+
+**A compile error stops everything** (`compile-err` 20261027-025559, `gamelab-compile-err`
+calls a function that does not exist). The mod scripts and the base scripts compile as one
+module, so nothing runs:
+
+- The log has `ERR : <file>`, then `SE : No matching symbol`, then `[ERR] Please correct the
+  errors in the script and try again.`
+- The engine compiles twice, then sits on the main menu with an empty grey box.
+- The window ignores WM_CLOSE; the harness kills it after 30 s.
+
+The runner now treats a scenario with `"compile_error": true` as measuring this: it takes a
+shot, records the errors and passes.
+
+**`try`/`catch` works, and a caught exception is silent** (`throw` 20261027-030133,
+`gamelab-throw`). `getExceptionInfo()` is not registered ("No matching symbol", 030042), so a
+script cannot read what it caught. The engine logs an uncaught exception once with its stack
+trace, then `Last script exception repeated N times` up to 10, then nothing. The module
+exception that followed the hook's was never logged.
+
+**Hooks are isolated; modules are not.** A screen shake entry, which
+`AGameplayGameMode::UpdateFrame` ages after its module loop (lines 335-340), was read 120
+frames after it was added in each phase:
+
+| phase | ms aged in 120 frames |
+|---|---|
+| quiet | 4059 |
+| a `[Hook] GameModeUpdate` throwing every frame | 3960 |
+| a module's `UpdateFrame` throwing every frame | 0 |
+
+A throwing hook loses only its own call. A throwing module aborts the rest of
+`AGameplayGameMode::UpdateFrame` (line 333 onward) on every frame: the later modules, screen
+shake, `g_scene.Ping`, spectating and `HWR2GameMode`'s death check that opens the DeadMenu.
+Vanilla wraps only module `Save` in a try (line 706).
+
+**A throwing module constructor is contained** (`throw-ctor` 20261027-031426,
+`gamelab-throwctor`). `InstantiateClass` logs `Script exception: Null pointer access` with no
+stack, returns null, and `MakeModules` goes on with the next type: 21 modules were made, and
+hwplib's core ran. Only the module that threw is missing.
+
+`Modules::MakeModules` instantiates only direct subclasses of `Modules::Module`
+(`GetBaseType() !is modType`), so the guard cannot live in a shared base class. Instead each
+entry point is wrapped where it is declared.
+
+**`HWP::Guard`** (`mods/hwplib/scripts/HWP/Core/Guard.as`, applied to all 45 entry points by
+`tools/guard_modules.py`). `guard` 20261027-031629, with `gamelab-guard`'s body throwing every
+frame from frame 300:
+
+- The first failure is logged as `[HWP:guard] <Class>.<Entry> threw a script exception`.
+- The next call runs unguarded once, so the engine logs the stack trace, which names
+  `GuardedUpdateFrame` line 44.
+- 29 more failures in a row turn the entry point off (`turned off until the next level after
+  30 script exception(s), 30 in a row`), and the chat gets `hwp.guard.tripped`.
+- The body stopped at frame 330.
+- The shake aged 3993 ms both while the body failed and after the trip.
+- `hwp guard` listed `GameLabGuardModule.UpdateFrame: 30 error(s), turned off 1 time(s)`.
+
+The setting `guard.off` runs every body unguarded, for debugging.
+
+**`Network::GetBuildVersion()` returns 176** on Build 176, the number in the log's
+`Build 176:` line. hwplib logs it at boot beside `HWP::TESTED_BUILD`, and the first town tick
+on another build sends `hwp.guard.new_build` once per build (the setting `guard.told_build`).
+The guard scenario stands in a different tested build with the setting
+`guard.tested_build 175` and `hwp guard build`; the second check stays quiet.
+`tests/test_guard.py` keeps `TESTED_BUILD` equal to `gamelab/build_id.json`.
+
+There is no script preprocessor to fall back on: no `#if` anywhere in the base scripts. A
+compile error therefore cannot be guarded in script. `docs/GAME_UPDATES.md` is the checklist
+that catches one before players do, and the 33 wholesale overrides are the most exposed part.

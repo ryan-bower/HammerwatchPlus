@@ -1,0 +1,18 @@
+{
+ "name": "throw",
+ "about": "Measures what one mod's runtime script exception does to the other mods and to the game (gamelab-throw): a caught null access (getExceptionInfo is not registered), then a [Hook] GameModeUpdate that throws every frame beside one that does not, then a module whose UpdateFrame throws every frame. A screen shake entry, aged by the game mode's update after its module loop, is read 120 frames after it is added in each phase.",
+ "fixture": "town-paladin",
+ "mods": [
+  "gamelab-throw"
+ ],
+ "timeout": 240,
+ "steps": [
+  {"do": "wait_phase", "phase": "town", "timeout": 60},
+  {"do": "log_has", "pattern": "\\[GL-throw\\] caught: ", "timeout": 40, "name": "try/catch works"},
+  {"do": "log_has", "pattern": "\\[GL-throw\\] shake quiet: \\d+ ms", "timeout": 40, "name": "quiet: the shake read"},
+  {"do": "log_has", "pattern": "\\[GL-throw\\] shake hookA: \\d+ ms", "timeout": 60, "name": "hook A throwing: the shake read"},
+  {"do": "log_has", "pattern": "\\[GL-throw\\] shake module: \\d+ ms", "timeout": 60, "name": "module throwing: the shake read"},
+  {"do": "log_has", "pattern": "\\[GL-throw\\] ticks module \\d+ hookA 1[5-9]\\d\\d ", "timeout": 30, "name": "still ticking"},
+  {"do": "shot", "name": "module-throwing"}
+ ]
+}

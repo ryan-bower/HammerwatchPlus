@@ -49,9 +49,11 @@ namespace Modules
 		HWPCoreModule()
 		{
 			super("hwp-core");
-			HWP::Log("core", "module created, version " + HWP::VERSION);
+			HWP::Log("core", "module created, version " + HWP::VERSION + ", game build "
+				+ Network::GetBuildVersion() + " (tested on " + HWP::TESTED_BUILD + ")");
 			HWP::Log("core", "lang check: " + Resources::GetString(".hwp.core.hello"));
 			HWP::Commands::RegisterBuiltins();
+			HWP::Guards::Init();
 			HWP::Market::Init();
 			HWP::Net::OnRequest(HWP::Core::SETTINGS_PULL, HWP::Net::RequestHandler(HWP::Core::OnPull));
 			HWP::Net::OnEvent(HWP::Core::SETTINGS_SYNC, HWP::Net::EventHandler(HWP::Core::OnSync));
@@ -68,7 +70,23 @@ namespace Modules
 					+ (mods[i].Packaged ? " packed" : " unpacked"));
 		}
 
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardUpdateFrame;
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
+		{
+			if (m_guardUpdateFrame.Skip("hwplib", "HWPCoreModule.UpdateFrame"))
+				return;
+			if (m_guardUpdateFrame.Raw())
+			{
+				GuardedUpdateFrame(ms, gameInput, menuInput, paused);
+				m_guardUpdateFrame.Ok();
+				return;
+			}
+			try { GuardedUpdateFrame(ms, gameInput, menuInput, paused); m_guardUpdateFrame.Ok(); }
+			catch { m_guardUpdateFrame.Failed(); }
+		}
+
+		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
 			if (m_announced)
 				return;
@@ -81,6 +99,8 @@ namespace Modules
 			// lobby-wide settings (the host answers with settings.sync)
 			if (!Network::IsServer())
 				HWP::Net::Request(HWP::Core::SETTINGS_PULL, HWP::Net::Empty());
+			if (g_inTown)
+				HWP::Guards::CheckBuild();
 		}
 
 		void Start(StartMode sMode)

@@ -153,6 +153,19 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-27, script safety against game updates: every HWP module entry point (45 of them)
+now runs inside `HWP::Guard` (hwplib `Guard.as`, applied by `tools/guard_modules.py`, which
+`tests/test_guard.py` enforces). Before this, one module's script exception stopped the game
+mode's frame update after the module loop, every frame (no screen shake, pings or death
+check). Now the guard logs the error with its stack trace, the frame goes on, and after 30
+errors in a row that entry point turns off until the next level, with one chat line;
+`hwp guard` lists what failed. hwplib also names the game build at boot and tells the player
+once when it is not the build HammerwatchPlus was tested on (176). A compile error still
+stops the game on an empty main menu, since nothing compiles; `docs/GAME_UPDATES.md` is the
+checklist that catches one before players do. Measured: `compile-err` (025559), `throw`
+(030133), `throw-ctor` (031426), `guard` (031629); `mod-all`, `pkg-all` and
+`pkg-pair-all-qol` pass with the guards in.
+
 2026-10-27, the Paladin of Generosity: the eighth 4th spec (`mods/specs`, `Generosity.as`):
 Pelor's Blessing stacks from Lay on Hands, Blessed Strike kills and Conviction, and at 10
 stacks Pelor's Fury holds one enemy in beams of light (stunned, casts cut, armor and
@@ -407,7 +420,8 @@ python tools/import_hoh1.py pets|levels|campaign|classes   # HoH1 content by han
 ```
 
 Mods live in `mods/<id>/`. Conventions are in `docs/modules.md`, the archive format in
-`docs/archive-format.md`, the script hooks in `docs/hooks.md`.
+`docs/archive-format.md`, the script hooks in `docs/hooks.md`. What to do when the game
+updates is in `docs/GAME_UPDATES.md`.
 
 HoH1 assets are never committed. `tools/import_hoh1.py` writes into gitignored
 `hoh1_import/`, and `build.py` leaves it out of packages unless `--with-local`, so each

@@ -2443,7 +2443,23 @@ namespace Modules
 			m_delay = 0;
 		}
 
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardUpdateFrame;
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
+		{
+			if (m_guardUpdateFrame.Skip("farming", "HWPFarmingModule.UpdateFrame"))
+				return;
+			if (m_guardUpdateFrame.Raw())
+			{
+				GuardedUpdateFrame(ms, gameInput, menuInput, paused);
+				m_guardUpdateFrame.Ok();
+				return;
+			}
+			try { GuardedUpdateFrame(ms, gameInput, menuInput, paused); m_guardUpdateFrame.Ok(); }
+			catch { m_guardUpdateFrame.Failed(); }
+		}
+
+		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
 			if (HWP::Farming::g_waitMs > 0)
 				HWP::Farming::g_waitMs -= ms;

@@ -57,6 +57,10 @@ class RunTimeout(GameError):
     """The scenario ran past its own deadline: verdict TIMEOUT, not FAIL."""
 
 
+class CompileMeasured(GameError):
+    """A `compile_error` scenario saw the compile error it expects: its result, not a failure."""
+
+
 def dotted(obj, path: str):
     """Resolve "a.b.0.c" through dicts and lists; a KeyError instance when missing."""
     for part in path.split("."):
@@ -173,6 +177,9 @@ class Run:
             # the probe included, so say so now rather than wait a minute for a boot event
             # (chest-watch 20261018-153312: 84 s to the same answer)
             if logparse.compile_failed(game.read_log()):
+                if self.scenario.get("compile_error"):
+                    self.measure_compile_error(game)
+                    raise CompileMeasured("mod scripts failed to compile, as the scenario expects")
                 raise GameError("mod scripts failed to compile")
             live = game.verify_live()
             self.live.append(live)
@@ -247,12 +254,25 @@ class Run:
                     raise GameError("gamelab-probe never booted (mods not enabled, or a script error)")
             elif not game.wait_log("SHOWING PickCharacterWindow", 60):
                 raise GameError("session never reached PickCharacterWindow")
+        except CompileMeasured:
+            self.finish(game)
+            raise
         except GameError as e:
             # a mod compile error stops every mod script, the probe included: name it
             errors = logparse.errors_in(game.read_log())
             self.finish(game)                      # stop the game, keep its logs, assert its exit
             raise GameError(f"{e}" + (f"; script errors: {'; '.join(errors[:5])}" if errors else "")) from None
         return game
+
+    def measure_compile_error(self, game: Game) -> None:
+        """`"compile_error": true` (the compile-err measurement): what a player is left with when
+        an enabled mod no longer compiles. No script runs then, the quit handling included, so
+        the game is killed after the shot; that kill is the expected end of the pass."""
+        time.sleep(float(self.scenario.get("compile_error_wait", 8)))
+        shot = game.shot("compile-error", settle=False)
+        self.out["compile_error"] = {"errors": logparse.errors_in(game.read_log())[:5], "shot": bool(shot),
+                                     "alive": game.alive()}
+        self.compile_measured = True
 
     def finish(self, game: Game) -> None:
         code = game.stop()
@@ -265,6 +285,11 @@ class Run:
             shutil.copy2(shim, logs / f"pass{self.passes}.shim.log")
         game.close()
         self.game = None
+        if getattr(self, "compile_measured", False):
+            # nothing compiled, so nothing ran that could save or leave state behind
+            self.assert_(f"pass {self.passes} exited cleanly", code is not None,
+                         f"exit code {code} (killed after the measured compile error)")
+            return
         self.assert_(f"pass {self.passes} exited cleanly", code == 0, f"exit code {code}")
 
     def check_console(self, game: Game) -> None:
@@ -1029,6 +1054,8 @@ class Run:
                     out["restored_for_end_shot"] = True
                     time.sleep(0.3)
                 self.step(game, {"do": "shot", "name": "end"}, saved)
+        except CompileMeasured as e:
+            self.assert_("mod scripts failed to compile (expected)", True, str(e))
         except Exception as e:                     # noqa: BLE001 - every failure is a result
             out["timeout"] = isinstance(e, RunTimeout)
             out["error"] = f"{type(e).__name__}: {e}"

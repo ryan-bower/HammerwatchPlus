@@ -317,7 +317,23 @@ namespace Modules
 			HWP::Log("laststats", "snapshot of " + plr.GetName() + ", " + desc);
 		}
 
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardUpdateFrame;
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
+		{
+			if (m_guardUpdateFrame.Skip("laststats", "HWPLastStatsModule.UpdateFrame"))
+				return;
+			if (m_guardUpdateFrame.Raw())
+			{
+				GuardedUpdateFrame(ms, gameInput, menuInput, paused);
+				m_guardUpdateFrame.Ok();
+				return;
+			}
+			try { GuardedUpdateFrame(ms, gameInput, menuInput, paused); m_guardUpdateFrame.Ok(); }
+			catch { m_guardUpdateFrame.Failed(); }
+		}
+
+		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
 			if (m_reportDelay >= 0)
 			{

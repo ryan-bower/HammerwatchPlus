@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">GameLab Guard</string>
+	<string name="author">HammerwatchPlus GameLab</string>
+	<string name="description">Test harness only: a module whose UpdateFrame body throws every frame from frame 300, wrapped the way tools/guard_modules.py wraps every HWP module, to check HWP::Guard keeps the game running and turns the module off (the guard scenario). Never deployed to a play install.</string>
+</dict>

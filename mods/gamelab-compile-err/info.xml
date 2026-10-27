@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">GameLab Compile Error</string>
+	<string name="author">HammerwatchPlus GameLab</string>
+	<string name="description">Test harness only: a script that calls a function the game does not have, the way a game update that renames one would leave a mod, to measure what the game does with a mod that no longer compiles (the compile-err scenario). Never deployed to a play install.</string>
+</dict>

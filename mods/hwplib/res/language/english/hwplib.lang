@@ -1,5 +1,7 @@
 <lang name="English" official="false">
 	<string name="hwp.core.hello">HammerwatchPlus language file loaded</string>
+	<string name="hwp.guard.new_build">Heroes of Hammerwatch II is on build %build%; this HammerwatchPlus was tested on build %tested%. If a mod misbehaves, look for a HammerwatchPlus update (hwp guard lists any mod script errors).</string>
+	<string name="hwp.guard.tripped">The %mod% mod hit a script error and switched part of itself off until the next level; the game keeps running. A game update may have broken it: look for a HammerwatchPlus update (hwp guard lists the errors).</string>
 	<string name="hwp.options.tab">Plus</string>
 	<string name="hwp.options.title">HammerwatchPlus Options</string>
 	<string name="hwp.options.hint">Click a button to change the setting.</string>

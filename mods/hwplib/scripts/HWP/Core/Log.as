@@ -1,6 +1,9 @@
 namespace HWP
 {
 	const string VERSION = "0.1.0";
+	// the game build (Network::GetBuildVersion) these scripts were tested on: GameLab's pin,
+	// gamelab/build_id.json "game_version" (tests/test_guard.py keeps the two equal)
+	const int TESTED_BUILD = 176;
 
 	void Log(const string &in module, const string &in msg)
 	{

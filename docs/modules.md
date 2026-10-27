@@ -83,6 +83,13 @@ scenario's `mods` get their required parts enabled with them.
    while the scene loads) goes in the module constructor, which runs once per
    level. State that must survive a level change lives in the player / town
    record (`HWP::SaveData`) or `GlobalCache`.
+10. **Guarded entry points.** A module's `UpdateFrame`, `PreRenderFrame`, `RenderFrame`,
+   `RenderWidgets` and `Load` run their body as `Guarded<Name>` behind an `HWP::Guard`
+   (hwplib `Guard.as`), so a script error turns that one entry point off instead of
+   stopping the game's frame. Write the method as usual and run
+   `python tools/guard_modules.py` to wrap it; `tests/test_guard.py` fails while one is
+   unwrapped. Edit the `Guarded<Name>` body afterwards, never the wrapper.
+   (`docs/GAME_UPDATES.md`.)
 
 ## Testing a module
 

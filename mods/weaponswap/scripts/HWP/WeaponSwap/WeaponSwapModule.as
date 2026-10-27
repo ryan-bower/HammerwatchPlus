@@ -596,13 +596,45 @@ namespace Modules
 			HWP::WeaponSwap::Changed();
 		}
 
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardUpdateFrame;
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
+		{
+			if (m_guardUpdateFrame.Skip("weaponswap", "HWPWeaponSwapModule.UpdateFrame"))
+				return;
+			if (m_guardUpdateFrame.Raw())
+			{
+				GuardedUpdateFrame(ms, gameInput, menuInput, paused);
+				m_guardUpdateFrame.Ok();
+				return;
+			}
+			try { GuardedUpdateFrame(ms, gameInput, menuInput, paused); m_guardUpdateFrame.Ok(); }
+			catch { m_guardUpdateFrame.Failed(); }
+		}
+
+		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
 			HWP::WeaponSwap::Poll(ms, paused);
 			HWP::WeaponSwap::UpdateChannel(ms, paused, gameInput.Dash.Down || gameInput.Dash.Pressed);
 		}
 
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardRenderFrame;
 		void RenderFrame(int idt, SpriteBatch& sb) override
+		{
+			if (m_guardRenderFrame.Skip("weaponswap", "HWPWeaponSwapModule.RenderFrame"))
+				return;
+			if (m_guardRenderFrame.Raw())
+			{
+				GuardedRenderFrame(idt, sb);
+				m_guardRenderFrame.Ok();
+				return;
+			}
+			try { GuardedRenderFrame(idt, sb); m_guardRenderFrame.Ok(); }
+			catch { m_guardRenderFrame.Failed(); }
+		}
+
+		void GuardedRenderFrame(int idt, SpriteBatch& sb)
 		{
 			HWP::WeaponSwap::RenderChannel(idt, sb);
 		}
