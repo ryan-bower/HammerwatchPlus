@@ -1,8 +1,9 @@
 // Extra skill keys. The engine's GameInput has only Skill1, Skill2 and Skill3,
 // and PlayerTargetingHelper.GetSkillInput (Behaviors/Actors/Player/
 // PlayerTargetingHelper.as:713-750) gives the 3rd and every later active
-// spell Skill3, so a class with more than three actives (the firearms specs,
-// the thief specs, the HoH1 paladin) fires all of them on one press.
+// spell Skill3, so a class with more than three actives fires all of them on one
+// press. Of ours, the HoH1 thief specs (assassin and shadow 4, trickster 5) and the
+// retiarius (4) need them; every other class and spec, Firearms included, has 3.
 //
 // The local player's PlayerTargetingHelper is swapped for HWPSkillKeysHelper
 // (script methods are virtual): its GetSkillInput answers the 4th, 5th and 6th
