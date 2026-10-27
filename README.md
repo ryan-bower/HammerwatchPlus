@@ -185,6 +185,16 @@ checklist that catches one before players do. Measured: `compile-err` (025559), 
 (030133), `throw-ctor` (031426), `guard` (031629); `mod-all`, `pkg-all` and
 `pkg-pair-all-qol` pass with the guards in.
 
+2026-10-27, code review fixes (fe617b8..3a6e9f9): ten fixes.
+- The guard's unguarded trace run happens once per game process, and its throw is counted.
+- `TESTED_BUILD` lives in `Guard.as`, so a mixed set of packages still compiles.
+- A `compile_error` scenario fails if the scripts compile.
+- `needs_hoh1` scenarios are skipped (exit 7) on a machine without the HoH1 import.
+
+Tested: `guard` (103129), `compile-err` (103302), `hoh1-standins` (103355) and
+`plan-runs-arch` (103410). Details are in `docs/RE_NOTES.md` ("code review fixes
+(fe617b8..3a6e9f9)").
+
 2026-10-27, the Paladin of Generosity: the eighth 4th spec (`mods/specs`, `Generosity.as`):
 Pelor's Blessing stacks from Lay on Hands, Blessed Strike kills and Conviction, and at 10
 stacks Pelor's Fury holds one enemy in beams of light (stunned, casts cut, armor and

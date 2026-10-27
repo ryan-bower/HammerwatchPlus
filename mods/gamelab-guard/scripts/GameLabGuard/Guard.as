@@ -2,7 +2,7 @@
 // The module's UpdateFrame is wrapped exactly as tools/guard_modules.py wraps every HWP
 // module (the tool skips gamelab mods, so the wrapper is written out here). From body
 // frame 300 the body throws every frame. Expected: the guard logs the first failure, lets
-// the next call through unguarded once (the engine logs the stack trace), turns the entry
+// the next call through unguarded once per game process (the engine logs the stack trace), turns the entry
 // point off after TRIP_STREAK failures in a row, and sends one chat line. A screen shake
 // entry added by a hook at hook frames 320 (while the body fails) and 600 (after the trip),
 // read 120 frames later, shows the game mode's update after the module loop still runs

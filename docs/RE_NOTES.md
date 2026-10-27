@@ -4800,3 +4800,51 @@ Things learned while painting:
   speck. Give the face a warm orange, not white.
 - A palm-out hand with dark finger gaps reads as a face when it is small. Outline it, lighten
   the gaps, and make it the largest thing in the icon.
+
+## 2026-10-27, code review fixes (fe617b8..3a6e9f9)
+
+A review of the Guard, package, HoH1-notice, pkgfeat and icon commits found ten problems. All
+are fixed:
+
+1. **`TESTED_BUILD` moved from `Log.as` to `Guard.as`** (`HWP::Guards::TESTED_BUILD`). `Log.as`
+   ships in every package. Suppose an older package's copy of `Log.as` wins, and that copy has
+   no `TESTED_BUILD`. `Guard.as`, new in this build, would then fail to compile, and every mod
+   would stop. `tests/test_guard.py` now reads the value from `Guard.as`.
+2. **`compile_error` is scoped to the measured boot.** Only `enter_fixture`'s boot treats a
+   failed compile as the expected result. A fixture pass that fails to compile is a plain
+   failure. A `compile_error` scenario whose scripts compiled now fails instead of passing on
+   its empty step list (`compile-err` 20261027-103302, pass).
+3. **The guard's unguarded trace run happens once per game process, not once per level.** The
+   list of entry points already traced is in GlobalCache `hwp.guard.traced`, which outlives the
+   level. Two reasons for the change:
+   - An unguarded throw aborts the rest of that frame.
+   - The engine stops logging a repeated exception after about 10.
+
+   A throw in the trace run used to go uncounted. It is now counted on the next call. A
+   one-shot entry point (`Failed(true)`) gets no trace run. In `guard` (20261027-103129, pass):
+   - the engine's trace names `GuardedUpdateFrame`;
+   - the body stops after 299 good runs and 30 that threw (`ticks body 329`; it was 330 when
+     the trace run went uncounted);
+   - on the next level (`gl mission dark_citadel 0`) the entry point is turned off again with
+     no second trace run.
+4. **`errors_since` catches HWP's own SValue errors again.** The forgemaster and generosity
+   plans' `errors_since` now also counts `SValue param error` lines for `hwp/` files. These are
+   `[WRN]` lines with a lowercase path, the same kind as the old `pyre.sval` `blocking` bug.
+5. **`arch_challenge_discount` is tighter.** It still sees only the rows in view, because the
+   list scrolls. It now needs 3 to 7 red rows, and each must parse as one of the challenges'
+   own discounts (`ARCH_DISCOUNTS`, from `Challenges.as`). `plan-runs-arch` 20261027-103410:
+   3 rows, all real.
+6. **`hoh1.told` is cleared when nothing is on stand-ins.** The same set going back to
+   stand-ins later is told again (`hoh1-standins` 20261027-103355, pass).
+7. **Guard records match on both mod and label**, so two mods' classes with the same name
+   no longer share one record.
+8. **`HoH1::Missing` uses `sortAsc()`**, not a hand-written insertion sort.
+9. **`make_package_scenarios.py --check` no longer creates `gamelab/scenarios/pkgfeat/`.**
+10. **`needs_hoh1` is enforced.** `gamelab run` exits 7 (SKIPPED) before taking the lock when a
+    scenario's mods read a HoH1 import this machine lacks. The import names match the mods,
+    and a scenario whose mods have none needs every import. A suite skips those scenarios
+    (`tests/test_needs_hoh1.py`).
+
+Also seen: every run prints `summary failed: ModuleNotFoundError: No module named
+'run_summary'`. The launcher imports `tools/run_summary.py`, which exists only on the
+`dev-arena` branch. This is harmless (the summary never gates a run), but it is still open.

@@ -16,8 +16,8 @@ Errors elsewhere are already contained by the engine:
 - **A module's `Save` that throws** is caught by the game mode.
 
 When the scripts compile on a build they were not tested on, hwplib tells the player once
-per build. It compares `Network::GetBuildVersion()` with `HWP::TESTED_BUILD` in
-`mods/hwplib/scripts/HWP/Core/Log.as`.
+per build. It compares `Network::GetBuildVersion()` with `HWP::Guards::TESTED_BUILD` in
+`mods/hwplib/scripts/HWP/Core/Guard.as`.
 
 ## Checklist after a patch
 
@@ -35,7 +35,7 @@ per build. It compares `Network::GetBuildVersion()` with `HWP::TESTED_BUILD` in
 
 4. **Compile everything.** `python -m gamelab run mod-all --mode lab` boots every mod. A compile error fails the boot, and the run's log names the file and line.
 5. **Run each package as it ships.** Run every `gamelab/scenarios/pkg-*.json`, and the suites of the mods whose code the patch touched.
-6. **Re-pin.** Run `python tools/pin_build.py --reason "<patch>"`, then set `HWP::TESTED_BUILD` to the new build number. `tests/test_guard.py` fails until the two agree.
+6. **Re-pin.** Run `python tools/pin_build.py --reason "<patch>"`, then set `HWP::Guards::TESTED_BUILD` to the new build number. `tests/test_guard.py` fails until the two agree.
 
 ## Writing code that survives a patch
 

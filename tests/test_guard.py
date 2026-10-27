@@ -58,6 +58,6 @@ def test_wrapping_keeps_crlf():
 
 def test_tested_build_matches_the_gamelab_pin():
     pin = json.loads((REPO / "gamelab" / "build_id.json").read_text(encoding="utf-8"))
-    log_as = (REPO / "mods/hwplib/scripts/HWP/Core/Log.as").read_text(encoding="utf-8")
-    tested = re.search(r"const int TESTED_BUILD = (\d+);", log_as)
+    guard_as = (REPO / "mods/hwplib/scripts/HWP/Core/Guard.as").read_text(encoding="utf-8")
+    tested = re.search(r"const int TESTED_BUILD = (\d+);", guard_as)
     assert tested and pin["game_version"] == f"Build {tested.group(1)}"

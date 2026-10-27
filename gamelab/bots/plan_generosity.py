@@ -141,7 +141,8 @@ class Checks(Base):
         # not ".as" alone: a floor's DungeonGenerationCommands.as logs [ERR] lines of its own
         # (plan-generosity 20261027-013805)
         return [ln.strip()[:160] for ln in new.splitlines()
-                if "Script exception" in ln or ("[ERR]" in ln and any(k in ln for k in ("HWP:specs", "Specs/", "Generosity.as")))]
+                if "Script exception" in ln or ("[ERR]" in ln and any(k in ln for k in ("HWP:specs", "Specs/", "Generosity.as")))
+                or ("SValue param error" in ln and "hwp/" in ln.lower())]
 
     def setup_gen(self, key, levels=0, extra=(LOH, CONV)):
         self.setup(key, "paladin", SUB, [PF, PB])

@@ -45,6 +45,10 @@ COUNCIL_SPOTS = [(-120, -40), (120, -40), (-60, -190), (60, -190)]
 TIERS = {"bronze": 0, "silver": 1, "gold": 2, "platinum": 2}
 
 
+# each Architect challenge's row text (mods/architect/scripts/HWP/Architect/Challenges.as)
+ARCH_DISCOUNTS = {("-1.5k", "stone", 10), ("-1.5k", "wood", 10), ("-1k", "wood", 5), ("-1k", "stone", 5),
+                  ("-2.5k", "stone", 15)}
+
 def arch_mul(n_buffs, arch_lvl):
     """CalcArchitectCostMul (scripts/Missions/MissionArchitect.as), no debuffs."""
     n = max(1, n_buffs)
@@ -309,9 +313,14 @@ class Checks(Base):
                 if n.get("id") == "cost" and "ff5050" in (n.get("text") or "")]
         self.g.shot("architect-challenge")
         want_c = {"gold": max(0, want["gold"] - 2500), "wood": want["wood"]}
+        # the list scrolls, so only the rows in view are listed (3 of the 7 at 083623). Each one
+        # must show a real challenge's discount (Challenges.as DISCOUNT_*, DiscountText's form)
+        found = [re.search(r'icn-gold"(-[\d.]+k)\W+icn-(stone|wood)"-(\d+)', n.get("text") or "") for n in rows]
+        bad = [n.get("text") for n, m in zip(rows, found)
+               if not m or (m.group(1), m.group(2), int(m.group(3))) not in ARCH_DISCOUNTS]
         self.flag("arch_challenge_discount", all(has_num(cost_c, v) for v in want_c.values()) and "stone" not in cost_c.lower()
-                  and len(rows) >= 1, f"{cost_c!r}, want {want_c} and no stone; {len(rows)} red challenge rows in view "
-                  f"(first {rows[0].get('text') if rows else None!r})")
+                  and 3 <= len(rows) <= 7 and not bad, f"{cost_c!r}, want {want_c} and no stone; {len(rows)} red challenge rows in view "
+                  f"(first {rows[0].get('text') if rows else None!r}; not a challenge's discount: {bad})")
         self.gl("press", "hwp_challenge_glass_bones")
         time.sleep(1)
         self.gl("func", "exit", "yes")

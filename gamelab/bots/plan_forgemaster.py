@@ -155,10 +155,12 @@ class Checks(Base):
         vanilla [WRN] "SValue param error: missing string 'description' (file: tweak/pets.sval)"
         (pf-plan-forgemaster-units 20261027-044247), and floor loads log vanilla [ERR] lines (the
         HUD widgets, DungeonGenerationCommands.as), as plan_generosity.errors_since says. So only
-        exceptions and errors that name an HWP mod or the specs scripts count."""
+        exceptions, errors that name an HWP mod or the specs scripts, and SValue param errors in
+        HWP's own files (players/hwp/..., the pyre.sval `blocking` kind) count."""
         new = self.g.read_log()[mark:]
         return [ln.strip()[:160] for ln in new.splitlines()
-                if "Script exception" in ln or ("[ERR]" in ln and any(k in ln for k in ("HWP", "Specs/")))]
+                if "Script exception" in ln or ("[ERR]" in ln and any(k in ln for k in ("HWP", "Specs/")))
+                or ("SValue param error" in ln and "hwp/" in ln.lower())]
 
     def setup_forge(self, key="forge", levels=0):
         self.setup(key, "priest", SUB, [NR, COH])

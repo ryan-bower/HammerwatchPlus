@@ -49,13 +49,10 @@ namespace HWP
 			array<string> ids;
 			for (uint i = 0; i < g_features.length(); i++)
 			{
-				if (g_features[i].present)
-					continue;
-				uint at = 0;
-				while (at < ids.length() && ids[at] < g_features[i].mod)
-					at++;
-				ids.insertAt(at, g_features[i].mod);
+				if (!g_features[i].present)
+					ids.insertLast(g_features[i].mod);
 			}
+			ids.sortAsc();
 			return ids;
 		}
 
@@ -71,9 +68,12 @@ namespace HWP
 		{
 			auto ids = Missing();
 			auto told = join(ids, ",");
-			if (ids.length() == 0 || HWP::Settings::GetString("hoh1.told", "") == told)
+			if (HWP::Settings::GetString("hoh1.told", "") == told)
 				return;
+			// "" when nothing is on stand-ins, so the same set later is told again
 			HWP::Settings::SetString("hoh1.told", told);
+			if (ids.length() == 0)
+				return;
 			array<string> phrases;
 			for (uint i = 0; i < ids.length(); i++)
 				phrases.insertLast(Phrase(ids[i]));

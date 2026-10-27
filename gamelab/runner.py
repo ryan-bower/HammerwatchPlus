@@ -162,7 +162,9 @@ class Run:
 
     # ---- one boot of the game ----------------------------------------------
 
-    def boot(self, expect_mods: bool, probe_menu: bool = False) -> Game:
+    def boot(self, expect_mods: bool, probe_menu: bool = False, compile_error: bool = False) -> Game:
+        """compile_error: this boot is the one a `compile_error` scenario measures (its
+        enter_fixture boot; a fixture pass that fails to compile is a plain failure)."""
         self.passes += 1
         game = Game(self.results, self.mode)
         # "transport": "console" (the console-* measurement scenarios only): every line typed
@@ -177,7 +179,7 @@ class Run:
             # the probe included, so say so now rather than wait a minute for a boot event
             # (chest-watch 20261018-153312: 84 s to the same answer)
             if logparse.compile_failed(game.read_log()):
-                if self.scenario.get("compile_error"):
+                if compile_error:
                     self.measure_compile_error(game)
                     raise CompileMeasured("mod scripts failed to compile, as the scenario expects")
                 raise GameError("mod scripts failed to compile")
@@ -384,7 +386,8 @@ class Run:
         if readback is not None and not isinstance(readback, dict):
             raise GameError("restart readback must be a mapping")
         expected = {**recipe["readback"], **(readback or {})}
-        game = self.boot(expect_mods=True, probe_menu=self.scenario.get("probe_menu", False))
+        game = self.boot(expect_mods=True, probe_menu=self.scenario.get("probe_menu", False),
+                         compile_error=bool(self.scenario.get("compile_error")))
         hb = game.wait_gl(lambda o: o.get("ev") == "hb", 30)
         self.out.setdefault("first_frame_at", time.time())   # watch mode's focus window ends here
         if self.mode == "watch":
@@ -1035,6 +1038,9 @@ class Run:
                 write_plan([f"{st['at']}|{st['name']}|{st['line']}" for st in self.plan])
                 out["plan_lines"] = len(self.plan)
             game = self.enter_fixture(fixture["recipe"], extra)
+            # a compile_error scenario ends in CompileMeasured; a boot that compiled is its failure
+            if self.scenario.get("compile_error"):
+                self.assert_("mod scripts failed to compile (expected)", False, "the scripts compiled")
             saved: dict = {}
             out["saved"] = saved
             for s in self.scenario["steps"]:

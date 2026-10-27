@@ -65,7 +65,8 @@ calls `HWP::HoH1::Report(mod, present, ".lang.key")` after it has looked, where 
 names what the player gets instead. hwplib tells the player once per save and set
 (`hwp.hoh1.missing`, the setting `hoh1.told`), and `hwp hoh1` lists the features
 (`hoh1-standins`, `hoh1-installed`). Scenarios that read the local content are marked
-`"needs_hoh1": true`, and `tools/make_package_scenarios.py` keeps them out of `pkgfeat/`.
+`"needs_hoh1": true`: `tools/make_package_scenarios.py` keeps them out of `pkgfeat/`, and on a machine
+without the HoH1 import their mods read, `gamelab run` exits 7 (SKIPPED) and a suite skips them.
 
 A part reaches what another part holds only through an interface the other registers (the
 character screen's Luck cell asks `HWP::LuckView`, which `hwplib-luck` fills; without it the

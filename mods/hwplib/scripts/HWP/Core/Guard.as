@@ -25,8 +25,11 @@
 //
 // A caught exception is silent (getExceptionInfo is not registered), so the
 // guard logs the mod and entry point itself, and lets the call after the first
-// failure run unguarded once: that one reaches the engine, which logs the
-// script stack trace. After TRIP_STREAK failures in a row, or TRIP_TOTAL in all,
+// failure run unguarded: that one reaches the engine, which logs the script stack
+// trace. That happens once per entry point per game process (GlobalCache, which
+// outlives the level), not once per level: an unguarded throw still aborts the rest
+// of that frame, and the engine stops logging a repeated exception after about 10.
+// A throw in that run is counted on the next call. After TRIP_STREAK failures in a row, or TRIP_TOTAL in all,
 // the entry point stops running (a half-run body can repeat a side effect every
 // frame) and the player gets one chat line. Modules are made again with each
 // level, so the next level tries again.
@@ -43,6 +46,13 @@ namespace HWP
 {
 	namespace Guards
 	{
+		// the game build (Network::GetBuildVersion) these scripts were tested on: GameLab's pin,
+		// gamelab/build_id.json "game_version" (tests/test_guard.py keeps the two equal). It is
+		// here, not in Log.as, because Guard.as is new with it: an older package whose Log.as
+		// wins would leave it undefined (docs/modules.md, Packages)
+		const int TESTED_BUILD = 176;
+		const string TRACED_KEY = "hwp.guard.traced";
+
 		const int TRIP_STREAK = 30;
 		const int TRIP_TOTAL = 300;
 
@@ -62,7 +72,7 @@ namespace HWP
 		Record@ Get(const string &in mod, const string &in label)
 		{
 			for (uint i = 0; i < g_records.length(); i++)
-				if (g_records[i].label == label)
+				if (g_records[i].mod == mod && g_records[i].label == label)
 					return g_records[i];
 			Record@ r = Record();
 			r.mod = mod;
@@ -81,6 +91,17 @@ namespace HWP
 			return g_off;
 		}
 
+		// true the first time this game process asks for mod/label: its trace run
+		bool FirstTrace(const string &in mod, const string &in label)
+		{
+			string key = "|" + mod + ":" + label + "|";
+			string traced = GlobalCache::Get(TRACED_KEY);
+			if (traced.findFirst(key) >= 0)
+				return false;
+			GlobalCache::Set(TRACED_KEY, traced + key);
+			return true;
+		}
+
 		void OnSettingChanged(const string &in key)
 		{
 			if (key == "guard.off")
@@ -97,12 +118,12 @@ namespace HWP
 		}
 
 		// The first gameplay tick in town (core module): one chat line per new game build.
-		// The setting guard.tested_build stands in for HWP::TESTED_BUILD (GameLab's guard
+		// The setting guard.tested_build stands in for HWP::Guards::TESTED_BUILD (GameLab's guard
 		// scenario sets it to see the line on the pinned build).
 		void CheckBuild()
 		{
 			int build = Network::GetBuildVersion();
-			int tested = HWP::Settings::GetInt("guard.tested_build", HWP::TESTED_BUILD);
+			int tested = HWP::Settings::GetInt("guard.tested_build", HWP::Guards::TESTED_BUILD);
 			if (build == tested || HWP::Settings::GetInt("guard.told_build", 0) == build)
 				return;
 			HWP::Settings::SetInt("guard.told_build", build);
@@ -115,7 +136,7 @@ namespace HWP
 			if (args.length() > 0 && args[0] == "build")
 			{
 				HWP::Commands::Reply("game build " + Network::GetBuildVersion() + ", tested on "
-					+ HWP::Settings::GetInt("guard.tested_build", HWP::TESTED_BUILD));
+					+ HWP::Settings::GetInt("guard.tested_build", HWP::Guards::TESTED_BUILD));
 				CheckBuild();
 				return;
 			}
@@ -140,6 +161,7 @@ namespace HWP
 		int m_total = 0;
 		bool m_tripped = false;
 		bool m_rawNext = false;
+		bool m_rawPending = false; // the trace run has not reached Ok: it threw
 
 		// true while this entry point is turned off; names it on the first call
 		bool Skip(const string &in mod, const string &in label)
@@ -148,6 +170,11 @@ namespace HWP
 			{
 				m_mod = mod;
 				m_label = label;
+			}
+			if (m_rawPending)
+			{
+				m_rawPending = false;
+				Failed();
 			}
 			return m_tripped;
 		}
@@ -161,12 +188,14 @@ namespace HWP
 			if (!m_rawNext)
 				return false;
 			m_rawNext = false;
+			m_rawPending = true;
 			return true;
 		}
 
 		void Ok()
 		{
 			m_streak = 0;
+			m_rawPending = false;
 		}
 
 		// once: a one-shot entry point (Load), turned off by its first failure
@@ -178,8 +207,9 @@ namespace HWP
 			r.failures++;
 			if (m_total == 1)
 			{
-				HWP::LogError("guard", m_label + " threw a script exception; the next call runs unguarded once so the engine logs where");
-				m_rawNext = true;
+				m_rawNext = !once && HWP::Guards::FirstTrace(m_mod, m_label);
+				HWP::LogError("guard", m_label + " threw a script exception"
+					+ (m_rawNext ? "; the next call runs unguarded once so the engine logs where" : ""));
 			}
 			if (!once && m_streak < HWP::Guards::TRIP_STREAK && m_total < HWP::Guards::TRIP_TOTAL)
 				return;

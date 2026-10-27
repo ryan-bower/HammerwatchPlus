@@ -18,7 +18,8 @@ gate and stamps "build_drift": true into its run.json.
 Verdicts (exit code): PASS (0), FAIL (1: an assertion failed), INVALID (5: the run itself
 cannot be trusted: the user's config or saves changed, focus moved, or probes and the
 renderer disagreed), TIMEOUT (6: the scenario's deadline passed; whatever was collected
-is still in run.json, flagged "partial").
+is still in run.json, flagged "partial"), SKIPPED (7: a `"needs_hoh1": true` scenario on a
+machine without the HoH1 import its mods read; nothing ran).
 """
 from __future__ import annotations
 
@@ -121,10 +122,29 @@ def acquire(scenario_name: str, mode: str, wait: float = 0) -> None:
             time.sleep(3)
 
 
+EXIT_SKIPPED = 7
+
+
+def hoh1_missing(scenario: dict) -> list[str]:
+    """`"needs_hoh1": true`: the HoH1 imports (tools/import_hoh1.py, named like the mods that read
+    them; every import when none of its mods has one) this machine lacks."""
+    if not scenario.get("needs_hoh1"):
+        return []
+    from tools import import_hoh1
+    outputs = import_hoh1.IMPORT_OUTPUTS
+    want = [m for m in env.expand_mods(scenario.get("mods")) if m in outputs] or list(outputs)
+    return [m for m in want if not outputs[m].exists()]
+
+
 def run(scenario_name: str, mode: str, accept_drift: bool = False, wait: float = 0) -> int:
     scenario_path = scenario_file(scenario_name)
     scenario_name = scenario_path.stem
     scenario = json.loads(scenario_path.read_text(encoding="utf-8"))
+    missing = hoh1_missing(scenario)
+    if missing:
+        print("SKIPPED", f"needs_hoh1: no HoH1 import of {', '.join(missing)} on this machine "
+              "(python -m gamelab doctor --hoh1 <folder> --fix)")
+        return EXIT_SKIPPED
     # the lock before preflight: preflight re-links the lab mods dir (env.link), and doing that
     # under another live run drops that run's mods under test from the game dir
     try:

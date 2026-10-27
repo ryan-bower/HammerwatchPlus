@@ -51,7 +51,7 @@ namespace Modules
 		{
 			super("hwp-core");
 			HWP::Log("core", "module created, version " + HWP::VERSION + ", game build "
-				+ Network::GetBuildVersion() + " (tested on " + HWP::TESTED_BUILD + ")");
+				+ Network::GetBuildVersion() + " (tested on " + HWP::Guards::TESTED_BUILD + ")");
 			HWP::Log("core", "lang check: " + Resources::GetString(".hwp.core.hello"));
 			HWP::Commands::RegisterBuiltins();
 			HWP::Guards::Init();

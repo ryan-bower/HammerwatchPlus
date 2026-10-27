@@ -182,7 +182,8 @@ def main(argv=None) -> int:
     ap.add_argument("--check", action="store_true")
     a = ap.parse_args(argv)
     stale = []
-    FEATURES.mkdir(exist_ok=True)
+    if not a.check:
+        FEATURES.mkdir(exist_ok=True)
     want_files = {SCENARIOS / f"{n}.json": d for n, d in build_all().items()}
     want_files.update({FEATURES / f"{n}.json": d for n, d in feature_variants().items()})
     for p in sorted(FEATURES.glob("*.json")):
