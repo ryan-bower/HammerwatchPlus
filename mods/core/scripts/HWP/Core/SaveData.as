@@ -4,8 +4,8 @@
 // stays loadable by the vanilla game (which ignores keys it does not know).
 //
 //   auto bag = HWP::SaveData::Player(record);     // or ::Local(), ::Town()
-//   bag.SetInt("goldpet.tier", 2);                // primitives...
-//   int tier = bag.GetInt("goldpet.tier", 0);
+//   bag.SetInt("pets.level", 2);                // primitives...
+//   int tier = bag.GetInt("pets.level", 0);
 //   bag.Take("pets.levels", builder.Build());     // ...a fresh SValue (Set copies)
 //
 // Keys are "<module>.<name>". Writes are picked up by the next save of that

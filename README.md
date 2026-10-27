@@ -9,8 +9,7 @@ campaign, keys and ace chests, legendaries, mercenaries, titles, pets), new thin
 the dungeons, fishing and farming in town, and co-op and quality-of-life fixes.
 
 Every module ships as its own mod package, plus an all-in-one build. Everyone in a lobby
-should run the same version of the same modules. Every module needs `core`; `goldpet` also
-needs `pets`.
+should run the same version of the same modules. Every module needs `core`.
 
 ## Modules
 
@@ -56,7 +55,6 @@ needs `pets`.
 | `fishing` | Six fishing spots on the town coast (a timing minigame), more in the water of run floors' potion wells (always one in a boss room), greyed on the map once fished out. A pirate sells bait, rods (priced per tier; new characters start with the wooden rod) and fish traps from the trading post's wreck, later its boat. Fish are swords, sell for bet tokens and can be eaten (100 HP per star, plus Luck). Catches can hold keys and ace keys, and a hole's loot goes to whoever caught it. |
 | `farming` | The town's field grooves become farm plots: food crops and four Holy Herb strains grow with each completed run, faster when watered (the farmer sells the can and seeds; the well refills it). Smoke a herb for a buff that lasts 10 floors (hotboxing works outdoors too), or roll it into a joint: an off-hand with 5 puffs that a friend can take from you, with smoke that fills the room; a second joint goes in the main hand, left and right click puffing each. |
 | `gambler` | A gambler in the tavern plays Higher/Lower for gold. He buys crops and herbs for gold and fish for bet tokens, and rerolls equipped gear for 2000 gold × item level, or 1 bet token per 5 item levels. |
-| `goldpet` | A pet vendor in the Hunter's Lodge sells the Gold Collector cat, with two upgrades (materials and scrolls, then valuables). |
 | `tavern` | Three more tavern levels (from guild hall levels 7 and 8, the top one): a run can start with up to 3 foods and 5 drinks. |
 | `waygates` | Way Gates: teleport gates in the town square and at every building you have built. Use one and pick where to go (a remake of Tyraen's Teleport in City). |
 | `roulette` | A roulette wheel on a table in the tavern: one single-zero table for the whole lobby with all 157 bets at true odds (click near an edge or a corner for splits and corners), a remake of the Workshop roulette table. Luck and gold find raise the winnings by their percentage, so a smoked herb tips the odds your way. |

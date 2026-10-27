@@ -63,9 +63,6 @@ every Heroes of Hammerwatch 1 pet skin in the HoH2 Pet Shop. Replaces the old
 - **Pickup toggles** set `PlayerRecord.petOptions` (a vanilla field that is
   saved as `pet-options`); `ResetPet()` re-initialises the live pet. Bowl menu
   rows or `hwp pet gold|valuables|materials|health|caches|cursed|elixirs|xp on|off`.
-- **External pets.** `HWP::Pets::RegisterExternal(id, name, check)` lets a
-  non-`MiniPet` pet (the Gold Collector) take part; its behaviour ticks a
-  `HWP::Pets::SkillRunner` itself.
 - **Pet dyes.** The tailor (class swap `EquipmentDyerShopContent` ->
   `HWPDyerShopContent`, `scripts/HWP/Pets/PetDye.as`) asks "Dye gear / Dye
   pet" when you have a pet out. The pet window lists every dye the town has

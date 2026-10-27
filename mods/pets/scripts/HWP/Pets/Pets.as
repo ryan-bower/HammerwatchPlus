@@ -1,6 +1,5 @@
-// Pet progression and skills. Every pet (vanilla HoH2, the imported HoH1
-// skins, and external pets such as the Gold Collector that register with
-// RegisterExternal) earns XP from its owner's kills, from its own pickups and
+// Pet progression and skills. Every pet (vanilla HoH2 and the imported HoH1
+// skins) earns XP from its owner's kills, from its own pickups and
 // from farm crops fed at the Pet Shop keeper (the "Train pet" menu; the old
 // feeding bowl doodad is optional now, pets.bowl). Each level past 1 is a
 // skill point for a small utility tree; the numbers live in
@@ -212,30 +211,6 @@ namespace HWP
 			}
 		}
 
-		// ---- external pets (Gold Collector) ------------------------------------------
-
-		funcdef bool ExternalCheck(PlayerRecord@ rec);
-
-		class External
-		{
-			string id;
-			string name; // lang key or text
-			ExternalCheck@ check;
-		}
-		array<External@> g_externals;
-
-		void RegisterExternal(const string &in id, const string &in name, ExternalCheck@ fn)
-		{
-			for (uint i = 0; i < g_externals.length(); i++)
-				if (g_externals[i].id == id)
-					return;
-			External e;
-			e.id = id;
-			e.name = name;
-			@e.check = fn;
-			g_externals.insertLast(e);
-		}
-
 		// The pet definition the record's progress is keyed on ("" = no pet).
 		string ActivePetId(PlayerRecord@ rec)
 		{
@@ -243,9 +218,6 @@ namespace HWP
 				return "";
 			if (rec.pet !is null && rec.pet.m_unit !is null)
 				return rec.pet.m_id;
-			for (uint i = 0; i < g_externals.length(); i++)
-				if (g_externals[i].check(rec))
-					return g_externals[i].id;
 			return "";
 		}
 
@@ -255,13 +227,6 @@ namespace HWP
 				return "";
 			if (rec.pet !is null && rec.pet.m_unit !is null)
 				return Resources::GetString(rec.pet.m_name);
-			for (uint i = 0; i < g_externals.length(); i++)
-			{
-				if (!g_externals[i].check(rec))
-					continue;
-				string n = g_externals[i].name;
-				return n.findFirst(".") == 0 ? Resources::GetString(n) : n;
-			}
 			return "";
 		}
 
@@ -507,7 +472,7 @@ namespace HWP
 				return;
 			if (!rec.local)
 			{
-				// a pickup the host ran for a client's pet (the Gold Collector):
+				// a pickup the host ran for a client's pet:
 				// the owner's machine credits it
 				if (!Network::IsServer())
 					return;

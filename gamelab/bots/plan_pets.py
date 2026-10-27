@@ -1,4 +1,4 @@
-"""Test-plan checks for the pets group (pets s2/s4/s5/s9/s10/s12, goldpet s2/s3), on top of
+"""Test-plan checks for the pets group (pets s2/s4/s5/s9/s10/s12), on top of
 plan_checks' helpers. Everything goes through gl verbs, HWP console commands and the game's
 own windows (gl use / press / presslist), never real input.
 
@@ -8,7 +8,6 @@ Sections, by scenario:
     to_town | restart | dye_restart, dye_remove
   plan-pets-b (a fresh LabPets): pets_setup, smash, mend, stun, puzzle_wait, morale_on |
     morale_combat | morale_after
-  plan-pets-c (the GameLab character): gp_gates, gp_summon | gp_run | restart | gp_reload
 
 Verbs beyond plan_checks: presslist / querycmp / unitdestroy (Verbs_pets.as), buildup
 (Verbs_farming.as), hurt / buffs (Verbs_classesb.as), actorbuffs (Verbs_classesa.as)."""
@@ -38,8 +37,6 @@ PUZZLE_UNIT = "doodads/buttons/button_magic.unit"
 # "with the player": a following pet idles anywhere inside the base range-idle (100 px) and
 # only walks once past it (144852: 86.8 px off and idle for 11 s, by design)
 FOLLOW_PX = 110
-CAT = "hwp_gold_collector_pet"
-VENDOR = "hwp_pet_vendor"
 
 
 class Checks(Base):
@@ -58,9 +55,9 @@ class Checks(Base):
         return self.gl("state").get("player", {})
 
     def pet(self):
-        """The HoH1/vanilla pet (a MiniPet unit) nearest the player, or {}: not the Gold Collector."""
+        """The HoH1/vanilla pet (a MiniPet unit) nearest the player, or {}."""
         us = self.gl("near", 1200, "pets/").get("units") or []
-        us = [u for u in us if "pets/" in u.get("name", "") and CAT not in u.get("name", "")]
+        us = [u for u in us if "pets/" in u.get("name", "")]
         return min(us, key=lambda u: u.get("dist", 1e9)) if us else {}
 
     def clear(self):
@@ -75,9 +72,6 @@ class Checks(Base):
         pushed elsewhere); (dist, 0) when none answers."""
         sp = self.spot(dist)
         return (sp[0], sp[1]) if sp else (dist, 0)
-
-    def cat(self, r=500):
-        return self.gl("near", r, CAT).get("units") or []
 
     def god(self, on=True):
         """hwp god toggles; toggle again when the reply says the other state."""
@@ -715,166 +709,6 @@ class Checks(Base):
         # the Morale checks run on this floor next: take the puzzle away so a wait that never
         # clears shows up here (pet_follows_after_puzzle), not as a missing buff
         self.gl("unitdestroy", 500, "button_magic")
-
-    # --- goldpet s2/s3
-    def vendor(self):
-        """Open the pet vendor's menu; again when it is gone by the next command (a console
-        retype can close it: run 20261018-133330, c10 opened it, c11 saw no window)."""
-        end = time.time() + 10
-        while time.time() < end and not self.gl("near", 8000, VENDOR).get("units"):
-            time.sleep(0.5)
-        w = ""
-        for _ in range(3):
-            self.close_windows()
-            self.gl("use", VENDOR)
-            time.sleep(0.6)
-            w = self.window()
-            if w == "HWPPetVendorMenu":
-                break
-        return w
-
-    def vendor_press(self, wid):
-        """Press a vendor button with the menu open (reopened once when it closed under us)."""
-        r = self.gl("press", wid)
-        if not r.get("ok") and "no open window" in str(r.get("error")):
-            self.vendor()
-            r = self.gl("press", wid)
-        return r
-
-    def lodge_up(self):
-        r = self.gl("buildup", "hunters_cabin")
-        time.sleep(2)
-        self.gl("townrefresh")
-        time.sleep(3)
-        return r
-
-    def gp_gates(self):
-        """goldpet s2: tier 2 needs Lodge tier 2, tier 3 needs Lodge tier 3."""
-        b = self.gl("build", "hunters_cabin")
-        self.gl("townrefresh")
-        time.sleep(3)
-        self.set_gold(10000)
-        self.vendor()
-        self.vendor_press("buy-tier1")
-        time.sleep(1.5)
-        self.close_windows()
-        self.flag("gp_tier1_bought", self.gold() == 0 and bool(self.cat()), f"build {b.get('ok')}, gold {self.gold()}, cat {self.cat()[:1]}")
-        self.set_gold(60000)
-        self.vendor()
-        req = self.widget("tier2-req").get("text", "")
-        self.vendor_press("buy-tier2")
-        time.sleep(1)
-        g = self.gold()
-        self.close_windows()
-        self.flag("gp_tier2_needs_lodge2", g == 60000 and req == "Requires Hunter Lodge Tier 2", f"lodge 0: {req!r}, gold 60000 -> {g}")
-        up = self.lodge_up()
-        self.set_gold(60000)
-        w = self.vendor()
-        req = self.widget("tier2-req").get("text", "")
-        self.vendor_press("buy-tier2")
-        time.sleep(1.5)
-        g = self.gold()
-        self.close_windows()
-        self.set_gold(200000)
-        self.vendor()
-        status = self.widget("tier-status").get("text", "")
-        req3 = self.widget("tier3-req").get("text", "")
-        self.vendor_press("buy-tier3")
-        time.sleep(1)
-        g3 = self.gold()
-        self.close_windows()
-        self.flag("gp_tier2_at_lodge2", up.get("variation") == 1 and g == 10000 and "Tier 2" in status,
-                  f"buildup {up.get('ok')} -> {up.get('variation')}, {w!r} {req!r}, gold 60000 -> {g}, {status!r}")
-        self.flag("gp_tier3_needs_lodge3", g3 == 200000 and req3 == "Requires Hunter Lodge Tier 3", f"lodge 1: {req3!r}, gold 200000 -> {g3}")
-        up = self.lodge_up()
-        self.vendor()
-        req3 = self.widget("tier3-req").get("text", "")
-        self.close_windows()
-        # not bought: the run checks are tier 2's
-        self.flag("gp_tier3_ready_at_lodge3", up.get("variation") == 2 and req3 == "Ready to upgrade!",
-                  f"buildup -> {up.get('variation')}, {req3!r}")
-
-    def gp_summon(self):
-        """goldpet s3: a missing cat: the vendor shows Summon, and Summon brings it back."""
-        c0 = self.cat()
-        d = self.gl("unitdestroy", 800, CAT)
-        time.sleep(1.5)
-        c1 = self.cat()
-        self.vendor()
-        sb = self.widget("summon-button")
-        self.vendor_press("summon-button")
-        time.sleep(2)
-        self.close_windows()
-        time.sleep(1)
-        c2 = self.cat()
-        # (no cat to start with: the town refresh lost it, which is what Summon is for)
-        self.flag("gp_summon_shown", not c1 and bool(sb.get("visible")),
-                  f"cat {len(c0)} -> destroyed {d.get('count')} -> {len(c1)}; button {sb}")
-        self.flag("gp_summon_brings_back", not c1 and bool(c2), str(c2[:1]))
-
-    def gp_run(self):
-        """goldpet s2/s3 in a run: the tier 2 cat picks materials up and follows to the next floor."""
-        self.start_floor(0)
-        self.gl("cull")
-        time.sleep(2)
-        c = self.cat()
-        self.flag("gp_cat_in_run", bool(c), str(c[:1]))
-        # a decoy first: gold the pathfinder cannot reach, nearer than the wood. The cat goes
-        # for the nearest pickup and once stood still on an unreachable one, never fetching
-        # the wood (152541); it now gives up on it after 1.5 s
-        decoy = self.unreachable(40, 85)
-        dg = self.gl("drop", "gold", 5, decoy[0], decoy[1]) if decoy else {}
-        if decoy:
-            time.sleep(0.5)
-        bad, ok, note = set(), False, ""
-        for _ in range(3):
-            sp = self.spot(100, bad)  # inside the cat's 200 px seek radius wherever it stands
-            if sp is None:
-                break
-            w0 = (self.gl("inv").get("materials") or {}).get("wood", 0)
-            d = self.gl("drop", "wood", 5, sp[0], sp[1])
-            ok = d.get("ok") and self.gone(d.get("unit"), "materials/", 10)
-            w1 = (self.gl("inv").get("materials") or {}).get("wood", 0)
-            note = f"wood at {sp[:2]}: fetched {ok}, wood {w0} -> {w1}"
-            ok = ok and w1 > w0
-            if ok:
-                break
-            bad.add(sp[2])
-        if decoy:
-            left = not self.gone(dg.get("unit"), "materials/", 1)
-            note += f"; unreachable gold decoy at {decoy} {'still there' if left else 'fetched'}"
-        self.flag("gp_tier2_picks_materials", ok, note)
-        self.next_floor()
-        time.sleep(3)
-        c = self.cat()
-        self.flag("gp_back_after_floor", bool(c), str(c[:1]))
-        self.to_town()
-
-    def gp_reload(self):
-        """goldpet s3/s2 after quitting and loading the character: the cat is back; in a run it
-        picks up an XP scroll (after the restart: the fixture's readback wants level 1)."""
-        time.sleep(3)
-        c = self.cat()
-        self.flag("gp_back_after_reload", bool(c), str(c[:1]))
-        self.start_floor(0)
-        self.gl("cull")
-        time.sleep(2)
-        bad, ok, note = set(), False, ""
-        for _ in range(3):
-            sp = self.spot(100, bad)  # inside the cat's 200 px seek radius wherever it stands
-            if sp is None:
-                break
-            x0 = self.gl("inspect", "player", "experience").get("value", 0)
-            s = self.gl("spawn", "items/pickups/exp_1.unit", sp[0], sp[1])
-            ok = s.get("ok") and self.gone(s.get("unit"), "exp_1", 10)
-            x1 = self.gl("inspect", "player", "experience").get("value", 0)
-            note = f"scroll at {sp[:2]}: fetched {ok}, xp {x0} -> {x1}"
-            ok = ok and x1 != x0
-            if ok:
-                break
-            bad.add(sp[2])
-        self.flag("gp_tier2_picks_xp_scroll", ok, note)
-        self.to_town()
 
 
 def run(p, sections="", **_):

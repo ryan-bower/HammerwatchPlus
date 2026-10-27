@@ -46,8 +46,7 @@ namespace HWP
 			return null;
 		}
 
-		// the vanilla pet (a MiniPet our pet units make) the record has out, or "":
-		// external pets like the Gold Collector make their own units and are not dyed
+		// the vanilla pet (a MiniPet our pet units make) the record has out, or ""
 		string DyeablePetId(PlayerRecord@ rec)
 		{
 			if (rec is null || rec.pet is null || rec.pet.m_unit is null)
