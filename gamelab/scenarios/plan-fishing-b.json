@@ -3,7 +3,9 @@
  "about": "Test plan through the plan_fishing bot: fishing s5 (a wielded fish's swing takes a dummy's HP on Bandit Keep floor 0), fishing s10 (run_chance 100: the floor's fishing spot beside a well, no bait, three catches with loot and floor-level fish reeled through the window's own bar, the 4th cast refused).",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",

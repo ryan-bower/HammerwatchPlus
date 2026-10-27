@@ -1,4 +1,4 @@
-"""The Luck stat (mods/core/scripts/HWP/Core/Luck.as, docs/design/luck.md, scenario
+"""The Luck stat (mods/hwplib-luck/scripts/HWP/Core/Luck.as, docs/design/luck.md, scenario
 fix-core-luck), in town as the host:
 
 - `hwp luck 50` (cheat): the status line reads `Luck: 50 (factor 1.5`.

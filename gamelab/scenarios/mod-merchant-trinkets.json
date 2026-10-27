@@ -3,7 +3,9 @@
  "about": "mods/keys General Merchant Trinkets tab: the exit guard's shop (spawned beside the player: the fixture town has no north exit yet) shows Keys (4 keys + bag slot) and Trinkets (6) tabs; two bought trinkets are packed (not in the town bag) and handed over when the next run's first level starts; after the run (cht_finish_level) the stock rerolls to 6. Then no script errors in our files.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "keys"
  ],
  "timeout": 240,

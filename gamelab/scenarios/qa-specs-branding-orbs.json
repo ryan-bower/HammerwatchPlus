@@ -1,7 +1,7 @@
 {
   "name": "qa-specs-branding-orbs",
   "about": "Combustion all3 actual damage/radius/spend, Proliferation all3 spread-boundary real damage, Empowerment all3 actual1/5/10-stack fire multipliers plus native HP damage. Max legal four-orb/two-transferred-brand combination checks Empowerment before shared Essence spend. Elite/boss Released Essence payouts remain separate.",
-  "fixture": "town-paladin", "mods": ["core", "classes", "specs"], "timeout": 600,
+  "fixture": "town-paladin", "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs"], "timeout": 600,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},
     {"do": "bot", "bot": "qa_specs_branding_effects", "kwargs": {"section": "orbs"}, "expect": {"brand_orbs_lane": true, "branding_orbs_measured": true}},

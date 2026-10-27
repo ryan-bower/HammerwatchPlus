@@ -1,7 +1,9 @@
 {
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "weapons"
   ],
   "timeout": 900,

@@ -3,7 +3,9 @@
  "about": "mods/colors tints real projectiles (class_swaps, not the ignored info.xml classmaps): hwp colors contrast, a spawned undead guard sentry shoots its crossbow at the player (god mode), and the first tinted shot is logged as enemy #ff5959. Then no script errors in our files.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "colors"
  ],
  "timeout": 150,

@@ -3,7 +3,9 @@
  "about": "One pistol for either hand: two pistols picked up and clicked in the bag go to the main hand and then the off hand (the off-hand twin); Reload's cast shows the reloading icon; holding the trigger through a reload says nothing, a fresh click while reloading warns once. Unequipped, the off-hand pistol is a main-hand pistol in the bag again, and goes back on the off hand.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 150,

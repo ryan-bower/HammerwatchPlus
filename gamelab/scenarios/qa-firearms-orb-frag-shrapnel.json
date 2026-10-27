@@ -3,7 +3,9 @@
   "about": "Frag Shrapnel ranks1?3 actual armor reduction on armor1000/resist0 QA fixture: natural grenade, timed native debuff and forced-crit natural rifle burst HP damage, three fixed controls/trials each.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

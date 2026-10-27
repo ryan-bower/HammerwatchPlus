@@ -1,4 +1,4 @@
-"""Gold pickups by amount (mods/core items/materials/gold.unit, scenario fix-gold-sprites):
+"""Gold pickups by amount (mods/hwplib items/materials/gold.unit, scenario fix-gold-sprites):
 
 - 15 drops (gl drop: Material::DropMaterial, the call loot makes) at each tier's first amount,
   in a 5 x 3 grid below the player: bronze, silver and gold rows, coin then piles 1-4 from the

@@ -2,7 +2,7 @@
 
 Floor objectives for generated dungeon floors (bugs 10.22.26 line 46): locked
 loot vaults opened by a switch elsewhere on the floor, and the way down sealed
-until the floor's exit switch is pressed. Requires `core`. Never on boss
+until the floor's exit switch is pressed. Requires `hwplib`. Never on boss
 floors or in town: those levels are authored (no `DungeonGenerator`), and the
 generation command only runs on indoor generated floors (forest brushes are
 skipped).

@@ -1,6 +1,6 @@
 {
   "id": "deathrecap",
-  "requires": ["core"],
+  "requires": ["hwplib"],
   "overrides": [],
   "exclude": []
 }

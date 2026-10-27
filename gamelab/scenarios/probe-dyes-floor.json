@@ -3,7 +3,9 @@
  "about": "Where floor dyes come from: on a fresh floor (nothing opened), how many dye bucket units (items/dyes/dye_bucket_*.unit) and chest / cache units the whole level holds (querycmp levelType, FetchAllUnitsOfType). In the pinned SDK the buckets appear only in the chest_* and cache_* loot tables (tweak/loot/chests.sval). First bandit keep floor, then the crypt mission's first (temple) floor.",
  "fixture": "mission-ranger",
  "mods": [
-  "core"
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui"
  ],
  "timeout": 420,
  "steps": [

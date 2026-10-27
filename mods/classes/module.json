@@ -1,6 +1,6 @@
 {
   "id": "classes",
-  "requires": ["core"],
+  "requires": ["hwplib", "hwplib-classui"],
   "overrides": [],
   "exclude": [],
   "local_overlay": "hoh1art/"

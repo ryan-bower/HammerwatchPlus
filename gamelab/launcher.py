@@ -62,7 +62,8 @@ def mods_version() -> dict:
     return out
 
 
-def preflight(mode: str, accept_drift: bool = False, mods: list[str] | None = None) -> tuple[list[str], list[str]]:
+def preflight(mode: str, accept_drift: bool = False, mods: list[str] | None = None,
+              packages: list[str] | None = None) -> tuple[list[str], list[str]]:
     errors = [f"saves: {p}" for p in saves.confirmation_problems()]
     if errors:
         return errors, []
@@ -75,7 +76,14 @@ def preflight(mode: str, accept_drift: bool = False, mods: list[str] | None = No
         sys.exit(pin_build.EXIT_BUILD_MISMATCH)
     if mism:
         print("BUILD DRIFT accepted for this run:", "; ".join(mism))
-    problems = env.link(fix=True, mods=mods)
+    if packages:
+        # the packages as players get them: built from this tree now, without local content
+        r = subprocess.run([sys.executable, str(REPO / "tools" / "build.py"), *packages], cwd=REPO,
+                           capture_output=True, text=True)
+        if r.returncode:
+            errors.append("tools/build.py " + " ".join(packages) + ": " + (r.stderr or r.stdout).strip()[-400:])
+            return errors, mism
+    problems = env.link(fix=True, mods=mods, packages=packages)
     errors += [f"env_link: {p}" for p in problems]
     gl = env.environments()["gamelab"]
     user_data = Path(gl["user_data"].replace("<repo>", str(REPO))).resolve()
@@ -125,7 +133,7 @@ def run(scenario_name: str, mode: str, accept_drift: bool = False, wait: float =
         print("REFUSED", e)
         return lock.EXIT_REFUSED
     try:
-        errors, drift = preflight(mode, accept_drift, scenario.get("mods"))
+        errors, drift = preflight(mode, accept_drift, env.expand_mods(scenario.get("mods")), scenario.get("packages"))
     except BaseException:
         lock.release(scenario_name, [])     # nothing ran (e.g. the build gate's exit 3)
         raise

@@ -3,7 +3,9 @@
   "about": "QA-only focused native movement/neutral/return and two fixed real pistol presses, exact per-step input_done timestamps, actual CLIP/HP and release across console RPCs; mandatory protocol control before any cancellation claim.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

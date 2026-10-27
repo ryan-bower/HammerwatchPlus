@@ -18,7 +18,7 @@ instead (Skill.Activate as the helper calls it, the cooldown cleared first), so 
 wait out each variant's cooldown.
 
 The game has three skill buttons: vanilla GetSkillInput (PlayerTargetingHelper.as:744-749)
-gives the third and every later active spell Skill3. Core's extra skill keys (mods/core,
+gives the third and every later active spell Skill3. The library's extra skill keys (mods/hwplib,
 SkillKeys.as) give the 4th to 6th their own key, which `gl input` holds as hwp_skill4..6.
 Reload and frag hold Skill1 and Skill2; a specialization's active is the 3rd (Skill3).
 `<spec>_own_buttons`: the finished doctrine has a button per active skill (`gl skillbar`), and

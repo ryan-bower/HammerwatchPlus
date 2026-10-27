@@ -3,7 +3,9 @@
   "about": "All3 WarDrum qualities:4 actual Standard raises/plants each, actual target Weakness lifetime identifies each incremental tier and quality cap, followed by natural expiry. Enemy outgoing attack damage UNTESTED.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "classes",
     "specs"
   ],

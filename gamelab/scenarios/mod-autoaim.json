@@ -2,7 +2,7 @@
  "name": "mod-autoaim",
  "about": "Auto aim (mods/autoaim, on core's aim hooks HWP/Core/Aim.as) through the fix_autoaim bot, in town as a ranger with a target dummy 80 px south, on the mouse path (autoaim.mode 2; the lab has no gamepad): holding Skill 1 fires Marked Shot at the dummy by itself (auto fire); with auto fire off the reticle snaps onto the dummy and nothing fires; a 90 degree cone pointed north does not pick the dummy and pointed south does; with nothing pressed the ready Marked Shot casts itself at the dummy (auto skill); mode off does neither; the Plus tab shows the four rows (with colors and weaponswap loaded, all nine rows fit) and its mode row cycles the setting. Shots: autoaim-snap, autoaim-options.",
  "fixture": "town-ranger",
- "mods": ["core", "autoaim", "colors", "weaponswap"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "autoaim", "colors", "weaponswap"],
  "timeout": 240,
  "steps": [
   {"do": "console", "line": "e_cheats 1"},

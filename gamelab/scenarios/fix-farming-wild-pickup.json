@@ -3,7 +3,9 @@
  "about": "Fix (farming): wild plots on run floors could only be picked by the host (HWPWildPlot.CanInteract wanted player.local, false on the host for a client's record, so UseUnitSecure refused every client). The pick now goes through the host: farm.wild_pick -> the host checks the plot per (peer, unit) -> farm.wild_yield (the picker's wares and seeds; the plot hidden for that player only, so every player harvests each plot once, as the game's own ore and gold pickups). Single player drives the whole path on the host on a debug plot (hwp farm wild cabbage + wild pick): asked, granted, harvested, hidden for the picker, a second pick refused. The two-machine check is manual (mods/farming/README.md test 10).",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "farming"
  ],
  "timeout": 400,

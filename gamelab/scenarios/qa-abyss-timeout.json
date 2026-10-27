@@ -2,7 +2,7 @@
   "name": "qa-abyss-timeout",
   "about": "Standalone Abyss dependency closure: real first wave and living frozen pack, native two-minute timeout, actual crack disappearance and no new loot. Controlled god/cull/timescale measurement only.",
   "fixture": "town-paladin",
-  "mods": ["core", "abyss"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "abyss"],
   "timeout": 300,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},

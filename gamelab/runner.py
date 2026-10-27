@@ -997,7 +997,8 @@ class Run:
             fixture = self.materialize(self.scenario["fixture"])
             out["fixture"] = {k: fixture[k] for k in ("name", "cache_key", "cache")}
             # mods under test: enabled on top of the fixture's set, in this run's copy of the save
-            extra = list(self.scenario.get("mods", []))
+            extra = env.expand_mods(self.scenario.get("mods", []))   # + what they require
+            extra += env.package_ids(self.scenario.get("packages"))   # built packages: id = file stem
             if extra:
                 hps.enable(hps.current_save(0, env.GAME / "saves"), fixture["recipe"]["binary_edits"]["enable_mods"] + extra)
                 out["mods_under_test"] = extra

@@ -3,7 +3,9 @@
  "about": "Look only (timescale 0.1): the held-only guns (HWPFirearmsHoldModel) for Rocket Launcher, the Fat Boy and Quad orbs and Sniper Shot, the off hand hidden while one is out, the gear's models back after; plus the damage numbers of one rifle round and one Glock round through four wolves in a row (rifle 100/50/25%, Glock one hit). Not evidence of play.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 420,

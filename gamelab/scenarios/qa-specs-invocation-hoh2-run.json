@@ -3,7 +3,9 @@
   "about": "Legal level20 invocation build: authored two starting fourth-spec skills rank1, native requirements, source-matched common20 weapon/four seeded rare20 armor/emptyback/primary57. Five actual1x god-off native Bandit Keep floors, boss/reward/portal and exact build, bag, native progressed level through town/save/load and separately controlled death. No skillpoint grants or ordinary teleport/cull/direct kills/resource setters. Native primary combat is compatibility evidence; individual fourth-spec active ordinary casts, acquisition/tooltips/orbs remain UNTESTED. Native skillFree must remain nonnegative and bonusSkillPoints exactly0; every restart compares exact persisted actual free points, permitting legitimate level progression.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

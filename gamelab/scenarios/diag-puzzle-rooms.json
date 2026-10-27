@@ -3,7 +3,9 @@
  "about": "Diagnosis: with puzzles.room_chance 100 and puzzles.debug_grid 1 (set on floor 1, so floors 2-7 generate with them), what the Dark Citadel's floors do with a puzzle room (log 'puzzles: <set> rolled (100%): ...', grids dumped). Not evidence of play; puzzles.debug_force 1 so every dungeon floor takes the forced path.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "puzzles"
  ],
  "timeout": 900,

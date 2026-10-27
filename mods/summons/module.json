@@ -1,6 +1,6 @@
 {
   "id": "summons",
-  "requires": ["core"],
+  "requires": ["hwplib"],
   "overrides": [],
   "exclude": []
 }

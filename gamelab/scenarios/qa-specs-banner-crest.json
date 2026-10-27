@@ -3,7 +3,9 @@
   "about": "All3 FearedCrest qualities:3 fixed natural main-attack baseline controls and3 fixed trials per quality, real HP per native hit, numeric critical evidence, actual Vulnerability aura and natural Standard expiry.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "classes",
     "specs"
   ],

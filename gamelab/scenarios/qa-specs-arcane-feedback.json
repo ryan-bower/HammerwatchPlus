@@ -2,7 +2,7 @@
   "name": "qa-specs-arcane-feedback",
   "about": "DRAFT, unrun: Arcane Feedback qualities1/2/3 bank actual enemy-attributed pure150 damage to caps50/80/120; actual native elemental casts consume the bank; exact15k targetHP demonstrates1.25/1.40/1.60 damage and natural3s reversion. Zero other Arcane orbs. Controlled fixture, not ordinary play, Blink-skip or true teammate coverage.",
   "fixture": "town-paladin",
-  "mods": ["core", "abyss", "architect", "bufftips", "campaign", "chatlinks", "classes", "colors", "deathrecap", "droptrade", "farming", "firearms", "fishing", "gambler", "groupcombo", "keys", "laststats", "legacy", "maps", "mercenary", "pets", "puzzles", "specs", "stash", "strongbox", "summons", "valuables", "wavemode", "weapons", "weaponswap"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "abyss", "architect", "bufftips", "campaign", "chatlinks", "classes", "colors", "deathrecap", "droptrade", "farming", "firearms", "fishing", "gambler", "groupcombo", "keys", "laststats", "legacy", "maps", "mercenary", "pets", "puzzles", "specs", "stash", "strongbox", "summons", "valuables", "wavemode", "weapons", "weaponswap"],
   "timeout": 420,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},

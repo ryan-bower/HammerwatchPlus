@@ -1,7 +1,8 @@
 {
   "id": "farming",
   "requires": [
-    "core"
+    "hwplib",
+    "hwplib-luck"
   ],
   "overrides": [
     "actors/npcs/town/npc_misc_farmer_man.unit"

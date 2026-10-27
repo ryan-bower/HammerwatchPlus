@@ -1,12 +1,13 @@
 # Module conventions
 
 Each module is a folder `mods/<id>/` that is itself a valid unpacked HoH2
-mod (`info.xml` at the root). `tools/build.py` packs it to `dist/HWP-<id>.bin`.
+mod (`info.xml` at the root). Players get them as Steam Workshop packages, not one by one
+(see Packages below).
 
 ```
 mods/<id>/
   info.xml                      name / author / description
-  module.json                   build metadata: requires, overrides, exclude, local, local_only
+  module.json                   build metadata: library, requires, overrides, exclude, local, local_only
   README.md                     the feature spec: what it does, how to test it
   scripts/HWP/<Feature>/*.as    all code under scripts/HWP/ to avoid base collisions
   res/language/english/hwp_<id>.lang
@@ -14,6 +15,43 @@ mods/<id>/
   tweak/hwp/<id>_*.sval
   actors/..., items/..., prefabs/...   new units/data, never same path as a base file
 ```
+
+## Packages
+
+There is no core mod. The shared code is a library in the repo, split into parts, and every
+package carries a copy of the parts its mods need:
+
+| Library part | Holds | Carried by |
+|---|---|---|
+| `hwplib` | the plumbing (log, net, save data, settings, the `hwp` command and cheats, town units, the wares market, materials sections, gear slots, item actions, the Plus tab, targeting and aim hooks, custom stats, room carving, the spawner), the generator safety net, the bag size (`HWP::Bag`, no shop), the Luck views (`HWP::LuckView`), `character.gui`, `playermenu.gui`, `Modifications.as`, `messages.net`, the theme overrides | every package |
+| `hwplib-luck` | the Luck stat (`HWP::Luck`, `LuckFloors.as`, the `RewardSpot.as` and `BlueprintBank.as` overrides, the Luck gear affixes, trinket and buff) | packages whose mods read Luck: Co-op, Keys, Dungeon, Town |
+| `hwplib-classui` | the create-character class list (`HWP::HideClass`, the `CreateCharacterClass.as` override) and the Subclass Picker's skill row (`HWP::SubclassPick`) | Firearms, Specs, Classes |
+
+A library part has `"library": true` in `module.json` and is never a package of its own.
+A mod `requires` the parts it uses (and only mods of its own package); `tools/build.py` packs
+`dist/HWP-<package>.bin` from the package's mods plus everything they require, transitively,
+and stops when a package would need a mod of another package. `packages.json` (repo root)
+lists the packages, their Workshop names and descriptions, the all-in-one pack
+(`dist/HammerwatchPlus-All.bin`, every package) and the bench (modules never shipped).
+
+Why copies work: the game keeps one file per path across all enabled mods, the first mod's,
+and two mods shipping the same path load fine; the engine only logs one
+`Resource name hash conflict` ERR per shared path (`docs/RE_NOTES.md`, "2026-10-26: one path,
+two mods"; pair scenarios allow that line). Every package of one build carries byte-identical library files, so whichever
+copy wins is the same code. Two rules keep packages of different builds working together:
+
+- **The library only grows.** Never remove or change the signature of a library function,
+  class, interface method or lang key a released package may call; add new ones beside it.
+- **Publish every package together** from one build. Each package carries the library stamp
+  (`HWP::LIB_STAMP`, a hash of all library parts, generated) and a check module that logs
+  `[HWP:core] package HWP-<id>, library <stamp>`, or an error when the loaded stamp is
+  another build's.
+
+A part reaches what another part holds only through an interface the other registers (the
+character screen's Luck cell asks `HWP::LuckView`, which `hwplib-luck` fills; without it the
+cell hides). GameLab scenarios list `packages` to load the built .bin files
+(`pkg-<id>`, `pkg-all`, `pkg-pair-*`, written by `tools/make_package_scenarios.py`); a
+scenario's `mods` get their required parts enabled with them.
 
 ## Rules
 
@@ -39,7 +77,7 @@ mods/<id>/
 9. **Per-level setup** goes in `Start(StartMode)` of `HWP::ModuleStart`
    (`class X : Module, HWP::ModuleStart`), never in `Module::Load`: the engine
    skips `Load` whenever a level starts without a save (StartMode StartGame,
-   e.g. a new profile's first town). Core's `GameModeStart` hook calls `Start`
+   e.g. a new profile's first town). hwplib's `GameModeStart` hook calls `Start`
    on every gameplay level, after the host spawned its players. Script
    globals reset with every level; what must happen before `PostStart` (or
    while the scene loads) goes in the module constructor, which runs once per
@@ -84,10 +122,10 @@ with `--with-local`, `hoh1art/players/hwp/thief/icons.png` is packed as
 it (and in unpacked dev links) the placeholders are used.
 
 **Beta-only content.** A `local_only` module with `beta_into: "<host>"` (the
-`holylocal` module, the Priest without the Celestial Ruins DLC, into `core`)
+`holylocal` module, the Priest without the Celestial Ruins DLC, into `hwplib`)
 is never built on its own: `build.py --beta` (`deploy.py modded-prod --beta`)
-packs its files into the host's `.bin`, so a beta tester enables only the
-usual modules, and a build without `--beta` never carries them. Verified by
+packs its files into every package that carries the host, so a beta tester enables only the
+usual packages, and a build without `--beta` never carries them. Verified by
 `mod-holylocal-priest` (the Priest offered, selected and created in character
 creation with holylocal) and `mod-holylocal-priest-control` (no Priest without).
 
@@ -101,7 +139,10 @@ in a 2-player lobby for anything networked.
 
 | id | Feature | Notes |
 |---|---|---|
-| `core` | shared library, the `hwp` console command (and `hwp` copies of the vanilla cheats), host-synced settings (`HWP::Settings::Sync(prefix)`), wares registry (`HWP::Market`, `hwp wares`, `hwp sell`; a second currency a module registers with `SetCurrency`), two untitled materials-tab sections modules fill (`HWP::Materials::Title` / `Register(section, order, id, material)`), settings-backed town doodads (`HWP::Town::Placeable`), pack spawner (`HWP::Spawner`), level generation safety net (`HWPOutdoorGenerator`), the local player's targeting helper with skill input and aim hooks (`HWPTargetingHelper` swapped into `Player.m_targetHelper`, `HWP::TargetHelper`, `HWP::Aim`), Subclass Picker skill row by skill type (`HWP::SubclassPick`, the open vanilla window patched in place) | overrides `GUI/PlayerMenu/Modifications.as` (one line: `AppendSkillDesc` fills a skill description's `%param%` tokens from the level 1 values when there is no player actor, the create-character tooltips from the main menu), `system/messages.net` and the five outdoor `tweak/missions/themes_*` files (one line each: `gen-class`) |
+| `hwplib` | library (see Packages): the `hwp` console command (and `hwp` copies of the vanilla cheats), host-synced settings (`HWP::Settings::Sync(prefix)`), wares registry (`HWP::Market`, `hwp wares`, `hwp sell`; a second currency a module registers with `SetCurrency`), two untitled materials-tab sections modules fill (`HWP::Materials::Title` / `Register(section, order, id, material)`), settings-backed town doodads (`HWP::Town::Placeable`), pack spawner (`HWP::Spawner`), level generation safety net (`HWPOutdoorGenerator`), the local player's targeting helper with skill input and aim hooks (`HWPTargetingHelper` swapped into `Player.m_targetHelper`, `HWP::TargetHelper`, `HWP::Aim`), the bag size (`HWP::Bag`) and the Luck views (`HWP::LuckView`) | overrides `gui/playermenu/character.gui`, `playermenu.gui`, `GUI/PlayerMenu/Modifications.as` (the Luck row through `HWP::LuckView`, and `AppendSkillDesc` filling a skill description's `%param%` tokens from the level 1 values when there is no player actor), `system/messages.net` and the five outdoor `tweak/missions/themes_*` files (one line each: `gen-class`) |
+| `hwplib-luck` | library: the Luck stat (`HWP::Luck`), its floor effects (`LuckFloors.as`) | overrides `WorldScript/RewardSpot.as`, `BlueprintBank.as`; `tweak/hwp/*_luck.sval`; `hwp luck` |
+| `hwplib-classui` | library: classes left out of the create-character list (`HWP::HideClass`), the class list fitted to 7, the Subclass Picker skill row by skill type (`HWP::SubclassPick`, the open vanilla window patched in place) | overrides `GUI/CreateCharacter/CreateCharacterClass.as` |
+| `mapicons` | a dye-pot marker on the minimap over every dye bucket of a floor | `doodads/hwp/map_icon_dye.unit` (the icon is in hwplib's `gui/hwp/map_icons.png`); setting `mapicons.dyes` |
 | `gambler` | Higher/Lower card game NPC, wares buyer, gear reroll (2000 g x ilvl, `Equipment::Generator::ModifyItem`), bet tokens (`Tokens.as`: per character `bet_tokens`, the market's currency, `hwp tokens` cheat) in the Supplies section | |
 | `droptrade` | drop equipment for friends (Drop hint/button + raw Q key next to vanilla Destroy); the use key picks up a floor item before an NPC (`PickupFirst.as`: the local usables re-sorted every frame) | overrides `GUI/PlayerMenu/Character.as`, `GUI/Widgets/EquipmentItemWidget.as` |
 | `laststats` | last run's stats on a town notice board: every player on one page, bars per stat, search field | `hwp laststats [sample|board]` |
@@ -118,21 +159,21 @@ in a 2-player lobby for anything networked.
 | `groupcombo` | party-wide combo bonus + unity invulnerability; the combo orb drop from breakables | `tweak/hwp/buffs_groupcombo.sval`, `items/hwp/combo_orb.unit`, settings `groupcombo.orb.permille` (1) and `groupcombo.orb.max_permille` (10) |
 | `weaponswap` | second weapon set on a hotkey (rebind in the player menu's Plus tab) | `hwp swap`, `hwp swapkey` |
 | `puzzles` | puzzle rooms placed again (one `<biome>_puzzle` SpawnPrefabSet per dungeon generator, `puzzles.room_chance` %, default 60; forced onto the outskirts with a carved corridor when no spot matches; none on outdoor floors), HoH1 Constellation in the big rooms' picks (`puzzles.constellation` weight, default 10) | `HWP::Puzzles::PuzzleRoomSpawn : SpawnPrefabSet` added to `MissionDef` generators in the module ctor; overrides `WorldScript/Prefabs/PrefabPicker.as`; prefab generated by `tools/make_constellation.py` |
-| `objectives` | floor objectives on generated indoor floors: a locked loot vault (`prefabs/hwp/objectives/vault_s.pfb`, carved into an outskirts wall block with a corridor, `doodads/hwp/objective_door.unit`) opened by a lever far away, the way down sealed (`SetEnabled(false)` on every `LevelExitArea*`/`LevelExit*` world script, retried 3 s on the keep) until the exit lever; HUD lines; `objectives.opened/state` sync | `HWPObjectiveSpawn : DungeonGenerationCommands` added after each generator's shrine set; settings `objectives.vaults` (0-2), `objectives.exit`; `hwp objectives [open]`; requires `core` |
+| `objectives` | floor objectives on generated indoor floors: a locked loot vault (`prefabs/hwp/objectives/vault_s.pfb`, carved into an outskirts wall block with a corridor, `doodads/hwp/objective_door.unit`) opened by a lever far away, the way down sealed (`SetEnabled(false)` on every `LevelExitArea*`/`LevelExit*` world script, retried 3 s on the keep) until the exit lever; HUD lines; `objectives.opened/state` sync | `HWPObjectiveSpawn : DungeonGenerationCommands` added after each generator's shrine set; settings `objectives.vaults` (0-2), `objectives.exit`; `hwp objectives [open]`; requires `hwplib` |
 | `stash` | Sort button on the town stash (class > slot > weapon family > ilvl) | overrides `gui/player_stash/player_stash.gui`; widget producer `hwp-stash-sort` |
 | `keys` | every chest locked (key per tier), ace chests, key drops, exit guard General Merchant (keys, bag slots, Trinkets tab: 6 trinkets packed for the next run), legendaries, "the chest was trapped" announce to everyone (`Trapped.as`, `tweak/hwp/announce_keys.sval`), alt-art chests by area (`ChestArt.as`) | class swap `Chest` -> `HWPChest`, `scene_art` `tweak/hwp/chest_art.sval` (art scenes in the generated chest units); `tweak/hwp/legendaries.sval`; `hwp keys`, `hwp chestart` |
 | `firearms` | Firearms Specialist class (3 subclasses, rifles) | pure data via `PlayerClass`/`ItemSkillDef`/`BaseItem` loaders; `hwp firearms` |
-| `fishing` | town fishing minigame, in-run fishing holes | `tweak/hwp/loot_fishing.sval`; wares via core `HWP::Market` (fish sell for the gambler's tokens, or gold without it); bait in materials section a; `hwp fishing` |
+| `fishing` | town fishing minigame, in-run fishing holes | `tweak/hwp/loot_fishing.sval`; wares via hwplib `HWP::Market` (fish sell for the gambler's tokens, or gold without it); bait in materials section a; `hwp fishing` |
 | `farming` | plots on the town's onion / wheat field grooves, watering can + farm well (watered = 2x growth), farmer shop (can, upgrades, seeds), seeds back on harvest, Holy Herb strains + next-run buffs | host-owned state in the TownRecord, `farm.sync`; overrides `npc_misc_farmer_man.unit`; `tweak/hwp/buffs_herbs.sval`; `hwp farm`, `hwp smoke` |
 | `weapons` | 12 new weapons via `Equipment::BaseItem::LoadMultiple` | `tweak/hwp/equipment_weapons_hwp.sval`; `hwp weapons` |
-| `strongbox` | strongbox chests: pack spawns on open, loot on clear | `HWPStrongbox : Chest`, `HWP::Spawner` (core); `tweak/hwp/loot_strongbox.sval`; `hwp strongbox` |
+| `strongbox` | strongbox chests: pack spawns on open, loot on clear | `HWPStrongbox : Chest`, `HWP::Spawner` (hwplib); `tweak/hwp/loot_strongbox.sval`; `hwp strongbox` |
 | `abyss` | abyss cracks: waves + elites by party size, reward on clear by floor diff-level (3 tiers) | `HWP::Spawner`; `tweak/hwp/loot_abyss.sval`; `hwp abyss` |
 | `valuables` | valuables pay `valuables.gold_mult` (2) x their vanilla gold | sets `Item::Valuable.m_price` from the kept vanilla price; `hwp valuables [drop <id>]` |
 | `trinkets` | NG+ scaling of flat trinket bonuses (the Trinket Map verdicts); 37 HoH1 trinkets, 8 new sets, bigger Emblems of Hermes and Apothecary sets, Trader's Coin shop discount (`HoH1.as`) | class swap `TrinketShopShopContent` -> `HWPTrinketShopContent`; `tweak/hwp/trinkets_hoh1.sval`, `buffs_trinkets_hoh1.sval`, `trinket_sets_hoh1.sval` (cumulative tiers, merge off), `trinket_sets_vanilla.sval` (patched into `Item::TrinketSet` at load); `hwp trinkets hoh1`, `hwp trinkets set <id>`; NG+ scaling: rebuilds `Item::Trinket.m_modifiers`/`m_modifiers2` from a patched copy of the trinket's sval dict when `int(g_ngp + 0.5)` changes (`LoadIModifiers`, SyncVerb::Trinket), patched `m_desc1`/`m_desc2`; proc damage in unit files scaled by an `intensity-mul` EffectListMod first in the trigger's effects; Arctic Step through `HWPTrinketNGBuff : Modifiers::Buff`; setting `trinkets.ngp_scaling`; `hwp trinkets [show <id> \| ng <n>]` |
 | `tavern` | tavern levels 4-6 (1/4, 2/4, 3/5 food/drink slots) | overrides `tweak/town/buildings/tavern.sval`, `scripts/Missions/MissionFoods.as` (food list, save `foods` array) |
 | `waygates` | Way Gates: a gate in the town square and one per built building, menu of every gate, teleport | no overrides; host spawns `doodads/hwp/hwp_waygate.unit` (`HWPLocalNPC`, interact `HWPWayGateShop`) 800 ms after town load and again after a town reload; building cells from the base segment's placed prefabs (the `SpawnTown` walk); `UnitTeleported`; settings `waygates.enabled`, `waygates.square_x/_y`; `hwp waygates [go <n>]` |
 | `roulette` | lobby-wide single-zero roulette (157 bets, true odds, payout raised by Luck + gold find), wheel on a tavern hall table | no overrides; host runs the rounds (`roulette.state` broadcast, `roulette.stake`/`hello`/`spin` requests) and spawns `doodads/hwp/hwp_roulette_wheel.unit` (`HWPLocalNPC`, interact `HWPRouletteShop`) on the hall table, every machine bares that table (`SetUnitScene("default")`); widgets `hwp-roulette-board`, `hwp-roulette-strip`; setting `roulette.max_stake`; `hwp roulette [bet/clear/spin]` |
-| `autoaim` | auto aim / auto fire / auto skill for TargetAOE skills; controller by default, mouse optional | no overrides; core aim hooks `HWP::Aim::OnAdjust` (reticle) and `OnPreUpdate` (fires via `HWP::Aim::FireTargeted`) from `HWPTargetingHelper`; Plus tab rows `autoaim`, `aimcone`, `autofire`, `autoskill` (core `gui/hwp/options.gui`); settings `autoaim.*`; `hwp autoaim` |
+| `autoaim` | auto aim / auto fire / auto skill for TargetAOE skills; controller by default, mouse optional | no overrides; hwplib aim hooks `HWP::Aim::OnAdjust` (reticle) and `OnPreUpdate` (fires via `HWP::Aim::FireTargeted`) from `HWPTargetingHelper`; Plus tab rows `autoaim`, `aimcone`, `autofire`, `autoskill` (hwplib `gui/hwp/options.gui`); settings `autoaim.*`; `hwp autoaim` |
 | `maps` | 3 extra `equipment_map` missions | `tweak/hwp/missions/*.sval` (`MissionDef::LoadSingle`); `hwp maps` |
 | `mercenary` | HoH1 mercenary mode: `hwp merc enlist` (fresh level-1 character, a level-20 veteran of the class; starts at `mercenary.start_level`, default 10), HoH1 prestige (floors, boss floors, NG+²) and ranks (+15% gold and XP per rank), permadeath (on death, or on a failed run with `mercenary.revivable`), ledger of the fallen | `PlayerRecordRefreshModifiers` hook adds `Modifiers::MaterialGain` + `Modifiers::Experience`; fallen check in `ModuleStart`/`UpdateFrame`; picker via `GlobalCache main_pick_character`; `merc.fallen`/`merc.boss` host relays |
 | `summons` | Crusaders persist across floors (snapshot `SaveUnit()`, re-produce on `GameModeSpawnPlayer`) | hooks `GameModeSpawnPlayer`; settings `summons.enabled/all`; `hwp summons` |
@@ -140,4 +181,4 @@ in a 2-player lobby for anything networked.
 | `devarena` | dev only, GameLab env: the Dev Arena overlay (F1 dock; Tune tab: per-level cells, growth curves, FEEL fields, A/B versions with undo, pins; Loadout tab: 74 presets applied in place, inline edits, variants, favorites; Arena tab: cheats, brush placement, encounters, reset/reload, state through the town save; Golem tab: F4 room, pulls with a per-skill breakdown; Bench tab: A/B pulls with a noise verdict and a CSV; Compose tab: new skills from existing actions; [Relaunch] for REFS edits; an auto-tuner that proposes values; spec clone to `mods/spec-*`) | `docs/devarena/SPEC.md`; override file `tweak/hwp/devarena_overrides.sval` via `tools/devarena/overrides.py`; presets `tweak/hwp/devarena_presets.sval` via `tools/make_presets.py`; hooks `PlayerDamagedActor`, `TownRecordSave`/`TownRecordLoad`; `da-*` verbs |
 | `devtools` | dev only, never packaged: the old floor loader | superseded by `gamelab-hands` `mission` (`mission-enter` run 20261017-140945); deleted 2026-10-17 |
 | `wavemode` | Wave Arena survival mission (vanilla `SurvivalMission` module) + town statue, arena rank | `HWPWaveShopContent : MissionSurvivalShopContent`; hooks `PlayerKilledActor`; net `wave.bosskill`/`wave.start`/`wave.awarded`; settings `wave.enabled/rank/statue_x/statue_y`; `hwp wave` |
-| `classes` | Thief / Gladiator / Witch Hunter (3 subclasses each, 39 skills), Arena Trident, pyre unit | pure data via `PlayerClass`/`ItemSkillDef`/`BaseItem` loaders; `tweak/hwp/buffs_classes.sval`; `hwp classes`; extra skill keys 4-6 for the specs with more than three actives (`SkillKeys.as` on core's `HWP::TargetHelper` hooks, `HWPSkillKeysHUDPlayer` in the HUD, Plus-tab rows `skill4`-`skill6`, `hwp skillkeys`) |
+| `classes` | Thief / Gladiator / Witch Hunter (3 subclasses each, 39 skills), Arena Trident, pyre unit | pure data via `PlayerClass`/`ItemSkillDef`/`BaseItem` loaders; `tweak/hwp/buffs_classes.sval`; `hwp classes`; extra skill keys 4-6 for the specs with more than three actives (`SkillKeys.as` on hwplib's `HWP::TargetHelper` hooks, `HWPSkillKeysHUDPlayer` in the HUD, Plus-tab rows `skill4`-`skill6`, `hwp skillkeys`) |

@@ -1,0 +1,8 @@
+{
+  "id": "mapicons",
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [],
+  "exclude": []
+}

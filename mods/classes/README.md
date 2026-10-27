@@ -87,7 +87,7 @@ at most 3). `scripts/HWP/Classes/SkillKeys.as` gives the 4th, 5th and 6th active
 raw key: Plus tab rows `skill4`-`skill6`, settings `skillkeys.skill4`-`6`, default the 4, 5,
 6 keys (vanilla binds 1 2 3 Q E V).
 
-- It runs on core's targeting helper (`mods/core/scripts/HWP/Core/TargetHelper.as`):
+- It runs on hwplib's targeting helper (`mods/hwplib/scripts/HWP/Core/TargetHelper.as`):
   `HWP::TargetHelper::OnUpdate` polls the keys, `OnSkillInput` gives each extra skill its
   key's state. The vanilla targeting code then serves them like any skill button, and
   Skill3 fires only the 3rd.

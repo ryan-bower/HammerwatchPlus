@@ -3,7 +3,9 @@
  "about": "The fishing marker moves every frame (2026-10-25, the user's item 3: the minigame stepped, worst for the small fast fish of boss rooms). A forced 3-star coast bite (`hwp fishing tier 4`, squid) runs out; `hwp fishing smooth` reports the per-frame motion: at least 20 frames over 20 ticks, stall share <= 25 %, step coefficient of variation <= 0.5, and the smooth line is logged. The lab draws about one frame per game tick (the old code never stalled there either), so the bound bites where the frame rate exceeds the tick rate; the eye test is the user's game.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "fishing",
   "keys"
  ],

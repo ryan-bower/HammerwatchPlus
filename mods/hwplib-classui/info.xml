@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">HammerwatchPlus Library: class UI</string>
+	<string name="author">Ryan Bower</string>
+	<string name="description">The create-character class list that fits more classes and leaves parked ones out, and the Subclass Picker's skill row by type. A library part the HammerwatchPlus class packages carry.</string>
+</dict>

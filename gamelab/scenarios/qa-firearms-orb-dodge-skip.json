@@ -3,7 +3,9 @@
   "about": "Rare Dodge Reload Skip: naturally fired partial/empty solo-pistol magazines, real manual/automatic reload+dodge control and orb, native unexpired clocks/CLIP, and no refill from ordinary dodge without a reload. Local bidirectional dash-body paths/rays; no shared wide-lane dependency.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

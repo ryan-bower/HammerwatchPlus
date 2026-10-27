@@ -3,7 +3,9 @@
   "about": "Reproduce planner per-magazine Extended Clip Crit requirement using rank5 steady: a solo pistol after one natural round and dual pistols after one natural round each both have14 rounds per gun, so both must add28% crit damage. Critprobe reads live damage modifier only after real firing/clip/damage readback.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

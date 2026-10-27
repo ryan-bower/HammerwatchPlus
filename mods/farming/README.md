@@ -65,7 +65,7 @@ watered.
   as the town loads its character, in the `PlayerRecordLoad` hook) adds 1 growth, 2
   if the plot was watered since the last run: food takes 2 runs (1 watered), herbs 4 (2 watered).
   Your seeds and what you harvested show in the materials tab's **Plants &
-  Herbs** section (core `HWP::Materials` section b, which this module titles; 8 cells
+  Herbs** section (hwplib `HWP::Materials` section b, which this module titles; 8 cells
   across, seeds first, then the harvest): a cell per seed
   (`gui/hwp_seeds.png`, tooltip: growth time and yield) and a cell per
   harvested crop or herb (`gui/hwp_harvest.png`, `HWPHarvestMaterial`).
@@ -85,7 +85,7 @@ watered.
   twice before the host answers. Can tier, water and seeds are per character
   (`farm.can`, `farm.water`, `farm.seed.<id>` in the player's HWP data).
 - **Gear grid.** The watering can shows in the character screen's 3x3 gear
-  grid (bottom right, core `hwp-gear-can` slot) in its tier's colour
+  grid (bottom right, hwplib `hwp-gear-can` slot) in its tier's colour
   (`doodads/hwp/farm.png`): empty without a can (new characters start without one); the tooltip shows its name,
   water and area.
 - **Run counting.** A gameplay load outside town sets pending, the next town
@@ -103,7 +103,7 @@ watered.
   gives the next 10), and the joint burns down a stage; the fifth puff uses it
   up. **Two at once:** a second joint clicked in the bag while the off hand
   holds one goes to the main hand as its twin `hwp_joint_mh_<strain>_<n>`
-  (core's `HWP::Bag::OnEquip`, `JointEquip`; the same mesh on the right hand,
+  (hwplib's `HWP::Bag::OnEquip`, `JointEquip`; the same mesh on the right hand,
   `hwp_joint_mh_<n>.model`), and turns back into the off-hand joint in the bag
   (`UpdateTwins`). Left click puffs the main-hand joint (`hwp_joint_puff_mh`),
   right click the off-hand one; each has its own puffs, and the main-hand
@@ -143,7 +143,7 @@ watered.
   farm wild pick` harvests the last one placed) and `hwp farm herb <strain>
   [n]` (herb wares to roll joints from).
 
-- **Luck.** Every puff also gives the core Luck buff
+- **Luck.** Every puff also gives the Luck buff (hwplib-luck)
   (`HWP::Luck::GiveBuff`, `tweak/hwp/buffs_luck.sval`, 10 minutes, refreshed by the
   next puff): +10 Luck, Lucky Leaf +25 (`docs/design/luck.md`). Log:
   `[HWP:luck] buff +N for 600000 ms (herb <strain>)`.

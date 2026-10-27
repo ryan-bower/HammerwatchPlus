@@ -2,7 +2,7 @@
  "name": "fix-architect-runstart",
  "about": "The run-start screen (mods/architect: overrides of GUI/MissionLoadoutMenu.as, Missions/MissionArchitect.as, Town/MissionShopContent.as, gui/mission_loadout.gui) through the fix_runstart bot: the New Game+ row is the last row of the options and reads 'Starting on New Game+ N', the Start hint reads 'Start NG+ N', the window's key hints stay on screen (layout line logged), two architect picks are remembered, the picker's preset row saves slot 1 through the name dialog (typed 'Tanky', Enter: the field's Submit, which also releases the input lock a focused text input holds) and slot 2 through 'hwp architect preset save' (slot captions read with gl wtext, since the widgets dump truncates before the row), loading slot 1 restores both picks, Escape closes the setup (the host's Back; a client's own Back now closes its window too, which solo cannot show), the setup reopens with the same picks and NG+ 1, and Start at NG+ 1 asks 'Start this run on New Game+ 1?' before the run starts on NG+ 1. Shots: runstart-window, runstart-picker, runstart-confirm. farming is enabled for its herb line, which only shows with a smoked herb (none here), so the compact line is checked by eye in a real town.",
  "fixture": "town-paladin",
- "mods": ["core", "architect", "farming"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "architect", "farming"],
  "timeout": 420,
  "steps": [
   {"do": "console", "line": "e_cheats 1"},

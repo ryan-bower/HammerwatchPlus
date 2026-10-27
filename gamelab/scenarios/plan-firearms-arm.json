@@ -3,7 +3,9 @@
  "about": "Through the plan_firearms bot: the gun arm (rifle and pistols) stays raised after a shot and comes down 1 s after the last one, or on a dodge or a reload (Combat.as AimHold); frames of both poses.",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",

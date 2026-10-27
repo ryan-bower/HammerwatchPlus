@@ -3,7 +3,9 @@
  "about": "Check of the class damage bench itself (bench, kit, benchstats verbs; gamelab/bots/bench.py): Firearms at level 1 and 12 with 4 s benches. Not a balance measurement. Then the pierce check (gamelab/bots/pierce_check.py: neither gun pierces) on the bench character.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 1200,

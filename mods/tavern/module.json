@@ -1,6 +1,6 @@
 {
   "id": "tavern",
-  "requires": ["core"],
+  "requires": ["hwplib"],
   "overrides": ["tweak/town/buildings/tavern.sval", "scripts/Missions/MissionFoods.as"],
   "exclude": []
 }

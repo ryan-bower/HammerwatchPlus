@@ -3,7 +3,9 @@
   "about": "All ranks of Critical Focus and EpiPen, with naturally gained dodge stacks, zero/nonzero boundaries, actual gun damage and native hurt consumption; hiss timer verified but audible listening blocked. Cleared-floor fixture; fixed samples/no retries.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

@@ -3,7 +3,9 @@
   "about": "Full31 modules; all5 positive ranks through original controlled actual effect/HP/debuff/outside/scaling controls. Riposte includes rank0 plus all5 x melee/ranged/spell x incoming2/5, raw attacker HP. Position/leap casts are controlled native Skill.Activate; ordinary cursor/UI/co-op and mana/CD boundary behavior are separate. No gameplay changes.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

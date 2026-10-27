@@ -3,7 +3,9 @@
   "about": "Elemental Belt-Feed ranks1?3 actual fixed60s natural turret damage versus unchanged1000-all-element-resist highHP QA fixture; control and all samples retained.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

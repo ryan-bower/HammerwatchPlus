@@ -73,7 +73,7 @@ slots, trinkets for the next run) and red legendaries.
   the mission's second-to-last boss on it is an ace key (Bone Serpent and
   Avatar in the Dark Citadel). `hwp keys` shows the pool, the floor's locked
   chests and the budget left per tier.
-- **Luck on the floor.** The party's floor Luck (core `HWP::Luck::FloorFactor`)
+- **Luck on the floor.** The party's floor Luck (hwplib-luck `HWP::Luck::FloorFactor`)
   multiplies the budget share (still at most 95 %), weighs the budget's higher tiers up
   and multiplies the ace chance (at most 50 %, `HWP::Luck::AceChance`). A client's chest
   waits for the host's floor value (`hwp.luck.floor`) before it rolls its lock. Log
@@ -89,7 +89,7 @@ slots, trinkets for the next run) and red legendaries.
   NPCBehavior moves on to his vanilla speech bubble. Each key lists the loot
   quality of its chests. Prices `keys.price_<tier>` (500 / 2000 / 8000 /
   20000); only one ace key can be held at a time.
-  He also sells **bag slots** (core `HWP::Bag`): one more equipment bag slot
+  He also sells **bag slots** (`HWP::BagShop` in this module; the bag size is hwplib's `HWP::Bag`): one more equipment bag slot
   per purchase for the buyer's character, 1000 g rising to 20000 g, up to a
   full extra row (32 slots).
 - **Trinkets tab.** Six trinkets per character (2 common, 2 uncommon, 2 rare;
@@ -110,7 +110,7 @@ slots, trinkets for the next run) and red legendaries.
   hurt, kill-same-type, and periodic magic bolts),
   quality `Legendary`, drop-rate 0 so they only come from ace chests.
 - All `keys.*` settings are host-authoritative: clients read the host's
-  values (core `settings.sync`), so every machine rolls the same locks.
+  values (hwplib `settings.sync`), so every machine rolls the same locks.
 - HUD: left of the bottom bar, one key icon per tier you can use (party pool
   plus your own) with its count, while you can use any.
 - Commands: `hwp keys` (counts + settings), `hwp chestart`, `hwp keygive <tier> [n]`,
@@ -119,7 +119,7 @@ slots, trinkets for the next run) and red legendaries.
 Open decisions: the budget share (`keys.budget_share`), legendary balance and slots,
 whether resource caches should want keys too.
 
-- **Luck** (core `HWP::Luck`, `docs/design/luck.md`). `HWPChest::Use` rolls the
+- **Luck** (hwplib-luck `HWP::Luck`, `docs/design/luck.md`). `HWPChest::Use` rolls the
   chest's table through `HWP::Luck::SpawnLoot` at the opener's factor, once for the party (the rarer
   entries of each pool weigh more; the table is taken off the behaviour around
   `Chest::Use` and put back), which covers every reward chest, cache and puzzle

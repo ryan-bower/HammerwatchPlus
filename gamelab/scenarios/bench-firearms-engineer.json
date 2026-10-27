@@ -3,7 +3,9 @@
  "about": "Measurement (balance): bench-firearms for the Engineer only, levels 12/20/25, both builds; its rows replace the Engineer rows in gamelab/results/bench/hwp_firearms.json.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 1500,

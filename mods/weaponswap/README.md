@@ -27,7 +27,7 @@ Two weapon sets per character, toggled with a hotkey.
   character menu; the channel runs there too, so a swap clicked in the menu
   lands in it.
 - **Character screen:** the other set shows in two `hwp-gear-slot` widgets
-  (core `HWP::Gear`, ids `hwp-alt-main` / `hwp-alt-off`) next to the 3x3 gear
+  (hwplib `HWP::Gear`, ids `hwp-alt-main` / `hwp-alt-off`) next to the 3x3 gear
   grid. A two-hander's off-hand slot mirrors the main hand, dimmed. Click a
   slot (or press X) to swap; the tooltip shows the stored item or how to use it.
 - **HUD tip:** while you are empty-handed with weapons in the other set, an

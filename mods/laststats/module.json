@@ -1,6 +1,6 @@
 {
   "id": "laststats",
-  "requires": ["core"],
+  "requires": ["hwplib"],
   "overrides": [],
   "exclude": []
 }

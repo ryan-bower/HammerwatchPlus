@@ -3,7 +3,9 @@
  "about": "Wild Ember Kush plots beside the player, 12 frames in a row: the plant's pixels must not change between frames (the flicker of its three overlapping sprites, fixed in 1a41acc with a ulayer each). Compare the frames offline, around the plots.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "farming"
  ],
  "timeout": 120,

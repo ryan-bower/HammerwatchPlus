@@ -3,7 +3,9 @@
   "about": "Standalone functional subset with only required modules. Actual pet shop purchase/import listing and native pet gold pickup toggles/following; no food/dye/skill claim. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "pets"
   ],
   "timeout": 600,

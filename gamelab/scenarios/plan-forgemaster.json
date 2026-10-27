@@ -2,7 +2,7 @@
  "name": "plan-forgemaster",
  "about": "Test plan through the plan_forgemaster bot: the Devil Forgemaster (Priest 4th spec, mods/specs). forge: the character, binds, orbs, the free Divine Favor, the body rolls on the floor's deaths, a glowing body, a real-cast raise with Heresy +1 and the 20 s cooldown. penance: at max Divine Favor the cast is Sacrificial Penance (50 mana, no cooldown, Favor spent): -1 Heresy on a normal body, -2 on an elite's, -3 on a boss's at rank 1; -5 boss / -4 elite at rank 5; below max Favor the same cast raises. heresy_rules: no cast at 5 Heresy, 4 + a boss overshoots to 7, the HUD stack icon, the Heresy and the risen carry to the next floor, town resets Heresy with no risen. lunge: the forced lunge lands the priest on the body, eats it (devouring 3 s), Ravenous Lunge hits the brute beside it; randf() lands under 0.16 on 14-18% of 20000 throws; 40 bodies at 16% give 1-16 lunges and every body rolls once; none at 0 Heresy. decay: 30 s of decay takes 10%, no healing, death by decay with Rot Bloom hitting the brute, the cap of 2 kills the oldest, a Pyre's use removes 3 Heresy. bosses: every boss body raised, hits, teleports after the priest, no script errors, the 10 s channel. raise_all: every one of the raisable units (Forgemaster_Units.as) raised in turn, hits a brute within 4 s, teleports after the priest, walks with it, no script errors (the per-unit table in the notes).",
  "fixture": "town-paladin",
- "mods": ["core", "classes", "specs"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs"],
  "timeout": 3600,
  "steps": [
   {"do": "log_has", "pattern": "\\[HWP:specs\\] 7 of 7 subclasses registered", "timeout": 30},

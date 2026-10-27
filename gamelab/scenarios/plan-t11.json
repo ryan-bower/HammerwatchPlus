@@ -3,7 +3,9 @@
  "about": "Test plan through the plan_checks bot: the town portal (dormant without the story flag, then its missions (The Forsaken Tower, the HoH1 floors) with a shot of the minimap, and the Wave Arena started at the statue after [hwp wave rank 5] (the arena's NG+).",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",

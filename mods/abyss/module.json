@@ -1,6 +1,6 @@
 {
   "id": "abyss",
-  "requires": ["core"],
+  "requires": ["hwplib", "hwplib-luck"],
   "overrides": [],
   "exclude": []
 }

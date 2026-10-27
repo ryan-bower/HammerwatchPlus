@@ -3,7 +3,9 @@
  "about": "Look only (timescale 0.1, spawned missiles): the Firearms rounds and missiles in flight (rifle round, 40 mm launcher shell, rocket, then Fat Boy, Magic Missile and Quad spawned beside the player, then the smaller pistol round), and no load errors for rounds.png or the round/missile effects. Crop around (322,170) at 4-6x. Not evidence of play.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 300,

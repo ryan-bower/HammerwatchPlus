@@ -3,7 +3,9 @@
   "about": "Distinct native coincident-contact cap fixture:25 real1HP kills earn5Tailwind; fixed1400ms buff/stack observer proves0to5 acquisition with no sampled intermediate count and repeated refreshes, native measurement1400..3500ms before earliest4s expiry. Unchanged strict.0001 nominal intensity and actual185/170HP plus200controls and natural expiry. Original staggered scenario retained; no positive stack setter.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

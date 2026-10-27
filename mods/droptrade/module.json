@@ -1,6 +1,6 @@
 {
   "id": "droptrade",
-  "requires": ["core"],
+  "requires": ["hwplib"],
   "overrides": [
     "scripts/GUI/PlayerMenu/Character.as",
     "scripts/GUI/Widgets/EquipmentItemWidget.as"

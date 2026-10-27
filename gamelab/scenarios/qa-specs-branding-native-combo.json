@@ -3,7 +3,9 @@
   "about": "Three fixed0/10-Essence control pairs: ONE legal normal-button recast loops TWO actual transferred brands synchronously. Ready native cooldown/payment/native input-done, zero-defense native Actor identities, independent pinned fully-settled directFire+pool damage, shared Essence spend and full cooldown. Controlled mana/Essence/central enemy death are measurement prerequisites, not ordinary acquisition/kill evidence. No castat/cooldown-reset/positive measured proc injection. Original diagnostic FAIL retained.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

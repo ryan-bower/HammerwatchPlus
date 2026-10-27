@@ -3,7 +3,9 @@
   "about": "Every rank of Overpacked Explosives and Elemental Shrapnel using three fixed natural rockets per variant against resistance1000. Controlled cleared-floor fixture; no co-op or ordinary-run claim.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

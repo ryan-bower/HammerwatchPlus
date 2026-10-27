@@ -2,7 +2,7 @@
   "name": "qa-specs-static-native",
   "about": "Three fixed1x native-input Static Charge observations. Requires actual native targetHP/maxHP, newly created numeric critical text, real TT/MM cooldown activation, same old live orb, and per-frame stack history. No damage/event hooks; bounded crit setup outside observation.",
   "fixture": "town-paladin",
-  "mods": ["core", "classes", "specs"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs"],
   "timeout": 600,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},

@@ -3,7 +3,9 @@
  "about": "Measurement (timescale 0.2): frames through a held rifle burst to see whether the raised arm stays put across the game's per-frame animation replay (Combat.as AimHold Pin). The held/lowered log lines are asserted; the frames are judged by eye.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "abyss",
   "architect",
   "bufftips",

@@ -1,7 +1,7 @@
 """The Subclass Picker's skill row, read from a `gl widgets` dump and checked against the
 spec's skill defs (`gl classskills <classId>`, mods/gamelab-hands/scripts/GameLab/Build.as).
 
-The row is core's (mods/core/scripts/HWP/Core/SubclassPick.as): slot 0 and 1 keep the
+The row is the class-UI library's (mods/hwplib-classui/scripts/HWP/Core/SubclassPick.as): slot 0 and 1 keep the
 vanilla ids (skill-active-name, skill-passive-name), slots from 2 on are hwp-pick-name<i>,
 and every slot's type label is hwp-pick-label<i>. Without core's layout the labels have no
 id and the row reads as no slots."""

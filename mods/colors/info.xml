@@ -1,5 +1,5 @@
 <dict>
 	<string name="name">HammerwatchPlus Projectile Colours</string>
 	<string name="author">Ryan Bower</string>
-	<string name="description">Accessibility: tints enemy and friendly projectiles in distinct colours (high-contrast, deuteranopia, protanopia and tritanopia presets, or your own). Part of HammerwatchPlus; requires HWP Core.</string>
+	<string name="description">Accessibility: tints enemy and friendly projectiles in distinct colours (high-contrast, deuteranopia, protanopia and tritanopia presets, or your own). Part of HammerwatchPlus.</string>
 </dict>

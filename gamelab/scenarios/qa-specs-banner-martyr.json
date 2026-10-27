@@ -3,7 +3,9 @@
   "about": "All3 Martyr qualities: native Standard control reduces actual incoming Player.Damage; bearer loses DR under each orb and native standard expiry is observed. Real ally effect BLOCKED.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "classes",
     "specs"
   ],

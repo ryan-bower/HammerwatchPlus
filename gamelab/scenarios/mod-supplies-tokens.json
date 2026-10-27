@@ -2,7 +2,7 @@
  "name": "mod-supplies-tokens",
  "about": "Bet tokens show in the materials tab's Supplies section (mods/gambler HWPTokenMaterial, core Materials.as): 'hwp tokens 7' (cheat), then the player menu's materials sub-tab shows the hwp-mat-bet-tokens cell with count 7 (scrolled into view; the section sits below the tab's own rows).",
  "fixture": "town-paladin",
- "mods": ["core", "gambler"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "gambler"],
  "timeout": 120,
  "steps": [
   {"do": "gl", "verb": "state", "expect": {"phase": "town"}},

@@ -3,7 +3,9 @@
  "about": "Why abyss wave units survive the cull: list the actors around the crack before and after.",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",

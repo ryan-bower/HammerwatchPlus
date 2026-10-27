@@ -3,7 +3,9 @@
   "about": "Bounded eight-path regression of the four retained original HP-zero misses plus solo pistol/cannon and dual pistol/cannon controls. Five overlapping radius5 dummies at45px, actual target centers/HP and wall/tile rays retained. Gun, timing, cost, ammo and damage rules unchanged; no random retry. Original72 observations remain retained.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

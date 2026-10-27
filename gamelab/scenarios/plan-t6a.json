@@ -3,7 +3,9 @@
  "about": "Test plan run tiers (exploratory): wild plots, run fishing spot, boss floor fishing bucket, gold pickup.",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",

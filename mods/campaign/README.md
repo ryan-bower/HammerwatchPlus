@@ -33,7 +33,7 @@ generated floors in the closest HoH2 theme plus a vanilla boss level.
   (`mission_story_intro_find_npcs`), like the vanilla mission boards; before that the portal
   shows "The portal is dormant..." over the player instead of opening (vanilla would throw:
   sorting an empty array is an "Index out of bounds" in this engine). Clients see the host's portal (netsynced doodad). The host spawns
-  it (`HWP::Town::Placeable` in core) 0.6 s after the town loads, **in the
+  it (`HWP::Town::Placeable` in hwplib) 0.6 s after the town loads, **in the
   chapel courtyard in place of its campfire** (the unbuilt Pyre). Every
   machine computes that spot from the town layout data the way
   `TownRecord::SpawnTown` does (`PyreSpot`: the base segment's chapel cell +
@@ -95,7 +95,7 @@ against HoH2's base classes with HoH1's unit parameters:
 | `WorldScripts.as` | HoH1 level scripts by their HoH1 names: environment, boss bar, wind, lich / vampire nodes and room, eye wisp scripts, elevators, shops... |
 
 Boss state the host decides (which node the councilors go to, vampire
-roaming, eye wisps) goes to the clients over the core `HWP::Net` bus
+roaming, eye wisps) goes to the clients over the hwplib `HWP::Net` bus
 (`hoh1.lich.node`, `hoh1.vampire.*`, `hoh1.eye.*`); skills use the usual
 `NetSendUnitUseSkill` stages.
 
@@ -233,7 +233,7 @@ What that means for a real port, in order:
 6. With HoH1 installed (`python -m gamelab doctor --fix` imports it), the
    portal offers the HoH1 mission alone and the self-check line reads
    "HoH1 floors installed, N trap prefabs, traps on N floors; Dark Citadel: ...".
-   `python -m gamelab run fix-campaign-portal-version` (core + campaign, about 3 min)
+   `python -m gamelab run fix-campaign-portal-version` (hwplib + campaign, about 3 min)
    checks the portal version in the log and the dialog, `hwp campaign citadel` =
    dark_halls_1, dark_halls_2, hwp_battlements_1, hwp_battlements_2, dark_halls_boss,
    and the Confusion cheat (buff on, right moves left, expiry, glyph applies it).

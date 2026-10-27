@@ -3,7 +3,9 @@
  "about": "Boss-fight damage recap (mods/deathrecap BossRecap.as) and the last-run board's search + one-page bar graphs (mods/laststats): the fix_recaps bot spawns the Bandit boss on Bandit Keep floor 0, the ranger shoots it, `kill tag:boss me` ends the fight and the recap must log 'boss recap Boss Bandit: Pilot dealt N (100%) took T: <sources>' with N > 0 and show the HUD panel (hwp bossrecap: 'boss panel shown'); then the run is aborted as failed, two sample snapshots fill the board, `gl use laststats_board` opens it and 'hwp laststats board' + `gl wtext` prove two players on one page with bars, the 'search damage' filter (window OnFunc, what the field's func-edit calls) and its clear. The typed search (press + type) is recorded as board_typed, not asserted (the console's key can end the field's focus). Shots: boss-recap, board, board-search (the bars, the panel: by eye).",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "deathrecap",
   "laststats"
  ],

@@ -3,7 +3,9 @@
  "about": "mods/puzzles' forced placement: as mod-puzzle-rooms, but with puzzles.debug_force 1 the vanilla spot search is skipped, so the keep floor's puzzle room is forced onto the outskirts with a carved corridor. The bot then walks into it (gl goto paths there), solves the Constellation and gets the reward, which shows the forced room and its corridor are reachable and work.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "puzzles"
  ],
  "timeout": 300,

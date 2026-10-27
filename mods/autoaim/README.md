@@ -33,6 +33,6 @@ These map onto the original's `caa_auto_aim`, `caa_auto_fire`, `caa_auto_skill`,
 `hwp autoaim` prints the settings and the last auto shot (the original's `caa_settings`).
 The original's skill debug menu is left out.
 
-How it hooks in: core already swaps the local player's targeting helper (for the Skill
-4-6 keys), and that helper calls core's aim hooks (`HWP/Core/Aim.as`). This mod
+How it hooks in: hwplib already swaps the local player's targeting helper (for the Skill
+4-6 keys), and that helper calls hwplib's aim hooks (`HWP/Core/Aim.as`). This mod
 registers there, so it overrides no game file.

@@ -3,7 +3,9 @@
  "about": "Test plan through the plan_firearms bot: an ability (Frag) or the weapon swap's channel cancels a manual Reload and holds the automatic reload at its start; Reload works again after; the guns don't fire during a manual Reload. Also the skills that now start at rank 1: saved ranks within the max are kept, and one past it (an old save at max) is pulled back (FirearmsModule.as ClampStartRanks).",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",

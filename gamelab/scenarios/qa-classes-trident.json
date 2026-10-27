@@ -2,7 +2,7 @@
   "name": "qa-classes-trident",
   "about": "Bounded trident diagnostics on original class data: three fresh input trials and three settled input/direct-activation trials each, with raw geometry/HP/floating text and loaded weapon stats. All outcomes retained.",
   "fixture": "town-paladin",
-  "mods": ["core", "classes"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes"],
   "timeout": 300,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},

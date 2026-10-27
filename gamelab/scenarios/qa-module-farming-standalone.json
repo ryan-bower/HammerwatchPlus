@@ -3,7 +3,9 @@
   "about": "Minimum core+farming native shop, planting, watering, visual and well controls. Crop growth/refusal runs use a separate fresh profile to retain the dry control.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "farming"
   ],
   "timeout": 900,

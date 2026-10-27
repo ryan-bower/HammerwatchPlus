@@ -3,7 +3,9 @@
  "about": "Every character starts with the Driftwood Rod and the higher rods cost more (2026-10-25, the user's item 4). A brand-new paladin: the `starts with the Driftwood Rod` log line, the status's rod and drawn slot, the character screen's rod tooltip; then the pirate's rod button (wcaption rod-btn: the pirate is not a ShopWindow, so the shop probe does not apply) names Sturdy 1000 g, Sea 5000 g, Captain's 25000 g in turn and each press takes that gold; then 'Finest rod already'.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "fishing",
   "keys"
  ],

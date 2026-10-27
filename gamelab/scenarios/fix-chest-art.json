@@ -3,7 +3,9 @@
  "about": "Alt-art chests and the red skull ace key (mods/keys ChestArt.as, tweak/hwp/chest_art.sval): the area is the mission's act (bandit keep floor 0 is area 1, Dark Citadel's first crypt floor area 5 and first dark halls floor area 9); chests spawned at areas 1, 4, 6 and 9 show the picked scenes (area 9 takes area 8's); ace gold chests show the gold rimmed or large chest and the map reward chest; the ace key on the floor and in the HUD is the red skull key. Screenshots of each.",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "keys"
  ],
  "timeout": 420,

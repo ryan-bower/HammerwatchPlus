@@ -1,0 +1,138 @@
+{
+  "_doc": "The Steam Workshop packages (tools/build.py; docs/modules.md, Packages). Each package is dist/HWP-<id>.bin: its mods plus every library part they require (module.json `library: true`), so it works alone and beside any other package. Every content module is in exactly one package or on the bench (never shipped). `all` is the all-in-one pack, every package together.",
+  "packages": [
+    {
+      "id": "qol",
+      "name": "HammerwatchPlus: Quality of Life",
+      "description": "Small helpers: buff tooltips in the HUD, item links in chat, a Sort button in the stash, a death recap, the party's last-run stats on a town board, projectile colours for colour-blind players, waygates across the town, a second weapon set on a hotkey, Priest summons that follow you to the next floor, HoH1-style class Title Bonuses, gold that shows its worth, the Mm-hmm! hats, orb picker warnings and dye-pot markers on the minimap.",
+      "mods": [
+        "bufftips",
+        "chatlinks",
+        "stash",
+        "deathrecap",
+        "laststats",
+        "colors",
+        "waygates",
+        "weaponswap",
+        "summons",
+        "legacy",
+        "goldworth",
+        "mmhmm",
+        "orbwarn",
+        "mapicons"
+      ]
+    },
+    {
+      "id": "coop",
+      "name": "HammerwatchPlus: Co-op Play",
+      "description": "Party features: drop equipment for other players to pick up, Architect alterations every player can pick, and a group combo bonus when the party is in combo together.",
+      "mods": [
+        "groupcombo",
+        "architect",
+        "droptrade"
+      ]
+    },
+    {
+      "id": "autoaim",
+      "name": "HammerwatchPlus: Auto Aim",
+      "description": "Auto aim for area skills: the targeting reticle snaps to a nearby enemy and ready skills can cast themselves. On for controllers by default, an option for mouse players.",
+      "mods": [
+        "autoaim"
+      ]
+    },
+    {
+      "id": "firearms",
+      "name": "HammerwatchPlus: Firearms Specialist",
+      "description": "A new class, the Firearms Specialist: rifles, pistols and explosives, with its own skills and specializations.",
+      "mods": [
+        "firearms"
+      ]
+    },
+    {
+      "id": "specs",
+      "name": "HammerwatchPlus: Fourth Specializations",
+      "description": "A fourth specialization for seven of the vanilla classes.",
+      "mods": [
+        "specs"
+      ]
+    },
+    {
+      "id": "classes",
+      "name": "HammerwatchPlus: HoH1 Classes",
+      "description": "Heroes of Hammerwatch 1 classes with their own kits, and Skill 4-6 keys.",
+      "mods": [
+        "classes"
+      ]
+    },
+    {
+      "id": "keys",
+      "name": "HammerwatchPlus: Keys and Ace Chests",
+      "description": "Heroes of Hammerwatch 1 style locked chests: bronze, silver, gold and the red ace chest with legendary loot, each opened with a key of its tier. Keys drop from enemies; the exit guard sells keys and up to eight more bag slots.",
+      "mods": [
+        "keys"
+      ]
+    },
+    {
+      "id": "campaign",
+      "name": "HammerwatchPlus: The Forsaken Tower",
+      "description": "A portal in town that starts the Forsaken Tower: an 18-floor campaign through the Mines, Prison, Armory, Archives, Chambers and Battlements of Heroes of Hammerwatch 1, rebuilt with Heroes of Hammerwatch 2 themes and bosses.",
+      "mods": [
+        "campaign"
+      ]
+    },
+    {
+      "id": "modes",
+      "name": "HammerwatchPlus: Challenge Modes",
+      "description": "Opt-in ways to play: HoH1's mercenary mode (a fresh character enlists at level 10 and climbs the ranks) and a wave arena survival mode started from a statue in town.",
+      "mods": [
+        "mercenary",
+        "wavemode"
+      ]
+    },
+    {
+      "id": "dungeon",
+      "name": "HammerwatchPlus: Dungeon Loot and Encounters",
+      "description": "New things on run floors: the puzzle rooms and HoH1's Constellation puzzle, locked loot vaults and exit switches, strongboxes, abyss cracks, three more map layouts, twelve endgame weapons, HoH1 trinket sets and valuables worth twice their gold.",
+      "mods": [
+        "puzzles",
+        "objectives",
+        "strongbox",
+        "abyss",
+        "maps",
+        "weapons",
+        "trinkets",
+        "valuables"
+      ]
+    },
+    {
+      "id": "town",
+      "name": "HammerwatchPlus: Town Life",
+      "description": "Fishing and farming, the gambler, a roulette table and three more tavern levels.",
+      "mods": [
+        "fishing",
+        "farming",
+        "gambler",
+        "roulette",
+        "tavern"
+      ]
+    },
+    {
+      "id": "pets",
+      "name": "HammerwatchPlus: Pets",
+      "description": "Pet levels and skills, dyes and the HoH1 pets.",
+      "mods": [
+        "pets"
+      ]
+    }
+  ],
+  "all": {
+    "file": "HammerwatchPlus-All",
+    "name": "HammerwatchPlus: All",
+    "description": "Every HammerwatchPlus package in one: Quality of Life, Co-op Play, Auto Aim, the Firearms Specialist, Fourth Specializations, HoH1 Classes, Keys and Ace Chests, The Forsaken Tower, Challenge Modes, Dungeon Loot and Encounters, Town Life and Pets. The packages are inside it: there is no need to enable them as well."
+  },
+  "bench": [
+    "devarena",
+    "spec-ranger-test",
+    "holylocal"
+  ]
+}

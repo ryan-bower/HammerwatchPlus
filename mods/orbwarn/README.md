@@ -9,7 +9,7 @@ the Sarcophagus or mission sphere selectors.
 
 `scripts/HWP/OrbWarn/OrbWarn.as` (`HWPOrbWarnModule`) checks the open picker every frame; no
 base file is overridden. The text is `hwp.orbwarn.closes` in
-`res/language/english/hwp_orbwarn.lang`. Requires core.
+`res/language/english/hwp_orbwarn.lang`. Requires hwplib.
 
 ## Test checklist
 

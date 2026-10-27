@@ -3,7 +3,9 @@
  "about": "Test plan through the plan_farming bot: farming s11 at the default farm.run_chance 35, about a third of 15 Bandit Keep floors (3 runs, floors 1-5) get a wild plot.",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",

@@ -3,7 +3,9 @@
  "about": "Test plan through the plan_checks bot: summons s1-s3. A new Priest switched to the Crusader spec (gl subclass) with Call Crusaders raised to level 3 (gl skill) gathers crusaders on a Bandit Keep floor; they come through the exit with their HP, killed ones (gl kill) don't, and none follow into town (gl abort, the pause menu's abandon); farming s14: a run abandoned on floor 1 (gl abort) grows nothing, a failed one (gl abort failed) grows the crops; farming s6: the real cycle (unwatered: bigger sprout after one run, ready after two; watered: ready after one).",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",

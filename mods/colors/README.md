@@ -16,7 +16,7 @@ Accessibility colours for projectiles.
 - Presets: `default` (no tint), `contrast` (red vs light blue),
   `deuteranopia` (orange vs blue), `protanopia` (yellow vs blue),
   `tritanopia` (red vs teal). Per-team overrides as hex.
-- The preset is picked in the player menu's **Plus** tab (core
+- The preset is picked in the player menu's **Plus** tab (hwplib
   `HWP::Options`, row `colors`): click the button for the next preset (it
   clears custom colours). The game's own Options menu cannot take it: it runs
   in the menu script, without mod scripts or gui files (GameLab

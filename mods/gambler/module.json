@@ -1,6 +1,6 @@
 {
   "id": "gambler",
-  "requires": ["core"],
+  "requires": ["hwplib"],
   "overrides": [],
   "exclude": []
 }

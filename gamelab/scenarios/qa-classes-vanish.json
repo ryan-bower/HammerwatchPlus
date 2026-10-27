@@ -2,7 +2,7 @@
   "name": "qa-classes-vanish",
   "about": "Vanish low/max hurt procs through fixed120 real god-off Player.Damage hits each. Explicit health-refill survival fixture and pure TrueStrike hits bypass cloak evade; native2500ms HUD buff, actual evade/move stats, >=8s proc spacing, expiry and stat reversion required. All outcomes retained, no rerun-until-success.",
   "fixture": "town-paladin",
-  "mods": ["core", "classes"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes"],
   "timeout": 600,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},

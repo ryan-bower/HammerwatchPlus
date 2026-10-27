@@ -3,7 +3,9 @@
  "about": "mods/strongbox loads in town: the self-check lines from mods/strongbox/README.md Testing step 1, no script errors in our files.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "strongbox"
  ],
  "timeout": 120,

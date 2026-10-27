@@ -2,7 +2,7 @@
   "name": "qa-specs-static",
   "about": "Three fixed real-cast Static Charge first-critical-hit and overlapping-spell trials. Independently verifies native crit setup survives a stats rebuild and restores, observes actual target HP and stacks, and retains all outcomes. Measurement fixture only.",
   "fixture": "town-paladin",
-  "mods": ["core", "classes", "specs"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs"],
   "timeout": 600,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},

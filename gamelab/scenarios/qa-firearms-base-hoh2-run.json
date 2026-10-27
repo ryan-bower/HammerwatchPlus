@@ -3,7 +3,9 @@
   "about": "Legal level20 Firearms base build with all built class skills rank1, native requirements enabled, common20 rifle/four seeded legal rare20 armor/emptyback/dex57. Five actual1x god-off native Bandit Keep floors, mandatory encounter gates, real20000HP boss/reward/portal, exact gear/bag/rank/class persistence through town/save/load and separately controlled death. No ordinary teleport/cull/kills/HP/resource setters. Native Pilot primary combat proves run compatibility; per-active ordinary cast use remains separately recorded as unverified. First prepared restart is exactlylevel20; subsequent restart level gate admits legal native integer gains, then the bot requires exact equality to the persisted post-run level.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

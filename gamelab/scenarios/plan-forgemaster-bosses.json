@@ -2,7 +2,7 @@
  "name": "plan-forgemaster-bosses",
  "about": "The quick half of plan-forgemaster (the Devil Forgemaster, Priest 4th spec): the penance, heresy_rules, lunge and bosses sections of the plan_forgemaster bot, without the 141-unit raise_all table (that one takes over two hours). Same flags as plan-forgemaster's steps.",
  "fixture": "town-paladin",
- "mods": ["core", "classes", "specs"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs"],
  "timeout": 1200,
  "steps": [
   {"do": "log_has", "pattern": "\\[HWP:specs\\] 7 of 7 subclasses registered", "timeout": 30},

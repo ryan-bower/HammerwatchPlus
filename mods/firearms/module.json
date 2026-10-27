@@ -1,6 +1,6 @@
 {
   "id": "firearms",
-  "requires": ["core"],
+  "requires": ["hwplib", "hwplib-classui"],
   "overrides": [
     "scripts/ShopContent/EquipmentShopShopContent.as",
     "scripts/Town/EquipmentSeller.as"

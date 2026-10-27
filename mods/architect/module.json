@@ -1,6 +1,6 @@
 {
   "id": "architect",
-  "requires": ["core"],
+  "requires": ["hwplib"],
   "overrides": [
     "scripts/Missions/MissionArchitect.as",
     "scripts/GUI/MissionLoadoutMenu.as",

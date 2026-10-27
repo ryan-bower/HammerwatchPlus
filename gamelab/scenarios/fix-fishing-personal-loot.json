@@ -2,7 +2,7 @@
  "name": "fix-fishing-personal-loot",
  "about": "A hole's loot is the fisher's alone (2026-10-25, the user's item 2: gear from a catch dropped for every player). Solo half: a well spot on floor 1 or 3, one reel; the host logs `caught tier N (..): loot for them alone, K drop(s)` with K = the tier's pool count in loot_fishing.sval, and exactly K new item units lie near the player (SpawnCatchLoot rolls each pool once for the catcher instead of LootTable.SpawnLoot's once per player). The co-op half is the fishing README's manual step 7.",
  "fixture": "town-paladin",
- "mods": ["core", "fishing", "keys"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "fishing", "keys"],
  "timeout": 900,
  "steps": [
   {

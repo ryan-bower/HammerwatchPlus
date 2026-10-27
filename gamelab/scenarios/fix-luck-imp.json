@@ -1,9 +1,11 @@
 {
  "name": "fix-luck-imp",
- "about": "Party Luck on the imp's room (mods/core/scripts/HWP/Core/LuckFloors.as, HWPLuckChanceSpawn). Every theme's \"*_imp\" prefab set runs at exec-chance 0.1; with `hwp luck 500` (factor 6) the crypt mission's first floor (temple theme) rolls temple_imp at 60 %.",
+ "about": "Party Luck on the imp's room (mods/hwplib-luck/scripts/HWP/Core/LuckFloors.as, HWPLuckChanceSpawn). Every theme's \"*_imp\" prefab set runs at exec-chance 0.1; with `hwp luck 500` (factor 6) the crypt mission's first floor (temple theme) rolls temple_imp at 60 %.",
  "fixture": "mission-ranger",
  "mods": [
-  "core"
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui"
  ],
  "timeout": 300,
  "steps": [

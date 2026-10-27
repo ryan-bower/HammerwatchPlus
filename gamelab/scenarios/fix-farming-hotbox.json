@@ -3,7 +3,9 @@
  "about": "Fix (farming): hotboxing in town. A puff outdoors in town left no haze (Joint.as SpawnHaze returned early when nothing held the smoke); now it hotboxes the square: four haze banks around the smoker (radius 70), logged `haze: 4 bank(s) at x,y (town outdoors, radius 70)` and counted alive in `hwp joint`, and the strain's buff lands as before. The joint comes from farm.debug's `hwp farm herb` + `hwp joint roll`. Shot: hotbox (the player in the town square with the haze around them).",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "farming"
  ],
  "timeout": 240,

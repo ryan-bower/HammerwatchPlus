@@ -3,7 +3,9 @@
   "about": "Parked HoH1 class: level5 base-kit lab setup, save/reload, two ordinary1x god-off HoH2 floor exits with real rewards, summon readback, then separately controlled lethal Player.Damage and real DeadMenu/town/save/reload. Does not prove boss/co-op.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "classes",
     "summons"
   ],

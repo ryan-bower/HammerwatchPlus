@@ -2,7 +2,7 @@
  "name": "fix-specs-risen-speed",
  "about": "Devil Forgemaster risen move at the chase pace at all times and attack what comes near, like the vanilla summons (the user, 2026-10-25: 'summoned bodies are moving at not aggroed speed ... they also dont attack enemies often'). Forgemaster_Risen.as HWPSpecsRisenUnit/HWPSpecsRisenStateUnit set every follower movement to roaming 1.0, speed >= 4.5 and run-back 1.4x, and the target search to half its cooldown (target-find-cooldown-mul 0.5, also in the generated unit). plan_forgemaster section risen_speed, every spot on a free lane from the start (gl terrain; 20261025-180859 teleported the priest into rock and spawned both brutes in rock, so nothing could path or see): the raise logs '[HWP:specs] risen N runs: ...', `hwp risen` reads the numbers, the risen closes in on a priest teleported down the lane (up to 260 px) within 1.5 s, and a brute down the lane, then one up the opposite lane (up to 150 px), is damaged within 5 s each; `hwp forge trace on` logs each risen's target and skills every 2 s meanwhile.",
  "fixture": "town-paladin",
- "mods": ["core", "classes", "specs"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs"],
  "timeout": 300,
  "steps": [
   {"do": "log_has", "pattern": "\\[HWP:specs\\] 7 of 7 subclasses registered", "timeout": 30},

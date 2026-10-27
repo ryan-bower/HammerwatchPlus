@@ -4523,3 +4523,37 @@ of e1f1fc7). Ten findings, all fixed.
   20261020, so they most likely came in between (unconfirmed: no run on the previous commit).
 - mod-all now lists orbwarn. Passing: mod-orbwarn (225637), mod-droptrade-pickup (230401),
   mod-supplies-tokens (225023), plan-fishing-e (225039), mod-all with orbwarn (230506).
+
+## 2026-10-26: one path, two mods
+
+Measured to decide how packages share code (probe mods `gamelab-dup-a`, `gamelab-dup-b`;
+scenarios `dup-path-ab`, `dup-path-ba`, `dup-path-a`). Both mods ship
+`scripts/HWPDup/Shared.as` with a different `const string WHO`, an identical `Same.as`
+class, and `res/language/english/hwp_dup.lang` with different text.
+
+- **It loads, with one logged ERR per shared script path.** Two enabled mods with a file at
+  the same path compile and load in either order: the game keeps one file per path, scripts
+  and lang files alike, and an identical class in both is one class. The engine logs it,
+  though: unpacked, `[ERR] Resource name hash conflict between 'scripts/HWPDup/Same.as' and
+  'scripts/HWPDup/Same.as'!` once per shared `.as` (2 lines in 230644 and 230659, none for
+  the lang file, none with dup-a alone); packed, `[ERR] Resource name hash conflict in package
+  'mods/HWP-keys.bin' for file '<path>'` once per shared file of the later package, any kind
+  (37 for HWP-qol + HWP-keys, the hwplib files). Nothing shows on screen and no script error
+  follows.
+- **The first mod added wins.** For unpacked mods that is the folder order of the boot's
+  `Adding unpacked mod` lines (alphabetical), not the save's list order: a+b and b+a both
+  logged `WHO=a lang=lang-a same=1` (230644, 230659). dup-a alone works (230714).
+- So a library can be copied into every package at the same paths: with identical bytes it
+  does not matter whose copy wins. Packed mods load the same way.
+- **Packages measured** (built .bin files, `tools/make_package_scenarios.py`): every package
+  alone and the all-in-one pack pass (pkg-qol 233210; coop 233246, autoaim 233303, firearms
+  233320, specs 233337, classes 233355, keys 233412, campaign 233429, modes 233446, dungeon
+  233503, town 233520, pets 233540, all 233601): library booted, stamp check, the Luck cell
+  shown only with `hwplib-luck`, the bag command only with keys, each package's own command.
+  The pairs qol+keys, town+dungeon, all+qol and firearms+classes first failed only on the
+  conflict ERRs above (233621, 233638, 233700, 233719); with `log_clean` allowing the packed
+  conflict line, which the stamp check vouches for (one build ships one byte-identical copy
+  of every shared path), all four pass (233832, 233850, 233912, 233931).
+- So a player who enables two packages gets a few dozen of those ERR lines in the log per
+  extra package. That is the price of packages that stand alone; the alternative, a required
+  library mod, is the core mod this replaced.

@@ -943,6 +943,7 @@ namespace Modules
 			HWP::Commands::Register("keys", " show your keys and the chest lock settings", HWP::Commands::Handler(HWP::Keys::CmdKeys));
 			HWP::Commands::Register("keygive", "<tier> [n]  (debug) give yourself keys", HWP::Commands::Handler(HWP::Keys::CmdKeyGive));
 			HWP::Commands::Register("keydrop", "<tier>  (debug) drop a key at your feet", HWP::Commands::Handler(HWP::Keys::CmdKeyDrop));
+			HWP::Commands::Register("bag", " your bag size and the next slot's price; 'buy' buys it (or at the exit guard)", HWP::Commands::Handler(HWP::BagShop::CmdBag));
 			HWP::Commands::Register("chestart", "[area <n>|off]  the floor's chest art area; area n is a keys.debug test", HWP::Commands::Handler(HWP::Keys::ChestArt::CmdChestArt));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Keys::OnSettingChanged));
 		}

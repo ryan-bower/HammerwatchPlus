@@ -749,7 +749,7 @@ class Checks(Base):
         boxes = ctl.get("units") or []
         unit_file = REPO / "mods" / "farming" / "doodads" / "hwp" / "wild" / f"{wild[-1][1]}.unit"
         sprite = unit_file.read_text(encoding="utf-8") if unit_file.is_file() else ""
-        crop = WILD_ICON in sprite and (REPO / "mods" / "core" / "gui" / "hwp" / "map_icons.png").is_file()
+        crop = WILD_ICON in sprite and (REPO / "mods" / "hwplib" / "gui" / "hwp" / "map_icons.png").is_file()
         self.flag("s11_wild_minimap_icon", bool(r.get("minimap")) and bool(mine) and all(u["icon"] and not u["hidden"] for u in mine)
                   and crop, f"minimap {r.get('minimap')} (ui_minimap {r.get('uiMinimap')}); plot {mine[:1]}; crop icon in "
                   f"{unit_file.name}: {crop}; containers within 80 px with an icon {sum(1 for u in boxes if u.get('icon'))} "

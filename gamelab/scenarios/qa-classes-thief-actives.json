@@ -3,7 +3,9 @@
   "about": "Controlled missing HoH1 mastery active damage/debuff behavior at ranks1/5; no natural-run or multiplayer claim.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "classes"
   ],
   "timeout": 480,

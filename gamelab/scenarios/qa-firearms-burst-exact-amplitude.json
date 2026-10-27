@@ -3,7 +3,9 @@
   "about": "All5Burst ranks: fresh60000HP zero-defense dummy and Raw9 same-target native factors drive independent float32 expected Damage150 x close-intensity1.5/2/2.5/3/3.5. Two actual normal-button shells each must match integerHP within source-derived floating representation bound; exact source cost/conservation, CLIP/native sequence/held aim/release retained. Near amplitude only, not radius/DPS/cancellation/ordinary play.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

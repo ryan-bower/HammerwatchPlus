@@ -3,7 +3,9 @@
  "about": "Test plan through the plan_checks bot: wavemode s4, the Wave Arena's clock runs out (g_timescale 16, god mode): the player dies and the arena rank stays; groupcombo s1: solo in combo (gl combo = Player.GiveCombo) gives no group buff; keys s5: elite and boss kills credited to the player drop keys.",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",

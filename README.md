@@ -8,8 +8,29 @@ and the three HoH1 classes HoH2 lacks, Heroes of Hammerwatch 1 content (the Fors
 campaign, keys and ace chests, legendaries, mercenaries, titles, pets), new things to find in
 the dungeons, fishing and farming in town, and co-op and quality-of-life fixes.
 
-Every module ships as its own mod package, plus an all-in-one build. Everyone in a lobby
-should run the same version of the same modules. Every module needs `core`.
+The modules ship as twelve Steam Workshop packages, each of which works alone, plus an
+all-in-one pack (`packages.json`; `docs/modules.md`, Packages):
+
+| Package | Modules |
+|---|---|
+| `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, legacy, goldworth, mmhmm, orbwarn, mapicons |
+| `HWP-coop` Co-op Play | groupcombo, architect, droptrade |
+| `HWP-autoaim` Auto Aim | autoaim |
+| `HWP-firearms` Firearms Specialist | firearms |
+| `HWP-specs` Fourth Specializations | specs |
+| `HWP-classes` HoH1 Classes | classes |
+| `HWP-keys` Keys and Ace Chests | keys |
+| `HWP-campaign` The Forsaken Tower | campaign |
+| `HWP-modes` Challenge Modes | mercenary, wavemode |
+| `HWP-dungeon` Dungeon Loot and Encounters | puzzles, objectives, strongbox, abyss, maps, weapons, trinkets, valuables |
+| `HWP-town` Town Life | fishing, farming, gambler, roulette, tavern |
+| `HWP-pets` Pets | pets |
+| `HammerwatchPlus-All` | every package |
+
+There is no core mod to install. The shared code is a library (`mods/hwplib`, and the parts
+`hwplib-luck` and `hwplib-classui`) that every package carries its own copy of; the game keeps
+one copy of each file, so packages work alone and together. Everyone in a lobby should run the
+same version of the same packages.
 
 ## Modules
 
@@ -75,7 +96,10 @@ should run the same version of the same modules. Every module needs `core`.
 | `colors` | Colour-blind and high-contrast tints for enemy and friendly projectiles (player menu > Plus tab), and each player in their own colour on the minimap and the overlay map, with names for players far away. |
 | `goldworth` | Gold on the floor shows what it is worth: 15 coin and pile looks, from a bronze coin to a big pile of gold. |
 | `mmhmm` | **Mm-hmm!** A quarter of rare and epic hats carry the Mm-hmm! bonus: the Material Trader's "mm-hmm", for everyone, on every crit of the wearer, when the wearer revives someone or is revived, drinks from a pool, completes a trinket set, takes the last orb of an orb tree (trees with more than one orb), opens an Ace chest or opens a secret room. |
-| `core` | Required by every module: settings (the Plus tab and the `hwp` console command), save data and networking. It also adds **Luck**, a stat from gear affixes of Fortune, the Rabbit's Foot trinket and timed buffs from herbs and fish, which weights chest, strongbox, abyss and key drops towards the rarer results (a chest at its opener's Luck) and gives the party's average to generated floors (secret rooms, the imp, floor rewards, blueprints, fishing holes, keys and ace chests); and the plumbing other modules fill: the targeting and aim hooks, a wares market, untitled Materials tab sections and gear slot frames. |
+| `mapicons` | A dye-pot marker on the minimap over every dye bucket of a floor (setting `mapicons.dyes`). |
+| `hwplib` | The library every package carries (not a mod of its own): settings (the Plus tab and the `hwp` console command), save data and networking, and the plumbing other modules fill: the targeting and aim hooks, a wares market, untitled Materials tab sections, gear slot frames and the bag size. |
+| `hwplib-luck` | The library part the packages that read Luck carry (Co-op, Keys, Dungeon, Town): **Luck**, a stat from gear affixes of Fortune, the Rabbit's Foot trinket and timed buffs from herbs and fish, which weights chest, strongbox, abyss and key drops towards the rarer results (a chest at its opener's Luck) and gives the party's average to generated floors (secret rooms, the imp, floor rewards, blueprints, fishing holes, keys and ace chests). Without it the Luck stat is hidden. |
+| `hwplib-classui` | The library part the class packages carry (Firearms, Specs, Classes): the create-character class list that fits more classes and leaves parked ones out, and the Subclass Picker's skill row by skill type. |
 
 Each module's full spec and test checklist is in `mods/<id>/README.md`.
 
@@ -97,16 +121,18 @@ No releases are published yet; until then the repo builds and installs everythin
    machine up, builds every module (with your own HoH1 content when Heroes of Hammerwatch 1
    is installed), copies the `.bin` files into your Steam install's `mods/` folder and starts
    the game through Steam. Read its `run:` lines: the last one says which modules are new.
-2. The first time only: in the game, open **Resource Mods**, tick every `HWP-*` entry it
-   named and restart. The game remembers the set per save, so later redeploys stay enabled.
-   Everyone in the lobby does the same.
+2. The first time only: in the game, open **Resource Mods**, tick the entry it named
+   (`HammerwatchPlus-All` by default) and restart. The game remembers the set per save, so
+   later redeploys stay enabled. Everyone in the lobby does the same.
 3. In game, open the console (the key left of 1) and type `hwp help` for the commands and settings.
 
 Without Heroes of Hammerwatch 1 the campaign module ships with HoH2 tiles; if `run` asks
 where HoH1 is, answer with `python -m gamelab doctor --hoh1 "<folder>"` (or `--no-hoh1`) once.
-Sharing the packages by hand still works: `dist/HWP-<module>.bin` (or
+Sharing the packages by hand still works: `dist/HWP-<package>.bin` (or
 `HammerwatchPlus-All.bin`) into `<Steam>/steamapps/common/Heroes of Hammerwatch 2/mods/`.
-Workshop uploads will follow once the modules settle.
+`python tools/build.py` makes every package and the all-in-one pack without your local
+content, ready for the Workshop; the upload itself is a manual step (this repo has no Steam
+upload tooling).
 
 ## Class planner
 
@@ -126,6 +152,18 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 
 ## Status
+
+2026-10-26, packages: there is no core mod any more. The modules ship as twelve Steam
+Workshop packages that each work alone, plus `HammerwatchPlus-All` (`packages.json`,
+`tools/build.py`). The shared code is a library split into `hwplib`, `hwplib-luck` and
+`hwplib-classui`, and every package carries a copy of the parts it needs. The dye-pot
+minimap markers became the `mapicons` module (Quality of Life), and buying bag slots moved
+to the keys module. Every package alone, the all pack and four pairs pass in GameLab
+(`pkg-*`, `docs/RE_NOTES.md` "one path, two mods"). The engine logs one harmless
+`Resource name hash conflict` error per shared file when two packages are enabled.
+`run.py` and `deploy.py modded-prod` now deploy the all pack and remove the old
+`HWP-<module>.bin` files, so a save ticks `HammerwatchPlus-All` once. The Workshop upload is
+still to do, in the game's own tools.
 
 2026-10-25 to 2026-10-26: the bug and feature list of 2026-10-22 (`temp/bugs 10.22.26.txt`) landed in 16 commits,
 each with its own lab scenario (`gamelab/scenarios/fix-*.json`, all passing): Firearms feel and Snipe,
@@ -285,7 +323,8 @@ handoff update adds documentation and a batch helper, not native coverage.
 - 2026-10-22: the **beta build** for testers without the Celestial Ruins DLC:
   `python tools/deploy.py modded-prod --beta` folds `mods/holylocal` (the Priest and its weapons
   with the `dlc has holy` conditional removed, local_only, used with the dev team's permission)
-  into HWP-core.bin, so only HWP-core and HWP-specs are enabled. A plain build never carries it.
+  into HWP-core.bin, so only HWP-core and HWP-specs are enabled (since the packages: every package
+  that carries hwplib). A plain build never carries it.
   Verified: with it the create-character list offers the Priest and "create" makes one
   (`mod-holylocal-priest 20261022-163957`); without it there is no Priest
   (`mod-holylocal-priest-control 20261022-164029`). **Remove `mods/holylocal/` before publishing.**

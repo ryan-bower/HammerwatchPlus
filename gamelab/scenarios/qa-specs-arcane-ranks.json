@@ -3,7 +3,9 @@
   "about": "All5 Blink ranks: actual posted native casts, pure HP damage progression and radius boundaries. All5 Living Mana ranks: native max-mana conversion, HP mirror, native-clock-bounded low/high missing-mana regeneration. Far Step qualities1..3: actual teleport distance and landing damage. Requires bounded zero-global-crit fixture contract; no Void Barrier/Feedback/teammate claim.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "classes",
     "specs"
   ],

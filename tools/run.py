@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """run.py - one command from a clone to playing: set up, build, deploy to your Steam install, launch.
 
-    run.py                      # setup (doctor --fix, no lab boot), build every release module, deploy, launch
-    run.py --no-launch          # everything but starting the game
-    run.py --no-setup           # skip the doctor step (you just ran it)
-    run.py --dry-run            # say what would happen; write nothing, launch nothing
-    run.py --mods core fishing  # only these modules (the rest stay as deployed)
+    run.py                        # setup (doctor --fix, no lab boot), build the all-in-one pack, deploy, launch
+    run.py --no-launch            # everything but starting the game
+    run.py --no-setup             # skip the doctor step (you just ran it)
+    run.py --dry-run              # say what would happen; write nothing, launch nothing
+    run.py --packages town keys   # these Workshop packages instead (packages.json)
 
 The steps, in order (each prints a `run:` line; the exit code is the first failing step's):
 
@@ -14,19 +14,22 @@ The steps, in order (each prints a `run:` line; the exit code is the first faili
              Hammerwatch (1) install is found. When doctor cannot find HoH1 and nobody has
              answered yet, the run goes on without HoH1 content and says how to answer
              (`python -m gamelab doctor --hoh1 "<dir>"` or `--no-hoh1`).
-2. build     tools/build.py for the modded-prod module list (gamelab/env/environments.json),
+2. build     tools/build.py for the modded-prod packages (gamelab/env/environments.json:
+             `all`, the all-in-one pack),
              with --with-local whenever the HoH1 campaign import is present, so your own
              .bin files carry the real HoH1 levels (never publish those: `build.py` without
              --with-local makes the shareable ones).
-3. deploy    tools/deploy.py modded-prod: copies dist/HWP-<id>.bin into <install>/mods/.
-             Refuses while the game is running (Windows keeps the .bin files open).
+3. deploy    tools/deploy.py modded-prod: copies dist/HammerwatchPlus-All.bin (or
+             HWP-<package>.bin) into <install>/mods/ and removes the HWP .bin files it did
+             not write. Refuses while the game is running (Windows keeps the .bin files open).
 4. launch    the game through Steam (steam://rungameid/619820), so the overlay, cloud
              saves and achievements work as usual. The user asked for this (2026-10-23);
              GameLab's hidden-desktop rules are for test runs, not for playing.
 
-Enabling the mods is a one-time step in the game: Resource Mods > tick every HWP-* entry,
-then restart. The game remembers the set per save by the mod's id, so a redeploy of the
-same ids stays enabled; only a NEW module needs ticking once (this tool lists them).
+Enabling the mods is a one-time step in the game: Resource Mods > tick the deployed entry
+(HammerwatchPlus-All), then restart. The game remembers the set per save by the mod's id
+(the file name), so a redeploy of the same ids stays enabled; only a NEW package needs
+ticking once (this tool lists them).
 """
 from __future__ import annotations
 
@@ -57,9 +60,17 @@ def say(step: str, text: str) -> None:
     print(f"run: {step}: {text}", flush=True)
 
 
-def release_mods() -> list[str]:
+def release_packages() -> list[str]:
     decl = json.loads(ENVIRONMENTS.read_text(encoding="utf-8"))["modded-prod"]
-    return list(decl["mods"])
+    return list(decl["packages"])
+
+
+def mod_id(package: str) -> str:
+    """The id the game's Resource Mods menu shows for a package: its .bin file stem."""
+    if package == "all":
+        doc = json.loads((gamepaths.REPO / "packages.json").read_text(encoding="utf-8"))
+        return doc["all"].get("file", "HammerwatchPlus-All")
+    return f"HWP-{package}"
 
 
 def game_running() -> bool:
@@ -71,7 +82,9 @@ def game_running() -> bool:
 
 def deployed_ids(install: Path) -> set[str]:
     mods = install / "mods"
-    return {p.stem[4:] for p in mods.glob("HWP-*.bin")} if mods.is_dir() else set()
+    if not mods.is_dir():
+        return set()
+    return {p.stem for p in [*mods.glob("HWP-*.bin"), *mods.glob("HammerwatchPlus*.bin")]}
 
 
 def setup(dry_run: bool) -> tuple[int, bool]:
@@ -104,11 +117,11 @@ def setup(dry_run: bool) -> tuple[int, bool]:
     return 0, pending
 
 
-def build_and_deploy(mods: list[str], dry_run: bool) -> int:
+def build_and_deploy(packages: list[str], dry_run: bool) -> int:
     with_local = CAMPAIGN_MARKER.is_file()
-    say("build", f"{len(mods)} modules" + (" with your HoH1 content (--with-local)" if with_local else
-                                           " (no HoH1 import: the HoH2-tiles campaign)"))
-    cmd = [python(), str(gamepaths.TOOLS / "deploy.py"), "modded-prod"] + mods
+    say("build", ", ".join(mod_id(p) for p in packages)
+        + (" with your HoH1 content (--with-local)" if with_local else " (no HoH1 import: the HoH2-tiles campaign)"))
+    cmd = [python(), str(gamepaths.TOOLS / "deploy.py"), "modded-prod"] + packages
     if with_local:
         cmd.append("--with-local")
     if dry_run:
@@ -143,7 +156,8 @@ def launch(dry_run: bool) -> int:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--mods", nargs="+", metavar="ID", help="only these modules (default: the modded-prod list)")
+    ap.add_argument("--packages", nargs="+", metavar="ID",
+                    help="these packages.json ids or `all` (default: the modded-prod list, the all-in-one pack)")
     ap.add_argument("--no-setup", action="store_true", help="skip the doctor step")
     ap.add_argument("--no-launch", action="store_true", help="build and deploy only")
     ap.add_argument("--dry-run", action="store_true", help="print the plan; write and launch nothing")
@@ -163,17 +177,16 @@ def main(argv=None) -> int:
         if code:
             return code
 
-    mods = a.mods or release_mods()
+    packages = a.packages or release_packages()
     before = deployed_ids(install)
-    code = build_and_deploy(mods, a.dry_run)
+    code = build_and_deploy(packages, a.dry_run)
     if code:
         return code
-    new = sorted(set(mods) - before)
+    new = sorted({mod_id(p) for p in packages} - before)
     if new:
-        say("enable", "NEW modules to tick once in the game's Resource Mods, then restart: "
-                      + ", ".join(f"HWP-{m}" for m in new))
+        say("enable", "NEW packages to tick once in the game's Resource Mods, then restart: " + ", ".join(new))
     else:
-        say("enable", "no new modules; the ones you ticked before stay enabled")
+        say("enable", "no new packages; the ones you ticked before stay enabled")
 
     if a.no_launch:
         say("launch", "skipped (--no-launch)")

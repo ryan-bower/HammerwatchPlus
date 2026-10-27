@@ -3,7 +3,9 @@
  "about": "mods/valuables: every valuable's gold doubled at boot, a dropped vase pays 300 instead of 150, the multiplier setting never compounds; README Test checklist.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "valuables"
  ],
  "timeout": 240,

@@ -2,7 +2,7 @@
  "name": "mod-droptrade-pickup",
  "about": "droptrade's pickup-first order (mods/droptrade/scripts/HWP/DropTrade/PickupFirst.as): with a Skill Trainer and a dropped rifle both at the player's feet, the top usable is the item and Use picks it up instead of opening the trainer. Also runs the firearms demo's one-line setup (gl setup) and checks every line of it succeeded.",
  "fixture": "town-paladin",
- "mods": ["core", "droptrade", "firearms"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "droptrade", "firearms"],
  "timeout": 180,
  "steps": [
   {"do": "gl", "verb": "char", "args": ["hwp_firearms", "Gunner"]},

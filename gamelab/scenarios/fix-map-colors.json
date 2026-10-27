@@ -2,7 +2,7 @@
  "name": "fix-map-colors",
  "about": "Per-player colours on the maps (bugs 10.22.26 line 24, mods/colors PlayerColors.as): the module logs the local player's palette, peer and colour in town and on a keep floor tints the player's own minimap marker (the vanilla white dot) in that colour; hwp playercolors switches the palette (safe = Okabe-Ito), the names flag and the distance, and rejects junk with the usage line. Shots of the small minimap (ui_minimap 1) and the overlay map (Tab) are eye checks: in single player only the local marker is on them, the other players' coloured dots and far names need a lobby. The player menu's Map tab cannot open in the lab: vanilla MapWidget::NavigationBarText reads GetInput().GetCurrentMap(), null without a real input device (BaseGameMode::UsingMouseLook), so that tab is a manual check. Mods core + colors. About 3 minutes.",
  "fixture": "mission-ranger",
- "mods": ["core", "colors"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "colors"],
  "timeout": 420,
  "steps": [
   {

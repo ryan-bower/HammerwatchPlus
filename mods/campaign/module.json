@@ -1,7 +1,7 @@
 {
   "id": "campaign",
   "requires": [
-    "core"
+    "hwplib"
   ],
   "overrides": [
     "tweak/missions/missions_dark_citadel.sval",

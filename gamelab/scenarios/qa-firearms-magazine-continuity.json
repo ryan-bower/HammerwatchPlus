@@ -3,7 +3,9 @@
   "about": "Four fixed natural P,C,P bursts from15+9 leave7+5/shared12; proportional reconstruction would8+4 and must fail. Next-floor continuity without post-transition ammo/gear setters, next natural burst5+4/shared9.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

@@ -3,7 +3,9 @@
  "about": "mods/specs loads in town: the self-check line (the seven 4th-spec subclasses registered), no script errors in our files.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "specs"
  ],
  "timeout": 120,

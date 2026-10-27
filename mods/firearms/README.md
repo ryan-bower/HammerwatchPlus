@@ -71,7 +71,7 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
   (and not two-handed) and the off hand free, it goes to the off hand. There it
   is its off-hand twin `hwp_glock_oh_0N` (hand-crossbow anim, never dropped or
   sold), which turns back into the main-hand pistol in the bag
-  (`scripts/HWP/Firearms/Pistols.as`, core's `HWP::Bag::OnEquip`). Each hand's
+  (`scripts/HWP/Firearms/Pistols.as`, hwplib's `HWP::Bag::OnEquip`). Each hand's
   pistol grants a marker buff the other pistol's attack checks for.
   - A main-hand pistol with any other off hand fires one accurate round every
     300 ms (`hwp-solo-length`), 80 % weapon damage.

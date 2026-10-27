@@ -28,7 +28,7 @@ keys module, a catch can bring up a key of any tier, ace keys included.
   reports the last bite's motion per frame (frames, ticks, mean step, its
   coefficient of variation, the share of frames it stood still, bounce frames
   skipped); `hwp fishing tier <n>` (debug) forces the coast's next bite tier.
-  Luck (core `HWP::Luck::OpenerFactor`, 1 + luck/100, as the fisher's machine
+  Luck (hwplib-luck `HWP::Luck::OpenerFactor`, 1 + luck/100, as the fisher's machine
   reported it) widens the 2- and 3-star bands of every roll (coast, traps, holes). The
   party's average Luck multiplies a floor's hole chance (`HWP::Luck::FloorFactor`; log
   `[HWP:fishing] run hole chance C% (B% at party Luck x<f>): ...`).
@@ -49,11 +49,11 @@ keys module, a catch can bring up a key of any tier, ace keys included.
 - **Stars and bet tokens.** Fish are 1, 2 or 3 star (tiers 1-2, 3, 4) and sell
   for 1 / 3 / 5 **bet tokens** (`HWP::Market` token price; the pirate's Sell
   button, `hwp fishing sell`, the Gambler's Sell button or `hwp sell`). The tokens are the
-  gambler's (core's market currency); without the gambler each fish sells for its own gold
+  gambler's (hwplib's market currency); without the gambler each fish sells for its own gold
   price (`AddFish`) and the pirate says so. Only
   unworked fish in the bag sell: each catch stores its signature (base id,
   item level, quality, modifiers in order) in your HWP save data
-  (`market_sigs`, core `HWP::Market::Remember`); enchanting, upgrading or
+  (`market_sigs`, hwplib `HWP::Market::Remember`); enchanting, upgrading or
   rerolling a fish changes it, so it stays in the bag as gear. 1-star fish with
   no modifiers always count. Older saves: 2/3-star fish caught without
   modifiers get them rolled (and stay wares) the first time you are in town.
@@ -106,7 +106,7 @@ keys module, a catch can bring up a key of any tier, ace keys included.
   free now and never offered unless the debug command took it away).
   Each tier past Driftwood widens the catch
   zone by 20 %, slows the marker by 10 % and raises the odds of rare and epic
-  fish. The rod shows in the character screen's gear grid (core
+  fish. The rod shows in the character screen's gear grid (hwplib
   `hwp-gear-rod` slot) with its bonuses and your bait, in its tier's colour
   (`gui/hwp/rods.png`: grey driftwood, brown sturdy, teal sea, gold and red
   captain's). Debug: `hwp fishing rod <tier>`.
@@ -116,7 +116,7 @@ keys module, a catch can bring up a key of any tier, ace keys included.
   20 for 180 g), shrimp (5 for 400 g), glow squid (3 for 900 g) and the next
   rod (Sturdy, Sea, Captain's). The bait decides the coast's star range: worms 1-2, shrimp 2-3, squid
   3-4 (`BAIT_MIN_TIER`/`BAIT_MAX_TIER`); the rod's bonuses roll within it.
-  Each kind is a cell in the materials tab's Supplies section (core `HWP::Materials`
+  Each kind is a cell in the materials tab's Supplies section (hwplib `HWP::Materials`
   section a, after the gambler's tokens) with a tooltip.
   At trading post tier 3 (its last) the wreck becomes a whole boat and he stands
   in it (`ON_BOAT_X/Y`, 2 px below the boat's origin in that tier's prefab: the hull is
@@ -144,7 +144,7 @@ keys module, a catch can bring up a key of any tier, ace keys included.
   alone (`SpawnCatchLoot`), maybe a key pickup, and sends the catcher
   `fishing.landed` (fish + item level + key tier) for the fish itself.
 - Fishing spots, holes and full traps show a fish icon on the minimap
-  (`gui/hwp/map_icons.png` from core, made by `tools/make_map_icons.py`).
+  (`gui/hwp/map_icons.png` from hwplib, made by `tools/make_map_icons.py`).
 - `fishing.*` settings are host-synced; `fishing.coast 0` removes the coast
   spots and the pirate. `hwp fishing buy bait|bait20|shrimp|squid|rod|trap` buys from the
   console; `hwp fishing keys` and `hwp fishing smooth` report (above). With `fishing.debug 1`: `hwp fishing hole` (host), `hwp fishing wells`
@@ -153,7 +153,7 @@ keys module, a catch can bring up a key of any tier, ace keys included.
   the traps as if back from a run that long), `hwp fishing tier <n>` (the coast's next bite tier).
 
 - **Luck from a meal.** Eating a fish (`EatFish`: the bag's Eat hint, `hwp fish eat`)
-  also gives the core Luck buff for 10 minutes, +5 Luck a star
+  also gives the Luck buff (hwplib-luck) for 10 minutes, +5 Luck a star
   (`HWP::Luck::GiveBuff`, `docs/design/luck.md`), refreshed by the next meal. Log:
   `[HWP:luck] buff +N for 600000 ms (ate <fish>)`.
 
@@ -200,7 +200,7 @@ keys module, a catch can bring up a key of any tier, ace keys included.
    20+ minutes some traps show a fish; walk up to one: its fish go to the bag.
    `fishing.debug 1`, `hwp fishing traps 60` fills them without a run.
 10. `fishing.enabled 0`: spots and pirate cannot be used.
-11. Keys (`fix-fishing-keys`, mods core + fishing + keys): `hwp fishing keys`
+11. Keys (`fix-fishing-keys`, mods hwplib, hwplib-luck, fishing, keys): `hwp fishing keys`
     lists the odds from `fishing_keys.sval`; with `fishing.key_chance 1000` and
     `fishing.key_tier 4` a debug catch in town adds an ace key to your own keys
     (`keys: ... ace 1`, the keys HUD shows it); with `key_tier 0` twenty catches

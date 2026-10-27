@@ -2,7 +2,7 @@
  "name": "mod-firearms-shop",
  "about": "Through the firearms_shop bot: the town's equipment seller (Town/EquipmentSeller.as override, HWP/Firearms/Shops.as) offers the fixture's Paladin no gun in 8 offers; a fresh Firearms Specialist gets 8 offers whose weapons are all guns with at least one gun, and after she buys the guns out a gun is back in the stock on the next open.",
  "fixture": "town-paladin",
- "mods": ["core", "firearms"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "firearms"],
  "timeout": 240,
  "steps": [
   {"do": "console", "line": "e_cheats 1"},

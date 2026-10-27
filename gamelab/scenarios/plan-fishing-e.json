@@ -3,7 +3,9 @@
  "about": "Test plan through the plan_fishing bot, fixture town-tavern (the Gambler stands in the tavern): gambler s7 (fish of 1/2/3 stars, crops and an upgraded fish: the Sell caption 'Sell N: G g, T tok', crops pay gold, fish pay 1/3/5 bet tokens, the token line goes up, the worked fish stays in the bag).",
  "fixture": "town-tavern",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",

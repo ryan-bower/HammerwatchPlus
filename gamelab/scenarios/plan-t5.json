@@ -3,7 +3,9 @@
  "about": "Test plan town tiers (exploratory): wares, gambler, fishing coast and pirate, traps, farming, pets, wave arena, campaign portal.",
  "fixture": "town-tavern",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",

@@ -3,7 +3,9 @@
  "about": "Fix (farming): two joints at once. `hwp joint wield off` puts a Lucky Leaf joint in the off hand, `hwp joint wield main` an Ember Kush one in the main hand (its hwp_joint_mh_* twin, as a bag click on a second joint does through core's HWP::Bag::OnEquip). Right click puffs the off-hand joint (5/5 -> 4/5, the main hand untouched), left click the main-hand one; both herb buffs are on at once (mission-buff slots hwp_herb and hwp_herb2); a twin back in the bag is the off-hand joint again. Shot: dual-joints.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "farming"
  ],
  "timeout": 300,

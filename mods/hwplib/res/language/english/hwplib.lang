@@ -1,0 +1,25 @@
+<lang name="English" official="false">
+	<string name="hwp.core.hello">HammerwatchPlus language file loaded</string>
+	<string name="hwp.options.tab">Plus</string>
+	<string name="hwp.options.title">HammerwatchPlus Options</string>
+	<string name="hwp.options.hint">Click a button to change the setting.</string>
+	<string name="hwp.options.capture">Press a key for %what% (Esc cancels)</string>
+	<string name="hwp.options.press">press a key...</string>
+	<string name="hwp.options.search">Search settings...</string>
+	<string name="hwp.options.nomatch">No settings match "%q%".</string>
+	<string name="hwp.market.none">You carry no wares.</string>
+	<string name="hwp.market.list">Wares: %list% (worth %price%)</string>
+	<string name="hwp.market.sold">Sold your wares for %price%.</string>
+	<string name="hwp.market.gold">%n% gold</string>
+	<string name="hwp.market.and">%a% and %b%</string>
+	<string name="hwp.market.gold_short">%n% g</string>
+	<string name="hwp.market.and_short">%a%, %b%</string>
+	<string name="hwp.town.host_only">Only the host can do that.</string>
+	<string name="hwp.town.no_actor">No player actor (are you in town?).</string>
+	<string name="hwp.town.moved">The %what% spot moved to %x%,%y% (saved).</string>
+	<string name="hwp.town.reset">The %what% spot is back at its own place (%x%,%y%).</string>
+	<string name="hwp.luck.stat.tip">Rarer loot comes up more often: chests, strongboxes, abyss cracks, keys and fish. A chest never drops more often, only better, except its dyes, which Luck finds more of.\n\nYour Luck %luck%: rarer outcomes x%factor%. A chest or strongbox rolls at the Luck of whoever opens it, and the whole party gets what it rolled; an abyss crack, which nobody opens, at the party's average (x%party%).\n\nThe party's average also reaches each new floor: a chance of an extra secret room and of the imp, more and better food, potions, chests and other floor rewards, rarer blueprints, more fishing holes, more and higher keys and more ace chests. At the roulette table it raises your winnings by the same percent.
+
+Luck never changes the chance of a skill, item or trinket effect.</string>
+	<string name="stat.custom.hwpluck">Luck</string>
+</lang>

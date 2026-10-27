@@ -1,7 +1,7 @@
 {
   "id": "weaponswap",
   "requires": [
-    "core"
+    "hwplib"
   ],
   "overrides": [],
   "exclude": []

@@ -15,7 +15,7 @@ you are standing at is greyed.
   near the vendor. A building on a plot with a footprint gets the middle of the
   footprint's bottom edge instead. Either way the gate moves to the nearest free spot
   (no furniture or wall in a 20x20 box).
-- The gates are core's `HWPLocalNPC` units. Vanilla keeps one NPC of a unit type on the
+- The gates are hwplib's `HWPLocalNPC` units. Vanilla keeps one NPC of a unit type on the
   host and removes the rest.
 
 | Setting | Default | |

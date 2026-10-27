@@ -1,7 +1,7 @@
 {
   "id": "goldworth",
   "requires": [
-    "core"
+    "hwplib"
   ],
   "overrides": [
     "items/materials/gold.unit"

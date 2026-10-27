@@ -1,7 +1,7 @@
 {
   "id": "spec-ranger-test",
   "requires": [
-    "core"
+    "hwplib"
   ],
   "overrides": [],
   "exclude": []

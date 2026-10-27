@@ -83,7 +83,7 @@ Puzzle rooms back in the dungeons, plus Heroes of Hammerwatch 1's Constellation.
   - pressing all the pattern's stars solves it and drops the room reward (a forced,
     high-quality RewardSpot with no materials or pickups). The reward is a chest
     unit, so with the keys module it is an `HWPChest` and its loot is rolled at the
-    party's Luck factor (core `HWP::Luck`, `docs/design/luck.md`; log
+    party's Luck factor (hwplib-luck `HWP::Luck`, `docs/design/luck.md`; log
     `[HWP:keys] luck x<f> chest ... loot`); no puzzles code is involved.
   Everything is vanilla worldscripts, so co-op sync and the use prompt are the
   engine's own.

@@ -3,7 +3,9 @@
  "about": "The gun poses (2026-10-22, the user's items 4 and 5; Pose.as, rotated gun models swapped into the held item): the rifle aims down walking, straight the whole time it fires, down 1 s after the last shot or at once on a dodge, up while reloading, 45 degrees up for the launcher and straight for full auto; two pistols aim up walking, straight while firing with a 100 ms kick on the hand that just shot, down while reloading. Through the fix_firearms_feel bot: the pose log lines per state and a frame of each pose; `hwp firearms pose` reports the state.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 600,

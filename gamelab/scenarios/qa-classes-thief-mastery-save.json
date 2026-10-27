@@ -3,7 +3,9 @@
   "about": "All31 content modules enabled. Separately labeled matched legal level20 fixture. For each of this hidden HoH1 port?s3 native mastery IDs: native selection, all base+3mastery skills at1, exact selectedclass/name/level/skills/gear/pickedstats snapshot, save, runner WM_CLOSE/restart, read-only exact verification. No charflag writes or ordinary full-run claim.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

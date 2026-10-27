@@ -3,7 +3,9 @@
  "about": "Test plan tier 3-4 solo steps: laststats, weaponswap keys, strongbox, abyss, keys (exploratory).",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",

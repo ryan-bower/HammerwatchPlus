@@ -1,7 +1,7 @@
 {
   "id": "mmhmm",
   "requires": [
-    "core"
+    "hwplib"
   ],
   "overrides": [],
   "exclude": [],

@@ -3,7 +3,9 @@
   "about": "Second Turret oldest-first cap, Reinforced Turret ranks1?3 actual native maxHP/decay after natural placements; no turret HP setter.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

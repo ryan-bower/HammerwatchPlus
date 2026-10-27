@@ -1,5 +1,5 @@
 <dict>
 	<string name="name">HammerwatchPlus Auto Aim</string>
 	<string name="author">Ryan Bower</string>
-	<string name="description">Auto aim for AOE skills (Marked Shot, Leap, Firewall and the like): the targeting reticle snaps to a nearby enemy, can fire on its own, and ready AOE skills can cast themselves. On for controllers by default, an option for mouse play; settings on the Plus tab of the character menu. Part of HammerwatchPlus; requires HWP Core.</string>
+	<string name="description">Auto aim for AOE skills (Marked Shot, Leap, Firewall and the like): the targeting reticle snaps to a nearby enemy, can fire on its own, and ready AOE skills can cast themselves. On for controllers by default, an option for mouse play; settings on the Plus tab of the character menu. Part of HammerwatchPlus.</string>
 </dict>

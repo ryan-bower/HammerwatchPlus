@@ -1,7 +1,8 @@
 {
   "id": "keys",
   "requires": [
-    "core"
+    "hwplib",
+    "hwplib-luck"
   ],
   "overrides": [
     "actors/npcs/town/npc_misc_guard_exit.unit"

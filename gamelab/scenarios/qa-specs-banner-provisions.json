@@ -3,7 +3,9 @@
   "about": "All3 SharedProvisions qualities: actual native positive HUD count and zero-delta stack read, nonHUD and HUD-debuff exclusion controls, real Warcry cooldowns; quality3 cap30 and natural expiry/reversion. No positive stacks injected.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "classes",
     "specs"
   ],

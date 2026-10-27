@@ -3,7 +3,9 @@
   "about": "Ignored draft: two fixed trials perquality0/1/2, actual native25kills earn5Tailwind, native hostilePure200 Player.Damage actualHP185/170 plus noorb200 and naturalexpiryreversion. No positive stack setter.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "classes",
     "specs"
   ],

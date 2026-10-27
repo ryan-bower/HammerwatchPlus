@@ -3,7 +3,9 @@
   "about": "Rare Rocket Jump: real near/far rocket impact with actual target HP loss, near no-orb/acquired/removed controls, owner away displacement, native500ms100%evade buff/expiry, paid mana/CD and unchanged clip. Source-certified local dash corridor; no shared wide-lane dependency. Dash-charge economy remains separate.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

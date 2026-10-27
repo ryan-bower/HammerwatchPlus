@@ -3,7 +3,9 @@
  "about": "Measurement only (timescale 0.1): dual pistols firing in six directions, to read where the guns and the rounds are relative to the player. Not evidence of play.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 240,

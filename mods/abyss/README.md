@@ -32,7 +32,7 @@ Path of Exile's Abyss, scaled down to a HoH2 level.
 
   Tier 1 is about a silver chest, tier 2 a gold one, tier 3 a little more than
   a platinum one. `hwp abyss` shows the tier of the current floor.
-  **Luck** (core `HWP::Luck`, `docs/design/luck.md`): nobody opens a crack, so the party's average factor first
+  **Luck** (hwplib-luck `HWP::Luck`, `docs/design/luck.md`): nobody opens a crack, so the party's average factor first
   rolls a tier up (25 % per +1.0 of factor, at most 75 %, never past tier 3), then
   the table is rolled by `HWP::Luck::SpawnLoot` at that factor (the rarer entries
   weigh more). Log: `[HWP:abyss] luck x<f> payout hwp_abyss_reward_<t>[ (tier up)]`.

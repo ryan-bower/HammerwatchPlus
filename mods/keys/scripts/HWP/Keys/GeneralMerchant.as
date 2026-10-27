@@ -60,7 +60,7 @@ class HWPBagShopItem : IShopItem
 	HWPBagShopItem(PlayerRecord@ player)
 	{
 		// sold out at full size: no cost line (the subtitle says the bag is full)
-		int price = HWP::Bag::NextPrice(player);
+		int price = HWP::BagShop::NextPrice(player);
 		if (price > 0)
 			@m_cost = ShopCost(MaterialType::Gold, price);
 	}
@@ -73,7 +73,7 @@ class HWPBagShopItem : IShopItem
 	{
 		auto rec = GetLocalPlayerRecord();
 		dictionary params = { { "cap", HWP::Bag::Capacity(rec) }, { "max", HWP::Bag::BASE + HWP::Bag::MAX_EXTRA } };
-		return Resources::GetString(HWP::Bag::NextPrice(rec) > 0 ? ".hwp.bag.shop_sub" : ".hwp.bag.shop_sub_full", params);
+		return Resources::GetString(HWP::BagShop::NextPrice(rec) > 0 ? ".hwp.bag.shop_sub" : ".hwp.bag.shop_sub_full", params);
 	}
 
 	string GetDescription() { return ""; }
@@ -88,7 +88,7 @@ class HWPBagShopItem : IShopItem
 	ShopCost@ GetCost() { return m_cost; }
 	bool AutoSpendCost() { return false; }
 	string OnFunc() { return "buy"; }
-	bool IsAvailable(PlayerRecord@ player) { return HWP::Bag::NextPrice(player) > 0; }
+	bool IsAvailable(PlayerRecord@ player) { return HWP::BagShop::NextPrice(player) > 0; }
 	void ShowTooltip(WindowManager@ manager, bool compare) { }
 	Item::Item@ GetItem() { return null; }
 }
@@ -147,7 +147,7 @@ class HWPGeneralMerchant : AShopContent
 		auto bagItem = cast<HWPBagShopItem>(item);
 		if (bagItem !is null)
 		{
-			if (!HWP::Bag::Buy(m_player))
+			if (!HWP::BagShop::Buy(m_player))
 				return false;
 			LootLog::PresentPickup(m_player, Resources::GetString(".hwp.bag.bought", { { "cap", HWP::Bag::Capacity(m_player) } }), 1);
 			return true;

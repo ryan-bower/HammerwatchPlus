@@ -16,7 +16,7 @@ and no text input or chat has the keyboard. The item leaves the bag before it
 is dropped, so a stale hover can never spawn a copy. `hwp dropkey` shows it, `hwp dropkey 10 G`
 changes it (per machine).
 
-An item with a registered action (core `HWP::ItemActions`; today the fishing
+An item with a registered action (hwplib `HWP::ItemActions`; today the fishing
 mod's **Eat** on a fish: 100 health per star, town or run, the fish is used
 up) gets a fifth hint, **`[E] Eat`**, and the E key (SDL scancode 8, polled the
 same way) does it on the hovered item (`HWPAction()`).

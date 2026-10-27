@@ -3,7 +3,9 @@
  "about": "mods/puzzles: puzzle rooms are never partly covered or walled off. Generated floors with a room: two keep floors with the room forced onto the outskirts, one keep floor placed the normal way, a dark cave floor forced (Dark Citadel floor index 2, cave_dark_1: another brush and cell set), and a forest floor (Dark Citadel floor index 0, forest_1) where the Constellation takes a clearing after the vanilla required sets. On each: the forced line names the doorway read off the room's pattern and the room's world rect, `hwp puzzles check` (the scene's point query over the doorway, the carved corridor and the room's interior, plus the puzzle doodads inside) reports 0 problems, and a shot of each forced room for the eye. Not forest_2 (Dark Citadel floor index 1): an encounter floor whose two bases are run-unique, so re-entering it in one run leaves the generator no base (20261025-182526).",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "puzzles"
  ],
  "timeout": 900,

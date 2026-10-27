@@ -3,7 +3,9 @@
  "about": "Look only: the Firearms Specialist's skill and orb icons (art/firearms/override, the user's round-2 picks) on the skill bar and the skills page, with the base skills learned and an orb on each. Not evidence of play.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 150,

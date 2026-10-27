@@ -2,7 +2,8 @@
 """deploy.py - put mods into one of the environments declared in gamelab/env/environments.json.
 
     deploy.py gamelab [mod ...]          # junction repo mods into the GameLab game dir, verify
-    deploy.py modded-prod [mod ...]      # pack (tools/build.py) and copy .bin files to <install>/mods
+    deploy.py modded-prod [package ...]  # build the Workshop packages (tools/build.py) and copy them to
+                                         # <install>/mods; default: the environment's list (the all pack)
     deploy.py modded-prod --dry-run      # list what would be written, write nothing
     deploy.py modded-prod --beta         # a beta build: build.py --beta folds the `beta_into` modules
                                          # (holylocal, the Priest without the DLC) into their hosts' .bin
@@ -16,10 +17,12 @@ deployed copy. Nothing is copied; this only creates/repairs the junctions and ve
 them (gamelab/env.py link()). GameLab scenarios enable a mod per save, so a mod also
 needs a scenario's "mods" list (or a fixture) to load.
 
-modded-prod: the player's real install. Only the modules the environment lists, never a
-`forbidden_mods` pattern (gamelab-*). Each goes through build.py to dist/HWP-<id>.bin and
-is copied to <install>/mods/. Existing HWP-*.bin files there are replaced; nothing else
-in that folder is touched.
+modded-prod: the player's real install. Packages from packages.json (`all` is the
+all-in-one pack, the environment's default). Each goes through build.py to
+dist/HWP-<package>.bin (or HammerwatchPlus-All.bin) and is copied to <install>/mods/.
+HWP-*.bin and HammerwatchPlus*.bin files there that this deploy does not write are removed:
+an old per-module HWP-core.bin would load first and win every shared path. Nothing else in
+that folder is touched.
 
 Reload trigger (measured, gamelab/scenarios/reload-mark.json, run 20261017-144317):
 a script edit is NOT picked up on a level load inside a running game (the next level's
@@ -31,6 +34,7 @@ from __future__ import annotations
 
 import argparse
 import fnmatch
+import json
 import shutil
 import subprocess
 import sys
@@ -55,31 +59,54 @@ def deploy_gamelab(mods: list[str]) -> int:
     return 1 if problems else 0
 
 
-def deploy_prod(mods: list[str], dry_run: bool, beta: bool = False, with_local: bool = False) -> int:
+def package_ids() -> set[str]:
+    doc = json.loads((gamepaths.REPO / "packages.json").read_text(encoding="utf-8"))
+    return {p["id"] for p in doc["packages"]} | {"all"}
+
+
+def stale_packages(target: Path, keep: set[str]) -> list[Path]:
+    """HWP .bin files in the install's mods/ this deploy does not write (old module or package builds)."""
+    if not target.is_dir():
+        return []
+    return sorted(p for p in target.iterdir() if env.is_package_copy(p) and p.name not in keep)
+
+
+def deploy_prod(packages: list[str], dry_run: bool, beta: bool = False, with_local: bool = False) -> int:
     decl = env.environments()["modded-prod"]
     forbidden = decl.get("forbidden_mods", [])
-    wanted = mods or decl["mods"]
-    bad = [m for m in wanted if m not in decl["mods"] or any(fnmatch.fnmatch(m, f) for f in forbidden)]
+    wanted = packages or decl["packages"]
+    bad = [p for p in wanted if p not in package_ids() or any(fnmatch.fnmatch(p, f) for f in forbidden)]
     if bad:
-        print(f"REFUSED: not declared for modded-prod (or forbidden): {bad}")
+        print(f"REFUSED: not a package in packages.json (or forbidden): {bad}; known: {sorted(package_ids())}")
         return 2
     target = Path(env.install()) / "mods"
-    plan = [(gamepaths.DIST / f"HWP-{m}.bin", target / f"HWP-{m}.bin") for m in wanted]
+    plan = [(env.package_file(p), target / env.package_file(p).name) for p in wanted]
+    stale = stale_packages(target, {dst.name for _, dst in plan})
     if dry_run:
         for src, dst in plan:
             flags = (" (--beta)" if beta else "") + (" (--with-local)" if with_local else "")
             print(f"would build {src.relative_to(gamepaths.REPO)}{flags} and copy it to {dst}")
+        for p in stale:
+            print(f"would remove {p} (not in this deploy)")
         print(RELOAD)
         return 0
     unconfirmed = saves.confirmation_problems()
     if unconfirmed:
         print("REFUSED: modded-prod runs on the player's real saves; " + "; ".join(unconfirmed))
         return 2
-    flags = ["--no-all"] + (["--beta"] if beta else []) + (["--with-local"] if with_local else [])
+    flags = (["--no-all"] if "all" not in wanted else []) + (["--beta"] if beta else [])         + (["--with-local"] if with_local else [])
     r = subprocess.run([sys.executable, str(gamepaths.TOOLS / "build.py"), *flags, *wanted])
     if r.returncode:
         return r.returncode
     target.mkdir(exist_ok=True)
+    for p in stale:
+        try:
+            p.unlink()
+        except PermissionError:
+            print(f"REFUSED: cannot remove {p}: the game is holding it open. Close Heroes of Hammerwatch II "
+                  "and deploy again")
+            return 3
+        print(f"removed {p}")
     for src, dst in plan:
         try:
             shutil.copy2(src, dst)
@@ -95,7 +122,8 @@ def deploy_prod(mods: list[str], dry_run: bool, beta: bool = False, with_local: 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("env", choices=["gamelab", "modded-prod", "vanilla"])
-    ap.add_argument("mods", nargs="*")
+    ap.add_argument("names", nargs="*", metavar="mod|package",
+                    help="gamelab: repo mods to link; modded-prod: packages.json ids or `all`")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--beta", action="store_true", help="modded-prod: build with build.py --beta (never publish those .bin files)")
     ap.add_argument("--with-local", action="store_true",
@@ -106,8 +134,8 @@ def main(argv=None) -> int:
         print("REFUSED: the vanilla environment declares no mods")
         return 2
     if a.env == "gamelab":
-        return deploy_gamelab(a.mods)
-    return deploy_prod(a.mods, a.dry_run, a.beta, a.with_local)
+        return deploy_gamelab(a.names)
+    return deploy_prod(a.names, a.dry_run, a.beta, a.with_local)
 
 
 if __name__ == "__main__":

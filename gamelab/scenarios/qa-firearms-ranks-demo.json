@@ -3,7 +3,9 @@
   "about": "Every built demo Firearms active rank: live key casting, mana/cooldown/clip readback, actual dummy damage, cooldown and insufficient-mana refusals; isolated cleared-floor measurements, god disabled. Does not prove ordinary-run progression or exact rank damage amplitudes.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

@@ -2,7 +2,7 @@
  "name": "fix-objectives",
  "about": "Floor objectives (bugs 10.22.26 line 46, mods/objectives): with objectives.vaults 1 and objectives.exit on, a generated keep floor gets one loot vault (a sealed room with two chests and a nav-blocking door) whose lever sits elsewhere on the floor, and an exit switch; the floor's exit areas are disabled until it is pressed and the HUD says so. The generator logs every placement; the bot reads the positions back, proves the vault is closed (no path in) and the exits disabled, uses the vault lever (door opens, a path in, Vaults 1/1), uses the exit lever (exits enabled, 'The way down is open', then the line clears) and checks hwp objectives. Mods core + objectives. About 4 minutes.",
  "fixture": "mission-ranger",
- "mods": ["core", "objectives"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "objectives"],
  "timeout": 540,
  "steps": [
   {

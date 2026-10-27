@@ -3,7 +3,10 @@
  "about": "Test plan, UI group through the plan_ui bot: bufftips s1-s4 (a shrine buff, a debuff, stacks and the Title Bonuses crown hovered with gl mouse pinning the game mode cursor; the tooltip measured in screenshots with bufftips.enabled off vs on; the character menu's Effects tab) and core s9 (dye map markers: shown, gone on pickup, mapicons.dyes 0/1).",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
+   "mapicons",
    "abyss",
    "architect",
    "bufftips",

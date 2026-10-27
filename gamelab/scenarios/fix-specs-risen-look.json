@@ -2,7 +2,7 @@
  "name": "fix-specs-risen-look",
  "about": "Devil Forgemaster looks (the user, 2026-10-25): an intact body is grey (HWPSpecsBodyUnit tint, '[HWP:specs] body N ... tint grey'), has no silhouette through walls (npc-noxray), no minimap dot and no elite ring; a risen has the NPC material (the crusaders' green silhouette, not the enemies' red), the npc_normal minimap dot and, when elite, the ring from players/hwp/specs/forgemaster/marker/ in the summon HP bar's orange (255 84 0; the vanilla minion bar is vec4(1, 0.33, 0), not yellow); a Dark Citadel electric orb's body is a still grey core (dead_core.png) with no effects. tools/make_forgemaster_risen.py writes all of it; tools/test_make_forgemaster_risen.py checks every generated unit offline. plan_forgemaster section risen_look: the file checks, the body's log line and mapicons (no minimap sprite), the raised elite's mapicons (a sprite) and no error, the wisp body standing; the shot after it is for the eye (a grey still orb beside the priest, no lightning).",
  "fixture": "town-paladin",
- "mods": ["core", "classes", "specs"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "mapicons", "classes", "specs"],
  "timeout": 300,
  "steps": [
   {"do": "log_has", "pattern": "\\[HWP:specs\\] 7 of 7 subclasses registered", "timeout": 30},

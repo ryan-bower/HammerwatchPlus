@@ -1,6 +1,6 @@
 # Luck: design
 
-Luck is a core attribute (`mods/core/scripts/HWP/Core/Luck.as`, namespace `HWP::Luck`)
+Luck is a library attribute (the `hwplib-luck` part: `mods/hwplib-luck/scripts/HWP/Core/Luck.as`, namespace `HWP::Luck`)
 that makes the rarer outcome of a drop roll more likely. On a drop roll it never adds
 drops: a pool that pays nothing some of the time pays nothing just as often, what changes
 is which entry comes up when it does pay. On a generated floor the party's Luck also leans

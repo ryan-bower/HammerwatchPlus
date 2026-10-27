@@ -3,7 +3,9 @@
  "about": "Measurement only (timescale 0.1): frames of the gun attack animations and rounds, the rifle, then the main-hand and off-hand Glocks, to judge the pose and the bullet sprite by eye. Not evidence of play.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 300,

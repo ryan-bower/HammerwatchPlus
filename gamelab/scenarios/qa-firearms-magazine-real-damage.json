@@ -3,7 +3,9 @@
   "about": "Per-magazine regression: predict natural mixed-burst damage from independently measured normal pistol and forced-critical off-hand cannon controls. Cleared fixture floor; fixed sample counts, no retries.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

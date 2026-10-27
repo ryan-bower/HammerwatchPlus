@@ -3,7 +3,9 @@
  "about": "Test plan through the plan_gear bot: droptrade s1 bag item hints Equip, Compare, Destroy, [Q] Drop; s2 Q and the Drop hint drop at your feet with no dialog, pick up works; s3 Destroy opens the vanilla confirm, equipped items can't be dropped; s4 hwp dropkey 10 G; chatlinks s1 holding the context key ~1 s on a bag item links it in its rarity colour. Shot drop-hints: hint bar on a bag item; shot chat-link: a chat line with the item name in its rarity colour.",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",

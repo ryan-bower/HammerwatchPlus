@@ -3,7 +3,9 @@
  "about": "Exports the classes mod's class and skill svals as the engine parsed them (for the class planner's HoH1 class records), into gamelab/results/export-classes-svals/.",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",

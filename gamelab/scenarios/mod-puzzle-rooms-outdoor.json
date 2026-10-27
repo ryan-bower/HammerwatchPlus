@@ -3,7 +3,9 @@
  "about": "mods/puzzles on outdoor floors (ForestBrush: forest and heaven), where no walled room can be carved: with puzzles.room_chance 100 a forest floor (dark_citadel) and a heaven floor (heaven_test) each get the Constellation in an open clearing (set hwp_puzzle_open, tweak/missions/hwp_puzzles_open.sval). The bot walks to it, solves it and gets the reward on both.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "puzzles"
  ],
  "timeout": 420,

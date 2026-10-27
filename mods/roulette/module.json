@@ -1,6 +1,6 @@
 {
   "id": "roulette",
-  "requires": ["core"],
+  "requires": ["hwplib", "hwplib-luck"],
   "overrides": [],
   "exclude": []
 }

@@ -3,7 +3,9 @@
   "about": "Standalone functional subset with only required modules. Controlled real Priest summon HP/count floor carry, no resurrection of dead summons, immediate town return; no ordinary battle claim. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "summons"
   ],
   "timeout": 600,

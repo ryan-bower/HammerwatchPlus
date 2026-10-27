@@ -1,11 +1,19 @@
 {
+  "alt_of": "",
+  "alt_when": "",
+  "built": "",
   "cls": "paladin",
+  "cooldown": "30-60s",
   "group": "paladin-spec4",
+  "icon_art": "",
   "kind": "active",
   "levels": [],
-  "name": "Placeholder Active",
+  "mana": "100",
+  "name": "Palor's Fury",
+  "notes": "Any enemy can be targeted and stunned by this. This includes all bosses. Any attack they are currently using will dissipate. That enemy will be locked in a stun, and the player casting it will also be locked in place casting it.",
   "order": 0,
+  "role": "",
   "status": "idea",
-  "summary": "Placeholder: not designed yet.",
+  "summary": "Spend 10 stacks of Palor's Blessing to channel a long lasting stun that interrupts the attack of any single enemy, including bosses. ",
   "unlock": "bought"
 }

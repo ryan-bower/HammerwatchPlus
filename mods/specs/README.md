@@ -1,6 +1,6 @@
 # specs: the 4th specializations
 
-Module id `specs` (requires `core`). Seven subclasses on the vanilla classes, each a scripted
+Module id `specs` (requires `hwplib` and `hwplib-classui`). Seven subclasses on the vanilla classes, each a scripted
 skill set under `scripts/HWP/Specs/` with its svals under `players/hwp/specs/`. Status command:
 `hwp specs`. The console and net handlers are registered in `SpecsModule.as`.
 
@@ -99,7 +99,7 @@ checks every generated unit offline.
   (`risen_look`, with a shot of the wisp body for the eye), `fix-specs-body-passthrough.json`
   (`body_passthrough`: the scepter's 65 px hitscan and the lantern's 160 px heal beam, each
   proven on the bare lane first, then through a body 22 px out), `fix-specs-risen-floors.json`
-  (`risen_floors`, mods core, classes, specs, summons). The mission start is a corridor, so the
+  (`risen_floors`, mods classes, specs, summons and the library). The mission start is a corridor, so the
   bot's `lanes()` reads `gl terrain` and puts every priest, brute, body and target on the
   longest free lane (20261025-180859: a priest teleported 260 px east stood in rock, as did
   both brutes, and nothing could path or see anything).

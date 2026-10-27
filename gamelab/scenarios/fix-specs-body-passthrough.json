@@ -2,7 +2,7 @@
  "name": "fix-specs-body-passthrough",
  "about": "An intact body never blocks a projectile or beam (the user, 2026-10-25: 'dead bodies block projectiles like heal beam'). The generated body units (tools/make_forgemaster_risen.py dead_scenes) set shoot-through, aim-through and charge-through true on every collision shape, the attribute the vanilla bone serpent segments and the Avatar's spear areas use to let RaycastType::Shot through; HWPSpecsBody already turns the unit's collision off. plan_forgemaster section body_passthrough, on the longest free lane from the start (gl terrain: the start is a corridor): a breakable target dummy 60 px out; the scepter (attack_holy_scepter: Hitscan, range 65) and the lantern's heal beam (attack_offhand_lantern: Skills::ShootBeam, distance 160, penetration 0) each damage it on the bare lane (the controls), then again with a brute's body 22 px out on the line; the body is still there. 20261025-180809 had failed on geometry alone: the target at 110 px was past the scepter's 65 px and 'holy_blast' is no Forgemaster skill.",
  "fixture": "town-paladin",
- "mods": ["core", "classes", "specs"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs"],
  "timeout": 240,
  "steps": [
   {"do": "log_has", "pattern": "\\[HWP:specs\\] 7 of 7 subclasses registered", "timeout": 30},

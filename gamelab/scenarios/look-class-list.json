@@ -2,7 +2,7 @@
  "name": "look-class-list",
  "about": "Look only: the create-character class list with the Firearms Specialist's class_showcase.png in it, then that class picked. Not evidence of play.",
  "fixture": "town-paladin",
- "mods": ["core", "firearms"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "firearms"],
  "timeout": 200,
  "steps": [
   {"do": "wait_phase", "phase": "town", "timeout": 60},

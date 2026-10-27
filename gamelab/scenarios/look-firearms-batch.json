@@ -2,7 +2,7 @@
  "name": "look-firearms-batch",
  "about": "Measurement for the 2026-10-19 batch: dual pistols' shot gaps on a held trigger (hwp firearms shots, even at 300 ms); Ordinance Hoarder's icon counting every use ready and the skill slot's ring banking the next charge with the icon bright (ChargeHUD.as, frames); the demo's endless orb (two picks from one sphere); a spawned Skill Trainer with every tier open (shoplevel 4). Uses givestacks and skillpoints cheats: not evidence of play.",
  "fixture": "town-paladin",
- "mods": ["core", "firearms"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "firearms"],
  "timeout": 240,
  "steps": [
   {"do": "gl", "verb": "char", "args": ["hwp_firearms", "Look"]},

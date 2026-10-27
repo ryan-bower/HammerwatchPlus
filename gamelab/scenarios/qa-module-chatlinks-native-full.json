@@ -3,7 +3,9 @@
   "about": "Solo native item-link commands/default/empty-off and inventory-context events. Real screenshots require independent visual review before persistent HWP chat text/slot/ilvl/colour credit. Controlled ilvl1 equipment fixture, no multiplayer claim.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

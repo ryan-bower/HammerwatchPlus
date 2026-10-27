@@ -3,7 +3,9 @@
  "about": "mods/puzzles: summons wait outside puzzle rooms (SummonHold.as), generically for every PlayerRecord.summons unit. A Beastmaster Ranger (fixture town-ranger, subclass ranger_beasts, Wolf Companion: a passive summon, PassiveSummonSkill spawns it within a second of the floor) on a keep floor whose puzzle room was forced: the bot parks the player in the corridor outside the doorway (the wolf leashes along), steps into the room's centre and samples the wolf for 4 s: never inside the room's world rect, `[HWP:puzzles] summons of ... held outside <room>` logged; stepping back out logs the release and the wolf rejoins within the leash. (The priest's crusaders would be the same code path, but the Priest class is DLC-gated and unavailable in the lab.)",
  "fixture": "town-ranger",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "puzzles"
  ],
  "timeout": 600,

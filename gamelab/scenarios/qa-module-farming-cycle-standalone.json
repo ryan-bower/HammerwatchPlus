@@ -3,7 +3,9 @@
   "about": "Minimum core+farming on a fresh profile: plant a dry crop, aborted run leaves it unchanged, failed run grows once, then compare dry second-run growth with a separately watered crop. All original six growth/refusal assertions retained.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "farming"
   ],
   "timeout": 900,

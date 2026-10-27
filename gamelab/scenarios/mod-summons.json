@@ -3,7 +3,9 @@
  "about": "mods/summons loads in town: the self-check lines from mods/summons/README.md Testing step 1, no script errors in our files.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "summons"
  ],
  "timeout": 120,

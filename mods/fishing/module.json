@@ -1,6 +1,6 @@
 {
   "id": "fishing",
-  "requires": ["core"],
+  "requires": ["hwplib", "hwplib-luck"],
   "overrides": [],
   "exclude": []
 }

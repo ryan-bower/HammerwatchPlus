@@ -3,7 +3,9 @@
   "about": "One controlled real fatal Player.Damage with atomic mana12.375/live state/damage/dead state. Confirms exact dead telemetry against damageme raw record reply and distinguishes truncated integer mana. No Barrier, ability, ordinary-play or persistence credit.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

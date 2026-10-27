@@ -3,7 +3,9 @@
  "about": "hwp firearms sound (the firing-sound audition cheat): every candidate event resolves, and a pick plays as a burst; so does each event the guns, rockets and reload now use. Lab mode is muted, so this proves the events exist, not how they sound.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 180,

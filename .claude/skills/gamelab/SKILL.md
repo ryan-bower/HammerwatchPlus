@@ -220,7 +220,7 @@ its baseline/pins after a commit, rebase, or other source change before applying
 
 ```json
 {"name": "mod-x", "about": "what this proves", "fixture": "town-paladin",
- "mods": ["core", "x"], "timeout": 120,
+ "mods": ["x"], "timeout": 120,
  "steps": [
   {"do": "log_has", "pattern": "\\[HWP:x\\] self-check done", "timeout": 20},
   {"do": "gl", "verb": "state", "expect": {"phase": "town", "player.level": {"between": [1, 5]}}},

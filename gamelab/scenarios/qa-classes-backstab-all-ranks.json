@@ -3,7 +3,9 @@
   "about": "Controlled Backstab all5positive ranks plus rank0critical/eight fixed rank5 unforced-physical controls classified by actual critical versus ordinary numeric text: legal common1 one-swing shortsword; actual focused held main input, exactly one attributed native hit, fresh numeric critical text, exact targetHP and bleeding0/2/3/4/5/6. Bench resource/CD reset is fixture setup. Skillcrit0 only zeros selected skill/spell contributions, not global physical chance; >=1 actual noncrit is required and every actual crit must still apply6bleed. No direct damage/modifier callbacks, no starting-daggers or ordinary-run claim.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

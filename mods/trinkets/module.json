@@ -1,7 +1,8 @@
 {
   "id": "trinkets",
   "requires": [
-    "core"
+    "hwplib",
+    "hwplib-luck"
   ],
   "overrides": [],
   "exclude": [],

@@ -3,7 +3,9 @@
   "about": "Every rank of BOOM Headshot, Piercing Bullet and Headshot, using natural casts, actual HP damage and exact piercing boundary. Controlled cleared-floor fixture; no co-op or ordinary-run claim.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

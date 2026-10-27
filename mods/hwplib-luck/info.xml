@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">HammerwatchPlus Library: Luck</string>
+	<string name="author">Ryan Bower</string>
+	<string name="description">The Luck stat of HammerwatchPlus (loot, reward rooms, fishing, chests and gambling; never effect chances). A library part the HammerwatchPlus packages that read Luck carry.</string>
+</dict>

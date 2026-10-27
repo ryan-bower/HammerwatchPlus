@@ -3,7 +3,9 @@
  "about": "Look only (timescale 0.1 around the throw): Explosive Reload's thrown magazines, the curved rifle mag, then the two smaller pistol mags with dual Glocks (mags.png, mag_rifle/mag_pistol.effect), and no load errors for them. Not evidence of play.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 360,

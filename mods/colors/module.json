@@ -1,7 +1,7 @@
 {
   "id": "colors",
   "requires": [
-    "core"
+    "hwplib"
   ],
   "overrides": [],
   "exclude": [],

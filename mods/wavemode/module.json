@@ -1,6 +1,6 @@
 {
   "id": "wavemode",
-  "requires": ["core"],
+  "requires": ["hwplib"],
   "overrides": [],
   "exclude": []
 }

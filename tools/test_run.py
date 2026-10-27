@@ -17,12 +17,12 @@ import run  # noqa: E402
 
 
 class RunPlan(unittest.TestCase):
-    def test_release_mods_come_from_environments(self):
-        mods = run.release_mods()
-        self.assertIn("core", mods)
-        self.assertFalse(any(m.startswith("gamelab-") for m in mods))
+    def test_release_packages_come_from_environments(self):
+        packages = run.release_packages()
+        self.assertEqual(packages, ["all"])
+        self.assertEqual(run.mod_id("all"), "HammerwatchPlus-All")
         decl = json.loads(run.ENVIRONMENTS.read_text(encoding="utf-8"))["modded-prod"]
-        self.assertEqual(mods, decl["mods"])
+        self.assertEqual(packages, decl["packages"])
 
     def test_dry_run_plans_every_step_without_running_anything(self):
         calls = []
@@ -72,17 +72,27 @@ class RunPlan(unittest.TestCase):
         with mock.patch.object(run.subprocess, "run", doctor_bad), redirect_stdout(io.StringIO()):
             self.assertEqual(run.setup(False)[0], 2)
 
-    def test_new_modules_are_named_for_the_resource_mods_menu(self):
+    def test_new_packages_are_named_for_the_resource_mods_menu(self):
         with mock.patch.object(run, "game_running", return_value=False), \
                 mock.patch.object(run.gamepaths, "hoh2_dir", return_value=Path("C:/fake/HoH2")), \
-                mock.patch.object(run, "deployed_ids", return_value={"core"}), \
+                mock.patch.object(run, "deployed_ids", return_value={"HWP-qol"}), \
                 mock.patch.object(run, "build_and_deploy", return_value=0):
             out = io.StringIO()
             with redirect_stdout(out):
-                code = run.main(["--no-setup", "--no-launch", "--mods", "core", "fishing"])
+                code = run.main(["--no-setup", "--no-launch", "--packages", "qol", "town", "all"])
         self.assertEqual(code, 0)
-        self.assertIn("HWP-fishing", out.getvalue())
-        self.assertNotIn("HWP-core,", out.getvalue())
+        self.assertIn("HWP-town", out.getvalue())
+        self.assertIn("HammerwatchPlus-All", out.getvalue())
+        self.assertNotIn("HWP-qol", out.getvalue().split("enable:")[1])
+
+    def test_deployed_ids_are_the_package_file_stems(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            mods = Path(d) / "mods"
+            mods.mkdir()
+            for n in ["HWP-core.bin", "HammerwatchPlus-All.bin", "other.bin"]:
+                (mods / n).write_bytes(b"")
+            self.assertEqual(run.deployed_ids(Path(d)), {"HWP-core", "HammerwatchPlus-All"})
 
 
 if __name__ == "__main__":

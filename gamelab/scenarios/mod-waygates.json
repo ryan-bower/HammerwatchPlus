@@ -2,7 +2,7 @@
  "name": "mod-waygates",
  "about": "Way Gates (mods/waygates: HWP/WayGates) through the fix_waygates bot, in town as the host: `hwp waygates` lists the square's gate first and one per built building; a hwp_waygate unit stands at each listed spot; using the square's gate opens HWPWayGateMenu with one button per gate, the square's greyed; pressing the last gate's button closes the menu and puts the player on it; after a building upgrade reloads the town the gates are back. Shots: waygate-square, waygate-menu, waygate-arrived, waygate-<id>.",
  "fixture": "town-paladin",
- "mods": ["core", "waygates"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "waygates"],
  "timeout": 240,
  "steps": [
   {"do": "console", "line": "e_cheats 1"},

@@ -3,7 +3,9 @@
   "about": "Explosive Reload ranks1?3 natural rifle burst spends3 rounds then natural reload throws the27 remaining rounds; real native target HP damage ratios5:8:12 and per-frame magazine tracking.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",

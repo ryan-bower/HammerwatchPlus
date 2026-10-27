@@ -3,7 +3,9 @@
  "about": "mods/abyss reward tiers: a crack on Dark Citadel floor 1 (diff 2) pays hwp_abyss_reward_1, one on the new game+ floor 1 (diff 18) pays hwp_abyss_reward_3; README Test checklist step 5.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "abyss"
  ],
  "timeout": 420,

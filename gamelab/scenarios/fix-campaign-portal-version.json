@@ -3,7 +3,9 @@
   "about": "bugs 10.22.26 lines 40, 39 (data side) and 28: in town as the host, the chapel portal offers the HoH1 mission alone once the story intro is done (the import is packed in the lab; the log names the version), `hwp campaign citadel` lists the Dark Citadel as dark_halls_1, dark_halls_2, hwp_battlements_1, hwp_battlements_2, dark_halls_boss with the chain in that order, and `hwp campaign confuse 4000` puts the HoH1 confusion buff on the player: holding right moves them left, right again once it has run out; a confusion glyph spawned under the player applies the 1 s trap buff. About 3 minutes.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "campaign"
   ],
   "timeout": 400,

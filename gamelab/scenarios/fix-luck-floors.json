@@ -1,9 +1,11 @@
 {
  "name": "fix-luck-floors",
- "about": "Party Luck on generated floors (mods/core/scripts/HWP/Core/LuckFloors.as, docs/design/luck.md). In town `hwp luck 500` (factor 6); the host keeps the party's average in the run scalar hwp_luck_party, which the level's save carries into the floor's generation and start. On the first bandit_keep floor: the keep's secret room set rolls its extra-room chance at 75 % (the cap), the reward spots log a 100 % blueprint chance (25 % x 6, capped) and their luck-leaning counts, and the fishing hole's run chance is 100 % (30 % x 6, capped). With the keys module, each locked chest logs its lock at the floor factor (a gold one its ace chance, 15 % x 6 capped at 50 %), and `hwp keys` shows the key budget at floor Luck x6.",
+ "about": "Party Luck on generated floors (mods/hwplib-luck/scripts/HWP/Core/LuckFloors.as, docs/design/luck.md). In town `hwp luck 500` (factor 6); the host keeps the party's average in the run scalar hwp_luck_party, which the level's save carries into the floor's generation and start. On the first bandit_keep floor: the keep's secret room set rolls its extra-room chance at 75 % (the cap), the reward spots log a 100 % blueprint chance (25 % x 6, capped) and their luck-leaning counts, and the fishing hole's run chance is 100 % (30 % x 6, capped). With the keys module, each locked chest logs its lock at the floor factor (a gold one its ace chance, 15 % x 6 capped at 50 %), and `hwp keys` shows the key budget at floor Luck x6.",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "fishing",
   "keys"
  ],

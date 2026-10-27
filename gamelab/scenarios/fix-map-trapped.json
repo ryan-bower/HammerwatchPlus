@@ -2,7 +2,7 @@
  "name": "fix-map-trapped",
  "about": "'The chest was trapped!!' (bugs 10.22.26 line 41, mods/keys Trapped.as): on a keep floor a cursed chest (items/chests/chest_cursed.unit, the one whose loot roll is the shade ambush) is spawned beside the player and opened; the host logs the opening, broadcasts keys.trapped, and this machine (within 900 px) shows the hwp_trapped announce (arial24, mid-screen, 2 s, trip-wire sound) and logs the banner. A shot catches the banner. The bot then opens a second cursed chest 1500 px away: the event arrives but is out of range (no banner, logged as such), and a plain chest never logs. Mods core + keys. About 3 minutes.",
  "fixture": "mission-ranger",
- "mods": ["core", "keys"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "keys"],
  "timeout": 420,
  "steps": [
   {

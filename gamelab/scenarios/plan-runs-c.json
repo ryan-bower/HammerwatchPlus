@@ -3,7 +3,9 @@
  "about": "Test plan, runs group, through the plan_runs bot: hoh1floors s4 (Forsaken Tower floor 9, the three Councilors appear together, walk node to node, are untargetable while moving, and attack) and s5 (floor 12, the Watcher's wisps circle the eye at the player's distance, gl trail). God mode.",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",
