@@ -13,9 +13,8 @@ Level L reads upgrades[L-2] first and the base "skill" dict second (PlayerBase.a
 upgrades do not stack, each one overlays the base alone. Edit rows are the tuner's
 [skill id, level index (0 = base, k = upgrades[k-1]), path, value] (Patch.as paths).
 
-    python tools/devarena/tooltip_lint.py                 # the override file's versions + the export
+    python tools/devarena/tooltip_lint.py                 # the override file's versions
     python tools/devarena/tooltip_lint.py --from SVAL     # an override .sval (every version)
-    python tools/devarena/tooltip_lint.py --export SVAL   # a vanilla-tuning export
     python tools/devarena/tooltip_lint.py --stats         # how many params bind, vanilla only
     python tools/devarena/tooltip_lint.py --spec mods/spec-ranger-test   # a spec mod's own tooltips
 
@@ -31,7 +30,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent.parent))
-from tools.devarena import export, overrides  # noqa: E402
+from tools.devarena import overrides  # noqa: E402
 
 DATA = overrides.REPO / "gamecode" / "datatables" / "players"
 NUM = re.compile(r"[-+]?\d+(?:\.\d+)?")
@@ -303,23 +302,16 @@ def sources(a) -> list[tuple[str, list]]:
     """(label, edits) per version to lint."""
     out = []
     sval = Path(a.sval) if a.sval else overrides.SVAL
-    if a.sval or not a.export:
-        if sval.exists():
-            state = overrides.from_sval(sval.read_text(encoding="utf-8"))
-            for i, v in enumerate(state["versions"], 1):
-                out.append((f"{sval.name} v{i} ({v.get('note', '')})", v["edits"]))
-    exp = Path(a.export) if a.export else export.OUT
-    if a.export or not a.sval:
-        if exp.exists():
-            doc = overrides.hwr_archive.parse_svalue_xml(exp.read_text(encoding="utf-8"))
-            out.append((f"{exp.name} ({doc.get('note', '')})", doc.get("edits", [])))
+    if sval.exists():
+        state = overrides.from_sval(sval.read_text(encoding="utf-8"))
+        for i, v in enumerate(state["versions"], 1):
+            out.append((f"{sval.name} v{i} ({v.get('note', '')})", v["edits"]))
     return out
 
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--from", dest="sval", help="an override .sval (default the devarena mod's)")
-    ap.add_argument("--export", help="a vanilla-tuning .sval (default the mod's)")
     ap.add_argument("--stats", action="store_true", help="vanilla binding counts only")
     ap.add_argument("--spec", action="append", default=[], help="a spec mod folder (mods/spec-<id>): its own tooltips")
     ap.add_argument("--json", action="store_true")

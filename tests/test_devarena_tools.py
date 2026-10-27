@@ -74,10 +74,28 @@ def test_level_values_fall_back_to_the_base():
     assert curve.level_values(base, ups, "binds.area-dmg") == [20, 25, 20]
 
 
-def test_vanilla_tuning_patch_copy_is_in_sync():
-    from tools.devarena import export
-    assert export.PATCH_DST.read_text(encoding="utf-8") == export.patch_text(), \
-        "run: python tools/devarena/export.py --patch"
+SKILL = """<dict>
+	<string name="id">hwp_test_bolt</string>
+	<dict name="skill">
+		<int name="castpoint">300</int>
+		<dict name="binds">
+			<int name="dmg">20</int>
+		</dict>
+	</dict>
+	<array name="upgrades">
+		<dict>
+			<dict name="binds">
+				<int name="dmg">25</int>
+			</dict>
+		</dict>
+	</array>
+	<array name="modifier-skills">
+		<dict>
+			<string name="id">hwp_test_bolt_orb</string>
+		</dict>
+	</array>
+</dict>
+"""
 
 
 def test_export_picks_a_version():
@@ -85,14 +103,38 @@ def test_export_picks_a_version():
     assert export.pick(STATE, "live") == 3 and export.pick(STATE, "a") == 0 and export.pick(STATE, "v2") == 2
     with pytest.raises(ValueError):
         export.pick(STATE, "4")
-    doc = export.export_doc(STATE, 2)
-    assert doc["edits"] == STATE["versions"][1]["edits"] and doc["note"] == "v2: growth"
-    assert export.export_doc(STATE, 0)["edits"] == []
-    back = overrides.hwr_archive.parse_svalue_xml(export.to_sval(doc))
-    assert back["edits"] == doc["edits"] and back["version"] == 2
+    assert export.version_edits(STATE, 2) == STATE["versions"][1]["edits"]
+    assert export.version_edits(STATE, 0) == []
 
 
-def test_committed_export_is_vanilla():
+def test_export_bakes_into_the_mod_skill_file(tmp_path):
     from tools.devarena import export
-    back = overrides.hwr_archive.parse_svalue_xml(export.OUT.read_text(encoding="utf-8"))
-    assert back["schema"] == 1 and back.get("edits", []) == []
+    f = tmp_path / "mods" / "specs" / "players" / "skills" / "bolt.sval"
+    f.parent.mkdir(parents=True)
+    f.write_text(SKILL, encoding="utf-8")
+    (tmp_path / "mods" / "devarena" / "x.sval").parent.mkdir(parents=True)
+    (tmp_path / "mods" / "devarena" / "x.sval").write_text(SKILL.replace("hwp_test_bolt", "da_bolt"), encoding="utf-8")
+    texts, refused, _ = export.bake([["hwp_test_bolt", 0, "castpoint", "150"], ["hwp_test_bolt", 1, "binds.dmg", "30"]],
+                                    tmp_path / "mods")
+    assert refused == [] and list(texts) == [f]
+    assert '<int name="castpoint">150</int>' in texts[f] and '<int name="dmg">30</int>' in texts[f]
+    assert '<int name="dmg">20</int>' in texts[f]
+    assert f.read_text(encoding="utf-8") == SKILL, "bake writes nothing itself"
+
+
+@pytest.mark.parametrize("edit, why", [
+    (["ran_mark", 0, "cooldown", "1"], "vanilla"),
+    (["hwp_test_bolt_orb", 0, "castpoint", "1"], "sub-skill"),
+    (["hwp_test_bolt", 0, "cooldown", "1"], "not spelled out"),
+    (["hwp_test_bolt", 0, "@compose", "{}"], "composed"),
+    (["da_bolt", 0, "castpoint", "1"], "vanilla"),
+])
+def test_export_refuses(tmp_path, edit, why):
+    from tools.devarena import export
+    f = tmp_path / "mods" / "classes" / "bolt.sval"
+    f.parent.mkdir(parents=True)
+    f.write_text(SKILL, encoding="utf-8")
+    (tmp_path / "mods" / "devarena").mkdir()
+    (tmp_path / "mods" / "devarena" / "x.sval").write_text(SKILL.replace("hwp_test_bolt", "da_bolt"), encoding="utf-8")
+    _, refused, _ = export.bake([edit], tmp_path / "mods")
+    assert len(refused) == 1 and why in refused[0]

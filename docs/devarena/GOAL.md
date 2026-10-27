@@ -18,7 +18,7 @@ stop to ask when a choice would contradict SPEC.md or is irreversible.
 
 - Work only in the `dev-arena` worktree, `C:\FastProjects\HammerwatchPlus-devarena`. Commit
   6ee00a1 is a snapshot of another agent's WIP. Don't edit their files beyond small additive hooks.
-  Put our code in new files: `mods/devarena/`, `mods/spec-*/`, `mods/vanilla-tuning/`,
+  Put our code in new files: `mods/devarena/`, `mods/spec-*/` (`mods/vanilla-tuning/` was removed 2026-10-26),
   `tools/devarena/`, `tools/make_presets.py`, `gamelab/scenarios/devarena/`, `tests/`.
 - Boot the game only via `python -m gamelab run <scenario> --mode lab --wait 1800`. Follow every
   CLAUDE.md hard rule: no real input, the exit codes are refusals, never touch the user's install,

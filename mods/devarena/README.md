@@ -144,7 +144,7 @@ by name. Scenario: `devarena/hp7-autotune`.
 
 ```
 python tools/devarena/overrides.py sync [--follow]   # log -> tweak/hwp/devarena_overrides.sval
-python tools/devarena/export.py --version live       # one version -> mods/vanilla-tuning
+python tools/devarena/export.py --version live [--dry-run]   # one version -> the mods' own skill files (vanilla refused)
 python tools/make_presets.py [--check]                # presets -> tweak/hwp/devarena_presets.sval
 python tools/make_presets.py --import-log LOG         # saved variants + favorites -> presets_hand.json
 python tools/devarena/clone_spec.py --from ranger_nature --id ranger_test --name "Test Warden" --log LOG --version N
