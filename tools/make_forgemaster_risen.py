@@ -22,9 +22,10 @@ StateActor or TransferDamage actor; not on the EXCLUDE list) two units are writt
       charge-through, so a body never stops the Priest's beam or a shot (the behavior turns the
       unit's collision off; the raycasts read the shapes' flags).
   players/hwp/specs/forgemaster/marker/        the elite ring in RING_COLOR (elite_marker.unit,
-      elite_marker_14/16/20.effect, elite_marker.png recoloured from actors/shared/) and
-      dead_core.png (actors/aberrations/wisp/effects/wisp_base.png, CORE_SIZE px and grey). The
-      two PNGs are made with Pillow (a project dependency).
+      elite_marker_14/16/20.effect, and elite_marker.png in the base sheet's layout) and
+      dead_core.png (a still grey orb, CORE_SIZE px). The two PNGs are drawn with Pillow (a project
+      dependency), not copied or recoloured from the base game, so the package ships no base-game
+      art.
 
 The enemy's `%include "actors/..."` lines are inlined, because the game resolves "./x" paths
 against the unit being loaded (horde_soldier/horde_soldier.inc says ./horde_soldier/...), so a
@@ -40,6 +41,7 @@ mods/specs/.gitignore) and remade here, like tools/class_units.py's copies.
     python tools/make_forgemaster_risen.py --list   # the raisable units, write nothing
     python -m unittest tools.test_make_forgemaster_risen   # the unit texts' invariants
 """
+import math
 import re
 import sys
 from io import BytesIO
@@ -48,7 +50,6 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 ACTORS = REPO / "gamecode/sdk/hoh2/actors"
 SHARED = ACTORS / "shared"
-WISP_BASE = ACTORS / "aberrations/wisp/effects/wisp_base.png"
 MOD = REPO / "mods/specs"
 FORGE = "players/hwp/specs/forgemaster/"
 RISEN = MOD / (FORGE + "risen")
@@ -74,7 +75,8 @@ RISEN_MINIMAP = "special/minimap.unit:npc_normal"
 # the elite ring's colour: the summon ("minion") HP bar, HUDActorsScreenSpaceDrawer.as
 # GetHPBarColor case 5 vec4(1, 0.33, 0) (cvar ui_hud_hpbars_color_minion); the enemies' ring is 255 37 37
 RING_COLOR = (255, 84, 0)
-CORE_SIZE = 24      # dead_core.png: the wisp's 128 px base orb at a body's size
+RING_RADII = (8.0, 8.8, 10.2, 11.3)  # elite_marker.png's four frames: the base sheet's ring radii (px)
+CORE_SIZE = 24      # dead_core.png: an orb at a body's size
 CORE_TEX = 32       # its texture is CORE_TEX square: the engine refuses textures that are not a power of two
 CORE_PAD = (CORE_TEX - CORE_SIZE) // 2
 CORE_GREY = 0.55    # its brightness (the body's own grey tint multiplies it again)
@@ -396,31 +398,46 @@ def png_bytes(im):
 
 
 def ring_png():
-    """actors/shared/elite_marker.png with every pixel's brightness in RING_COLOR"""
+    """The elite ring sheet in RING_COLOR, drawn here rather than recoloured from the base game's
+    (no base-game art is shipped): four 32 px frames side by side, as actors/shared/elite_marker.png
+    lays them out for the elite_marker_<n>.effect frames, each a thin ring with four spikes. RING_RADII
+    are the base frames' ring radii, so the ring sits where an elite's does."""
     Image = image_module()
-    im = Image.open(SHARED / "elite_marker.png").convert("RGBA")
-    px = im.load()
-    for y in range(im.height):
-        for x in range(im.width):
-            r, g, b, a = px[x, y]
-            lum = max(r, g, b) / 255.0
-            px[x, y] = (round(RING_COLOR[0] * lum), round(RING_COLOR[1] * lum), round(RING_COLOR[2] * lum), a)
+    from PIL import ImageDraw
+    k = 8  # the shape is drawn at 8x as a mask and scaled down, for smooth edges in one exact colour
+    big = Image.new("L", (32 * len(RING_RADII) * k, 32 * k), 0)
+    d = ImageDraw.Draw(big)
+    for i, r in enumerate(RING_RADII):
+        cx, cy = (i * 32 + 16) * k, 16 * k
+        d.ellipse((cx - r * k, cy - r * k, cx + r * k, cy + r * k), outline=255, width=round(1.5 * k))
+        for n in range(4):
+            a = math.pi / 4 + n * math.pi / 2
+            tip, base, half = (r + 3.2) * k, (r + 0.2) * k, 1.9 * k
+            ux, uy = math.cos(a), math.sin(a)
+            d.polygon([(cx + ux * tip, cy + uy * tip),
+                       (cx + ux * base - uy * half, cy + uy * base + ux * half),
+                       (cx + ux * base + uy * half, cy + uy * base - ux * half)], fill=255)
+    im = Image.new("RGBA", (big.width // k, big.height // k), RING_COLOR + (0,))
+    im.putalpha(big.resize(im.size, Image.Resampling.BOX))
     return png_bytes(im)
 
 
 def core_png():
-    """the wisp's base orb, CORE_SIZE px and grey, centred in a CORE_TEX square (power of two, or
-    the game refuses the texture at boot): a dead electric orb is its core, still"""
+    """A still grey orb, CORE_SIZE px, centred in a CORE_TEX square (power of two, or the game refuses
+    the texture at boot): a dead electric orb is its core. Drawn here (no base-game art is shipped):
+    a darker middle, a lit rim and a soft edge, at CORE_GREY brightness."""
     Image = image_module()
-    orb = Image.open(WISP_BASE).convert("RGBA").resize((CORE_SIZE, CORE_SIZE), Image.Resampling.LANCZOS)
-    px = orb.load()
-    for y in range(orb.height):
-        for x in range(orb.width):
-            r, g, b, a = px[x, y]
-            grey = min(255, round((r + g + b) / 3 * CORE_GREY))
-            px[x, y] = (grey, grey, grey, a)
     im = Image.new("RGBA", (CORE_TEX, CORE_TEX), (0, 0, 0, 0))
-    im.paste(orb, (CORE_PAD, CORE_PAD))
+    px = im.load()
+    c, rad = CORE_TEX / 2, CORE_SIZE / 2
+    for y in range(CORE_TEX):
+        for x in range(CORE_TEX):
+            t = math.hypot(x + 0.5 - c, y + 0.5 - c) / rad
+            if t >= 1.0:
+                continue
+            light = 0.45 + 0.55 * t ** 3 - 0.25 * max(0.0, (y + 0.5 - c) / rad)  # rim lit, lower half shaded
+            grey = max(0, min(255, round(255 * CORE_GREY * light)))
+            px[x, y] = (grey, grey, grey, round(255 * min(1.0, (1.0 - t) * 6)))
     return png_bytes(im)
 
 

@@ -14,9 +14,9 @@ dist/workshop/<file>/:
     changenote.txt     version, commit and date, for an update's change note
 
 and dist/workshop/UPLOAD.txt, the list of what to upload new and what to update, from
-workshop.json (repo root), the ledger of published item ids. The upload itself is a manual
-step in PACKAGER.exe > Steam Workshop manager (docs/WORKSHOP.md): it needs the uploader's
-Steam login and has no command line."""
+workshop.json (repo root), the ledger of published item ids. tools/workshop_publish.py
+uploads the kit as the Steam user logged in to the running client; PACKAGER.exe > Steam
+Workshop manager does the same by hand (docs/WORKSHOP.md)."""
 from __future__ import annotations
 
 import argparse
@@ -90,6 +90,19 @@ def standins() -> dict[str, str]:
     return out
 
 
+# a README row's sentences about this repo, not the game: its paths, its tools, the HoH1 import
+DEV_TEXT = re.compile(r"tools/|mods/|docs/|art/|\.py\b|gitignored|doctor|the user's picks|HoH1 installed|\bcore's\b")
+
+
+def public(md: str, title: str) -> str:
+    """A README row as a player reads it: without the sentences (or ;-parts) that name repo
+    paths or developer steps, and without a leading **title**: the list item already shows."""
+    parts = re.split(r"(?<=[.;])\s+", md)
+    s = " ".join(p for p in parts if not DEV_TEXT.search(p))
+    s = re.sub(r"^\*\*" + re.escape(title) + r"\*\*:\s*", "", s).strip()
+    return s[:1].upper() + s[1:]
+
+
 def bbcode(md: str) -> str:
     """The README's markdown, as Steam shows it."""
     s = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", md)
@@ -105,7 +118,7 @@ def describe(pkg: dict, lines: dict[str, str], inside: list[dict] | None = None,
         out.append("[h2]What's in it[/h2]")
         out.append("[list]")
         for mod in pkg["mods"]:
-            text = bbcode(lines.get(mod, ""))
+            text = bbcode(public(lines.get(mod, ""), module_title(mod)))
             out.append(f"[*][b]{module_title(mod)}[/b]" + (f": {text}" if text else ""))
         out.append("[/list]")
     else:
@@ -273,7 +286,7 @@ def main(argv=None) -> int:
         else:
             plan.append(f"NEW      {file}: Upload new, then put its item id in workshop.json")
     (OUT / "UPLOAD.txt").write_text(
-        f"{stamp}\nUpload with PACKAGER.exe > Steam Workshop manager (docs/WORKSHOP.md).\n"
+        f"{stamp}\nPublish with tools/workshop_publish.py, or by hand in PACKAGER.exe (docs/WORKSHOP.md).\n"
         "Publish every package of one build together: they share the library.\n\n"
         + "\n".join(plan) + "\n", encoding="utf-8", newline="\n")
     print("\n".join(plan))

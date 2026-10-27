@@ -27,3 +27,12 @@ def test_every_package_describes_every_module():
             assert f"[b]{workshop.module_title(mod)}[/b]" in text, (p["id"], mod)
     text = workshop.describe(dict(allp, mods=[m for p in packages for m in p["mods"]]), lines, packages)
     assert all(p["name"].split(": ", 1)[-1] in text for p in packages)
+
+
+def test_descriptions_name_no_repo_paths():
+    """A Workshop page is for players: no repo paths or developer steps from the README rows."""
+    packages, _ = workshop.load_packages()
+    lines = workshop.module_lines()
+    for p in packages:
+        text = workshop.describe(p, lines, None, workshop.standins())
+        assert not workshop.DEV_TEXT.search(text), (p["id"], workshop.DEV_TEXT.search(text))
