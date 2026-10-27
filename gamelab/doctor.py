@@ -271,19 +271,19 @@ def has_files(d: Path) -> bool:
 
 def class_units_problems() -> tuple[list[str], int]:
     """(units missing or different from what tools/class_units.py would write, units expected).
-    Same rules as class_units.generate, read only."""
+    The text class_units.generate writes (class_units.expected), read only."""
     import class_units
     bad, total = [], 0
     for mod in gamepaths.module_dirs():
         mj = mod / "module.json"
-        swaps = (json.loads(mj.read_text(encoding="utf-8")).get("class_swaps") or {}) if mj.is_file() else {}
-        for rel in class_units.units_for(swaps):
+        cfg = json.loads(mj.read_text(encoding="utf-8")) if mj.is_file() else {}
+        if not cfg.get("class_swaps"):
+            continue
+        cfg.update(id=mod.name, dir=mod)
+        for rel, text in class_units.expected(cfg).items():
             total += 1
-            src = (gamepaths.BASE_HOH2 / rel).read_text(encoding="utf-8", errors="replace")
-            want = (f"{class_units.GENERATED} from the base unit, with our script class -->\n"
-                    + class_units.swap(src, swaps)).encode("utf-8")
             out = mod / rel
-            if not out.is_file() or out.read_bytes() != want:
+            if not out.is_file() or out.read_bytes() != text.encode("utf-8"):
                 bad.append(f"mods/{mod.name}/{rel}")
     return bad, total
 

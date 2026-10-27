@@ -130,29 +130,39 @@ def add_scenes(text: str, rel: str, names: list[str], art: dict) -> str:
     return text[:a] + '<scenes start="vanilla">' + body + text[b:]
 
 
-def generate(cfg: dict, write: bool = True) -> list[str]:
-    """write the module's class-swapped units; returns their relative paths"""
+def expected(cfg: dict) -> dict[str, str]:
+    """unit rel -> the text generate writes for it (doctor.py compares the files with this)"""
     swaps = cfg.get("class_swaps") or {}
     rels = units_for(swaps)
-    if not write:
-        return rels
     art, scened = load_scene_art(cfg)
     missing = sorted(set(scened) - set(rels))
     if missing:
         raise SystemExit(f"{cfg['id']}: scene_art lists units with no class swap: {', '.join(missing)}")
+    out = {}
     for rel in rels:
         src = swap((paths.BASE_HOH2 / rel).read_text(encoding="utf-8", errors="replace"), swaps)
         note = "with our script class"
         if rel in scened:
             src = add_scenes(src, rel, scened[rel], art)
             note += f" and the scene_art scenes ({', '.join(scened[rel])})"
+        out[rel] = f"{GENERATED} from the base unit, {note} -->\n" + src
+    return out
+
+
+def generate(cfg: dict, write: bool = True) -> list[str]:
+    """write the module's class-swapped units; returns their relative paths"""
+    swaps = cfg.get("class_swaps") or {}
+    if not write:
+        return units_for(swaps)
+    units = expected(cfg)
+    for rel, text in units.items():
         out = cfg["dir"] / rel
         out.parent.mkdir(parents=True, exist_ok=True)
         with open(out, "w", encoding="utf-8", newline="\n") as f:
-            f.write(f"{GENERATED} from the base unit, {note} -->\n" + src)
+            f.write(text)
     if swaps:
-        write_ignore(cfg["dir"], rels)
-    return rels
+        write_ignore(cfg["dir"], list(units))
+    return list(units)
 
 
 def main(argv=None) -> None:
