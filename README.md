@@ -238,6 +238,11 @@ to the keys module. Every package alone, the all pack and four pairs pass in Gam
 `HWP-<module>.bin` files, so a save ticks `HammerwatchPlus-All` once. The Workshop upload kit is
 `tools/workshop.py` ([docs/WORKSHOP.md](docs/WORKSHOP.md), 2026-10-27).
 
+2026-10-27, on the Steam Workshop: the twelve packages and the All pack are public, published
+with `tools/workshop_publish.py` from 34d91f0. The All pack is
+https://steamcommunity.com/sharedfiles/filedetails/?id=3828529950, and every item's id is in
+`workshop.json`. HoH1 Classes is held back while those classes are parked.
+
 2026-10-25 to 2026-10-26: the bug and feature list of 2026-10-22 (`temp/bugs 10.22.26.txt`) landed in 16 commits,
 each with its own lab scenario (`gamelab/scenarios/fix-*.json`, all passing): Firearms feel and Snipe,
 Arcane and Aerotheurge, the Forgemaster's risen and channels, fishing, farming, puzzles, pets, the run-start

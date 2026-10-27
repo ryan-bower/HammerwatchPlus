@@ -5048,3 +5048,78 @@ are in `docs/WORKSHOP.md`.
 - `HWP-classes` is held: the HoH1 classes are parked, so it would only add the Skill 4-6 keys.
 - `--check` runs in the test suite (`tests/test_workshop.py`).
 
+## 2026-10-27, published to the Steam Workshop
+
+`tools/workshop_publish.py` publishes the kit as the Steam user who is logged in to the
+running client, with no password.
+
+**How it reaches Steam.** It loads the game's own `steam_api64.dll` with `SteamAppId=619820`
+in the environment, so it writes no `steam_appid.txt` into the install. It then makes the
+calls `PACKAGER.exe` makes. Its strings name `STEAMUGC_INTERFACE_VERSION015` and the
+`CreateItemResult_t` and `SubmitItemUpdateResult_t` call results. The DLL exports
+`SteamAPI_SteamUGC_v015` and the flat `SteamAPI_ISteamUGC_*` functions. The script waits on
+call results with `ISteamUtils::IsAPICallCompleted` and `GetAPICallResult`. It sizes the
+result structs at pack 8: 24 and 16 bytes.
+
+**What an item holds.** A subscribed item's folder holds only its `.bin`: `drop_me.bin` in
+`content/619820/3620435418`. The upload's content folder is the same, staged in
+`dist/workshop-content/<item>/`.
+
+**Tags.** The game's Workshop tags, from the browse page's facets, are: Addon, Gameplay,
+Player Class, Other, Language, Equipment, Mission, Graphics, Item Pack, Total Conversion.
+Each item's tags are in `workshop.json`.
+
+**The page texts.** README rows are written for this repo, so `workshop.py` drops the
+sentences that name repo paths or developer steps:
+
+- `tools/import_hoh1.py`;
+- `mods/firearms/README.md`;
+- "the user's picks (art/specs/)";
+- the gitignored risen generator.
+
+It also drops the Forsaken Tower's repeated title. A test keeps such text out.
+
+**No base-game art in HWP-specs.** `make_forgemaster_risen.py` had made the Devil Forgemaster's
+elite ring and dead core by recolouring `actors/shared/elite_marker.png` and the wisp's
+`wisp_base.png`. Both were packed into HWP-specs and the All pack. Both are now drawn by the
+script itself, in the same sheet layout (four 32 px frames, at the base sheet's ring radii):
+
+- the ring is an alpha mask in one exact `RING_COLOR`, which a box resample of RGBA had
+  shifted to 83;
+- the core is a grey orb.
+
+fix-specs-risen-look passes (20261027-172540).
+
+**Checks before publishing.** These pass on the built packages:
+
+- pkg-all (20261027-172708);
+- pkg-all-every (172730);
+- pkg-specs (172750);
+- pkg-qol (172808).
+
+**Published.** All items are public, from 34d91f0. Steam's public
+`GetPublishedFileDetails` reports each one at its `.bin`'s exact size, with its tags, not banned:
+
+| Item | Id |
+|---|---|
+| HammerwatchPlus: All | 3828529950 |
+| Quality of Life | 3828529629 |
+| Co-op Play | 3828529663 |
+| Auto Aim | 3828529696 |
+| Firearms Specialist | 3828529723 |
+| Fourth Specializations | 3828529765 |
+| Keys and Ace Chests | 3828529805 |
+| The Forsaken Tower | 3828529832 |
+| Challenge Modes | 3828529852 |
+| Dungeon Loot and Encounters | 3828529889 |
+| Town Life | 3828529916 |
+| Pets | 3828529416 |
+
+Steam did not ask for the Workshop legal agreement.
+
+**Held back: HWP-classes.** Its page would list the Thief, Gladiator and Witch Hunter, which
+are parked.
+
+**To update.** Run `tools/workshop.py`, then `tools/workshop_publish.py`. With the ids in
+`workshop.json`, every item is updated in place.
+
