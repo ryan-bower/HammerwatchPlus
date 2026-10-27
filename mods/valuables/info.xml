@@ -1,5 +1,5 @@
 <dict>
 	<string name="name">HammerwatchPlus Valuables</string>
 	<string name="author">Ryan Bower</string>
-	<string name="description">Valuables (the vases, chalices, gems, furs and scales that turn into gold when picked up) are worth their vanilla gold times one more than the run's NG+ level: 2x at NG+1, 3x at NG+2. Part of HammerwatchPlus; requires HWP Core.</string>
+	<string name="description">Valuables (the vases, chalices, gems, furs and scales that turn into gold when picked up) are worth twice their vanilla gold. Part of HammerwatchPlus; requires HWP Core.</string>
 </dict>

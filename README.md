@@ -45,7 +45,7 @@ needs `pets`.
 | `strongbox` | Path of Exile-style strongboxes: open one, a pack of the floor's enemies spawns (elites possible), clear it for the box's loot. |
 | `abyss` | Abyss cracks: step close and waves crawl out, ending in elites (more in a bigger party). Clear them for a reward that grows the deeper the run goes. |
 | `maps` | Three new layouts for the equipment-map drops: Goblin Warrens, Sunken Dungeon, The High Court. |
-| `valuables` | Valuables (vases, chalices, gems, furs, scales: the pickups that turn straight into gold) pay their vanilla gold times 1 + the NG+ level: vanilla at NG+0, 2x at NG+1, 3x at NG+2. |
+| `valuables` | Valuables (vases, chalices, gems, furs, scales: the pickups that turn straight into gold) are worth twice their vanilla gold. |
 | `trinkets` | Trinkets keep up in NG+: flat bonuses (health, mana, armor, power, regen, resistances, thorns, proc damage) grow by a fixed amount per NG+ level, twice as much on an attuned trinket when attuning doubles the number. Tooltips show the scaled numbers. Also 37 trinkets from Heroes of Hammerwatch (Lucky Hat, the spheres, the seals, Golden Lamp, Judgement and more), eight new trinket sets (Spheres of Power, Charms of Fortune, Disarmament, Plague Doctor, Pyromancer, Seals of Torment, Arcanist's Regalia, Conjurer's Relics), Emblems of Hermes and Apothecary's Supplies with more pieces and tiers, and a Trader's Coin that also discounts the dungeon trinket shop. |
 | `wavemode` | **Wave Arena**: a survival arena started from a statue in town; every boss kill raises your arena rank, which is the arena's NG+ level next time. |
 
