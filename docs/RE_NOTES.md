@@ -4774,3 +4774,29 @@ frozen (`docs/modules.md`, Packages). The all-in-one pack with all twelve packag
   Not seen from source; open.
 - `HWP::Guard` records are per level (script globals reset), so `hwp guard` now says
   "on this level".
+
+## 2026-10-27, the Paladin of Generosity's icons are final
+
+Four picker rounds (`tools/icon_art/sp_pal.py`, `sp_pal3.py`, `sp_pal4.py`; the outputs in
+`tools/icon_art/out/` are gitignored). The final art is in `art/specs/override/`: the round-4 picks
+for `pal_class` (C), `hud_pelors_blessing` (C), `pal_pelors_fury` (B), `pal_pelors_blessing` (B),
+`pal_pf_blinding_sun` (C), `pal_pb_display_of_generosity` (B) and `pal_pb_descendent_of_pentival`
+(B), and `pal_pf_holy_sacrifice` from round 2 (C). `tools/make_specs_icons.py` packs 72 painted
+icons into `mods/specs/players/hwp/specs/icons.png`; the two left as placeholders are
+`wiz_class` and `sor_class`, which the user chose to keep.
+
+`look-generosity-icons` (20261027-101621, pass) shows them in game: a level-20 Paladin of
+Generosity with Fury, Blessing, Lay on Hands and the four orbs, 10 Blessing stacks on the buff
+bar, and the skills page. It is a look scenario, not evidence of play.
+
+The planner's icon sheet (`planner/web/icons.png`, `icons.json`, written by
+`tools/icon_art/planner_icons.py`) was stale. Regenerating it adds the `hwp_pal_*` and `hwp_pri_*`
+skills, the paladin 4th-spec icons, the three paladin orbs and `hwp_fs_snipe_recoil`.
+
+Things learned while painting:
+- `shade` multiplies, so a small factor turns a light strand black (Blessing B's beard at
+  k=0.18). Use a factor near 0.8 for a gentle darkening.
+- At 24 px a white sun core washes out the face's eyes, and the mouth is left as a lone dark
+  speck. Give the face a warm orange, not white.
+- A palm-out hand with dark finger gaps reads as a face when it is small. Outline it, lighten
+  the gaps, and make it the largest thing in the icon.

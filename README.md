@@ -196,7 +196,8 @@ bosses held mid-attack with their casts cut; the Serpent while untargetable and 
 Face (immune to buffs) are refused by design and keep the stacks. The engine facts behind it
 (spirits' sensor bodies, unflagged boss skills, a stunned bodiless unit's null body, the
 buffered press) are in `docs/RE_NOTES.md` ("the Paladin of Generosity"). Display of Generosity
-needs a party to check; the icons (round 2) await picks in the picker.
+needs a party to check. The icons are final: the user's round-4 picks, with Holy Sacrifice
+from round 2 (`look-generosity-icons`, 101621).
 A code review of 1c5335c..def346d found ten problems; the fixes include the 35 Dev Arena
 scenarios that still listed the removed core mod, an export that would bake vanilla paladin edits
 into Generosity's copies, Holy Sacrifice paying out on a despawn, and `build.py all qol` writing
