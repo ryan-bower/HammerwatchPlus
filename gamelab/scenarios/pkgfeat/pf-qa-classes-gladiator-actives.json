@@ -1,0 +1,58 @@
+{
+ "name": "pf-qa-classes-gladiator-actives",
+ "about": "qa-classes-gladiator-actives against the built package classes instead of the mods' source folders (tools/make_package_scenarios.py). Controlled missing HoH1 mastery active damage/debuff behavior at ranks1/5; no natural-run or multiplayer claim.",
+ "fixture": "town-paladin",
+ "timeout": 480,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_classes",
+   "kwargs": {
+    "sections": "barbed_net"
+   },
+   "expect": {
+    "barbed_net_r1_rank": true,
+    "barbed_net_r1_target": true,
+    "barbed_net_r1_damage": true,
+    "barbed_net_r5_rank": true,
+    "barbed_net_r5_target": true,
+    "barbed_net_r5_damage": true,
+    "barbed_net_r1_debuff": true,
+    "barbed_net_r5_debuff": true,
+    "barbed_net_r1_bleed": true,
+    "barbed_net_r5_bleed": true,
+    "barbed_net_damage_scales": true
+   }
+  },
+  {
+   "do": "bot",
+   "bot": "qa_classes",
+   "kwargs": {
+    "sections": "whirl"
+   },
+   "expect": {
+    "whirl_r1_rank": true,
+    "whirl_r1_target": true,
+    "whirl_r1_damage": true,
+    "whirl_r5_rank": true,
+    "whirl_r5_target": true,
+    "whirl_r5_damage": true,
+    "whirl_damage_scales": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "classes"
+ ]
+}

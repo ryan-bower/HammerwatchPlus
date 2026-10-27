@@ -1,0 +1,66 @@
+{
+ "name": "pf-qa-specs-static",
+ "about": "qa-specs-static against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Three fixed real-cast Static Charge first-critical-hit and overlapping-spell trials. Independently verifies native crit setup survives a stats rebuild and restores, observes actual target HP and stacks, and retains all outcomes. Measurement fixture only.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_specs_static",
+   "kwargs": {
+    "trials": 3
+   },
+   "expect": {
+    "staticqa_char": true,
+    "staticqa_learned": true,
+    "staticqa_input_own_button": true,
+    "staticqa_helper_query": true,
+    "staticqa_helper_set": true,
+    "staticqa_helper_rebuild": true,
+    "staticqa_helper_restore": true,
+    "static_1_ready": true,
+    "static_1_control": true,
+    "static_1_setup": true,
+    "static_1_first_crit": true,
+    "static_1_later_crits": true,
+    "static_1_overlap_control": true,
+    "static_1_overlap_one_bonus": true,
+    "static_1_restored": true,
+    "static_2_ready": true,
+    "static_2_control": true,
+    "static_2_setup": true,
+    "static_2_first_crit": true,
+    "static_2_later_crits": true,
+    "static_2_overlap_control": true,
+    "static_2_overlap_one_bonus": true,
+    "static_2_restored": true,
+    "static_3_ready": true,
+    "static_3_control": true,
+    "static_3_setup": true,
+    "static_3_first_crit": true,
+    "static_3_later_crits": true,
+    "static_3_overlap_control": true,
+    "static_3_overlap_one_bonus": true,
+    "static_3_restored": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

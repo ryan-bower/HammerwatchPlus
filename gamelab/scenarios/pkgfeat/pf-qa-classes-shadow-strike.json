@@ -1,0 +1,48 @@
+{
+ "name": "pf-qa-classes-shadow-strike",
+ "about": "qa-classes-shadow-strike against the built package classes instead of the mods' source folders (tools/make_package_scenarios.py). Controlled Thief Assassin Shadow Strike ranks1/5: land near a fresh frozen brute, verify movement plus actual HP loss and separate landing minor stun. Preserves parked class visibility.",
+ "fixture": "town-paladin",
+ "timeout": 240,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_classes",
+   "kwargs": {
+    "sections": "shadow_strike"
+   },
+   "expect": {
+    "QAshadow_strike_mastery": true,
+    "shadow_strike_open_floor": true,
+    "shadow_strike_r1_rank": true,
+    "shadow_strike_r1_target": true,
+    "shadow_strike_r1_target_hp": true,
+    "shadow_strike_r1_outside_radius": true,
+    "shadow_strike_r1_moves": true,
+    "shadow_strike_r1_damage": true,
+    "shadow_strike_r1_landing_stun": true,
+    "shadow_strike_r5_rank": true,
+    "shadow_strike_r5_target": true,
+    "shadow_strike_r5_target_hp": true,
+    "shadow_strike_r5_outside_radius": true,
+    "shadow_strike_r5_moves": true,
+    "shadow_strike_r5_damage": true,
+    "shadow_strike_r5_landing_stun": true,
+    "shadow_strike_damage_scales": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "classes"
+ ]
+}

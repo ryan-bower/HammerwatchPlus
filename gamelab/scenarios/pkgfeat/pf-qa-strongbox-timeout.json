@@ -1,0 +1,38 @@
+{
+ "name": "pf-qa-strongbox-timeout",
+ "about": "qa-strongbox-timeout against the built package dungeon instead of the mods' source folders (tools/make_package_scenarios.py). Standalone strongbox dependency closure: real arming and living frozen pack, native three-minute timeout, actual box disappearance and no new loot. Controlled god/cull/timescale measurement only.",
+ "fixture": "town-paladin",
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_event_timeouts",
+   "kwargs": {
+    "kind": "strongbox"
+   },
+   "expect": {
+    "mission_ready": true,
+    "open_floor": true,
+    "disabled_no_natural_event": true,
+    "live_sample": true,
+    "one_event": true,
+    "event_started_with_live_pack": true,
+    "timescale_readback": true,
+    "event_expired": true,
+    "real_timeout_elapsed": true,
+    "pack_still_alive": true,
+    "no_reward": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "dungeon"
+ ]
+}

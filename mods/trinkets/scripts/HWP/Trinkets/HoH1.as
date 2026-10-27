@@ -161,6 +161,7 @@ namespace HWP
 
 		void ApplyArt()
 		{
+			HWP::HoH1::Report("trinkets", Resources::HasString(ART_IDS), ".hwp.trinkets.hoh1");
 			if (!Resources::HasString(ART_IDS))
 			{
 				HWP::Log("trinkets", "HoH1 icons not imported (tools/import_hoh1.py trinkets): placeholder icons");

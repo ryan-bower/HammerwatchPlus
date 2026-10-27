@@ -115,4 +115,5 @@
 	<string name="skills.hwp_thief.cloak.buff.desc">You evade every attack and move 15% faster.</string>
 	<string name="skills.hwp_gladiator.shield_wall.buff.desc">+50% armor and resistance.</string>
 	<string name="skills.hwp_witch_hunter.immolation.buff.desc">+10% damage, and attacks deal 8-12 extra fire damage.</string>
+	<string name="hwp.classes.hoh1">the HoH1 classes and the Remastered specs show placeholder icons</string>
 </lang>

@@ -126,7 +126,9 @@ No releases are published yet; until then the repo builds and installs everythin
    later redeploys stay enabled. Everyone in the lobby does the same.
 3. In game, open the console (the key left of 1) and type `hwp help` for the commands and settings.
 
-Without Heroes of Hammerwatch 1 the campaign module ships with HoH2 tiles; if `run` asks
+Without Heroes of Hammerwatch 1 every module still works: the campaign runs on HoH2 tiles,
+the HoH1 classes and trinkets show placeholder icons and the HoH1 pets stay out of the Pet
+Shop, and the game says so once in chat (`hwp hoh1` lists them). If `run` asks
 where HoH1 is, answer with `python -m gamelab doctor --hoh1 "<folder>"` (or `--no-hoh1`) once.
 Sharing the packages by hand still works: `dist/HWP-<package>.bin` (or
 `HammerwatchPlus-All.bin`) into `<Steam>/steamapps/common/Heroes of Hammerwatch 2/mods/`.
@@ -152,6 +154,23 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 
 ## Status
+
+2026-10-27, every package on its own and together. `tools/make_package_scenarios.py` now
+also writes `gamelab/scenarios/pkgfeat/`: each feature scenario run against the built
+packages that ship its mods instead of the source folders (162 scenarios). The first pass
+found the pets package and the all-in-one pack carrying 216 HoH1 pet files cut from this
+machine's HoH1 install. Nothing had been uploaded; the pets module now lists them as `local`,
+and `tests/test_release_files.py` fails if a release package would carry any ignored file.
+Every other failure turned out to be one of these:
+- a flake that passed on a rerun;
+- HoH1 content a release package never has (now `needs_hoh1`);
+- a scenario that fails the same way from the source folders.
+None failed only as a package. Without HoH1, the campaign, classes, pets and trinkets features
+keep their stand-ins, and the player gets one chat line naming them (`hoh1-standins`; with
+HoH1, `hoh1-installed` stays quiet). A package from another build now tells the player as
+well as the log (`pkg-mismatch`). The all-in-one pack with all twelve single packages enabled
+beside it passes every check (`pkg-all-every`). Still open: 17 scenarios that fail from the
+source folders too (`docs/RE_NOTES.md`, "Packages on their own").
 
 2026-10-27, script safety against game updates: every HWP module entry point (45 of them)
 now runs inside `HWP::Guard` (hwplib `Guard.as`, applied by `tools/guard_modules.py`, which

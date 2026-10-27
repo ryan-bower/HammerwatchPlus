@@ -1,0 +1,27 @@
+{
+ "name": "pf-mod-bufftips",
+ "about": "mod-bufftips against the built package qol instead of the mods' source folders (tools/make_package_scenarios.py). mods/bufftips loads in town: the self-check lines from mods/bufftips/README.md Testing step 1, no script errors in our files.",
+ "fixture": "town-paladin",
+ "timeout": 120,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:bufftips\\] ready",
+   "timeout": 20
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "still in town"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "qol"
+ ]
+}

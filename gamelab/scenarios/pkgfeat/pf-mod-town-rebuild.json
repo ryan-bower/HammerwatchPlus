@@ -1,0 +1,146 @@
+{
+ "name": "pf-mod-town-rebuild",
+ "about": "mod-town-rebuild against the built packages pets, qol, town instead of the mods' source folders (tools/make_package_scenarios.py). Units HWP spawns once per town load (the gambler, the laststats notice board, the pets feeding bowl) come back after a building upgrade, which reloads the town level without a new Start (gl townrefresh = TownRecord.Refresh). No duplicates after a second rebuild. The feeding bowl is optional since 2026-10-25 (pets.bowl, default off; the pet menu lives at the Pet Shop keeper): the scenario turns it on with `hwp set pets.bowl 1`, which places it at once, so its respawn after a rebuild stays covered.",
+ "fixture": "town-tavern",
+ "timeout": 180,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:gambler\\] spawned the gambler",
+   "timeout": 20
+  },
+  {
+   "do": "console",
+   "line": "hwp set pets.bowl 1",
+   "name": "the optional feeding bowl turned on (placed at once by OnSettingChanged)"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:pets\\] spawned the feeding bowl",
+   "timeout": 20
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "gl",
+   "verb": "near",
+   "args": [
+    6000,
+    "hwp_gambler"
+   ],
+   "expect": {
+    "count": 1
+   },
+   "name": "gambler after the load"
+  },
+  {
+   "do": "gl",
+   "verb": "near",
+   "args": [
+    6000,
+    "laststats_board"
+   ],
+   "expect": {
+    "count": 1
+   },
+   "name": "notice board after the load"
+  },
+  {
+   "do": "gl",
+   "verb": "near",
+   "args": [
+    6000,
+    "pet_bowl"
+   ],
+   "expect": {
+    "count": 1
+   },
+   "name": "feeding bowl after the load"
+  },
+  {
+   "do": "gl",
+   "verb": "townrefresh"
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "near",
+   "args": [
+    6000,
+    "hwp_gambler"
+   ],
+   "expect": {
+    "count": 1
+   },
+   "name": "gambler back after the rebuild"
+  },
+  {
+   "do": "gl",
+   "verb": "near",
+   "args": [
+    6000,
+    "laststats_board"
+   ],
+   "expect": {
+    "count": 1
+   },
+   "name": "notice board back after the rebuild"
+  },
+  {
+   "do": "gl",
+   "verb": "near",
+   "args": [
+    6000,
+    "pet_bowl"
+   ],
+   "expect": {
+    "count": 1
+   },
+   "name": "feeding bowl back after the rebuild"
+  },
+  {
+   "do": "gl",
+   "verb": "townrefresh"
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "near",
+   "args": [
+    6000,
+    "hwp_gambler"
+   ],
+   "expect": {
+    "count": 1
+   },
+   "name": "exactly one gambler after a second rebuild"
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "still in town"
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "pets",
+  "qol",
+  "town"
+ ]
+}

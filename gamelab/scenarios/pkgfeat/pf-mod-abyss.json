@@ -1,0 +1,31 @@
+{
+ "name": "pf-mod-abyss",
+ "about": "mod-abyss against the built package dungeon instead of the mods' source folders (tools/make_package_scenarios.py). mods/abyss loads in town: the self-check lines from mods/abyss/README.md Testing step 1, no script errors in our files.",
+ "fixture": "town-paladin",
+ "timeout": 120,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:abyss\\] self-check done",
+   "timeout": 20
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "still in town"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "(?i)missing (unit|item|loot)"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "dungeon"
+ ]
+}

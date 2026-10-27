@@ -1194,6 +1194,7 @@ namespace HWP
 				if (d.m_unit is null)
 					missingUnit++;
 			}
+			HWP::HoH1::Report("pets", imported > 0, ".hwp.pets.hoh1");
 			if (imported == 0)
 				HWP::Log("pets", "no HoH1 pets imported (run: python tools/import_hoh1.py pets)");
 			else

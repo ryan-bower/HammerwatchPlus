@@ -1,0 +1,30 @@
+{
+ "fixture": "town-paladin",
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_content_weapons",
+   "kwargs": {},
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "name": "pf-qa-content-weapons-native-standalone",
+ "about": "qa-content-weapons-native-standalone against the built package dungeon instead of the mods' source folders (tools/make_package_scenarios.py). All12 content weapons, minimum dependencies, native equipped inputs/readiness and zero-defense unsaturated HP; defensive Dirk parry remains separate.",
+ "packages": [
+  "dungeon"
+ ]
+}

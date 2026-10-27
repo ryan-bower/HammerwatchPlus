@@ -10,5 +10,11 @@
     "EquipmentDyerShopContent": "HWPDyerShopContent",
     "PetsShopContent": "HWPPetShopContent"
   },
-  "exclude": []
+  "exclude": [],
+  "local": [
+    "players/pets/hwp/",
+    "gui/hwp/",
+    "doodads/hwp/outlook_props.png",
+    "tweak/hwp/pets_hoh1.sval"
+  ]
 }

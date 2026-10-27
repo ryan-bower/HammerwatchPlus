@@ -3,6 +3,11 @@
 (packages.json, tools/build.py): gamelab/scenarios/pkg-<id>.json for each package alone,
 pkg-all.json for the all-in-one pack, and pkg-pair-*.json for packages side by side.
 
+It also writes gamelab/scenarios/pkgfeat/pf-<scenario>.json: every feature scenario (mod-, qa-,
+fix-, plan- ...) whose mods ship in at most MAX_FEATURE_PACKAGES packages, run against those
+packages instead of the mods' source folders, so each package's features are tested the way
+players get them (`python -m gamelab suite pkgfeat`). Its GameLab probe mods stay as mods.
+
     make_package_scenarios.py          # (re)write them
     make_package_scenarios.py --check  # exit 1 when one is missing or stale
 
@@ -35,6 +40,13 @@ PROBES = {
     "firearms": [("hwp help", r"\[HWP\] hwp firearms")],
     "classes": [("hwp help", r"\[HWP\] hwp skillkeys ")],
 }
+
+
+# feature scenarios that are not about a package's features: looks, benchmarks, probes
+FEATURE_SKIP = ("look-", "bench-", "diag-", "probe-", "demo-", "export-", "spike-", "pkg-", "dup-",
+                "compile-err", "throw", "guard", "reload-")
+MAX_FEATURE_PACKAGES = 3
+FEATURES = SCENARIOS / "pkgfeat"
 
 
 def requires_closure(mods: list[str]) -> set[str]:
@@ -110,6 +122,54 @@ def build_all() -> dict[str, dict]:
             "tools/make_package_scenarios.py.",
             [a, b], ids, "hwplib-luck" in (mods_of[a] | mods_of[b]),
             probes_of[a] + [p for p in probes_of[b] if p not in probes_of[a]], "keys" in (mods_of[a] | mods_of[b]))
+    # the all-in-one pack with every package it already holds enabled as well
+    every = ["all", *pkgs]
+    out["pkg-all-every"] = scenario(
+        "pkg-all-every", "The all-in-one pack with every single package enabled beside it, as a player who "
+        "subscribed to both would have them: every path is shipped up to twice, the game keeps one copy, "
+        "nothing conflicts, every stamp check passes and every package's commands answer. "
+        "tools/make_package_scenarios.py.",
+        every, ids_of["all"], True, probes_of["all"], True)
+    return out
+
+
+def feature_variants() -> dict[str, dict]:
+    """pf-<scenario>: a feature scenario run against the packages that ship its mods."""
+    doc = json.loads((REPO / "packages.json").read_text(encoding="utf-8"))
+    owner = {m: p["id"] for p in doc["packages"] for m in p["mods"]}
+    library = {f.parent.name for f in (REPO / "mods").glob("*/module.json")
+               if json.loads(f.read_text(encoding="utf-8")).get("library")}
+    out = {}
+    for f in sorted(SCENARIOS.glob("*.json")):
+        if f.stem.startswith(FEATURE_SKIP):
+            continue
+        d = json.loads(f.read_text(encoding="utf-8"))
+        # needs_hoh1: it reads the local content tools/import_hoh1.py wrote into the source
+        # folders, which a built package carries only with --with-local (pf-fix-campaign-traps
+        # 20261027-033114); hoh1-standins checks the packages without it
+        if "packages" in d or d.get("compile_error") or d.get("needs_hoh1"):
+            continue
+        feat = [m for m in d.get("mods", []) if not m.startswith("gamelab") and m not in library]
+        if not feat or any(m not in owner for m in feat):
+            continue   # library-only, or a mod no package ships (the bench, local HoH1 content)
+        pkgs = sorted({owner[m] for m in feat})
+        if len(pkgs) > MAX_FEATURE_PACKAGES:
+            continue
+        v = dict(d)
+        v["name"] = f"pf-{d['name']}"
+        v["about"] = (f"{f.stem} against the built package{'s' if len(pkgs) > 1 else ''} "
+                      f"{', '.join(pkgs)} instead of the mods' source folders "
+                      "(tools/make_package_scenarios.py). " + d.get("about", ""))
+        probes = [m for m in d.get("mods", []) if m.startswith("gamelab")]
+        if probes:
+            v["mods"] = probes
+        else:
+            v.pop("mods", None)
+        v["packages"] = pkgs
+        if len(pkgs) > 1:
+            v["steps"] = [dict(s, allow=list(s.get("allow", [])) + [SHARED_PATH]) if s.get("do") == "log_clean"
+                          else s for s in d["steps"]]
+        out[f"pf-{f.stem}"] = v
     return out
 
 
@@ -122,8 +182,18 @@ def main(argv=None) -> int:
     ap.add_argument("--check", action="store_true")
     a = ap.parse_args(argv)
     stale = []
-    for name, d in build_all().items():
-        p = SCENARIOS / f"{name}.json"
+    FEATURES.mkdir(exist_ok=True)
+    want_files = {SCENARIOS / f"{n}.json": d for n, d in build_all().items()}
+    want_files.update({FEATURES / f"{n}.json": d for n, d in feature_variants().items()})
+    for p in sorted(FEATURES.glob("*.json")):
+        if p not in want_files:
+            if a.check:
+                stale.append(p.stem)
+            else:
+                p.unlink()
+                print("removed", p.relative_to(REPO))
+    for p, d in want_files.items():
+        name = p.stem
         want = text(d)
         if p.is_file() and p.read_text(encoding="utf-8") == want:
             continue

@@ -1,5 +1,6 @@
 {
  "name": "mod-trinkets",
+ "needs_hoh1": true,
  "about": "Trinket NG+ scaling (mods/trinkets: HWP/Trinkets/NGScaling.as) through the fix_trinkets bot, in town as the host: every scaled trinket found at boot; the Amulet of Health reads +30 Health, at `hwp trinkets ng 3` +45 (attuned +90) and the max health 15 higher; at NG+ 3 the rebuilt proc and float trinkets read their scaled tooltips (Searing Torch 80 Fire damage with its 2s cooldown kept, Chicken Feet 3.5 Mana, Arctic Step 60 Ice damage, Apothecary's Tincture 8 seconds); at NG+ 4 Apothecary's Flask gives +2 (attuned +4) potion charges; NG+ 0 puts the amulet and the max health back. Then the HoH1 trinkets: all 37 load, the vanilla set changes apply (Apothecary 7 pieces without the merge duplicate, Emblems 5), the new sets hold their pieces, Lucky Hat + Horseshoe give Luck 35 with the Charms 2-piece, Trader's Coin, Fancy Plume and Key Ring set their shop and key stats, and Judgement's +1 Physical per NG+ level shows in its tooltip.",
  "fixture": "town-paladin",
  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "trinkets", "keys"],

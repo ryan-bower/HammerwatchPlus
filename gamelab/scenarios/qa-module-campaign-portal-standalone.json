@@ -1,5 +1,6 @@
 {
   "name": "qa-module-campaign-portal-standalone",
+  "needs_hoh1": true,
   "about": "Standalone functional subset with only required modules. Native portal presence, locked refusal and actual mission picker entries; no imported boss/floor completion claim. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
   "fixture": "town-paladin",
   "mods": [

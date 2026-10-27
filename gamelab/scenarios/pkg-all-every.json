@@ -1,0 +1,208 @@
+{
+ "name": "pkg-all-every",
+ "about": "The all-in-one pack with every single package enabled beside it, as a player who subscribed to both would have them: every path is shipped up to twice, the game keeps one copy, nothing conflicts, every stamp check passes and every package's commands answer. tools/make_package_scenarios.py.",
+ "fixture": "town-paladin",
+ "packages": [
+  "all",
+  "qol",
+  "coop",
+  "autoaim",
+  "firearms",
+  "specs",
+  "classes",
+  "keys",
+  "campaign",
+  "modes",
+  "dungeon",
+  "town",
+  "pets"
+ ],
+ "timeout": 240,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] module created, version \\S+",
+   "timeout": 30,
+   "name": "library: module created"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-qol, library [0-9a-f]{12}",
+   "name": "HWP-qol: stamp check passed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-coop, library [0-9a-f]{12}",
+   "name": "HWP-coop: stamp check passed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-autoaim, library [0-9a-f]{12}",
+   "name": "HWP-autoaim: stamp check passed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-firearms, library [0-9a-f]{12}",
+   "name": "HWP-firearms: stamp check passed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-specs, library [0-9a-f]{12}",
+   "name": "HWP-specs: stamp check passed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-classes, library [0-9a-f]{12}",
+   "name": "HWP-classes: stamp check passed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-keys, library [0-9a-f]{12}",
+   "name": "HWP-keys: stamp check passed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-campaign, library [0-9a-f]{12}",
+   "name": "HWP-campaign: stamp check passed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-modes, library [0-9a-f]{12}",
+   "name": "HWP-modes: stamp check passed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-dungeon, library [0-9a-f]{12}",
+   "name": "HWP-dungeon: stamp check passed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-town, library [0-9a-f]{12}",
+   "name": "HWP-town: stamp check passed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-pets, library [0-9a-f]{12}",
+   "name": "HWP-pets: stamp check passed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] gameplay started; server=yes town=yes",
+   "timeout": 60,
+   "name": "gameplay started in town"
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "in town"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "was built with library",
+   "name": "no package of another library build"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:luck\\] self-check done",
+   "name": "the Luck part loaded"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character",
+    "-",
+    "hwp-luck-stat"
+   ],
+   "expect": {
+    "tab": "PlayerMenuCharacterTab"
+   },
+   "name": "character tab open"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character",
+    "-",
+    "hwp-luck-stat"
+   ],
+   "expect": {
+    "tab": "PlayerMenuCharacterTab",
+    "shown": true
+   },
+   "name": "the Luck cell shows"
+  },
+  {
+   "do": "shot",
+   "name": "character-tab"
+  },
+  {
+   "do": "key",
+   "key": "escape"
+  },
+  {
+   "do": "console",
+   "line": "hwp help"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] commands \\(\\d+\\):",
+   "timeout": 5,
+   "name": "hwp help answers"
+  },
+  {
+   "do": "console",
+   "line": "hwp bag"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] Bag: \\d+/\\d+ items",
+   "timeout": 5,
+   "name": "hwp bag: \\[HWP\\] Bag: \\d+/\\d+ items"
+  },
+  {
+   "do": "console",
+   "line": "hwp help"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] hwp fishing ",
+   "timeout": 5,
+   "name": "hwp help: \\[HWP\\] hwp fishing "
+  },
+  {
+   "do": "console",
+   "line": "hwp help"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] hwp firearms",
+   "timeout": 5,
+   "name": "hwp help: \\[HWP\\] hwp firearms"
+  },
+  {
+   "do": "console",
+   "line": "hwp help"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] hwp skillkeys ",
+   "timeout": 5,
+   "name": "hwp help: \\[HWP\\] hwp skillkeys "
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ]
+}

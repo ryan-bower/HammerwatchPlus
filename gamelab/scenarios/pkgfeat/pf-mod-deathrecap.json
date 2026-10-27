@@ -1,0 +1,22 @@
+{
+ "name": "pf-mod-deathrecap",
+ "about": "mod-deathrecap against the built package qol instead of the mods' source folders (tools/make_package_scenarios.py). mods/deathrecap loads in town: the self-check lines from mods/deathrecap/README.md Testing step 1, no script errors in our files.",
+ "fixture": "town-paladin",
+ "timeout": 120,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "still in town"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "qol"
+ ]
+}

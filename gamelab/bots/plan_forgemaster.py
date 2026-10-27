@@ -151,8 +151,14 @@ class Checks(Base):
         return False
 
     def errors_since(self, mark):
+        """Script errors since mark. Not every line with "error" in it: a level load logs the
+        vanilla [WRN] "SValue param error: missing string 'description' (file: tweak/pets.sval)"
+        (pf-plan-forgemaster-units 20261027-044247), and floor loads log vanilla [ERR] lines (the
+        HUD widgets, DungeonGenerationCommands.as), as plan_generosity.errors_since says. So only
+        exceptions and errors that name an HWP mod or the specs scripts count."""
         new = self.g.read_log()[mark:]
-        return [ln.strip()[:160] for ln in new.splitlines() if "Script exception" in ln or "[ERR]" in ln or "ERROR" in ln.upper()[:40]]
+        return [ln.strip()[:160] for ln in new.splitlines()
+                if "Script exception" in ln or ("[ERR]" in ln and any(k in ln for k in ("HWP", "Specs/")))]
 
     def setup_forge(self, key="forge", levels=0):
         self.setup(key, "priest", SUB, [NR, COH])

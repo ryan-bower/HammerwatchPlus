@@ -135,47 +135,7 @@
   },
   {
    "do": "console",
-   "line": "cht_damage 999999"
-  },
-  {
-   "do": "sleep",
-   "seconds": 1
-  },
-  {
-   "do": "console",
-   "line": "cht_damage 999999"
-  },
-  {
-   "do": "sleep",
-   "seconds": 1
-  },
-  {
-   "do": "console",
-   "line": "cht_damage 999999"
-  },
-  {
-   "do": "sleep",
-   "seconds": 1
-  },
-  {
-   "do": "console",
-   "line": "cht_damage 999999"
-  },
-  {
-   "do": "sleep",
-   "seconds": 1
-  },
-  {
-   "do": "console",
-   "line": "cht_damage 999999"
-  },
-  {
-   "do": "sleep",
-   "seconds": 1
-  },
-  {
-   "do": "console",
-   "line": "cht_damage 999999"
+   "line": "ply_kill"
   },
   {
    "do": "sleep",

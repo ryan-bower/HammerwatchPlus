@@ -4715,3 +4715,62 @@ The guard scenario stands in a different tested build with the setting
 There is no script preprocessor to fall back on: no `#if` anywhere in the base scripts. A
 compile error therefore cannot be guarded in script. `docs/GAME_UPDATES.md` is the checklist
 that catches one before players do, and the 33 wholesale overrides are the most exposed part.
+
+## 2026-10-27: Packages on their own, HoH1 stand-ins, mixed builds
+
+**Every feature scenario against the built packages.** `tools/make_package_scenarios.py`
+writes `gamelab/scenarios/pkgfeat/pf-<scenario>.json` for each feature scenario. The copy
+loads the packages that ship the scenario's mods (at most three) in place of the source
+folders, and keeps only the gamelab probe mods. Looks, benchmarks, probes and the
+`needs_hoh1` scenarios are skipped.
+
+The first suite (`suite-20261027-032903-pkgfeat`) passed 134 of 167. Each failure was rerun
+as a package, and the never-run ones also from source (`suite-20261027-073231-_triage`,
+`suite-20261027-081834-_triage`). None failed only as a package:
+
+| class | scenarios |
+|---|---|
+| passed on a rerun | abyss-tiers, droptrade-pickup, valuables, waygates, qa-module-pets-standalone, qa-classes-gladiator-actives, qa-specs-wizard-charge-orbs, qa-content-weapons-native-standalone (its first failure was `native_frame_continuity: false`, an observer gap) |
+| HoH1 content a release never has | fix-campaign-battlements, -portal-version, -traps, mod-trinkets, qa-module-campaign-portal-standalone (now `needs_hoh1`) |
+| a test fault, fixed | plan-forgemaster-units: `errors_since` counted the vanilla `[WRN] SValue param error: missing string 'description' (file: tweak/pets.sval)` because "error" was in its first 40 characters. mod-mercenary: `cht_damage 999999` sometimes does not kill (blocked or during invulnerability), and after it does, the next one fails with "no local player"; one `ply_kill` instead (083709). plan-runs-arch: the loadout list scrolls, so 3 of the 7 red challenge rows are listed, not 7 (083623). |
+| fails from source the same way, open | fix-specs-arcane (blink 92 of 112 px, "nudged"), mod-options-tab (the inbox transport's `!gl c17 ...` text lands in the focused search field), mod-puzzle-rooms-outdoor (no constellation found), plan-forgemaster and -bosses (failing since 20261022), and 12 qa-* scenarios from d9d96f8 with no run on this machine before: gladiator/thief/witchhunter integration (the bot dies on floor 0), vanish, chatlinks-native (`chat_empty_off_fixture`), laststats-native, summons (`no_summons_in_town`), specs arcane-ranks, branding-orbs, deadeye-ward, static and static-overlap (the static controls want 0 spell crit, and a level-20 wizard has 3%) |
+
+**The pets package carried HoH1 files.** `HWP-pets.bin` and the all-in-one pack held the 216
+pet units, sprites and the `pets_hoh1.sval` that `tools/import_hoh1.py` had cut from this
+machine's HoH1 install. They are gitignored but were not in the module's `local` list. The
+list now names them. `tests/test_release_files.py` asks `git check-ignore` about every file a
+release package carries and fails on any ignored one, except the generated blocks in the
+HoH2-base `.gitignore`s. Nothing had been uploaded.
+
+**HoH1 stand-ins** (`HWP::HoH1`, hwplib `HoH1.as`). Four modules report once they have looked:
+- campaign: the HoH1 mission def;
+- classes: the string `hwp.classes.hoh1art`, which `import_hoh1.py classes` now writes beside
+  the art it cuts;
+- pets: the HoH1 pets it imported;
+- trinkets: the art ids string.
+
+The core module waits for the town's 60th gameplay tick, after every self-check. Without HoH1
+(`hoh1-standins` 20261027-082947, packages campaign, classes, dungeon and pets) it logged
+`[HWP:hoh1] on stand-ins: campaign,classes,pets,trinkets` and sent one chat line naming what
+each keeps instead. The setting `hoh1.told` holds the reported set, so the line comes again
+only when the set changes. With this machine's import (`hoh1-installed` 082930) nothing was
+said, and `hwp hoh1` named each installed feature.
+
+**Mixed builds.** The check module `build.py` generates now also calls
+`HWP::Packages::Mismatch("HWP-<id>")`, and the player gets one chat line in town
+(`pkg-mismatch` 083609: the probe `gamelab-stampfake` carries a check made with stamp
+`000000000000` beside `HWP-qol`). An older package whose library copy wins makes a newer
+package's calls to newer library code fail to compile, so `Mismatch` and `LIB_STAMP` are
+frozen (`docs/modules.md`, Packages). The all-in-one pack with all twelve packages beside it
+(`pkg-all-every` 083528): 12 stamp checks passed, no mismatch, a clean log.
+
+**Small finds.**
+- The Witch Hunter's Pyre (`pyre.sval`) is a `Skills::SpawnUnit : ActiveSkill`, which reads
+  `blocking` as a bool (ActiveSkill.as 73). Its `ivec2` was ignored with a warning on every
+  load; it is now `false`, the value it had.
+- In `pf-qa-classes-witchhunter-integration` (both runs, pass 2) a vanilla
+  `players/ranger/units/wolf.unit` threw `Null pointer access` in
+  `PlayerOwnedActor::GetMaxHp` ten times as the town loaded: a Hound wolf with no owner yet.
+  Not seen from source; open.
+- `HWP::Guard` records are per level (script globals reset), so `hwp guard` now says
+  "on this level".

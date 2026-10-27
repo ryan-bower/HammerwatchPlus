@@ -1,0 +1,57 @@
+{
+ "name": "pf-qa-specs-wizard-orb-damage",
+ "about": "qa-specs-wizard-orb-damage against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Native1x real-input Wizard orb effects. Source-pinned damage-round controls, fresh native15k targets, bounded crit setup and explicit prerequisite cooldown resets. All fixed trials retained. Runtime untested until root gate.",
+ "fixture": "town-paladin",
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_specs_wizard_orbs",
+   "expect": {
+    "wizorbs_char": true,
+    "wizorbs_learned": true,
+    "wizorbs_input_own_button": true,
+    "wizorbs_rank5": true,
+    "wizorbs_crit_restored": true,
+    "focal_0_equipped": true,
+    "focal_1_equipped": true,
+    "focal_2_equipped": true,
+    "focal_0_1_native_curve": true,
+    "focal_0_2_native_curve": true,
+    "focal_0_3_native_curve": true,
+    "focal_1_1_native_curve": true,
+    "focal_1_2_native_curve": true,
+    "focal_1_3_native_curve": true,
+    "focal_2_1_native_curve": true,
+    "focal_2_2_native_curve": true,
+    "focal_2_3_native_curve": true,
+    "focal_common_native_model": true,
+    "clap_equipped": true,
+    "clap_1_natural_expiry_extra_damage": true,
+    "clap_2_natural_expiry_extra_damage": true,
+    "clap_3_natural_expiry_extra_damage": true
+   },
+   "kwargs": {
+    "section": "orb_damage"
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

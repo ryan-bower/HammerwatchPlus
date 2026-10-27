@@ -1,0 +1,50 @@
+{
+ "name": "pf-plan-forgemaster-units",
+ "about": "plan-forgemaster-units against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Devil Forgemaster: the raise table on a handful of units (plan_forgemaster bot, section raise_all with the units kwarg): the ones a full run flagged, re-tested after a fix without the 75 minutes of all 141. Each is raised, follows and leash-teleports, then attacks a bandit brute.",
+ "fixture": "town-paladin",
+ "timeout": 700,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",
+   "timeout": 30
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "plan_forgemaster",
+   "name": "raise_all",
+   "kwargs": {
+    "sections": "raise_all",
+    "units": "misc/ballista/ballista_heavy.unit,beasts/wasps/yellow_jacket.unit,beasts/wasps/yellow_jacket_elite.unit,beasts/bats/bat_black.unit,beasts/beetles/beetle_green_small.unit,beasts/wasps/black_jacket.unit"
+   },
+   "expect": {
+    "all_raised": true,
+    "all_attack": true,
+    "all_leash": true,
+    "all_no_errors": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

@@ -45,6 +45,7 @@ namespace Modules
 	class HWPCoreModule : Module, HWP::ModuleStart
 	{
 		bool m_announced = false;
+		int m_townTicks = 0;
 
 		HWPCoreModule()
 		{
@@ -54,6 +55,7 @@ namespace Modules
 			HWP::Log("core", "lang check: " + Resources::GetString(".hwp.core.hello"));
 			HWP::Commands::RegisterBuiltins();
 			HWP::Guards::Init();
+			HWP::HoH1::Init();
 			HWP::Market::Init();
 			HWP::Net::OnRequest(HWP::Core::SETTINGS_PULL, HWP::Net::RequestHandler(HWP::Core::OnPull));
 			HWP::Net::OnEvent(HWP::Core::SETTINGS_SYNC, HWP::Net::EventHandler(HWP::Core::OnSync));
@@ -88,6 +90,12 @@ namespace Modules
 
 		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
+			// after every mod's self-check has reported (HoH1.as, Packages.as)
+			if (g_inTown && ++m_townTicks == HWP::HoH1::TELL_TICK)
+			{
+				HWP::HoH1::Tell();
+				HWP::Packages::Tell();
+			}
 			if (m_announced)
 				return;
 			m_announced = true;
@@ -108,6 +116,7 @@ namespace Modules
 			// every level: the first gameplay tick re-pulls the host's values
 			// (script globals, the received ones included, reset per level)
 			m_announced = false;
+			m_townTicks = 0;
 		}
 	}
 }

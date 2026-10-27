@@ -1,0 +1,33 @@
+{
+ "name": "pf-qa-specs-winddancer-ranks",
+ "about": "qa-specs-winddancer-ranks against the built package specs instead of the mods' source folders (tools/make_package_scenarios.py). All five Protective Gale and Second Wind ranks: normal Gale button/cost/cooldown, live combined evade chance, real6s expiry/reversion; native evade heal20..60, immediate4s block and recovered heal. Separate supporting Gale/LastingGale3 cooldown resets are explicit fixtures for Second Wind, not cooldown claims.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_winddancer",
+   "kwargs": {
+    "sections": "gale,second_wind"
+   },
+   "expect": {
+    "gale_all_ranks": true,
+    "second_wind_all_ranks": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "specs"
+ ]
+}

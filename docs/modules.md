@@ -44,8 +44,28 @@ copy wins is the same code. Two rules keep packages of different builds working 
   class, interface method or lang key a released package may call; add new ones beside it.
 - **Publish every package together** from one build. Each package carries the library stamp
   (`HWP::LIB_STAMP`, a hash of all library parts, generated) and a check module that logs
-  `[HWP:core] package HWP-<id>, library <stamp>`, or an error when the loaded stamp is
-  another build's.
+  `[HWP:core] package HWP-<id>, library <stamp>`. When the loaded stamp is another build's,
+  it logs an error and calls `HWP::Packages::Mismatch("HWP-<id>")`, and the player gets one
+  chat line in town (`hwp.packages.mismatch`, `pkg-mismatch`).
+
+The rule "only grows" covers an older package running on a newer library. The reverse can
+still break: when an older package's library copy wins, a newer package that calls something
+added since will not compile, and with it nothing compiles (`docs/GAME_UPDATES.md`). So
+`HWP::Packages::Mismatch(const string &in)` and `HWP::LIB_STAMP` are frozen from the first
+release on, since every generated check module calls them. Code that can run on an older
+library goes through what that library already had. With the all-in-one pack and single
+packages of the same build enabled together, every path is the same file and every check
+passes (`pkg-all-every`).
+
+**Heroes of Hammerwatch 1 content** is the player's own: `tools/import_hoh1.py` cuts it into
+paths a module lists under `local` (or `local_overlay`), and only `build.py --with-local`
+packs them, never a release build (`tests/test_release_files.py` fails on any ignored file
+that a release package would carry). No package needs HoH1. A module with HoH1 features
+calls `HWP::HoH1::Report(mod, present, ".lang.key")` after it has looked, where the key
+names what the player gets instead. hwplib tells the player once per save and set
+(`hwp.hoh1.missing`, the setting `hoh1.told`), and `hwp hoh1` lists the features
+(`hoh1-standins`, `hoh1-installed`). Scenarios that read the local content are marked
+`"needs_hoh1": true`, and `tools/make_package_scenarios.py` keeps them out of `pkgfeat/`.
 
 A part reaches what another part holds only through an interface the other registers (the
 character screen's Luck cell asks `HWP::LuckView`, which `hwplib-luck` fills; without it the

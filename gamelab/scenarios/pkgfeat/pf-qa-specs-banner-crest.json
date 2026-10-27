@@ -1,0 +1,48 @@
+{
+ "name": "pf-qa-specs-banner-crest",
+ "about": "qa-specs-banner-crest against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). All3 FearedCrest qualities:3 fixed natural main-attack baseline controls and3 fixed trials per quality, real HP per native hit, numeric critical evidence, actual Vulnerability aura and natural Standard expiry.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_specs_banner_orbs",
+   "kwargs": {
+    "section": "crest"
+   },
+   "expect": {
+    "crest_god_off": true,
+    "crest_lane": true,
+    "crest_char": true,
+    "crest_learned": true,
+    "crest_physical_main": true,
+    "crest_standard_rank": true,
+    "crest_three_controls": true,
+    "crest_crit_restored": true,
+    "crest_r1_equipped": true,
+    "crest_r1_native_damage": true,
+    "crest_r1_expires": true,
+    "crest_r2_equipped": true,
+    "crest_r2_native_damage": true,
+    "crest_r2_expires": true,
+    "crest_r3_equipped": true,
+    "crest_r3_native_damage": true,
+    "crest_r3_expires": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

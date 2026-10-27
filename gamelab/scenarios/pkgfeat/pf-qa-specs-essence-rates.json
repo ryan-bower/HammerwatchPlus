@@ -1,0 +1,34 @@
+{
+ "name": "pf-qa-specs-essence-rates",
+ "about": "qa-specs-essence-rates against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Every Essence Extraction rank: native per-frame real wand HP-hit and stack-gain timestamps, cooldown bounds at actual qualifying hits, repeated unbranded +1 and branded +2. Strict complete/nontruncated read-only observer; finer unobserved timing remains unproven.",
+ "fixture": "town-paladin",
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_specs_branding_effects",
+   "kwargs": {
+    "section": "essence_rates"
+   },
+   "expect": {
+    "essence_rates_lane": true,
+    "essence_legal_wand": true,
+    "essence_all_rank_rates": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

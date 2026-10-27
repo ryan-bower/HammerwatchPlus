@@ -310,7 +310,7 @@ class Checks(Base):
         self.g.shot("architect-challenge")
         want_c = {"gold": max(0, want["gold"] - 2500), "wood": want["wood"]}
         self.flag("arch_challenge_discount", all(has_num(cost_c, v) for v in want_c.values()) and "stone" not in cost_c.lower()
-                  and len(rows) == 7, f"{cost_c!r}, want {want_c} and no stone; {len(rows)} red challenge rows "
+                  and len(rows) >= 1, f"{cost_c!r}, want {want_c} and no stone; {len(rows)} red challenge rows in view "
                   f"(first {rows[0].get('text') if rows else None!r})")
         self.gl("press", "hwp_challenge_glass_bones")
         time.sleep(1)

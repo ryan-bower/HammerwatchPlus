@@ -1,0 +1,123 @@
+{
+ "name": "pf-mod-architect-challenges",
+ "about": "mod-architect-challenges against the built package coop instead of the mods' source folders (tools/make_package_scenarios.py). mods/architect challenges: the seven HoH1 bad-wish challenges load as free architect alterations; each takes a fixed gold + material amount off the bill after vanilla's cost curve, and a material stops at 0 (never pays out). Picked for a run (hwp architect try, the loadout Play's effect), the generation ones reach the floor (Crowded Halls + Champions set on the enemy placer) and the picks are on the player record. Then no script errors in our files.",
+ "fixture": "town-paladin",
+ "timeout": 240,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "still in town"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:architect\\] challenge setup added to \\d+ mission level generator",
+   "timeout": 5
+  },
+  {
+   "do": "console",
+   "line": "hwp architect challenges"
+  },
+  {
+   "do": "log_has",
+   "pattern": "- hwp_challenge_glass_bones -2500 gold -15 stone Challenge: Glass Bones",
+   "timeout": 5,
+   "name": "challenges loaded with names and discounts"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\(not loaded\\)",
+   "name": "every challenge is a loaded mission buff"
+  },
+  {
+   "do": "console",
+   "line": "hwp architect challenges architect_far_sight"
+  },
+  {
+   "do": "log_has",
+   "pattern": "cost multiplier 100% for 1 pick",
+   "timeout": 5,
+   "name": "one alteration: vanilla 100%"
+  },
+  {
+   "do": "console",
+   "line": "hwp architect challenges architect_more_treasury hwp_challenge_glass_bones"
+  },
+  {
+   "do": "log_has",
+   "pattern": "cost multiplier 100% for 2 pick",
+   "timeout": 5,
+   "name": "a challenge leaves the curve alone"
+  },
+  {
+   "do": "log_has",
+   "pattern": "solo bill gold 500 wood 10 stone 0",
+   "timeout": 5,
+   "name": "Glass Bones takes 2500 gold and 15 stone off 3000 gold, 10 wood, 5 stone; stone stops at 0"
+  },
+  {
+   "do": "console",
+   "line": "hwp architect challenges architect_far_sight architect_fewer_enemies architect_more_maps hwp_challenge_crowded hwp_challenge_champions hwp_challenge_lean_pickups hwp_challenge_bitter_draughts hwp_challenge_glass_bones hwp_challenge_sharp_traps hwp_challenge_slim_pickings"
+  },
+  {
+   "do": "log_has",
+   "pattern": "solo bill gold \\d+ wood 0 stone 0",
+   "timeout": 5,
+   "name": "all seven challenges: stone down to 0, not below"
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp architect try hwp_challenge_crowded hwp_challenge_champions hwp_challenge_glass_bones"
+  },
+  {
+   "do": "log_has",
+   "pattern": "architect buffs for the next level: 3",
+   "timeout": 5
+  },
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "bandit_keep",
+    0
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 150
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:architect\\] challenges on this floor: crowded champions",
+   "timeout": 5,
+   "name": "generation saw Crowded Halls + Champions"
+  },
+  {
+   "do": "gl",
+   "verb": "inspect",
+   "args": [
+    "player",
+    "architect-buffs"
+   ],
+   "save_as": "picks",
+   "name": "picks on the player record"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "coop"
+ ]
+}

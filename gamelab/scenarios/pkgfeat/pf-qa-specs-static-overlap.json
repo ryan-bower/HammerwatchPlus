@@ -1,0 +1,59 @@
+{
+ "name": "pf-qa-specs-static-overlap",
+ "about": "qa-specs-static-overlap against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Three fixed same-skill overlap stress trials. Two real Thunder Orb inputs; one explicitly reset cooldown and100px lab teleport. Geometry isolates first critical HP loss by each live orb; both require4 charges. Negative projectile IDs are not treated as identity. Full frame/phase retention bounded below15k print cap.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_specs_static_overlap",
+   "expect": {
+    "staticoverlap_char": true,
+    "staticoverlap_learned": true,
+    "staticoverlap_lane": true,
+    "staticoverlap_input_own_button": true,
+    "staticoverlap_rank_radius_lifetime": true,
+    "staticoverlap_restored": true,
+    "overlap_1_ready": true,
+    "overlap_1_complete": true,
+    "overlap_1_setup": true,
+    "overlap_1_two_casts": true,
+    "overlap_1_new_orb_crit": true,
+    "overlap_1_old_orb_crit": true,
+    "overlap_1_two_bonuses": true,
+    "overlap_2_ready": true,
+    "overlap_2_complete": true,
+    "overlap_2_setup": true,
+    "overlap_2_two_casts": true,
+    "overlap_2_new_orb_crit": true,
+    "overlap_2_old_orb_crit": true,
+    "overlap_2_two_bonuses": true,
+    "overlap_3_ready": true,
+    "overlap_3_complete": true,
+    "overlap_3_setup": true,
+    "overlap_3_two_casts": true,
+    "overlap_3_new_orb_crit": true,
+    "overlap_3_old_orb_crit": true,
+    "overlap_3_two_bonuses": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

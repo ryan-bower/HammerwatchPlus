@@ -133,4 +133,5 @@
 	<string name="hwp.trinkets.set.apothecarys.7">Drinking a potion grants +50% Armor and Resistances for 5 seconds</string>
 	<string name="hwp.trinkets.traders_coin.desc">+%num%% Gold Gain\n%disc%% lower prices at the dungeon trinket shop</string>
 	<string name="hwp.trinkets.nimbus.name">Nimbus</string>
+	<string name="hwp.trinkets.hoh1">the HoH1 trinkets show placeholder icons</string>
 </lang>

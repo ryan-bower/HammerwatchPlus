@@ -32,7 +32,8 @@
 // level, so the next level tries again.
 //
 // The setting guard.off (hwp set guard.off true) runs every body unguarded, for
-// debugging. hwp guard lists every entry point that has failed this session.
+// debugging. hwp guard lists every entry point that has failed on this level (script
+// globals, these records included, reset with every level).
 //
 // A game update can also break a script outright: then nothing compiles and the game
 // stops on an empty main menu, which no script can guard against (docs/GAME_UPDATES.md).
@@ -45,7 +46,7 @@ namespace HWP
 		const int TRIP_STREAK = 30;
 		const int TRIP_TOTAL = 300;
 
-		// one line per entry point that has failed this session, kept across levels
+		// one line per entry point that has failed on this level
 		class Record
 		{
 			string mod;
@@ -90,7 +91,7 @@ namespace HWP
 		void Init()
 		{
 			g_offRead = false;
-			HWP::Commands::Register("guard", "[build]  list the mod script errors caught this session, or the game build check",
+			HWP::Commands::Register("guard", "[build]  list the mod script errors caught on this level, or the game build check",
 				HWP::Commands::Handler(CmdGuard));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(OnSettingChanged));
 		}
@@ -120,7 +121,7 @@ namespace HWP
 			}
 			if (g_records.length() == 0)
 			{
-				HWP::Commands::Reply("no mod script errors this session" + (Off() ? " (guard.off is set)" : ""));
+				HWP::Commands::Reply("no mod script errors on this level" + (Off() ? " (guard.off is set)" : ""));
 				return;
 			}
 			for (uint i = 0; i < g_records.length(); i++)

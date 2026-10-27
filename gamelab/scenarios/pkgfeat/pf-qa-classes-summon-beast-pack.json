@@ -1,0 +1,36 @@
+{
+ "name": "pf-qa-classes-summon-beast-pack",
+ "about": "qa-classes-summon-beast-pack against the built packages classes, qol instead of the mods' source folders (tools/make_package_scenarios.py). Controlled native passive summon ownership/HP at all5 ranks and actual natural target HP loss with player idle; Pack cases additionally require exact roster caps2,2,2,3,3 stable through a complete20s native spawn interval. No direct summon spawns. Per-hit configured damage is retained for review, not quantitatively claimed.",
+ "fixture": "town-paladin",
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_class_summons",
+   "kwargs": {
+    "sections": "beast_pack"
+   },
+   "expect": {
+    "beast_pack_all_ranks": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "qol"
+ ]
+}

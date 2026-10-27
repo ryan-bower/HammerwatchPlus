@@ -22,4 +22,5 @@
 	<string name="hwp.campaign.confusion.trap_desc">Your movement and aim are reversed by a confusion trap.</string>
 	<string name="hwp.campaign.citadel">Dark Citadel floors: %floors%</string>
 	<string name="hwp.campaign.help">hwp campaign [here|reset|citadel|traps|confuse [ms]|teleporter [dx dy]]</string>
+	<string name="hwp.campaign.hoh1">the Forsaken Tower runs on HoH2 themes, not the HoH1 levels</string>
 </lang>

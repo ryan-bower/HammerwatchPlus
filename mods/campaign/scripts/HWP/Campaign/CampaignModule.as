@@ -132,6 +132,7 @@ namespace HWP
 					HWP::LogError("campaign", "missing enemy scheme " + SCHEMES[i]);
 			}
 			auto hoh1 = MissionDef::Get(HashString(HOH1_MISSION_ID));
+			HWP::HoH1::Report("campaign", hoh1 !is null, ".hwp.campaign.hoh1");
 			if (hoh1 !is null && int(hoh1.m_levels.length()) != FLOORS)
 				HWP::LogError("campaign", "HoH1 mission has " + hoh1.m_levels.length() + " levels, expected " + FLOORS);
 			if (hoh1 !is null)

@@ -1,0 +1,77 @@
+{
+ "name": "pf-qa-specs-arcane-ranks",
+ "about": "qa-specs-arcane-ranks against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). All5 Blink ranks: actual posted native casts, pure HP damage progression and radius boundaries. All5 Living Mana ranks: native max-mana conversion, HP mirror, native-clock-bounded low/high missing-mana regeneration. Far Step qualities1..3: actual teleport distance and landing damage. Requires bounded zero-global-crit fixture contract; no Void Barrier/Feedback/teammate claim.",
+ "fixture": "town-paladin",
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_specs_arcane_ranks",
+   "expect": {
+    "arcqa_char": true,
+    "arcqa_lane": true,
+    "arcqa_learned": true,
+    "arcqa_max_mana": true,
+    "arcqa_blink_own_button": true,
+    "arcqa_crit_restored": true,
+    "blink_rank_damage_progression": true,
+    "mana_rank_regen_progression": true,
+    "arc_rank_1_levels": true,
+    "mana_rank_1_recovery": true,
+    "blink_rank_1_setup": true,
+    "blink_rank_1_distance": true,
+    "blink_rank_1_damage_radius": true,
+    "arc_rank_2_levels": true,
+    "mana_rank_2_recovery": true,
+    "blink_rank_2_setup": true,
+    "blink_rank_2_distance": true,
+    "blink_rank_2_damage_radius": true,
+    "arc_rank_3_levels": true,
+    "mana_rank_3_recovery": true,
+    "blink_rank_3_setup": true,
+    "blink_rank_3_distance": true,
+    "blink_rank_3_damage_radius": true,
+    "arc_rank_4_levels": true,
+    "mana_rank_4_recovery": true,
+    "blink_rank_4_setup": true,
+    "blink_rank_4_distance": true,
+    "blink_rank_4_damage_radius": true,
+    "arc_rank_5_levels": true,
+    "mana_rank_5_recovery": true,
+    "blink_rank_5_setup": true,
+    "blink_rank_5_distance": true,
+    "blink_rank_5_damage_radius": true,
+    "far_rank_1_equipped": true,
+    "far_rank_1_setup": true,
+    "far_rank_1_distance": true,
+    "far_rank_1_damage_radius": true,
+    "far_rank_2_equipped": true,
+    "far_rank_2_setup": true,
+    "far_rank_2_distance": true,
+    "far_rank_2_damage_radius": true,
+    "far_rank_3_equipped": true,
+    "far_rank_3_setup": true,
+    "far_rank_3_distance": true,
+    "far_rank_3_damage_radius": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

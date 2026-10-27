@@ -286,9 +286,11 @@ def stamp_entries(pkg_id: str, stamp: str, store: bool) -> list[hwr.Entry]:
              f"\t\t\tsuper(\"hwp-package-{pkg_id}\");\n"
              f"\t\t\tif (HWP::LIB_STAMP == \"{stamp}\")\n"
              f"\t\t\t\tHWP::Log(\"core\", \"package {PACKAGE_PREFIX}{pkg_id}, library {stamp}\");\n"
-             "\t\t\telse\n"
+             "\t\t\telse\n\t\t\t{\n"
              f"\t\t\t\tHWP::LogError(\"core\", \"package {PACKAGE_PREFIX}{pkg_id} was built with library {stamp} but library \"\n"
              "\t\t\t\t\t+ HWP::LIB_STAMP + \" loaded: another HammerwatchPlus package is older or newer; update them all\");\n"
+             f"\t\t\t\tHWP::Packages::Mismatch(\"{PACKAGE_PREFIX}{pkg_id}\");\n"
+             "\t\t\t}\n"
              "\t\t}\n\t}\n}\n")
     return [hwr.make_entry(STAMP_FILE, lib.encode(), None, store),
             hwr.make_entry(f"scripts/HWP/Packages/{pkg_id}.as", check.encode(), None, store)]

@@ -39,6 +39,8 @@ namespace HWP
 			if (g_checked)
 				return;
 			g_checked = true;
+			// tools/import_hoh1.py classes writes this string beside the art it cuts
+			HWP::HoH1::Report("classes", Resources::HasString(".hwp.classes.hoh1art"), ".hwp.classes.hoh1");
 			int found = 0;
 			for (uint i = 0; i < IDS.length(); i++)
 			{

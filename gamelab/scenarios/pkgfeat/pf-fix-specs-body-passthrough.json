@@ -1,0 +1,52 @@
+{
+ "name": "pf-fix-specs-body-passthrough",
+ "about": "fix-specs-body-passthrough against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). An intact body never blocks a projectile or beam (the user, 2026-10-25: 'dead bodies block projectiles like heal beam'). The generated body units (tools/make_forgemaster_risen.py dead_scenes) set shoot-through, aim-through and charge-through true on every collision shape, the attribute the vanilla bone serpent segments and the Avatar's spear areas use to let RaycastType::Shot through; HWPSpecsBody already turns the unit's collision off. plan_forgemaster section body_passthrough, on the longest free lane from the start (gl terrain: the start is a corridor): a breakable target dummy 60 px out; the scepter (attack_holy_scepter: Hitscan, range 65) and the lantern's heal beam (attack_offhand_lantern: Skills::ShootBeam, distance 160, penetration 0) each damage it on the bare lane (the controls), then again with a brute's body 22 px out on the line; the body is still there. 20261025-180809 had failed on geometry alone: the target at 110 px was past the scepter's 65 px and 'holy_blast' is no Forgemaster skill.",
+ "fixture": "town-paladin",
+ "timeout": 240,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",
+   "timeout": 30
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "plan_forgemaster",
+   "name": "body_passthrough",
+   "kwargs": {
+    "sections": "body_passthrough"
+   },
+   "expect": {
+    "pass_lane": true,
+    "pass_main_control": true,
+    "pass_beam_control": true,
+    "pass_setup": true,
+    "pass_main_through_body": true,
+    "pass_beam_through_body": true,
+    "pass_body_stays": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

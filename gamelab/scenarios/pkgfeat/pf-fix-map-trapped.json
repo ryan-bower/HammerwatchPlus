@@ -1,0 +1,125 @@
+{
+ "name": "pf-fix-map-trapped",
+ "about": "fix-map-trapped against the built package keys instead of the mods' source folders (tools/make_package_scenarios.py). 'The chest was trapped!!' (bugs 10.22.26 line 41, mods/keys Trapped.as): on a keep floor a cursed chest (items/chests/chest_cursed.unit, the one whose loot roll is the shade ambush) is spawned beside the player and opened; the host logs the opening, broadcasts keys.trapped, and this machine (within 900 px) shows the hwp_trapped announce (arial24, mid-screen, 2 s, trip-wire sound) and logs the banner. A shot catches the banner. The bot then opens a second cursed chest 1500 px away: the event arrives but is out of range (no banner, logged as such), and a plain chest never logs. Mods core + keys. About 3 minutes.",
+ "fixture": "mission-ranger",
+ "timeout": 420,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "bandit_keep",
+    0
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 150
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:keys\\] chest class active: HWPChest",
+   "timeout": 10,
+   "name": "the keys chest class is live (its Use calls the trap hook)"
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp god"
+  },
+  {
+   "do": "gl",
+   "verb": "spawn",
+   "args": [
+    "items/chests/chest_cursed.unit",
+    "48",
+    "0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "a cursed chest beside the player"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "use",
+   "args": [
+    "chest_cursed"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "opened (IUsable.Use from where the player stands)"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:keys\\] trapped chest opened by \\S+ at -?\\d+,-?\\d+",
+   "timeout": 5,
+   "name": "the host recognised the cursed chest"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:keys\\] trapped chest banner at -?\\d+,-?\\d+ \\(dist \\d+\\)",
+   "timeout": 5,
+   "name": "this machine showed the banner (keys.trapped event in range)"
+  },
+  {
+   "do": "shot",
+   "name": "trapped-banner"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "Could not find HUDAnnounceStyle \"hwp_trapped\"",
+   "name": "the announce style loaded from tweak/hwp/announce_keys.sval"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:keys\\] announce style hwp_trapped missing"
+  },
+  {
+   "do": "bot",
+   "bot": "fix_map",
+   "kwargs": {
+    "section": "trapped"
+   },
+   "expect": {
+    "far_chest_out_of_range": true,
+    "far_chest_no_banner": true,
+    "plain_chest_silent": true
+   },
+   "name": "range rule and a plain chest"
+  },
+  {
+   "do": "gl",
+   "verb": "cull"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "keys"
+ ]
+}
