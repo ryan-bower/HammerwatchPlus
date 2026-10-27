@@ -142,8 +142,10 @@ where HoH1 is, answer with `python -m gamelab doctor --hoh1 "<folder>"` (or `--n
 Sharing the packages by hand still works: `dist/HWP-<package>.bin` (or
 `HammerwatchPlus-All.bin`) into `<Steam>/steamapps/common/Heroes of Hammerwatch 2/mods/`.
 `python tools/build.py` makes every package and the all-in-one pack without your local
-content, ready for the Workshop; the upload itself is a manual step (this repo has no Steam
-upload tooling).
+content. `python tools/workshop.py` turns them into a Workshop upload kit (`dist/workshop/`:
+each item's .bin, preview image, title, description and change note); the upload itself is
+done by hand in the game's `PACKAGER.exe` > Steam Workshop manager, as
+[docs/WORKSHOP.md](docs/WORKSHOP.md) describes.
 
 ## Class planner
 
@@ -231,8 +233,8 @@ to the keys module. Every package alone, the all pack and four pairs pass in Gam
 (`pkg-*`, `docs/RE_NOTES.md` "one path, two mods"). The engine logs one harmless
 `Resource name hash conflict` error per shared file when two packages are enabled.
 `run.py` and `deploy.py modded-prod` now deploy the all pack and remove the old
-`HWP-<module>.bin` files, so a save ticks `HammerwatchPlus-All` once. The Workshop upload is
-still to do, in the game's own tools.
+`HWP-<module>.bin` files, so a save ticks `HammerwatchPlus-All` once. The Workshop upload kit is
+`tools/workshop.py` ([docs/WORKSHOP.md](docs/WORKSHOP.md), 2026-10-27).
 
 2026-10-25 to 2026-10-26: the bug and feature list of 2026-10-22 (`temp/bugs 10.22.26.txt`) landed in 16 commits,
 each with its own lab scenario (`gamelab/scenarios/fix-*.json`, all passing): Firearms feel and Snipe,

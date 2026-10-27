@@ -1,0 +1,45 @@
+{
+ "_doc": "Published Steam Workshop item ids, one per package (tools/workshop.py, docs/WORKSHOP.md). After a package's first upload, put the id from its Workshop page URL (?id=...) here, so the next build says Update instead of Upload new. hold: not published yet, and why.",
+ "items": {
+  "HWP-qol": {
+   "item_id": null
+  },
+  "HWP-coop": {
+   "item_id": null
+  },
+  "HWP-autoaim": {
+   "item_id": null
+  },
+  "HWP-firearms": {
+   "item_id": null
+  },
+  "HWP-specs": {
+   "item_id": null
+  },
+  "HWP-classes": {
+   "item_id": null,
+   "hold": "the HoH1 classes are parked (hidden from character creation), so this package only adds the Skill 4-6 keys; publish it when they are back"
+  },
+  "HWP-keys": {
+   "item_id": null
+  },
+  "HWP-campaign": {
+   "item_id": null
+  },
+  "HWP-modes": {
+   "item_id": null
+  },
+  "HWP-dungeon": {
+   "item_id": null
+  },
+  "HWP-town": {
+   "item_id": null
+  },
+  "HWP-pets": {
+   "item_id": null
+  },
+  "HammerwatchPlus-All": {
+   "item_id": null
+  }
+ }
+}
