@@ -1,0 +1,94 @@
+{
+ "name": "mod-settings-sweep",
+ "about": "Every row of the settings page (hwplib Options.as + Config.as) with every module loaded, through the settings_sweep bot: every module switched off (row and log say Off) and on again, every list setting walked through all its values back to the first, every range setting one step and back with hwp set, every on/off setting both ways, every preset option cycled back to its first value, every key bind rebound to K and back; hwp settings shows every switch false and every setting moved, then every one at its default again; no script errors from HWP files. Shots: sweep_all_off, sweep_restored.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "abyss",
+  "architect",
+  "bufftips",
+  "campaign",
+  "chatlinks",
+  "classes",
+  "colors",
+  "deathrecap",
+  "droptrade",
+  "farming",
+  "firearms",
+  "fishing",
+  "gambler",
+  "groupcombo",
+  "keys",
+  "laststats",
+  "legacy",
+  "maps",
+  "mercenary",
+  "objectives",
+  "pets",
+  "puzzles",
+  "specs",
+  "stash",
+  "strongbox",
+  "tavern",
+  "trinkets",
+  "waygates",
+  "roulette",
+  "autoaim",
+  "summons",
+  "valuables",
+  "wavemode",
+  "weapons",
+  "weaponswap",
+  "goldworth",
+  "mmhmm",
+  "orbwarn",
+  "mapicons"
+ ],
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:config\\] \\d+ package\\(s\\), \\d+ module\\(s\\) loaded",
+   "timeout": 20
+  },
+  {
+   "do": "bot",
+   "bot": "settings_sweep",
+   "name": "settings sweep",
+   "expect": {
+    "sweep_rows": true,
+    "sweep_switch_off": true,
+    "sweep_switch_on": true,
+    "sweep_values": true,
+    "sweep_ranges": true,
+    "sweep_bools": true,
+    "sweep_options": true,
+    "sweep_keys": true,
+    "sweep_stored_changed": true,
+    "sweep_restored": true,
+    "sweep_no_errors": true
+   }
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}
