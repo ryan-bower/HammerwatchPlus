@@ -39,7 +39,9 @@ and its settings (2x valuables back to vanilla, fishing off, and so on). The sea
 finds any setting by a few letters of its name, value or description. Settings that change the game
 for everyone are the host's in a lobby. The full list is generated in
 [docs/generated/settings.md](docs/generated/settings.md); `hwp set <key> <value>` sets any of them
-from the console.
+from the console. Two lab scenarios check the page: `mod-settings-sweep` clicks every row with
+every module loaded, and `mod-settings-off` turns each module off and on again and checks what it
+does in game. The HoH1 classes' switch has no effect while those classes are parked.
 
 ## Modules
 

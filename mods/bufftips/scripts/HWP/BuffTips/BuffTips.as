@@ -139,6 +139,9 @@ class HWPBuffTipsHUD : HUDComponent
 			name = Resources::GetString(".hwp.bufftips.stacks", { { "name", name }, { "count", count } });
 		string header = secs > 0 ? Resources::GetString(".hwp.bufftips.left", { { "secs", secs } }) : "";
 
+		// once per buff hovered, not per countdown second: a test reads the tip from the log
+		if (info !is m_tipBuff)
+			HWP::Log("bufftips", "tip: " + name);
 		ClearTip();
 		if (info.IsDebuff())
 			name = "\\cff6666" + name;

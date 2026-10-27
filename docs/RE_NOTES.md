@@ -4954,3 +4954,97 @@ mod-autoaim's bot had read only `autoaim: mode` lines. The reply now starts
 The "(DoLayout -> DoLayout) WARNING: Potential infinite layout loop detected!" ERR comes
 before any HWP tab is built. It is in every run since at least 20261027-083709, so this
 change did not cause it.
+
+## 2026-10-27, every settings row clicked, every module off and on, the Workshop kit
+
+### mod-settings-sweep: every row of the settings page
+
+`gamelab/bots/settings_sweep.py` reads the rows from the same sources the page does
+(`packages.json` and each `module.json` config block). With every module loaded on
+town-paladin, it:
+
+- turns all 38 module switches off by their rows, then on again;
+- walks each of the 62 settings: a list through all its values, a range one step (then
+  `hwp set` back to the default), an on/off setting both ways;
+- cycles each of the 11 options back to its first value, and rebinds each key bind to K
+  and back;
+- checks `hwp settings` after the first round (every switch false, every setting moved) and
+  after the restore (every one at its default).
+
+Run 20261027-151446: pass, no script errors from HWP files.
+
+### mod-settings-off: each module's switch, checked in game
+
+`gamelab/bots/settings_offtests.py` turns each module off and on with `hwp set <key>`.
+That is the same settings write and `OnSettingChanged` event as the page's row. It checks
+something the module itself does, not the stored value:
+
+| Kind | Modules | Off | On |
+|---|---|---|---|
+| Town units (`gl near`) | campaign, farming, fishing, gambler, laststats, roulette, wavemode, waygates, mapicons | count 0, with the module's off log | the count from before, with its re-place log |
+| Status line | abyss, architect, autoaim, chatlinks, groupcombo, keys, maps, mercenary, mmhmm, pets, specs, strongbox, summons, valuables, weapons, weaponswap | the off text | the on text, or no off text |
+| Effect | colors, bufftips, legacy, stash, firearms, droptrade, trinkets, tavern | see below | see below |
+| Run (two Bandit Keep floors, chances at 100) | abyss, strongbox, keys, objectives, puzzles, deathrecap | no crack, strongbox or key chest art; objectives' and puzzles' "is off" lines; no recap line on the death | each placed; the recap line |
+| Orb picker (a Firearms character) | orbwarn | no warning lines | the warning lines |
+| Parked | classes | stored value only | stored value only |
+
+The effect checks:
+
+- **colors:** a trap arrow under the contrast preset is untinted (1, 1, 1) when off and
+  enemy red (1, 0.35, 0.35) when on.
+- **bufftips:** a hovered shrine buff shows no tip when off and a tip when on.
+- **legacy:** the Title Bonuses buff goes and comes back.
+- **stash:** the sort button hides and shows while the stash is open.
+- **firearms:** create-character hides the class when off.
+- **droptrade:** with a Skill Trainer and a rifle at the feet, the trainer is the top usable
+  when off and the item when on.
+- **trinkets:** the HoH1 trinkets leave the drops and come back.
+- **tavern:** a level 4 tavern has 3 drink slots when off and 4 when on.
+
+Changes made for it:
+
+- **bufftips** logs `[HWP:bufftips] tip: <name>` once per hovered buff, not once per
+  countdown second. Until now a tip could only be checked against a screenshot.
+- **campaign:** turning it off leaves the Forsaken Tower portal standing until the town is
+  rebuilt (`gl townrefresh`), as its README says. The other town-unit modules remove their
+  units at once.
+- **classes:** the switch has nothing to show while `PARKED` is true
+  (`ClassesModule.as`). The page still shows it, because it is the switch for when the
+  classes come back.
+
+Two failures in the first run (20261027-153743) were in the bot, not the mods:
+
+- `hasbuff` replies `on`, not `has`.
+- The `widget` reply keeps its fields under `widget`.
+
+The reply data already showed both modules working.
+
+| Scenario | Run | Result |
+|---|---|---|
+| mod-settings-sweep | 20261027-151446 | pass |
+| mod-settings-off | 20261027-154318 | pass, 236 s, every switch back on at the end |
+
+### The Workshop kit
+
+The upload itself is only possible through the game's `PACKAGER.exe`
+(Steam Workshop manager > Upload new: file, preview image under 1 MB, title, description,
+visibility). It also updates existing items. It needs the Steam login and has no command
+line. Sources: wiki.hammerwatch2.com/Modding and the Steam discussion
+https://steamcommunity.com/app/619820/discussions/0/604146344638072533.
+
+`tools/workshop.py` builds the packages and writes `dist/workshop/<item>/`:
+
+- the `.bin`;
+- a 640x360 `preview.png`;
+- `title.txt`;
+- `description.txt`, in BBCode from packages.json, the README module rows and the
+  `HWP::HoH1::Report` stand-in strings;
+- `changenote.txt`.
+
+It also writes `UPLOAD.txt` (NEW, UPDATE or HOLD per item, from `workshop.json`). The steps
+are in `docs/WORKSHOP.md`.
+
+- The All pack is `HammerwatchPlus-All` ("HammerwatchPlus: All").
+- `HWP-classes` is held: the HoH1 classes are parked, so it would only add the Skill 4-6 keys.
+- `--check` runs in the test suite (`tests/test_workshop.py`).
+
