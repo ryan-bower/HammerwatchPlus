@@ -15,6 +15,36 @@ namespace HWP
 		bool g_checked = false;
 		bool g_itemsChecked = false;
 
+		// Parked for later (2026-10-21, the owner): not offered at character creation
+		// whatever the switch says. Characters already made with them still play.
+		const bool PARKED = true;
+
+		// classes.enabled (the settings page's switch). Off: the classes are left out of
+		// character creation (hwplib-classui HWP::HideClass). Characters already made keep
+		// loading and playing, and so do the Skill 4-6 keys their specs need.
+		bool g_enabled = true;
+
+		void RefreshEnabled()
+		{
+			g_enabled = HWP::Settings::GetBool("classes.enabled", true);
+			bool offered = g_enabled && !PARKED;
+			for (uint i = 0; i < IDS.length(); i++)
+			{
+				if (!offered)
+				{
+					HWP::HideClass(IDS[i]);
+					continue;
+				}
+				HWP::ShowClass(IDS[i]);
+			}
+		}
+
+		void OnSettingChanged(const string &in key)
+		{
+			if (key == "classes.enabled")
+				RefreshEnabled();
+		}
+
 		int Subclasses(uint parentHash)
 		{
 			int n = 0;
@@ -81,6 +111,7 @@ namespace HWP
 			auto rec = GetLocalPlayerRecord();
 			string cls = (rec is null || rec.playerClass is null) ? "-" : rec.playerClass.m_id;
 			HWP::Commands::Reply(Resources::GetString(".hwp.classes.status", { { "found", found }, { "subs", subs }, { "cls", cls } }));
+			HWP::Commands::Reply("offered at character creation: " + (PARKED ? "no (parked)" : (g_enabled ? "yes" : "no (classes.enabled off)")));
 		}
 	}
 }
@@ -94,14 +125,15 @@ namespace Modules
 			super("hwp-classes");
 			HWP::Commands::Register("classes", " HoH1 classes status", HWP::Commands::Handler(HWP::Classes::CmdClasses));
 			HWP::Classes::SelfCheck();
-			// Parked for later (2026-10-21): not offered at character creation;
-			// existing characters of these classes still play.
-			for (uint i = 0; i < HWP::Classes::IDS.length(); i++)
-				HWP::HideClass(HWP::Classes::IDS[i]);
+			// parked (HWP::Classes::PARKED) or switched off: not offered at character creation
+			HWP::Classes::RefreshEnabled();
+			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Classes::OnSettingChanged));
 		}
 
 		void Start(StartMode sMode)
 		{
+			// the constructor read the settings before the town record was loaded
+			HWP::Classes::RefreshEnabled();
 			HWP::Classes::CheckTrident();
 		}
 	}

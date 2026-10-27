@@ -2,5 +2,13 @@
   "id": "wavemode",
   "requires": ["hwplib"],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Wave arena",
+    "about": "A statue in town starts a survival arena; each champion kill raises your rank.",
+    "toggle": "wave.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": []
+  }
 }

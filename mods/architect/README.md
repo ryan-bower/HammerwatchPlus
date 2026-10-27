@@ -86,6 +86,22 @@ Architect alterations for the whole party.
     to the top edge when it still would not; the `[HWP:architect] run-start layout:`
     line says what it did. Farming's herb line is a 14 px row for the same reason.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu:
+
+- **Architect** on/off, `architect.enabled` (host, default on). Off is the vanilla
+  architect: only the host can open the picker and the host pays for everything, the
+  challenges are not in the list, there is no preset row, remembered picks and the
+  remembered NG+ level do not come back, a client cannot leave the setup with Escape and
+  there is no NG+ question. Turning it off drops the clients' picks and any challenge from
+  the party's list. The run-start layout (the NG+ row above Start, the fit to the screen,
+  the Start NG+ hint) stays, since the gui file is an override. Presets and remembered
+  picks stay saved for when it is turned back on.
+- **Share host's picks**, `architect.split` (host, default on): the host's alterations are
+  split across the party.
+- **Confirm NG+ start**, `architect.confirm_ngp` (each player's own, default on).
+
 Morning decisions:
 - The **town fountain** as a second entry point for sponsoring (open the
   picker in town, outside the loadout screen). The well/fountain unit sits at

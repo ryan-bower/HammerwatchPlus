@@ -10,6 +10,55 @@ namespace HWP
 
 		bool g_checked = false;
 
+		// specs.enabled (the settings page's switch). Off: the Subclass Picker leaves the
+		// eight specs out (FilterPicker), so no character picks one anew. A character that
+		// has one keeps it and plays it, so the skill updates below keep running.
+		bool g_enabled = true;
+
+		void RefreshEnabled()
+		{
+			g_enabled = HWP::Settings::GetBool("specs.enabled", true);
+		}
+
+		void OnSettingChanged(const string &in key)
+		{
+			if (key == "specs.enabled")
+				RefreshEnabled();
+		}
+
+		// The vanilla picker (Town/SubclassPickShopContent.as) lists every class whose parent
+		// is the player's class when it opens. While off, the open picker's list loses the
+		// specs other than the one the player has; this runs after the window's Update and
+		// before it is drawn, every frame (a no-op once they are gone).
+		void FilterPicker()
+		{
+			if (g_enabled)
+				return;
+			auto w = HWP::SubclassPick::OpenPicker();
+			if (w is null || w.m_content is null || w.m_content.m_player is null)
+				return;
+			auto own = w.m_content.m_player.playerClass;
+			PlayerClass@ shown = null;
+			if (w.m_currPickedIndex >= 0 && w.m_currPickedIndex < int(w.m_classes.length()))
+				@shown = w.m_classes[w.m_currPickedIndex];
+			int removed = 0;
+			for (int i = int(w.m_classes.length()) - 1; i >= 0; i--)
+			{
+				auto cls = w.m_classes[i];
+				if (cls is null || cls is own || SUBCLASSES.find(cls.m_id) < 0)
+					continue;
+				w.m_classes.removeAt(uint(i));
+				removed++;
+			}
+			if (removed == 0 || w.m_classes.length() == 0)
+				return;
+			int idx = shown is null ? -1 : w.m_classes.findByRef(shown);
+			if (idx < 0 && own !is null)
+				idx = w.m_classes.findByRef(own);
+			w.SetCurrSubclass(idx); // -1: the last, as the vanilla window starts
+			Log("specs", "subclass picker: left out " + removed + " spec(s) (specs.enabled off)");
+		}
+
 		void SelfCheck()
 		{
 			if (g_checked)
@@ -56,7 +105,7 @@ namespace HWP
 				HWP::Commands::Reply(ArcaneStatus(plr));
 				return;
 			}
-			string ret = "specs: " + g_standards.length() + " standard(s)";
+			string ret = (g_enabled ? "" : "specs.enabled off (not offered at the Subclass Picker); ") + "specs: " + g_standards.length() + " standard(s)";
 			for (uint i = 0; i < g_standards.length(); i++)
 			{
 				auto s = g_standards[i];
@@ -117,6 +166,8 @@ namespace Modules
 			HWP::Commands::Register("gen", "  Paladin of Generosity: status | stacks <n> | fury [now] [dx dy] | cd | solo [on|off|auto]", HWP::Commands::Handler(HWP::Specs::CmdGen));
 			HWP::Net::OnRequest("specs.fury_fx", HWP::Net::RequestHandler(HWP::Specs::OnFuryFxRequest));
 			HWP::Net::OnEvent("specs.fury_play", HWP::Net::EventHandler(HWP::Specs::OnFuryPlay));
+			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Specs::OnSettingChanged));
+			HWP::Specs::RefreshEnabled();
 			GameEvents::Subscribe(this);
 		}
 
@@ -134,6 +185,7 @@ namespace Modules
 
 		void Start(StartMode sMode)
 		{
+			HWP::Specs::RefreshEnabled();
 			HWP::Specs::ClearStandards();
 			HWP::Specs::g_provisionsC = 0;
 			HWP::Specs::g_conduitC = 0;
@@ -168,6 +220,7 @@ namespace Modules
 
 		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
+			HWP::Specs::FilterPicker(); // paused too: a shop window may pause the game
 			if (paused)
 				return;
 			HWP::Specs::UpdateStandards(ms);

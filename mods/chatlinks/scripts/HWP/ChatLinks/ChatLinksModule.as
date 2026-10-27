@@ -4,10 +4,13 @@
 // but only the short-lived loot log reacts. This module listens to the same
 // event and writes a persistent, coloured line into the chat log, and adds
 // "hwp link [slot]" to link an equipped item without opening the inventory.
+// Setting: chatlinks.enabled (per machine; off: no chat line, hwp link says so).
 namespace HWP
 {
 	namespace ChatLinks
 	{
+		bool Enabled() { return HWP::Settings::GetBool("chatlinks.enabled", true); }
+
 		string Link(Item::Item@ item)
 		{
 			return "\\c" + Item::QualityColorString(item.GetQuality()) + "[" + item.GetName() + "]\\d";
@@ -51,6 +54,11 @@ namespace HWP
 
 		void CmdLink(array<string>@ args)
 		{
+			if (!Enabled())
+			{
+				HWP::Commands::Reply(Resources::GetString(".hwp.chatlinks.off"));
+				return;
+			}
 			auto plr = GetLocalPlayerRecord();
 			if (plr is null || plr.equipped is null)
 				return;
@@ -80,7 +88,7 @@ namespace Modules
 
 		void OnEventPlayerLinkedItem(PlayerRecord@ plr, Item::Item@ item)
 		{
-			if (plr is null || item is null)
+			if (plr is null || item is null || !HWP::ChatLinks::Enabled())
 				return;
 			HWP::ChatLinks::Announce(plr, item);
 		}

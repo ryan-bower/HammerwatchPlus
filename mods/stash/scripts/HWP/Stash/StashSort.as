@@ -3,7 +3,8 @@
 // str, dex, int, foc, vit), then by type (weapons by family - two-handed,
 // main hand, off hand - then head, chest, hands, feet, back), then by item
 // level (highest first), quality and name. The stash is the local player's
-// own town record, so this runs on every machine for itself.
+// own town record, so this runs on every machine for itself. Setting:
+// stash.enabled (per machine; off hides the button, HWPStashSortButton.Update).
 namespace HWP
 {
 	namespace Stash
@@ -135,11 +136,29 @@ class HWPStashSortButton : ScalableSpriteButtonWidget
 		return w;
 	}
 
+	// stash.enabled off: no button, and the tab picker beside it takes the row's
+	// whole width again (233, as vanilla; 183 next to the button)
+	void Update(int dt) override
+	{
+		bool on = HWP::Settings::GetBool("stash.enabled", true);
+		if (on != m_visible)
+		{
+			m_visible = on;
+			Widget@ me = this;
+			for (uint i = 0; m_parent !is null && i < m_parent.m_children.length(); i++)
+			{
+				if (m_parent.m_children[i] !is me)
+					m_parent.m_children[i].m_width = on ? 183 : 233;
+			}
+		}
+		ScalableSpriteButtonWidget::Update(dt);
+	}
+
 	void ClickUp(bool usingMouse, vec2 mousePos) override
 	{
 		// the press counts as the base button decides: released over it (mouse)
 		vec2 mp = mousePos - m_origin;
-		bool fire = m_buttonDown && (!usingMouse || (mp.x >= 0.0f && mp.y >= 0.0f && mp.x < m_width && mp.y < m_height));
+		bool fire = m_buttonDown && m_visible && (!usingMouse || (mp.x >= 0.0f && mp.y >= 0.0f && mp.x < m_width && mp.y < m_height));
 		ScalableSpriteButtonWidget::ClickUp(usingMouse, mousePos);
 		if (fire)
 			HWP::Stash::SortWindow(cast<PlayerStashWindow>(m_host));

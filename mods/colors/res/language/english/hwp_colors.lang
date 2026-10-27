@@ -12,4 +12,7 @@
 	<string name="hwp.colors.players.usage">hwp playercolors [default|safe] [names on|off] [distance N]</string>
 	<string name="hwp.colors.players.on">on</string>
 	<string name="hwp.colors.players.off">off</string>
+	<string name="hwp.colors.players.option">Player map colors</string>
+	<string name="hwp.colors.players.palette.default">Default</string>
+	<string name="hwp.colors.players.palette.safe">Colorblind safe</string>
 </lang>

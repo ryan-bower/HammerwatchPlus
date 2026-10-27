@@ -27,6 +27,17 @@ underfoot. The local player's usables are re-sorted every frame, with items betw
 (revives, exits) and 0 (vanilla puts items at 1, last); `[HWP:droptrade] pickup first`
 logs it.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu:
+
+- **Drop trade** on/off, `droptrade.enabled` (host, default on). Off: no Drop hint or
+  key and no pickup first; the item action (Eat) keeps working, its hint right after
+  Destroy.
+- **Drop item key** (option `dropkey`, each player's own): click, then press the key.
+  Stored as `droptrade.key` (SDL scancode, default 20 = Q), as `hwp dropkey` does.
+- **Pickup first**, `droptrade.pickup_first` (each player's own, default on).
+
 ## Overrides
 
 Two base files are replaced wholesale (declared in `module.json`, pristine

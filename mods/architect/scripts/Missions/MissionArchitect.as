@@ -51,7 +51,8 @@ class SelectArchitectLoadout : MissionGUILoadout
 		auto rect = cast<AInteractableWidget>(segment.GetWidgetById("rect").Clone());
 		rect.m_visible = true;
 		rect.m_func = m_id + " open";
-		rect.m_enabled = true; // HWP: every player may pick (and pay for) alterations
+		// HWP: every player may pick (and pay for) alterations; the host only with the module off
+		rect.m_enabled = Network::IsServer() || HWP::Architect::Enabled();
 		rect.m_navPos = ivec2(0, yNavPos);
 
 		auto group = rect.GetWidgetById("group");
@@ -66,7 +67,7 @@ class SelectArchitectLoadout : MissionGUILoadout
 		// HWP: with none of my picks in the party's list (a fresh setup), the picks I had
 		// last time come back (architect.last on my record; the host merges them as a
 		// pick, synchronously on the host, by architect.sync on a client)
-		if (HWP::Architect::MyPicks().length() == 0)
+		if (HWP::Architect::Enabled() && HWP::Architect::MyPicks().length() == 0)
 		{
 			auto last = HWP::Architect::Available(HWP::Architect::LastPicks(), plr, m_buffSet);
 			if (last.length() > 0)
@@ -354,12 +355,16 @@ class SelectArchitectSelector : AWindowObject
 		auto scroll = m_widget.GetWidgetById("scroll");
 
 		auto buffs = MissionBuff::GetMissionBuffs(host.m_player, m_host.m_buffSet);
+		bool challenges = HWP::Architect::Enabled(); // HWP: no challenges with the module off
+		int row = 0;
 		for (uint i = 0; i < buffs.length(); i++)
 		{
+			if (!challenges && HWP::Architect::ChallengeIndex(buffs[i].m_idHash) >= 0)
+				continue;
 			auto buffW = cast<AInteractableWidget>(templateW.Clone());
 			buffW.m_visible = true;
 			buffW.SetID(buffs[i].m_id);
-			buffW.m_navPos = ivec2(0, i);
+			buffW.m_navPos = ivec2(0, row++);
 			
 			auto text = cast<TextWidget>(buffW.GetWidgetById("text"));
 			text.SetText(Resources::GetString(buffs[i].m_name));
@@ -380,7 +385,8 @@ class SelectArchitectSelector : AWindowObject
 		for (uint i = 0; i < m_host.m_buffs.length(); i++)
 			m_buffs.insertLast(m_host.m_buffs[i]);
 
-		HWPBuildPresets(); // HWP
+		if (HWP::Architect::Enabled())
+			HWPBuildPresets(); // HWP
 
 		RefreshCost();
 

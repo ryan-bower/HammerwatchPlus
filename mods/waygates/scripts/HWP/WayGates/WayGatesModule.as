@@ -13,6 +13,8 @@
 // rebuilt town too.
 // Settings: waygates.enabled (default on), waygates.square_x / square_y (the square's
 // gate). `hwp waygates` lists the gates; `hwp waygates go <n>` takes the n-th (cheats).
+// waygates.enabled off: the gates can't be used at once (OnSettingChanged) and within a
+// second the host takes them away; on again, the host's watch places them.
 namespace HWP
 {
 	namespace WayGates
@@ -38,6 +40,12 @@ namespace HWP
 		void RefreshSettings()
 		{
 			g_enabled = HWP::Settings::GetBool("waygates.enabled", true);
+		}
+
+		void OnSettingChanged(const string &in key)
+		{
+			if (key == "waygates.enabled")
+				RefreshSettings();
 		}
 
 		vec2 SquarePos()
@@ -267,6 +275,7 @@ namespace Modules
 		{
 			super("hwp-waygates");
 			HWP::Commands::Register("waygates", " the town's way gates; cheats: 'go <n>' takes the n-th", HWP::Commands::Handler(HWP::WayGates::Cmd));
+			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::WayGates::OnSettingChanged));
 		}
 
 		void Start(StartMode sMode)
@@ -312,8 +321,23 @@ namespace Modules
 				return;
 			m_watch = 0;
 			HWP::WayGates::RefreshSettings();
-			if (!Network::IsServer() || m_broken || !HWP::WayGates::g_enabled)
+			if (!Network::IsServer() || m_broken)
 				return;
+			if (!HWP::WayGates::g_enabled)
+			{
+				// turned off: the host takes the gates away (Place puts them back)
+				if (m_units.length() > 0)
+				{
+					for (uint i = 0; i < m_units.length(); i++)
+					{
+						if (m_units.Live(i))
+							m_units[i].Destroy();
+					}
+					m_units.removeRange(0, m_units.length());
+					HWP::Log("waygates", "off: removed the gates");
+				}
+				return;
+			}
 			bool gone = m_units.length() == 0;
 			for (uint i = 0; i < m_units.length() && !gone; i++)
 				gone = !m_units.Live(i);

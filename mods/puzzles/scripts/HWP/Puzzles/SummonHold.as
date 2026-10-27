@@ -35,7 +35,7 @@ namespace HWP
 
 			void RefreshSettings()
 			{
-				g_enabled = HWP::Settings::GetBool("puzzles.summon_hold", true);
+				g_enabled = HWP::Puzzles::Enabled() && HWP::Settings::GetBool("puzzles.summon_hold", true);
 				g_radius = HWP::Settings::GetInt("puzzles.summon_hold_radius", 120);
 			}
 

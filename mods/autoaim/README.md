@@ -24,9 +24,15 @@ character menu:
 | Auto fire | `autoaim.fire` | On | On, Off |
 | Auto skill | `autoaim.skill`, `autoaim.skill_mana` | Mana 60%+ | Off, then Mana 0%+, 40%+, 60%+, 80%+ |
 
-Two more settings take `hwp set` only:
-- `autoaim.skill_buffer_ms` (2000): the time between auto skill casts.
-- `autoaim.debug` (off): logs each auto shot.
+On the HammerwatchPlus settings page (all each player's own):
+- **Auto aim** on/off, `autoaim.enabled` (default on). Off: no snap, auto fire or auto
+  skill, whatever the mode says. The mode row (Off, Controller, Controller + mouse) is the
+  everyday switch; this one turns the whole module off and keeps the mode as it was.
+- the four rows above (options `autoaim`, `aimcone`, `autofire`, `autoskill`);
+- **Auto skill delay**, `autoaim.skill_buffer_ms`: 1000, 2000 (default), 3000, 5000 ms
+  between auto skill casts.
+
+`autoaim.debug` (off) takes `hwp set` only: it logs each auto shot.
 
 These map onto the original's `caa_auto_aim`, `caa_auto_fire`, `caa_auto_skill`,
 `caa_aim_angle`, `caa_skill_min_mana`, `caa_skill_buffer` and `caa_debug`.

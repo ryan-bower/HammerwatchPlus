@@ -20,8 +20,11 @@ you are standing at is greyed.
 
 | Setting | Default | |
 |---|---|---|
-| `waygates.enabled` | on | gates spawn and can be used |
+| `waygates.enabled` | on | gates spawn and can be used. Off: they can't be used at once, and the host takes them away within a second; on again, the host places them |
 | `waygates.square_x`, `waygates.square_y` | -504, 196 | the town square gate |
+
+`waygates.enabled` is on the HammerwatchPlus tab of the player menu (Quality of Life >
+Way gates); the host's value rules in a lobby. The square's position is not on the tab.
 
 Commands: `hwp waygates` lists the gates and their positions. `hwp waygates go <n>` takes
 gate n (cheats only).

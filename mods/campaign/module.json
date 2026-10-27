@@ -12,5 +12,75 @@
     "hoh1/",
     "tweak/hwp/missions/missions_hwp_forsaken_tower_hoh1.sval",
     "tweak/missions/missions_dark_citadel.sval"
-  ]
+  ],
+  "config": {
+    "title": "The Forsaken Tower",
+    "about": "A town portal to the HoH1 campaign; HoH1 traps, teleporters and confusion in runs.",
+    "toggle": "campaign.enabled",
+    "scope": "host",
+    "applies": "level",
+    "settings": [
+      {
+        "key": "campaign.portal_both",
+        "type": "bool",
+        "default": false,
+        "title": "Both tower versions",
+        "about": "With the HoH1 import, the portal also lists the HoH2-theme tower.",
+        "applies": "now"
+      },
+      {
+        "key": "campaign.traps",
+        "type": "bool",
+        "default": true,
+        "title": "HoH1 traps",
+        "about": "Spikes, flame jets and glyphs on generated indoor floors."
+      },
+      {
+        "key": "campaign.trap_density",
+        "type": "int",
+        "default": 100,
+        "values": [
+          25,
+          50,
+          100,
+          200,
+          400
+        ],
+        "suffix": "%",
+        "title": "Trap density",
+        "about": "How many traps a floor gets, against the usual count."
+      },
+      {
+        "key": "campaign.teleporters",
+        "type": "bool",
+        "default": true,
+        "title": "Teleporters",
+        "about": "One teleporter pad on each generated indoor floor."
+      },
+      {
+        "key": "campaign.confusion",
+        "type": "bool",
+        "default": true,
+        "title": "Confusion",
+        "about": "Eyes and confusion glyphs turn your movement around.",
+        "applies": "now"
+      },
+      {
+        "key": "campaign.confusion_eye_chance",
+        "type": "int",
+        "default": 35,
+        "values": [
+          10,
+          20,
+          35,
+          50,
+          75
+        ],
+        "suffix": "%",
+        "title": "Eye confusion",
+        "about": "The chance an eye's hit confuses you.",
+        "applies": "now"
+      }
+    ]
+  }
 }

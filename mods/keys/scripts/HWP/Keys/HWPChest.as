@@ -48,7 +48,8 @@ class HWPChest : Chest
 		if (!m_artDone)
 		{
 			m_artDone = true;
-			ApplyArt(false);
+			if (HWP::Keys::g_enabled) // off (keys.enabled): the vanilla art
+				ApplyArt(false);
 		}
 		if (m_decided)
 			return;

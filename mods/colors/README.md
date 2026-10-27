@@ -55,6 +55,20 @@ it. Now:
   per instance (not the shared scene resource); the overlay map's
   world-per-pixel when `ui_hud_scale_overlay` is not 1.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (Quality of Life > Colors), per player:
+
+| Setting | Default | |
+|---|---|---|
+| `colors.enabled` | on | off: no projectile tint, the minimap markers go back to white, no dots or names on the maps. The chosen colours stay stored. At once (shots already flying keep their tint) |
+| Projectile colors (option `colors`) | Default | the preset, as above (`colors.preset`) |
+| Player map colors (option `playercolors`) | Default | `playercolors.palette`: the game's colours or the colour-blind-safe set |
+| `playercolors.names` | on | names on the maps |
+| `playercolors.distance` | 300 | names show beyond this many px (0, 150, 300, 600, 1000) |
+
+The custom hex colours (`colors.enemy`, `colors.friendly`) stay command-only.
+
 ## Test checklist
 
 1. `python -m gamelab run mod-colors --mode lab`: a spawned guard sentry's

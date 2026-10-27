@@ -13,7 +13,7 @@ class HWPLastStatsBoard : AShopContent
 		super(u, params);
 	}
 
-	bool CanInteract(PlayerRecord@ player) override { return true; }
+	bool CanInteract(PlayerRecord@ player) override { return HWP::LastStats::Enabled(); }
 
 	AWindowObject@ MakeShopWindow(GUIBuilder@ guiBuilder) override
 	{

@@ -107,7 +107,7 @@ namespace HWP
 				if (m_timer <= 0)
 				{
 					m_timer = CHECK_MS;
-					bool near = g_enabled && NearPuzzle(ownerPos);
+					bool near = g_enabled && HWP::Pets::g_enabled && NearPuzzle(ownerPos);
 					if (near && !m_waiting)
 					{
 						m_waiting = true;

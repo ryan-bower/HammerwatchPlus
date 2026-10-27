@@ -24,7 +24,10 @@ and fast while the ball runs. Use it to open the table.
 
 | Setting | Default | |
 |---|---|---|
+| `roulette.enabled` | on | the table; off refunds the chips on it and the host takes the wheel away at once |
 | `roulette.max_stake` | 1000000 | the most gold one player can have on the table in a round (at most 10000000) |
+
+Both are host-synced and on the HammerwatchPlus tab of the player menu.
 
 Commands: `hwp roulette` prints the round, phase, your bets, your bonus and the history.
 `hwp roulette bet <key> <gold>` places a chip (keys like `s:17`, `sp:17-20`, `c:13`,

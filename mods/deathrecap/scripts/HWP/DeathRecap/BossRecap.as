@@ -363,7 +363,7 @@ namespace HWP
 			array<string> lines;   // the panel's rows
 			array<vec4> colors;
 			array<string> saved;
-			bool chat = BossEnabled() && HWP::Settings::GetBool("deathrecap.chat", true);
+			bool chat = Enabled() && BossEnabled() && HWP::Settings::GetBool("deathrecap.chat", true);
 			for (uint i = 0; i < reports.length(); i++)
 			{
 				auto r = reports[i];
@@ -419,7 +419,7 @@ namespace HWP
 			if (HWP::SaveData::Local() !is null)
 				HWP::SaveData::Local().SetString(KEY_BOSS_LAST, joined);
 
-			if (BossEnabled() && g_bossHud !is null)
+			if (Enabled() && BossEnabled() && g_bossHud !is null)
 				g_bossHud.Show(Resources::GetString(".hwp.deathrecap.boss_title", { { "boss", boss }, { "total", formatThousands(total) } }), lines, colors);
 		}
 

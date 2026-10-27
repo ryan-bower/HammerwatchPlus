@@ -8,4 +8,5 @@
 	<string name="hwp.maps.status">%found% of %total% HammerwatchPlus maps registered; %eligible% eligible for you right now.</string>
 	<string name="hwp.maps.row">%name%: %floors% floors, difficulty %span%%flag%</string>
 	<string name="hwp.maps.locked"> (locked)</string>
+	<string name="hwp.maps.off">Maps are off: new map drops roll only the vanilla maps.</string>
 </lang>

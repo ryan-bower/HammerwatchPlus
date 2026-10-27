@@ -5,5 +5,13 @@
     "scripts/ShopContent/EquipmentShopShopContent.as",
     "scripts/Town/EquipmentSeller.as"
   ],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Firearms Specialist",
+    "about": "The Firearms Specialist class. Off: new characters can't pick it; yours keep playing.",
+    "toggle": "firearms.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": []
+  }
 }

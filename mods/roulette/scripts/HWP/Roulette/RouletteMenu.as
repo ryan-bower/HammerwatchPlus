@@ -186,7 +186,7 @@ class HWPRouletteShop : AShopContent
 	HWPRouletteShop() {}
 	HWPRouletteShop(UnitPtr u, SValue& params) { super(u, params); }
 
-	bool CanInteract(PlayerRecord@ player) override { return true; }
+	bool CanInteract(PlayerRecord@ player) override { return HWP::Roulette::g_enabled; }
 
 	AWindowObject@ MakeShopWindow(GUIBuilder@ guiBuilder) override
 	{

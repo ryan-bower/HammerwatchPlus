@@ -33,6 +33,7 @@
 	<string name="hwp.pets.no_points">No skill point to spend, or the skill is maxed.</string>
 	<string name="hwp.pets.cannot_feed">Nothing to feed (no pet, no such crop, or max level).</string>
 	<string name="hwp.pets.unknown_skill">Skills: hazard, smash, stun, mend, fetch, morale, family.</string>
+	<string name="hwp.pets.disabled">Pet progression is off (pets.enabled, the HammerwatchPlus tab of the player menu).</string>
 	<string name="hwp.pets.levelup">%name% reached level %lvl%! Spend the point at the Pet Shop keeper (Train your pet).</string>
 	<string name="hwp.pets.status">%name%: level %lvl%, %xp%/%next% XP, %points% point(s).</string>
 	<string name="hwp.pets.cmd_hint">hwp pet skill &lt;id&gt; | feed &lt;crop&gt; | gold|valuables|materials|health|caches|cursed|elixirs|xp on|off | here</string>

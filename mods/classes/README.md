@@ -101,6 +101,18 @@ raw key: Plus tab rows `skill4`-`skill6`, settings `skillkeys.skill4`-`6`, defau
   `gamelab/bots/plan_classesb.py` checks `slice_own_button`, `cloak_own_button` and
   `charge_own_button`.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (`hwp set <key> <value>`; `module.json`
+`config`):
+
+- `classes.enabled` (on): the switch. Off leaves Thief, Gladiator and Witch Hunter out of
+  character creation. They are parked for now (`HWP::Classes::PARKED`), so they are left
+  out either way until that is lifted. Characters already made keep loading and playing,
+  and the Skill 4-6 keys stay on for them. `hwp classes` says whether they are offered.
+- `skill4`, `skill5`, `skill6`: the Skill 4-6 key binds (options, settings
+  `skillkeys.skill4`-`6`).
+
 ## Test checklist
 
 1. `python -m gamelab run mod-classes --mode lab`: `[HWP:classes] self-check done: 3/3 classes`, no "has N

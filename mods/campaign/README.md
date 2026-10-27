@@ -212,6 +212,19 @@ What that means for a real port, in order:
    six bosses. Each is a HoH1 `.unit` XML whose behaviours only partly exist
    in HoH2; this is a per-enemy rebuild, not a conversion.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (`hwp set <key> <value>`; `module.json`
+`config`). All host-authoritative.
+
+- `campaign.enabled` (on): the switch. Off: the town portal is not placed (next town load),
+  generated floors get no traps or teleporter (next level), pads already placed do nothing
+  and nothing confuses. A tower run already under way plays on, and the Dark Citadel keeps
+  its extra floors (`Citadel::Fix`): changing them under a run would move its floors.
+- `campaign.portal_both`, `campaign.traps`, `campaign.trap_density`, `campaign.teleporters`,
+  `campaign.confusion`, `campaign.confusion_eye_chance` (the table above). Not on the page:
+  `campaign.portal_x/y` (`hwp campaign here`).
+
 ## Test checklist
 
 1. `python -m gamelab run mod-campaign --mode lab`: `[HWP:campaign] self-check done: mission ok, N/N schemes`

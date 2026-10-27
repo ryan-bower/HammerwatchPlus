@@ -44,7 +44,8 @@ namespace HWP
 
 			void RefreshSettings()
 			{
-				g_enabled = HWP::Settings::GetBool("campaign.traps", true);
+				// campaign.enabled off (the settings page's switch) turns them off with the rest
+				g_enabled = HWP::Settings::GetBool("campaign.enabled", true) && HWP::Settings::GetBool("campaign.traps", true);
 				g_density = clamp(HWP::Settings::GetInt("campaign.trap_density", 100), 0, 400);
 			}
 

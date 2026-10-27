@@ -180,6 +180,10 @@ namespace HWP
 		{
 			if (pet is null || owner is null || !pet.m_unit.IsValid())
 				return false;
+			// pets.enabled off: the plain, undyed pet (a dye-ready copy swaps back); the
+			// dyes stay in the save data
+			if (!HWP::Pets::g_enabled)
+				return !variant.isEmpty() && Swap(pet, owner, petId, "", options);
 			auto rec = owner.m_record;
 			if (TwoParts(petId))
 			{

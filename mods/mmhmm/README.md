@@ -36,6 +36,19 @@ enchanter's slots and out of an epic item's name).
 `hwp mmhmm` reports the worn hat, whether it has the bonus or qualifies, and this session's
 crits and moments; `hwp mmhmm give` (cheats) adds it to the worn hat.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (Quality of Life > Mm-hmm! hats); the host's
+values rule in a lobby:
+
+- **On/off** `mmhmm.enabled` (default on). Off: no hat gets the bonus and no voice plays
+  (the crit trigger's chance is set to 0, the moments are not polled, the host drops
+  `mmhmm.say`). Hats that already have the bonus keep it, so turning it back on finds them
+  as they were; the first poll after that only takes the counts.
+- **Hats with it** `mmhmm.chance` (default 25, percent of rare and epic hats; 10, 25, 50,
+  75, 100). A lower value never takes the bonus off a hat that has it.
+- **On every crit** `mmhmm.crits` (default on): the crit voice; the other moments stay.
+
 ## Test checklist
 
 1. `python -m gamelab run mod-mmhmm --mode lab` (check_mmhmm): rare hats get it exactly when

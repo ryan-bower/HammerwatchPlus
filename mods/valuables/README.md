@@ -15,14 +15,24 @@ Valuables are worth twice their vanilla gold.
 - `hwp valuables` shows the multiplier and the ceramic vase's old and new
   price; `hwp valuables drop [id]` drops a valuable at the host's feet (test
   aid, in a run).
-- Settings: `valuables.gold_mult` (0-20).
+
+## Settings
+
+On the HammerwatchPlus tab of the player menu (host, host-synced), or `hwp set`:
+
+- `valuables.enabled` (on): off puts every valuable's price and pickup text
+  back to vanilla at once; on applies the multiplier again. `hwp valuables`
+  says it is off.
+- `valuables.gold_mult` (2; the page offers 1, 1.5, 2, 3, 5; `hwp set` takes
+  0-20): the multiplier on the vanilla price.
 
 ## Test checklist
 
 1. `python -m gamelab run mod-valuables --mode lab`: `[HWP:valuables]
    self-check done: 26 valuables at 2x`; a dropped ceramic vase is worth 300
    and picking it up adds 300 gold; `valuables.gold_mult 1` puts it back to
-   150 and 2 to 300 again.
+   150 and 2 to 300 again; `valuables.enabled 0` puts it back to 150 with
+   `gold_mult` still 2, and `1` to 300.
 2. In a run, smash pots and pick up valuables: the pickup line shows the
    doubled amount and the gold counter rises by it.
 3. Co-op: the client's pickups pay double too.

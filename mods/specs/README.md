@@ -4,6 +4,16 @@ Module id `specs` (requires `hwplib` and `hwplib-classui`). Eight subclasses on 
 skill set under `scripts/HWP/Specs/` with its svals under `players/hwp/specs/`. Status command:
 `hwp specs`. The console and net handlers are registered in `SpecsModule.as`.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (`hwp set <key> <value>`; `module.json`
+`config`):
+
+- `specs.enabled` (on): the switch. Off, the Subclass Picker leaves the eight specs out
+  (`FilterPicker` in `SpecsModule.as`, logged `subclass picker: left out N spec(s)`), except
+  the one the character already has. A character with a spec keeps it and plays it; one
+  that switches away can't switch back while it is off. `hwp specs` says when it is off.
+
 ## Devil Forgemaster (Priest)
 
 Files: `scripts/HWP/Specs/Forgemaster.as` (the skills, the channel, Heresy, the pyres),

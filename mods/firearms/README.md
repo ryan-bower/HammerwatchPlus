@@ -251,6 +251,16 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
 The class planner (`python -m planner`, `planner/README.md`) records the skill
 design. Final icons remain an art task. See `docs/design/firearms.md`.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (`hwp set <key> <value>`; `module.json`
+`config`):
+
+- `firearms.enabled` (on): the switch. Off leaves the Firearms Specialist out of character
+  creation (hwplib-classui `HWP::HideClass`; turned back on, it is listed again). A
+  Specialist already made still loads and plays: the clip, the guns, the shops' gun offers
+  and every skill keep working for them. `hwp firearms` says when it is off.
+
 ## Test checklist
 
 1. `python -m gamelab run mod-firearms --mode lab`: `[HWP:firearms] class registered with 4 subclass(es)`, no

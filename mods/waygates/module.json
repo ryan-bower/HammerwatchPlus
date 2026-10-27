@@ -2,5 +2,13 @@
   "id": "waygates",
   "requires": ["hwplib"],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Way gates",
+    "about": "Teleport gates in the town square and at every building you have built.",
+    "toggle": "waygates.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": []
+  }
 }

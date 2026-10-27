@@ -185,15 +185,26 @@ namespace HWP
 		string g_last;         // what the last Apply changed, for 'hwp trinkets'
 
 		bool g_enabled = true;
+		bool g_on = true;      // trinkets.enabled: the whole module (HoH1.as, Switch)
 
 		void RefreshSettings()
 		{
+			g_on = HWP::Settings::GetBool("trinkets.enabled", true);
 			g_enabled = HWP::Settings::GetBool("trinkets.ngp_scaling", true);
 		}
 
 		int NG()
 		{
-			return g_enabled ? max(0, int(g_ngp + 0.5f)) : 0;
+			return g_on && g_enabled ? max(0, int(g_ngp + 0.5f)) : 0;
+		}
+
+		void OnSettingChanged(const string &in key)
+		{
+			if (key.findFirst("trinkets.") != 0)
+				return;
+			RefreshSettings();
+			Switch();
+			Update();
 		}
 
 		Scaled@ Find(const string &in id)
@@ -544,7 +555,7 @@ namespace HWP
 				if (g_scaled[i].dict !is null && g_scaled[i].trinket !is null)
 					found++;
 			}
-			HWP::Commands::Reply("trinket NG+ scaling (" + (g_enabled ? "on" : "off") + "): " + found + "/" + g_scaled.length()
+			HWP::Commands::Reply("trinket NG+ scaling (" + (g_on && g_enabled ? "on" : "off") + (g_on ? "" : ", trinkets.enabled is off") + "): " + found + "/" + g_scaled.length()
 				+ " trinket(s) found, scaled for NG+ " + g_applied + (g_last.isEmpty() ? "" : "; last: " + g_last));
 		}
 	}
@@ -593,12 +604,14 @@ namespace Modules
 			super("hwp-trinkets");
 			HWP::Commands::Register("trinkets", " NG+ scaling of flat trinket bonuses; 'show <id>' a trinket's tooltip; 'set <id>' a set's pieces and tiers; 'hoh1' the HoH1 trinkets and vanilla changes; cheats: 'ng <n>' sets the NG+ level",
 				HWP::Commands::Handler(HWP::Trinkets::Cmd));
+			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Trinkets::OnSettingChanged));
 		}
 
 		void Start(StartMode sMode)
 		{
 			HWP::Trinkets::RefreshSettings();
-			HWP::Trinkets::ApplyVanilla();
+			HWP::Trinkets::ApplyArt();
+			HWP::Trinkets::Switch();
 			HWP::Trinkets::Update();
 		}
 

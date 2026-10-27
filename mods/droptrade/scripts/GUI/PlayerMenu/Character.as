@@ -199,14 +199,23 @@ class PlayerMenuCharacterTab : MenuTab
 		m_contextC = 0;
 		m_menuContext = false;
 
-		// HammerwatchPlus: the Destroy and Drop hints (Back, Equip, Compare, Destroy, Drop) are clickable
+		// HammerwatchPlus: the Destroy and Drop hints (Back, Equip, Compare, Destroy, Drop) are clickable;
+		// with droptrade off there is no Drop hint and the item action's hint comes right after Destroy
 		auto host = cast<AWindowObject>(m_tabSystem is null ? null : m_tabSystem.m_host);
-		if (host is null || host.m_navigationBar is null || HWPHoveredItem() is null || host.m_navigationBar.m_texts.length() < 5)
+		if (host is null || host.m_navigationBar is null || HWPHoveredItem() is null)
 			return;
-		HWP::DropTrade::MakeButton(host.m_navigationBar.m_texts[3], WindowInput::OnFunc(this.MenuAdditional));
-		HWP::DropTrade::MakeButton(host.m_navigationBar.m_texts[4], WindowInput::OnFunc(this.HWPDrop));
-		if (host.m_navigationBar.m_texts.length() >= 6)
-			HWP::DropTrade::MakeButton(host.m_navigationBar.m_texts[5], WindowInput::OnFunc(this.HWPAction));
+		uint texts = host.m_navigationBar.m_texts.length();
+		uint action = 4;
+		if (HWP::DropTrade::Enabled())
+		{
+			if (texts < 5)
+				return;
+			HWP::DropTrade::MakeButton(host.m_navigationBar.m_texts[3], WindowInput::OnFunc(this.MenuAdditional));
+			HWP::DropTrade::MakeButton(host.m_navigationBar.m_texts[4], WindowInput::OnFunc(this.HWPDrop));
+			action = 5;
+		}
+		if (texts > action)
+			HWP::DropTrade::MakeButton(host.m_navigationBar.m_texts[action], WindowInput::OnFunc(this.HWPAction));
 	}
 
 	// HammerwatchPlus: the hovered inventory item's registered action (core ItemActions: eat a fish)
@@ -243,7 +252,7 @@ class PlayerMenuCharacterTab : MenuTab
 	{
 		auto equipment = HWPHoveredItem();
 		auto record = GetLocalPlayerRecord();
-		if (equipment is null || record is null || record.actor is null || !record.actor.m_unit.IsValid())
+		if (!HWP::DropTrade::Enabled() || equipment is null || record is null || record.actor is null || !record.actor.m_unit.IsValid())
 			return;
 
 		// take it out of the bag first: a stale widget whose item already

@@ -155,6 +155,19 @@ watered.
   next puff): +10 Luck, Lucky Leaf +25 (`docs/design/luck.md`). Log:
   `[HWP:luck] buff +N for 600000 ms (herb <strain>)`.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (`config` in module.json), host-synced:
+`farm.enabled` (the module), `farm.fields`, `farm.run_chance` (from the next level).
+
+`farm.enabled 0` takes effect at once: in town the plots, sprouts, wet soil and well go,
+the vanilla crops come back and the apple tree returns to its place; on a run the wild
+plots hide. The farmer, herb buffs, joints and `hwp farm` / `hwp joint` stop (the status
+line and `hwp farm chance` still answer), crops do not grow on runs, and from the next
+level the can slot and herb cells are hidden. The plots, crops, can and herbs stay in the
+save data. The farmer's unit override stays (he stands still with his shop icon on the
+minimap). Turning it back on in town lays the farm out again.
+
 ## Test checklist
 
 1. `python -m gamelab run mod-farming --mode lab`: `[HWP:farming] self-check done: 8 seeds, 3 herb buffs, 30 joint items`, no

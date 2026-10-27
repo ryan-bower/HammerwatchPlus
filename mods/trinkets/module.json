@@ -12,5 +12,15 @@
   "local": [
     "gui/hwp/icons_trinkets_hoh1.png",
     "res/language/english/hwp_trinkets_hoh1art.lang"
-  ]
+  ],
+  "config": {
+    "title": "Trinkets",
+    "about": "HoH1 trinkets and sets, vanilla set changes, and trinket bonuses that grow with NG+.",
+    "toggle": "trinkets.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": [
+      {"key": "trinkets.ngp_scaling", "type": "bool", "default": true, "title": "NG+ scaling", "about": "Flat trinket bonuses grow with each NG+ level of the run."}
+    ]
+  }
 }

@@ -6,6 +6,8 @@
 // (GetPlayerOwner), enemy otherwise. Colours come from a preset plus optional
 // per-team overrides, stored in HWP settings (per machine). The preset is
 // picked in the player menu's Plus tab (core HWP::Options) or with hwp colors.
+// Setting colors.enabled (per machine): off, no projectile tint and no player
+// colours on the maps (PlayerColors.as); the chosen colours stay stored.
 namespace HWP
 {
 	namespace Colors
@@ -114,7 +116,7 @@ namespace HWP
 			if (!f.isEmpty() && ParseHex(f, c))
 				g_friendly = c;
 
-			g_active = !(IsWhite(g_enemy) && IsWhite(g_friendly));
+			g_active = HWP::Settings::GetBool("colors.enabled", true) && !(IsWhite(g_enemy) && IsWhite(g_friendly));
 		}
 
 		int PresetIndex(const string &in name)
@@ -161,7 +163,7 @@ namespace HWP
 		{
 			if (key.findFirst("colors.") == 0)
 				Refresh();
-			if (key.findFirst("playercolors.") == 0)
+			if (key.findFirst("playercolors.") == 0 || key == "colors.enabled")
 				HWP::PlayerColors::Refresh();
 		}
 
@@ -304,6 +306,7 @@ namespace Modules
 			HWP::Commands::Register("colors", "[preset|enemy RRGGBB|friendly RRGGBB|off]  projectile colours", HWP::Commands::Handler(HWP::Colors::CmdColors));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Colors::OnSettingChanged));
 			HWP::Options::Register("colors", HWP::Colors::PresetOption());
+			HWP::Options::Register("playercolors", HWP::PlayerColors::PaletteOption());
 			HWP::Commands::Register("playercolors", "[default|safe] [names on|off] [distance N]  player colours on the maps", HWP::Commands::Handler(HWP::Colors::CmdPlayerColors));
 		}
 

@@ -4848,3 +4848,109 @@ are fixed:
 Also seen: every run prints `summary failed: ModuleNotFoundError: No module named
 'run_summary'`. The launcher imports `tools/run_summary.py`, which exists only on the
 `dev-arena` branch. This is harmless (the summary never gates a run), but it is still open.
+
+## 2026-10-27, the settings page: every module's switch and settings on the Plus tab
+
+The player menu's Plus tab (hwplib `Options.as`) is now built from a config registry,
+`HWP::Config` (`mods/hwplib/scripts/HWP/Core/Config.as`).
+
+- **The source of the list.** Each module.json has a `config` block: the module's on/off
+  `toggle` key, its settings (bool, int or float; a list of values with labels, or a
+  min/max/step range; a suffix), and `{"option": "<id>"}` entries for registered Options
+  (key binds, presets). `tools/make_config.py` checks every block against the code. The
+  type and default must match the `HWP::Settings::Get*` call that reads the key. A toggle
+  must default to on. A module with no toggle must say why in `always_on`. An option must
+  be `Register`ed. The script writes `mods/hwplib/tweak/hwp/config.sval`, the lang files
+  and `docs/generated/settings.md` (`--check` fails when they are stale;
+  `tests/test_make_config.py`). The schema is in `docs/modules.md`, Settings.
+- **At run time.** `HWP::Config::Init` (the core module's ctor) reads the sval. It keeps a
+  module only when its lang is present (`.hwp.cfg.<mod>`, which ships with the module), so
+  the page lists the installed packages only. A module that two loaded packages both list
+  appears once. Host-scope keys are made host-synced through `HWP::Settings::Sync`. Log:
+  `[HWP:config] 12 package(s), 39 module(s) loaded` with every mod (mod-all
+  20261027-141028).
+- **The page.** At the top are the keys and accessibility options (packages.json
+  `settings_top`: swap, skill 4-6, drop, projectile colours, auto aim), plus any
+  registered option no config lists. Below them is one row per package. A package row
+  opens and closes its modules; packages start closed. Each module row is an On/Off
+  switch. Its settings follow, and a click moves each one to its next value. The search
+  field matches each word against a row's title (fuzzy: a substring, else the letters in
+  order, ranked), its value (substring) and its description (words of 3+ letters). It
+  shows the matching rows under their module and package headers. Esc clears it. The
+  hint line shows the selected row's description, plus "the host decides" or "next
+  level" where that applies. Row ids for GameLab: `hwp-pkg-<package>`,
+  `hwp-mod-<module>`, `hwp-cfg-<key>`, `hwp-opt-<option>` (a second row for the same
+  option gets `-2`). The funcs are `hwp-pkg`, `hwp-open`, `hwp-close`, `hwp-mod`,
+  `hwp-cfg` and `hwp-opt`.
+- **AngelScript: `dictionary::get(key, bool &out)` is not "false when missing".** An
+  `&out` argument is a temporary that is copied back after the call even when the key is
+  missing. `Open()` therefore read packages as open that nobody had opened: the first
+  click logged "package dungeon closed" (mod-settings-page 20261027-134819). The open
+  packages are now an `array<string>`.
+- **Every module got a switch.** The off behaviour of each is in its README. The ones the
+  game cannot fully undo:
+  - goldworth is data only (always on);
+  - turning `classes.enabled` off has no visible effect while the HoH1 classes are parked;
+  - the skill 4-6 keys stay bound;
+  - campaign's `Citadel::Fix` stays;
+  - a crack already on the floor stays, and `hwp abyss here` still opens one;
+  - the HoH1 blueprints are not switched;
+  - the farmer's unit override stays;
+  - the tavern levels stay;
+  - a Firearms Specialist already made still plays;
+  - deathrecap still records your share of a boss fight, so the party's recap stays whole.
+
+  Turning a module off takes it out of play, not out of the save: its data is kept, and
+  turning it on again restores it (valuables back to 3x after off and on;
+  fishing's 6 coast spots go and come back, mod-settings-page).
+- **New in the modules for this:**
+  - weaponswap `ShowSlots`;
+  - a `playercolors` option in colors;
+  - a `dropkey` KeyOption in droptrade;
+  - a `TavernModule`;
+  - keys prices and the objectives keys are now literal reads, so the check can see them;
+  - `HWP::ShowClass` (hwplib-classui), so firearms and classes no longer edit the
+    hidden-class list themselves.
+
+### GameLab: the command text no longer lands in a search field
+
+The inbox transport sends each line as text events (`!gl <id> <verb> ...~`). A
+`TextInputWidget` that is typing reads the same events, so a focused search field got the
+command text (`fish!gl c26 menu hwp_options - `). This is why plan-newa-a's
+settings-search checks had failed since 20261018 (noted above, "Not fixed here").
+
+The fix is in `mods/gamelab-probe/scripts/GameLab/Inbox.as`:
+
+- The probe keeps each line's characters as received. When the line ends, it cuts them
+  out of the typing textinput, before the line's verb runs. The widget reads the frame's
+  text before the probe does, so a `menu ... search` query used to see its own text.
+- A cut that fails is retried on the next frame.
+- After a cut, the field's `func-edit` is sent, so a search refilters.
+- The match runs from a `!` and skips the field's forbidden characters (`%` in
+  `%21click`). It must cover the whole line, or reach the end of the field when
+  `textlimit` stopped the line there.
+- A run that only begins alike is a different line. A resent line's copy once cut the
+  `!gl c1` of the next line and left `5 menu hwp_options - ` (plan-newa-a
+  20261027-140538).
+- A player menu tab's widgets are not under the menu's own widget, so the probe also walks
+  `m_tabSystem.m_tabs`.
+- The heartbeat now carries `inScrubbed`. A field left holding a `!` after a line's last
+  try logs `{"ev":"inbox_scrub_miss"}`.
+
+Results:
+
+| Scenario | Run | Result |
+|---|---|---|
+| mod-settings-page | 20261027-135931 | pass, `inScrubbed` 220 |
+| mod-options-tab | 20261027-140038 | pass |
+| plan-newa-a | 20261027-140900 | pass (failing since 20261018) |
+| mod-autoaim | 20261027-140759 | pass |
+| mod-all (every module, all switches compiled) | 20261027-141028 | pass |
+| `mod-<id>` smoke for each of the 35 modules touched, plus mod-settings-page | 20261027-141133 to 142500 | 36/36 pass |
+
+mod-autoaim's bot had read only `autoaim: mode` lines. The reply now starts
+`autoaim: on, mode ...`, so the bot matches `] autoaim: ` with `, mode `.
+
+The "(DoLayout -> DoLayout) WARNING: Potential infinite layout loop detected!" ERR comes
+before any HWP tab is built. It is in every run since at least 20261027-083709, so this
+change did not cause it.

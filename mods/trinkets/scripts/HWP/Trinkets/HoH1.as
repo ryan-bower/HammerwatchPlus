@@ -14,15 +14,22 @@
 // - HWPTrinketShopContent: the dungeon trinket shop (module.json class_swaps) with
 //   Fancy Plume's extra stock and purchase and Trader's Coin's discount.
 // - Key Ring is read by the keys mod (HWPGiveKey), by its custom stat name.
-// - ApplyArt (with ApplyVanilla): the HoH1 icons. `tools/import_hoh1.py trinkets` cuts them
+// - ApplyArt (once, at the level start): the HoH1 icons. `tools/import_hoh1.py trinkets` cuts them
 //   from the player's own HoH1 install into gui/hwp/icons_trinkets_hoh1.png (16x16 cells,
 //   ART_COLS a row) and lists the ids in sheet order in the string .hwp.trinkets.hoh1art.
 //   Without the import the trinkets keep their placeholder icons from the sval.
+// - Switch (trinkets.enabled, at every Start and when the setting changes): off reverts
+//   what ApplyVanilla changed (RevertVanilla, from what it kept), takes the vanilla trinkets
+//   out of the HoH1 sets again and gives the HoH1 trinkets a drop condition that never holds
+//   (HWPTrinketNever), so GetRandomTrinket (drops, shops, the sarcophagus) skips them. On
+//   reloads their own conditions from the sval. Trinkets already owned keep working.
 namespace HWP
 {
 	namespace Trinkets
 	{
 		const string VANILLA = "tweak/hwp/trinket_sets_vanilla.sval";
+		const string HOH1 = "tweak/hwp/trinkets_hoh1.sval";
+		const string HOH1_SETS = "tweak/hwp/trinket_sets_hoh1.sval";
 		const string STAT_SHOP_STOCK = "hwp-shop-stock";       // Fancy Plume: more choices
 		const string STAT_SHOP_BUYS = "hwp-shop-buys";         // Fancy Plume attuned: one more purchase
 		const string STAT_SHOP_DISCOUNT = "hwp-shop-discount"; // Trader's Coin: % off
@@ -34,6 +41,29 @@ namespace HWP
 
 		bool g_vanillaDone = false;
 		string g_vanillaLast;
+		bool g_artDone = false;
+
+		// what ApplyVanilla changed, so RevertVanilla can put it back
+		class SetUndo
+		{
+			Item::TrinketSet@ target;
+			array<Item::TrinketSetBonus@> bonuses;
+			int totItems;
+			array<Item::Trinket@> pieces;     // the trinkets add-items moved into the set
+			array<Item::TrinketSet@> prev;    // the set each one was in before
+		}
+
+		class TrinketUndo
+		{
+			Item::Trinket@ trinket;
+			array<Modifiers::IModifier@> mods;
+			array<Modifiers::IModifier@> mods2;
+			string desc1;
+			string desc2;
+		}
+
+		array<SetUndo@> g_setUndo;
+		array<TrinketUndo@> g_trinketUndo;
 
 		// a custom stat's total for a player (Modifiers::CustomStat), 0 when absent
 		float StatOf(PlayerRecord@ rec, const string &in id) { return HWP::CustomStat(rec, id); }
@@ -58,6 +88,11 @@ namespace HWP
 		{
 			UnitPtr u;
 			int added = 0;
+			SetUndo undo;
+			@undo.target = set;
+			undo.bonuses = set.m_bonuses;
+			undo.totItems = set.m_totItems;
+			g_setUndo.insertLast(undo);
 			auto items = GetParamArray(u, d, "add-items", false);
 			if (items !is null)
 			{
@@ -71,6 +106,8 @@ namespace HWP
 					}
 					if (t.m_set is set)
 						continue;
+					undo.pieces.insertLast(t);
+					undo.prev.insertLast(t.m_set);
 					@t.m_set = set;
 					set.m_totItems++;
 					added++;
@@ -97,6 +134,13 @@ namespace HWP
 		string PatchTrinket(Item::Trinket@ t, SValue@ d)
 		{
 			UnitPtr u;
+			TrinketUndo undo;
+			@undo.trinket = t;
+			undo.mods = t.m_modifiers;
+			undo.mods2 = t.m_modifiers2;
+			undo.desc1 = t.m_desc1;
+			undo.desc2 = t.m_desc2;
+			g_trinketUndo.insertLast(undo);
 			auto mods = Modifiers::LoadIModifiers(u, d, Modifiers::Role::Both, "", Modifiers::SyncVerb::Trinket, t.m_idHash, 0x80);
 			auto mods2 = Modifiers::LoadIModifiers(u, d, Modifiers::Role::Both, "attune-", Modifiers::SyncVerb::Trinket, t.m_idHash, 0x80);
 			for (uint i = 0; i < mods.length(); i++)
@@ -112,12 +156,15 @@ namespace HWP
 			return t.m_id + " +" + mods.length() + "/" + mods2.length() + " modifier(s)";
 		}
 
-		// once per game: the vanilla sets and trinkets as tweak/hwp/trinket_sets_vanilla.sval says
+		// once per game (again after RevertVanilla): the vanilla sets and trinkets as
+		// tweak/hwp/trinket_sets_vanilla.sval says; nothing while trinkets.enabled is off
 		void ApplyVanilla()
 		{
-			if (g_vanillaDone)
+			if (g_vanillaDone || !g_on)
 				return;
 			g_vanillaDone = true;
+			g_setUndo.removeRange(0, g_setUndo.length());
+			g_trinketUndo.removeRange(0, g_trinketUndo.length());
 			auto root = Resources::GetSValue(VANILLA);
 			if (root is null || root.GetType() != SValueType::Dictionary)
 			{
@@ -150,7 +197,11 @@ namespace HWP
 			}
 			g_vanillaLast = join(done, "; ");
 			HWP::Log("trinkets", "vanilla changes: " + g_vanillaLast);
-			ApplyArt();
+			RefreshPlayers();
+		}
+
+		void RefreshPlayers()
+		{
 			for (uint i = 0; i < g_players.length(); i++)
 			{
 				if (g_players[i] is null || g_players[i].peer == 255)
@@ -159,8 +210,116 @@ namespace HWP
 			}
 		}
 
+		// trinkets.enabled off: the vanilla sets and trinkets as the game loaded them
+		void RevertVanilla()
+		{
+			if (!g_vanillaDone)
+				return;
+			g_vanillaDone = false;
+			for (int i = int(g_setUndo.length()) - 1; i >= 0; i--)
+			{
+				auto u = g_setUndo[i];
+				u.target.m_bonuses = u.bonuses;
+				u.target.m_totItems = u.totItems;
+				for (uint p = 0; p < u.pieces.length(); p++)
+					@u.pieces[p].m_set = u.prev[p];
+			}
+			for (int i = int(g_trinketUndo.length()) - 1; i >= 0; i--)
+			{
+				auto u = g_trinketUndo[i];
+				u.trinket.m_modifiers = u.mods;
+				u.trinket.m_modifiers2 = u.mods2;
+				u.trinket.m_desc1 = u.desc1;
+				u.trinket.m_desc2 = u.desc2;
+			}
+			g_vanillaLast = "reverted (" + g_setUndo.length() + " set(s), " + g_trinketUndo.length() + " trinket(s)): trinkets.enabled is off";
+			g_setUndo.removeRange(0, g_setUndo.length());
+			g_trinketUndo.removeRange(0, g_trinketUndo.length());
+			HWP::Log("trinkets", "vanilla changes " + g_vanillaLast);
+			RefreshPlayers();
+		}
+
+		// The HoH1 trinkets in or out of GetRandomTrinket (their drop conditions), and the
+		// vanilla trinkets a HoH1 set lists (Fire Salts, Cauldron, Searing Torch, Necromantic
+		// Focus: in no vanilla set) in or out of it. Both come from the sval every time, so
+		// it holds whatever the script globals and the trinket instances live through.
+		int SwitchHoH1(bool on)
+		{
+			UnitPtr u;
+			int n = 0;
+			auto root = Resources::GetSValue(HOH1);
+			if (root !is null && root.GetType() == SValueType::Array)
+			{
+				ConditionalList never;
+				array<IConditional@> none = { HWPTrinketNever() };
+				never.m_conditionals.insertLast(none);
+				auto arr = root.GetArray();
+				for (uint i = 0; i < arr.length(); i++)
+				{
+					auto t = Item::Trinket::Get(HWP::SV::Str(arr[i], "id"));
+					if (t is null)
+						continue;
+					if (on)
+						@t.m_dropConds = LoadConditionals(u, arr[i]);
+					else
+						@t.m_dropConds = never;
+					n++;
+				}
+			}
+			auto sets = Resources::GetSValue(HOH1_SETS);
+			if (sets !is null && sets.GetType() == SValueType::Array)
+			{
+				auto arr = sets.GetArray();
+				for (uint i = 0; i < arr.length(); i++)
+				{
+					auto set = FindSet(HWP::SV::Str(arr[i], "id"));
+					auto items = GetParamArray(u, arr[i], "items", false);
+					if (set is null || items is null)
+						continue;
+					for (uint j = 0; j < items.length(); j++)
+					{
+						string id = items[j].GetString();
+						auto t = Item::Trinket::Get(id);
+						if (t is null || id.findFirst("hwp_") == 0)
+							continue;
+						if (on)
+							@t.m_set = set;
+						else if (t.m_set is set)
+							@t.m_set = null;
+					}
+				}
+			}
+			return n;
+		}
+
+		bool g_switched = false;
+		bool g_switchedOn = true;
+
+		// every Start and every trinkets.* change, on every machine (the host's value rules)
+		void Switch()
+		{
+			if (g_on)
+				ApplyVanilla();
+			else
+				RevertVanilla();
+			if (g_switched && g_switchedOn == g_on)
+				return;
+			bool first = !g_switched;
+			g_switched = true;
+			g_switchedOn = g_on;
+			int n = SwitchHoH1(g_on);
+			if (!g_on || !first)
+			{
+				HWP::Log("trinkets", "trinkets.enabled " + (g_on ? "on" : "off") + ": " + n + " HoH1 trinket(s) " + (g_on ? "back in" : "out of") + " the drops");
+				RefreshPlayers();
+			}
+		}
+
 		void ApplyArt()
 		{
+			if (g_artDone)
+				return;
+			g_artDone = true;
 			HWP::HoH1::Report("trinkets", Resources::HasString(ART_IDS), ".hwp.trinkets.hoh1");
 			if (!Resources::HasString(ART_IDS))
 			{
@@ -231,12 +390,18 @@ namespace HWP
 					ids.insertLast(id);
 			}
 			auto rec = GetLocalPlayerRecord();
-			HWP::Commands::Reply("hoh1 trinkets: " + ids.length() + " loaded; icons: " + (g_artIcons > 0 ? g_artIcons + " from HoH1" : "placeholders")
+			HWP::Commands::Reply("hoh1 trinkets: " + ids.length() + " loaded" + (g_on ? "" : " (off: none drops)") + "; icons: " + (g_artIcons > 0 ? g_artIcons + " from HoH1" : "placeholders")
 				+ "; vanilla: " + g_vanillaLast
 				+ (rec is null ? "" : "; shop price x" + ShopPriceMul(rec) + ", stock +" + StatOf(rec, STAT_SHOP_STOCK)
 					+ ", buys +" + StatOf(rec, STAT_SHOP_BUYS) + ", key ring " + StatOf(rec, "hwp-key-ring") + "%"));
 		}
 	}
+}
+
+// A drop condition that never holds: the HoH1 trinkets get it while trinkets.enabled is off
+class HWPTrinketNever : IConditional
+{
+	bool IsAllowed(Actor@ owner) { return false; }
 }
 
 // Sphere of Warriors: Combo starts with fewer kills (never fewer than one, and only once

@@ -3,5 +3,13 @@
   "requires": ["hwplib", "hwplib-classui"],
   "class_swaps": {"PyreUnitBehavior": "HWPSpecsPyre"},
   "overrides": ["scripts/WorldScript/Pyre.as"],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "4th specializations",
+    "about": "Eight new specs for the vanilla classes. Off: not offered at the picker; taken ones stay.",
+    "toggle": "specs.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": []
+  }
 }

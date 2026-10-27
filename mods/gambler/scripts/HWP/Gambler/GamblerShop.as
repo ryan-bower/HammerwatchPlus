@@ -28,6 +28,8 @@ class HWPGamblerShop : AShopContent
 
 	bool CanInteract(PlayerRecord@ player) override
 	{
+		if (!HWP::Gambler::g_enabled)
+			return false; // gambler.enabled off: the host takes him away within a frame
 		if (!player.local)
 			return true;
 		return CheckConditionals(m_conditionals, player);

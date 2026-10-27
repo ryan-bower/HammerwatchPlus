@@ -215,6 +215,11 @@ namespace HWP
 				ClearFloor();
 				if (brush is null || placer is null)
 					return;
+				if (!g_enabled)
+				{
+					HWP::Log("objectives", "objectives.enabled is off: nothing placed" + OnLevel());
+					return;
+				}
 				auto vaultDef = FindDef(SET_VAULT);
 				auto swDef = FindDef(SET_SWITCH);
 				auto exitDef = FindDef(SET_EXIT);

@@ -20,6 +20,7 @@
 	<string name="hwp.farming.status">Farm: %state%, %plots% plot(s) (%where%) at %x%,%y%, %runs% run(s) counted. Planted: %list%</string>
 	<string name="hwp.farming.moved">Farm plots moved off the fields to %x%,%y% (saved; hwp farm fields puts them back).</string>
 	<string name="hwp.farming.host_only">Only the host can do that.</string>
+	<string name="hwp.farming.off">Farming is off (farm.enabled, the HammerwatchPlus tab of the player menu).</string>
 	<string name="hwp.farming.debug_off">Host only, and farm.debug must be on.</string>
 	<string name="hwp.farming.no_herb">You have no %name%.</string>
 	<string name="hwp.farming.unknown_herb">Unknown herb. Strains: %list%</string>

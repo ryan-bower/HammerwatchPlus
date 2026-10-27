@@ -5,10 +5,13 @@
 // hwp-options-hook widget that hands the PlayerMenu an HWPOptionsTab
 // (gui/hwp/options.gui) on its first update.
 //
-// The gui has one row per option id ("hwp-opt-<id>"); a module fills its row
-// by registering an Option under that id in its module ctor (script globals
-// reset every level). A row without one hides. Values are read every frame
-// while the tab is open, so providers need no change calls.
+// The list comes from HWP::Config (Config.as): a top section (packages.json
+// settings_top), then one collapsible row per package with its modules' on/off
+// switches and settings. An Option (key binds, presets) is registered by its
+// module in the ctor (script globals reset every level) under the id its
+// config names ({"option": "<id>"}, row "hwp-opt-<id>"); one no config lists
+// goes in the top section, one not registered hides. Values are read every
+// frame while the tab is open, so providers need no change calls.
 namespace HWP
 {
 	namespace Options
@@ -30,6 +33,10 @@ namespace HWP
 		}
 
 		dictionary g_options;
+		// the ids of the packages open in the Plus tab (this level); not a dictionary of bools:
+		// get(key, bool &out) copies its out temp back for a missing key too, so a package
+		// nobody opened read as open
+		array<string> g_open;
 
 		void Register(const string &in id, Option@ option)
 		{
@@ -200,15 +207,39 @@ class HWPKeyCaptureWindow : AWindowObject
 	}
 }
 
+// one line of the list (a clone of a template in options.gui)
+class HWPOptionsRow
+{
+	Widget@ w;
+	string kind;               // section, package, mod, setting
+	HWP::Config::Package@ pkg;
+	HWP::Config::Mod@ mod;
+	HWP::Config::Setting@ setting;
+	HWPOptionsRow@ modRow;     // context the search also looks at
+	HWPOptionsRow@ pkgRow;
+	bool top;                  // in the top section (no package)
+	TextWidget@ title;
+	TextWidget@ value;
+	AInteractableWidget@ button;
+	string titleL;             // lower case, for the search
+	string aboutL;
+	string valueL;
+}
+
 class HWPOptionsTab : MenuTab
 {
-	array<Widget@> m_rows;
+	array<HWPOptionsRow@> m_rows;
+	ScrollbarWidget@ m_list;
+	Widget@ m_tplSection;
+	Widget@ m_tplPackage;
+	Widget@ m_tplRow;
 	TextWidget@ m_hint;
 	TextInputWidget@ m_search;
 	TextWidget@ m_searchHint;
-	string m_query;            // the search text, lower case
-	bool m_relist;             // rows changed while typing: rebuild the navigation list after
+	array<string> m_query;     // the search words, lower case
+	string m_queryText;
 	string m_capture;          // id of the KeyOption waiting for a key (HWPKeyCaptureWindow), or ""
+	int m_shown;               // rows the search left
 
 	HWPOptionsTab(GUIBuilder@ b, uint id)
 	{
@@ -216,41 +247,383 @@ class HWPOptionsTab : MenuTab
 		@m_hint = cast<TextWidget>(m_widget.GetWidgetById("hint"));
 		@m_search = cast<TextInputWidget>(m_widget.GetWidgetById("search"));
 		@m_searchHint = cast<TextWidget>(m_widget.GetWidgetById("search-hint"));
+		@m_list = cast<ScrollbarWidget>(m_widget.GetWidgetById("rows"));
+		@m_tplSection = m_widget.GetWidgetById("tpl-section");
+		@m_tplPackage = m_widget.GetWidgetById("tpl-package");
+		@m_tplRow = m_widget.GetWidgetById("tpl-row");
 		// the console key's char: it opens the console, it is never part of a search
 		if (m_search !is null)
 		{
 			m_search.m_forbiddenCharacters.insertLast("`");
 			m_search.m_forbiddenCharacters.insertLast("~");
 		}
-		auto list = m_widget.GetWidgetById("rows");
-		if (list !is null)
-		{
-			for (uint i = 0; i < list.m_children.length(); i++)
-				m_rows.insertLast(list.m_children[i]);
-		}
 	}
 
 	void Initialize() override
 	{
+		Build();
 		Refresh();
 		RefreshInteractableWidgets(m_widget);
 	}
 
-	string RowId(Widget@ row) { return row.m_id.substr(8); } // "hwp-opt-<id>"
+	// ---- building -----------------------------------------------------------
 
-	void SetText(Widget@ parent, const string &in id, const string &in text)
+	bool HasRow(const string &in id)
 	{
-		auto t = cast<TextWidget>(parent.GetWidgetById(id));
+		for (uint i = 0; i < m_rows.length(); i++)
+		{
+			if (m_rows[i].w.m_id == id)
+				return true;
+		}
+		return false;
+	}
+
+	HWPOptionsRow@ AddRow(Widget@ tpl, const string &in kind, const string &in id, const string &in func)
+	{
+		HWPOptionsRow@ r = HWPOptionsRow();
+		r.kind = kind;
+		@r.w = tpl.Clone();
+		// a setting shows twice (the top section and its module): the first row has the id
+		r.w.SetID(HasRow(id) ? id + "-2" : id);
+		r.w.m_visible = true;
+		@r.title = cast<TextWidget>(r.w.GetWidgetById("title"));
+		@r.value = cast<TextWidget>(r.w.GetWidgetById("value"));
+		@r.button = cast<AInteractableWidget>(r.w.GetWidgetById("button"));
+		if (r.button !is null)
+		{
+			r.button.m_func = func;
+			r.button.m_navPos = ivec2(0, m_rows.length());
+		}
+		m_list.AddChild(r.w);
+		m_rows.insertLast(r);
+		return r;
+	}
+
+	HWPOptionsRow@ AddSetting(HWP::Config::Setting@ s, HWPOptionsRow@ modRow, HWPOptionsRow@ pkgRow)
+	{
+		HWPOptionsRow@ r;
+		if (s.IsOption())
+			@r = AddRow(m_tplRow, "setting", "hwp-opt-" + s.option, "hwp-opt " + s.option);
+		else
+			@r = AddRow(m_tplRow, "setting", "hwp-cfg-" + s.key, "hwp-cfg " + s.key);
+		@r.setting = s;
+		r.top = modRow is null;
+		@r.modRow = modRow;
+		@r.pkgRow = pkgRow;
+		if (modRow !is null)
+		{
+			@r.mod = modRow.mod;
+			@r.pkg = modRow.pkg;
+		}
+		if (r.title !is null)
+			r.title.m_offset.x = r.top ? 4 : 14;
+		r.aboutL = s.About().toLower();
+		return r;
+	}
+
+	void Build()
+	{
+		m_list.ClearChildren();
+		m_rows.removeRange(0, m_rows.length());
+		if (!HWP::Config::g_loaded)
+			HWP::Config::Init();
+
+		// the top section: packages.json settings_top, then any option the config does not list
+		array<HWP::Config::Setting@> top = HWP::Config::g_top;
+		auto ids = HWP::Options::g_options.getKeys();
+		ids.sortAsc();
+		for (uint i = 0; i < ids.length(); i++)
+		{
+			if (HWP::Config::Find("", ids[i]) is null)
+			{
+				HWP::Config::Setting@ s = HWP::Config::Setting();
+				s.option = ids[i];
+				top.insertLast(s);
+			}
+		}
+		if (top.length() > 0)
+		{
+			auto sec = AddRow(m_tplSection, "section", "hwp-top", "");
+			sec.top = true;
+			SetText(sec.title, Resources::GetString(".hwp.options.top"));
+			for (uint i = 0; i < top.length(); i++)
+				AddSetting(top[i], null, null);
+		}
+
+		for (uint p = 0; p < HWP::Config::g_packages.length(); p++)
+		{
+			auto pkg = HWP::Config::g_packages[p];
+			auto pr = AddRow(m_tplPackage, "package", "hwp-pkg-" + pkg.id, "hwp-pkg " + pkg.id);
+			@pr.pkg = pkg;
+			pr.titleL = pkg.Title().toLower();
+			for (uint m = 0; m < pkg.mods.length(); m++)
+			{
+				auto mod = pkg.mods[m];
+				auto mr = AddRow(m_tplRow, "mod", "hwp-mod-" + mod.id, "hwp-mod " + mod.id);
+				@mr.pkg = pkg;
+				@mr.mod = mod;
+				@mr.pkgRow = pr;
+				if (mr.title !is null)
+					mr.title.m_offset.x = 6;
+				mr.titleL = mod.Title().toLower();
+				mr.aboutL = mod.About().toLower();
+				for (uint i = 0; i < mod.settings.length(); i++)
+					AddSetting(mod.settings[i], mr, pr);
+			}
+		}
+		HWP::Log("options", "built " + m_rows.length() + " rows, " + HWP::Config::g_packages.length() + " package(s)");
+	}
+
+	// ---- every frame ----------------------------------------------------------
+
+	void SetText(TextWidget@ t, const string &in text)
+	{
 		if (t !is null && t.m_str != text)
 			t.SetText(text);
 	}
 
-	// a row matches when its title or value holds the search text
-	bool Matches(HWP::Options::Option@ opt)
+	void SetColor(TextWidget@ t, const vec4 &in c)
 	{
-		if (m_query.isEmpty())
-			return true;
-		return opt.Title().toLower().findFirst(m_query) >= 0 || opt.Value().toLower().findFirst(m_query) >= 0;
+		if (t is null || (t.m_color.x == c.x && t.m_color.y == c.y && t.m_color.z == c.z && t.m_color.w == c.w))
+			return;
+		t.SetColor(c);
+		t.SetText(t.m_str, true, true);
+	}
+
+	bool Open(HWP::Config::Package@ pkg)
+	{
+		return pkg !is null && HWP::Options::g_open.find(pkg.id) >= 0;
+	}
+
+	// a row's texts and button, for the current value
+	void Fill(HWPOptionsRow@ r)
+	{
+		vec4 white = vec4(1, 1, 1, 1);
+		vec4 dim = vec4(0.5f, 0.5f, 0.5f, 1);
+		vec4 soft = vec4(0.82f, 0.82f, 0.82f, 1);
+		if (r.kind == "package")
+		{
+			int on = 0;
+			for (uint i = 0; i < r.pkg.mods.length(); i++)
+				on += r.pkg.mods[i].On() ? 1 : 0;
+			SetText(r.title, (Open(r.pkg) || m_query.length() > 0 ? "- " : "+ ") + r.pkg.Title());
+			SetText(r.value, Resources::GetString(".hwp.options.count", { { "on", on }, { "n", r.pkg.mods.length() } }));
+		}
+		else if (r.kind == "mod")
+		{
+			bool on = r.mod.On();
+			SetText(r.title, r.mod.Title());
+			SetColor(r.title, on ? white : dim);
+			string v = r.mod.CanToggle() ? HWP::Config::OnOff(on) : Resources::GetString(".hwp.cfg.always");
+			SetText(r.value, v);
+			r.valueL = v.toLower();
+			r.button.m_enabled = r.mod.CanToggle() && !r.mod.Locked();
+			SetColor(r.value, r.button.m_enabled ? white : dim);
+		}
+		else if (r.kind == "setting")
+		{
+			auto s = r.setting;
+			string title = s.Title();
+			SetText(r.title, title);
+			r.titleL = title.toLower();
+			bool live = r.mod is null || r.mod.On();
+			SetColor(r.title, !live ? dim : (r.top ? white : soft));
+			string v = s.IsOption() && s.option == m_capture ? Resources::GetString(".hwp.options.press") : s.Value();
+			SetText(r.value, v);
+			r.valueL = v.toLower();
+			r.button.m_enabled = !s.Locked();
+			SetColor(r.value, r.button.m_enabled ? white : dim);
+		}
+	}
+
+	// fuzzy: the letters in order; a substring scores most, then runs and word starts
+	int Fuzzy(const string &in text, const string &in q)
+	{
+		int at = text.findFirst(q);
+		if (at >= 0)
+			return 1000 - at + ((at == 0 || text[at - 1] == 32) ? 500 : 0);
+		int score = 0;
+		uint ti = 0;
+		int run = 0;
+		int gaps = 0;
+		for (uint qi = 0; qi < q.length(); qi++)
+		{
+			uint8 c = q[qi];
+			bool found = false;
+			while (ti < text.length())
+			{
+				uint8 t = text[ti];
+				bool start = ti == 0 || text[ti - 1] == 32;
+				ti++;
+				if (t == c)
+				{
+					score += 10 + (run > 0 ? 15 : 0) + (start ? 20 : 0);
+					run++;
+					found = true;
+					break;
+				}
+				run = 0;
+				gaps++;
+			}
+			if (!found)
+				return 0;
+		}
+		return max(score - gaps, 0);
+	}
+
+	bool WordIn(HWPOptionsRow@ r, const string &in word)
+	{
+		if (r is null)
+			return false;
+		return Fuzzy(r.titleL, word) > 0 || r.valueL.findFirst(word) >= 0
+			|| (word.length() >= 3 && r.aboutL.findFirst(word) >= 0);
+	}
+
+	// every word is in the row, its module or its package
+	bool Matches(HWPOptionsRow@ r)
+	{
+		for (uint i = 0; i < m_query.length(); i++)
+		{
+			if (!WordIn(r, m_query[i]) && !WordIn(r.modRow, m_query[i]) && !WordIn(r.pkgRow, m_query[i]))
+				return false;
+		}
+		return true;
+	}
+
+	bool Available(HWPOptionsRow@ r)
+	{
+		return r.setting is null || r.setting.Available();
+	}
+
+	// which rows show: the open packages, or what the search finds (with its headers)
+	bool Layout()
+	{
+		bool searching = m_query.length() > 0;
+		m_shown = 0;
+		array<bool> show(m_rows.length());
+		for (uint i = 0; i < m_rows.length(); i++)
+		{
+			auto r = m_rows[i];
+			if (r.kind == "section")
+				continue;
+			if (!searching)
+				show[i] = Available(r) && (r.top || r.kind == "package" || Open(r.pkg));
+			else
+				show[i] = Available(r) && r.kind != "package" && (Matches(r)
+					|| (r.setting !is null && !m_capture.isEmpty() && r.setting.option == m_capture));
+			if (show[i] && r.kind != "package")
+				m_shown++;
+		}
+		// a row's module and package show over it
+		for (uint i = 0; i < m_rows.length(); i++)
+		{
+			if (!show[i])
+				continue;
+			auto r = m_rows[i];
+			for (uint j = 0; j < i; j++)
+			{
+				if (m_rows[j] is r.modRow || m_rows[j] is r.pkgRow)
+					show[j] = true;
+			}
+		}
+		// the top section's label shows over any of its rows
+		for (uint i = 0; i < m_rows.length(); i++)
+		{
+			if (m_rows[i].kind != "section")
+				continue;
+			for (uint j = i + 1; j < m_rows.length() && m_rows[j].top; j++)
+				show[i] = show[i] || show[j];
+		}
+		bool changed = false;
+		for (uint i = 0; i < m_rows.length(); i++)
+		{
+			if (m_rows[i].w.m_visible == show[i])
+				continue;
+			m_rows[i].w.m_visible = show[i];
+			changed = true;
+		}
+		return changed;
+	}
+
+	// the row under the mouse, or the keyboard/gamepad selection in the list
+	HWPOptionsRow@ Selected()
+	{
+		if (m_list is null || !m_list.m_hovering)
+			return null;
+		AInteractableWidget@ b = m_list.m_input.m_hovering;
+		if (b is null && !m_list.m_input.m_usingMouse)
+			@b = m_list.m_input.GetCurrentInteractable();
+		if (b is null)
+			return null;
+		for (uint i = 0; i < m_rows.length(); i++)
+		{
+			if (m_rows[i].button is b)
+				return m_rows[i];
+		}
+		return null;
+	}
+
+	string Hint()
+	{
+		auto opt = HWP::Options::Get(m_capture);
+		if (opt !is null)
+			return Resources::GetString(".hwp.options.capture", { { "what", opt.Title() } });
+		if (m_query.length() > 0 && m_shown == 0)
+			return Resources::GetString(".hwp.options.nomatch", { { "q", m_queryText } });
+		auto r = Selected();
+		if (r is null)
+			return Resources::GetString(".hwp.options.hint");
+		string about;
+		bool level = false;
+		bool locked = false;
+		if (r.kind == "package")
+			about = Resources::GetString(Open(r.pkg) ? ".hwp.options.close" : ".hwp.options.open");
+		else if (r.kind == "mod")
+		{
+			about = r.mod.About();
+			if (!r.mod.CanToggle())
+				about += " " + r.mod.AlwaysOn();
+			level = r.mod.level && r.mod.CanToggle();
+			locked = r.mod.Locked() && r.mod.CanToggle();
+		}
+		else if (r.setting !is null)
+		{
+			about = r.setting.About();
+			if (about.isEmpty())
+				about = Resources::GetString(".hwp.options.hint");
+			level = r.setting.level && !r.setting.IsOption();
+			locked = r.setting.Locked();
+		}
+		if (locked)
+			about += " " + Resources::GetString(".hwp.options.host");
+		else if (level)
+			about += " " + Resources::GetString(".hwp.options.level");
+		return about;
+	}
+
+	void Refresh()
+	{
+		for (uint i = 0; i < m_rows.length(); i++)
+		{
+			if (m_rows[i].kind != "section")
+				Fill(m_rows[i]);
+		}
+		if (Layout() && m_list !is null)
+		{
+			m_list.Invalidate();
+			// the list keeps its own navigation (ScrollbarWidget::m_input, outside the
+			// window's): with the selection in it, its next layout rebuilds it in place
+			if (!m_list.m_hovering)
+				m_list.m_input.RefreshInteractableWidgets(m_list);
+			Invalidate();
+		}
+		SetText(m_hint, Hint());
+		if (m_searchHint !is null)
+		{
+			bool empty = m_search is null || (m_search.m_text.length() == 0 && !m_search.m_typing);
+			if (m_searchHint.m_visible != empty)
+				m_searchHint.m_visible = empty;
+		}
 	}
 
 	void SetQuery(const string &in text)
@@ -261,62 +634,19 @@ class HWPOptionsTab : MenuTab
 			q = q.substr(0, q.length() - 1);
 		while (q.length() > 0 && q.substr(0, 1) == " ")
 			q = q.substr(1);
-		if (q == m_query)
+		if (q == m_queryText)
 			return;
-		m_query = q;
+		m_queryText = q;
+		m_query.removeRange(0, m_query.length());
+		auto words = q.split(" ");
+		for (uint i = 0; i < words.length(); i++)
+		{
+			if (!words[i].isEmpty())
+				m_query.insertLast(words[i]);
+		}
+		if (m_list !is null)
+			m_list.m_handleValue = 0;
 		Refresh();
-	}
-
-	void Refresh()
-	{
-		bool relist = false;
-		int shown = 0;
-		for (uint i = 0; i < m_rows.length(); i++)
-		{
-			auto row = m_rows[i];
-			string id = RowId(row);
-			auto opt = HWP::Options::Get(id);
-			bool show = opt !is null && (id == m_capture || Matches(opt));
-			if (show)
-				shown++;
-			if (row.m_visible != show)
-			{
-				row.m_visible = show;
-				relist = true;
-				Invalidate();
-			}
-			if (!show)
-				continue;
-			SetText(row, "title", opt.Title());
-			SetText(row, "value", id == m_capture ? Resources::GetString(".hwp.options.press") : opt.Value());
-		}
-		if (m_hint !is null)
-		{
-			string hint = Resources::GetString(".hwp.options.hint");
-			auto opt = HWP::Options::Get(m_capture);
-			if (opt !is null)
-				hint = Resources::GetString(".hwp.options.capture", { { "what", opt.Title() } });
-			else if (shown == 0 && !m_query.isEmpty())
-				hint = Resources::GetString(".hwp.options.nomatch", { { "q", m_query } });
-			if (m_hint.m_str != hint)
-				m_hint.SetText(hint);
-		}
-		// hidden rows' buttons leave the keyboard/gamepad navigation; not while
-		// typing in the search (rebuilding the list takes the field's focus and
-		// ends the typing after the first letter that hides a row)
-		if (relist)
-			m_relist = true;
-		if (m_relist && (m_search is null || !m_search.m_typing))
-		{
-			m_relist = false;
-			RefreshInteractableWidgets(m_widget);
-		}
-		if (m_searchHint !is null)
-		{
-			bool empty = m_search is null || (m_search.m_text.length() == 0 && !m_search.m_typing);
-			if (m_searchHint.m_visible != empty)
-				m_searchHint.m_visible = empty;
-		}
 	}
 
 	void CaptureEnded()
@@ -353,21 +683,54 @@ class HWPOptionsTab : MenuTab
 			return;
 		}
 		auto parse = name.split(" ");
-		if (parse.length() < 2 || parse[0] != "hwp-opt")
+		if (parse.length() < 2)
 			return;
 		string id = parse[1];
-		auto opt = HWP::Options::Get(id);
-		if (opt is null)
-			return;
-		if (cast<HWP::Options::KeyOption>(opt) !is null)
+		// hwp-pkg opens/closes a package; hwp-open/hwp-close (GameLab) set it
+		if (parse[0] == "hwp-pkg" || parse[0] == "hwp-open" || parse[0] == "hwp-close")
 		{
-			if (m_capture.isEmpty())
-				StartCapture(id);
+			auto pkg = HWP::Config::GetPackage(id);
+			if (pkg is null)
+				return;
+			bool open = parse[0] == "hwp-pkg" ? !Open(pkg) : parse[0] == "hwp-open";
+			int at = HWP::Options::g_open.find(id);
+			if (open && at < 0)
+				HWP::Options::g_open.insertLast(id);
+			else if (!open && at >= 0)
+				HWP::Options::g_open.removeAt(at);
+			HWP::Log("options", "package " + id + (open ? " opened" : " closed"));
 		}
-		else
+		else if (parse[0] == "hwp-mod")
 		{
-			opt.Next();
-			HWP::Log("options", id + " -> " + opt.Value());
+			auto mod = HWP::Config::GetMod(id);
+			if (mod is null)
+				return;
+			mod.Toggle();
+			HWP::Log("options", id + " -> " + (mod.On() ? "on" : "off"));
+		}
+		else if (parse[0] == "hwp-cfg")
+		{
+			auto s = HWP::Config::Find(id, "");
+			if (s is null)
+				return;
+			s.Next();
+			HWP::Log("options", id + " -> " + s.Value());
+		}
+		else if (parse[0] == "hwp-opt")
+		{
+			auto opt = HWP::Options::Get(id);
+			if (opt is null)
+				return;
+			if (cast<HWP::Options::KeyOption>(opt) !is null)
+			{
+				if (m_capture.isEmpty())
+					StartCapture(id);
+			}
+			else
+			{
+				opt.Next();
+				HWP::Log("options", id + " -> " + opt.Value());
+			}
 		}
 		Refresh();
 	}

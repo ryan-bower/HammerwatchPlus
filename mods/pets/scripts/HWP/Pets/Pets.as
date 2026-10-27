@@ -171,10 +171,26 @@ namespace HWP
 
 		bool g_bowlReady = false; // this town level placed its bowl
 
+		// pets.enabled changed: the local player's pet is made again, so the Fetch
+		// ranges, the pickup toggles and the dyes come off (or back) at once. Vanilla's
+		// ResetPet tells the others (SetPetType), who re-make their copy of it
+		void RemakeMyPet()
+		{
+			auto rec = GetLocalPlayerRecord();
+			if (rec is null || rec.pet is null)
+				return;
+			auto pb = cast<PlayerBase>(rec.actor);
+			if (pb !is null && pb.m_unit.IsValid())
+				pb.ResetPet();
+		}
+
 		void OnSettingChanged(const string &in key)
 		{
+			bool wasOn = g_enabled;
 			if (key.findFirst("pets.") == 0)
 				RefreshSettings();
+			if (wasOn != g_enabled)
+				RemakeMyPet();
 			// a client got the host's values ("pets."), or pets.bowl / pets.enabled changed
 			// live (`hwp set pets.bowl 1`): the bowl goes where the host has it, or away
 			if ((key == "pets." || key == "pets.bowl" || key == "pets.enabled") && g_inTown && g_bowlReady)
@@ -413,7 +429,8 @@ namespace HWP
 		// What the HWP pet classes pass to the base Initialize.
 		MiniPetOption OptionsFor(PlayerBase@ owner, MiniPetOption fallback)
 		{
-			if (owner is null || owner.m_record is null)
+			// pets.enabled off: vanilla's pickups (the toggles stay saved in petOptions)
+			if (!g_enabled || owner is null || owner.m_record is null)
 				return fallback;
 			return MiniPetOption(Options(owner.m_record));
 		}
@@ -421,7 +438,7 @@ namespace HWP
 		// Fetch (and the squire's Pack Mule) change the pet's base ranges.
 		void ApplyPassives(MiniPet@ pet, PlayerBase@ owner, const string &in petId, const string &in family)
 		{
-			if (pet is null || owner is null || owner.m_record is null)
+			if (!g_enabled || pet is null || owner is null || owner.m_record is null)
 				return;
 			int rank = Rank(owner.m_record, petId, Skill::Fetch);
 			auto def = Def(Skill::Fetch);
@@ -468,7 +485,7 @@ namespace HWP
 
 		void OnPetPickup(PlayerRecord@ rec, const string &in petId, MiniPetOption kind, const string &in family)
 		{
-			if (rec is null)
+			if (rec is null || !g_enabled)
 				return;
 			if (!rec.local)
 			{
@@ -1031,6 +1048,12 @@ namespace HWP
 				return;
 			}
 			string a = args[0];
+			// pets.enabled off: the status still answers; skills, feeding, toggles and the bowl wait
+			if (!g_enabled)
+			{
+				HWP::Commands::Reply(Resources::GetString(".hwp.pets.disabled"));
+				return;
+			}
 			if (a == "here")
 			{
 				if (!Network::IsServer())

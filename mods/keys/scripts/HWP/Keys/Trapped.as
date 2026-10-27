@@ -34,7 +34,7 @@ namespace HWP
 			// host side, from HWPChest::Use before the vanilla Use destroys the unit
 			void OnChestUse(UnitPtr unit, PlayerBase@ player)
 			{
-				if (!Network::IsServer() || !IsTrapped(unit))
+				if (!Network::IsServer() || !HWP::Keys::g_enabled || !IsTrapped(unit))
 					return;
 				vec3 pos = unit.GetPosition();
 				string who = (player !is null && player.m_record !is null) ? player.m_record.GetName() : "?";

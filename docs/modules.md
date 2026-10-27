@@ -112,6 +112,39 @@ scenario's `mods` get their required parts enabled with them.
    unwrapped. Edit the `Guarded<Name>` body afterwards, never the wrapper.
    (`docs/GAME_UPDATES.md`.)
 
+## Settings
+
+Every shipped module has a `config` block in its `module.json`: its row on the
+HammerwatchPlus tab of the player menu (the Plus tab), its on/off switch and the settings a
+player may change. The schema is the docstring of `tools/make_config.py`, which checks each
+block against the code (a key's type and default must be how the module reads it) and writes
+`mods/hwplib/tweak/hwp/config.sval`, the package titles, every module's own
+`res/language/english/hwp_<id>_cfg.lang` and `docs/generated/settings.md`. Run it after a
+change; `--check` fails when the files are stale (`tests/test_make_config.py`).
+
+- **The switch** (`toggle`) is a bool setting read as `HWP::Settings::GetBool("<key>", true)`.
+  Off stops what the player sees: hooks and `UpdateFrame` return early, data the module changed
+  goes back, units it places are not placed. It never skips `Save`/`Load` or deletes saved
+  data, so turning it back on finds everything as it was. A module that can only change on a
+  level load says `"applies": "level"`; one that is only data has `"toggle": null` and says why
+  in `always_on`. A class module hides its class at character creation (`HWP::HideClass`,
+  `HWP::ShowClass`); characters made with it keep playing.
+- **Scope.** `host` settings (the default: anything that changes gameplay) are host-synced by
+  `HWP::Config` itself; a client sees the host's value and cannot change it. `local` ones are
+  each player's (display, keys).
+- **The page** (`HWPOptionsTab`, hwplib `Options.as`, `gui/hwp/options.gui`): the search
+  field, then the top section (`packages.json` `settings_top`: key binds and accessibility),
+  then one collapsible row per package with its loaded modules and their settings. A module
+  shows when its generated lang file is loaded (`HWP::Config::Present`), so a package lists
+  only what it carries. The search is fuzzy over titles (letters in order) and finds words in a
+  row's text and value too, and opens the packages it finds rows in. Clicking a value cycles it
+  and calls `HWP::Commands::NotifySettingChanged`, as `hwp set` does. Key binds and presets are
+  `HWP::Options::Option`s a module registers in its constructor (`{"option": "<id>"}`).
+- **Row ids** for GameLab: `hwp-opt-<option>`, `hwp-cfg-<key>`, `hwp-mod-<module>`,
+  `hwp-pkg-<package>` (a second copy of a row gets `-2`). Funcs: `hwp-opt <id>`,
+  `hwp-cfg <key>`, `hwp-mod <module>`, `hwp-pkg <package>` (toggles), `hwp-open` /
+  `hwp-close <package>`. The tab logs `[HWP:options] <key> -> <value>`.
+
 ## Testing a module
 
 GameLab replaced `dev_link.py` / `dev_check.py` (see README.md and `docs/MODDING_NOTES.md`).

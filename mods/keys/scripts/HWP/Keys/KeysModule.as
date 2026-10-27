@@ -35,7 +35,6 @@ namespace HWP
 
 		// ---- tiers (index = tier - 1) ------------------------------------------
 		const array<string> TIERS = { "bronze", "silver", "gold", "ace" };
-		const array<int> DEFAULT_PRICE = { 500, 2000, 8000, 20000 };
 		// sprites in items/special/base.png (vanilla items/special/keys.unit); the ace key is
 		// our red tint of the vanilla skull key (48 0), a sheet of its own
 		const array<vec4> ICON_FRAME = { vec4(0, 0, 16, 16), vec4(16, 0, 16, 16), vec4(32, 0, 16, 16), vec4(0, 0, 16, 16) };
@@ -87,9 +86,15 @@ namespace HWP
 
 		int KeyPrice(int tier)
 		{
-			if (!ValidTier(tier))
-				return 0;
-			return HWP::Settings::GetInt("keys.price_" + TIERS[tier - 1], DEFAULT_PRICE[tier - 1]);
+			// one literal key each, so tools/make_config.py can check them against module.json
+			switch (tier)
+			{
+				case 1: return HWP::Settings::GetInt("keys.price_bronze", 500);
+				case 2: return HWP::Settings::GetInt("keys.price_silver", 2000);
+				case 3: return HWP::Settings::GetInt("keys.price_gold", 8000);
+				case 4: return HWP::Settings::GetInt("keys.price_ace", 20000);
+			}
+			return 0;
 		}
 		vec4 KeyIconFrame(int tier) { return ValidTier(tier) ? ICON_FRAME[tier - 1] : vec4(0, 0, 16, 16); }
 		string KeyIconTexture(int tier) { return ValidTier(tier) ? ICON_TEXTURE[tier - 1] : ICON_TEXTURE[0]; }
@@ -147,16 +152,24 @@ namespace HWP
 			g_legendaryChance = clamp(HWP::Settings::GetFloat("keys.legendary_chance", 0.5f), 0.0f, 1.0f);
 		}
 
-		void OnSettingChanged(const string &in key)
-		{
-			if (key.findFirst("keys.") == 0)
-				RefreshSettings();
-		}
-
 		void RefreshHUD()
 		{
 			if (g_hud !is null)
 				g_hud.Refresh(GetLocalPlayerRecord());
+		}
+
+		// keys.enabled off (the settings page's switch): chests don't lock and keep their
+		// vanilla art (decided when a chest first ticks: the next level), no key drops, no
+		// imp keys, no trapped banner, the exit guard only talks and the HUD hides. Keys,
+		// the pool, bag slots and packed trinkets stay in the save as they are; a chest
+		// that locked before the switch still opens with a key.
+		void OnSettingChanged(const string &in key)
+		{
+			if (key.findFirst("keys.") != 0)
+				return;
+			RefreshSettings();
+			if (key == "keys.enabled")
+				RefreshHUD();
 		}
 
 		int CurrentLevel()
@@ -783,7 +796,7 @@ namespace HWP
 			auto rec = GetLocalPlayerRecord();
 			if (rec is null)
 				return;
-			string info = Counts(rec, ".hwp.keys.status") + "; party pool";
+			string info = (g_enabled ? "" : "keys.enabled off; ") + Counts(rec, ".hwp.keys.status") + "; party pool";
 			for (int t = 1; t <= 4; t++)
 				info += " " + TIERS[t - 1] + " " + PoolCount(t);
 			info += "; locked chests this level: " + g_chestsLocked;
@@ -865,7 +878,8 @@ class HWPKeysHUD : HUDComponent
 
 	void Refresh(PlayerRecord@ record) override
 	{
-		if (record is null)
+		// off: hidden, unless a chest on this floor locked while it was on
+		if (record is null || (!HWP::Keys::g_enabled && HWP::Keys::g_chestsLocked == 0))
 		{
 			m_visible = false;
 			return;

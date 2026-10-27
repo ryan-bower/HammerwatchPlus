@@ -221,15 +221,33 @@ namespace HWP
 		}
 
 		bool g_townReady = false; // the coast of this town level is set up
+		bool g_setupAgain = false; // fishing came on in a town that started with it off
 
 		void OnSettingChanged(const string &in key)
 		{
 			if (key.findFirst("fishing.") != 0)
 				return;
+			bool wasOn = g_enabled;
 			RefreshSettings();
-			// a client got the host's values: re-place the coast to match
-			if (key == "fishing." && g_inTown && g_townReady)
+			// fishing.enabled / fishing.coast, or a client got the host's values:
+			// re-place the coast to match (SpawnCoast clears it when off)
+			bool coastKey = key == "fishing." || key == "fishing.enabled" || key == "fishing.coast";
+			if (coastKey && g_inTown && g_townReady)
 				SpawnCoast();
+			else if (coastKey && g_inTown && g_enabled)
+				g_setupAgain = true; // the module sets the town up on its next frame
+			// turned off on a run: the floor's spots go (turned on, the next floor rolls)
+			if (wasOn && !g_enabled && !g_inTown)
+				ClearHoles();
+		}
+
+		// the fishing.enabled toggle off: commands that would fish, buy or sell say so
+		bool Off()
+		{
+			if (g_enabled)
+				return false;
+			HWP::Commands::Reply(Resources::GetString(".hwp.fishing.off"));
+			return true;
 		}
 
 		// ---- per character: rod and bait ------------------------------------------
@@ -980,7 +998,7 @@ namespace HWP
 		{
 			auto fish = FishOfItem(e);
 			auto plr = rec is null ? null : cast<Player>(rec.actor);
-			if (fish is null || plr is null || plr.IsDead() || rec.equipInventory is null)
+			if (!g_enabled || fish is null || plr is null || plr.IsDead() || rec.equipInventory is null)
 				return -1;
 			if (!rec.equipInventory.Remove(e))
 				return -1;
@@ -998,7 +1016,7 @@ namespace HWP
 		{
 			string Label(Equipment::Equipment@ item) override
 			{
-				return FishOfItem(item) is null ? "" : Resources::GetString(".hwp.fishing.eat");
+				return !g_enabled || FishOfItem(item) is null ? "" : Resources::GetString(".hwp.fishing.eat");
 			}
 
 			void Do(PlayerRecord@ record, Equipment::Equipment@ item) override
@@ -1248,6 +1266,7 @@ namespace HWP
 			ResolveTraps();
 			RodTier(); // settle an older save's free rod while this is still a new character's first town
 			g_townReady = true;
+			g_setupAgain = false;
 			SpawnCoast();
 		}
 
@@ -1444,6 +1463,31 @@ namespace HWP
 			}
 		}
 
+		// fishing.enabled turned off on a run: the host takes the floor's spots away
+		// (netsynced, so they go on every machine); the wells stay as they are
+		void ClearHoles()
+		{
+			if (!Network::IsServer())
+				return;
+			int n = 0;
+			array<string> paths = { WELL_SPOT_UNIT, BUCKET_UNIT, HOLE_UNIT };
+			for (uint k = 0; k < paths.length(); k++)
+			{
+				auto prod = Resources::GetUnitProducer(paths[k]);
+				if (prod is null)
+					continue;
+				auto units = g_scene.FetchAllUnitsOfType(prod);
+				for (uint i = 0; i < units.length(); i++)
+				{
+					units[i].Destroy();
+					n++;
+				}
+			}
+			g_holeIds.removeRange(0, g_holeIds.length());
+			g_holeScenes.removeRange(0, g_holeScenes.length());
+			HWP::Log("fishing", "turned off: removed " + n + " run spot(s)");
+		}
+
 		void SelfCheck()
 		{
 			LoadKeyTable();
@@ -1470,6 +1514,10 @@ namespace HWP
 		{
 			auto rec = GetLocalPlayerRecord();
 			string sub = args.length() >= 1 ? args[0] : "";
+			// fishing.enabled off: the status and the reports still answer; nothing
+			// fishes, buys, sells or eats
+			if (sub != "" && sub != "smooth" && sub != "keys" && !(sub == "traps" && args.length() < 2) && Off())
+				return;
 			if (sub == "wells")
 			{
 				// debug: every potion-refill well in a row east of you, a spot in each, and a bucket
@@ -2230,20 +2278,21 @@ class HWPFishingRodSlot : HWP::Gear::Slot
 	{
 		// gui/hwp/rods.png: the vanilla rod recoloured per tier (driftwood, sturdy, sea, captain's);
 		// an empty slot without one
+		// an empty slot too while fishing is off (turned off on this level; the next has no slot)
 		int tier = HWP::Fishing::RodTier();
-		if (tier <= 0)
+		if (tier <= 0 || !HWP::Fishing::g_enabled)
 			return null;
 		return ScriptSprite(Resources::GetTexture2D("gui/hwp/rods.png"), vec4((tier - 1) * 16, 0, 16, 16));
 	}
 
 	string Title() override
 	{
-		return HWP::Fishing::RodName(HWP::Fishing::RodTier());
+		return HWP::Fishing::g_enabled ? HWP::Fishing::RodName(HWP::Fishing::RodTier()) : "";
 	}
 
 	string Text() override
 	{
-		return HWP::Fishing::RodText();
+		return HWP::Fishing::g_enabled ? HWP::Fishing::RodText() : "";
 	}
 }
 
@@ -2294,11 +2343,16 @@ namespace Modules
 			HWP::Fishing::DefineFish();
 			HWP::Settings::Sync("fishing.");
 			HWP::Fishing::RefreshSettings();
-			HWP::Gear::Register("hwp-gear-rod", HWPFishingRodSlot());
+			// fishing.enabled off: no rod slot and no bait cells (a slot without a
+			// provider is hidden); the rod and the bait stay in the save data
+			if (HWP::Fishing::g_enabled)
+			{
+				HWP::Gear::Register("hwp-gear-rod", HWPFishingRodSlot());
+				HWP::Materials::Title("a", ".hwp.fishing.supplies");
+				for (uint i = 0; i < HWP::Fishing::BAIT_IDS.length(); i++)
+					HWP::Materials::Register("a", 10 + i, "hwp-mat-bait-" + HWP::Fishing::BAIT_IDS[i], HWPBaitMaterial(i + 1));
+			}
 			HWP::ItemActions::Register(HWP::Fishing::EatAction());
-			HWP::Materials::Title("a", ".hwp.fishing.supplies");
-			for (uint i = 0; i < HWP::Fishing::BAIT_IDS.length(); i++)
-				HWP::Materials::Register("a", 10 + i, "hwp-mat-bait-" + HWP::Fishing::BAIT_IDS[i], HWPBaitMaterial(i + 1));
 			HWP::Net::OnRequest(HWP::Fishing::CAST, HWP::Net::RequestHandler(HWP::Fishing::OnCastRequest));
 			HWP::Net::OnRequest(HWP::Fishing::CATCH, HWP::Net::RequestHandler(HWP::Fishing::OnCatch));
 			HWP::Net::OnRequest(HWP::Fishing::CAUGHT, HWP::Net::RequestHandler(HWP::Fishing::OnCaught));
@@ -2319,6 +2373,7 @@ namespace Modules
 			HWP::Fishing::g_traps.removeRange(0, HWP::Fishing::g_traps.length());
 			HWP::Fishing::Changed();
 			HWP::Fishing::g_townReady = false;
+			HWP::Fishing::g_setupAgain = false;
 			HWP::Fishing::g_pirateWanted = false;
 			m_spawnDone = false;
 			m_delay = 0;
@@ -2366,6 +2421,12 @@ namespace Modules
 				HWP::Fishing::SpawnTraps();
 			if (g_inTown && m_spawnDone)
 				HWP::Fishing::WatchCoast(ms);
+			// fishing.enabled turned on in a town that started with it off: set it up now
+			if (g_inTown && m_spawnDone && HWP::Fishing::g_setupAgain && !HWP::Fishing::g_townReady)
+			{
+				HWP::Fishing::g_setupAgain = false;
+				m_spawnDone = false;
+			}
 			if (m_spawnDone)
 				return;
 			m_delay += ms;

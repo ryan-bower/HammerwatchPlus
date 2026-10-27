@@ -7,5 +7,38 @@
   "overrides": [
     "actors/npcs/town/npc_misc_farmer_man.unit"
   ],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Farming",
+    "about": "Town crops, the well, herbs and wild plots in runs. Off keeps your farm saved.",
+    "toggle": "farm.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": [
+      {
+        "key": "farm.fields",
+        "type": "bool",
+        "default": true,
+        "title": "Plant in town fields",
+        "about": "Plots use the town's own fields; off lays out a separate row of plots."
+      },
+      {
+        "key": "farm.run_chance",
+        "type": "int",
+        "default": 35,
+        "values": [
+          0,
+          15,
+          35,
+          50,
+          75,
+          100
+        ],
+        "suffix": "%",
+        "title": "Wild plot chance",
+        "applies": "level",
+        "about": "The chance a run floor has a wild plot to harvest."
+      }
+    ]
+  }
 }

@@ -2,5 +2,54 @@
   "id": "groupcombo",
   "requires": ["hwplib", "hwplib-luck"],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Group combo",
+    "about": "Players in combo together get a group buff; boxes and vases can drop a combo orb.",
+    "toggle": "groupcombo.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": [
+      {
+        "key": "groupcombo.orb.permille",
+        "type": "int",
+        "default": 1,
+        "values": [
+          0,
+          1,
+          2,
+          5,
+          10
+        ],
+        "labels": [
+          "Off",
+          "0.1%",
+          "0.2%",
+          "0.5%",
+          "1%"
+        ],
+        "title": "Combo orb chance",
+        "about": "How often a box, barrel, sack or vase drops a combo orb, before Luck."
+      },
+      {
+        "key": "groupcombo.orb.max_permille",
+        "type": "int",
+        "default": 10,
+        "values": [
+          5,
+          10,
+          20,
+          50
+        ],
+        "labels": [
+          "0.5%",
+          "1%",
+          "2%",
+          "5%"
+        ],
+        "title": "Orb chance cap",
+        "about": "The most the breaker's Luck can raise the combo orb chance to."
+      }
+    ]
+  }
 }

@@ -78,6 +78,11 @@ namespace HWP
 			return g_campfire.IsValid() && g_campfire.IsDestroyed();
 		}
 
+		// campaign.enabled (the settings page's switch). Off: the town portal is not placed
+		// on the next town load, generated floors get no traps or teleporter, pads already
+		// placed do nothing and nothing confuses. A run of the tower already under way plays
+		// on (its floors are data), and the Dark Citadel's floor list (Citadel::Fix) stays as
+		// it is: changing it under a run would move its floors.
 		void RefreshSettings()
 		{
 			g_enabled = HWP::Settings::GetBool("campaign.enabled", true);

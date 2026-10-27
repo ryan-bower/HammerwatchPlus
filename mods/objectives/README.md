@@ -58,9 +58,20 @@ skipped).
   Hidden on floors without objectives.
 - Commands: `hwp objectives` (status, each vault's position and state, the
   exit switch); `hwp objectives open` (host, debug: opens everything through
-  the same broadcast). Settings: `objectives.vaults`, `objectives.exit`
-  (`hwp set`, synced by the host).
+  the same broadcast). Settings: below.
 - Language: `res/language/english/hwp_objectives.lang` (`hwp.objectives.*`).
+
+## Settings
+
+On the HammerwatchPlus tab of the player menu (host, synced by the host; next floor),
+or `hwp set`:
+
+- `objectives.enabled` (on): off places no vault, no switch and no exit seal on the
+  floors generated after it (`objectives.enabled is off: nothing placed`). Turned off on
+  a sealed floor, the host opens the way down at once (`exit opened: objectives.enabled
+  is off`); a locked vault stays locked until its lever.
+- `objectives.vaults` (1; 0, 1 or 2): vaults per floor.
+- `objectives.exit` (on): the exit switch and the sealed way down.
 
 Known limits (lab run `fix-objectives`, 2026-10-26, keep floor 1):
 
@@ -97,7 +108,8 @@ Known limits (lab run `fix-objectives`, 2026-10-26, keep floor 1):
    exit switch: the exit works.
 4. `hwp set objectives.vaults 2`, new floor: two vaults, each with its own
    lever. `hwp set objectives.vaults 0`, `hwp set objectives.exit 0`: a plain
-   floor, no HUD line.
+   floor, no HUD line. `hwp set objectives.enabled 0` on a sealed floor: the exits
+   open at once; the next floor is plain.
 5. Boss floor and town: nothing placed, no HUD line.
 6. Co-op: the client sees the same door closed and the same levers; either
    player's press opens for both; a client joining after a vault was opened

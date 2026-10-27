@@ -16,6 +16,13 @@ hall; the cost tells them apart.
 
 The new levels reuse the tier 3 building art.
 
+## Settings
+
+`tavern.enabled` (host-synced, on the HammerwatchPlus tab of the player menu). Off gives the
+vanilla slots at once: one food and up to three drinks, and a run's picks above that are
+dropped. Levels 4 to 6 stay built and buildable (they are building data), but add nothing
+while it is off.
+
 ## Files
 - `tweak/town/buildings/tavern.sval` overrides the vanilla file and adds the three upgrades.
 - `scripts/Missions/MissionFoods.as` overrides the vanilla file:
@@ -23,6 +30,7 @@ The new levels reuse the tier 3 building art.
   - Foods are a list, like drinks.
   - The first food keeps the vanilla mission buff key (`<id>food`). The others use `<id>food1` and `<id>food2`.
   - The save keeps the vanilla `food` entry and adds a `foods` array, so a save stays readable without the mod.
+- `scripts/HWP/Tavern/TavernModule.as` makes `tavern.*` host-synced.
 - Each override has its pristine `.orig` beside it, for `tools/build.py --check`.
 
 GameLab: `mod-tavern` (`gamelab/bots/fix_tavern.py`).

@@ -21,6 +21,15 @@ Combo together, get stronger together.
 - Numbers are a first guess for the morning: `tweak/hwp/buffs_groupcombo.sval`
   and the constants at the top of `GroupComboModule.as`.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (host settings, they apply at once):
+
+- **Group combo** on/off, `groupcombo.enabled` (default on). Off: no group buffs, no
+  Group Unity and no combo orbs; a buff already up fades within 1.5 s.
+- **Combo orb chance**, `groupcombo.orb.permille`: Off, 0.1 % (default), 0.2 %, 0.5 %, 1 %.
+- **Orb chance cap**, `groupcombo.orb.max_permille`: 0.5 %, 1 % (default), 2 %, 5 %.
+
 ## Combo orb
 
 Boxes, crates, barrels, sacks and vases drop a combo orb 0.1 % of the time (the

@@ -70,6 +70,20 @@ namespace HWP
 		{
 			return g_currTownRecord !is null && g_currTownRecord.GetVariationOnBuilding(HashString("tavern")) >= 0;
 		}
+
+		// roulette.enabled (default on). Off: the table shuts (every machine's chips come
+		// back), the host takes the wheel away; on again, the module places it again
+		bool g_enabled = true;
+
+		void OnSettingChanged(const string &in key)
+		{
+			if (key.findFirst("roulette.") != 0)
+				return;
+			bool was = g_enabled;
+			g_enabled = HWP::Settings::GetBool("roulette.enabled", true);
+			if (was && !g_enabled && g_inTown)
+				Close();
+		}
 	}
 }
 
@@ -89,6 +103,8 @@ namespace Modules
 		{
 			super("hwp-roulette");
 			HWP::Settings::Sync("roulette.");
+			HWP::Roulette::g_enabled = HWP::Settings::GetBool("roulette.enabled", true);
+			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Roulette::OnSettingChanged));
 			HWP::Roulette::MakeBets();
 			HWP::Net::OnEvent("roulette.state", HWP::Net::EventHandler(HWP::Roulette::OnState));
 			HWP::Net::OnRequest("roulette.stake", HWP::Net::RequestHandler(HWP::Roulette::OnStake));
@@ -132,6 +148,21 @@ namespace Modules
 				m_owedChecked = HWP::Roulette::RefundOwed();
 			if (!g_inTown)
 				return;
+			// roulette.enabled off: no wheel (the host takes it away); placed again once back on
+			if (!HWP::Roulette::g_enabled)
+			{
+				UnitPtr wheel = m_wheel.m_unit;
+				if (Network::IsServer() && wheel.IsValid() && !wheel.IsDestroyed()
+					&& wheel.GetUnitProducer() is Resources::GetUnitProducer(HWP::Roulette::WHEEL_UNIT))
+				{
+					wheel.Destroy();
+					HWP::Log("roulette", "turned off: took the wheel away");
+				}
+				m_wheel.Reset();
+				m_table.Reset();
+				m_placed = false;
+				return;
+			}
 			HWP::Roulette::Tick(ms);
 			// the host runs the rounds while the town has a tavern (built mid-session too)
 			if (m_placed && Network::IsServer() && HWP::Roulette::TavernBuilt())

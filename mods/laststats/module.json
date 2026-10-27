@@ -2,5 +2,13 @@
   "id": "laststats",
   "requires": ["hwplib"],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Last run stats",
+    "about": "A notice board by the town fountain shows the party's last run statistics.",
+    "toggle": "laststats.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": []
+  }
 }

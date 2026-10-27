@@ -2,5 +2,13 @@
   "id": "stash",
   "requires": ["hwplib"],
   "overrides": ["gui/player_stash/player_stash.gui"],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Stash sort",
+    "about": "A Sort button on the town stash orders the open tab by class, type and level.",
+    "toggle": "stash.enabled",
+    "scope": "local",
+    "applies": "now",
+    "settings": []
+  }
 }

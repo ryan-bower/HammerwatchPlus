@@ -12,12 +12,18 @@ debuffs, "x N" for stacks) and its description.
   seconds left or the stack count change.
 - Name and description come from the buff's def (`ActorBuff`), its stack def
   or buff def (`ActorBuffStacked`), or the skill (`Skills::StackSkill`).
-- Hidden while a menu is open. Setting `bufftips.enabled` (default on).
+- Hidden while a menu is open.
 - Buffs without a `hud` icon never reach the buff bar, so they get no tooltip;
   the Effects tab of the character menu still lists them by name and
   description. HWP buffs given descriptions (and icons where they are
   one-shot) for this: spec reworks, HoH1 class skills, pet Morale (no icon:
   re-applied every 2 s), Spirit Cloak.
+
+## Settings
+
+On the HammerwatchPlus tab of the player menu (Quality of Life > Buff tooltips), per player:
+
+- `bufftips.enabled` (on): off, hovering a buff shows nothing. Takes effect at once.
 
 ## Test checklist
 

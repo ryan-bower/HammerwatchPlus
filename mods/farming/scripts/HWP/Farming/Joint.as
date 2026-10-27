@@ -267,6 +267,11 @@ namespace HWP
 			auto seed = GetSeed(strain);
 			if (rec is null || seed is null || !seed.herb)
 				return false;
+			if (!g_enabled)
+			{
+				Say(Resources::GetString(".hwp.farming.off"));
+				return false;
+			}
 			if (HWP::Market::Count(rec, strain) <= 0)
 			{
 				Say(Resources::GetString(".hwp.farming.no_herb", { { "name", seed.Name() } }));
@@ -444,6 +449,9 @@ namespace HWP
 
 		void Puffed(PlayerBase@ player, bool main)
 		{
+			// farm.enabled off: a held joint stays as it is (no buff, no burn, no haze)
+			if (!g_enabled)
+				return;
 			LightUp(player, main);
 			SpawnHaze(player);
 			if (player is null || player.m_record is null || !player.m_record.local)

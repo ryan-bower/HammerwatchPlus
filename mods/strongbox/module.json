@@ -2,5 +2,18 @@
   "id": "strongbox",
   "requires": ["hwplib", "hwplib-luck"],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Strongboxes",
+    "about": "Some floors get a strongbox: open it, beat the pack it calls, take the loot.",
+    "toggle": "strongbox.enabled",
+    "scope": "host",
+    "applies": "level",
+    "settings": [
+      {"key": "strongbox.chance", "type": "int", "default": 40, "min": 0, "max": 100, "step": 10, "suffix": "%", "title": "Strongbox chance", "about": "The share of floors that get a strongbox."},
+      {"key": "strongbox.pack", "type": "int", "default": 4, "values": [2, 3, 4, 6, 8], "title": "Pack size", "about": "Enemies a strongbox calls for one player."},
+      {"key": "strongbox.pack_per_player", "type": "int", "default": 2, "values": [0, 1, 2, 3, 4], "title": "More per player", "about": "Extra pack enemies for each player."},
+      {"key": "strongbox.elite_chance", "type": "int", "default": 50, "min": 0, "max": 100, "step": 10, "suffix": "%", "title": "Elite chance", "about": "The chance the pack brings an elite along."}
+    ]
+  }
 }

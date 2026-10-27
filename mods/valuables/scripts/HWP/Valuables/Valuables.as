@@ -5,6 +5,8 @@
 // pickup text with it. The vanilla price is kept, so setting the multiplier
 // again (or the module being built again) never compounds. Every machine
 // applies the host-synced multiplier, since each picker's own record pays out.
+// valuables.enabled off puts every price and pickup text back to vanilla at once
+// (the multiplier is 1 while off).
 namespace HWP
 {
 	namespace Valuables
@@ -19,11 +21,13 @@ namespace HWP
 
 		dictionary g_base;   // id -> vanilla price
 		float g_mult = 2.0f;
+		bool g_enabled = true;
 		int g_count = 0;
 
 		void Apply()
 		{
-			g_mult = clamp(HWP::Settings::GetFloat("valuables.gold_mult", 2.0f), 0.0f, 20.0f);
+			g_enabled = HWP::Settings::GetBool("valuables.enabled", true);
+			g_mult = g_enabled ? clamp(HWP::Settings::GetFloat("valuables.gold_mult", 2.0f), 0.0f, 20.0f) : 1.0f;
 			g_count = 0;
 			for (uint i = 0; i < IDS.length(); i++)
 			{
@@ -75,6 +79,11 @@ namespace HWP
 			int base;
 			if (v !is null && g_base.get("ceramic_vase", base))
 				example = v.m_name + " " + base + " -> " + v.m_price;
+			if (!g_enabled)
+			{
+				HWP::Commands::Reply(Resources::GetString(".hwp.valuables.off", { { "example", example } }));
+				return;
+			}
 			HWP::Commands::Reply(Resources::GetString(".hwp.valuables.status", {
 				{ "mult", "" + g_mult }, { "count", g_count }, { "example", example } }));
 		}

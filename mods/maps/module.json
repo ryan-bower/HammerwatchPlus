@@ -2,5 +2,13 @@
   "id": "maps",
   "requires": ["hwplib"],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Maps",
+    "about": "Three more layouts for the map drops: Goblin Warrens, Sunken Dungeon, High Court.",
+    "toggle": "maps.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": []
+  }
 }

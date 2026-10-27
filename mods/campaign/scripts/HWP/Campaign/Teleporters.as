@@ -36,7 +36,8 @@ namespace HWP
 
 			void RefreshSettings()
 			{
-				g_enabled = HWP::Settings::GetBool("campaign.teleporters", true);
+				// campaign.enabled off (the settings page's switch) turns them off with the rest
+				g_enabled = HWP::Settings::GetBool("campaign.enabled", true) && HWP::Settings::GetBool("campaign.teleporters", true);
 			}
 
 			void Clear()

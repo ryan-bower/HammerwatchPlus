@@ -90,6 +90,13 @@ namespace HWP
 			return biome + "_puzzle";
 		}
 
+		// puzzles.enabled off: no puzzle room or Constellation on the floors generated
+		// after it (read in generation, like the chance); the summon hold lets go
+		bool Enabled()
+		{
+			return HWP::Settings::GetBool("puzzles.enabled", true);
+		}
+
 		int RoomChance()
 		{
 			return clamp(HWP::Settings::GetInt("puzzles.room_chance", ROOM_CHANCE), 0, 100);
@@ -329,6 +336,11 @@ namespace HWP
 		{
 			bool Execute(DungeonBrush@ brush, PrefabPlacement@ pfbPlacer) override
 			{
+				if (!Enabled())
+				{
+					HWP::Log("puzzles", m_set + " skipped: puzzles.enabled is off");
+					return true;
+				}
 				if (HWP::Settings::GetBool("puzzles.debug_grid"))
 					DumpGrid(brush);
 				int chance = RoomChance();

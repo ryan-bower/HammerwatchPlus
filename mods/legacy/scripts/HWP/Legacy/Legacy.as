@@ -10,7 +10,8 @@
 //    for yet (with what their title would give), like HoH1's guild hall did.
 //    The vanilla tab only lists classes you have a hero of; it is rebuilt in
 //    place when the Guild Hall opens, so no base file is overridden.
-// Setting: legacy.enabled (the buff). Command: hwp legacy.
+// Setting: legacy.enabled (the buff and the Guild Hall list; your own, not the host's).
+// Command: hwp legacy.
 namespace HWP
 {
 	namespace Legacy
@@ -20,6 +21,10 @@ namespace HWP
 
 		ActorBuffDef@ g_def;
 		GuildHallHeroTitlesTab@ g_doneTab;
+
+		// off: no Title Bonuses icon and the vanilla Guild Hall Titles tab (the bonuses
+		// themselves are vanilla hero titles and stay)
+		bool Enabled() { return HWP::Settings::GetBool("legacy.enabled", true); }
 
 		// the stat icon (gui/icons.inc) each class's title is about, shown for
 		// the classes without a hero; unknown titles get no icon
@@ -236,7 +241,7 @@ namespace HWP
 				return;
 
 			auto buff = Find(pb);
-			string desc = HWP::Settings::GetBool("legacy.enabled", true) ? Description() : "";
+			string desc = Enabled() ? Description() : "";
 			if (desc.isEmpty())
 			{
 				if (buff !is null)
@@ -334,7 +339,7 @@ namespace HWP
 		void WatchGuildHall()
 		{
 			auto gm = cast<BaseGameMode>(g_gameMode);
-			if (gm is null || gm.m_windowManager is null || g_myTownRecord is null)
+			if (gm is null || gm.m_windowManager is null || g_myTownRecord is null || !Enabled())
 				return;
 			for (uint i = 0; i < gm.m_windowManager.m_objects.length(); i++)
 			{

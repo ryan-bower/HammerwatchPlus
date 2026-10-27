@@ -27,7 +27,8 @@ namespace HWP
 
 			void RefreshSettings()
 			{
-				g_enabled = HWP::Settings::GetBool("campaign.confusion", true);
+				// campaign.enabled off (the settings page's switch) turns it off with the rest
+				g_enabled = HWP::Settings::GetBool("campaign.enabled", true) && HWP::Settings::GetBool("campaign.confusion", true);
 				g_eyeChance = clamp(HWP::Settings::GetInt("campaign.confusion_eye_chance", 35), 0, 100);
 			}
 

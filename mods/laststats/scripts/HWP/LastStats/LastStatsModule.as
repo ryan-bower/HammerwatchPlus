@@ -7,6 +7,9 @@
 // snapshots its own player, keeps it in the player record (HWP data bag, key
 // "laststats.mine") and reports it to the host, which rebroadcasts every
 // snapshot it knows; the notice board in town pages through them.
+// Setting laststats.enabled (host): off, the host places no board (and takes away
+// one that stands); snapshots are still taken and kept, so the board has the last
+// run when it is turned back on.
 namespace HWP
 {
 	namespace LastStats
@@ -17,6 +20,8 @@ namespace HWP
 		const string BOARD_UNIT = "doodads/hwp/laststats_board.unit";
 
 		array<SValue@> g_party; // newest first, one per player name
+
+		bool Enabled() { return HWP::Settings::GetBool("laststats.enabled", true); }
 
 		string StateName(int state)
 		{
@@ -347,6 +352,19 @@ namespace Modules
 				}
 			}
 
+			if (!HWP::LastStats::Enabled())
+			{
+				// turned off: the host takes the board away; on again, Due below brings it back
+				if (Network::IsServer() && m_board.m_unit.IsValid() && !m_board.m_unit.IsDestroyed())
+				{
+					m_board.m_unit.Destroy();
+					HWP::Log("laststats", "off: removed the notice board");
+				}
+				m_board.Reset();
+				m_boardDone = true;
+				return;
+			}
+
 			if (!m_boardDone)
 			{
 				m_boardDelay += ms;
@@ -357,7 +375,7 @@ namespace Modules
 						m_board.Set(HWP::LastStats::SpawnBoard());
 				}
 			}
-			else if (m_board.Due(ms)) // a building upgrade reloaded the town
+			else if (m_board.Due(ms)) // a building upgrade reloaded the town, or the board was turned back on
 				m_board.Set(HWP::LastStats::SpawnBoard());
 		}
 	}

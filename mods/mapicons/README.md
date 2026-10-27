@@ -12,3 +12,12 @@ Requires `hwplib`, whose `gui/hwp/map_icons.png` sheet holds the icon
 
 Scenarios that load it: `fix-specs-risen-look`, `plan-farming-b`, `plan-fishing-d`,
 `plan-ui-a`, `mod-all`.
+
+## Settings
+
+On the HammerwatchPlus tab of the player menu (Quality of Life > Map icons), each player's
+own:
+
+- **On/off** `mapicons.enabled` (default on). Off: no markers; the floor's markers go
+  within a second.
+- **Dye pots** `mapicons.dyes` (default on).

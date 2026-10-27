@@ -1405,7 +1405,7 @@ namespace Modules
 					.Str("window", GameLab::TopWindow()).Bool("paused", paused).Int("cmds", GameLab::g_commands)
 					.Int("exceptions", GameLab::g_exceptions).Str("place", GameLab::LevelPlace())
 					.Int("maxMs", m_maxMs).Int("beatFrames", m_beatFrames)
-					.Int("inLines", GameLab::g_inboxLines).Int("inDropped", GameLab::g_inboxDropped).Int("inDups", GameLab::g_inboxDups)
+					.Int("inLines", GameLab::g_inboxLines).Int("inDropped", GameLab::g_inboxDropped).Int("inDups", GameLab::g_inboxDups).Int("inScrubbed", GameLab::g_inboxScrubbed)
 					.Bool("textIn", GameLab::InboxExpecting());
 				m_maxMs = 0;
 				m_beatFrames = 0;

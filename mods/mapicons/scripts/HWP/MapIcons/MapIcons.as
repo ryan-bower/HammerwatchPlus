@@ -1,7 +1,7 @@
 // Map icons for things the vanilla map does not mark. Dyes: every DyeBucket
 // unit in the level gets a local marker unit (doodads/hwp/map_icon_dye.unit,
-// a minimap sprite only) that goes away once the dye is picked up. Setting
-// `mapicons.dyes` (default on).
+// a minimap sprite only) that goes away once the dye is picked up. Settings (your own):
+// `mapicons.enabled` (the module) and `mapicons.dyes` (default on); off removes the markers.
 namespace HWP
 {
 	namespace MapIcons
@@ -32,7 +32,7 @@ namespace HWP
 
 		void Scan()
 		{
-			if (!HWP::Settings::GetBool("mapicons.dyes", true))
+			if (!HWP::Settings::GetBool("mapicons.enabled", true) || !HWP::Settings::GetBool("mapicons.dyes", true))
 			{
 				Clear();
 				return;

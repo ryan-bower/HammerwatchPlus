@@ -1,6 +1,31 @@
 {
   "id": "summons",
-  "requires": ["hwplib"],
+  "requires": [
+    "hwplib"
+  ],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Lasting summons",
+    "about": "Your summons follow you to the next floor, with the HP they had.",
+    "toggle": "summons.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": [
+      {
+        "key": "summons.risen",
+        "type": "bool",
+        "default": true,
+        "title": "Forgemaster risen",
+        "about": "The Devil Forgemaster's risen come along too."
+      },
+      {
+        "key": "summons.all",
+        "type": "bool",
+        "default": false,
+        "title": "Every summon",
+        "about": "Every saveable summon comes along (wolves, minions), not only Crusaders."
+      }
+    ]
+  }
 }

@@ -2,5 +2,13 @@
   "id": "bufftips",
   "requires": ["hwplib"],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Buff tooltips",
+    "about": "Hover a buff icon to see its name, what it does and the time it has left.",
+    "toggle": "bufftips.enabled",
+    "scope": "local",
+    "applies": "now",
+    "settings": []
+  }
 }

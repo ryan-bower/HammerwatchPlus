@@ -18,6 +18,7 @@
 	<string name="hwp.fishing.casts_left">Casts left here: %n%</string>
 	<string name="hwp.fishing.status">Fishing: %state%. %spots% coast spots, the pirate at %x%,%y%. %rod%. Run holes in %chance% percent of runs, %casts% casts each. Catch: %catch%</string>
 	<string name="hwp.fishing.debug_off">That needs fishing.debug on ('hole' is host only).</string>
+	<string name="hwp.fishing.off">Fishing is off (fishing.enabled, the HammerwatchPlus tab of the player menu).</string>
 	<string name="hwp.fishing.eat">Eat</string>
 	<string name="hwp.fishing.ate">You eat the %fish%: +%n% health.</string>
 	<string name="hwp.fishing.no_rod">You have no rod! The pirate on the old boat sells one.</string>

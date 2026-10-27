@@ -14,11 +14,14 @@
 //
 // The original is for a controller only. Here autoaim.mode picks: off, controller (the
 // default) or controller and mouse. The settings are rows on the player menu's Plus tab.
+// autoaim.enabled (each player's own, default on) off: no snap, auto fire or auto skill,
+// whatever the mode says.
 namespace HWP
 {
 	namespace AutoAim
 	{
 		// cached settings (RefreshSettings)
+		bool g_enabled = true;
 		int g_mode = 1;            // 0 off, 1 controller, 2 controller and mouse
 		int g_cone = 180;          // degrees, 0-360
 		bool g_fire = true;
@@ -53,6 +56,7 @@ namespace HWP
 
 		void RefreshSettings()
 		{
+			g_enabled = HWP::Settings::GetBool("autoaim.enabled", true);
 			g_mode = clamp(HWP::Settings::GetInt("autoaim.mode", 1), 0, 2);
 			g_cone = clamp(HWP::Settings::GetInt("autoaim.cone", 180), 0, 360);
 			g_fire = HWP::Settings::GetBool("autoaim.fire", true);
@@ -71,7 +75,7 @@ namespace HWP
 		// on for the input in use right now
 		bool Active(bool gamepad)
 		{
-			return g_mode == 2 || (g_mode == 1 && gamepad);
+			return g_enabled && (g_mode == 2 || (g_mode == 1 && gamepad));
 		}
 
 		bool UsingGamepad()
@@ -305,7 +309,7 @@ namespace HWP
 		// hwp autoaim: the settings (the original's caa_settings) and the last shot
 		void CmdAutoAim(array<string>@ args)
 		{
-			HWP::Commands::Reply("autoaim: mode " + g_mode + " (" + ModeName(g_mode) + "), cone " + g_cone
+			HWP::Commands::Reply("autoaim: " + (g_enabled ? "on" : "off (autoaim.enabled)") + ", mode " + g_mode + " (" + ModeName(g_mode) + "), cone " + g_cone
 				+ ", fire " + g_fire + ", skill " + g_skill + " at " + g_skillMana + "% mana every " + g_skillBuffer
 				+ " ms, debug " + g_debug + "; gamepad " + UsingGamepad() + "; shots " + g_shots + ", skill shots "
 				+ g_skillShots + "; snaps " + g_snaps + ", snap " + int(g_snapPos.x) + "," + int(g_snapPos.y) + "; last " + g_lastShot);

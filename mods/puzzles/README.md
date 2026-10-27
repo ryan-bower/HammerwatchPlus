@@ -95,11 +95,22 @@ Puzzle rooms back in the dungeons, plus Heroes of Hammerwatch 1's Constellation.
   0 turns it off). At most one Constellation per floor (a level flag, like the
   vanilla picks' own).
 
-Settings (host, saved with the town): `hwp set puzzles.room_chance <0-100>`,
-`hwp set puzzles.constellation <weight>`, `hwp set puzzles.summon_hold 0|1`,
-`hwp set puzzles.summon_hold_radius <px>`, `hwp set puzzles.debug_grid 1` (logs each
-floor's cell grid before the room is placed), `hwp set puzzles.debug_force 1` (skips
-the vanilla spot search, so every rolled room is forced; for tests).
+## Settings
+
+On the HammerwatchPlus tab of the player menu (host, saved with the town), or `hwp set`:
+
+- `puzzles.enabled` (on): off places no puzzle room and no outdoor Constellation on the
+  floors generated after it, the pickers stop offering the Constellation, and the summon
+  hold lets go at once. Rooms already on the floor stay.
+- `puzzles.room_chance` (60 %, 0-100): the share of floors that get a room (next floor).
+- `puzzles.constellation` (10): the Constellation's weight in a big puzzle room's picker;
+  0 never picks it (next floor).
+- `puzzles.summon_hold` (on) and `puzzles.summon_hold_radius` (120 px): summons wait
+  outside (at once).
+- Not on the page, for tests: `puzzles.debug_grid 1` (logs each floor's cell grid before
+  the room is placed), `puzzles.debug_force 1` (skips the vanilla spot search, so every
+  rolled room is forced).
+
 Commands: `hwp puzzles check`, `hwp puzzles rooms`.
 
 Pets already wait outside puzzle rooms (`pets`: unit paths containing `puzzle`).

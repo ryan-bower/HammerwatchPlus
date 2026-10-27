@@ -157,6 +157,19 @@ keys module, a catch can bring up a key of any tier, ace keys included.
   (`HWP::Luck::GiveBuff`, `docs/design/luck.md`), refreshed by the next meal. Log:
   `[HWP:luck] buff +N for 600000 ms (ate <fish>)`.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (`config` in module.json), host-synced:
+`fishing.enabled` (the module), `fishing.coast`, `fishing.run_chance` (from the next
+level), `fishing.run_casts`, `fishing.keys`.
+
+`fishing.enabled 0` takes effect at once: the coast spots, the crab traps and the pirate
+go away in town, and on a run the host removes the holes and buckets. Casting, catches,
+eating a fish and the `hwp fishing` commands stop (the status line, `smooth` and `keys`
+still answer). From the next level the rod slot and the bait cells are hidden. The rod,
+bait, traps and fish stay in the save data. Turning it back on in town lays the coast out
+again.
+
 ## Test checklist
 
 1. `python -m gamelab run mod-fishing --mode lab`: `[HWP:fishing] self-check done: 8 fish, 0 missing items`, no
@@ -199,7 +212,10 @@ keys module, a catch can bring up a key of any tier, ace keys included.
 9. Traps: buy 1-3 at the pirate (prices rise, 4th refused); after a run of
    20+ minutes some traps show a fish; walk up to one: its fish go to the bag.
    `fishing.debug 1`, `hwp fishing traps 60` fills them without a run.
-10. `fishing.enabled 0`: spots and pirate cannot be used.
+10. `hwp set fishing.enabled 0` in town: the coast spots, traps and pirate go
+    (`turned off` in the log), `hwp fishing buy bait` says fishing is off; on a
+    run the host's holes and buckets go. `hwp set fishing.enabled 1`: the coast
+    is back, and so are the rod and bait after the next level.
 11. Keys (`fix-fishing-keys`, mods hwplib, hwplib-luck, fishing, keys): `hwp fishing keys`
     lists the odds from `fishing_keys.sval`; with `fishing.key_chance 1000` and
     `fishing.key_tier 4` a debug catch in town adds an ace key to your own keys

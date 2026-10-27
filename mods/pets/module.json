@@ -16,5 +16,43 @@
     "gui/hwp/",
     "doodads/hwp/outlook_props.png",
     "tweak/hwp/pets_hoh1.sval"
-  ]
+  ],
+  "config": {
+    "title": "Pets",
+    "about": "Pet levels, skills, pickups and dyes. Off: vanilla pets; their progress stays saved.",
+    "toggle": "pets.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": [
+      {
+        "key": "petwait.enabled",
+        "type": "bool",
+        "default": true,
+        "title": "Wait at puzzles",
+        "about": "Your pet stays back while you are at a puzzle, so it leaves the buttons alone."
+      },
+      {
+        "key": "petwait.radius",
+        "type": "int",
+        "default": 120,
+        "values": [
+          60,
+          90,
+          120,
+          180,
+          240
+        ],
+        "suffix": " px",
+        "title": "Puzzle distance",
+        "about": "How close to a puzzle you must be for your pet to wait."
+      },
+      {
+        "key": "pets.bowl",
+        "type": "bool",
+        "default": false,
+        "title": "Feeding bowl",
+        "about": "A feeding bowl in town that opens the same pet menu as the Pet Shop keeper."
+      }
+    ]
+  }
 }

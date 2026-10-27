@@ -105,6 +105,12 @@ class HWPGeneralMerchant : AShopContent
 
 	string GetName() override { return ".hwp.keys.merchant.name"; }
 
+	// keys.enabled off: no shop; NPCBehavior goes on to his vanilla speech bubble
+	bool CanInteract(PlayerRecord@ player) override
+	{
+		return HWP::Keys::g_enabled && AShopContent::CanInteract(player);
+	}
+
 	AWindowObject@ MakeShopWindow(GUIBuilder@ guiBuilder) override
 	{
 		@m_window = HWPMerchantWindow(guiBuilder, this);

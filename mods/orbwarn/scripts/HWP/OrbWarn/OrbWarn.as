@@ -7,6 +7,7 @@
 // description box (its rect leaves 20 px under the 88 px desc) a row in red:
 // "Makes unavailable:" and every orb it would close, icon and name (icons
 // only when the names don't fit). No window hook; the vanilla window is kept.
+// Setting orbwarn.enabled (your own): off hides the rows of an open picker at once.
 namespace HWP
 {
 	namespace OrbWarn
@@ -80,8 +81,30 @@ namespace HWP
 			return row;
 		}
 
+		// off: the rows of the open picker hide; back on, they are filled again
+		void Hide()
+		{
+			if (g_window is null)
+				return;
+			for (uint i = 1; i <= 3; i++)
+			{
+				auto perk = g_window.m_widget.GetWidgetById("perk" + i);
+				if (perk is null)
+					continue;
+				auto row = cast<HWPOrbWarnWidget>(perk.GetWidgetById(ROW_ID));
+				if (row !is null)
+					row.m_visible = false;
+			}
+			@g_window = null;
+		}
+
 		void Update()
 		{
+			if (!HWP::Settings::GetBool("orbwarn.enabled", true))
+			{
+				Hide();
+				return;
+			}
 			auto w = OpenPicker();
 			if (w is null)
 			{

@@ -38,8 +38,17 @@ Path of Exile's Abyss, scaled down to a HoH2 level.
   weigh more). Log: `[HWP:abyss] luck x<f> payout hwp_abyss_reward_<t>[ (tier up)]`.
 - **Messages.** `abyss.wave {n,total}` and `abyss.done` are broadcast and shown
   as chat lines on every machine.
-- Settings: `abyss.enabled`, `abyss.chance`, `abyss.waves`, `abyss.wave_base`,
-  `abyss.wave_per_player`, `abyss.trigger` (host-synced).
+
+## Settings
+
+On the HammerwatchPlus tab of the player menu (host, host-synced; next level), or `hwp set`:
+
+- `abyss.enabled` (on): off places no crack on new floors. A crack already on
+  the floor stays, and `hwp abyss here` still opens one (the timeout QA runs
+  with the module off).
+- `abyss.chance` (30 %), `abyss.waves` (3), `abyss.wave_base` (3),
+  `abyss.wave_per_player` (1).
+- `abyss.trigger` (130 px, 40-600) is left off the page: `hwp set` only.
 
 ## Test checklist
 

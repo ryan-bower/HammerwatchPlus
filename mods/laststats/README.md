@@ -49,6 +49,15 @@ its own).
   destroys it; the host notices within a second and spawns it again
   (`HWP::Town::Kept`; test: `mod-town-rebuild`).
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (Quality of Life > Last run stats); the host's value rules in a lobby:
+
+- `laststats.enabled` (on): off, the host places no notice board, and one that
+  stands is taken away within a second (turned back on, it comes back the same
+  way). Snapshots are still taken and kept, so the board shows the last run again.
+- `laststats.board_x` / `board_y` (above) are for placing the board, not on the tab.
+
 ## Test checklist
 
 1. `python -m gamelab run mod-laststats --mode lab`: no script errors; `[HWP:laststats] spawned the notice board`

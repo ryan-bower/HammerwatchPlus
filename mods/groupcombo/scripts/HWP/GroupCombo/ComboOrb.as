@@ -87,6 +87,8 @@ namespace HWP
 
 			int SpawnLoot(PlayerRecord@ looter, vec3 pos) override
 			{
+				if (!g_enabled) // groupcombo.enabled off: no orbs
+					return 0;
 				float luck = HWP::Luck::OpenerLuck(looter);
 				float chance = OrbChance(HWP::Luck::FactorOf(luck));
 				if (randf() >= chance)

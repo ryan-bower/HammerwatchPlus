@@ -29,8 +29,9 @@ STATUS = re.compile(r"shots (\d+), skill shots (\d+); snaps (\d+), snap (-?\d+),
 
 class Checks(Base):
     def status(self):
-        log = self.hwp("autoaim", 0.4, until="autoaim: mode")
-        lines = [ln for ln in log.splitlines() if "autoaim: mode" in ln]
+        # "autoaim: on, mode 2 (...)" (or "off (autoaim.enabled), mode ...")
+        log = self.hwp("autoaim", 0.4, until="] autoaim: ")
+        lines = [ln for ln in log.splitlines() if "] autoaim: " in ln and ", mode " in ln]
         if not lines:
             return None
         m = STATUS.search(lines[-1])
@@ -140,6 +141,9 @@ class Checks(Base):
     def options(self):
         self.gl("menu", "character")
         time.sleep(0.5)
+        # the Plus tab lists auto aim's rows under its package (the mode row also on top)
+        self.gl("menu", "hwp_options", "-", "hwp-pkg-autoaim", "hwp-open", "autoaim")
+        time.sleep(0.3)
         rows = {r: self.opt(f"hwp-opt-{r}") for r in ("autoaim", "aimcone", "autofire", "autoskill")}
         self.g.shot("autoaim-options")
         texts = {r: (v.get("texts", ""), v.get("shown")) for r, v in rows.items()}

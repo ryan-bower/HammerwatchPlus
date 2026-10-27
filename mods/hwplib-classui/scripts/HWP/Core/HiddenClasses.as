@@ -13,6 +13,14 @@ namespace HWP
 			g_hiddenClasses.insertLast(hash);
 	}
 
+	// a module turned back on (its settings page switch) offers the class again
+	void ShowClass(const string &in id)
+	{
+		int i = g_hiddenClasses.find(HashString(id));
+		if (i >= 0)
+			g_hiddenClasses.removeAt(uint(i));
+	}
+
 	bool IsClassHidden(uint idHash)
 	{
 		return g_hiddenClasses.find(idHash) >= 0;

@@ -4,9 +4,13 @@
 // first food keeps vanilla's mission buff key ("food") and save entry, the others are
 // "food1", "food2" and the save's "foods" array.
 
-// slots for tavern level 1-6 (GetVariationOnBuilding("tavern") + 1); level 0: not built
+// slots for tavern level 1-6 (GetVariationOnBuilding("tavern") + 1); level 0: not built.
+// tavern.enabled off: vanilla's slots (drinks up to 3, one food) at every level; the
+// levels 4-6 stay built (they are building data) and give nothing more
 int TavernDrinkSlots(int level)
 {
+	if (!HWP::Settings::GetBool("tavern.enabled", true))
+		return level < 3 ? level : 3;
 	if (level >= 6)
 		return 5;
 	return level < 4 ? level : 4;
@@ -14,6 +18,8 @@ int TavernDrinkSlots(int level)
 
 int TavernFoodSlots(int level)
 {
+	if (!HWP::Settings::GetBool("tavern.enabled", true))
+		return 1;
 	if (level >= 6)
 		return 3;
 	return level == 5 ? 2 : 1;
@@ -112,8 +118,20 @@ class SelectFoodLoadout : MissionGUILoadout
 		}
 	}
 
+	// the slots shrink when tavern.enabled is turned off after the picks: the newest
+	// picks past them go (Load does the same with a saved list)
+	void TrimToSlots()
+	{
+		int level = g_currTownRecord is null ? 0 : g_currTownRecord.GetVariationOnBuilding(HashString("tavern")) + 1;
+		while (int(m_currFoods.length()) > TavernFoodSlots(level))
+			m_currFoods.removeLast();
+		while (int(m_currDrinks.length()) > TavernDrinkSlots(level))
+			m_currDrinks.removeLast();
+	}
+
 	void OnPlay() override
 	{
+		TrimToSlots();
 		auto currentCost = GetCost();
 
 		if (!currentCost.CanAfford(m_player))
@@ -140,6 +158,7 @@ class SelectFoodLoadout : MissionGUILoadout
 
 	ShopCost@ GetCost() override
 	{
+		TrimToSlots();
 		auto cost = ShopCost();
 		for (uint i = 0; i < m_currFoods.length(); i++)
 		{

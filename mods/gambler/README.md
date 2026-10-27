@@ -29,6 +29,13 @@ hwplib's market currency (`HWP::Market::SetCurrency`), so wares priced in tokens
 tokens; without this module they sell for gold. `hwp tokens [n]` (cheat, needs
 `e_cheats 1`) shows or adds them.
 
+## Settings
+
+`gambler.enabled` (host-synced, on the HammerwatchPlus tab of the player menu) turns the
+module off at once: the host takes the gambler away, and the bet tokens stop being the
+market's currency, so fish sell for gold. From the next level the token cell is hidden.
+The tokens stay in the save data. Turned back on, he is back within a second.
+
 ## Test checklist
 
 1. `python -m gamelab run mod-gambler --mode lab`: no script errors; `[HWP:gambler] spawned the gambler in the tavern`

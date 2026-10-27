@@ -63,6 +63,18 @@ the player record, `deathrecap.boss_last`) and logs `boss panel shown: N lines`
   Two bosses alive at once are two fights (keyed by unit).
 - A player who never hit the boss is not listed.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (Quality of Life > Death recap), per player:
+
+| Setting | Default | |
+|---|---|---|
+| `deathrecap.enabled` | on | off: no death panel, no recap chat lines, no boss panel; open panels close at once. Your share of a boss fight is still recorded and sent, so the party's boss recap stays whole, and `hwp recap` / `hwp bossrecap` still answer |
+| `deathrecap.chat` | on | the chat lines (deaths and boss kills) |
+| `deathrecap.boss` | on | the boss recap panel and its chat lines |
+| `deathrecap.boss_seconds` | 15 | how long the boss panel stays up (5, 10, 15, 30, 60) |
+| `deathrecap.collapsed` | off | the death panel shows only its total line (also set by clicking its title) |
+
 ## Test checklist
 
 1. `python -m gamelab run mod-deathrecap --mode lab`: no script errors.

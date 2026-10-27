@@ -16,7 +16,9 @@
 // vanilla peer colours, so chat, names and waypoints agree) or "safe" (an
 // Okabe-Ito palette: tells apart under deuteranopia/protanopia/tritanopia);
 // playercolors.names (names on the maps, default on); playercolors.distance
-// (px, default 300). hwp playercolors shows and sets them.
+// (px, default 300). hwp playercolors shows and sets them. The palette is also a row
+// on the HammerwatchPlus tab (PaletteOption). colors.enabled off: no tint on the
+// markers (put back to white) and no dots or names.
 namespace HWP
 {
 	namespace PlayerColors
@@ -34,6 +36,8 @@ namespace HWP
 		int g_distance = DISTANCE_DEFAULT;
 		int g_tintTimer = 0;
 		bool g_loggedTint = false;
+		bool g_enabled = true;   // colors.enabled
+		bool g_tinted = false;   // the markers carry our tint (turned off: made white once)
 		HWPPlayerColorsHUD@ g_hud;
 		BitmapFont@ g_font;
 		// one cached BitmapString per peer, rebuilt when the name or colour changes
@@ -54,8 +58,9 @@ namespace HWP
 			g_palette = HWP::Settings::GetString(KEY_PALETTE, "default");
 			if (g_palette != "safe")
 				g_palette = "default";
-			g_names = HWP::Settings::GetBool(KEY_NAMES, true);
-			g_distance = HWP::Settings::GetInt(KEY_DISTANCE, DISTANCE_DEFAULT);
+			g_enabled = HWP::Settings::GetBool("colors.enabled", true);
+			g_names = HWP::Settings::GetBool("playercolors.names", true);
+			g_distance = HWP::Settings::GetInt("playercolors.distance", 300);
 			if (g_distance < 0)
 				g_distance = 0;
 			for (uint i = 0; i < g_textKey.length(); i++)
@@ -85,8 +90,8 @@ namespace HWP
 
 		// Tint every player's own minimap dot (players/player.inc scene "base"
 		// minimap_sprite, white in vanilla). Re-applied every TINT_MS: a scene
-		// change (dash, death) may bring a fresh sprite.
-		void TintMarkers()
+		// change (dash, death) may bring a fresh sprite. on false: back to white.
+		void TintMarkers(bool on = true)
 		{
 			int tinted = 0;
 			for (uint i = 0; i < g_players.length(); i++)
@@ -103,10 +108,10 @@ namespace HWP
 				auto ms = scene.GetMinimapSprite();
 				if (ms is null)
 					continue;
-				ms.SetColor(ColorFor(rec.peer));
+				ms.SetColor(on ? ColorFor(rec.peer) : vec4(1, 1, 1, 1));
 				tinted++;
 			}
-			if (tinted > 0 && !g_loggedTint)
+			if (on && tinted > 0 && !g_loggedTint)
 			{
 				g_loggedTint = true;
 				HWP::Log("colors", "player markers tinted: " + tinted + " of " + g_players.length() + " (palette " + g_palette + ")");
@@ -119,7 +124,21 @@ namespace HWP
 			if (g_tintTimer < TINT_MS)
 				return;
 			g_tintTimer = 0;
-			TintMarkers();
+			if (g_enabled || g_tinted)
+				TintMarkers(g_enabled);
+			g_tinted = g_enabled;
+		}
+
+		// the row on the HammerwatchPlus tab: click for the other palette
+		class PaletteOption : HWP::Options::Option
+		{
+			string Title() override { return Resources::GetString(".hwp.colors.players.option"); }
+			string Value() override { return Resources::GetString(".hwp.colors.players.palette." + g_palette); }
+			void Next() override
+			{
+				HWP::Settings::SetString(KEY_PALETTE, g_palette == "safe" ? "default" : "safe");
+				Refresh();
+			}
 		}
 
 		BitmapString@ NameText(PlayerRecord@ rec, vec4 color)
@@ -222,6 +241,8 @@ namespace HWP
 		// SpriteBatch space, so widget origins are screen positions.
 		void DrawMapTab(SpriteBatch& sb)
 		{
+			if (!g_enabled)
+				return;
 			auto gm = cast<BaseGameMode>(g_gameMode);
 			if (gm is null || gm.m_windowManager is null)
 				return;
@@ -276,7 +297,7 @@ class HWPPlayerColorsHUD : HUDComponent
 	void Draw(SpriteBatch& sb, int idt) override
 	{
 		// playercolors.names hides the names only; DrawPlayers still draws the dots
-		if (!GetVarBool("ui_hud_visible"))
+		if (!HWP::PlayerColors::g_enabled || !GetVarBool("ui_hud_visible"))
 			return;
 		Look();
 		auto gm = cast<BaseGameMode>(g_gameMode);

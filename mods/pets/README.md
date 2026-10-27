@@ -85,7 +85,14 @@ every Heroes of Hammerwatch 1 pet skin in the HoH2 Pet Shop. Replaces the old
   (`pets.dye` -> host -> `pets.dyed`) on every floor and on a change, so the
   others see it too.
 - Settings: `pets.enabled`, `pets.debug` (`hwp pet xp <n>`), `pets.bowl`,
-  `pets.bowl_x/y`, `petwait.enabled`, `petwait.radius` (all host-synced).
+  `pets.bowl_x/y`, `petwait.enabled`, `petwait.radius` (all host-synced). The
+  HammerwatchPlus tab of the player menu shows `pets.enabled`, `petwait.enabled`,
+  `petwait.radius` and `pets.bowl` (`config` in module.json).
+- `pets.enabled 0` takes effect at once: your pet is re-made as vanilla (no skills,
+  pickup toggles, scarab gold, dye or puzzle waiting), it gains no XP, the keeper
+  and the tailor open their vanilla shops, the bowl goes, and `hwp pet <cmd>` says
+  it is off. Levels, points, options and dyes stay in the save data. The HoH1 pets
+  stay in the Pet Shop (they are data, `tweak/hwp/pets_hoh1.sval`).
 
 - The optional feeding bowl comes back after a building upgrade, which rebuilds
   the town and destroys it (`HWP::Town::Kept`, on every machine since the bowl is

@@ -41,6 +41,18 @@ Two weapon sets per character, toggled with a hotkey.
   scancode + label), `hwp swapdrop` (other set back to the inventory if it
   fits).
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (Quality of Life > Weapon swap):
+
+- **On/off** `weaponswap.enabled` (default on, the host's value in a lobby). Off: the key
+  does nothing, a channel under way is cancelled, the alt slots, their labels and the HUD tip
+  go away and `hwp swap` says it is off. The other set stays stored in the save as it was,
+  so turning it back on finds it; `hwp swapdrop` still moves it to your bag. After turning
+  it back on the alt slots return the next time the character menu opens.
+- **Swap weapons** (option `swapkey`): the hotkey, rebound as above (`weaponswap.key`,
+  `weaponswap.keyname`; your own).
+
 ## Test checklist
 
 1. `python -m gamelab run mod-weaponswap --mode lab`: no script errors; `hwp swap` twice logs `set 2 in hand` /

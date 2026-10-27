@@ -3,5 +3,23 @@
   "requires": ["hwplib", "hwplib-classui"],
   "overrides": [],
   "exclude": [],
-  "local_overlay": "hoh1art/"
+  "local_overlay": "hoh1art/",
+  "config": {
+    "title": "HoH1 classes",
+    "about": "HoH1 classes (parked for now) and Skill 4-6 keys. Off: new characters can't pick them.",
+    "toggle": "classes.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": [
+      {
+        "option": "skill4"
+      },
+      {
+        "option": "skill5"
+      },
+      {
+        "option": "skill6"
+      }
+    ]
+  }
 }

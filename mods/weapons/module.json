@@ -2,5 +2,15 @@
   "id": "weapons",
   "requires": ["hwplib"],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Weapons",
+    "about": "Twelve extra endgame weapons join the drops. Off: no new ones drop; yours keep working.",
+    "toggle": "weapons.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": [
+      {"key": "weapons.weight", "type": "float", "default": 1, "values": [0.25, 0.5, 1, 2, 4], "suffix": "x", "title": "Drop weight", "about": "How often they drop next to a base weapon of the same kind."}
+    ]
+  }
 }

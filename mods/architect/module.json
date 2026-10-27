@@ -7,5 +7,29 @@
     "scripts/Town/MissionShopContent.as",
     "gui/mission_loadout.gui"
   ],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Architect",
+    "about": "Everyone can pick and pay for alterations; adds challenges and pick presets.",
+    "toggle": "architect.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": [
+      {
+        "key": "architect.split",
+        "type": "bool",
+        "default": true,
+        "title": "Share host's picks",
+        "about": "The host's alterations are paid by the whole party, in equal shares."
+      },
+      {
+        "key": "architect.confirm_ngp",
+        "type": "bool",
+        "default": true,
+        "scope": "local",
+        "title": "Confirm NG+ start",
+        "about": "Starting a run on New Game+ asks first."
+      }
+    ]
+  }
 }

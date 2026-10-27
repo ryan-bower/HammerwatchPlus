@@ -545,6 +545,11 @@ namespace HWP
 		// and ends the betting now.
 		void Cmd(array<string>@ args)
 		{
+			if (!g_enabled)
+			{
+				HWP::Commands::Reply("the roulette table is off (roulette.enabled)");
+				return;
+			}
 			if (args.length() >= 3 && args[0] == "bet")
 			{
 				bool ok = Place(args[1], parseInt(args[2]));

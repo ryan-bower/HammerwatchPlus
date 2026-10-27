@@ -34,9 +34,31 @@ namespace HWP
 			return n;
 		}
 
+		// architect.enabled (host, default on). Off is the vanilla architect: only the
+		// host picks and pays, no challenges, presets or remembered picks
+		bool Enabled()
+		{
+			return HWP::Settings::GetBool("architect.enabled", true);
+		}
+
+		// with the module off: what vanilla allows of a pick list, the host's own
+		// picks without the challenges
+		array<int>@ VanillaPicks(uint8 peer, array<int>@ ids)
+		{
+			array<int> kept;
+			if (peer != uint8(Lobby::GetLocalPeer()))
+				return kept;
+			for (uint i = 0; i < ids.length(); i++)
+			{
+				if (ChallengeIndex(uint(ids[i])) < 0)
+					kept.insertLast(ids[i]);
+			}
+			return kept;
+		}
+
 		bool ShowPayer()
 		{
-			return ActivePlayers() > 1;
+			return Enabled() && ActivePlayers() > 1;
 		}
 
 		string PayerName(uint8 payer)
@@ -72,7 +94,7 @@ namespace HWP
 
 		void RefreshSplit()
 		{
-			g_split = HWP::Settings::GetBool("architect.split", true);
+			g_split = Enabled() && HWP::Settings::GetBool("architect.split", true);
 		}
 
 		void BroadcastState()
@@ -84,7 +106,9 @@ namespace HWP
 
 		void OnPick(uint8 peer, SValue@ data)
 		{
-			auto ids = HWP::SV::Ints(data, "ids");
+			array<int>@ ids = HWP::SV::Ints(data, "ids");
+			if (!Enabled())
+				@ids = VanillaPicks(peer, ids);
 
 			// log the difference for the chat/debug trail
 			for (uint i = 0; i < ids.length(); i++)
@@ -224,8 +248,18 @@ namespace HWP
 
 		void OnSettingChanged(const string &in key)
 		{
-			if (key != "architect.split" || !Network::IsServer())
+			if ((key != "architect.split" && key != "architect.enabled") || !Network::IsServer())
 				return;
+			// turned off: the picks vanilla would not allow go (the clients', the challenges)
+			if (key == "architect.enabled" && !Enabled())
+			{
+				uint8 host = uint8(Lobby::GetLocalPeer());
+				for (int j = int(g_picks.length()) - 1; j >= 0; j--)
+				{
+					if (g_picks[j].payer != host || ChallengeIndex(uint(g_picks[j].id)) >= 0)
+						g_picks.removeAt(j);
+				}
+			}
 			RefreshSplit();
 			BroadcastState();
 		}

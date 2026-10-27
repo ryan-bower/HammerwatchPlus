@@ -128,6 +128,23 @@ whether resource caches should want keys too.
   at 1). Logs: `[HWP:keys] luck x<f> chest <key|open> loot`, `... boss key roll`,
   `... <elite|normal> kill drop candidate`, `... candidate accept roll`.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (`hwp set <key> <value>`; `module.json`
+`config`). All host-authoritative.
+
+- `keys.enabled` (on): the switch. Off: chests don't lock and keep their vanilla art (from
+  the next level: a chest decides when it first ticks), no key drops or imp keys, no
+  trapped-chest banner, the exit guard only talks (`HWPGeneralMerchant.CanInteract`), no
+  `hwp bag buy`, and the key HUD hides (unless a chest on this floor locked while it was
+  on; such a chest still opens with a key). Keys, the party pool, bag slots and packed
+  trinkets stay as they are; packed trinkets are still handed over at the next run.
+- `keys.lock_chance` (1), `keys.budget_share` (0.5), `keys.ace_chance` (0.15),
+  `keys.legendary_chance` (0.5), `keys.boss_chance` (0.2).
+- `keys.price_bronze`/`_silver`/`_gold`/`_ace` (500 / 2000 / 8000 / 20000 g).
+- Not on the page: `keys.budget_per_player`, `keys.normal_try`, `keys.accept` (tuning) and
+  `keys.debug`.
+
 ## Test checklist
 
 1. `python -m gamelab run mod-keys --mode lab`: no script errors, `Making Module hwp-keys`, lang check OK.

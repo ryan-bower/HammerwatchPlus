@@ -60,6 +60,29 @@ namespace HWP
 		bool g_levelStart = true;
 		const int FILL_TIMEOUT = 3000;
 
+		// firearms.enabled (the settings page's switch). Off: the class is left out of
+		// character creation (hwplib-classui HWP::HideClass, read when the window is built).
+		// A Firearms Specialist already made still loads and plays, so everything else in
+		// this module keeps running for them.
+		bool g_enabled = true;
+
+		void RefreshEnabled()
+		{
+			g_enabled = HWP::Settings::GetBool("firearms.enabled", true);
+			if (!g_enabled)
+			{
+				HWP::HideClass(CLASS_ID);
+				return;
+			}
+			HWP::ShowClass(CLASS_ID);
+		}
+
+		void OnSettingChanged(const string &in key)
+		{
+			if (key == "firearms.enabled")
+				RefreshEnabled();
+		}
+
 		bool IsFirearms(PlayerRecord@ rec)
 		{
 			if (rec is null || rec.playerClass is null)
@@ -482,6 +505,8 @@ namespace HWP
 				{ "cls", rec.playerClass.m_id }, { "rifle", rifle }, { "clip", clip }, { "clipmax", clipMax },
 				{ "mana", mana }, { "max", maxMana } }));
 			HWP::Commands::Reply("low clips clicked " + g_lowClicks);
+			if (!g_enabled)
+				HWP::Commands::Reply("firearms.enabled is off: new characters can't pick the class; this one plays as before");
 		}
 	}
 }
@@ -497,10 +522,14 @@ namespace Modules
 			HWP::Firearms::PoseNetRegister();
 			HWP::Firearms::SelfCheck(false);
 			HWP::Bag::OnEquip(HWP::Bag::EquipPrepare(HWP::Firearms::PistolEquip));
+			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Firearms::OnSettingChanged));
+			HWP::Firearms::RefreshEnabled();
 		}
 
 		void Start(StartMode sMode)
 		{
+			// the constructor read the settings before the town record was loaded
+			HWP::Firearms::RefreshEnabled();
 			HWP::Firearms::g_checked = false;
 			HWP::Firearms::SelfCheck(true);
 			HWP::Firearms::ClampStartRanks();

@@ -27,8 +27,16 @@ Path of Exile style strongboxes.
   `docs/design/luck.md`). Log: `[HWP:strongbox] luck x<f> payout (opener <name>, Luck <n>)`.
 - **State sync.** `strongbox.state {unit, state}` is broadcast on arm and on
   clear so clients show the cross icon while the pack is alive.
-- Settings: `strongbox.enabled`, `strongbox.chance`, `strongbox.pack`,
-  `strongbox.pack_per_player`, `strongbox.elite_chance` (host-synced).
+
+## Settings
+
+On the HammerwatchPlus tab of the player menu (host, host-synced; next level), or `hwp set`:
+
+- `strongbox.enabled` (on): off places no strongbox on new floors. A box
+  already on the floor stays usable, and `hwp strongbox here` still places one
+  (the timeout QA runs with the module off).
+- `strongbox.chance` (40 %), `strongbox.pack` (4), `strongbox.pack_per_player`
+  (2), `strongbox.elite_chance` (50 %).
 
 ## Test checklist
 

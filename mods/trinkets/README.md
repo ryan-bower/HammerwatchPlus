@@ -79,7 +79,7 @@ effects get an `intensity-mul` of (b + a x NG) / b, with b the tooltip's damage.
   rebuilds every player's modifiers. NG+ 0 restores the arrays the game loaded.
 - Arctic Step's frost buff is applied by `HWPTrinketNGBuff`, a `Modifiers::Buff` that
   passes an intensity.
-- The setting `trinkets.ngp_scaling` (default on) turns it off.
+- The setting `trinkets.ngp_scaling` (default on) turns it off (see Settings).
 - `hwp trinkets` shows the status; `hwp trinkets show <id>` shows a trinket's tooltips,
   modifier counts and the local max health. `hwp trinkets ng <n>` sets the NG+ level
   (cheats on).
@@ -178,3 +178,23 @@ Vanilla sets changed (`tweak/hwp/trinket_sets_vanilla.sval`, applied by `HoH1.as
   stats; `hwp trinkets set <id>` shows a set's pieces and tiers.
 
 GameLab: `mod-trinkets` (`gamelab/bots/fix_trinkets.py`, sections `trinkets` and `hoh1`).
+
+## Settings
+
+On the HammerwatchPlus tab of the player menu (host, host-synced; at once), or `hwp set`:
+
+- `trinkets.enabled` (on). Off, on every machine:
+  - NG+ scaling stops: every scaled trinket is back to the numbers the game loaded.
+  - The vanilla set and trinket changes are reverted from what `ApplyVanilla` kept:
+    Emblems of Hermes and Apothecary's Supplies get their own pieces and tiers back,
+    Trader's Coin loses its shop discount and tooltip.
+  - Fire Salts, Cauldron, Searing Torch and Necromantic Focus leave the HoH1 sets.
+  - The 37 HoH1 trinkets get a drop condition that never holds, so `GetRandomTrinket`
+    (drops, the trinket shops, the Shady Trader, the sarcophagus) never picks them.
+
+  Trinkets already owned stay in the inventory, load and keep working, the HoH1 sets
+  among them. Not switched off: the library can still offer a HoH1 trinket's blueprint
+  (`BlueprintBank` picks by blueprint, not by drop condition), and Fancy Plume worn still
+  adds its shop stock. On again restores all of it (drop conditions reloaded from the
+  sval). `hwp trinkets` and `hwp trinkets hoh1` say when it is off.
+- `trinkets.ngp_scaling` (on): the NG+ scaling above.

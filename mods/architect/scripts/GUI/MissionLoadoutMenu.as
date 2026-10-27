@@ -162,7 +162,7 @@ class MissionLoadoutMenu : AWindowObject
 			// and the level the host picked last time comes back (architect.ngp)
 			m_outerWindow.m_height += m_ngpW.m_height + m_contentWindow.m_spacing;
 			int lastNgp = HWP::Architect::LastNGP();
-			if (lastNgp >= 0)
+			if (lastNgp >= 0 && HWP::Architect::Enabled())
 				g_ngp = float(min(int(GetLocalPlayerRecord().ngp), lastNgp));
 		}
 
@@ -464,6 +464,9 @@ class MissionLoadoutMenu : AWindowObject
 			return true;
 		}
 
+		if (!HWP::Architect::Enabled()) // HWP: the module off: vanilla, the client stays
+			return false;
+
 		// HWP: vanilla returned false here, which kept a client in the window until the
 		// host started or closed it. Now the client's own window closes (its status is
 		// None, so the host's ready count and start skip it) and the mission board opens
@@ -614,7 +617,7 @@ class MissionLoadoutMenu : AWindowObject
 				// HWP: the host confirms the New Game+ level it starts on (architect.confirm_ngp,
 				// default on); the force-start question carries it too
 				int ngp = int(g_ngp + 0.5f);
-				bool confirmNgp = m_ngp && ngp > 0 && HWP::Settings::GetBool("architect.confirm_ngp", true);
+				bool confirmNgp = m_ngp && ngp > 0 && HWP::Architect::Enabled() && HWP::Settings::GetBool("architect.confirm_ngp", true);
 				if (Network::IsServer() && !m_allReady)
 				{
 					string warning = Resources::GetString(".menu.loadout.force_start_warning");

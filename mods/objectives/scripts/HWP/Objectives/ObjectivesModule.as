@@ -28,8 +28,6 @@ namespace HWP
 {
 	namespace Objectives
 	{
-		const string KEY_VAULTS = "objectives.vaults";
-		const string KEY_EXIT = "objectives.exit";
 		const string EV_OPENED = "objectives.opened";
 		const string EV_STATE = "objectives.state";
 		const string RQ_HELLO = "objectives.hello";
@@ -66,6 +64,7 @@ namespace HWP
 		bool g_stateKnown = false; // a client: objectives.state arrived
 		int g_vaultCount = 1;
 		bool g_exitOn = true;
+		bool g_enabled = true;     // objectives.enabled: off, new floors get nothing
 		int g_exitOpenShown = 0;
 		HWPObjectivesHUD@ g_hud;
 		array<HWPObjectiveDoor@> g_doors;
@@ -73,8 +72,9 @@ namespace HWP
 
 		void RefreshSettings()
 		{
-			g_vaultCount = clamp(HWP::Settings::GetInt(KEY_VAULTS, 1), 0, 2);
-			g_exitOn = HWP::Settings::GetBool(KEY_EXIT, true);
+			g_enabled = HWP::Settings::GetBool("objectives.enabled", true);
+			g_vaultCount = clamp(HWP::Settings::GetInt("objectives.vaults", 1), 0, 2);
+			g_exitOn = HWP::Settings::GetBool("objectives.exit", true);
 		}
 
 		void ClearFloor()
@@ -444,8 +444,16 @@ namespace HWP
 
 		void OnSettingChanged(const string &in key)
 		{
-			if (key.findFirst("objectives.") == 0)
-				RefreshSettings();
+			if (key.findFirst("objectives.") != 0)
+				return;
+			RefreshSettings();
+			// turned off on a sealed floor: the host opens the way down at once (the
+			// vaults stay as they are; new floors get nothing)
+			if (key == "objectives.enabled" && !g_enabled && Network::IsServer() && g_exitPresent && !g_exitOpen)
+			{
+				HWP::Log("objectives", "exit opened: objectives.enabled is off");
+				HWP::Net::Broadcast(EV_OPENED, OpenedData("exit", -1, g_exitSwitch, null));
+			}
 		}
 
 		void Tick(int ms)

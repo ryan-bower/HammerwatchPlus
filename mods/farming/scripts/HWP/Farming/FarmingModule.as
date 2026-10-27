@@ -152,11 +152,62 @@ namespace HWP
 			g_runChance = clamp(HWP::Settings::GetInt("farm.run_chance", 35), 0, 100);
 		}
 
+		bool g_setupAgain = false; // farm.enabled came on in town: the module lays the farm out
+
+		// farm.enabled turned off in town: our plots, visuals and well go, the vanilla
+		// crops and the apple tree come back. The plot state stays (host's TownRecord)
+		void TearDownTown()
+		{
+			ClearVisuals();
+			ClearPlots();
+			if (HWP::Town::Is(g_wellUnit, WELL_UNIT))
+				g_wellUnit.Destroy();
+			g_wellUnit = UnitPtr();
+			SetCropsHidden(false);
+			g_hiddenCrops.removeRange(0, g_hiddenCrops.length());
+			g_grooves.removeRange(0, g_grooves.length());
+			RestoreAppleTree();
+			g_visualsReady = false;
+			HWP::Log("farming", "turned off: the farm is put away");
+		}
+
+		// farm.enabled on a run: wild plots show (those this player has not
+		// harvested) or hide, on this machine
+		void ShowWild(bool show)
+		{
+			for (uint i = 0; i < g_seeds.length(); i++)
+			{
+				auto prod = Resources::GetUnitProducer(WILD_UNIT_PREFIX + g_seeds[i].id + ".unit");
+				if (prod is null)
+					continue;
+				auto units = g_scene.FetchAllUnitsOfType(prod);
+				for (uint k = 0; k < units.length(); k++)
+					units[k].SetHidden(!show || Picked(units[k]));
+			}
+		}
+
 		void OnSettingChanged(const string &in key)
 		{
 			if (key.findFirst("farm.") != 0)
 				return;
+			bool wasOn = g_enabled;
 			RefreshSettings();
+			if (wasOn != g_enabled)
+			{
+				// in town: put the farm away now, or lay it out on the next frame
+				// (UpdateFrame); on a run: the floor's wild plot hides or shows
+				if (!g_inTown)
+					ShowWild(g_enabled);
+				else if (!g_enabled)
+				{
+					g_setupAgain = false;
+					if (g_visualsReady)
+						TearDownTown();
+				}
+				else
+					g_setupAgain = true;
+				return;
+			}
 			if (!g_inTown || !g_visualsReady)
 				return;
 			if (key == "farm.")
@@ -296,6 +347,20 @@ namespace HWP
 			}
 		}
 
+		// the apple trees MoveAppleTree moved, and where they stood (farm.enabled off puts them back)
+		array<UnitPtr> g_treeUnits;
+		array<vec3> g_treeFrom;
+
+		void RestoreAppleTree()
+		{
+			for (uint i = 0; i < g_treeUnits.length(); i++)
+				if (g_treeUnits[i].IsValid() && !g_treeUnits[i].IsDestroyed())
+					g_treeUnits[i].SetPosition(g_treeFrom[i]);
+			g_treeUnits.removeRange(0, g_treeUnits.length());
+			g_treeFrom.removeRange(0, g_treeFrom.length());
+			g_treeMoved = false;
+		}
+
 		// the apple tree below the wheat field goes just above its top fence
 		void MoveAppleTree(uint firstRow, uint endRow)
 		{
@@ -319,6 +384,8 @@ namespace HWP
 				// the fence is 21 px above the top row; the trunk stands clear of it
 				trees[i].SetPosition(vec3(p.x, minY - 39, p.z));
 				g_treeMoved = true;
+				g_treeUnits.insertLast(trees[i]);
+				g_treeFrom.insertLast(p);
 				HWP::Log("farming", "moved the apple tree from " + int(p.x) + "," + int(p.y) + " to " + int(p.x) + "," + int(minY - 39));
 			}
 		}
@@ -1286,6 +1353,15 @@ namespace HWP
 			auto bag = HWP::SaveData::Player(rec);
 			if (!bag.Has(KEY_HERB) && !bag.Has(KEY_HERB2))
 				return;
+			if (!g_enabled)
+			{
+				// farm.enabled off: the herb buffs come off and their floors stand still;
+				// turned on again, the lines below put them back
+				for (int hand = 0; hand < 2; hand++)
+					if (!ActiveHerbName(rec, hand).isEmpty())
+						RemoveHerbBuff(rec, hand);
+				return;
+			}
 			bool count = !g_inTown && !g_floorCounted;
 			if (count)
 				g_floorCounted = true;
@@ -1441,6 +1517,9 @@ namespace HWP
 			g_grooves.removeRange(0, g_grooves.length());
 			g_hiddenCrops.removeRange(0, g_hiddenCrops.length());
 			g_wellUnit = UnitPtr();
+			g_treeUnits.removeRange(0, g_treeUnits.length());
+			g_treeFrom.removeRange(0, g_treeFrom.length());
+			g_setupAgain = false;
 			g_floorCounted = false;
 			g_lastMessage = "";
 			g_picked.removeRange(0, g_picked.length());
@@ -1452,10 +1531,17 @@ namespace HWP
 			auto bag = HWP::SaveData::MyTownForWrite();
 			if (!g_inTown)
 			{
-				bag.SetBool(KEY_PENDING, true);
+				// farm.enabled off: the crops stand still (a run is not counted)
+				if (g_enabled)
+					bag.SetBool(KEY_PENDING, true);
 				return;
 			}
 			LoadState();
+			if (!g_enabled)
+			{
+				bag.SetBool(KEY_PENDING, false);
+				return;
+			}
 			if (bag.GetBool(KEY_PENDING, false))
 			{
 				bag.SetBool(KEY_PENDING, false);
@@ -1726,6 +1812,12 @@ namespace HWP
 		{
 			auto rec = GetLocalPlayerRecord();
 			string a = args.length() >= 1 ? args[0] : "";
+			// farm.enabled off: the status and the chance still answer; nothing else
+			if (!g_enabled && a != "" && a != "chance")
+			{
+				HWP::Commands::Reply(Resources::GetString(".hwp.farming.off"));
+				return;
+			}
 			if (a == "here" || a == "well" || a == "fields")
 			{
 				if (!Network::IsServer())
@@ -1916,6 +2008,11 @@ namespace HWP
 		// newest bag joint in a hand (the main hand through its twin)
 		void CmdJoint(array<string>@ args)
 		{
+			if (args.length() >= 1 && !g_enabled)
+			{
+				HWP::Commands::Reply(Resources::GetString(".hwp.farming.off"));
+				return;
+			}
 			if (args.length() >= 1 && args[0] == "wield")
 			{
 				WieldJoint(args.length() >= 2 && args[1] == "main");
@@ -2402,16 +2499,21 @@ namespace Modules
 			super("hwp-farming");
 			HWP::Farming::g_endState = MissionManager::MissionState::None; // PlayerRecordLoad sets it
 			HWP::Farming::DefineSeeds();
-			HWP::Gear::Register("hwp-gear-can", HWPFarmCanSlot());
-			// Plants & Herbs: a row of seeds, then a row of what they grow
-			HWP::Materials::Title("b", ".hwp.farming.plants");
-			for (uint i = 0; i < HWP::Farming::g_seeds.length(); i++)
-			{
-				HWP::Materials::Register("b", i, "hwp-mat-seed-" + HWP::Farming::g_seeds[i].id, HWPSeedMaterial(i));
-				HWP::Materials::Register("b", 100 + i, "hwp-mat-crop-" + HWP::Farming::g_seeds[i].id, HWPHarvestMaterial(i));
-			}
 			HWP::Settings::Sync("farm.");
 			HWP::Farming::RefreshSettings();
+			// farm.enabled off: no can slot and no Plants & Herbs cells (a slot without a
+			// provider is hidden); the can, seeds and harvest stay in the save data
+			if (HWP::Farming::g_enabled)
+			{
+				HWP::Gear::Register("hwp-gear-can", HWPFarmCanSlot());
+				// Plants & Herbs: a row of seeds, then a row of what they grow
+				HWP::Materials::Title("b", ".hwp.farming.plants");
+				for (uint i = 0; i < HWP::Farming::g_seeds.length(); i++)
+				{
+					HWP::Materials::Register("b", i, "hwp-mat-seed-" + HWP::Farming::g_seeds[i].id, HWPSeedMaterial(i));
+					HWP::Materials::Register("b", 100 + i, "hwp-mat-crop-" + HWP::Farming::g_seeds[i].id, HWPHarvestMaterial(i));
+				}
+			}
 			HWP::Net::OnRequest(HWP::Farming::PLANT, HWP::Net::RequestHandler(HWP::Farming::OnPlant));
 			HWP::Net::OnRequest(HWP::Farming::HARVEST, HWP::Net::RequestHandler(HWP::Farming::OnHarvest));
 			HWP::Net::OnRequest(HWP::Farming::WATER, HWP::Net::RequestHandler(HWP::Farming::OnWater));
@@ -2467,7 +2569,15 @@ namespace Modules
 			if (!paused)
 			{
 				HWP::Farming::UpdateJoints(ms);
-				HWP::Farming::PollTake(gameInput);
+				if (HWP::Farming::g_enabled)
+					HWP::Farming::PollTake(gameInput);
+			}
+			// farm.enabled turned on in town (OnSettingChanged): lay the farm out now
+			if (m_spawnDone && HWP::Farming::g_setupAgain)
+			{
+				HWP::Farming::g_setupAgain = false;
+				if (g_inTown && HWP::Farming::g_enabled && !HWP::Farming::g_visualsReady)
+					HWP::Farming::SetupTown();
 			}
 			if (m_spawnDone)
 			{

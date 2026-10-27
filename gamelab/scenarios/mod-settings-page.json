@@ -1,0 +1,601 @@
+{
+ "name": "mod-settings-page",
+ "about": "The HammerwatchPlus tab (hwplib Options.as + Config.as, docs/modules.md Settings): the top section, packages folded until clicked, a module's On/Off (valuables back to vanilla and on again), a choice row cycling (gold multiplier), hwp set showing on the page, the fuzzy search (fish, fsh) and Esc, and fishing turned off and on in town (its coast spots go and come back).",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "colors",
+  "weaponswap",
+  "valuables",
+  "fishing"
+ ],
+ "timeout": 200,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:config\\] \\d+ package\\(s\\), \\d+ module\\(s\\) loaded",
+   "timeout": 20,
+   "name": "HWP::Config read config.sval"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:fishing\\] coast: \\d+ spots",
+   "timeout": 20,
+   "name": "the coast is up at the start"
+  },
+  {
+   "do": "gl",
+   "verb": "near",
+   "args": [
+    5000,
+    "fishing_spot"
+   ],
+   "expect": {
+    "count": 6
+   },
+   "name": "the coast's fishing spots stand"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-colors"
+   ],
+   "expect": {
+    "tab": "HWPOptionsTab",
+    "shown": true,
+    "texts": "Projectile colors | Default"
+   },
+   "name": "the top section: projectile colors"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Swap weapons | X"
+   },
+   "name": "the top section: the swap key"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-pkg-dungeon"
+   ],
+   "expect": {
+    "shown": true
+   },
+   "name": "the Dungeon package row"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-mod-valuables"
+   ],
+   "expect": {
+    "shown": false
+   },
+   "name": "packages start folded"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:options\\] built \\d+ rows, 3 package\\(s\\)",
+   "timeout": 5,
+   "name": "rows for the three loaded packages"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "shot",
+   "name": "page_folded"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-mod-valuables",
+    "hwp-pkg",
+    "dungeon"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-mod-valuables"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Valuables | On"
+   },
+   "name": "opening Dungeon shows Valuables"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-cfg-valuables.gold_mult"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Gold multiplier | 2x"
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:options\\] package dungeon opened",
+   "timeout": 5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-pkg-dungeon"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "shot",
+   "name": "page_dungeon"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-mod-valuables",
+    "hwp-mod",
+    "valuables"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:options\\] valuables -> off",
+   "timeout": 5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-mod-valuables"
+   ],
+   "expect": {
+    "texts": "Valuables | Off"
+   }
+  },
+  {
+   "do": "console",
+   "line": "hwp valuables"
+  },
+  {
+   "do": "log_has",
+   "pattern": "Valuables are off: they pay their vanilla gold",
+   "timeout": 5,
+   "name": "valuables say they are off"
+  },
+  {
+   "do": "console",
+   "line": "hwp get valuables.enabled"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] valuables.enabled = false",
+   "timeout": 5,
+   "name": "the switch is the valuables.enabled setting"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-cfg-valuables.gold_mult",
+    "hwp-cfg",
+    "valuables.gold_mult"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:options\\] valuables.gold_mult -> 3x",
+   "timeout": 5,
+   "name": "a choice row cycles to the next value"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-cfg-valuables.gold_mult"
+   ],
+   "expect": {
+    "texts": "Gold multiplier | 3x"
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-mod-valuables",
+    "hwp-mod",
+    "valuables"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:options\\] valuables -> on",
+   "timeout": 5
+  },
+  {
+   "do": "console",
+   "line": "hwp valuables"
+  },
+  {
+   "do": "log_has",
+   "pattern": "Valuables pay 3x their vanilla gold",
+   "timeout": 5,
+   "name": "on again, with the new multiplier"
+  },
+  {
+   "do": "console",
+   "line": "hwp set valuables.gold_mult 2"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-cfg-valuables.gold_mult"
+   ],
+   "expect": {
+    "texts": "Gold multiplier | 2x"
+   },
+   "name": "hwp set shows on the page"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "search",
+    "!click"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "press the search field"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "type",
+   "text": "fish"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "search"
+   ],
+   "expect": {
+    "input": "fish"
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-mod-fishing"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Fishing | On"
+   },
+   "name": "search 'fish' finds Fishing"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-pkg-town"
+   ],
+   "expect": {
+    "shown": true
+   },
+   "name": "with its package row"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-mod-valuables"
+   ],
+   "expect": {
+    "shown": false
+   },
+   "name": "and hides Valuables"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-colors"
+   ],
+   "expect": {
+    "shown": false
+   },
+   "name": "and the colors row"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.2
+  },
+  {
+   "do": "shot",
+   "name": "search_fish"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "search",
+    "!click"
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-colors"
+   ],
+   "expect": {
+    "shown": true,
+    "tab": "HWPOptionsTab"
+   },
+   "name": "Esc clears the search, the menu stays"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "search",
+    "!click"
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "type",
+   "text": "fsh"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-mod-fishing"
+   ],
+   "expect": {
+    "shown": true
+   },
+   "name": "fuzzy: 'fsh' finds Fishing"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-mod-fishing",
+    "hwp-mod",
+    "fishing"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:options\\] fishing -> off",
+   "timeout": 5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-mod-fishing"
+   ],
+   "expect": {
+    "texts": "Fishing | Off"
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "near",
+   "args": [
+    5000,
+    "fishing_spot"
+   ],
+   "expect": {
+    "count": 0
+   },
+   "name": "fishing off: the coast spots are gone"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-mod-fishing",
+    "hwp-mod",
+    "fishing"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:options\\] fishing -> on",
+   "timeout": 5
+  },
+  {
+   "do": "gl",
+   "verb": "near",
+   "args": [
+    5000,
+    "fishing_spot"
+   ],
+   "expect": {
+    "count": 6
+   },
+   "name": "fishing on: the coast is back"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "shot",
+   "name": "fishing_back"
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

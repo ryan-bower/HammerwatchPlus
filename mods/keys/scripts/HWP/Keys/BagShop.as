@@ -34,6 +34,11 @@ namespace HWP
 				return;
 			if (args.length() >= 1 && args[0] == "buy")
 			{
+				if (!HWP::Keys::g_enabled)
+				{
+					HWP::Commands::Reply("keys.enabled is off: no bag slots for sale; the ones bought stay");
+					return;
+				}
 				int cost = NextPrice(rec);
 				if (!Buy(rec))
 				{

@@ -37,6 +37,16 @@ too many (plan-t12: 2 in, 3 out).
 - `hwp summons` shows the state, snapshot size and how many were restored on
   this floor.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (Quality of Life > Lasting summons); the
+host's values rule in a lobby:
+
+- **On/off** `summons.enabled` (default on). Off: no snapshots and no restore; the game's
+  own carrying of summons through a floor change is untouched.
+- **Forgemaster risen** `summons.risen` (default on).
+- **Every summon** `summons.all` (default off).
+
 ## Test checklist
 
 1. `python -m gamelab run mod-summons --mode lab`: `[HWP:summons] self-check done: 3/3 tracked units`.
