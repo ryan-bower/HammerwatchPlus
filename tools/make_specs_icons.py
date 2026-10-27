@@ -63,6 +63,10 @@ ROWS = [
                        ("pri_ravenous_lunge", 6, (48, 240)), ("pri_rot_bloom", 7, (48, 240)),
                        ("hud_heresy", 192, (48, 240)), ("hud_heresy_5", 208, (48, 240)),
                        ("hud_devouring", 224, (48, 240))]),
+    ((255, 210, 90), [("pal_class", 0, (144, 336)), ("pal_pelors_fury", 1, (144, 336)),
+                      ("pal_pelors_blessing", 2, (144, 336)), ("pal_pf_blinding_sun", 3, (144, 384)),
+                      ("pal_pf_holy_sacrifice", 4, (144, 336)), ("pal_pb_display_of_generosity", 6, (144, 336)),
+                      ("pal_pb_descendent_of_pentival", 7, (144, 336)), ("hud_pelors_blessing", 192, (144, 336))]),
 ]
 
 

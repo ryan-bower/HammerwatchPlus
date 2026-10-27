@@ -321,4 +321,35 @@
 			</dict>
 		</array>
 	</dict>
+	<!-- Generosity, Pelor's Fury on its target (Generosity.as StartFury; intensity = pf-dmg): stunned
+	     (rooted, disarmed, silenced: a boss's attack is cancelled, CompositeActorBehavior.ApplyBuff),
+	     armor and resistances 0 (armor-mul / resistance-mul are lerped by the intensity, so 0 0 is
+	     0 at any), damage taken lerp(1, 2, pf-dmg) = 1 + pf-dmg. No tags: no stun immunity
+	     (buff-immune-tags) or ResistBuffSkill refuses it. The duration is pf-stun, passed in. -->
+	<dict name="pelors_fury">
+		<bool name="debuff">true</bool>
+		<int name="duration">3000</int>
+		<bool name="ignore-buff-scaling">true</bool>
+		<string name="icon">special/icons/stun.unit</string>
+		<vec2 name="speed-mul">0 0</vec2>
+		<bool name="disarm">true</bool>
+		<bool name="silence">true</bool>
+		<bool name="lock-movement">true</bool>
+		<bool name="lock-rotation">true</bool>
+		<vec2 name="armor-mul">0 0</vec2>
+		<vec2 name="resistance-mul">0 0</vec2>
+		<vec2 name="dmg-taken-mul">1 2</vec2>
+	</dict>
+	<!-- Generosity: the caster in a party, held for Pelor's Fury's stun (Generosity.as; the dash
+	     is pinned on cooldown for it, as the Forgemaster's channel does) -->
+	<dict name="pelors_channel">
+		<bool name="debuff">false</bool>
+		<int name="duration">3000</int>
+		<bool name="ignore-buff-scaling">true</bool>
+		<bool name="silence">true</bool>
+		<bool name="disarm">true</bool>
+		<bool name="lock-movement">true</bool>
+		<bool name="lock-rotation">true</bool>
+		<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>192 168 14 14</vec4></array>
+	</dict>
 </svals>

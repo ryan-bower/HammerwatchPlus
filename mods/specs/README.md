@@ -1,6 +1,6 @@
 # specs: the 4th specializations
 
-Module id `specs` (requires `hwplib` and `hwplib-classui`). Seven subclasses on the vanilla classes, each a scripted
+Module id `specs` (requires `hwplib` and `hwplib-classui`). Eight subclasses on the vanilla classes, each a scripted
 skill set under `scripts/HWP/Specs/` with its svals under `players/hwp/specs/`. Status command:
 `hwp specs`. The console and net handlers are registered in `SpecsModule.as`.
 
@@ -103,6 +103,60 @@ checks every generated unit offline.
   bot's `lanes()` reads `gl terrain` and puts every priest, brute, body and target on the
   longest free lane (20261025-180859: a priest teleported 260 px east stood in rock, as did
   both brutes, and nothing could path or see anything).
+
+## Generosity (Paladin)
+
+Files: `scripts/HWP/Specs/Generosity.as` (the stacks, the Fury, the hold and its strikes),
+`players/hwp/specs/generosity/*.sval`, `players/hwp/specs/effects/pelors_strike.effect` (the
+strike, a scaled-up take on the priest's quick light strike on vanilla textures), the
+`pelors_blessing` stack in `stacks_specs.sval` and the buffs in `buffs_specs.sval`. Debug
+command: `hwp gen` (status line) with `stacks <n>`, `fury [now]`, `cd` and `solo [on|off|auto]`.
+The crop trait lives in the farming module (`PelorFollowed` in `FarmingModule.as`), so it
+needs nothing from specs.
+
+Spec (the numbers are the planner's, `planner/data/skills/paladin-spec4-*.json`):
+
+- **Pelor's Blessing** (passive, max 10 stacks, 2 s between gains): Lay on Hands healing a
+  teammate (solo, healing yourself counts; in a party it does not), a Blessed Strike kill,
+  Conviction giving mana (at most once every 6 s). Each stack adds 0.5-2.5% (by rank) to Lay on
+  Hands healing, Blessed Strike damage and Conviction mana. Reset by a party player's death,
+  by casting the Fury and in town; kept between floors.
+- **Pelor's Fury** (80-120 mana, 10 stacks): picks the enemy nearest the reticle (40 px) within
+  range and holds it in beams of light for 3-5 s: stunned, its casts cut, armor and
+  resistances 0, damage taken +20-60%. One strike on a normal enemy, a ring of 4 to 10 around a
+  boss by its size. Cooldown 30 s, 60 s on a boss. In a party the caster is held for the
+  channel (`pelors_channel`, the dash pinned); solo they move freely.
+- **Nothing is spent on a Fury that can't hold.** Activate refuses with a reason line and spends
+  nothing below 10 stacks, with no target, on an untargetable, invulnerable or buff-immune
+  enemy, or on one with no physics body ("out of reach": a boss spirit mid-dive, the Serpent
+  tunnelling). The mana and stacks are paid in Deactivate, once the castpoint passes and the
+  target still holds; a hit that cuts the paladin's own cast keeps them, and a failed hold
+  gives the cooldown back. A button press below 10 is refused on its press frame (the
+  targeting helper would only warn after its input buffer runs out).
+- **Cutting casts**: the host cancels every casting skill on the held unit except the passive
+  ones (`Triggered*`, `Aura*`), each frame of the hold, since the vanilla stun leaves skills
+  with no attack or spell flag running (Arista, the Spider Queen, Dace Arden). A unit with no
+  body is skipped, and its movement is switched off while it has none (`MoveGuard`: a stunned
+  bodiless unit null-derefs in `MeleeMovement::IdleUpdate`).
+- **Orbs**: Blinding Sun (Minor/Greater Blindness 4/6 s when the hold ends), Holy Sacrifice
+  (the held enemy dying gives 1/3/5 stacks back and half the cooldown off), Display of
+  Generosity (Lay on Hands builds up to 2/3/4 stacks a cast, one per ally healed),
+  Descendent of Pentival (each stack also raises the Dragon trinkets and Dragon Lord set
+  bonuses).
+- **Pelor's favour** (farming): while a Paladin of Generosity is in the party, crops grow
+  twice as fast and wild plots turn up twice as often (`hwp farm chance`, `hwp farm grow`).
+
+Test checklist (`gamelab/scenarios/`, bot `gamelab/bots/plan_generosity.py`):
+
+- `plan-generosity.json`: the character, the stack sources and cooldowns, the scaling, the
+  resets, the Fury's hold and strikes, the refusals (below 10, no target, the button press,
+  `ref_button_cast`), the orbs.
+- `plan-generosity-bosses.json`: every boss, mid-attack: held, its casts cut, stacks spent,
+  the boss cooldown; the by-design refusals (untargetable, immune, out of reach) keep the
+  stacks.
+- `plan-generosity-farm.json`: the wild chance doubled and a crop grown two stages in a run.
+- `plan-generosity-smoke.json`: compiles and sets up: 8 subclasses, the binds, the status
+  line, the Fury on its own button, the tooltips filled.
 
 ## Arcane (Sorcerer)
 

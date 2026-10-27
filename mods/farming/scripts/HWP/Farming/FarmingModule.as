@@ -26,6 +26,9 @@
 // netsynced, but every player harvests it once for themselves (local yield,
 // seed chances doubled: 50 % one back, 10 % two) and it then disappears for
 // them; nothing can be planted on it.
+// Pelor's favour (the Paladin of Generosity's trait, mods/specs): while a party member follows
+// Pelor (class hwp_paladin_generosity), crops grow twice as fast and wild plots turn up twice as
+// often. A class id check, so farming works without specs.
 namespace HWP
 {
 	namespace Farming
@@ -649,17 +652,40 @@ namespace HWP
 			}
 		}
 
-		// host: a run was completed; watered plots grow twice as fast
+		const string PELOR_CLASS = "hwp_paladin_generosity";
+
+		// a player in the party is a Paladin of Generosity (see the file comment)
+		bool PelorFollowed()
+		{
+			for (uint i = 0; i < g_players.length(); i++)
+			{
+				auto rec = g_players[i];
+				if (rec !is null && rec.peer != 255 && rec.playerClass !is null && rec.playerClass.m_id == PELOR_CLASS)
+					return true;
+			}
+			return false;
+		}
+
+		// host: a run was completed; watered plots grow twice as fast, and twice again under Pelor
 		void CountRun()
 		{
 			g_runs++;
+			int mul = PelorFollowed() ? 2 : 1;
 			for (int i = 0; i < MAX_PLOTS; i++)
 			{
 				if (g_plotSeed[i].isEmpty())
 					continue;
-				g_plotGrowth[i] += g_plotWet[i] ? 2 : 1;
+				g_plotGrowth[i] += (g_plotWet[i] ? 2 : 1) * mul;
 				g_plotWet[i] = false;
 			}
+			if (mul > 1)
+				HWP::Log("farming", "pelor's favour: the crops grew twice as fast");
+		}
+
+		// % of run floors with a wild plot: the setting, doubled under Pelor
+		int WildChance()
+		{
+			return PelorFollowed() ? min(100, g_runChance * 2) : g_runChance;
 		}
 
 		void Changed()
@@ -1547,7 +1573,7 @@ namespace HWP
 		{
 			if (!Network::IsServer() || g_inTown || cast<BossLevel>(g_gameMode) !is null)
 				return;
-			if (randi(100) >= g_runChance)
+			if (randi(100) >= WildChance())
 				return;
 			vec3 pos;
 			if (!FindWildSpot(pos))
@@ -1804,7 +1830,19 @@ namespace HWP
 				CountRun();
 				Changed();
 				RefreshVisuals();
-				HWP::Commands::Reply("runs counted: " + g_runs);
+				string grown = "";
+				for (int i = 0; i < MAX_PLOTS; i++)
+				{
+					if (!g_plotSeed[i].isEmpty())
+						grown += (grown.isEmpty() ? "" : ",") + (i + 1) + ":" + g_plotGrowth[i];
+				}
+				HWP::Commands::Reply("runs counted: " + g_runs + "; growth " + grown + (PelorFollowed() ? "; pelor's favour" : ""));
+				return;
+			}
+			if (a == "chance")
+			{
+				// debug 'chance': the wild plot chance a run floor rolls now
+				HWP::Commands::Reply("wild chance " + WildChance() + "%" + (PelorFollowed() ? " (pelor's favour)" : ""));
 				return;
 			}
 			// debug: what a player does at the farm, without walking there

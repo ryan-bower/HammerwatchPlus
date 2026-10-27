@@ -4557,3 +4557,45 @@ class, and `res/language/english/hwp_dup.lang` with different text.
 - So a player who enables two packages gets a few dozen of those ERR lines in the log per
   extra package. That is the price of packages that stand alone; the alternative, a required
   library mod, is the core mod this replaced.
+
+## 2026-10-27: the Paladin of Generosity
+
+Measured while building `Generosity.as` (scenarios `plan-generosity*`, bot
+`gamelab/bots/plan_generosity.py`).
+
+- **Finding a boss spirit:** the boss spirits (Arcane, Avarice, the Hunt, the Warrior,
+  Benevolence) have sensor, aim-through bodies, and `g_scene.QueryCircle(pos, r, ~0,
+  RaycastType::Any, true)` does not return them (plan-generosity-bosses 20261027-013518: four
+  spirits read "no target" under the reticle). `g_scene.FetchActorsWithOtherTeam(team, pos,
+  r)` does, so the Fury's pick merges both lists.
+- **The gl `near` verb is capped.** The Spider Queen's spiderlings pushed her out of the
+  list, so the bot hit a spiderling (one beam, a 30 s cooldown). The bot now passes the
+  unit's name as the filter.
+- **The vanilla stun does not stop every cast.** A `CompositeActorSkill` with neither
+  `m_restrictions.m_isAttack` nor `m_isSpell` keeps casting under it (Arista, the Spider
+  Queen, Dace Arden). The hold now cancels every casting skill whose type name has neither
+  "Triggered" nor "Aura" in it (`Reflect::GetTypeName`), each frame.
+- **A stunned unit with no body crashes its movement.** A boss spirit's dive runs a scene
+  with no collision (`GetPhysicsBody()` is null), and the Serpent tunnels with none.
+  `MeleeMovement::IdleUpdate`, which the stun's zero speed sends a unit to, then calls
+  `m_unit.GetPhysicsBody().SetLinearVelocity` on a null body (MeleeMovement.as:162, a null
+  pointer access: Benevolence in 015348, Arcane in 021003). `MeleeMovement::Update` (line 231)
+  and `RangedMovement::Update` return early when `!m_enabled`, so the hold sets `m_movement.m_enabled
+  = false` while the body is gone and back after (`MoveGuard`), and `CutCasting` skips a
+  bodiless unit. A Fury on a unit that has no body when cast is refused, "out of reach"
+  (a held tunnelling Serpent kept its skill in 021403). 021757 had no script exceptions.
+- **A real press below the cost never warned.** `PlayerTargetingHelper.CheckQueued` asks
+  `CanActivate(false)` while the input is buffered and `CanActivate(true)` only once
+  `SkillInputBufferFrames` (3) runs out, which a press refused on every frame never reached
+  (plan-generosity 20261027-015913: no refusal, no "cant" sound). The Fury now refuses on
+  the press frame too (`m_targetHelper.GetSkillInput(this).Pressed`), once per 300 ms.
+- **A TargetAOE skill aims at the real mouse.** Its reticle reads `input.MousePos`, not the
+  emulated aim, so a bot's button press casts wherever the real mouse is. The tests aim the
+  Fury through `hwp gen fury <dx> <dy>`, and the button test passes on a cast or a refusal.
+- **The farming trait** reads the party's classes (`g_players[i].peer != 255` and
+  `playerClass.m_id`), so it holds whichever player is the paladin; plan-generosity-farm
+  20261027-015840 doubles the wild chance (35% to 70%) and grows a cabbage two stages in one
+  run.
+- **Runs:** plan-generosity 20261027-020522, plan-generosity-farm 20261027-015840 and
+  plan-generosity-bosses 20261027-022232 (16 of 18 bosses held, the Serpent and the Shadow Face refused by design) pass. The boss spirits move off between the cast and its
+  castpoint, so the bot finds the boss again before each retry (021757 reused a stale aim).

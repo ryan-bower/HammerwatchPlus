@@ -138,8 +138,15 @@ watered.
   from ever picking one; for a client's record it checks that peer's own
   harvest. Nothing can be planted on it; after your harvest it disappears for
   you. It has a crop icon on the minimap.
+- **Pelor's favour.** While a party member plays the Paladin of Generosity
+  (class `hwp_paladin_generosity`, mods/specs), every counted run grows the
+  crops twice as much (an unwatered plot +2, a watered one +4) and wild plots
+  turn up on twice `farm.run_chance` % of floors (at most 100). A class id
+  check: farming works the same without specs. Logged `pelor's favour: the
+  crops grew twice as fast`; `hwp farm chance` says the chance a floor rolls
+  now.
 - `farm.*` settings are host-synced. `farm.debug` enables `hwp farm grow`
-  (counts a run), `hwp farm wild [seed]` (a wild plot beside you; `hwp
+  (counts a run and replies each planted plot's growth), `hwp farm wild [seed]` (a wild plot beside you; `hwp
   farm wild pick` harvests the last one placed) and `hwp farm herb <strain>
   [n]` (herb wares to roll joints from).
 

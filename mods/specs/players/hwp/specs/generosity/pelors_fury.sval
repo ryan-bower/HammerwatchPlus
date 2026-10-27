@@ -1,0 +1,145 @@
+%include "players/skills_cost.inc"
+<!--
+	Pelor's Fury (Generosity active), the planner's paladin-spec4-active. Needs 10 stacks of
+	Pelor's Blessing (stacks_specs.sval:pelors_blessing) and the mana. Cast on an enemy: the one
+	nearest the reticle within the range (HWPGenFury, scripts/HWP/Specs/Generosity.as), refused
+	with no cost when there is none or it can't be held (dead, immortal, untargetable, a boss in an
+	invulnerable or scripted phase, immune to buffs). The target gets the pelors_fury buff for
+	pf-stun ms: stunned (rooted, disarmed, silenced: a boss's attack is cancelled), armor and
+	resistances 0, damage taken +pf-dmg from every source. The buff has no tags, so no stun
+	immunity or buff resistance refuses it. Every Blessing stack is spent. In a party the caster
+	is held for the stun (pelors_channel, the dash pinned); solo the caster moves and attacks
+	freely. Light strikes (effects/pelors_strike.effect) pulse on the target, a ring of them
+	around a boss (4 to 10 by its size). Cooldown 30 s, 60 s when cast on a boss.
+	Planner numbers: stun 3/3/4/4/5 s, damage taken +20/40/40/60/60%, mana 80/80/100/100/120.
+	Assumed: the 250 range and the 40 px pick radius around the reticle.
+	Orbs: Blinding Sun (bs-buff: when the stun ends the target is blinded, the vanilla Minor
+	Blindness 4 s, Greater 6 s), Holy Sacrifice (hs-stacks: the target dying during the stun
+	halves the cooldown and gives back 1/3/5 Blessing stacks).
+-->
+<dict>
+	<string name="name">.hwp.specs.pelors_fury.name</string>
+	<string name="type-name">.skills.type.spell</string>
+	<string name="description">.hwp.specs.pelors_fury.desc</string>
+
+	<array name="description-params">
+		<array><s>stun</s><s>.hwp.specs.param.stun_duration</s><s>3s</s><s>3s</s><s>4s</s><s>4s</s><s>5s</s></array>
+		<array><s>dmg</s><s>.hwp.specs.param.damage_taken</s><s>20%</s><s>40%</s><s>40%</s><s>60%</s><s>60%</s></array>
+		<array><s>mana-cost</s><s>.skills.desc.params.mana_cost</s><s>80</s><s>80</s><s>100</s><s>100</s><s>120</s></array>
+		<array><s>cooldown</s><b>t</b><s>.skills.desc.params.cooldown</s><s>30s</s></array>
+	</array>
+
+	<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>24 168 24 24</vec4></array>
+
+	<string name="id">hwp_pal_pelors_fury</string>
+	<string name="type">spell</string>
+	<array name="tags"><s>spell</s></array>
+	<int name="starting-level">1</int>
+
+	<dict name="skill">
+		<int name="skill-cost">SKILLCOSTMASTERYLEVEL_1</int>
+		<string name="class">HWPGenFury</string>
+		<string name="anim">attack</string>
+		<int name="anim-length">400</int>
+
+		<int name="cooldown">30000</int>
+		<int name="castpoint">200</int>
+		<int name="range">250</int>
+		<int name="radius">24</int>
+		<float name="cast-speed-mul">1</float>
+		<float name="move-speed-mul">0</float>
+		<ivec2 name="move-speed">0 400</ivec2>
+		<ivec2 name="blocking">0 400</ivec2>
+		<int name="mana-cost">80</int>
+
+		<dict name="binds">
+			<int name="pf-stun">3000</int>
+			<float name="pf-dmg">0.2</float>
+			<string name="bs-buff"></string>
+			<int name="hs-stacks">0</int>
+		</dict>
+
+		<dict name="actions">
+			<array name="cast">
+				<dict>
+					<string name="class">PlaySound</string>
+					<string name="sound">event:/sfx/player/classes/paladin/blessed_strike/blessed_strike_impact</string>
+				</dict>
+			</array>
+		</dict>
+
+		<array name="timeline">
+			<i>200</i><s>cast</s>
+		</array>
+	</dict>
+
+	<array name="upgrades">
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
+			<int name="mana-cost">80</int>
+			<dict name="binds"><int name="pf-stun">3000</int><float name="pf-dmg">0.4</float></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
+			<int name="mana-cost">100</int>
+			<dict name="binds"><int name="pf-stun">4000</int><float name="pf-dmg">0.4</float></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
+			<int name="mana-cost">100</int>
+			<dict name="binds"><int name="pf-stun">4000</int><float name="pf-dmg">0.6</float></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
+			<int name="mana-cost">120</int>
+			<dict name="binds"><int name="pf-stun">5000</int><float name="pf-dmg">0.6</float></dict>
+		</dict>
+	</array>
+
+	<array name="modifier-skills">
+		<dict>
+			<string name="name">.hwp.specs.blinding_sun.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.blinding_sun.desc</string>
+			<array name="description-params">
+				<array><s>blind</s><s>.hwp.specs.param.blindness</s><s>4s</s><s>6s</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>72 168 24 24</vec4></array>
+			<string name="id">hwp_pal_pf_blinding_sun</string>
+			<string name="quality">uncommon</string>
+			<dict name="skill">
+				<dict name="binds"><string name="bs-buff">tweak/buffs/status_effects.sval:blindness_minor</string></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><string name="bs-buff">tweak/buffs/status_effects.sval:blindness_greater</string></dict>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<string name="name">.hwp.specs.holy_sacrifice.name</string>
+			<string name="type-name">.skills.type.spell.upgrade</string>
+			<string name="description">.hwp.specs.holy_sacrifice.desc</string>
+			<array name="description-params">
+				<array><s>stacks</s><s>.hwp.specs.param.blessing_stacks</s><s>1</s><s>3</s><s>5</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>96 168 24 24</vec4></array>
+			<string name="id">hwp_pal_pf_holy_sacrifice</string>
+			<string name="quality">uncommon</string>
+			<dict name="skill">
+				<dict name="binds"><int name="hs-stacks">1</int></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds"><int name="hs-stacks">3</int></dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><int name="hs-stacks">5</int></dict>
+				</dict>
+			</array>
+		</dict>
+	</array>
+</dict>

@@ -82,4 +82,28 @@
 			<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>192 144 14 14</vec4></array>
 		</dict>
 	</dict>
+	<!-- Generosity, Pelor's Blessing: gained from Lay on Hands, Blessed Strike kills and Conviction
+	     (Generosity.as GainBlessing; a 2 s cooldown shared by every source). No timer: it carries
+	     from floor to floor; reset by a party player's death, by casting Pelor's Fury and in town.
+	     The intensity is the stack count (extrapolate-intensity): HWPGenPentival reads it for
+	     Descendent of Pentival. -->
+	<dict>
+		<string name="id">pelors_blessing</string>
+		<string name="name">.hwp.specs.stack.pelors_blessing.name</string>
+		<string name="description">.hwp.specs.stack.pelors_blessing.desc</string>
+		<int name="max">10</int>
+		<bool name="extrapolate-intensity">true</bool>
+		<dict name="buff">
+			<bool name="debuff">false</bool>
+			<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>192 168 14 14</vec4></array>
+			<array name="modifiers">
+				<dict>
+					<string name="class">HWPGenPentival</string>
+				</dict>
+				<dict>
+					<string name="class">HWPGenPentivalLeech</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
 </array>

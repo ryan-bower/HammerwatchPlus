@@ -12,7 +12,7 @@
  "steps": [
   {
    "do": "log_has",
-   "pattern": "\\[HWP:specs\\] 7 of 7 subclasses registered",
+   "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",
    "timeout": 20
   },
   {

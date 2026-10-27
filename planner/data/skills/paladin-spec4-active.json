@@ -1,19 +1,25 @@
 {
   "alt_of": "",
   "alt_when": "",
-  "built": "",
+  "built": "hwp_pal_pelors_fury",
   "cls": "paladin",
   "cooldown": "30-60s",
   "group": "paladin-spec4",
-  "icon_art": "",
+  "icon_art": "pal_pelors_fury",
   "kind": "active",
-  "levels": [],
-  "mana": "100",
-  "name": "Palor's Fury",
-  "notes": "Any enemy can be targeted and stunned by this. This includes all bosses. Any attack they are currently using will dissipate. That enemy will be locked in a stun, and the player casting it will also be locked in place casting it.",
+  "levels": [
+    "3 second stun, 20% increased damage from allies, 80 mana",
+    "3 second stun, 40% increased damage from allies, 80 mana",
+    "4 second stun, 40% increased damage from allies, 100 mana",
+    "4 second stun, 60% increased damage from allies, 100 mana",
+    "5 second stun, 60% increased damage from allies, 120 mana"
+  ],
+  "mana": "80-120",
+  "name": "Pelor's Fury",
+  "notes": "Decided 2026-10-27. In game (hwp_pal_pelors_fury, tested): costs all 10 stacks and 80/80/100/100/120 mana; refused below 10 stacks with the 'cant' voice. You aim it: the enemy nearest the point you cast at (within 40 px of its edge), up to 250 away. It holds the target in beams of light for 3/3/4/4/5 s: stunned (the vanilla stun: no movement, disarmed, silenced) and every casting skill but its triggered and aura ones cut each frame, armor and resistances 0, damage taken +20/40/40/60/60% from the players' side. In a party the caster is locked in place for the hold; solo you move freely. On a target it cannot hold (dead, untargetable such as a burrowed Serpent, invulnerable, immune to buffs such as the Shadow Face, out of range, out of reach (no body: a spirit mid-dive, a tunnelling Serpent), nothing there, the cast cut before its castpoint) it spends nothing: stacks, mana and cooldown are kept. Cooldown 30 s, 60 s on a boss. Look: the priest's quick light strike scaled up, 4 beams round a target, more round a big boss (6 on Arista). Every boss but those two held with its casts cut, armor 0, the 60 s cooldown and 4+ beams: plan-generosity-bosses 20261027-022232; refusals, the cast, the hold and the lock: plan-generosity 20261027-020522. Assumed: the 250 range, the 40 px pick radius.",
   "order": 0,
   "role": "",
-  "status": "idea",
-  "summary": "Spend 10 stacks of Palor's Blessing to channel a long lasting stun that interrupts the attack of any single enemy, including bosses. ",
+  "status": "built",
+  "summary": "Spend 10 stacks of Pelor's Blessing to channel a long lasting stun that interrupts the attack of any single enemy, including bosses. The enemy is stripped of all armor and elemental resistances. The receive increased damage from allies. 30 second cooldown, 60 seconds when used against bosses.",
   "unlock": "bought"
 }

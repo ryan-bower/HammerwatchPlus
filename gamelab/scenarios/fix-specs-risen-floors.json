@@ -5,7 +5,7 @@
  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs", "summons"],
  "timeout": 360,
  "steps": [
-  {"do": "log_has", "pattern": "\\[HWP:specs\\] 7 of 7 subclasses registered", "timeout": 30},
+  {"do": "log_has", "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered", "timeout": 30},
   {"do": "log_has", "pattern": "\\[HWP:summons\\] self-check done: 3/3 tracked units, the Forgemaster's risen tracked", "timeout": 30},
   {"do": "console", "line": "e_cheats 1"},
   {"do": "console", "line": "show_chat"},

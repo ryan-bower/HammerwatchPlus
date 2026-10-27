@@ -1,4 +1,4 @@
-// The specs module: the self-check (the seven subclasses and their stacks are loaded), the
+// The specs module: the self-check (the eight subclasses and their stacks are loaded), the
 // `hwp specs` status command and the per-frame updates of the scripted skill parts.
 namespace HWP
 {
@@ -6,7 +6,7 @@ namespace HWP
 	{
 		const array<string> SUBCLASSES = { "hwp_ranger_stormbringer", "hwp_wizard_invocation",
 			"hwp_sorcerer_arcane", "hwp_rogue_winddancer", "hwp_warrior_bannerlord", "hwp_warlock_branding",
-			"hwp_priest_forgemaster" };
+			"hwp_priest_forgemaster", "hwp_paladin_generosity" };
 
 		bool g_checked = false;
 
@@ -31,7 +31,7 @@ namespace HWP
 			}
 			Log("specs", found + " of " + SUBCLASSES.length() + " subclasses registered");
 
-			array<string> stacks = { "provisions", "static_charge", "tailwind", HERESY };
+			array<string> stacks = { "provisions", "static_charge", "tailwind", HERESY, BLESSING };
 			for (uint i = 0; i < stacks.length(); i++)
 			{
 				if (Stack(stacks[i]) is null)
@@ -39,7 +39,7 @@ namespace HWP
 			}
 
 			// the buffs the scripts load by name (the svals' own are checked when they load)
-			array<string> buffs = { "standard_dr", "standard_dr_planted", "crusade_5", "gale_share_20_0", "gale_share_60_3", "conduit_1_1", "conduit_2_5", "tailwind_1_1", "tailwind_5_5", "wind_ward", "pyrebrand", "raising", "penance_stance", "devouring" };
+			array<string> buffs = { "standard_dr", "standard_dr_planted", "crusade_5", "gale_share_20_0", "gale_share_60_3", "conduit_1_1", "conduit_2_5", "tailwind_1_1", "tailwind_5_5", "wind_ward", "pyrebrand", "raising", "penance_stance", "devouring", "pelors_fury", "pelors_channel" };
 			for (uint i = 0; i < buffs.length(); i++)
 			{
 				if (Buff(buffs[i]) is null)
@@ -100,7 +100,7 @@ namespace HWP
 
 namespace Modules
 {
-	class HWPSpecsModule : Module, HWP::ModuleStart, IEventActorDestroyed
+	class HWPSpecsModule : Module, HWP::ModuleStart, IEventActorDestroyed, IEventPlayerDied
 	{
 		HWPSpecsModule()
 		{
@@ -114,6 +114,9 @@ namespace Modules
 			HWP::Net::OnRequest("specs.body_gone", HWP::Net::RequestHandler(HWP::Specs::OnBodyGone));
 			HWP::Net::OnEvent("specs.raised", HWP::Net::EventHandler(HWP::Specs::OnRaised));
 			HWP::Net::OnEvent("specs.raise_denied", HWP::Net::EventHandler(HWP::Specs::OnRaiseDenied));
+			HWP::Commands::Register("gen", "  Paladin of Generosity: status | stacks <n> | fury [now] [dx dy] | cd | solo [on|off|auto]", HWP::Commands::Handler(HWP::Specs::CmdGen));
+			HWP::Net::OnRequest("specs.fury_fx", HWP::Net::RequestHandler(HWP::Specs::OnFuryFxRequest));
+			HWP::Net::OnEvent("specs.fury_play", HWP::Net::EventHandler(HWP::Specs::OnFuryPlay));
 			GameEvents::Subscribe(this);
 		}
 
@@ -121,6 +124,12 @@ namespace Modules
 		void OnEventActorDestroyed(Actor@ destroyed)
 		{
 			HWP::Specs::OnActorDestroyed(destroyed);
+		}
+
+		// a party player died (every peer, players only): Pelor's Blessing resets
+		void OnEventPlayerDied(PlayerBase@ player)
+		{
+			HWP::Specs::OnPlayerDied(player);
 		}
 
 		void Start(StartMode sMode)
@@ -138,6 +147,7 @@ namespace Modules
 			HWP::Specs::ClearBrands();
 			HWP::Specs::ClearArcane();
 			HWP::Specs::ClearForgemaster();
+			HWP::Specs::ClearGenerosity();
 		}
 
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
@@ -151,6 +161,7 @@ namespace Modules
 			HWP::Specs::UpdateBrands(ms);
 			HWP::Specs::UpdateArcane(ms);
 			HWP::Specs::UpdateForgemaster(ms, gameInput.Dash.Pressed);
+			HWP::Specs::UpdateGenerosity(ms);
 		}
 
 		// the Forgemaster's channel bar over the priest (the UI-scaled batch)
