@@ -1,25 +1,26 @@
 {
  "name": "mod-valuables",
- "about": "mods/valuables: every valuable's gold doubled at boot, a dropped vase pays 300 instead of 150, the multiplier setting never compounds; README Test checklist.",
+ "about": "mods/valuables: valuables pay 1 + the run's NG+ level times their vanilla gold. A run at NG+2 shows 3x, a dropped vase is worth 450 instead of 150 and picking it up pays 630 (vanilla adds 20% gold per NG+ level on top: 450 x 1.4); after an abort a run at NG+0 is back to vanilla (150 -> 150), so it never compounds; README Test checklist.",
  "fixture": "town-paladin",
  "mods": [
   "core",
   "valuables"
  ],
- "timeout": 240,
+ "timeout": 360,
  "steps": [
   {
    "do": "log_has",
-   "pattern": "\\[HWP:valuables\\] self-check done: 26 valuables at 2x",
+   "pattern": "\\[HWP:valuables\\] self-check done: 26 valuables at \\d+x",
    "timeout": 20,
-   "name": "all 26 valuables doubled at boot"
+   "name": "all 26 valuables set at boot"
   },
   {
    "do": "gl",
    "verb": "mission",
    "args": [
     "bandit_keep",
-    0
+    0,
+    2
    ],
    "expect": {
     "ok": true
@@ -56,9 +57,9 @@
   },
   {
    "do": "log_has",
-   "pattern": "Valuables pay 2x their vanilla gold \\(26 valuables; .* 150 -> 300\\)",
+   "pattern": "Valuables pay 3x their vanilla gold at NG\\+2 \\(26 valuables; .* 150 -> 450\\)",
    "timeout": 5,
-   "name": "status: vase 150 -> 300"
+   "name": "status at NG+2: vase 150 -> 450"
   },
   {
    "do": "gl",
@@ -75,9 +76,9 @@
   },
   {
    "do": "log_has",
-   "pattern": "dropped ceramic_vase worth 300",
+   "pattern": "dropped ceramic_vase worth 450",
    "timeout": 5,
-   "name": "vase drops worth 300"
+   "name": "vase drops worth 450"
   },
   {
    "do": "sleep",
@@ -108,17 +109,47 @@
    "verb": "inv",
    "save_as": "after",
    "expect": {
-    "materials.gold": 300
+    "materials.gold": 630
    },
-   "name": "picking up the vase paid 300 gold"
+   "name": "picking up the vase paid 630 gold (450, then vanilla's +20% gold per NG+ level: x1.4)"
   },
   {
    "do": "shot",
    "name": "pickup"
   },
   {
+   "do": "gl",
+   "verb": "abort"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "town",
+   "timeout": 120
+  },
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "bandit_keep",
+    0,
+    0
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 150
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
    "do": "console",
-   "line": "hwp set valuables.gold_mult 1"
+   "line": "show_chat"
   },
   {
    "do": "console",
@@ -126,23 +157,9 @@
   },
   {
    "do": "log_has",
-   "pattern": "Valuables pay 1x .* 150 -> 150\\)",
+   "pattern": "Valuables pay 1x their vanilla gold at NG\\+0 .* 150 -> 150\\)",
    "timeout": 5,
-   "name": "multiplier 1 restores vanilla, no compounding"
-  },
-  {
-   "do": "console",
-   "line": "hwp set valuables.gold_mult 2"
-  },
-  {
-   "do": "console",
-   "line": "hwp valuables"
-  },
-  {
-   "do": "log_has",
-   "pattern": "Valuables pay 2x .* 150 -> 300\\)",
-   "timeout": 5,
-   "name": "back to 2x"
+   "name": "NG+0: vanilla again, no compounding"
   },
   {
    "do": "log_clean"
