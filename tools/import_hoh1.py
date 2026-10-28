@@ -595,6 +595,10 @@ CAMPAIGN_OUT = CAMPAIGN_MODULE / "hoh1"
 CAMPAIGN_MISSION_SRC = CAMPAIGN_MODULE / "tweak" / "hwp" / "missions" / "missions_hwp_forsaken_tower.sval"
 CAMPAIGN_MISSION_OUT = CAMPAIGN_MODULE / "tweak" / "hwp" / "missions" / "missions_hwp_forsaken_tower_hoh1.sval"
 CAMPAIGN_MISSION_ID = "hwp_forsaken_tower_hoh1"
+# HoH1's own texts (announcements, speech bubbles, boss names), as the levels reference them
+CAMPAIGN_LANG_SRC = Path("res") / "language" / "english.lang"
+CAMPAIGN_LANG_OUT = CAMPAIGN_MODULE / "res" / "language" / "english" / "hwp_campaign_hoh1.lang"
+HOH1_DIR: Path | None = None    # the HoH1 install, set by main
 # HoH1's floor generator, transformed from the player's install (tools/hoh1_tower.py)
 CAMPAIGN_GEN_OUT = CAMPAIGN_MODULE / "scripts" / "HWP" / "Campaign" / "HoH1Gen"
 # the Devil Forgemaster's risen and bodies of the HoH1 enemies (tools/hoh1_risen.py)
@@ -662,7 +666,13 @@ CLASS_MAP: dict[str, str] = {
     "RandomTemporaryBuff": "Shrine",
     "RandomBuff": "Shrine",                  # the blood altar; HoH2 has no blood altar rewards
     "RandomStuff": "Imp",
+    # HoH1's bubble: its own style files, a title, one player's (HoH1/WorldScripts.as)
+    "ShowSpeechBubble": "HoH1ShowSpeechBubble",
+    "LevelExitNext": "HoH1LevelExitNext",    # with HoH1's StartID (the Battlements' two exits)
 }
+
+# files HoH1's scripts name as defaults, which no level lists (ShowSpeechBubble's Style)
+SCRIPT_DEFAULT_FILES = ("gui/speechbubbles/white.sval",)
 
 # "<mats path>:<HoH1 material>" -> HoH2 material name in the same file
 MATERIAL_MAP = {
@@ -759,10 +769,13 @@ def import_campaign(archive: hwr.Archive, force: bool) -> None:
     closure = hoh1c.Closure(archive, hoh2_has=lambda p: (paths.BASE_HOH2 / p).is_file())
     closure.add_roots(roots)
     closure.add_roots(gen_roots)
+    closure.add_roots([p for p in SCRIPT_DEFAULT_FILES if p in entries])
     unitmap = campaign_unitmap(archive, closure.files)
     closure.add_roots([t for _, tiers in unitmap for _, t in tiers])
     rw = hoh1c.Rewriter(copied=closure.files, hoh2_materials=hoh1c.hoh2_material_names(paths.BASE_HOH2),
                         class_map=CLASS_MAP, material_map=MATERIAL_MAP)
+    lang_path = (HOH1_DIR or paths.hoh1_dir()) / CAMPAIGN_LANG_SRC
+    rw.lang = hoh1c.read_lang(lang_path.read_text(encoding="utf-8-sig")) if lang_path.is_file() else {}
     # HoH1 spawns its generator's prefabs without their tile layer (PrefabToSpawn's
     # includeTileset false); HoH2's queue always paints it, so those prefabs lose it,
     # unless a level or another prefab places them too
@@ -792,6 +805,13 @@ def import_campaign(archive: hwr.Archive, force: bool) -> None:
     for path, data in converted:
         write(CAMPAIGN_OUT / hoh1c.out_path(path), data, True, written)
     write(CAMPAIGN_OUT / UNITMAP_OUT, unitmap_sval(unitmap, closure.files), True, written)
+    # the boss bars' names: hoh1.bosses.<unit name> (WorldScripts.as CreateBossBar)
+    strings = {k: rw.lang[k] for k in rw.lang_used}
+    for b in sorted(bosses):
+        key = hoh1c.boss_name_key(b, rw.lang)
+        if key:
+            strings["bosses." + b.rsplit("/", 1)[-1].rsplit(".", 1)[0]] = rw.lang[key]
+    write(CAMPAIGN_LANG_OUT, hoh1c.lang_file(strings), True, written)
     if CAMPAIGN_GEN_OUT.exists():
         shutil.rmtree(CAMPAIGN_GEN_OUT)
     if CAMPAIGN_FORGE_OUT.exists():
@@ -828,6 +848,8 @@ def import_campaign(archive: hwr.Archive, force: bool) -> None:
         len(rw.unit_tags), sum("boss" in t for t in rw.unit_tags.values()), len(raisable),
         CAMPAIGN_FORGE_OUT.relative_to(paths.REPO)))
     print("  Dark Citadel with the Battlements before the Avatar -> %s" % CITADEL_OUT.relative_to(paths.REPO))
+    print("  %d HoH1 strings (%d referenced, %d boss names) -> %s" % (
+        len(strings), len(rw.lang_used), len(strings) - len(rw.lang_used), CAMPAIGN_LANG_OUT.relative_to(paths.REPO)))
 
 
 # ------------------------------------------------------------------ classes
@@ -1137,6 +1159,8 @@ def main(argv=None):
             print(k)
         return
     hoh1 = Path(args.hoh1) if args.hoh1 else paths.hoh1_dir()
+    global HOH1_DIR
+    HOH1_DIR = hoh1
     bin_path = hoh1 / "res" / "assets.bin"
     if not bin_path.is_file():
         sys.exit(f"{bin_path} not found")

@@ -13,7 +13,8 @@
     "scripts/HWP/Campaign/HoH1Gen/",
     "players/hwp/specs/forgemaster/",
     "tweak/hwp/missions/missions_hwp_forsaken_tower_hoh1.sval",
-    "tweak/missions/missions_dark_citadel.sval"
+    "tweak/missions/missions_dark_citadel.sval",
+    "res/language/english/hwp_campaign_hoh1.lang"
   ],
   "config": {
     "title": "The Forsaken Tower",

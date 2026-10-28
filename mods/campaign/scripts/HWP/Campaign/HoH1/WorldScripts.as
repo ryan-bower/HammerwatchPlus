@@ -64,6 +64,49 @@ namespace HWP
 			}
 			return ret;
 		}
+
+		// the speech bubbles HoH1ShowSpeechBubble opened (HoH1 hides them all at once)
+		array<SpeechBubbleContainer@> g_bubbles;
+		// HoH1 style file -> its HoH2 style, built once
+		dictionary g_bubbleStyles;
+
+		void HideBubbles()
+		{
+			for (uint i = 0; i < g_bubbles.length(); i++)
+				g_bubbles[i].Close();
+			g_bubbles.removeRange(0, g_bubbles.length());
+		}
+
+		// A HoH1 speech bubble style (its "spriteset" is a SpriteRect file HoH2 reads as
+		// is; "tail", "color-text" and "font" beside it) as HoH2's SpeechBubbleStyleDef;
+		// HoH2's white one if the file has no spriteset
+		SpeechBubbleStyleDef@ BubbleStyle(const string &in path)
+		{
+			SpeechBubbleStyleDef@ style;
+			if (g_bubbleStyles.get(path, @style))
+				return style;
+
+			UnitPtr u;
+			SValue@ sval = Resources::GetSValue(path);
+			string sprites = sval is null ? "" : GetParamString(u, sval, "spriteset", false);
+			SValue@ rect = sprites.isEmpty() ? null : Resources::GetSValue(sprites);
+			if (rect is null)
+			{
+				HWP::LogError("campaign", "speech bubble style " + path + " has no spriteset");
+				@style = SpeechBubbleStyleDef::Get("white");
+			}
+			else
+			{
+				@style = SpeechBubbleStyleDef(rect);
+				auto tail = GetParamArray(u, sval, "tail", false);
+				if (tail !is null)
+					@style.m_tailSprite = ScriptSprite(tail);
+				style.m_textColor = ParseColorRGBA(GetParamString(u, sval, "color-text", false, "#000000FF"));
+				style.m_font = GetParamString(u, sval, "font", false, "gui/fonts/arial11_nooutline.fnt");
+			}
+			g_bubbleStyles.set(path, @style);
+			return style;
+		}
 	}
 }
 
@@ -125,6 +168,23 @@ namespace WorldScript
 		void ClientExecute(SValue@ val) { ServerExecute(); }
 	}
 
+	// HoH1 named its boss bars from the bestiary; tools/import_hoh1.py writes those
+	// names as hoh1.bosses.<unit name> (hwp_campaign_hoh1.lang)
+	string HoH1BossName(UnitPtr unit)
+	{
+		auto prod = unit.GetUnitProducer();
+		if (prod is null)
+			return "";
+		string name = prod.GetResourceName();
+		int slash = name.findLast("/");
+		if (slash >= 0)
+			name = name.substr(slash + 1);
+		int dot = name.findLast(".");
+		if (dot > 0)
+			name = name.substr(0, dot);
+		return ".hoh1.bosses." + name;
+	}
+
 	[WorldScript color="#ff0000" icon="system/icons.png;32;192;32;32"]
 	class CreateBossBar
 	{
@@ -150,7 +210,7 @@ namespace WorldScript
 			{
 				auto actor = cast<Actor>(units[i].GetScriptBehavior());
 				if (actor !is null)
-					hud.AddBossBar(actor, Name, array<float>());
+					hud.AddBossBar(actor, Name.isEmpty() ? HoH1BossName(units[i]) : Name, array<float>());
 			}
 			return null;
 		}
@@ -290,27 +350,157 @@ namespace WorldScript
 		SValue@ ServerExecute() { return null; }
 	}
 
-	[WorldScript color="#eee8aa" icon="system/icons.png;416;256;32;32"]
+	// HoH1's next-floor exit takes the player to the LevelStart of the same StartID
+	// (the Battlements' left and right exits); HoH2's starts the next floor at the one
+	// of the last StartID set. Every HoH1 exit sets its own, "" for the default start.
+	[WorldScript color="255 100 100" icon="system/icons.png;192;288;32;32"]
+	class HoH1LevelExitNext
+	{
+		[Editable]
+		string StartID;
+
+		bool m_used;
+
+		SValue@ ServerExecute()
+		{
+			if (m_used)
+				return null;
+
+			g_startId = StartID;
+			MissionManager::NextLevel();
+			m_used = true;
+			return null;
+		}
+	}
+
+	// HoH1's speech bubble (tools/import_hoh1.py CLASS_MAP): HoH1's style file (its
+	// spriteset, tail, text color and font), the title over the text, above the first
+	// of Objects, for the ForPlayer player only, until Time runs out (-2: by the text's
+	// length, as HoH1; 0: until a HideSpeechBubble). HoH2's bubble has one font, so the
+	// title is a line of its own rather than bold.
+	[WorldScript color="#A9A9A9" icon="system/icons.png;448;128;32;32"]
+	class HoH1ShowSpeechBubble
+	{
+		[Editable default="hoh1/gui/speechbubbles/white.sval"]
+		string Style;
+
+		[Editable]
+		string Title;
+
+		[Editable]
+		string Text;
+
+		[Editable default=-2]
+		int Time;
+
+		[Editable]
+		UnitFeed Objects;
+
+		[Editable]
+		UnitFeed ForPlayer;
+
+		[Editable default=true]
+		bool HideOthers;
+
+		[Editable]
+		int HeightOffset;
+
+		SpeechBubbleContainer@ m_current;
+
+		SValue@ ServerExecute()
+		{
+			ClientExecute(null);
+			return null;
+		}
+
+		void ClientExecute(SValue@ val)
+		{
+			UnitPtr plr = ForPlayer.FetchFirst();
+			if (plr.IsValid() && cast<Player>(plr.GetScriptBehavior()) is null)
+				return;
+			UnitPtr unit = Objects.FetchFirst();
+			auto style = HWP::HoH1::BubbleStyle(Style);
+			if (!unit.IsValid() || style is null)
+				return;
+
+			if (HideOthers)
+				HWP::HoH1::HideBubbles();
+			else
+				Hide();
+
+			string text = Resources::GetString(Text);
+			string title = Title.isEmpty() ? "" : Resources::GetString(Title);
+			int time = Time == -2 ? 1000 + int(text.length()) * 50 : max(0, Time);
+			auto entry = SpeechBubbleEntry(time, title.isEmpty() ? text : title + "\n" + text);
+			@entry.m_style = style;
+			@entry.m_conditionals = ConditionalList();
+			@entry.m_effects = EffectList();
+
+			@m_current = SpeechBubbleContainer();
+			@m_current.m_speechBubble = entry;
+			m_current.m_offset = vec2(0, -18 - HeightOffset);
+			m_current.m_unit = unit;
+			m_current.Initialize();
+			HWP::HoH1::g_bubbles.insertLast(m_current);
+		}
+
+		void Hide()
+		{
+			if (m_current !is null)
+				m_current.Close();
+			@m_current = null;
+		}
+	}
+
+	[WorldScript color="#FF4500" icon="system/icons.png;416;256;32;32"]
 	class HideSpeechBubble
 	{
 		[Editable]
 		UnitFeed Bubble;
 
+		[Editable]
+		UnitFeed ForPlayer;
+
 		SValue@ ServerExecute()
 		{
-			auto units = Bubble.FetchAll();
-			for (uint i = 0; i < units.length(); i++)
-				units[i].SetHidden(true);
+			ClientExecute(null);
 			return null;
 		}
 
-		void ClientExecute(SValue@ val) { ServerExecute(); }
+		void ClientExecute(SValue@ val)
+		{
+			UnitPtr plr = ForPlayer.FetchFirst();
+			if (plr.IsValid() && cast<Player>(plr.GetScriptBehavior()) is null)
+				return;
+			auto units = Bubble.FetchAll();
+			for (uint i = 0; i < units.length(); i++)
+			{
+				auto bubble = cast<HoH1ShowSpeechBubble>(units[i].GetScriptBehavior());
+				if (bubble !is null)
+					bubble.Hide();
+			}
+		}
 	}
 
-	[WorldScript color="#eee8aa" icon="system/icons.png;416;256;32;32"]
+	[WorldScript color="#FF4500" icon="system/icons.png;416;256;32;32"]
 	class HideAllSpeechBubbles
 	{
-		SValue@ ServerExecute() { return null; }
+		[Editable]
+		UnitFeed ForPlayer;
+
+		SValue@ ServerExecute()
+		{
+			ClientExecute(null);
+			return null;
+		}
+
+		void ClientExecute(SValue@ val)
+		{
+			UnitPtr plr = ForPlayer.FetchFirst();
+			if (plr.IsValid() && cast<Player>(plr.GetScriptBehavior()) is null)
+				return;
+			HWP::HoH1::HideBubbles();
+		}
 	}
 
 	// boss movement data (the Three Councilors and the Vampire Lord teleport between these)

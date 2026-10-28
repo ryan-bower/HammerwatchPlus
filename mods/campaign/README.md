@@ -15,12 +15,11 @@ generated floors in the closest HoH2 theme plus a vanilla boss level.
 | Battlements | theme_keep | boss_avatar |
 
 - **The real HoH1 levels** are a second, optional mission in the same set,
-  "The Forsaken Tower (HoH1 levels)": the same 18 floors, with the five act
-  boss rooms, both Battlements levels and Thundersnow taken from the
-  player's own HoH1 install by `tools/import_hoh1.py campaign` (see below).
-  Without the import only the mission above exists. The generated act
-  floors stay HoH2 themes: HoH1 builds those from 755 unit types HoH2 lacks
-  (`tools/import_hoh1.py levels` reports them).
+  "The Forsaken Tower (HoH1 levels)": HoH1's own 23 floors (`tweak/dungeons/base.sval`),
+  the nine hand-made levels as HoH1 ships them and the fourteen act floors built by
+  HoH1's own floor generator, all taken from the player's own HoH1 install by
+  `tools/import_hoh1.py campaign` (see "HoH1 tower" below). Without the import only the
+  mission above exists.
 - **Portal.** `doodads/hwp/forsaken_portal.unit` is an NPC doodad whose
   interact is `HWPCampaignShopContent`, the vanilla `MissionShopContent` limited to set
   `hwp_campaign`, so the host picks the mission and the normal loadout menu opens.
@@ -117,6 +116,43 @@ Design calls to look at:
   the aimed spot within its time to live).
 - Wraith statues (`TransferDamageActor`) get one empty state injected; HoH2
   requires a "states" list.
+
+## HoH1 tower (`hwp_forsaken_tower_hoh1`)
+
+The mission is HoH1's tower as its dungeon file lists it, difficulty 5 to 22:
+
+| Act | Floors |
+|---|---|
+| Mines | mines_1-3 (generated), mines_boss (Stone Guardian) |
+| Prison | prison_1-3 (generated), prison_boss (the Warden) |
+| Armory | armory_1-3 (generated), armory_boss (the Three Councilors) |
+| Archives | archives_1-3 (generated), archives_boss (the Watcher) |
+| Chambers | chambers_1-2 (generated), chambers_boss (the Vampire Lord) |
+| Battlements | battlements_1, battlements_2, bridge, battlements_boss (Thundersnow) |
+
+- **Generated floors** run HoH1's generator scripts, copied out of the player's install at
+  import time into the local `scripts/HWP/Campaign/HoH1Gen/` behind the committed
+  `HWPHoH1Generator`; the log says `HoH1 floor generated: N prefabs, start at X,Y`.
+- **Level scripts.** HoH1 world scripts whose HoH2 namesake reads other param names are
+  renamed on import (`hoh1_convert.SCRIPT_PARAMS`: ChangeVariables, RandomChance,
+  DestroyUnitCount, DamageUnits, DangerArea, AnnounceText, CheckTimeOfDay). The ones HoH2
+  lacks or does differently are ours in `WorldScripts.as`: `HoH1ShowSpeechBubble` (HoH1's
+  bubble style files, title, one player), `HoH1LevelExitNext` (keeps the exit's StartID:
+  battlements_1's left and right exits), CreateBossBar, SetBossKilled and the rest.
+- **Magical damage** (HoH1's armor-ignoring `magical`) goes to the element its source
+  names: fire, ice, poison, or lightning (`hoh1_convert.MAGIC_ELEMENTS`).
+- **Texts.** The import reads HoH1's `res/language/english.lang` and writes the strings
+  the levels use, as `hoh1.<key>`, into the local `res/language/english/hwp_campaign_hoh1.lang`
+  (announcements, speech bubbles, NPC names), plus `hoh1.bosses.<unit>` from HoH1's
+  bestiary for the boss bars: HoH1's bar has no name, HoH2's has a name plate.
+- **Tests.** `python -m gamelab run tower-floors --mode lab` (about 3 min) loads all 23
+  floors: clean log, generated floors built and the player at their start, enemies around,
+  a screenshot each. `python -m gamelab run tower-bosses --mode lab` (about 4 min) plays
+  each boss floor the way its scripts run: the trigger met, the bosses spawned and
+  fighting a god-mode player for 15 s, the boss bar titled with the boss's HoH1 name,
+  each boss killed until SetBossKilled logs `HoH1 boss N killed`, then the exit it opens
+  used to load the next floor; on the armory floor the painting's speech bubble is read
+  back too. Both need the import.
 
 ## HoH1 traps, Confusion and teleporters in HoH2 runs
 
@@ -250,9 +286,7 @@ On the HammerwatchPlus tab of the player menu (`hwp set <key> <value>`; `module.
    checks the portal version in the log and the dialog, `hwp campaign citadel` =
    dark_halls_1, dark_halls_2, hwp_battlements_1, hwp_battlements_2, dark_halls_boss,
    and the Confusion cheat (buff on, right moves left, expiry, glyph applies it).
-   Loading each other HoH1 floor (mines_boss, prison_boss, armory_boss, archives_boss,
-   chambers_boss, battlements_2, battlements_boss) is still to script with
-   `gl mission <id> [floor]`.
+   Every HoH1 tower floor and boss: `tower-floors` and `tower-bosses` ("HoH1 tower" above).
 8. `python -m gamelab run fix-campaign-battlements` (about 3 min): `gl mission
    dark_citadel <index of hwp_battlements_1>` loads `hoh1/levels/battlements_1.lvl`
    with no script exception, screenshot `battlements-1`.

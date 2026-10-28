@@ -62,7 +62,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 
 | Module | What it does |
 |---|---|
-| `campaign` | **The Forsaken Tower**: the HoH1 campaign (Mines to Battlements, 18 floors, 6 bosses), started from a portal in town. NG+ swaps in HoH1's NG+ bosses and enemies. With HoH1 installed, the portal offers the version with the real HoH1 boss rooms, two Dark Halls and the two Battlements floors (`tools/import_hoh1.py campaign`). HoH1's traps (spike floors, flame jets, bomb, dart and confusion glyphs) and one teleporter pad per floor appear on generated floors, and the Dark Halls eyes confuse again. |
+| `campaign` | **The Forsaken Tower**: the HoH1 campaign (Mines to Battlements, 18 floors, 6 bosses), started from a portal in town. NG+ swaps in HoH1's NG+ bosses and enemies. With HoH1 installed, the portal offers HoH1's own tower instead (`tools/import_hoh1.py campaign`): all 23 floors as HoH1 has them, the act floors built by HoH1's own floor generator, HoH1's boss rooms, level scripts and texts, for HoH2's classes; the Dark Citadel gains two Dark Halls and the two Battlements floors. HoH1's traps (spike floors, flame jets, bomb, dart and confusion glyphs) and one teleporter pad per floor appear on generated floors, and the Dark Halls eyes confuse again. |
 | `keys` | HoH1-style keys: every chest but the cursed ones needs a key of its tier. Keys drop in runs (a party can share a key pool), and the exit guard's General Merchant sells keys, bag slots and six trinkets to take into your next run. Also ace chests (opened with the red skull ace key), seven red legendaries, and a banner for everyone when a chest turns out to be trapped. Trinket, cursed and ace chests look grander the deeper the run goes, with unused chest art from the game's own sprite sheet. |
 | `mercenary` | HoH1's mercenary mode: once a class has a level-20 hero, a fresh character of it can enlist (`hwp merc enlist`), climb the ranks from Private to General for more gold and experience, and die for good. |
 | `legacy` | HoH1-style class titles: your best hero of each class buffs every character. One "Title Bonuses" buff lists them, and Guild Hall > Titles shows every class. |
@@ -168,6 +168,20 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 
 ## Status
+
+2026-10-28, the Forsaken Tower from HoH1 itself (`campaign`, "HoH1 tower" in its README).
+With HoH1 installed, the import builds HoH1's tower from the player's own install: 23 floors,
+the nine hand-made levels as HoH1 ships them and fourteen act floors from HoH1's own generator
+scripts. HoH1 world scripts whose HoH2 namesakes read other param names are renamed (436
+RandomChance rows had never run; the Councilors' deaths never reached SetBossKilled). HoH1's
+`magical` damage goes to an element, speech bubbles use HoH1's styles, exits keep their start,
+and HoH1's texts and boss names are imported from its language file. `tower-floors` loads all
+23 floors clean (20261028-163319); `tower-bosses` fights all six bosses the way their levels
+start them, checks each titled boss bar, kills them as the player and takes each exit
+(20261028-163821). GameLab fix: `hps.current_save` read the save header's timestamp as a float
+and picked the wrong rotation file once its low word passed bit 31, so a rebuilt fixture lost
+the scenario's mods. Still open: the Paladin's Generosity stun and the Devil Forgemaster's raise
+on HoH1 bosses, not yet tested.
 
 2026-10-28, pets keep out of trap rooms as well as puzzle rooms, and walk back out of one
 they end up in. This is the new shared module `petrooms`: it is listed in Quality of Life,

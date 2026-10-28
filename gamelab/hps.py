@@ -9,9 +9,10 @@ save. Layout (little-endian):
 
     "H2SV" u8 version     3 = no mods enabled, 4 = header carries the mod block below
     u8[3] 0
-    f32 counter           play time; the game loads the slot's rotation file
-                          (<slot>.hps / <slot>_N.hps) with the highest value
-    u32 game build
+    u64 saved_ms          when it was written, Unix time in ms; the game loads the slot's
+                          rotation file (<slot>.hps / <slot>_N.hps) with the latest
+                          (read as an f32 before 2026-10-28, which held only while bit 31
+                          of the low word was clear: then the order flipped)
     [mod block, version 4 only]
         name + NUL, u8 (2*n + 1), u8 0, n x u32 modIdHash, u32 0
                           name: a zero-terminated string, empty in most saves
@@ -84,7 +85,7 @@ class Header:
             raise ValueError("not an H2SV save")
         self.version = data[4]
         self.pad = data[5:8]
-        self.counter, self.build = struct.unpack_from("<II", data, 8)
+        self.saved_ms = struct.unpack_from("<Q", data, 8)[0]
         pos = 16
         self.mods: list[int] = []
         self.mod_name = b""
@@ -134,7 +135,7 @@ class Header:
 
     def encode(self) -> bytes:
         version = 4 if self.mods else 3
-        out = MAGIC + bytes([version]) + self.pad + struct.pack("<II", self.counter, self.build)
+        out = MAGIC + bytes([version]) + self.pad + struct.pack("<Q", self.saved_ms)
         if self.mods:
             if 2 * len(self.mods) + 1 > 255:
                 raise ValueError("more mods than the one-byte count this tool understands")
@@ -192,11 +193,11 @@ def slot_files(slot: int, saves: Path = SAVES) -> list[Path]:
 
 
 def current_save(slot: int, saves: Path = SAVES) -> Path | None:
-    """The game loads the rotation file with the highest header counter (offset 8)."""
+    """The game loads the rotation file written last (the header's saved_ms, offset 8)."""
     best = None
     for p in slot_files(slot, saves):
         try:
-            counter = struct.unpack_from("<f", p.read_bytes(), 8)[0]
+            counter = struct.unpack_from("<Q", p.read_bytes(), 8)[0]
         except Exception:
             continue
         key = (counter, p.stat().st_mtime)
@@ -215,7 +216,7 @@ def save_path(args) -> Path:
 def cmd_show(args):
     path = save_path(args)
     data, hdr = read_save(path)
-    print(f"{path}: version {hdr.version}, build {hdr.build}, {len(data):,} bytes, trailer {'ok' if trailer_ok(data) else 'BAD'}")
+    print(f"{path}: version {hdr.version}, saved {hdr.saved_ms} ms, {len(data):,} bytes, trailer {'ok' if trailer_ok(data) else 'BAD'}")
     print(f"enabled mods ({len(hdr.mods)}):")
     names = {hash_string(i): i for i in args.ids or []}
     for h in hdr.mods:

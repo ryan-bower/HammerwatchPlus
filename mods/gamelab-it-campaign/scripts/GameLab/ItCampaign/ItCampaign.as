@@ -163,8 +163,10 @@ namespace GameLab
 			.Raw("names", StrArray(killed)));
 	}
 
-	// itc-use <filter> [radius]: SETUP. What the Use key does for the nearest usable unit
-	// within radius (default 300) whose unit file or behaviour type contains filter
+	// itc-use <filter/#id> [radius]: SETUP. What the Use key does for the nearest usable unit
+	// within radius (default 300) whose unit file or behaviour type contains filter, or
+	// with "#<id>" the unit of that id (a level's world script has its script id: the
+	// UseTrigger an exit pad's area belongs to, whose unit stands elsewhere)
 	// (Player.as:1341-1356: CanUse, then Use; on a netsynced unit the host also sends
 	// UseUnit), without the sensor contact the key needs. Replies canUse and used.
 	void VerbItCampaignUse(const string &in id, array<string>@ args)
@@ -181,6 +183,7 @@ namespace GameLab
 			return;
 		}
 		int radius = args.length() > 1 ? int(parseInt(args[1])) : 300;
+		int byId = args[0].findFirst("#") == 0 ? int(parseInt(args[0].substr(1))) : -1;
 		vec2 center = xy(plr.m_unit.GetPosition());
 		auto units = g_scene.FetchAllUnits(~0, center, radius);
 		IUsable@ best = null;
@@ -194,7 +197,8 @@ namespace GameLab
 			auto usable = cast<IUsable>(b);
 			if (usable is null)
 				continue;
-			if (units[i].GetDebugName().findFirst(args[0]) < 0 && Reflect::GetTypeName(b).findFirst(args[0]) < 0)
+			if (byId >= 0 ? units[i].GetId() != byId
+				: units[i].GetDebugName().findFirst(args[0]) < 0 && Reflect::GetTypeName(b).findFirst(args[0]) < 0)
 				continue;
 			float d = dist(center, xy(units[i].GetPosition()));
 			if (d < bestD)
@@ -253,7 +257,7 @@ namespace Modules
 			GameLab::RegisterVerb("itc-survival", "", GameLab::Verb(GameLab::VerbItCampaignSurvival));
 			GameLab::RegisterVerb("itc-prefab", "<path>", GameLab::Verb(GameLab::VerbItCampaignPrefab));
 			GameLab::RegisterVerb("itc-kill", "<filter|*> [radius]", GameLab::Verb(GameLab::VerbItCampaignKill));
-			GameLab::RegisterVerb("itc-use", "<filter> [radius]", GameLab::Verb(GameLab::VerbItCampaignUse));
+			GameLab::RegisterVerb("itc-use", "<filter|#id> [radius]", GameLab::Verb(GameLab::VerbItCampaignUse));
 			GameLab::RegisterVerb("itc-abandon", "", GameLab::Verb(GameLab::VerbItCampaignAbandon));
 		}
 	}
