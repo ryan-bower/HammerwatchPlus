@@ -54,6 +54,11 @@ namespace HWP
 		const string HERESY = "heresy";
 		const string RISEN_DIR = "players/hwp/specs/forgemaster/risen/";
 		const string BODIES_DIR = "players/hwp/specs/forgemaster/bodies/";
+		// the HoH1 enemies' risen and bodies: written with the player's own HoH1 import into the
+		// campaign module (tools/import_hoh1.py campaign) under RISEN_DIR/BODIES_DIR + their full
+		// "hoh1/actors/..." path, listed in this file (absent without the import)
+		const string HOH1_RISEN_LIST = "players/hwp/specs/forgemaster/hoh1_risen.sval";
+		const string HOH1_ACTORS = "hoh1/actors/";
 		const int HERESY_BLOCK = 5;
 		const int BODY_TTL = 60000;
 		const int RAISE_RANGE = 150;
@@ -141,6 +146,8 @@ namespace HWP
 		RaiseChannel@ g_channel;
 		dictionary g_enemyUnits;
 		dictionary g_risenRels;
+		dictionary g_hoh1Risen;
+		bool g_hoh1Loaded = false;
 		bool g_unitSetsBuilt = false;
 		uint g_risenSeq = 0;
 		int g_capC = 0;
@@ -185,16 +192,40 @@ namespace HWP
 				g_risenRels.set(RISEN_RELS[i], true);
 		}
 
+		// a risen's SpawnUnit of one of these is dropped: every HoH1 actor is one (HoH1 units
+		// carry no team, so the hazards they drop are the enemies' too)
 		bool IsEnemyUnit(const string &in path)
 		{
 			BuildUnitSets();
-			return g_enemyUnits.exists(path);
+			return g_enemyUnits.exists(path) || path.findFirst(HOH1_ACTORS) == 0;
 		}
 
-		// the "actors/..." path's part after actors/, when it is a raisable enemy; else ""
+		bool HoH1Raisable(const string &in path)
+		{
+			if (!g_hoh1Loaded)
+			{
+				g_hoh1Loaded = true;
+				SValue@ sv = Resources::GetSValue(HOH1_RISEN_LIST);
+				if (sv !is null && sv.GetType() == SValueType::Array)
+				{
+					auto arr = sv.GetArray();
+					for (uint i = 0; i < arr.length(); i++)
+					{
+						if (arr[i].GetType() == SValueType::String)
+							g_hoh1Risen.set(arr[i].GetString(), true);
+					}
+				}
+			}
+			return g_hoh1Risen.exists(path);
+		}
+
+		// the raisable enemy's name under RISEN_DIR and BODIES_DIR, else "": a HoH2 enemy's
+		// "actors/..." path after actors/, a HoH1 one's whole "hoh1/actors/..." path
 		string RisenRel(const string &in unitPath)
 		{
 			BuildUnitSets();
+			if (unitPath.findFirst(HOH1_ACTORS) == 0)
+				return HoH1Raisable(unitPath) ? unitPath : "";
 			if (unitPath.findFirst("actors/") != 0)
 				return "";
 			string rel = unitPath.substr(7);
@@ -1363,14 +1394,14 @@ namespace HWP
 			vec2 pos = xy(plr.m_unit.GetPosition());
 			if (sub == "body" && args.length() >= 2)
 			{
-				// hwp forge body <rel under actors/> [dx dy]: the host drops that enemy's intact body
+				// hwp forge body <rel under actors/ | hoh1/actors/...> [dx dy]: the host drops that enemy's intact body
 				if (!Network::IsServer())
 				{
 					HWP::Commands::Reply("forge: bodies are the host's");
 					return;
 				}
 				string rel = args[1];
-				if (RisenRel("actors/" + rel).isEmpty())
+				if (RisenRel(rel.findFirst(HOH1_ACTORS) == 0 ? rel : "actors/" + rel).isEmpty())
 				{
 					HWP::Commands::Reply("forge: not raisable: " + rel);
 					return;

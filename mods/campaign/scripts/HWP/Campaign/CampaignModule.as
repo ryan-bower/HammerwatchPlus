@@ -19,6 +19,9 @@ namespace HWP
 		const array<string> BOSS_LEVELS = { "levels/boss_totem_cave.lvl", "levels/boss_arista.lvl", "levels/boss_harbingers.lvl", "levels/boss_wraith.lvl", "levels/boss_bone_serpent.lvl", "levels/boss_avatar.lvl" };
 		const int FLOORS_PER_ACT = 3;
 		const int FLOORS = 18;
+		// HoH1's tower (its tweak/dungeons/base.sval): 14 generated floors in five acts, the act
+		// bosses, the Battlements, the bridge and the dragon
+		const int HOH1_FLOORS = 23;
 
 		// The portal stands in the chapel courtyard on the unbuilt Pyre
 		// (HWP::Town::ChapelPyreSpot). The campfire is a static in vanilla,
@@ -138,8 +141,8 @@ namespace HWP
 			}
 			auto hoh1 = MissionDef::Get(HashString(HOH1_MISSION_ID));
 			HWP::HoH1::Report("campaign", hoh1 !is null, ".hwp.campaign.hoh1");
-			if (hoh1 !is null && int(hoh1.m_levels.length()) != FLOORS)
-				HWP::LogError("campaign", "HoH1 mission has " + hoh1.m_levels.length() + " levels, expected " + FLOORS);
+			if (hoh1 !is null && int(hoh1.m_levels.length()) != HOH1_FLOORS)
+				HWP::LogError("campaign", "HoH1 mission has " + hoh1.m_levels.length() + " levels, expected " + HOH1_FLOORS);
 			if (hoh1 !is null)
 			{
 				// every floor's level file must be the import's (hoh1/levels/...) or a generated one

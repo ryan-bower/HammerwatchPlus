@@ -1,0 +1,35 @@
+{
+  "name": "tower-floors",
+  "needs_hoh1": true,
+  "about": "The HoH1 Forsaken Tower (mods/campaign README, HoH1 tower): bot tower_floors loads the floors named in kwargs.floors with `gl mission hwp_forsaken_tower_hoh1 <i>` and checks each: level phase, clean log, the HoH1 generator's prefab count and start spot (generated floors), the player alive, enemies counted, a screenshot. Needs the HoH1 import. Several minutes a floor.",
+  "fixture": "town-paladin",
+  "mods": [
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
+    "campaign",
+    "gamelab-it-campaign"
+  ],
+  "timeout": 1500,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "bot",
+      "bot": "tower_floors",
+      "kwargs": {
+        "floors": "all"
+      },
+      "expect": {
+        "ok": true
+      },
+      "save_as": "tower",
+      "name": "the tower floors load as HoH1 made them"
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

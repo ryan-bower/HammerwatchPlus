@@ -209,7 +209,8 @@ class HoH1BossLich : CompositeActorBehavior
 		}
 
 		m_touchTimeC -= dt;
-		if (m_touchTimeC > 0)
+		// a stun (disarm: the Paladin's Pelor's Fury) stops the touch as it stops the skills
+		if (m_touchTimeC > 0 || m_buffs.Disarm())
 			return;
 		m_touchTimeC = m_touchTime;
 
@@ -329,7 +330,8 @@ class HoH1BossLichMovement : ActorMovement
 		if (m_node !is null)
 		{
 			vec2 dir = xy(normalize(m_node.Position - m_unit.GetPosition()));
-			body.SetLinearVelocity(dir * m_speed);
+			// the buffs' speed (a stun is 0), as HoH2's own movements take it
+			body.SetLinearVelocity(dir * m_speed * m_behavior.m_buffs.MoveSpeedMul());
 			m_dir = atan(dir.y, dir.x);
 		}
 	}
@@ -646,7 +648,7 @@ class HoH1BossVampireMovement : ActorMovement
 		if (m_node !is null)
 		{
 			vec2 dir = xy(normalize(m_node.Position - m_unit.GetPosition()));
-			body.SetLinearVelocity(dir * (Roaming() ? m_speedRoam : m_speed));
+			body.SetLinearVelocity(dir * (Roaming() ? m_speedRoam : m_speed) * m_behavior.m_buffs.MoveSpeedMul());
 			m_dir = atan(dir.y, dir.x);
 		}
 	}
@@ -1064,5 +1066,35 @@ namespace WorldScript
 		}
 
 		void ClientExecute(SValue@ val) { ServerExecute(); }
+	}
+}
+
+// An actor whose colors pulse between the two "hoh1-colorize" colors at
+// "hoh1-colorize-speed" (HoH1's Battlemage; HoH1 named them "colorize", which
+// HoH2's CompositeActorBehavior reads itself, so the import renames them).
+class HoH1CompositeActorBehaviorColorized : CompositeActorBehavior
+{
+	float m_colorSpeed;
+	vec3 m_colorA;
+	vec3 m_colorB;
+
+	HoH1CompositeActorBehaviorColorized(UnitPtr unit, SValue& params)
+	{
+		super(unit, params);
+		m_colorSpeed = GetParamFloat(unit, params, "hoh1-colorize-speed", false, 1);
+		array<SValue@>@ colorArr = GetParamArray(unit, params, "hoh1-colorize", true);
+		if (colorArr !is null && colorArr.length() >= 2)
+		{
+			m_colorA = colorArr[0].GetVector3();
+			m_colorB = colorArr[1].GetVector3();
+		}
+	}
+
+	void Update(int dt) override
+	{
+		CompositeActorBehavior::Update(dt);
+		float xt = (sin(g_scene.GetTime() / 1000.0 * m_colorSpeed) + 1.0) / 2.0;
+		vec3 color = lerp(m_colorA, m_colorB, xt);
+		m_unit.SetMultiColor(0, xyzw(color * 0.1, 1), xyzw(color * 0.5, 1), xyzw(color * 2, 1), false);
 	}
 }

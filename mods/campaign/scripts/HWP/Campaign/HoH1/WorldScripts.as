@@ -44,6 +44,26 @@ namespace HWP
 			auto res = g_scene.FetchAllWorldScripts("VampireCenterNode");
 			return res.length() == 0 ? null : cast<WorldScript::VampireCenterNode>(res[0].GetUnit().GetScriptBehavior());
 		}
+
+		// Where this floor starts: the default LevelStart of the scene (a HoH1
+		// generated floor's start is fabricated before its rooms), else the
+		// game's spawn position.
+		vec2 FloorStart()
+		{
+			auto starts = g_scene.FetchAllWorldScripts("LevelStart");
+			int prio = -100000;
+			vec2 ret = g_spawnPos;
+			for (uint i = 0; i < starts.length(); i++)
+			{
+				auto s = cast<WorldScript::LevelStart>(starts[i].GetUnit().GetScriptBehavior());
+				if (s !is null && starts[i].IsEnabled() && s.StartID == "" && s.Priority > prio)
+				{
+					prio = s.Priority;
+					ret = xy(s.Position);
+				}
+			}
+			return ret;
+		}
 	}
 }
 
@@ -395,6 +415,62 @@ namespace WorldScript
 
 		[Editable]
 		string UsedUnitScene;
+
+		SValue@ ServerExecute() { return null; }
+	}
+
+	// HoH1's generated rooms gate their contents on the distance to the floor's
+	// start (no enemies spawned on top of the player): the start the level
+	// placed, which the floor generator queues before the rooms (Generator.as).
+	[WorldScript color="176 196 222" icon="system/icons.png;384;128;32;32"]
+	class CheckSpawnDistance
+	{
+		vec3 Position;
+
+		[Editable type=enum default=3]
+		CompareFunc Function;
+
+		[Editable default=100]
+		uint Value;
+
+		[Editable validation=IsExecutable]
+		UnitFeed OnTrue;
+
+		[Editable validation=IsExecutable]
+		UnitFeed OnFalse;
+
+		bool IsExecutable(UnitPtr unit)
+		{
+			WorldScript@ script = WorldScript::GetWorldScript(unit);
+			return script !is null && script.IsExecutable();
+		}
+
+		SValue@ ServerExecute()
+		{
+			uint ds = uint(dist(HWP::HoH1::FloorStart(), xy(Position)));
+			bool result = false;
+			switch (Function)
+			{
+				case CompareFunc::Equal: result = ds == Value; break;
+				case CompareFunc::Greater: result = ds > Value; break;
+				case CompareFunc::Less: result = ds < Value; break;
+				case CompareFunc::GreaterOrEqual: result = ds >= Value; break;
+				case CompareFunc::LessOrEqual: result = ds <= Value; break;
+				case CompareFunc::NotEqual: result = ds != Value; break;
+			}
+			HWP::HoH1::Run(result ? OnTrue.FetchAll() : OnFalse.FetchAll());
+			return null;
+		}
+	}
+
+	[WorldScript color="30 210 105" icon="system/icons.png;128;288;32;32"]
+	class SetTopNumber
+	{
+		[Editable]
+		string ID;
+
+		[Editable]
+		int Number;
 
 		SValue@ ServerExecute() { return null; }
 	}

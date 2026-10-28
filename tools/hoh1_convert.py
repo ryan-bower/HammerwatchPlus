@@ -33,6 +33,10 @@ SVALUE_EXT = (".lvl", ".pfb")
 RES_EXT = TEXT_EXT + SVALUE_EXT + (".png", ".tif", ".tga")
 # never copied: HoH2 has its own (different) shaders and these are engine-bound
 NEVER_COPY_EXT = (".fs", ".vs", ".bank", ".as")
+# HoH1's archive keeps some textures under another image extension in its own texture format;
+# HoH2 picks the loader by extension (a .tif goes to its TIFF loader, which refuses the data and
+# hangs the boot: 20261028-144415), so they are written as .png and every reference follows
+PNG_AS = (".tif", ".tga")
 # kept on the HoH2 file of the same name when there is one (fonts load their .ttf)
 USE_HOH2_EXT = (".fnt",)
 
@@ -55,6 +59,11 @@ def looks_like_path(p: str) -> bool:
     return bool(p) and "/" in p and p.lower().endswith(RES_EXT) and " " not in p.strip()
 
 
+def out_path(path: str) -> str:
+    """where a copied HoH1 file is written (under PREFIX): textures as .png"""
+    return path[:-4] + ".png" if path.lower().endswith(PNG_AS) else path
+
+
 def resolve(owner: str, ref: str) -> str:
     if ref.startswith("./") or ref.startswith("../"):
         return posixpath.normpath(posixpath.join(posixpath.dirname(owner), ref))
@@ -72,6 +81,25 @@ NEEDS_STATE = {"TransferDamageActor"}
 # husks on the host): HoH1 path -> HoH2 netsync mode
 NETSYNC = {"actors/bosses/vampire/fire_area.unit": "position"}
 ONE_STATE = '\n\t\t<array name="states"><dict><string name="name">hoh1</string></dict></array>'
+
+# HoH2 actor tags (HoH1 has none). HoH2's classes read them: the Paladin's Pelor's Fury and
+# the Devil Forgemaster's raise on "boss" and "elite", the Priest's on "undead", the
+# achievements and conditionals on "enemy". A unit `%define`s its tags (HWP_TAG_<TAG>) and the
+# file that opens its behavior, often an .inc several units share, lists them under `%if`, so a
+# boss and its NG+ copies are bosses while the trash sharing their include is not.
+ENEMY_CLASSES = {"CompositeActorBehavior", "CompositeActorBehaviorNoNGPScale", "Miniboss", "TransferDamageActor",
+                 "CompositeActorBehaviorColorized", "BossLich", "BossVampire", "BossEye"}
+TAG_ORDER = ("enemy", "boss", "elite", "undead", "beast", "construct", "tower", "wisp", "aberration")
+FAMILY_TAGS = (
+    (re.compile(r"(^|/)(skeleton|lich|ghost|wraith|mummy|battlemage|bannerman|vampire|thrall|warden)"), "undead"),
+    (re.compile(r"(^|/)(maggot|tick|bat|spider|snake|scorpion|worm|ice_troll|trapper)"), "beast"),
+    (re.compile(r"(^|/)(tower_|golem|gargoyle|guardian|sentinel|statue)"), "construct"),
+    (re.compile(r"(^|/)tower_"), "tower"),
+    (re.compile(r"(^|/)wisp"), "wisp"),
+    (re.compile(r"(^|/)eye"), "aberration"),
+)
+ELITE_RE = re.compile(r"_(elite|mb)(_|\.|$)")
+BEHAVIOR_RE = re.compile(r'<behavior class="(\w+)"[^>]*>')
 
 
 @dataclass
@@ -153,6 +181,9 @@ class Rewriter:
     class_map: dict[str, str]
     material_map: dict[str, str]
     stats: dict[str, int] = field(default_factory=dict)
+    strip_tiles: set[str] = field(default_factory=set)   # prefabs written without their tile layer
+    unit_tags: dict[str, list[str]] = field(default_factory=dict)   # unit -> its HoH2 tags (actor_tags)
+    tag_hosts: set[str] = field(default_factory=set)                # files that open a tagged behavior
 
     def bump(self, k: str) -> None:
         self.stats[k] = self.stats.get(k, 0) + 1
@@ -160,7 +191,12 @@ class Rewriter:
     def ref(self, value: str, owner: str) -> str:
         """Rewrite one reference value (path or path:key) found in `owner`."""
         path, key = split_ref(value)
-        if not looks_like_path(path) or path.startswith(("./", "../")):
+        if not looks_like_path(path):
+            return value
+        if path.startswith(("./", "../")):
+            if path.lower().endswith(PNG_AS) and resolve(owner, path) in self.copied:
+                self.bump("texture->png")
+                return value.replace(path, out_path(path), 1)
             return value
         if path.endswith(".mats") and key:
             name = key[1:]
@@ -171,10 +207,27 @@ class Rewriter:
                 return f"{lead}{path}:{name}"
         if path in self.copied:
             self.bump("path->hoh1")
-            return value.replace(path, PREFIX + path, 1)
+            return value.replace(path, PREFIX + out_path(path), 1)
         return value
 
+    def tags(self, text: str, owner: str) -> str:
+        if owner in self.unit_tags:
+            defs = "".join(f"%define HWP_TAG_{t.upper()}\n" for t in self.unit_tags[owner])
+            text = defs + text
+            self.bump("tagged units")
+        if owner in self.tag_hosts:
+            block = '\n\t\t<array name="tags">' + "".join(
+                f'\n%if HWP_TAG_{t.upper()}\n\t\t\t<string>{t}</string>\n%endif' for t in TAG_ORDER) + "\n\t\t</array>"
+            text = BEHAVIOR_RE.sub(lambda m: m.group(0) + block, text, count=1)
+        return text
+
     def text(self, text: str, owner: str) -> str:
+        text = self.tags(text, owner)
+        if '<behavior class="CompositeActorBehaviorColorized"' in text:
+            # HoH2's CompositeActorBehavior reads "colorize" itself (a color set per channel):
+            # HoH1's pulse colors go under names of their own (HoH1/Bosses.as)
+            text = text.replace('name="colorize"', 'name="hoh1-colorize"').replace('name="colorize-speed"', 'name="hoh1-colorize-speed"')
+            self.bump("colorize->hoh1")
         if owner in NETSYNC:
             text, n = re.subn(r'<unit netsync="\w+"', f'<unit netsync="{NETSYNC[owner]}"', text, count=1)
             if not n:
@@ -243,6 +296,106 @@ class Rewriter:
         return out
 
 
+def generator_only_prefabs(archive: hwr.Archive, files: set[str], dirs: tuple[str, ...]) -> set[str]:
+    """Prefabs in the generator's folders that carry tiles and that no copied level
+    or prefab names (HoH1 fabricates the generator's prefabs without their tiles)."""
+    named: set[str] = set()
+    for f in files:
+        if f.endswith(SVALUE_EXT):
+            for v in iter_strings(decode_level(archive.read_file(f), f)):
+                p, _ = split_ref(v)
+                if p.endswith(".pfb"):
+                    named.add(resolve(f, p))
+    out = set()
+    for f in files:
+        if f.endswith(".pfb") and f.startswith(dirs) and f not in named:
+            doc = decode_level(archive.read_file(f), f)
+            if isinstance(doc, dict) and doc.get("tiles"):
+                out.add(f)
+    return out
+
+
+def boss_bar_units(archive: hwr.Archive, levels) -> set[str]:
+    """The units HoH1's CreateBossBar scripts show in `levels`: what a spawn script they feed
+    from spawns (UnitType), or a unit placed in the level."""
+    out: set[str] = set()
+    for lv in levels:
+        doc = decode_level(archive.read_file(lv), lv)
+        rows: dict[int, list] = {}
+        placed: dict[int, str] = {}
+
+        def walk(v, unit=None):
+            if isinstance(v, dict):
+                for k, x in v.items():
+                    walk(x, k if isinstance(k, str) and k.endswith(".unit") else unit)
+            elif isinstance(v, (list, tuple)) and not isinstance(v, hwr.Vec):
+                if len(v) >= 6 and isinstance(v[0], str) and isinstance(v[1], int):
+                    rows[v[1]] = v
+                elif unit and v and isinstance(v[0], int):
+                    placed[v[0]] = unit
+                for x in v:
+                    walk(x, unit)
+        walk(doc)
+        for row in rows.values():
+            if row[0] != "CreateBossBar":
+                continue
+            for feed in next((x for x in row if isinstance(x, dict)), {}).values():
+                if not isinstance(feed, (list, tuple)):
+                    continue
+                for ref in feed[0::2]:
+                    if ref in rows:
+                        unit = next((x for x in rows[ref] if isinstance(x, dict)), {}).get("UnitType")
+                        if isinstance(unit, str) and unit.endswith(".unit"):
+                            out.add(unit)
+                    elif ref in placed:
+                        out.add(placed[ref])
+    return out
+
+
+def actor_tags(archive: hwr.Archive, files: set[str], bosses: set[str]) -> tuple[dict[str, list[str]], set[str]]:
+    """unit -> HoH2 tags, and the files that open those units' behaviors (Rewriter.tags).
+    Every unit on an enemy actor class is "enemy"; `bosses` (the units HoH1's boss bars show,
+    with their NG+ copies) are "boss", minibosses and elites "elite", and the family by name."""
+    def text(p):
+        return archive.read_file(p).decode("utf-8", errors="replace")
+
+    def host(p, seen=()):
+        """(file opening the behavior, its class) for unit/include p"""
+        t = text(p)
+        m = BEHAVIOR_RE.search(t)
+        a = INCLUDE_RE.search(t)
+        if m and (not a or m.start() < a.start()):
+            return p, m.group(1)
+        for inc in INCLUDE_RE.findall(t):
+            q = resolve(p, inc)
+            if q in files and q not in seen:
+                r = host(q, seen + (q,))
+                if r:
+                    return r
+        return None
+
+    tags: dict[str, list[str]] = {}
+    hosts: set[str] = set()
+    for p in sorted(files):
+        if not (p.endswith(".unit") and p.startswith("actors/")):
+            continue
+        h = host(p)
+        if not h or h[1] not in ENEMY_CLASSES or 'name="tags"' in text(h[0]):
+            continue
+        name = p.removeprefix("actors/")
+        got = ["enemy"]
+        if p in bosses:
+            got.append("boss")
+        elif h[1] == "Miniboss" or ELITE_RE.search(name.rsplit("/", 1)[-1]):
+            got.append("elite")
+        for rx, t in FAMILY_TAGS:
+            if rx.search(name.rsplit("/", 1)[-1]) and t not in got:
+                got.append(t)
+        tags[p] = got
+        hosts.add(h[0])
+    return tags, hosts
+
+
 def hoh2_material_names(base: Path) -> dict[str, set[str]]:
     out: dict[str, set[str]] = {}
     for f in base.rglob("*.mats"):
@@ -255,11 +408,15 @@ def convert_file(archive: hwr.Archive, path: str, rw: Rewriter, to_png) -> bytes
     if path.endswith(SVALUE_EXT):
         # Loose mod files are read as XML (packed archives hold the binary form,
         # which tools/build.py compiles back, reusing the level's header bytes).
-        doc = rw.svalue(decode_level(data, path), path)
+        doc = decode_level(data, path)
+        if path in rw.strip_tiles and isinstance(doc, dict) and doc.get("tiles"):
+            doc["tiles"] = []
+            rw.bump("tiles-stripped")
+        doc = rw.svalue(doc, path)
         head = f"<!-- {hwr.LEVEL_HEADER_TAG} {data[:LEVEL_HEADER].hex()} -->\n" if path.endswith(".lvl") else ""
         return (head + hwr.svalue_to_xml(doc) + "\n").encode("utf-8")
     if path.endswith(TEXT_EXT):
         return rw.text(data.decode("utf-8", errors="replace"), path).encode("utf-8")
-    if path.endswith(".png"):
+    if path.endswith(".png") or path.lower().endswith(PNG_AS):
         return to_png(data)
     return data

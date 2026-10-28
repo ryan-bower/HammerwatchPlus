@@ -833,3 +833,105 @@ class HoH1BurstSkill : CompositeActorBurstSkill
 		}
 	}
 }
+
+// A ring of "proj-count" projectiles (default 8), "proj-dist" out from the
+// caster, all at once at "castpoint" (the anim's length when not given).
+class HoH1NovaSkill : HoH1Skill
+{
+	AnimString@ m_anim;
+	int m_castpoint;
+	int m_castpointC;
+	int m_animationC;
+	UnitProducer@ m_projProd;
+	SoundEvent@ m_fireSnd;
+	SoundEvent@ m_startSnd;
+	float m_projDist;
+	int m_projCount;
+
+	HoH1NovaSkill(UnitPtr unit, SValue& params)
+	{
+		super(unit, params);
+		@m_anim = AnimString(GetParamString(unit, params, "anim"));
+		m_castpoint = GetParamInt(unit, params, "castpoint", false, unit.GetUnitScene(m_anim.GetSceneName(0)).Length());
+		@m_projProd = Resources::GetUnitProducer(GetParamString(unit, params, "projectile"));
+		@m_fireSnd = Resources::GetSoundEvent(GetParamString(unit, params, "fire-snd", false));
+		@m_startSnd = Resources::GetSoundEvent(GetParamString(unit, params, "start-snd", false));
+		m_projDist = GetParamFloat(unit, params, "proj-dist", false, 0);
+		m_projCount = max(1, GetParamInt(unit, params, "proj-count", false, 8));
+	}
+
+	bool IsCasting() override { return m_castpointC > 0 || m_animationC > 0; }
+
+	void CancelSkill() override
+	{
+		m_animationC = 0;
+		m_castpointC = 0;
+	}
+
+	void Fire()
+	{
+		m_cooldownC = m_cooldown;
+		m_restrictions.UseCharge();
+		PlaySound3D(m_fireSnd, m_unit.GetPosition());
+		if (m_projProd is null)
+			return;
+		for (int i = 0; i < m_projCount; i++)
+		{
+			float angle = (2 * PI / m_projCount) * i;
+			vec2 dir = vec2(cos(angle), sin(angle));
+			UnitPtr proj = m_projProd.Produce(g_scene, xyz(xy(m_unit.GetPosition()) + dir * m_projDist));
+			auto p = proj.IsValid() ? cast<IProjectile>(proj.GetScriptBehavior()) : null;
+			if (p !is null)
+				p.Initialize(m_behavior, ProjectileTarget(angle), 1.0, Husk(), 0);
+		}
+	}
+
+	// stage 0 starts the cast, stage 1 fires (the host sends both)
+	void NetUseSkill(int stage, SValue@ param) override
+	{
+		if (stage == 0)
+		{
+			m_animationC = m_behavior.SetUnitScene(m_anim.GetSceneName(m_behavior.m_movement.m_dir), true);
+			PlaySound3D(m_startSnd, m_unit.GetPosition());
+			if (m_castpoint > 0)
+				m_castpointC = m_castpoint;
+			else
+				Fire();
+		}
+		else
+		{
+			m_castpointC = 0;
+			Fire();
+		}
+	}
+
+	void Update(int dt, bool isCasting) override
+	{
+		if (IsCasting() && Network::IsServer())
+			m_unit.GetPhysicsBody().SetLinearVelocity(0, 0);
+		if (m_animationC > 0)
+			m_animationC -= dt;
+
+		if (m_castpointC > 0)
+		{
+			m_castpointC -= dt;
+			if (m_castpointC <= 0 && Network::IsServer())
+			{
+				NetUseSkill(1, null);
+				UnitHandler::NetSendUnitUseSkill(m_unit, m_id, 1);
+			}
+			return;
+		}
+
+		if (m_cooldownC > 0)
+		{
+			m_cooldownC -= dt;
+			return;
+		}
+		if (Ready(isCasting))
+		{
+			NetUseSkill(0, null);
+			UnitHandler::NetSendUnitUseSkill(m_unit, m_id, 0);
+		}
+	}
+}
