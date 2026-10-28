@@ -5157,3 +5157,15 @@ public page says "hidden or you do not have permission to view it", while the We
 the same run. So Steam has hidden that item, and an owner who is logged in sees the reason on
 its page. Until it is cleared, the All page's link to it goes to an error page.
 
+**Asking Steam about the hidden item.** The Steam client was queried as the owner
+(`CreateQueryUGCDetailsRequest`, then `GetQueryUGCResult` into `SteamUGCDetails_t`, not
+cached). It reports The Forsaken Tower the same as Challenge Modes, which does update: result
+1, visibility 0 (public), banned false, accepted false, same owner. So the only signs of the
+hold are the refused updates and the public page's error. No Workshop API gives the reason.
+
+**Pets card.** The card now shows every pet the Pet Shop sells. Each one comes from
+`tweak/pets.sval`: its `icon` entry (`gui/pet_icons.png` plus an x y w h box), skipping the
+`none` entry, which has no unit. That is seven pets; the candle and the wisp are behind
+`dlc has holy`. Pets and the All pack were republished from bb33faa. Their libraries match the
+other items' builds, since nothing under `mods/` changed.
+
