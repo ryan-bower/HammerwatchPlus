@@ -109,8 +109,9 @@ Design calls to look at:
   buff; the blood altar too, HoH2 has no blood altar rewards) and `Imp`.
 - **Lunar Shield block, Soul Dagger, Combustion** effects are inert
   (`HoH1InertEffect`) until there is a HoH2 equivalent.
-- **Minibosses** are plain `CompositeActorBehavior`: HoH1's overhead
-  miniboss bar is gone. `CompositeActorBehaviorNoNGPScale` (the dragon's ice
+- **Minibosses** are plain `CompositeActorBehavior`. HoH1's overhead miniboss bar was
+  only on DLC minibosses, none of them in the tower. HoH2's own small bar shows over
+  any damaged enemy. `CompositeActorBehaviorNoNGPScale` (the dragon's ice
   block) scales with NG+ like everything else.
 - **Bat toss** "on-target" speed is our own formula (slow enough to land on
   the aimed spot within its time to live).
@@ -152,7 +153,27 @@ The mission is HoH1's tower as its dungeon file lists it, difficulty 5 to 22:
   fighting a god-mode player for 15 s, the boss bar titled with the boss's HoH1 name,
   each boss killed until SetBossKilled logs `HoH1 boss N killed`, then the exit it opens
   used to load the next floor; on the armory floor the painting's speech bubble is read
-  back too. Both need the import.
+  back too. `plan-generosity-hoh1` and `plan-forgemaster-hoh1` hold every tower boss with
+  the Paladin's Generosity Fury and raise every tower boss body with the Devil
+  Forgemaster. `tower-run` (about an hour) plays floor 1 to the end through each floor's
+  own exit: the enemies cleared, the traps toured until they fire, chests, doors, levers,
+  shrines and pickups used, each boss fought, and the character's level and xp kept from
+  floor to floor (20261028-190322, 16 min). `tower-interfaces` bets at a gambler room
+  fabricated on floor 1 and takes the end window's CONTINUE after Thundersnow. All of them
+  need the import.
+- **The gambler and the end window.** HoH1's `ItemDealer` and `EndOfGame` interfaces are
+  ported in `Interfaces.as` on HoH1's own .gui files. The gambler bets HoH2 trinkets
+  (cursed, quest and unique ones are left out) at HoH1's points and odds, one gamble per
+  gambler. The end window's CONTINUE ends the mission as a success. HoH1's `scrollrect` and
+  `scrollbar` are ported as `hoh1-scrollrect` and `hoh1-scrollbar`, and the import renames
+  the tags in HoH1's .gui files (`hoh1_convert.GUI_TAGS`).
+- **The bridge's exit** is a plain LevelExit to boss_dragon.lvl in HoH1. The import turns it
+  into `HoH1LevelExitNext`, so the mission's floor follows (`hoh1_convert.MISSION_EXITS`).
+- **The vampire's crosses.** As in HoH1, a cross picked up on the chambers floors keeps the
+  Vampire Lord asleep until the crosses are placed on the boss room's altars.
+- **AddNotification.** HoH2's is a stub that logs an error. The import maps it to
+  `HoH1AddNotification`, which shows the text through HoH2's announcer, with no icon
+  (the town-unlock notices).
 
 ## HoH1 traps, Confusion and teleporters in HoH2 runs
 
@@ -286,7 +307,8 @@ On the HammerwatchPlus tab of the player menu (`hwp set <key> <value>`; `module.
    checks the portal version in the log and the dialog, `hwp campaign citadel` =
    dark_halls_1, dark_halls_2, hwp_battlements_1, hwp_battlements_2, dark_halls_boss,
    and the Confusion cheat (buff on, right moves left, expiry, glyph applies it).
-   Every HoH1 tower floor and boss: `tower-floors` and `tower-bosses` ("HoH1 tower" above).
+   Every HoH1 tower floor and boss: `tower-floors` and `tower-bosses`, and the playthrough
+   `tower-run` ("HoH1 tower" above).
 8. `python -m gamelab run fix-campaign-battlements` (about 3 min): `gl mission
    dark_citadel <index of hwp_battlements_1>` loads `hoh1/levels/battlements_1.lvl`
    with no script exception, screenshot `battlements-1`.

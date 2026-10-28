@@ -668,11 +668,19 @@ CLASS_MAP: dict[str, str] = {
     "RandomStuff": "Imp",
     # HoH1's bubble: its own style files, a title, one player's (HoH1/WorldScripts.as)
     "ShowSpeechBubble": "HoH1ShowSpeechBubble",
+    "AddNotification": "HoH1AddNotification",   # HoH2's is a stub that logs an error
     "LevelExitNext": "HoH1LevelExitNext",    # with HoH1's StartID (the Battlements' two exits)
+    # OpenInterface classes, on HoH1's own .gui files (HoH1/Interfaces.as)
+    "ItemDealer": "HoH1ItemDealer",          # the gambler room; bets HoH2 trinkets
+    "EndOfGame": "HoH1EndOfGame",            # after Thundersnow; ends the mission as won
 }
 
-# files HoH1's scripts name as defaults, which no level lists (ShowSpeechBubble's Style)
-SCRIPT_DEFAULT_FILES = ("gui/speechbubbles/white.sval",)
+# files HoH1's scripts name as defaults, which no level lists (ShowSpeechBubble's Style,
+# the item dealer's quality table)
+SCRIPT_DEFAULT_FILES = ("gui/speechbubbles/white.sval", "tweak/itemdealer.sval")
+
+# strings only HoH1's scripts use (the item dealer's dice tooltip), as hoh1.<key>
+SCRIPT_STRINGS = ("itemdealer.tooltip.title", "itemdealer.tooltip.single", "itemdealer.tooltip.plural")
 
 # "<mats path>:<HoH1 material>" -> HoH2 material name in the same file
 MATERIAL_MAP = {
@@ -807,6 +815,7 @@ def import_campaign(archive: hwr.Archive, force: bool) -> None:
     write(CAMPAIGN_OUT / UNITMAP_OUT, unitmap_sval(unitmap, closure.files), True, written)
     # the boss bars' names: hoh1.bosses.<unit name> (WorldScripts.as CreateBossBar)
     strings = {k: rw.lang[k] for k in rw.lang_used}
+    strings.update({k: rw.lang[k] for k in SCRIPT_STRINGS if k in rw.lang})
     for b in sorted(bosses):
         key = hoh1c.boss_name_key(b, rw.lang)
         if key:

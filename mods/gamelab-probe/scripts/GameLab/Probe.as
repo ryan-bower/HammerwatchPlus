@@ -496,7 +496,7 @@ namespace GameLab
 	// that fires it is native and not readable). "areas": units whose behavior is a
 	// DangerAreaBehavior (sawblades, floor_fire/curse/spikes, ProximityTrap): debug name, freq,
 	// current scene names ("on"/"off" for toggled ones). "actors": trap-team actors (statues).
-	// "rays": live RayProjectiles with no owner (trap fire balls), with their direction.
+	// "rays": live projectiles with no owner (trap fire balls, the HoH1 tower's trap shots), with their direction.
 	void VerbTraps(const string &in id, array<string>@ args)
 	{
 		auto plr = GetLocalPlayer();
@@ -541,10 +541,12 @@ namespace GameLab
 				continue;
 			auto da = cast<DangerAreaBehavior>(b);
 			auto ac = cast<Actor>(b);
-			auto rp = cast<RayProjectile>(b);
+			// any projectile with no owner is a trap's shot: RayProjectiles and the HoH1 tower's
+			// own kinds (campaign's HoH1Projectile is a ProjectileBase)
+			auto rp = cast<IProjectile>(b);
 			// classified before the entry is built: building one per unit (~14k with a behavior on
 			// a floor) cost more than the traps themselves
-			if (da is null && (ac is null || ac.Team != g_team_trap) && (rp is null || rp.m_owner !is null))
+			if (da is null && (ac is null || ac.Team != g_team_trap) && (rp is null || rp.GetOwner() !is null))
 				continue;
 			vec2 p = xy(units[i].GetPosition());
 			float d = dist(center, p);
@@ -568,9 +570,10 @@ namespace GameLab
 				@list = actors;
 				@ds = td;
 			}
-			else if (rp !is null && rp.m_owner is null)
+			else if (rp !is null && rp.GetOwner() is null)
 			{
-				e.Num("dx", rp.m_dir.x).Num("dy", rp.m_dir.y);
+				vec2 dir = rp.GetDirection();
+				e.Num("dx", dir.x).Num("dy", dir.y);
 				@list = rays;
 				@ds = rd;
 			}

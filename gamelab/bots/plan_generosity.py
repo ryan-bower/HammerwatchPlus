@@ -19,6 +19,10 @@ Sections:
   Fury: held (or refused with the stacks, mana and cooldown kept), its attack cut (casting 0
   while held), it stays put, the 60 s cooldown, the beams (4 at least), no script error. The
   per-boss table is in the notes.
+- hoh1: the HoH1 tower's bosses (mods/campaign, needs the HoH1 import): each boss floor of
+  hwp_forsaken_tower_hoh1 loaded and its fight started the way the level does
+  (tower_bosses.TowerBoss), then the Fury on every boss unit of it in turn, checked as in
+  bosses (flags hoh1_*). kwargs only: a comma list of level names (boss_mines...).
 - stacks: the sources (Lay on Hands on oneself alone, a Blessed Strike kill, Conviction mana),
   the shared 2 s cooldown, the cap at 10, the multiplier, the carry to the next floor, the reset
   on the player's death and in town.
@@ -29,6 +33,7 @@ import re
 import time
 
 from gamelab.bots.plan_specs import Checks as Base, DUMMY, TARGET
+from gamelab.bots.tower_bosses import RECIPES, TowerBoss, level_name
 
 PF = "hwp_pal_pelors_fury"
 PB = "hwp_pal_pelors_blessing"
@@ -70,7 +75,7 @@ def _num(text, pat):
     return int(m[-1]) if m else None
 
 
-class Checks(Base):
+class Checks(Base, TowerBoss):
     # --- plumbing
     def gen(self, sub="status"):
         """The reply of `hwp gen <sub>`: the [HWP] gen: line between the command's own rx and
@@ -365,11 +370,19 @@ class Checks(Base):
         row["spawned"] = True
         # let it fight: its attacks start (god mode on)
         time.sleep(3.0)
+        self.fury_unit(row, u, rel.split("/")[-1].replace(".unit", ""), mark)
+        self.clear()
+        return row
+
+    def fury_unit(self, row, u, name, mark, wait_solid=0.0):
+        """The Fury on the live boss unit u (a `near`/`unitsof` entry) and what it did: held or
+        refused, the attack cut, standing still, the cooldown, the cost, armor 0, the beams,
+        errors since mark; filled into row. wait_solid: seconds to keep trying a boss refused as
+        "untargetable" (HoH1's Councilors and Vampire Lord drift untouchable between casts and
+        stand solid only while casting)."""
         self.ready(10)
         # the boss may have moved off (a flying spirit, plan-generosity-bosses 20261027-013012: four
         # spirits out of the 250 range read "no target"): stand 100 px from it and aim at it
-        name = rel.split("/")[-1].replace(".unit", "")
-
         def aim_at():
             v = self.unit(u["unit"], 3000, name)
             if not v or v.get("dead"):
@@ -396,6 +409,20 @@ class Checks(Base):
             # diving spirits, plan-generosity-bosses 20261027-021757)
             row.setdefault("retried", []).append(a["last"])
             time.sleep(0.8)
+            self.ready(10)
+            _, aim = aim_at()
+            b = self.st()
+            r = self.gen(aim)
+            time.sleep(0.5)
+            a = self.st()
+        end = time.time() + wait_solid
+        # the command's own reply: "cast refused ... untargetable". The status line's last refusal
+        # stays "untargetable" after a cast that started and lands at its cast point, and a retry
+        # then reset the cooldown of the hold that landed (plan-generosity-hoh1 20261028-165541)
+        while a["holding"] is None and "cast refused" in (r or "") and "untargetable" in r and time.time() < end:
+            # it drifts: try again until a cast stands it solid
+            row["solid_tries"] = row.get("solid_tries", 0) + 1
+            time.sleep(0.4)
             self.ready(10)
             _, aim = aim_at()
             b = self.st()
@@ -432,8 +459,6 @@ class Checks(Base):
         beams = re.findall(r"fury strikes on \d+: (\d+) beam", log)
         row["beams"] = int(beams[0]) if beams else None
         row["errors"] = self.errors_since(mark)[:3]
-        self.clear()
-        return row
 
     # --- Pelor's favour (mods/farming): crops grow twice as fast, wild plots twice as often
     def farm(self):
@@ -477,23 +502,63 @@ class Checks(Base):
             except Exception as e:
                 rows.append({"boss": rel, "errors": [repr(e)]})
             self.notes.append(f"boss {rows[-1]}")
+        self.boss_flags("boss", rows)
+
+    def boss_flags(self, k, rows):
         held = [r for r in rows if r.get("held")]
         refused = [r for r in rows if r.get("spawned") and not r.get("held")]
-        self.flag("boss_spawned", all(r.get("spawned") for r in rows), str([r["boss"] for r in rows if not r.get("spawned")]))
-        self.flag("boss_held_most", len(held) >= len(rows) * 2 // 3, f"held {len(held)} of {len(rows)}; refused {[(r['boss'], r['refused']) for r in refused]}")
+        self.flag(k + "_spawned", all(r.get("spawned") for r in rows), str([r["boss"] for r in rows if not r.get("spawned")]))
+        self.flag(k + "_held_most", len(held) >= len(rows) * 2 // 3, f"held {len(held)} of {len(rows)}; refused {[(r['boss'], r['refused']) for r in refused]}")
         # a refusal is by design only for a boss that can't be targeted or buffed right then (the
         # burrowed Serpent, the Shadow Face): every other boss is held
         design = ("untargetable", "immune to buffs", "invulnerable", "out of reach")
-        self.flag("boss_refused_by_design", all(any(k in (r.get("refused") or "") for k in design) for r in refused),
+        self.flag(k + "_refused_by_design", all(any(k in (r.get("refused") or "") for k in design) for r in refused),
                   str([(r["boss"], r["refused"]) for r in refused if not any(k in (r.get("refused") or "") for k in design)]))
-        self.flag("boss_refusal_keeps", all(r.get("kept") for r in refused), str([(r["boss"], r.get("kept")) for r in refused]))
-        self.flag("boss_attack_cut", all(r.get("cut") for r in held), str([(r["boss"], r.get("casting")) for r in held if not r.get("cut")]))
-        self.flag("boss_stays", all((r.get("moved") or 0) < 4 for r in held), str([(r["boss"], r.get("moved")) for r in held if (r.get("moved") or 0) >= 4]))
-        self.flag("boss_cooldown_60", all(r.get("boss_cd") for r in held), str([(r["boss"], r.get("cd")) for r in held if not r.get("boss_cd")]))
-        self.flag("boss_spent", all(r.get("spent") for r in held), str([r["boss"] for r in held if not r.get("spent")]))
-        self.flag("boss_armor_0", all(r.get("armor0") for r in held), str([r["boss"] for r in held if not r.get("armor0")]))
-        self.flag("boss_beams", all((r.get("beams") or 0) >= 4 for r in held), str([(r["boss"], r.get("beams")) for r in held]))
-        self.flag("boss_no_errors", not any(r.get("errors") for r in rows), str([(r["boss"], r["errors"]) for r in rows if r.get("errors")]))
+        self.flag(k + "_refusal_keeps", all(r.get("kept") for r in refused), str([(r["boss"], r.get("kept")) for r in refused]))
+        self.flag(k + "_attack_cut", all(r.get("cut") for r in held), str([(r["boss"], r.get("casting")) for r in held if not r.get("cut")]))
+        self.flag(k + "_stays", all((r.get("moved") or 0) < 4 for r in held), str([(r["boss"], r.get("moved")) for r in held if (r.get("moved") or 0) >= 4]))
+        self.flag(k + "_cooldown_60", all(r.get("boss_cd") for r in held), str([(r["boss"], r.get("cd")) for r in held if not r.get("boss_cd")]))
+        self.flag(k + "_spent", all(r.get("spent") for r in held), str([r["boss"] for r in held if not r.get("spent")]))
+        self.flag(k + "_armor_0", all(r.get("armor0") for r in held), str([r["boss"] for r in held if not r.get("armor0")]))
+        self.flag(k + "_beams", all((r.get("beams") or 0) >= 4 for r in held), str([(r["boss"], r.get("beams")) for r in held]))
+        self.flag(k + "_no_errors", not any(r.get("errors") for r in rows), str([(r["boss"], r["errors"]) for r in rows if r.get("errors")]))
+
+    # --- the HoH1 tower's bosses
+    def hoh1(self, only=""):
+        self.setup_gen("h1")
+        floors = [(i, lvl) for i, _, lvl in self.levels() if level_name(lvl) in RECIPES
+                  and (not only or level_name(lvl) in only.split(","))]
+        self.flag("hoh1_floors", bool(floors), str(floors))
+        rows = []
+        for i, lvl in floors:
+            name = level_name(lvl)
+            files = RECIPES[name][1]
+            mark = len(self.g.read_log())
+            try:
+                found, r, started = self.start_boss(i, lvl)
+            except Exception as e:
+                found, r, started = [], {"error": repr(e)}, []
+            if not found:
+                rows.append({"boss": name, "spawned": False, "errors": [f"{r} {started}"]})
+                self.notes.append(f"hoh1 {rows[-1]}")
+                continue
+            # the boss fights a while first, as on a vanilla floor
+            time.sleep(3.0)
+            # unitsof replies per file: which boss each unit is
+            r = self.gl("unitsof", *files)
+            for f, u in [(f, u) for f in files for u in (r.get(f) or {}).get("units") or []]:
+                unit = f.rsplit("/", 1)[-1].replace(".unit", "")
+                row = {"boss": f"{name}:{unit}", "spawned": True, "held": False, "refused": "", "cut": None,
+                       "moved": None, "cd": None, "beams": None, "kept": None, "errors": []}
+                try:
+                    self.fury_unit(row, u, unit, mark, wait_solid=20.0)
+                except Exception as e:
+                    row["errors"].append(repr(e))
+                rows.append(row)
+                self.notes.append(f"hoh1 {row}")
+                mark = len(self.g.read_log())
+            self.g.shot(f"hoh1-{name}")
+        self.boss_flags("hoh1", rows)
 
     # --- stacks
     def stacks_section(self):
@@ -644,8 +709,8 @@ def run(p, sections="smoke,refusals,fury,stacks_section,orbs,bosses", only="", *
     c = Checks(p)
     for s in sections.split(","):
         try:
-            if s == "bosses":
-                c.bosses(only)
+            if s in ("bosses", "hoh1"):
+                getattr(c, s)(only)
             else:
                 getattr(c, s)()
         except Exception as e:  # a section's crash is its own failure, not the bot's

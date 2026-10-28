@@ -37,12 +37,21 @@ Sections:
   breakable target at 110 px: the main attack and Holy Blast damage the target through it.
 - risen_floors (fix-specs-risen-floors): two risen at 60% HP come along to the next floor at that
   HP; mods/summons' floor restore line and no 'Exception when saving summons'.
+- hoh1 (plan-forgemaster-hoh1, mods/campaign with the player's HoH1 import): the HoH1 Forsaken
+  Tower's bosses and every HoH1 elite and miniboss (the base tier of each, from the imported
+  hoh1_risen.sval list) through the raise_all table in the arena: raised, attacks, the leash,
+  no script error.
+- hoh1_tower: on each HoH1 boss floor (tower_bosses.RECIPES), the fight started the level's own
+  way, Deeper Depravity at epic (a boss death always leaves a body), each boss killed by the
+  priest: its body on the floor, raised there, standing, no script error. The dragon is not
+  raisable (tools/hoh1_risen.py EXCLUDE), so its floor checks that no body is left.
 """
 import re
 import time
 from pathlib import Path
 
 from gamelab.bots.plan_specs import Checks as Base, DUMMY
+from gamelab.bots.tower_bosses import RECIPES, TowerBoss, level_name
 
 NR = "hwp_pri_necrotic_resurrection"
 COH = "hwp_pri_call_of_heresy"
@@ -55,6 +64,8 @@ PASSIVE_SKILLS = {"CompositeActorUtilitySkill", "CompositeActorFriendlySkill", "
 ROOT = Path(__file__).resolve().parents[2]
 UNITS_AS = ROOT / "mods/specs/scripts/HWP/Specs/Forgemaster_Units.as"
 BODIES = ROOT / "mods/specs/players/hwp/specs/forgemaster/bodies"
+# the HoH1 enemies' risen, written by tools/import_hoh1.py into the campaign module (local)
+HOH1_FORGE = ROOT / "mods/campaign/players/hwp/specs/forgemaster"
 
 
 def risen_rels():
@@ -71,7 +82,24 @@ def risen_rels():
     return out
 
 
-class Checks(Base):
+def hoh1_rels():
+    """The HoH1 raisables' base tiers that are elite or boss, {rel: (elite, boss)}; {} without
+    the import."""
+    lst = HOH1_FORGE / "hoh1_risen.sval"
+    if not lst.is_file():
+        return {}
+    out = {}
+    for rel in re.findall(r"<string>([^<]+\.unit)</string>", lst.read_text(encoding="utf-8")):
+        if "/tiers/" in rel or re.search(r"_t\d\.unit$", rel):
+            continue
+        body = (HOH1_FORGE / "bodies" / rel).read_text(encoding="utf-8")
+        elite, boss = '<bool name="elite">true</bool>' in body, '<bool name="boss">true</bool>' in body
+        if elite or boss:
+            out[rel] = (elite, boss)
+    return out
+
+
+class Checks(Base, TowerBoss):
     def forge_status(self):
         return self.hwp("forge", 0.3, until="forge:")
 
@@ -1161,6 +1189,79 @@ class Checks(Base):
                   f"summons restore line: {m.group(0) if m else 'none'}")
         self.notes.append("floors: hwp summons: " + self.hwp("summons", 0.3, until="summons").strip()[-200:])
         self.cull()
+
+
+    # --- the HoH1 Forsaken Tower (mods/campaign)
+    def hoh1(self):
+        self.setup_forge("h1", levels=4)
+        rels = hoh1_rels()
+        self.flag("h1_list", sum(1 for v in rels.values() if v[1]) >= 7, f"{len(rels)} HoH1 elites and bosses: {sorted(rels)}")
+        if not self.to_arena("h1"):
+            return
+        self.hwp("forge trace on", 0.2)
+        self.arena_terrain("h1")
+        self.unit_table("h1", rels)
+        self.hwp("forge trace off", 0.2)
+
+    def hoh1_tower(self, only=""):
+        self.setup_forge("h1t", levels=4)
+        self.gl("orb", "hwp_pri_coh_deeper_depravity", 3)   # epic: dd-boss 1.0
+        time.sleep(0.3)
+        rels = hoh1_rels()
+        floors = [(i, lvl) for i, _, lvl in self.levels() if level_name(lvl) in RECIPES
+                  and (not only or level_name(lvl) in only.split(","))]
+        self.flag("h1t_floors", len(floors) == len(RECIPES), str(floors))
+        rows = []
+        for i, lvl in floors:
+            name = level_name(lvl)
+            files = RECIPES[name][1]
+            mark = len(self.g.read_log())
+            try:
+                found, r, started = self.start_boss(i, lvl)
+            except Exception as e:
+                found, r, started = [], {"error": repr(e)}, []
+            if not found:
+                rows.append({"boss": name, "spawned": False, "errors": [f"{r} {started}"]})
+                self.notes.append(f"h1t {rows[-1]}")
+                continue
+            time.sleep(2.0)
+            for f in files:
+                row = {"boss": f"{name}:{f.rsplit('/', 1)[-1]}", "spawned": True, "raisable": f in rels, "body": False,
+                       "raised": False, "errors": []}
+                self.set_heresy(0)
+                k = self.gl("kill", 4000, "/" + f.rsplit("/", 1)[-1], "me")
+                time.sleep(2.0)
+                st = self.hwp("forge bodies", 0.3, until="forge bodies")
+                row["body"] = f in st
+                row["kill"] = str(k)[:120]
+                if row["body"]:
+                    # the body where it fell (a big boss drops it far off): the priest beside it
+                    m = re.search(re.escape(f) + r" at (-?\d+) (-?\d+)", st)
+                    if m:
+                        self.gl("teleport", int(m.group(1)) - 40, int(m.group(2)))
+                        time.sleep(0.4)
+                    self.raise_now()
+                    time.sleep(1.2)
+                    lines = [ln for ln in self.risen_lines() if not ln["dead"]]
+                    row["raised"] = any(f.rsplit("/", 1)[-1] in ln["name"] for ln in lines)
+                    row["risen"] = lines[:3]
+                    time.sleep(3.0)
+                    row["alive_3s"] = any(not ln["dead"] for ln in self.risen_lines())
+                    self.cull()
+                row["errors"] = self.errors_since(mark)[:3]
+                mark = len(self.g.read_log())
+                rows.append(row)
+                self.notes.append(f"h1t {row}")
+            self.g.shot(f"h1t-{name}")
+        self.out["h1t_rows"] = rows
+        raisable = [r for r in rows if r.get("raisable")]
+        self.flag("h1t_spawned", all(r.get("spawned") for r in rows), str([r["boss"] for r in rows if not r.get("spawned")]))
+        self.flag("h1t_bodies", bool(raisable) and all(r["body"] for r in raisable), str([r["boss"] for r in raisable if not r["body"]]))
+        self.flag("h1t_raised", bool(raisable) and all(r["raised"] and r.get("alive_3s") for r in raisable),
+                  str([(r["boss"], r.get("risen")) for r in raisable if not (r["raised"] and r.get("alive_3s"))]))
+        self.flag("h1t_unraisable_no_body", all(not r.get("body") for r in rows if r.get("spawned") and not r.get("raisable")),
+                  str([r["boss"] for r in rows if r.get("spawned") and not r.get("raisable")]))
+        self.flag("h1t_no_errors", not any(r.get("errors") for r in rows), str([(r["boss"], r["errors"]) for r in rows if r.get("errors")]))
 
 
 def run(p, sections="forge,penance,heresy_rules,lunge,decay,bosses,raise_all", units="", **_):

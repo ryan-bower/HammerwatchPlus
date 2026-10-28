@@ -29,6 +29,10 @@ LEVEL_HEADER = 8
 
 # file types that are text resources and get their paths rewritten
 TEXT_EXT = (".unit", ".inc", ".sval", ".effect", ".tileset", ".env", ".gui", ".fnt", ".mats")
+# HoH1 .gui widgets HoH2 lacks or has as another widget (HoH2's scrollbar null-pointers on
+# HoH1's markup): ported under names of their own (mods/campaign HoH1/Interfaces.as)
+GUI_TAGS = ("scrollbar", "scrollrect")
+GUI_TAG_RE = re.compile(r"<(/?)(" + "|".join(GUI_TAGS) + r")\b")
 SVALUE_EXT = (".lvl", ".pfb")
 RES_EXT = TEXT_EXT + SVALUE_EXT + (".png", ".tif", ".tga")
 # never copied: HoH2 has its own (different) shaders and these are engine-bound
@@ -97,6 +101,11 @@ def resolve(owner: str, ref: str) -> str:
 
 
 NEVER_ON_START = {"LevelExit", "LevelExitNext", "LevelExitNextAct"}
+# HoH1 level -> the tower floor its LevelExit loads by file. Our tower is one HoH2 mission
+# (its floors in order), and HoH2's LevelExit is a bare ChangeLevel that leaves the mission's
+# floor behind, so such an exit goes through the mission as the other floors' do
+# (HoH1LevelExitNext: MissionManager::NextLevel). The bridge is the floor before the dragon.
+MISSION_EXITS = {"levels/bridge.lvl": "levels/boss_dragon.lvl"}
 # HoH1 actor behaviors that HoH2 builds on StateActorBehavior, which needs at
 # least one entry in "states". A single state takes the unit's own movement
 # and skills, so the actor behaves as in HoH1 and HoH2's world scripts for the
@@ -312,6 +321,10 @@ class Rewriter:
 
     def text(self, text: str, owner: str) -> str:
         text = self.tags(text, owner)
+        if owner.endswith(".gui"):
+            text, n = GUI_TAG_RE.subn(lambda m: f"<{m.group(1)}hoh1-{m.group(2)}", text)
+            if n:
+                self.bump("gui-tag->hoh1")
         if '<behavior class="CompositeActorBehaviorColorized"' in text:
             # HoH2's CompositeActorBehavior reads "colorize" itself (a color set per channel):
             # HoH1's pulse colors go under names of their own (HoH1/Bosses.as)
@@ -391,6 +404,13 @@ class Rewriter:
                     if isinstance(x, dict) and any(k.lstrip("#") in SCRIPT_PARAMS[out[0]] for k in x):
                         out[i] = script_params(out[0], x)
                         self.bump("params:" + out[0])
+            if out[0] == "LevelExit" and owner in MISSION_EXITS:
+                for i, x in enumerate(out):
+                    if isinstance(x, dict) and str(x.get("Level", "")).endswith(MISSION_EXITS[owner]):
+                        out[i] = {k: y for k, y in x.items() if k != "Level"}
+                        out[0] = "HoH1LevelExitNext"
+                        self.bump("level-exit->next")
+                        break
             if out[0] in self.class_map:
                 self.bump("worldscript:" + out[0])
                 out[0] = self.class_map[out[0]]

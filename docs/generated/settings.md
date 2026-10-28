@@ -24,13 +24,13 @@ next level.
 | Colors | Names on maps | `playercolors.names` | on | on, off | local |
 | Colors | Name distance | `playercolors.distance` | 300 px | 0 px, 150 px, 300 px, 600 px, 1000 px | local |
 | Way gates | On | `waygates.enabled` | on | on, off | host |
-| Weapon swap | On | `weaponswap.enabled` | on | on, off | host |
-| Weapon swap | (option `swapkey`) | | | | local |
+| Wep. swap | On | `weaponswap.enabled` | on | on, off | host |
+| Wep. swap | (option `swapkey`) | | | | local |
 | Lasting summons | On | `summons.enabled` | on | on, off | host |
 | Lasting summons | Forgemaster risen | `summons.risen` | on | on, off | host |
 | Lasting summons | Every summon | `summons.all` | off | on, off | host |
-| Pets stay out of puzzle and trap rooms | On | `petwait.enabled` | on | on, off | host |
-| Pets stay out of puzzle and trap rooms | Room distance | `petwait.radius` | 120 px | 60 px, 90 px, 120 px, 180 px, 240 px | host |
+| Improved behavior | On | `petwait.enabled` | on | on, off | host |
+| Improved behavior | Room distance | `petwait.radius` | 120 px | 60 px, 90 px, 120 px, 180 px, 240 px | host |
 | Title bonuses | On | `legacy.enabled` | on | on, off | local |
 | Gold worth | always on: Data only: it replaces the gold pickup's looks. | | | | |
 | Mm-hmm! hats | On | `mmhmm.enabled` | on | on, off | host |

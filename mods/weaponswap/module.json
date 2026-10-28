@@ -6,7 +6,7 @@
   "overrides": [],
   "exclude": [],
   "config": {
-    "title": "Weapon swap",
+    "title": "Wep. swap",
     "about": "A second weapon set you swap to with a key (X by default), in a 2 s channel.",
     "toggle": "weaponswap.enabled",
     "scope": "host",

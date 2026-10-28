@@ -43,7 +43,7 @@ Two weapon sets per character, toggled with a hotkey.
 
 ## Settings
 
-On the HammerwatchPlus tab of the player menu (Quality of Life > Weapon swap):
+On the HammerwatchPlus tab of the player menu (Quality of Life > Wep. swap):
 
 - **On/off** `weaponswap.enabled` (default on, the host's value in a lobby). Off: the key
   does nothing, a channel under way is cancelled, the alt slots, their labels and the HUD tip

@@ -350,6 +350,46 @@ namespace WorldScript
 		SValue@ ServerExecute() { return null; }
 	}
 
+	// HoH1's notification (the town unlocks a floor announces: the apothecary, the anvil,
+	// the bestiary, combos). HoH2's AddNotification is a stub that logs "TODO: Add
+	// notifications", so the text goes up through HoH2's announcer, with the subtext under it.
+	// HoH2's HUD has no notification icons, so SubtextIcon isn't shown
+	[WorldScript color="#ff00ffff" icon="system/icons.png;64;32;32;32"]
+	class HoH1AddNotification
+	{
+		[Editable]
+		string Text;
+
+		[Editable default="#FF0000FF"]
+		vec4 ColorFrom;
+
+		[Editable default="#FFFFFFFF"]
+		vec4 ColorTo;
+
+		[Editable]
+		string SubtextIcon;
+
+		[Editable]
+		string Subtext;
+
+		SValue@ ServerExecute()
+		{
+			ClientExecute(null);
+			return null;
+		}
+
+		void ClientExecute(SValue@ val)
+		{
+			auto hud = GetHUD();
+			if (hud is null || Text.isEmpty())
+				return;
+			if (Subtext.isEmpty())
+				hud.AddAnnounce(HUDAnnounceText(Resources::GetString(Text), "hint_announce", 0, 0));
+			else
+				hud.AddAnnounce(HUDAnnounceText(Resources::GetString(Text), Resources::GetString(Subtext), "hint_announce", 0, 0));
+		}
+	}
+
 	// HoH1's next-floor exit takes the player to the LevelStart of the same StartID
 	// (the Battlements' left and right exits); HoH2's starts the next floor at the one
 	// of the last StartID set. Every HoH1 exit sets its own, "" for the default start.

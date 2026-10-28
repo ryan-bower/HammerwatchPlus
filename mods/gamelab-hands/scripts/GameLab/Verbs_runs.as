@@ -83,7 +83,8 @@ namespace GameLab
 	}
 
 	// actors [radius] [filter]: CompositeActorBehavior units within radius (default 400) of the player:
-	// position, hp, scene, the skills casting right now, targetable, moving (non-static body), frozen
+	// position, hp, scene, the skills casting right now, targetable, moving (non-static body), frozen,
+	// ally (on the player's team: HoH1's dragon floor shelters the player behind player-team iceblocks)
 	void VerbActors(const string &in id, array<string>@ args)
 	{
 		auto plr = GetLocalPlayer();
@@ -124,7 +125,8 @@ namespace GameLab
 			e.Int("unit", u.GetId()).Str("name", u.GetDebugName()).Str("behavior", Reflect::GetTypeName(a));
 			e.Num("x", pos.x).Num("y", pos.y).Num("hp", a.GetHealth()).Bool("dead", a.IsDead());
 			e.Str("scene", u.GetCurrentUnitScene().GetName()).Raw("casting", StrArray(casting));
-			e.Bool("targetable", a.IsTargetable()).Bool("moving", body !is null && !body.IsStatic()).Bool("frozen", a.m_frozen);
+			e.Bool("targetable", a.IsTargetable()).Bool("moving", body !is null && !body.IsStatic()).Bool("frozen", a.m_frozen)
+				.Bool("ally", a.Team == g_team_player);
 			items.insertLast(e.Close());
 		}
 		Emit(Reply(id, true).Int("count", items.length()).Raw("actors", RawArray(items)));

@@ -122,16 +122,30 @@ class Level:
     def area(self, sid):
         return self.shapes[self.scripts[sid]["params"]["Areas"][0]]
 
+    def exit_script(self, sid, depth=2):
+        """the exit a script runs, directly or through what it runs (the Battlements' exits
+        go through a SetFlag first)"""
+        for x in self.scripts.get(sid, {}).get("ex") or []:
+            if self.scripts.get(x, {}).get("type") in EXITS:
+                return x
+            if depth > 1:
+                y = self.exit_script(x, depth - 1)
+                if y is not None:
+                    return y
+        return None
+
     def exit_use(self):
         """the UseTrigger that runs a LevelExitNext from an area (the archives keep an unused
         one without): its id, its area's centre and its own position"""
         for sid, s in self.scripts.items():
-            if s["type"] == "UseTrigger" and s["params"].get("Areas") and any(self.scripts.get(t, {}).get("type") in EXITS for t in s["ex"]):
+            if s["type"] == "UseTrigger" and s["params"].get("Areas") and self.exit_script(sid) is not None:
                 return sid, self.area(sid), s["pos"]
         return None
 
 
-class Checks(Base):
+class TowerBoss:
+    """The tower's boss floors for any bot with gl/hwp/wait_phase (plan_generosity's hoh1
+    section uses it too): the floors, the boss units, a fight started as the level does."""
     def levels(self):
         r = self.gl("itc-mission", MISSION)
         return [(i, lv.get("id", "?"), lv.get("level") or "") for i, lv in enumerate(r.get("levels") or [])]
@@ -139,7 +153,7 @@ class Checks(Base):
     def bad_lines(self, mark):
         return [ln for ln in self.g.read_log()[mark:].splitlines() if BAD.search(ln) and not NOISE.search(ln)]
 
-    def bosses(self, files):
+    def boss_units(self, files):
         r = self.gl("unitsof", *files)
         return [u for f in files for u in (r.get(f) or {}).get("units") or []]
 
@@ -160,6 +174,25 @@ class Checks(Base):
             return {}
         raise ValueError(s)
 
+    def start_boss(self, i, lvl, wait=30):
+        """floor i loaded, god mode on, the fight's start steps run (RECIPES); the boss units
+        found within `wait` s (unitsof), the load reply, the step replies"""
+        number, files, steps = RECIPES[level_name(lvl)]
+        lv = Level(level_name(lvl))
+        r = self.gl("mission", MISSION, i, timeout=30)
+        if not (r.get("ok") and self.wait_phase("mission", 240)):
+            return [], r, []
+        time.sleep(4)
+        self.god_on()
+        started = [str(self.step(lv, s))[:160] for s in steps]
+        found, end = [], time.time() + wait
+        while time.time() < end and len(found) < len(files):
+            time.sleep(1)
+            found = self.boss_units(files)
+        return found, r, started
+
+
+class Checks(TowerBoss, Base):
     def wait_boot(self, mark, timeout=60):
         end = time.time() + timeout
         while time.time() < end:
@@ -203,7 +236,7 @@ class Checks(Base):
         end = time.time() + 30
         while time.time() < end and len(found) < len(files):
             time.sleep(1)
-            found = self.bosses(files)
+            found = self.boss_units(files)
         self.flag(tag + "_spawned", len(found) >= len(files), f"{len(found)} of {files}")
         # the fight: the boss acts on a live player for a while
         time.sleep(FIGHT_S / 2)
@@ -215,7 +248,7 @@ class Checks(Base):
                   and all(f.rsplit("/", 1)[-1] in units for f in files),
                   f"{rep['bossbar']}, want a title in {sorted(TITLES[name])}")
         time.sleep(FIGHT_S / 2)
-        alive = self.bosses(files)
+        alive = self.boss_units(files)
         p = self.gl("state").get("player") or {}
         start = {u.get("unit"): (float(u.get("x", 0)), float(u.get("y", 0))) for u in found}
         rep["moved"] = sum(1 for u in alive if u.get("unit") in start

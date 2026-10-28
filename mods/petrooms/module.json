@@ -7,7 +7,7 @@
   "overrides": [],
   "exclude": [],
   "config": {
-    "title": "Pets stay out of puzzle and trap rooms",
+    "title": "Improved behavior",
     "about": "Your pet waits outside puzzle and trap rooms, so it leaves buttons and pressure plates alone, and walks back out if it ends up in one.",
     "toggle": "petwait.enabled",
     "scope": "host",

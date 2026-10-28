@@ -5372,3 +5372,165 @@ Runs: tower-floors 20261028-152952 and 163319 (23 floors pass), tower-bosses 202
 (all but the armory's SetBossKilled), 161022 (all six pass), 162021 (pass, but no boss bars:
 the misplaced attribute), 162922 (pass with titled bars), 163821 (pass with the bubble, after
 a fixture rebuild).
+
+## 2026-10-28: HoH2 classes on HoH1's tower bosses (Generosity's stun, the Forgemaster's raise)
+
+**Pelor's Fury on HoH1 bosses** (plan-generosity-hoh1, the plan_generosity bot's `hoh1` section:
+each boss floor started the level's own way, the Fury on every boss unit). The golem, the Warden,
+the Watcher and Thundersnow were held at once. Three things in our HoH1 boss scripts
+(`mods/campaign/.../HoH1/Bosses.as`) didn't fit a stun:
+- **The Councilors' attack cast through the hold.** `HoH1BossLichRandomSkill` is a
+  `CompositeActorPeriodicTriggeredSkill`. HoH2 runs triggered skills through a disarm (phase
+  changes, death reactions), so it cast again the frame the hold cut it (20261028-164709). It
+  now waits while disarmed, as HoH1's disarm stops skills. HoH2's triggered skills also have
+  no `CancelSkill`, so the Fury's cut left the wind-up running (`IsCasting` is
+  `m_animTimeC > 0`) to its cast point (20261028-165541). It now has a `CancelSkill` that
+  zeroes both counters.
+- **Untargetable while held.** The Councilors and the Vampire Lord are untargetable while
+  their body isn't static, which is HoH1's rule: shots pass through them while they drift,
+  and they stand solid only while casting. The Fury refuses an untargetable unit
+  ("untargetable", like the burrowed Serpent), so all four were refused mid-drift
+  (20261028-165023). That refusal stays, by design. But once held, a cut cast made the body
+  drift again (velocity times MoveSpeedMul 0, but not static), so the stun was spent on a
+  unit nothing could hit. A held Councilor or Vampire (`MoveSpeedMul() <= 0`) now stands
+  solid, at zero velocity, and the Vampire comes out of bat form, as in a cast.
+- **Bot:** a refused Fury is retried for up to 20 s until a cast stands the boss solid. The
+  retry keys on the command's own reply ("cast refused ... untargetable"). The status line's
+  last refusal stays "untargetable" after a cast that started, and a retry then reset the
+  cooldown of the hold that had landed.
+
+Result (20261028-170027): all 8 boss units held, the attack cut (no non-passive skill
+casting), moved 0, cooldown 60 s, mana and stacks spent, armor 0, 4 to 6 beams, no script
+error.
+
+**The Devil Forgemaster's raise on HoH1 enemies** (plan-forgemaster-hoh1, 20261028-170645,
+pass). Section `hoh1`: all 23 HoH1 elites, minibosses and bosses in the imported
+`hoh1_risen.sval` (each one's base tier; the tier copies and the dragon left out) were raised
+in the arena. Each one stood up, attacked a brute and kept to the leash, with no script error.
+The HoH1 bosses follow as HoH2's risen do: the golem, the archer, the lich elite and the sentinel as RangedFollower, the
+rest as MeleeFollower, the battlement archer Passive (it never moves in HoH1 either). Section
+`hoh1_tower`: each tower boss floor loaded and its fight started the level's own way, then the
+priest (Deeper Depravity at epic) killed each boss. The golem, the Warden, the three Wraiths,
+the Watcher and the Vampire Lord each left a body on the floor that was raised there and still
+standing 3 s later. The dragon isn't raisable (tools/hoh1_risen.py EXCLUDE) and leaves no body,
+as intended. No code change was needed: the import's risen table and bodies were enough.
+
+## 2026-10-28: the Forsaken Tower played floor 1 to the end (tower-run), HoH1's gambler and end windows
+
+**The playthrough** (`tower-run`, bot `tower_run`). Floor 1 is loaded with `gl mission`. Every
+later floor is reached only through the floor's own exit: the player stands in the stairs'
+area (its AllPlayersAreaTrigger switches the UseTrigger on) and uses it. On each floor:
+- the enemies act;
+- area triggers, tripwires and trap shooters are toured;
+- every enemy is killed by the player and the drops are picked up;
+- chests, doors, levers, wells, shrines and imps are used;
+- a boss floor runs its fight.
+
+What the run found, besides the ports below:
+- **Area triggers stand away from their areas.** In HoH1's prefabs, an AreaTrigger's script
+  position is often not inside its collision area (195 of them in the tower's prefabs), so
+  standing on the script trips nothing. The tour now stands in the areas themselves: the level
+  file's shapes, or, on a generated floor, the shapes of the prefab instance the trigger came
+  from. Each instance is matched by the positions of four sibling scripts
+  (`tower_run.prefab_areas`).
+- **AddNotification.** HoH2's `AddNotification` is a stub that only logs "TODO: Add
+  notifications". HoH1 used it for the town unlocks a floor announces (the apothecary, the
+  anvil, the bestiary, combos). The campaign's `HoH1AddNotification` puts the text up through
+  HoH2's announcer, with the subtext under it. HoH2's HUD has no notification icons, so
+  `SubtextIcon` isn't shown.
+- **A shrine's buff opens a dialog and pauses the game** (Shrine.Use: ShowDialog "a", then
+  PauseGame). The bot answers it as a player does, before it moves on.
+- **Trap shots.** The `traps` probe's "rays" counted only RayProjectiles with no owner, but the
+  tower's trap shots are the campaign's HoH1Projectile, a ProjectileBase. It now counts any
+  projectile with no owner.
+- **Chest rooms and hidden-chest puzzles.** Many of the armory's and archives' shooters fire
+  only once the room's chest is opened or a puzzle lever is pulled: TimerTriggers that the
+  chest's or lever's ToggleScripts switch on. The bot now also samples trap shots after each
+  use.
+- **The vampire's crosses** (boss_chambers). A vampire cross picked up on the chambers floors
+  sets `vampire_cross1-4`. With any of them set, the boss room's CheckFlag chain leaves the
+  ActivateBoss area off and sets the GlobalVariable `crosses` instead. The vampire wakes once
+  the crosses are placed on the altars: each safe area's UseTrigger fires `cross_expended`,
+  which counts `crosses` down, and at 0 the boss activates (ScriptLink 615). The boss-floor
+  test loads the level fresh, with no crosses, so the area starts the fight. In the
+  playthrough, the bot uses the altars when the boss doesn't appear.
+- **The bridge's exit skipped the mission.** HoH1's bridge leaves through a plain
+  `LevelExit` to boss_dragon.lvl. HoH2's LevelExit is a bare `ChangeLevel`, which loads the
+  file but leaves the mission's floor index on the bridge. The importer now turns a LevelExit
+  to the tower's next floor into `HoH1LevelExitNext` (MissionManager::NextLevel), as the other
+  floors use (`tools/hoh1_convert.py` MISSION_EXITS). The Battlements' two exits run through a
+  SetFlag (`battlements_left`/`right`) before the exit, and the bot's exit finder now follows
+  that chain (`Level.exit_script`).
+- **Traps a player leaves silent.** Many shooters belong to chest rooms whose gold or silver
+  chest needs a key, or to archives hidden-chest puzzles that fire only on a wrong move. A
+  floor whose player doesn't set them off stays quiet, as in HoH1. `run_traps_fire` now asks
+  for trap fire in every act and lists the floors whose traps stayed silent.
+- **Levers that switch each other off.** On the prison floors, a lever pulled earlier can
+  turn another one off before its turn (HoH2's `UseTrigger.CanUse` is false while the script
+  is disabled). The bot reads the trigger's state again when a use is refused. A trigger the
+  floor's own scripts switched off is not a fault.
+- **Allies among the actors.** The dragon floor's iceblocks, the player's cover from the
+  breath, are actors on the player's team, so the bot read them as enemies left alive. The
+  `actors` verb now reports `ally` (`Team == g_team_player`) and the bot skips allies.
+- **Enemies that wait.** A ballista at rest neither moves nor casts, so a floor whose nearest
+  enemy was one read as inactive (battlements_2). The bot now stands beside the nearest enemy
+  of up to four kinds in turn and watches each.
+- **The bridge has no enemies.** HoH1's walk to the dragon has no spawners either, so a floor
+  with no enemies and no `SpawnEnemyGroup` counts as empty by design.
+- **The result** (20261028-190322, 985 s, every flag passing):
+  - all 23 floors, each reached through its own exit;
+  - 657 enemies killed and 90 drops picked up;
+  - 55 level triggers used. 10 of them had already been switched off by the floor's own
+    scripts.
+  - 21 chests found, 8 opened. The rest need keys the run didn't carry.
+  - all six bosses fought and killed: the Stone Guardian, the Warden, the Councilor of War,
+    the Watcher, the Vampire Lord (woken at the five altars) and Thundersnow;
+  - traps fired in all five acts, on 11 floors. Only archives_3 stayed silent (its puzzles).
+  - No generated floor this run had a gambler room. tower-interfaces covers the gambler.
+  - The end window opened, and CONTINUE took the player back to town.
+  - The character went from level 1 to 9.
+
+**HoH1's ItemDealer and EndOfGame** (`mods/campaign/.../HoH1/Interfaces.as`). The gambler room
+(prefabs/special/special_item_gambler.pfb) and Thundersnow's death run `OpenInterface` with
+the classes `ItemDealer` and `EndOfGame`. HoH2 has neither, and its OpenInterface hits a null
+pointer on a class it can't make (WorldScript/GUI/OpenInterface.as:76). Both are ported on
+HoH1's own .gui files, and the importer maps the class names (CLASS_MAP).
+- **The gambler bets HoH2 trinkets.** The tower's items are trinkets here (HoH1Item). Cursed,
+  quest and unique trinkets aren't listed (HoH1 had no cursed items). The points per quality
+  are HoH1's: common 1, uncommon 3, rare 7, epic 12, legendary 24. The quality odds come from
+  HoH1's tweak/itemdealer.sval, imported: the first row whose min-points the bet exceeds. The
+  roll is `Item::GetRandomTrinket` at the drawn quality, given with `GiveItem`. There is one
+  gamble per gambler: reopened, the window shows the item it gave, with the list and dice off.
+- **EndOfGame.** CONTINUE runs `MissionManager::AbortMission(Succeeded)`, which is what
+  NextLevel does past a mission's last level. The stats button runs `TogglePlayerMenu`. The
+  window can't be closed otherwise, as in HoH1.
+- **Tooltips.** HoH1 set `m_tooltipTitle`/`m_tooltipText` on the widget. HoH2 keeps them in a
+  `WidgetTooltip` object, and `CloneInto` shares the handle between a clone and its template,
+  so each widget gets a fresh one (`HoH1SetTooltip`).
+- **The scroll widgets.** HoH2 dropped the "scrollrect" producer, though ScrollableWidget is
+  still there. HoH2's "scrollbar" is a different widget, with its own sprite names and input,
+  and it null-pointers on HoH1's markup (ScrollbarWidget.as:157). Both are ported as
+  `hoh1-scrollrect` and `hoh1-scrollbar` (HoH1's GUI/Scrollbar.as, on HoH1's scrollbar
+  sprites), and the importer renames the tags in imported .gui files
+  (`tools/hoh1_convert.py` GUI_TAGS), so HoH2's own widgets are untouched.
+  - HoH1's mouse came through `Widget.OnMouseDown` and `m_hovering`, which HoH2's Widget no
+    longer has. The port reads hover from the mouse position and the click from
+    `GetMenuInput().Forward`.
+  - HoH2's SpriteBatch has no `DrawSprite(Texture2D, vec2, frame)` overload, so the port
+    draws into a rect instead.
+  - The 1-pixel trough middle is stretched rather than wrapped. It looks the same.
+- **Test** (`tower-interfaces`, `itc-host`):
+  - The gambler room is fabricated on floor 1 and the player is given 2 common, 2 uncommon, 1
+    rare and 1 cursed trinket. The window lists 5, with the dice off.
+  - With three ticked (5 points), the odds read 34% common and 67% uncommon. After the roll,
+    the three are gone, one new trinket is in, and it is shown as the final item. On reopen,
+    the same item shows, with everything off.
+  - Thundersnow is killed: "THE END" opens with HoH1's story, and CONTINUE goes back to town.
+  - The log is clean (20261028-182126).
+
+Runs:
+- tower-interfaces: 20261028-181346 (scrollbar null pointer), 182023 (DrawSprite compile
+  error), 182126 (pass).
+- tower-run: 20261028-173522, then 182249 (stopped at the chambers boss: the crosses), then
+  184122 (stopped at battlements_1: the exit through a SetFlag), 185918 (the last four
+  floors only, partial), 190322 (pass: 23 of 23 floors, every flag).

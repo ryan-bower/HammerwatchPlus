@@ -311,6 +311,16 @@ class HoH1BossLichMovement : ActorMovement
 			return;
 		}
 
+		// held (a stun: the Paladin's Pelor's Fury): it stands solid, so it stays
+		// targetable as it does in a cast, instead of drifting untouchable through
+		// the stun. HoH1 had no stun to hold one
+		if (m_behavior.m_buffs.MoveSpeedMul() <= 0)
+		{
+			body.SetLinearVelocity(vec2());
+			body.SetStatic(true);
+			return;
+		}
+
 		SetUnitScene(m_walkAnim.GetSceneName(m_dir), false);
 		body.SetStatic(false);
 
@@ -360,6 +370,13 @@ class HoH1BossLichRandomSkill : CompositeActorPeriodicTriggeredSkill
 
 	void Update(int dt, bool isCasting) override
 	{
+		// a disarm (a stun: the Paladin's Pelor's Fury) stops it as HoH1's disarm stops
+		// skills. HoH2 runs triggered skills through a disarm (phase changes, death
+		// reactions), so this one would cast again the frame the hold cut it
+		// (plan-generosity-hoh1 20261028-164709)
+		if (!isCasting && m_behavior.m_buffs.Disarm())
+			return;
+
 		vec2 pos = xy(m_unit.GetPosition());
 		if (m_maxRange != -1 && !isCasting && g_scene.FetchActorsWithOtherTeam(m_behavior.Team, pos, m_maxRange).length() == 0)
 			return;
@@ -390,6 +407,15 @@ class HoH1BossLichRandomSkill : CompositeActorPeriodicTriggeredSkill
 	{
 		m_meleeCooldownC = m_meleeCooldown;
 		CompositeActorPeriodicTriggeredSkill::Trigger(target);
+	}
+
+	// HoH2's triggered skills have no cancel: a stun's cut (the Paladin's Pelor's Fury) left
+	// the attack's wind-up running to its cast point through the hold (plan-generosity-hoh1
+	// 20261028-165541). Cut, it neither fires nor counts as casting
+	void CancelSkill() override
+	{
+		m_castPointC = 0;
+		m_animTimeC = 0;
 	}
 }
 
@@ -606,10 +632,14 @@ class HoH1BossVampireMovement : ActorMovement
 		if (m_nodeWaitTimeC > 0)
 			m_nodeWaitTimeC -= dt;
 
-		// standing: casting or resting at a node
-		if ((isCasting || m_nodeWaitTimeC > 0) && !Roaming())
+		// standing: casting, resting at a node, or held (a stun: the Paladin's
+		// Pelor's Fury, so it stays solid and targetable through the stun)
+		bool held = m_behavior.m_buffs.MoveSpeedMul() <= 0;
+		if (held)
+			body.SetLinearVelocity(vec2());
+		if (((isCasting || m_nodeWaitTimeC > 0) && !Roaming()) || held)
 		{
-			if (m_behavior.m_target is null)
+			if (m_behavior.m_target is null && !held)
 				return;
 			if (m_transformed)
 			{

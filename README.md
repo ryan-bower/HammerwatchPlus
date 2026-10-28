@@ -180,8 +180,26 @@ and HoH1's texts and boss names are imported from its language file. `tower-floo
 start them, checks each titled boss bar, kills them as the player and takes each exit
 (20261028-163821). GameLab fix: `hps.current_save` read the save header's timestamp as a float
 and picked the wrong rotation file once its low word passed bit 31, so a rebuilt fixture lost
-the scenario's mods. Still open: the Paladin's Generosity stun and the Devil Forgemaster's raise
-on HoH1 bosses, not yet tested.
+the scenario's mods. HoH2 classes on HoH1's bosses: the Paladin's Generosity holds all eight
+boss units (`plan-generosity-hoh1`, 20261028-170027). Two fixes made that work: the Councilors'
+attack no longer casts through the hold, and a held Councilor or Vampire Lord stands solid and
+targetable. The Devil Forgemaster raises every HoH1 elite, miniboss and boss, including each
+tower boss from its body on its own floor (`plan-forgemaster-hoh1`, 20261028-170645). The
+dragon is the exception, unraisable as designed.
+
+2026-10-28, the Forsaken Tower played from floor 1 to the end (`tower-run`, 20261028-190322,
+pass in 16 min). The run used every floor's own exit for all 23 floors. On the way it cleared
+657 enemies, used 55 level triggers and the chests, doors, shrines and wells, and fought all
+six bosses. Traps fired in all five acts. Only archives_3's puzzle traps stayed silent, because
+a player who doesn't make a wrong move never sets them off. The fixes it took:
+- The vampire wakes once the crosses found on the chambers floors are placed on the altars,
+  as in HoH1, and the bot places them.
+- The bridge's exit to the dragon now runs through the mission. It used to leave the mission's
+  floor on the bridge.
+- HoH1's gambler (ItemDealer) and end window (EndOfGame) are ported on HoH1's own .gui files,
+  with HoH1's scroll widgets. The gambler bets HoH2 trinkets, one gamble per gambler, and the
+  end window's CONTINUE goes back to town (`tower-interfaces`, 20261028-182126).
+- AddNotification shows its text through HoH2's announcer.
 
 2026-10-28, pets keep out of trap rooms as well as puzzle rooms, and walk back out of one
 they end up in. This is the new shared module `petrooms`: it is listed in Quality of Life,

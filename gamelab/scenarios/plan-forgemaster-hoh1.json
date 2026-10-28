@@ -1,0 +1,73 @@
+{
+ "name": "plan-forgemaster-hoh1",
+ "needs_hoh1": true,
+ "about": "The Devil Forgemaster (Priest 4th spec) on the HoH1 Forsaken Tower's enemies (plan_forgemaster bot): section hoh1, every HoH1 boss, elite and miniboss (each one's base tier, from the imported hoh1_risen.sval) through the raise_all table in the arena (raised, attacks a brute, the leash, no script error); section hoh1_tower, each HoH1 boss floor of hwp_forsaken_tower_hoh1 loaded and its fight started the way the HoH1 level does, each boss killed by the priest with Deeper Depravity at epic: its body on the floor, raised there, standing 3 s later, no script error (the dragon is not raisable and leaves no body). Needs the HoH1 import.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "classes",
+  "specs",
+  "campaign",
+  "gamelab-it-campaign"
+ ],
+ "timeout": 3000,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",
+   "timeout": 30
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "plan_forgemaster",
+   "kwargs": {
+    "sections": "hoh1"
+   },
+   "name": "hoh1",
+   "expect": {
+    "h1_char": true,
+    "h1_learned": true,
+    "h1_list": true,
+    "h1_raised": true,
+    "h1_attack": true,
+    "h1_leash": true,
+    "h1_no_errors": true
+   }
+  },
+  {
+   "do": "bot",
+   "bot": "plan_forgemaster",
+   "kwargs": {
+    "sections": "hoh1_tower"
+   },
+   "name": "hoh1_tower",
+   "expect": {
+    "h1t_char": true,
+    "h1t_learned": true,
+    "h1t_floors": true,
+    "h1t_spawned": true,
+    "h1t_bodies": true,
+    "h1t_raised": true,
+    "h1t_unraisable_no_body": true,
+    "h1t_no_errors": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}
