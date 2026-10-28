@@ -122,7 +122,7 @@ SYMBOLS = {
     "roulette": [px("mods/roulette/doodads/hwp/roulette_wheel.png", 0, 0, 32, 32)],
     "tavern": [cell("town", 5, 0)],
     # Pets
-    "pets": [px("mods/pets/doodads/hwp/pets.png", 32, 0, 32, 32), cell("pet", 0, 0), cell("pet", 7, 0)],
+    "pets": [px("gui/pet_icons.png", 3, 2, 16, 17)],
     # HoH1 Classes (held)
     "classes": [px("mods/classes/players/hwp/thief/class_showcase.png", 0, 0, 64, 64)],
 }
@@ -398,6 +398,44 @@ def big_tiles(im, top, bottom, tiles):
     return im
 
 
+def game_pets() -> list:
+    """Every pet the game's Pet Shop sells, as its own shop icon (tweak/pets.sval), in order."""
+    text = re.sub(r"<!--.*?-->", "", (BASE / "tweak" / "pets.sval").read_text(encoding="utf-8"), flags=re.S)
+    out = []
+    for d in re.findall(r"<dict>(.*?)</dict>", text, re.S):
+        m = re.search(r'name="icon"><s>([^<]+)</s><i>\d+</i><vec4>(\d+) (\d+) (\d+) (\d+)</vec4>', d)
+        if m and re.search(r'name="unit">[^<]+<', d):     # "none", the no-pet entry, has no unit
+            out.append(px(m.group(1), *map(int, m.groups()[1:])))
+    return out
+
+
+def showcase_card(title, icons, lines, subtitle="", prereq=""):
+    """A row of large framed symbols (every pet, say), and under it a few lines of what is in it."""
+    from PIL import ImageDraw
+    im, top, bottom = canvas(title, subtitle, prereq)
+    W, _ = NATIVE
+    d = ImageDraw.Draw(im)
+    gap = 6
+    slot = min(52, (W - 40 - gap * (len(icons) - 1)) // len(icons))
+    lab = font("empire_7h")
+    line_h = 13
+    block = slot + 12 + line_h * len(lines)
+    y = top + max(0, (bottom - top - block) // 2)
+    x = (W - (len(icons) * slot + gap * (len(icons) - 1))) // 2
+    for ref in icons:
+        sp = fit(sprite(ref), slot - 8)
+        d.rectangle([x, y, x + slot - 1, y + slot - 1], fill=PANEL_LO + (255,), outline=GOLD + (255,))
+        d.rectangle([x + 1, y + 1, x + slot - 2, y + slot - 2], outline=GOLD_LO + (255,))
+        im.alpha_composite(sp, (x + (slot - sp.width) // 2, y + (slot - sp.height) // 2))
+        x += slot + gap
+    y += slot + 12
+    for ln in lines:
+        t = text_layer(ln, lab, TEXT)
+        im.alpha_composite(t, ((W - t.width) // 2, y))
+        y += line_h
+    return im
+
+
 def kit_card(title, groups, per_skill: bool, subtitle="", prereq=""):
     """groups: (heading, [(skill ref, [orb refs])]); every ability (gold edge) with its orbs.
     per_skill: a row per ability, the group's name on its first row (a class's kit);
@@ -536,10 +574,6 @@ FEATURES = {
     "campaign": [("The Forsaken Tower", [cell("skills", 5, 15)], "18 floors, 6 bosses, Mines to Battlements"),
                  ("A portal in town", [cell("town", 2, 1)], "on the chapel courtyard campfire"),
                  ("Traps and tricks", [cell("town", 6, 2), cell("skills", 3, 15)], "spikes, flame jets, teleporters")],
-    "pets": [("Pet levels", [px("mods/pets/doodads/hwp/pets.png", 32, 0, 32, 32)], "XP from kills, pickups and crops"),
-             ("Pet skills", [cell("pet", 0, 0), cell("pet", 7, 0)], "trained by the Pet Shop keeper"),
-             ("Pet dyes", [px("gui/icons.png", 142, 11, 14, 13)], "at the tailor"),
-             ("Pickup toggles", [px("gui/icons.png", 104, 77, 20, 12)], "per pet; pets wait outside puzzles")],
     "classes": [("Thief", [px("mods/classes/players/hwp/thief/class_showcase.png", 0, 0, 64, 64)]),
                 ("Gladiator", [px("mods/classes/players/hwp/gladiator/class_showcase.png", 0, 0, 64, 64)]),
                 ("Witch Hunter", [px("mods/classes/players/hwp/witchhunter/class_showcase.png", 0, 0, 64, 64)])],
@@ -583,6 +617,10 @@ def package_card(pkg: dict):
     if pid == "specs":
         groups = class_kit("specs", "players/hwp/specs/class_specs.sval", "specs")
         return kit_card(title, groups, False, "", need)
+    if pid == "pets":
+        return showcase_card(title, game_pets(), ["Pets level up and learn skills at the Pet Shop",
+                                                  "Pet dyes at the tailor", "Pickup toggles for each pet",
+                                                  "Pets wait outside puzzle rooms"], "", need)
     if len(pkg["mods"]) == 1 and pid in FEATURES:
         return tiles_card(title, FEATURES[pid], "", need)
     return tiles_card(title, [(module_title(m), SYMBOLS[m], NOTES.get(m, "")) for m in pkg["mods"]], "", need)

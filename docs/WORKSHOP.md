@@ -138,7 +138,8 @@ look like the game and like each other:
   `python tools/workshop_art.py --sheet` draws them all with their ids, for checking a
   sprite box.
 - **The layouts.** Firearms shows every skill with its orbs, by specialization. The specs
-  card shows each spec's two skills and their orbs. A package of up to eight entries gets
+  card shows each spec's two skills and their orbs. The Pets card shows every pet the game's Pet Shop sells, by its own shop icon
+  (`tweak/pets.sval`), with the features as text under them. A package of up to eight entries gets
   large framed symbols with a note under each name; Quality of Life gets a compact grid. The
   All pack's cover lists every package.
 
