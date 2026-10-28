@@ -1,0 +1,50 @@
+{
+ "name": "pf-plan-petrooms-vanilla",
+ "about": "plan-petrooms-vanilla against the built package qol instead of the mods' source folders (tools/make_package_scenarios.py). petrooms without the Pets package (Quality of Life's petrooms alone): a vanilla Pet Shop pet, driven by PetRooms.as, follows a walk; with a vanilla puzzle (lights-out) at its end, then with a trap room (three pressure-plate spikes), it waits outside without moving and follows again when the player comes out; with petwait.radius 60, spikes put beside the pet (not the player) send it out of the room, where it waits until the player moves on. No HWP pet class is in play.",
+ "fixture": "town-tavern",
+ "timeout": 420,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "plan_pets",
+   "kwargs": {
+    "sections": "vanilla_setup,puzzle_wait,trap_wait,trap_leave"
+   },
+   "save_as": "rooms",
+   "name": "vanilla pet, puzzle and trap rooms",
+   "expect": {
+    "vanilla_pet_out": true,
+    "pet_follows_control": true,
+    "pet_waits_outside_puzzle": true,
+    "pet_follows_after_puzzle": true,
+    "pet_waits_outside_trap": true,
+    "pet_follows_after_trap": true,
+    "pet_leaves_trap_room": true,
+    "pet_follows_after_leaving": true
+   }
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "pet class active",
+   "name": "no HWP pet class: the pet is vanilla"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "qol"
+ ]
+}

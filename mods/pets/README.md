@@ -1,8 +1,10 @@
 # pets
 
-Pet progression, pet skills, per-pet pickup toggles, puzzle-room waiting and
-every Heroes of Hammerwatch 1 pet skin in the HoH2 Pet Shop. Replaces the old
-`petwait` module (its pet classes live here now).
+Pet progression, pet skills, per-pet pickup toggles and every Heroes of
+Hammerwatch 1 pet skin in the HoH2 Pet Shop. Pets keep out of puzzle and trap
+rooms through `mods/petrooms` (a shared module: this package carries it, and so
+does Quality of Life); the pet classes here are `HWP::PetWait::Owned` and run its
+Watcher in their own Update.
 
 - **Pet classes.** `module.json` `class_swaps` puts `HWPMiniPetWalking` and
   `HWPMiniPetFlying` (`scripts/HWP/Pets/PetClasses.as`) into copies of the
@@ -59,7 +61,7 @@ every Heroes of Hammerwatch 1 pet skin in the HoH2 Pet Shop. Replaces the old
   checks the peer's reported ranks (`pets.level`, sent on load and on every
   change), a per-skill cooldown and a 500 px range to the requester before
   damaging/stunning. Mend and Morale touch only the owner and run locally.
-  No skill fires in town or while the pet waits outside a puzzle room.
+  No skill fires in town or while the pet waits outside a puzzle or trap room.
 - **Pickup toggles** set `PlayerRecord.petOptions` (a vanilla field that is
   saved as `pet-options`); `ResetPet()` re-initialises the live pet. Bowl menu
   rows or `hwp pet gold|valuables|materials|health|caches|cursed|elixirs|xp on|off`.
@@ -85,11 +87,12 @@ every Heroes of Hammerwatch 1 pet skin in the HoH2 Pet Shop. Replaces the old
   (`pets.dye` -> host -> `pets.dyed`) on every floor and on a change, so the
   others see it too.
 - Settings: `pets.enabled`, `pets.debug` (`hwp pet xp <n>`), `pets.bowl`,
-  `pets.bowl_x/y`, `petwait.enabled`, `petwait.radius` (all host-synced). The
-  HammerwatchPlus tab of the player menu shows `pets.enabled`, `petwait.enabled`,
-  `petwait.radius` and `pets.bowl` (`config` in module.json).
+  `pets.bowl_x/y` (all host-synced). The HammerwatchPlus tab of the player menu
+  shows `pets.enabled` and `pets.bowl` (`config` in module.json); `petwait.*` is
+  petrooms'.
 - `pets.enabled 0` takes effect at once: your pet is re-made as vanilla (no skills,
-  pickup toggles, scarab gold, dye or puzzle waiting), it gains no XP, the keeper
+  pickup toggles, scarab gold or dye; it still keeps out of puzzle and trap rooms
+  while `petwait.enabled` is on), it gains no XP, the keeper
   and the tailor open their vanilla shops, the bowl goes, and `hwp pet <cmd>` says
   it is off. Levels, points, options and dyes stay in the save data. The HoH1 pets
   stay in the Pet Shop (they are data, `tweak/hwp/pets_hoh1.sval`).
@@ -104,7 +107,7 @@ every Heroes of Hammerwatch 1 pet skin in the HoH2 Pet Shop. Replaces the old
 1. `python -m gamelab run mod-pets --mode lab`: `self-check done: 7 skills, 5 foods`; after import
    `22 HoH1 pet(s) in the Pet Shop`; `pet class active: HWPMiniPet...` lines once a pet spawns.
 2. Pet Shop lists the HoH1 pets with icons; buying one spawns it; it follows,
-   picks up gold, waits outside puzzle rooms.
+   picks up gold, waits outside puzzle and trap rooms.
 3. `hwp set pets.debug true`, `hwp pet xp 500`: level-up chat line; the keeper's
    Train menu shows points; spend on Smash: pots near the pet break in a run.
    (`fix-pets-merchant`: bot `fix_pets` check merchant; `plan-t9`'s `petbowl`

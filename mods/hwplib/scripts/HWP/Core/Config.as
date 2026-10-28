@@ -268,7 +268,12 @@ namespace HWP
 				Package@ pkg = Package();
 				pkg.id = HWP::SV::Str(parr[p], "id");
 				auto marr = Arr(parr[p], "mods");
-				for (uint m = 0; marr !is null && m < marr.length(); m++)
+				// a shared module (petrooms) is listed under every package that carries it: it
+				// goes under the first one that is loaded, by a module of its own
+				bool loaded = false;
+				for (uint m = 0; marr !is null && m < marr.length() && !loaded; m++)
+					loaded = !HWP::SV::Bool(marr[m], "shared", false) && Present(HWP::SV::Str(marr[m], "id"));
+				for (uint m = 0; loaded && m < marr.length(); m++)
 				{
 					string id = HWP::SV::Str(marr[m], "id");
 					if (id.isEmpty() || !Present(id) || g_mods.exists(id))

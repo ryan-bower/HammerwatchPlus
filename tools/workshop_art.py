@@ -96,6 +96,7 @@ SYMBOLS = {
     "waygates": [px("doodads/generic/generic.png", 0, 800, 32, 33)],
     "weaponswap": [cell("equip", 19, 3), px("gui/icons.png", 36, 63, 13, 12), cell("equip", 3, 3)],
     "summons": [cell("skills", 7, 1)],
+    "petrooms": [px("gui/pet_icons.png", 131, 2, 16, 17), px("gui/icons.png", 96, 0, 12, 12)],  # a pet, the puzzle mark
     "legacy": [px("mods/legacy/gui/hwp_legacy.png", 0, 0, 16, 16)],
     "goldworth": [px("gui/icons.png", 0, 128, 13, 13)],
     "mmhmm": [cell("equip", 4, 11)],
@@ -672,7 +673,7 @@ def prereq(pids) -> str:
     return ", ".join(f"{card}: {dlc} DLC" for dlc, _, card in (workshop.DLC[p] for p in pids if p in workshop.DLC))
 # the All pack's cover: a short name and what the package is, in a few words
 SHORT = {
-    "qol": ("Quality of Life", "14 helpers"), "coop": ("Co-op Play", "3 party features"),
+    "qol": ("Quality of Life", "15 helpers"), "coop": ("Co-op Play", "3 party features"),
     "autoaim": ("Auto Aim", "aim assist"), "firearms": ("Firearms", "a new class"),
     "specs": ("4th Specs", "8 new specializations"),
     "keys": ("Keys & Chests", "locked loot, ace chests"), "campaign": ("Forsaken Tower", "18-floor campaign"),

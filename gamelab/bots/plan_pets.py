@@ -6,8 +6,10 @@ Sections, by scenario:
   plan-pets-a (the fixture's own GameLab character, made before HWP was enabled):
     legacy_record, dyer_nopet, petshop, dyer_choice, dye_pet | legacy_run, dye_floor,
     to_town | restart | dye_restart, dye_remove
-  plan-pets-b (a fresh LabPets): pets_setup, smash, mend, stun, puzzle_wait, morale_on |
-    morale_combat | morale_after
+  plan-pets-b (a fresh LabPets): pets_setup, smash, mend, stun, puzzle_wait, trap_wait,
+    trap_leave, morale_on | morale_combat | morale_after
+  plan-petrooms-vanilla (QoL without the Pets package: a vanilla pet, driven by petrooms'
+    PetRooms.as): vanilla_setup, puzzle_wait, trap_wait, trap_leave
 
 Verbs beyond plan_checks: presslist / querycmp / unitdestroy (Verbs_pets.as), buildup
 (Verbs_farming.as), hurt / buffs (Verbs_classesb.as), actorbuffs (Verbs_classesa.as)."""
@@ -34,6 +36,13 @@ def dye_hex(h):
     return h
 PUZZLE_PFB = "prefabs/puzzles/puzzle_lights_out_small.pfb"
 PUZZLE_UNIT = "doodads/buttons/button_magic.unit"
+# a trap room for petrooms (three trap spots within petwait.radius): pressure-plate spikes
+TRAP_UNIT = "doodads/traps/floors/floor_spikes_pressure.unit"
+# the floor's own traps the walks keep clear of (floor_traps): what generated floors place
+FLOOR_TRAPS = [f"doodads/traps/{u}.unit" for u in (
+    "floors/floor_spikes", "floors/floor_spikes_pressure", "floors/floor_spikes_cave_light",
+    "floors/floor_spikes_pressure_crypt", "floors/floor_fire", "floors/floor_curse", "mines/spike_trap")] + [
+    f"doodads/hwp/traps/hwp_glyph_{g}.unit" for g in ("bomb", "confusion", "dart")]
 # "with the player": a following pet idles anywhere inside the base range-idle (100 px) and
 # only walks once past it (144852: 86.8 px off and idle for 11 s, by design)
 FOLLOW_PX = 110
@@ -364,6 +373,11 @@ class Checks(Base):
         self.flag("pets_ready", bool(self.pet()) and "point" in st, st.strip()[-160:])
         self.start_floor(0)
         self.gl("cull")
+        # the floor's own spikes (the bandit keep has 9-15 round the start, 20261028-125555)
+        # can make the start a trap room, where the pet waits instead of using its skills:
+        # the skill checks run with room manners off, the room checks turn them on. (Not
+        # unitdestroy: with the spikes gone, 160 of 161 pathfinds found no path, 125819.)
+        self.hwp("set petwait.enabled false", 0.4)
         time.sleep(2)
 
     def spend(self, skill, n):
@@ -566,36 +580,103 @@ class Checks(Base):
         pf = self.gl("pathfind", round(x), round(y), 12, -1, -1, round(fx), round(fy))
         return bool(pf.get("ok")) and pf.get("nodes", 0) > 0 and pf.get("length", 1e9) <= most
 
+    def floor_traps(self):
+        """The floor's own traps round the player (petrooms counts them: the bandit keep's
+        spike rooms, the campaign's glyphs), kept for the walks' checks (20261028-135632: the
+        control walk and the walk-on each crossed a spike room of the floor's, and the pet
+        rightly waited)."""
+        # by unit file (gl unitsof): near's filter reads debug names, and a doodad's is empty
+        # (20261028-140312: "near 1500 trap" found none)
+        r = self.gl("unitsof", *FLOOR_TRAPS)
+        pl = self.player()
+        self.traps = [(u["x"], u["y"]) for f in FLOOR_TRAPS for u in (r.get(f) or {}).get("units") or []
+                      if math.hypot(u["x"] - pl.get("x", 0), u["y"] - pl.get("y", 0)) < 1500]
+        return self.traps
+
+    def by_traps(self, ax, ay, bx, by, clear=150):
+        """Whether the walk from a to b passes within `clear` px of one of the floor's traps,
+        or of the test's own room while it stands (20261028-140025: a walk-on turned 135
+        degrees ran back past the puzzle, and the pet waited again)."""
+        for tx, ty in list(getattr(self, "traps", ())) + list(getattr(self, "rooms", ())):
+            vx, vy = bx - ax, by - ay
+            t = max(0.0, min(1.0, ((tx - ax) * vx + (ty - ay) * vy) / max(1e-6, vx * vx + vy * vy)))
+            if math.hypot(ax + t * vx - tx, ay + t * vy - ty) < clear:
+                return True
+        return False
+
     def walk_on(self, sx, sy, ux, uy, avoid=None):
-        """A point 150 px from (sx, sy) along (ux, uy), or turned up to 90 degrees, on a
-        near-straight path and 120 px or more from `avoid`, or None."""
-        for turn in (0, 45, -45, 90, -90):
+        """A point 150 px from (sx, sy) along (ux, uy), or turned up to 135 degrees, on a
+        near-straight path and 120 px or more from `avoid`, or None. (135: a pet parks at the
+        last clear point of its owner's trail, by the start; 20261028-123250 had no walk-on
+        within 90 degrees, and measured at the start the parked pet looked as near as a
+        following one.)"""
+        for turn in (0, 45, -45, 90, -90, 135, -135):
             c, s_ = math.cos(math.radians(turn)), math.sin(math.radians(turn))
             tx, ty = sx + 150 * (ux * c - uy * s_), sy + 150 * (ux * s_ + uy * c)
             if avoid and math.hypot(tx - avoid[0], ty - avoid[1]) < 120:
+                continue
+            if self.by_traps(sx, sy, tx, ty):
                 continue
             if self.path_clear(tx, ty, sx, sy, 190):
                 return round(tx), round(ty)
         return None
 
-    def puzzle_spot(self, budget=240):
+    def walk_in(self, x, y):
+        """A walk the checks stand on (into the room, the control, back to the start, a
+        walk-on): by path, else along the checked near-straight line (spikes block the pathfinder, 20261028-124224; the Pilot
+        can fail a diagonal the pathfind passed, 130130, or report no_route on one, 133642),
+        else teleported (131944: both failed out of a closed start room; 220 px is under the
+        320 px trail jump, so the owner's trail runs on to it)."""
+        r = self.p.path_to(x, y, tol=8, timeout=12)
+        if not r.ok:
+            r = self.p.move(x, y, tol=8, timeout=10)
+        if not r.ok:
+            self.gl("teleport", round(x), round(y))
+            time.sleep(0.8)
+            r = self.p.move(x, y, tol=12, timeout=3)
+        return r
+
+    def walk_away(self, sx, sy, spot, away):
+        """A point 200-260 px from (sx, sy), on the `away` side (not back through the room:
+        20261028-134937 walked on across the trap room, and the pet waited it out), 200 px or
+        more from `spot`, with a path of at most 1.6 times that from (sx, sy), or None."""
+        for r in (260, 200):
+            for a in range(0, 360, 30):
+                cx_, cy_ = math.cos(math.radians(a)), math.sin(math.radians(a))
+                if cx_ * away[0] + cy_ * away[1] < 0.2:
+                    continue
+                tx, ty = sx + r * cx_, sy + r * cy_
+                if math.hypot(tx - spot[0], ty - spot[1]) < 200 or self.by_traps(sx, sy, tx, ty):
+                    continue
+                if self.path_clear(tx, ty, sx, sy, r * 1.6):
+                    return round(tx), round(ty)
+        return None
+
+    def puzzle_spot(self, budget=360):
         """(sx, sy, dx, dy, d, note): a start and a puzzle offset d (160-260 px) on a
         near-straight path, with room for the 150 px walk on beyond the start, away from the
         puzzle. Searched from where the player stands, then from points 300-700 px off it the
         pathfinder reaches (the floor generates differently each run: 141607 had no straight
         220 px path from its start); the player walks (or is teleported) to the start. At
-        most `budget` pathfinds (about 0.3 s each)."""
+        most `budget` pathfinds (about 0.05 s each)."""
         pl = self.player()
         ox, oy = pl.get("x", 0), pl.get("y", 0)
+        self.floor_traps()
 
         def origins():
+            # reached on foot first; then the rest, teleported to (20261028-130512: the start
+            # room had no path out at all, 147 of 150 pathfinds)
             yield ox, oy
+            far = []
             for r in (300, 500, 700):
                 for a in range(0, 360, 45):
                     x, y = round(ox + r * math.cos(math.radians(a))), round(oy + r * math.sin(math.radians(a)))
                     pf = self.gl("pathfind", x, y)
                     if pf.get("ok") and pf.get("nodes", 0) > 0:
                         yield x, y
+                    else:
+                        far.append((x, y))
+            yield from far
 
         used, n = 0, 0
         for sx, sy in origins():
@@ -606,11 +687,13 @@ class Checks(Base):
                         return None
                     used += 1
                     dx, dy = round(d * math.cos(math.radians(a))), round(d * math.sin(math.radians(a)))
+                    if self.by_traps(sx, sy, sx + dx, sy + dy):
+                        continue
                     if not self.path_clear(sx + dx, sy + dy, sx, sy, d * 1.25):
                         continue
                     if self.walk_on(sx, sy, -dx / d, -dy / d) is None:
                         continue
-                    note = f"start ({sx}, {sy}), origin {n}, {used} offset(s) tried"
+                    note = f"start ({sx}, {sy}), origin {n}, {used} offset(s) tried, {len(self.traps)} floor trap(s) kept 150 px off"
                     if (sx, sy) != (ox, oy):
                         r = self.p.path_to(sx, sy, tol=8, timeout=20)
                         if not r.ok:
@@ -622,11 +705,59 @@ class Checks(Base):
                     return sx, sy, dx, dy, d, note
         return None
 
+    def vanilla_setup(self):
+        """A fresh character with a vanilla pet (no Pets package: the Pet Shop is the game's
+        own, and petrooms drives the pet), then a run floor, in god mode (the trap rooms are
+        real spikes)."""
+        self.vanilla = True
+        self.gl("char", "paladin", "LabPetRooms")
+        self.wait_phase("town", 60)
+        time.sleep(2)
+        self.set_gold(60000)
+        self.npc("npc_pets", "actors/npcs/town/npc_pets.unit")
+        u = self.gl("use", "npc_pets")
+        time.sleep(0.6)
+        items = self.gl("shop").get("items") or []
+        pick = next((i for i, it in enumerate(items) if it.get("gold", 0) > 0), None)
+        if pick is not None:
+            self.gl("shop", "buy", pick)
+            time.sleep(1.5)
+        self.close_windows()
+        time.sleep(1)
+        pet = self.pet()
+        self.flag("vanilla_pet_out", bool(pet), f"{u.get('window')}, {len(items)} entries, bought "
+                  f"{items[pick].get('title') if pick is not None else None}; pet {pet.get('name')}")
+        self.start_floor(0)
+        self.gl("cull")
+        self.god(True)
+        time.sleep(2)
+
+    def place_traps(self, cx, cy):
+        """Three pressure-plate spikes round (cx, cy) (gl spawn offsets are from the player)."""
+        pl = self.player()
+        ok = 0
+        for ox, oy in ((0, 0), (14, 10), (-14, 10)):
+            r = self.gl("spawn", TRAP_UNIT, round(cx + ox - pl.get("x", 0)), round(cy + oy - pl.get("y", 0)))
+            ok += bool(r.get("ok"))
+        return ok
+
     def puzzle_wait(self):
         """pets s2: the pet follows a walk; with a puzzle (vanilla lights-out) at the end of
         the same walk it stays outside, still, while the player is in, and follows again when
         the player comes out. querycmp says what each scene query sees of the buttons (PetWait
         fetches with FetchAllUnits: the buttons have no collision, QueryCircle misses them)."""
+        self.room_wait("puzzle")
+
+    def trap_wait(self):
+        """petrooms: the same as puzzle_wait with a trap room (three pressure-plate spikes at
+        the end of the walk) in place of the puzzle."""
+        self.god(True)
+        self.room_wait("trap")
+        self.god(False)
+
+    def room_wait(self, kind):
+        self.hwp("set petwait.enabled true", 0.4)
+        self.hwp("set petwait.debug true", 0.4)
         self.gl("cull")
         sp = self.puzzle_spot()
         if sp is None:
@@ -646,18 +777,26 @@ class Checks(Base):
         while time.time() < end and not (c0 and c0["dist"] < FOLLOW_PX):
             time.sleep(0.5)
             c0 = self.pet()
-        r = self.p.path_to(sx + dx, sy + dy, tol=8, timeout=10)
+        r = self.walk_in(sx + dx, sy + dy)
         time.sleep(2.5)
         c = self.pet()
-        self.flag("pet_follows_control", r.ok and bool(c) and c["dist"] < FOLLOW_PX,
+        # (a vanilla pet trails lazily, within its 350 px leash: followed())
+        self.flag("pet_follows_control", r.ok and bool(c) and c["dist"] < (350 if getattr(self, "vanilla", False) else FOLLOW_PX),
                   f"pet {c0.get('dist') if c0 else None} px off before, walk {r.result}, pet {c.get('dist')} px")
-        self.p.path_to(sx, sy, tol=8, timeout=10)
+        # back to the start, which the room is placed from (20261028-141113: the walk back
+        # failed and the puzzle went down 250 px off it)
+        self.walk_in(sx, sy)
         time.sleep(2.5)
-        pf = self.gl("prefab", PUZZLE_PFB, dx, dy)
+        if kind == "puzzle":
+            pf = self.gl("prefab", PUZZLE_PFB, dx, dy)
+        else:
+            pl = self.player()
+            pf = {"ok": self.place_traps(pl.get("x", 0) + dx, pl.get("y", 0) + dy) == 3}
+        self.rooms = [(sx + dx, sy + dy)]
         time.sleep(1)
-        r = self.p.path_to(sx + dx, sy + dy, tol=8, timeout=12)
+        r = self.walk_in(sx + dx, sy + dy)
         time.sleep(2.5)
-        q = self.gl("querycmp", 140, PUZZLE_UNIT)
+        q = self.gl("querycmp", 140, PUZZLE_UNIT if kind == "puzzle" else TRAP_UNIT)
         p1, moved = self.pet_samples(2.0)
         # a step inside the room: the pet still does not move
         px, py = -dy / d * 30, dx / d * 30
@@ -667,9 +806,9 @@ class Checks(Base):
         # the step: where the pet is now against where it was parked before it (a follower
         # would have walked the 30 px before the samples start)
         shift = math.hypot(p2["x"] - p1["x"], p2["y"] - p1["y"]) if p1 and p2 else 1e9
-        self.flag("pet_waits_outside_puzzle", pf.get("ok") and r.ok and bool(p1) and p1["dist"] > 90 and moved < 10
+        self.flag(f"pet_waits_outside_{kind}", pf.get("ok") and r.ok and bool(p1) and p1["dist"] > 90 and moved < 10
                   and moved2 < 10 and shift < 10,
-                  f"prefab {pf.get('ok')} at {dx},{dy}; walk {r.result}; pet {p1.get('dist')} px off, moved {moved:.0f} / {moved2:.0f} px, "
+                  f"{kind} {pf.get('ok')} at {dx},{dy}; walk {r.result}; pet {p1.get('dist')} px off, moved {moved:.0f} / {moved2:.0f} px, "
                   f"{shift:.0f} px over the step; "
                   f"querycmp {json.dumps({k: q.get(k) for k in ('querySensors', 'querySolid', 'fetchAll', 'fetchType', 'levelType', 'levelNearest', 'queryPuzzle', 'queryUnits')})}")
         # back out to the start: by path, else the walk-in in reverse in straight lines (the
@@ -695,20 +834,141 @@ class Checks(Base):
         p3, pl3 = self.pet(), self.player()
         r2 = None
         far = self.walk_on(sx, sy, -dx / d, -dy / d, (p1["x"], p1["y"]) if p1 else None)
+        if not far and p1:
+            # no straight walk-on clear of the spot (20261028-131401: a closed start room, the
+            # pet parked 60 px from the start; 133241: "any walk-on" ended 74 px from the spot,
+            # where an idling pet need not move): a routed walk 200 px or more off the spot
+            far = self.walk_away(sx, sy, (p1["x"], p1["y"]), (-dx / d, -dy / d))
         if far:
             r2 = self.p.path_to(*far, tol=8, timeout=12)
             time.sleep(3.5)
+            # a vanilla pet walks back at idle speed (20261028-131121: 59 px on from its spot,
+            # 87 px off the player, at 3.5 s): given up to 10 s more
+            end = time.time() + 10
             p3, pl3 = self.pet(), self.player()
+            while time.time() < end and not self.followed(p3, pl3, p1):
+                time.sleep(0.5)
+                p3, pl3 = self.pet(), self.player()
         back = math.hypot(p3["x"] - p1["x"], p3["y"] - p1["y"]) if p1 and p3 else 0
-        # the claim is the pet's: off its parking spot and with the player. A walk-on that
-        # stops short still counts (155331: stopped 17 px short, pet 4 px off the player)
-        self.flag("pet_follows_after_puzzle", out_ok and bool(p3) and p3["dist"] < FOLLOW_PX and back > 60,
+        spot = math.hypot(pl3["x"] - p1["x"], pl3["y"] - p1["y"]) if p1 and pl3 else 0
+        self.flag(f"pet_follows_after_{kind}", out_ok and self.followed(p3, pl3, p1),
                   f"out to ({sx}, {sy}): {how}; on to {far} {r2.result if r2 else '(no clear 150 px path: the walk-out measured)'}; "
                   f"player ({pl3.get('x')}, {pl3.get('y')}), pet ({p3.get('x')}, {p3.get('y')}) {p3.get('dist')} px off, "
-                  f"{back:.0f} px from where it waited ({p1.get('x')}, {p1.get('y')})")
-        # the Morale checks run on this floor next: take the puzzle away so a wait that never
-        # clears shows up here (pet_follows_after_puzzle), not as a missing buff
-        self.gl("unitdestroy", 500, "button_magic")
+                  f"{back:.0f} px from where it waited ({p1.get('x')}, {p1.get('y')}), the player {spot:.0f} px from it")
+        # the Morale checks run on this floor next: take the room away so a wait that never
+        # clears shows up here (pet_follows_after_<kind>), not as a missing buff
+        self.gl("unitdestroy", 500, "button_magic" if kind == "puzzle" else "floor_spikes_pressure")
+        self.rooms = []
+        self.hwp("set petwait.enabled false", 0.4)
+
+    def followed(self, pet, pl, spot):
+        """The pet follows again after a wait at `spot`: it is off the spot (a held pet moves
+        0 px; 30 px or more) and with the player. The base pet idles within 100 px of its
+        owner (20261028-132900: back 83 px off, 54 px from its spot), so a following pet need
+        not close in further. A vanilla pet follows lazily: past that it ambles to a spot by
+        its owner at idle speed and only hurries past the 350 px leash (20261028-131629: the
+        control walk, no room anywhere, left it 133 px behind), so for it within the leash is
+        with the player. (A walk-on that stops short still counts, 155331.)"""
+        if not pet or not spot:
+            return False
+        back = math.hypot(pet["x"] - spot["x"], pet["y"] - spot["y"])
+        near = 350 if getattr(self, "vanilla", False) else FOLLOW_PX
+        return back >= 30 and pet["dist"] < near
+
+    def trap_leave(self):
+        """petrooms: a pet in a trap room while its owner is outside walks out along the owner's
+        trail and waits until the owner moves on. With petwait.radius 60, spikes 20 px past
+        the pet (on its far side from the player, 90 px off) make the pet's spot a room and
+        not the player's; out of it is 50 px or more from them (one spike within 60 px is
+        not a room)."""
+        self.hwp("set petwait.enabled true", 0.4)
+        self.gl("cull")
+        self.god(True)
+        self.hwp("set petwait.radius 60", 0.4)
+        pet = self.pet_beside(60)
+        pl = self.player()
+        if not pet:
+            self.flag("pet_leaves_trap_room", False, "no pet")
+            return
+        # the player steps off to 90 px from the pet along the line between them: the step is
+        # the trail the pet walks out on. A pet idles round its owner (a vanilla one picks a
+        # new idle spot now and then: 20261028-122737 had walked up to 47 px of the player
+        # when the spikes went down), so the line is read again right before the spikes, 15 px
+        # past the pet, and the step is taken again while the player is under 70 px off it.
+        self.hwp("set petwait.debug true", 0.4)
+        # the pet must be in the room the spikes make: it can pick a new idle spot meanwhile
+        # (20261028-134537: the spikes went down 131 px from it, no "pet in a room" logged), so
+        # the log is read for petrooms' own word (petwait.debug), else the spikes go and the
+        # line-up starts over
+        r, ux, uy, placed, entered, tries = None, 1.0, 0.0, 0, False, 0
+        while tries < 3 and not entered:
+            tries += 1
+            r = None
+            for _ in range(3):
+                pet, pl = self.pet(), self.player()
+                ux, uy = pl["x"] - pet["x"], pl["y"] - pet["y"]
+                n = math.hypot(ux, uy)
+                ux, uy = (ux / n, uy / n) if n > 1 else (1.0, 0.0)
+                if n >= 70:
+                    break
+                r = self.p.move(pet["x"] + ux * 90, pet["y"] + uy * 90, tol=6, timeout=6)
+                time.sleep(0.8)
+            else:
+                # three steps that did not take (20261028-131121: the spikes went down 16 px from
+                # the player): teleported the 90 px, a trail point like any other, turned off a
+                # wall if need be (132436: still 29 px off), and the line read again
+                for turn in (0, 45, -45, 90, -90, 135, -135, 180):
+                    pet, pl = self.pet(), self.player()
+                    if math.hypot(pl["x"] - pet["x"], pl["y"] - pet["y"]) >= 70:
+                        break
+                    c, s_ = math.cos(math.radians(turn)), math.sin(math.radians(turn))
+                    self.gl("teleport", round(pet["x"] + 90 * (ux * c - uy * s_)), round(pet["y"] + 90 * (ux * s_ + uy * c)))
+                    time.sleep(0.8)
+                pet, pl = self.pet(), self.player()
+                ux, uy = pl["x"] - pet["x"], pl["y"] - pet["y"]
+                n = math.hypot(ux, uy)
+                ux, uy = (ux / n, uy / n) if n > 1 else (1.0, 0.0)
+            cx, cy = pet["x"] - ux * 15, pet["y"] - uy * 15
+            mark = len(self.g.read_log())
+            placed = self.place_traps(cx, cy)
+            end = time.time() + 2
+            while time.time() < end and not entered:
+                time.sleep(0.25)
+                entered = "[HWP:petrooms] pet in a room" in self.g.read_log()[mark:]
+            if not entered:
+                self.gl("unitdestroy", 500, "floor_spikes_pressure")
+                time.sleep(0.5)
+        # the way out is the owner's trail, which can be longer than the straight line
+        # (20261028-122518: still walking 3.5 s on): let it settle, then it must stay put
+        t0 = time.time()
+        time.sleep(1.5)
+        for _ in range(6):
+            _, walking = self.pet_samples(1.6)
+            if walking < 6:
+                break
+        settled = time.time() - t0
+        p1, moved = self.pet_samples(2.0)
+        pl1 = self.player()
+        off = math.hypot(p1["x"] - cx, p1["y"] - cy) if p1 else 0
+        own = math.hypot(pl1["x"] - cx, pl1["y"] - cy)
+        self.flag("pet_leaves_trap_room", entered and placed == 3 and bool(p1) and off > 50 and moved < 10 and own > 60,
+                  f"try {tries}, pet in the room {entered}; step {r.result if r else 'not needed'}; {placed} spikes at ({cx:.0f}, {cy:.0f}), {own:.0f} px from the player; "
+                  f"pet settled after {settled:.1f} s {off:.0f} px from them and {p1.get('dist')} px from the player, "
+                  f"then moved {moved:.0f} px while the player stood")
+        far = self.walk_on(pl1["x"], pl1["y"], ux, uy, (cx, cy))
+        r2 = self.walk_in(*(far or (pl1["x"] + ux * 150, pl1["y"] + uy * 150)))
+        # a vanilla pet past its idle range walks to idle spots by its owner at idle speed:
+        # given up to 10 s
+        end, p2 = time.time() + 10, self.pet()
+        while time.time() < end and not (p2 and p2["dist"] < FOLLOW_PX):
+            time.sleep(0.5)
+            p2 = self.pet()
+        self.flag("pet_follows_after_leaving", bool(p2) and p2["dist"] < FOLLOW_PX,
+                  f"walk on to {far} {r2.result}; pet {p2.get('dist')} px off after {10 - max(0, end - time.time()):.1f} s")
+        self.gl("unitdestroy", 500, "floor_spikes_pressure")
+        self.hwp("set petwait.radius 120", 0.4)
+        self.hwp("set petwait.enabled false", 0.4)
+        self.god(False)
 
 
 def run(p, sections="", **_):

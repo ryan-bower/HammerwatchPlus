@@ -5200,3 +5200,56 @@ six of the eleven with an empty URL (each with its original file name), and the 
 only the five with one. `tools/workshop_publish.py` now removes the old pictures in one
 submit, adds each new one in its own submit, and then reads the gallery back with
 `SetAllowCachedResponse(0)`. If a picture has no URL, it redoes the gallery.
+
+## 2026-10-28: Pets out of trap rooms (petrooms), a shared module
+
+**A shared module.** `module.json` `"shared": true` lets a module be listed in one package
+(petrooms in qol) and required by mods of other packages, which then carry it too
+(`tools/build.py` closure check; `tools/make_config.py` gives each package a `carried` list
+and writes `<bool name="shared">` per module). In the settings page (hwplib `Config.as`) a
+package is listed only when one of its own non-shared modules is present, and a shared
+module goes under the first such package. With the same file at the same path in several
+packages, the first mod's copy wins (they are byte-identical).
+
+**Driving a vanilla pet.** `MiniPetWalking/Flying.Update` returns at once when `m_owner` is
+null. PetRooms.as parks a vanilla pet by nulling the local pet's `m_owner` between frames
+and restoring it at the start of the next tick, before any Watcher steps, so a throwing tick
+never leaves an owner null. Husk pets keep their owner: `PlayerHandler.NetSetTarget` calls
+`IsHusk`, which needs it. `m_leashRange` is set to 1000000 while the pet is held, so the
+350 px leash doesn't pull it out. A parked walking pet holds `m_stayPos`, so the Watcher
+writes the position it moved the pet to there.
+
+**Vanilla follow is lazy.** FindTarget gives a pet an idle target by its owner only when it is
+past `m_idleRange` (100 px), or now and then at random (randi(100) > 95), and walks there at
+idle speed. It hurries only past the 350 px leash, and teleports past 600 px (450 flying). A
+control walk with no room anywhere left a vanilla pet 133 px behind (20261028-131629). So
+"follows" means off its spot and within the leash for a vanilla pet, and off its spot and
+within 110 px for an HWP pet (which idles within 100 px).
+
+**Trap spots.** The campaign's glyph is two units (`hwp_glyph_bomb` and `_explode`) at one
+spot. With "two trap units" as the rule, one glyph 129 px from the floor start parked the pet
+there, and with it Smash, Mend and Morale (20261028-123720). Units within 12 px are now one
+spot, and three spots make a room.
+
+**Crossing.** If the owner crossed a trap room, the pet walking after them entered it, counted
+as in a room, walked back out and waited, again and again. After 10 s it was 237 px behind
+(20261028-132436, bot step). A pet rejoining after a wait may now cross rooms for 5 s, or
+until it is within 48 px of its owner.
+
+**The bandit keep's own spikes.** That floor has 9 to 21 `floor_spikes` around the start and
+in its corridors. They are trap rooms by petrooms' rule, so a test pet parked at the start
+and never used Smash or Mend (20261028-124554). Destroying them breaks the level's pathfinder:
+afterwards, 160 of 161 `gl pathfind` calls found no path (125819). The pet skill checks now
+run with `petwait.enabled` off. The room checks turn it on and keep their walks 150 px from
+the floor's traps, found with `gl unitsof` by unit file. `gl near`'s filter reads debug names,
+and a doodad's debug name is empty, so "near 1500 trap" found none (140312).
+
+**Debug.** `petwait.debug` (hidden) logs each change: owner in a room, owner out, pet in a
+room, left room. The bot reads "pet in a room" to confirm its spikes landed around the pet
+before it judges the walk-out.
+
+Runs: 20261028-122518, -122737, -123014, -123250, -123520 (vanilla pass), -123720, -124224,
+-124554, -125201, -125555, -125819, -130130, -130512, -130805 (pets-b pass), -131121 to
+-140621 (vanilla fixes), -132436 (crossing found), -134937, -135316 (pets-b pass), -140856
+(vanilla pass), -141113, -141504 (pets-b pass), -141825 (vanilla pass), -142113 (built
+package pass).

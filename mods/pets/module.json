@@ -1,7 +1,8 @@
 {
   "id": "pets",
   "requires": [
-    "hwplib"
+    "hwplib",
+    "petrooms"
   ],
   "overrides": [],
   "class_swaps": {
@@ -24,28 +25,6 @@
     "scope": "host",
     "applies": "now",
     "settings": [
-      {
-        "key": "petwait.enabled",
-        "type": "bool",
-        "default": true,
-        "title": "Wait at puzzles",
-        "about": "Your pet stays back while you are at a puzzle, so it leaves the buttons alone."
-      },
-      {
-        "key": "petwait.radius",
-        "type": "int",
-        "default": 120,
-        "values": [
-          60,
-          90,
-          120,
-          180,
-          240
-        ],
-        "suffix": " px",
-        "title": "Puzzle distance",
-        "about": "How close to a puzzle you must be for your pet to wait."
-      },
       {
         "key": "pets.bowl",
         "type": "bool",

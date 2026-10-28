@@ -28,7 +28,10 @@ from it) and an optional `module.json`:
       "id": "gambler",                 # defaults to the folder name
       "library": false,                # true: a library part (hwplib, hwplib-luck, ...): never a package of
                                        # its own, copied into every package whose mods require it
-      "requires": ["hwplib"],          # modules this one builds on: libraries, or mods of the same package
+      "shared": false,                 # true: a feature module listed in one package that mods of other
+                                       # packages may require too, and so carry (petrooms: QoL, and Pets)
+      "requires": ["hwplib"],          # modules this one builds on: libraries, shared modules, or mods of
+                                       # the same package
       "overrides": ["scripts/GUI/PlayerMenu/Character.as"],  # wholesale base-file overrides
       "class_swaps": {"Chest": "HWPChest"},  # base units using Chest are copied with HWPChest (tools/class_units.py)
       "scene_art": "tweak/hwp/chest_art.sval",  # extra art scenes in those copies (tools/class_units.py)
@@ -85,6 +88,7 @@ def load_module(mod_dir: Path) -> dict:
         cfg["local_overlay"] = cfg["local_overlay"].rstrip("/") + "/"
         cfg["local"].append(cfg["local_overlay"])
     cfg.setdefault("library", False)
+    cfg.setdefault("shared", False)
     cfg.setdefault("dev", False)
     cfg.setdefault("local_only", False)
     cfg.setdefault("beta_into", "")
@@ -206,7 +210,8 @@ def check_overrides(mods: list[dict]) -> int:
 def load_packages(mods: list[dict]) -> tuple[list[dict], dict]:
     """packages.json, checked against the modules: every content module in exactly one package
     or on the bench, libraries in none, and each package's closure (its mods plus everything they
-    require, transitively) holding only its own mods and libraries, so it works alone."""
+    require, transitively) holding only its own mods, libraries and shared modules, so it works
+    alone."""
     doc = json.loads(PACKAGES.read_text(encoding="utf-8"))
     by_id = {m["id"]: m for m in mods}
     owner: dict[str, str] = {}
@@ -240,7 +245,7 @@ def load_packages(mods: list[dict]) -> tuple[list[dict], dict]:
             if mid not in by_id:
                 sys.exit(f"{via} requires unknown module {mid!r}")
             m = by_id[mid]
-            if not m["library"] and owner.get(mid) != p["id"]:
+            if not (m["library"] or m["shared"]) and owner.get(mid) != p["id"]:
                 sys.exit(f"package {p['id']}: {via} requires {mid}, which is not in it; a package must work alone "
                          f"(move the shared code into a library part, module.json `library: true`)")
             seen.add(mid)

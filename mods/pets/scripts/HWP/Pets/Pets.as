@@ -203,8 +203,6 @@ namespace HWP
 					g_bowlUnit = UnitPtr();
 				}
 			}
-			if (key.findFirst("petwait.") == 0)
-				HWP::PetWait::RefreshSettings();
 		}
 
 		vec3 BowlPos()
@@ -1557,9 +1555,7 @@ namespace Modules
 		void Start(StartMode sMode)
 		{
 			HWP::Settings::Sync("pets.");
-			HWP::Settings::Sync("petwait.");
 			HWP::Pets::RefreshSettings();
-			HWP::PetWait::RefreshSettings();
 			HWP::Pets::ResetHost();
 			HWP::Pets::ResetSecrets();
 			HWP::Pets::g_bowlUnit = UnitPtr();

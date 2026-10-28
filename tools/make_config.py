@@ -208,12 +208,28 @@ def check_block(mod: str, cfg, errors: list[str]) -> None:
                 errors.append(f"{w}: declared default {d}, the code reads it with {d2}")
 
 
+def module_json(mod: str) -> dict:
+    return json.loads((MODS / mod / "module.json").read_text(encoding="utf-8"))
+
+
 def load():
+    """packages.json and every package module's config block. Each package also gets `carried`:
+    its mods, then the shared modules (module.json `shared`) they require from another package,
+    which the package carries too (tools/build.py)."""
     pk = json.loads((REPO / "packages.json").read_text(encoding="utf-8"))
     mods = {}
     for p in pk["packages"]:
         for m in p["mods"]:
-            mods[m] = json.loads((MODS / m / "module.json").read_text(encoding="utf-8")).get("config")
+            mods[m] = module_json(m).get("config")
+    pk["shared"] = sorted(m for m in mods if module_json(m).get("shared"))
+    for p in pk["packages"]:
+        carried, todo = list(p["mods"]), list(p["mods"])
+        while todo:
+            for r in module_json(todo.pop()).get("requires", []):
+                if r in pk["shared"] and r not in carried:
+                    carried.append(r)
+                    todo.append(r)
+        p["carried"] = carried
     return pk, mods
 
 
@@ -257,10 +273,11 @@ def sval(pk, mods) -> str:
     out += ["\t</array>", '\t<array name="packages">']
     for p in pk["packages"]:
         out += ["\t\t<dict>", f'\t\t\t<string name="id">{x(p["id"])}</string>', '\t\t\t<array name="mods">']
-        for mod in p["mods"]:
+        for mod in p["carried"]:
             c = mods[mod]
             host, level = c.get("scope", "host") == "host", c.get("applies", "now") == "level"
             out += ["\t\t\t\t<dict>", f'\t\t\t\t\t<string name="id">{x(mod)}</string>',
+                    f'\t\t\t\t\t<bool name="shared">{str(mod in pk["shared"]).lower()}</bool>',
                     f'\t\t\t\t\t<string name="toggle">{x(c.get("toggle") or "")}</string>',
                     f'\t\t\t\t\t<bool name="host">{str(host).lower()}</bool>',
                     f'\t\t\t\t\t<bool name="level">{str(level).lower()}</bool>',

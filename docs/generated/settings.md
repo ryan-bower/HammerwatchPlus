@@ -29,6 +29,8 @@ next level.
 | Lasting summons | On | `summons.enabled` | on | on, off | host |
 | Lasting summons | Forgemaster risen | `summons.risen` | on | on, off | host |
 | Lasting summons | Every summon | `summons.all` | off | on, off | host |
+| Pets stay out of puzzle and trap rooms | On | `petwait.enabled` | on | on, off | host |
+| Pets stay out of puzzle and trap rooms | Room distance | `petwait.radius` | 120 px | 60 px, 90 px, 120 px, 180 px, 240 px | host |
 | Title bonuses | On | `legacy.enabled` | on | on, off | local |
 | Gold worth | always on: Data only: it replaces the gold pickup's looks. | | | | |
 | Mm-hmm! hats | On | `mmhmm.enabled` | on | on, off | host |
@@ -173,6 +175,4 @@ next level.
 | Module | Setting | Key | Default | Choices | Scope |
 |---|---|---|---|---|---|
 | Pets | On | `pets.enabled` | on | on, off | host |
-| Pets | Wait at puzzles | `petwait.enabled` | on | on, off | host |
-| Pets | Puzzle distance | `petwait.radius` | 120 px | 60 px, 90 px, 120 px, 180 px, 240 px | host |
 | Pets | Feeding bowl | `pets.bowl` | off | on, off | host |

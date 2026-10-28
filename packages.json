@@ -4,7 +4,7 @@
     {
       "id": "qol",
       "name": "HammerwatchPlus: Quality of Life",
-      "description": "Small helpers: buff tooltips in the HUD, item links in chat, a Sort button in the stash, a death recap, the party's last-run stats on a town board, projectile colours for colour-blind players, waygates across the town, a second weapon set on a hotkey, Priest summons that follow you to the next floor, HoH1-style class Title Bonuses, gold that shows its worth, the Mm-hmm! hats, orb picker warnings and dye-pot markers on the minimap.",
+      "description": "Small helpers: buff tooltips in the HUD, item links in chat, a Sort button in the stash, a death recap, the party's last-run stats on a town board, projectile colours for colour-blind players, waygates across the town, a second weapon set on a hotkey, Priest summons that follow you to the next floor, pets that wait outside puzzle and trap rooms, HoH1-style class Title Bonuses, gold that shows its worth, the Mm-hmm! hats, orb picker warnings and dye-pot markers on the minimap.",
       "mods": [
         "bufftips",
         "chatlinks",
@@ -15,6 +15,7 @@
         "waygates",
         "weaponswap",
         "summons",
+        "petrooms",
         "legacy",
         "goldworth",
         "mmhmm",
@@ -120,7 +121,7 @@
     {
       "id": "pets",
       "name": "HammerwatchPlus: Pets",
-      "description": "Pet levels and skills, pet dyes and pickup toggles.",
+      "description": "Pet levels and skills, pet dyes and pickup toggles; pets wait outside puzzle and trap rooms.",
       "mods": [
         "pets"
       ]

@@ -48,6 +48,7 @@ TERSE = {
     "waygates": "teleport gates in the town square and at every building.",
     "weaponswap": "a second weapon set on a hotkey (X).",
     "summons": "summons follow you to the next floor with their HP.",
+    "petrooms": "pets wait outside puzzle and trap rooms, and walk back out of one they wander into.",
     "legacy": "your best hero of each class buffs every character.",
     "goldworth": "gold on the floor looks like what it is worth.",
     "mmhmm": "some rare and epic hats say \"mm-hmm\" on crits, revives and more.",

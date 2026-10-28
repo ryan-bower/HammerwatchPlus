@@ -13,7 +13,7 @@ all-in-one pack (`packages.json`; `docs/modules.md`, Packages):
 
 | Package | Modules |
 |---|---|
-| `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, legacy, goldworth, mmhmm, orbwarn, mapicons |
+| `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, petrooms, legacy, goldworth, mmhmm, orbwarn, mapicons |
 | `HWP-coop` Co-op Play | groupcombo, architect, droptrade |
 | `HWP-autoaim` Auto Aim | autoaim |
 | `HWP-firearms` Firearms Specialist | firearms |
@@ -24,7 +24,7 @@ all-in-one pack (`packages.json`; `docs/modules.md`, Packages):
 | `HWP-modes` Challenge Modes | mercenary, wavemode |
 | `HWP-dungeon` Dungeon Loot and Encounters | puzzles, objectives, strongbox, abyss, maps, weapons, trinkets, valuables |
 | `HWP-town` Town Life | fishing, farming, gambler, roulette, tavern |
-| `HWP-pets` Pets | pets |
+| `HWP-pets` Pets | pets (and petrooms, shared with Quality of Life) |
 | `HammerwatchPlus-All` | every package |
 
 There is no core mod to install. The shared code is a library (`mods/hwplib`, and the parts
@@ -56,6 +56,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | `weaponswap` | A second weapon set on a hotkey (default X): a 2 s channel standing still, cancelled by a dodge or a second press. |
 | `autoaim` | Auto aim for the skills you aim with a reticle (Marked Shot, Leap, Firewall): it snaps to a nearby enemy in your aim cone and can fire by itself, and ready AOE skills can cast themselves when your mana allows. On for controllers by default, an option for mouse play; settings on the character menu's Plus tab (a remake of kearneyTim's controller auto aim). |
 | `summons` | Summons come through a floor change with the HP they had. The game already carries the Priest's Crusaders; this tops up any that go missing, and the `summons.all` setting covers every summon (wolves, Warlock minions). |
+| `petrooms` | Pets keep out of puzzle and trap rooms: while you are in one, your pet walks back along the way you came to the last clear spot and waits there; a pet that ends up in one walks back out and waits until you move on; one following you after a wait may cross a room to reach you. A puzzle unit, or traps on three spots (a glyph and its blast are one), within the room distance (`petwait.radius`, 120 px) make a room. Works for vanilla pets and for the Pets package's; a shared module, carried by both Quality of Life and Pets. |
 
 ### Heroes of Hammerwatch 1
 
@@ -65,7 +66,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | `keys` | HoH1-style keys: every chest but the cursed ones needs a key of its tier. Keys drop in runs (a party can share a key pool), and the exit guard's General Merchant sells keys, bag slots and six trinkets to take into your next run. Also ace chests (opened with the red skull ace key), seven red legendaries, and a banner for everyone when a chest turns out to be trapped. Trinket, cursed and ace chests look grander the deeper the run goes, with unused chest art from the game's own sprite sheet. |
 | `mercenary` | HoH1's mercenary mode: once a class has a level-20 hero, a fresh character of it can enlist (`hwp merc enlist`), climb the ranks from Private to General for more gold and experience, and die for good. |
 | `legacy` | HoH1-style class titles: your best hero of each class buffs every character. One "Title Bonuses" buff lists them, and Guild Hall > Titles shows every class. |
-| `pets` | Pets level up (from kills, pickups, and farm crops) and learn utility skills; the Pet Shop keeper trains them and the character tab shows the pet's level. Per-pet pickup toggles, pet dyes at the tailor, pets wait outside puzzle rooms, and every HoH1 pet is in the Pet Shop (imported from your own HoH1 install). |
+| `pets` | Pets level up (from kills, pickups, and farm crops) and learn utility skills; the Pet Shop keeper trains them and the character tab shows the pet's level. Per-pet pickup toggles, pet dyes at the tailor, pets keep out of puzzle and trap rooms (`petrooms`, which the Pets package carries too), and every HoH1 pet is in the Pet Shop (imported from your own HoH1 install). |
 
 ### Runs and dungeons
 
@@ -167,6 +168,16 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 
 ## Status
+
+2026-10-28, pets keep out of trap rooms as well as puzzle rooms, and walk back out of one
+they end up in. This is the new shared module `petrooms`: it is listed in Quality of Life,
+and the Pets package and the All pack carry it too. It drives vanilla pets as well as the
+Pets package's. A room is one puzzle unit, or traps on three spots (units within 12 px are one
+spot, so a campaign glyph and its blast count once), within `petwait.radius`. A pet following
+its owner back after a wait may cross a room for 5 s, so an owner who crossed a trap room is
+followed through it. `plan-pets-b` (pet skills, puzzle and trap rooms), `plan-petrooms-vanilla`
+(a vanilla pet, QoL alone) and `pf-plan-petrooms-vanilla` (the built QoL package) pass
+(20261028-141504, -141825, -142113).
 
 2026-10-27, every package on its own and together. `tools/make_package_scenarios.py` now
 also writes `gamelab/scenarios/pkgfeat/`: each feature scenario run against the built

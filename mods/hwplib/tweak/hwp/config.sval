@@ -16,6 +16,7 @@
 			<array name="mods">
 				<dict>
 					<string name="id">bufftips</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">bufftips.enabled</string>
 					<bool name="host">false</bool>
 					<bool name="level">false</bool>
@@ -24,6 +25,7 @@
 				</dict>
 				<dict>
 					<string name="id">chatlinks</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">chatlinks.enabled</string>
 					<bool name="host">false</bool>
 					<bool name="level">false</bool>
@@ -32,6 +34,7 @@
 				</dict>
 				<dict>
 					<string name="id">stash</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">stash.enabled</string>
 					<bool name="host">false</bool>
 					<bool name="level">false</bool>
@@ -40,6 +43,7 @@
 				</dict>
 				<dict>
 					<string name="id">deathrecap</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">deathrecap.enabled</string>
 					<bool name="host">false</bool>
 					<bool name="level">false</bool>
@@ -52,6 +56,7 @@
 				</dict>
 				<dict>
 					<string name="id">laststats</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">laststats.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -60,6 +65,7 @@
 				</dict>
 				<dict>
 					<string name="id">colors</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">colors.enabled</string>
 					<bool name="host">false</bool>
 					<bool name="level">false</bool>
@@ -72,6 +78,7 @@
 				</dict>
 				<dict>
 					<string name="id">waygates</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">waygates.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -80,6 +87,7 @@
 				</dict>
 				<dict>
 					<string name="id">weaponswap</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">weaponswap.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -89,6 +97,7 @@
 				</dict>
 				<dict>
 					<string name="id">summons</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">summons.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -98,7 +107,18 @@
 					</array>
 				</dict>
 				<dict>
+					<string name="id">petrooms</string>
+					<bool name="shared">true</bool>
+					<string name="toggle">petwait.enabled</string>
+					<bool name="host">true</bool>
+					<bool name="level">false</bool>
+					<array name="settings">
+						<dict><string name="key">petwait.radius</string><string name="type">int</string><bool name="host">true</bool><bool name="level">false</bool><int name="default">120</int><array name="values"><i>60</i><i>90</i><i>120</i><i>180</i><i>240</i></array><int name="labels">0</int><string name="suffix"> px</string></dict>
+					</array>
+				</dict>
+				<dict>
 					<string name="id">legacy</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">legacy.enabled</string>
 					<bool name="host">false</bool>
 					<bool name="level">false</bool>
@@ -107,6 +127,7 @@
 				</dict>
 				<dict>
 					<string name="id">goldworth</string>
+					<bool name="shared">false</bool>
 					<string name="toggle"></string>
 					<bool name="host">false</bool>
 					<bool name="level">false</bool>
@@ -115,6 +136,7 @@
 				</dict>
 				<dict>
 					<string name="id">mmhmm</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">mmhmm.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -125,6 +147,7 @@
 				</dict>
 				<dict>
 					<string name="id">orbwarn</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">orbwarn.enabled</string>
 					<bool name="host">false</bool>
 					<bool name="level">false</bool>
@@ -133,6 +156,7 @@
 				</dict>
 				<dict>
 					<string name="id">mapicons</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">mapicons.enabled</string>
 					<bool name="host">false</bool>
 					<bool name="level">false</bool>
@@ -147,6 +171,7 @@
 			<array name="mods">
 				<dict>
 					<string name="id">groupcombo</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">groupcombo.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -157,6 +182,7 @@
 				</dict>
 				<dict>
 					<string name="id">architect</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">architect.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -167,6 +193,7 @@
 				</dict>
 				<dict>
 					<string name="id">droptrade</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">droptrade.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -182,6 +209,7 @@
 			<array name="mods">
 				<dict>
 					<string name="id">autoaim</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">autoaim.enabled</string>
 					<bool name="host">false</bool>
 					<bool name="level">false</bool>
@@ -200,6 +228,7 @@
 			<array name="mods">
 				<dict>
 					<string name="id">firearms</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">firearms.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -213,6 +242,7 @@
 			<array name="mods">
 				<dict>
 					<string name="id">specs</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">specs.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -226,6 +256,7 @@
 			<array name="mods">
 				<dict>
 					<string name="id">classes</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">classes.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -242,6 +273,7 @@
 			<array name="mods">
 				<dict>
 					<string name="id">keys</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">keys.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">true</bool>
@@ -264,6 +296,7 @@
 			<array name="mods">
 				<dict>
 					<string name="id">campaign</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">campaign.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">true</bool>
@@ -283,6 +316,7 @@
 			<array name="mods">
 				<dict>
 					<string name="id">mercenary</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">mercenary.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -294,6 +328,7 @@
 				</dict>
 				<dict>
 					<string name="id">wavemode</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">wave.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -307,6 +342,7 @@
 			<array name="mods">
 				<dict>
 					<string name="id">puzzles</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">puzzles.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">true</bool>
@@ -319,6 +355,7 @@
 				</dict>
 				<dict>
 					<string name="id">objectives</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">objectives.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">true</bool>
@@ -329,6 +366,7 @@
 				</dict>
 				<dict>
 					<string name="id">strongbox</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">strongbox.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">true</bool>
@@ -341,6 +379,7 @@
 				</dict>
 				<dict>
 					<string name="id">abyss</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">abyss.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">true</bool>
@@ -353,6 +392,7 @@
 				</dict>
 				<dict>
 					<string name="id">maps</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">maps.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -361,6 +401,7 @@
 				</dict>
 				<dict>
 					<string name="id">weapons</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">weapons.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -370,6 +411,7 @@
 				</dict>
 				<dict>
 					<string name="id">trinkets</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">trinkets.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -379,6 +421,7 @@
 				</dict>
 				<dict>
 					<string name="id">valuables</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">valuables.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -393,6 +436,7 @@
 			<array name="mods">
 				<dict>
 					<string name="id">fishing</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">fishing.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -405,6 +449,7 @@
 				</dict>
 				<dict>
 					<string name="id">farming</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">farm.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -415,6 +460,7 @@
 				</dict>
 				<dict>
 					<string name="id">gambler</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">gambler.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -423,6 +469,7 @@
 				</dict>
 				<dict>
 					<string name="id">roulette</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">roulette.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -432,6 +479,7 @@
 				</dict>
 				<dict>
 					<string name="id">tavern</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">tavern.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
@@ -445,13 +493,22 @@
 			<array name="mods">
 				<dict>
 					<string name="id">pets</string>
+					<bool name="shared">false</bool>
 					<string name="toggle">pets.enabled</string>
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
 					<array name="settings">
-						<dict><string name="key">petwait.enabled</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">false</bool><bool name="default">true</bool></dict>
-						<dict><string name="key">petwait.radius</string><string name="type">int</string><bool name="host">true</bool><bool name="level">false</bool><int name="default">120</int><array name="values"><i>60</i><i>90</i><i>120</i><i>180</i><i>240</i></array><int name="labels">0</int><string name="suffix"> px</string></dict>
 						<dict><string name="key">pets.bowl</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">false</bool><bool name="default">false</bool></dict>
+					</array>
+				</dict>
+				<dict>
+					<string name="id">petrooms</string>
+					<bool name="shared">true</bool>
+					<string name="toggle">petwait.enabled</string>
+					<bool name="host">true</bool>
+					<bool name="level">false</bool>
+					<array name="settings">
+						<dict><string name="key">petwait.radius</string><string name="type">int</string><bool name="host">true</bool><bool name="level">false</bool><int name="default">120</int><array name="values"><i>60</i><i>90</i><i>120</i><i>180</i><i>240</i></array><int name="labels">0</int><string name="suffix"> px</string></dict>
 					</array>
 				</dict>
 			</array>
