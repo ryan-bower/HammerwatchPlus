@@ -5123,3 +5123,37 @@ are parked.
 **To update.** Run `tools/workshop.py`, then `tools/workshop_publish.py`. With the ids in
 `workshop.json`, every item is updated in place.
 
+## 2026-10-28: Workshop pages v2, cards from the game's art
+
+**Cards.** `tools/workshop_art.py` draws each item's picture at 480x270, then scales it 3x
+nearest neighbour to 1440x810, about 20-65 KB as PNG. The cards use:
+
+- the game's gold knotwork panel frame (`gui/panelstyles.png`, crop 72,40 47x47, 8 px border,
+  nine-sliced);
+- the octagon icon frame (`gui/gui.png` 411,97 32x32);
+- the game's pixel fonts at size 16, no smoothing, 1 px outline, as their `.fnt` files say;
+- a UnifrakturMaguntia wordmark (OFL).
+
+`gui/icons.png` is not a grid, so its symbols use pixel boxes. The chest bodies are
+`items/misc/base.png` x=100, 16x18, at y 0, 18, 36 and 54 for bronze, silver, gold and
+platinum.
+
+**Gallery pictures.** The additional pictures go through ISteamUGC v015:
+
+- `AddItemPreviewFile(handle, path, 0)` adds one (0 is the image type).
+- `RemoveItemPreview(handle, index)` removes one.
+- The count comes from a details query: `CreateQueryUGCDetailsRequest`,
+  `SetReturnAdditionalPreviews`, then `SendQueryUGCRequest`. Its callback is 3401,
+  `SteamUGCQueryCompleted_t` {u64 handle, int result, u32 returned, u32 total, bool cached,
+  char cursor[256]}, pack 8. `GetAPICallResult` accepts that size.
+- Then `GetQueryUGCNumAdditionalPreviews(q, 0)`.
+
+The All page now shows 11 gallery thumbnails.
+
+**A hidden item.** The Forsaken Tower (3828529832) refuses every update with EResult 15
+(AccessDenied). Changing only the description, or only the preview, gets the same answer. Its
+public page says "hidden or you do not have permission to view it", while the Web API's
+`GetPublishedFileDetails` still reports visibility 0 and banned 0. The other eleven updated in
+the same run. So Steam has hidden that item, and an owner who is logged in sees the reason on
+its page. Until it is cleared, the All page's link to it goes to an error page.
+

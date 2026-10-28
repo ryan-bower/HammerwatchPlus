@@ -238,6 +238,8 @@ to the keys module. Every package alone, the all pack and four pairs pass in Gam
 `HWP-<module>.bin` files, so a save ticks `HammerwatchPlus-All` once. The Workshop upload kit is
 `tools/workshop.py` ([docs/WORKSHOP.md](docs/WORKSHOP.md), 2026-10-27).
 
+2026-10-28, Workshop pages v2 (368480f): every page opens with "Multiplayer supported" and what it needs, lists each module in a line, and ends with install, settings and a link to the All pack. Each picture is a card drawn from the game's art (`tools/workshop_art.py`), and the All pack's gallery shows every package's card. Ten packages and the All pack are updated. **The Forsaken Tower (3828529832) is hidden by Steam** and refuses updates (EResult 15); its page says why when you open it logged in.
+
 2026-10-27, on the Steam Workshop: the twelve packages and the All pack are public, published
 with `tools/workshop_publish.py` from 34d91f0. The All pack is
 https://steamcommunity.com/sharedfiles/filedetails/?id=3828529950, and every item's id is in
