@@ -9,7 +9,8 @@ logged in to the running Steam client: the same ISteamUGC calls the game's PACKA
 
 Run tools/workshop.py first: this publishes dist/workshop/<item>/ as it is. Each item gets:
 its content (a folder holding only the .bin, as a subscriber's
-steamapps/workshop/content/619820/<id>/ holds it), title, description, preview, tags
+steamapps/workshop/content/619820/<id>/ holds it), title, description, preview, the kit's
+gallery/*.png as the page's additional pictures (replacing the ones it has), tags
 (workshop.json `tags`), visibility and the kit's change note. An item with no `item_id` in
 workshop.json is created first, and its new id is written to workshop.json at once, so a
 failure later never leaves an item nobody knows about. Items marked `hold` are skipped.
@@ -39,7 +40,8 @@ APP_ID = 619820
 VISIBILITY = {"public": 0, "friends": 1, "private": 2, "unlisted": 3}  # ERemoteStoragePublishedFileVisibility
 FILE_TYPE_COMMUNITY = 0                                                # EWorkshopFileType
 RESULT_OK = 1                                                          # EResult
-CB_CREATE, CB_SUBMIT = 3403, 3404                                      # k_iSteamUGCCallbacks + 3, + 4
+CB_QUERY, CB_CREATE, CB_SUBMIT = 3401, 3403, 3404                      # k_iSteamUGCCallbacks + 1, + 3, + 4
+PREVIEW_IMAGE = 0                                                      # EItemPreviewType
 LEGAL_URL = "https://steamcommunity.com/sharedfiles/workshoplegalagreement"
 PAGE_URL = "https://steamcommunity.com/sharedfiles/filedetails/?id={}"
 UPDATE_STATUS = {0: "invalid", 1: "preparing config", 2: "preparing content", 3: "uploading content",
@@ -52,6 +54,11 @@ class CreateItemResult(ctypes.Structure):     # isteamugc.h CreateItemResult_t (
 
 class SubmitItemUpdateResult(ctypes.Structure):  # isteamugc.h SubmitItemUpdateResult_t (pack 8)
     _fields_ = [("result", ctypes.c_int), ("legal", ctypes.c_bool), ("id", ctypes.c_uint64)]
+
+
+class SteamUGCQueryCompleted(ctypes.Structure):  # isteamugc.h SteamUGCQueryCompleted_t (pack 8)
+    _fields_ = [("handle", ctypes.c_uint64), ("result", ctypes.c_int), ("returned", ctypes.c_uint32),
+                ("total", ctypes.c_uint32), ("cached", ctypes.c_bool), ("cursor", ctypes.c_char * 256)]
 
 
 class SteamParamStringArray(ctypes.Structure):
@@ -81,6 +88,13 @@ class Steam:
             "SteamAPI_ISteamUGC_SetItemContent": (b, [vp, u64, s]),
             "SteamAPI_ISteamUGC_SetItemPreview": (b, [vp, u64, s]),
             "SteamAPI_ISteamUGC_SubmitItemUpdate": (u64, [vp, u64, s]),
+            "SteamAPI_ISteamUGC_AddItemPreviewFile": (b, [vp, u64, s, i]),
+            "SteamAPI_ISteamUGC_RemoveItemPreview": (b, [vp, u64, ctypes.c_uint32]),
+            "SteamAPI_ISteamUGC_CreateQueryUGCDetailsRequest": (u64, [vp, ctypes.POINTER(u64), ctypes.c_uint32]),
+            "SteamAPI_ISteamUGC_SetReturnAdditionalPreviews": (b, [vp, u64, b]),
+            "SteamAPI_ISteamUGC_SendQueryUGCRequest": (u64, [vp, u64]),
+            "SteamAPI_ISteamUGC_GetQueryUGCNumAdditionalPreviews": (ctypes.c_uint32, [vp, u64, ctypes.c_uint32]),
+            "SteamAPI_ISteamUGC_ReleaseQueryUGCRequest": (b, [vp, u64]),
             "SteamAPI_ISteamUGC_GetItemUpdateProgress": (i, [vp, u64, ctypes.POINTER(u64), ctypes.POINTER(u64)]),
             "SteamAPI_ISteamUtils_IsAPICallCompleted": (b, [vp, u64, ctypes.POINTER(b)]),
             "SteamAPI_ISteamUtils_GetAPICallResult": (b, [vp, u64, vp, i, i, ctypes.POINTER(b)]),
@@ -123,7 +137,24 @@ class Steam:
         call = self.dll.SteamAPI_ISteamUGC_CreateItem(self.ugc, APP_ID, FILE_TYPE_COMMUNITY)
         return self.wait(call, CreateItemResult, CB_CREATE, timeout=120) if call else None
 
-    def update(self, item_id, title, description, tags, content, preview, visibility, note):
+    def extra_previews(self, item_id):
+        """How many additional pictures the published item has (its gallery), or None."""
+        d, ugc = self.dll, self.ugc
+        ids = (ctypes.c_uint64 * 1)(item_id)
+        q = d.SteamAPI_ISteamUGC_CreateQueryUGCDetailsRequest(ugc, ids, 1)
+        try:
+            d.SteamAPI_ISteamUGC_SetReturnAdditionalPreviews(ugc, q, True)
+            r = self.wait(d.SteamAPI_ISteamUGC_SendQueryUGCRequest(ugc, q), SteamUGCQueryCompleted, CB_QUERY,
+                          timeout=60)
+            if r is None or r.result != RESULT_OK or r.returned < 1:
+                return None
+            return d.SteamAPI_ISteamUGC_GetQueryUGCNumAdditionalPreviews(ugc, q, 0)
+        finally:
+            d.SteamAPI_ISteamUGC_ReleaseQueryUGCRequest(ugc, q)
+
+    def update(self, item_id, title, description, tags, content, preview, visibility, note,
+               gallery=(), old_gallery=0):
+        """gallery: the item's additional pictures, replacing the old_gallery ones it has."""
         d, ugc = self.dll, self.ugc
         h = d.SteamAPI_ISteamUGC_StartItemUpdate(ugc, APP_ID, item_id)
         arr = (ctypes.c_char_p * len(tags))(*[t.encode() for t in tags])
@@ -135,6 +166,11 @@ class Steam:
             "content": d.SteamAPI_ISteamUGC_SetItemContent(ugc, h, str(content).encode()),
             "preview": d.SteamAPI_ISteamUGC_SetItemPreview(ugc, h, str(preview).encode()),
         }
+        for n in reversed(range(old_gallery)):
+            steps[f"removal of old picture {n}"] = d.SteamAPI_ISteamUGC_RemoveItemPreview(ugc, h, n)
+        for g in gallery:
+            steps[f"picture {g.name}"] = d.SteamAPI_ISteamUGC_AddItemPreviewFile(
+                ugc, h, str(g).encode(), PREVIEW_IMAGE)
         bad = [k for k, v in steps.items() if not v]
         if bad:
             return None, f"Steam refused the {', '.join(bad)}"
@@ -172,14 +208,19 @@ def kit_items(led, only):
         missing = [p.name for p in need if not p.is_file()]
         if missing:
             problems.append(f"{name}: {', '.join(missing)} missing in {d} (run tools/workshop.py)")
-        elif (d / "preview.png").stat().st_size >= 1024 * 1024:
-            problems.append(f"{name}: preview.png is 1 MB or more")
+        elif any(f.stat().st_size >= 1024 * 1024 for f in [d / "preview.png", *gallery(d)]):
+            problems.append(f"{name}: a picture is 1 MB or more")
         elif not entry.get("tags"):
             problems.append(f"{name}: no tags in workshop.json")
         out.append((name, entry, d))
     if only - set(led["items"]):
         problems.append(f"not in workshop.json: {sorted(only - set(led['items']))}")
     return out, problems
+
+
+def gallery(d: Path) -> list[Path]:
+    """The kit's additional pictures (the All pack's package cards), in order."""
+    return sorted((d / "gallery").glob("*.png")) if (d / "gallery").is_dir() else []
 
 
 def game_running():
@@ -215,6 +256,10 @@ def main(argv=None) -> int:
         for name, entry, d in todo:
             what = f"UPDATE {entry['item_id']}" if entry.get("item_id") else "NEW"
             print(f"{what:<17} {name}: {(d / 'title.txt').read_text(encoding='utf-8').strip()}, tags {entry['tags']}")
+            if gallery(d):
+                old = steam.extra_previews(int(entry["item_id"])) if entry.get("item_id") else 0
+                print(f"{'':<17} {len(gallery(d))} gallery pictures, replacing "
+                      f"{'?' if old is None else old} on the page")
         if args.dry_run:
             print("dry run: nothing uploaded")
             return 0
@@ -239,10 +284,16 @@ def main(argv=None) -> int:
                 shutil.rmtree(content)
             content.mkdir(parents=True)
             shutil.copy2(d / f"{name}.bin", content / f"{name}.bin")
+            old = steam.extra_previews(int(entry["item_id"])) if gallery(d) else 0
+            if old is None:
+                failed.append(f"{name}: Steam did not say how many gallery pictures the item has")
+                print(f"FAILED {name}: {failed[-1]}", flush=True)
+                continue
             print(f"uploading {name} ({entry['item_id']})", flush=True)
             r, why = steam.update(int(entry["item_id"]), title, (d / "description.txt").read_text(encoding="utf-8"),
                                   entry["tags"], content.resolve(), (d / "preview.png").resolve(),
-                                  VISIBILITY[args.visibility], (d / "changenote.txt").read_text(encoding="utf-8").strip())
+                                  VISIBILITY[args.visibility], (d / "changenote.txt").read_text(encoding="utf-8").strip(),
+                                  [g.resolve() for g in gallery(d)], old)
             if r is None or r.result != RESULT_OK:
                 code = getattr(r, "result", None)
                 failed.append(f"{name}: {why or f'submit failed (EResult {code})'}")

@@ -19,9 +19,10 @@ This builds every package (`tools/build.py`) and writes one folder per Workshop 
 | File | Goes into the uploader's |
 |---|---|
 | `HWP-<id>.bin` / `HammerwatchPlus-All.bin` | File to upload |
-| `preview.png` (640x360, under the uploader's 1 MB limit) | Preview Image |
+| `preview.png` (1440x810, under the uploader's 1 MB limit; see The cards) | Preview Image |
+| `gallery/NN-<id>.png` (the All pack only: each published package's card) | the page's additional pictures |
 | `title.txt` | Title |
-| `description.txt` (Steam BBCode: the package, its modules, the HoH1 stand-ins, settings, co-op) | Description |
+| `description.txt` (Steam BBCode: multiplayer and what it needs first, then each module, install, settings, and a link to the All pack) | Description |
 | `changenote.txt` (version, commit, date) | change note, for an update |
 
 `dist/workshop/UPLOAD.txt` lists each item as NEW, UPDATE (with its Workshop link) or HOLD,
@@ -29,13 +30,18 @@ based on `workshop.json`.
 
 The texts come from the repo, so fix them there, not in the kit:
 
-- The package line comes from `packages.json` `description`.
-- Each module's line comes from its row in README.md's module tables.
+- Each module's line is `TERSE` in `tools/workshop.py`: a few words a player needs, or a
+  short list for a one-module package (the Firearms kit, the eight specs). Keep it in step
+  with the module's README row.
+- The All pack's line for a one-module package is `ONE_LINE`.
+- What needs a DLC is `DLC` (today only the Devil Forgemaster, a Priest spec: Celestial
+  Ruins). The page's Requires line, its install steps and the card's red footer all read it.
 - The Heroes of Hammerwatch 1 notes come from each module's `HWP::HoH1::Report` lang
-  string, the same text the game shows the player.
+  string, the same text the game shows the player (`QUIET_STANDINS` leaves out the ones whose
+  line never claims the HoH1 content).
 
 `python tools/workshop.py --check` (also in the test suite) fails when a module has no README
-line or an item has no `workshop.json` entry.
+row or `TERSE` line, an item has no `workshop.json` entry, or a page names a repo path.
 
 ## 2. Publish
 
@@ -54,7 +60,10 @@ the game closed. For each item in `workshop.json` that is not on hold, it:
 - uploads the content (a folder holding only the `.bin`, as a subscriber's
   `steamapps/workshop/content/619820/<id>/` holds it), the title, description, preview, tags
   (`workshop.json` `tags`) and visibility (`--visibility`, default public), with
-  `changenote.txt` as the change note.
+  `changenote.txt` as the change note;
+- replaces the page's additional pictures with the kit's `gallery/*.png` (the All pack):
+  it asks Steam how many the item has (a UGC details query), removes those and adds the new
+  ones in the same update. `--dry-run` prints both counts.
 
 `--dry-run` checks Steam, the login and the kit and uploads nothing. `--only HWP-qol,HWP-pets`
 publishes some items.
@@ -76,6 +85,8 @@ The same upload is in the game's own `PACKAGER.exe` (in the Heroes of Hammerwatc
    `workshop.json` under that item (`"item_id": "<number>"`) and commit it.
 5. For an UPDATE, the manager lists your published items. Pick the item, choose the new `.bin`,
    and paste `changenote.txt` as the change note.
+   The packager has no field for the additional pictures; add the All pack's `gallery/`
+   images on its Workshop page (Owner Controls > Add/edit images & videos).
 
 **Publish every package of one build together.** They share the library, and each package
 checks that the library it finds is from its own build. When it isn't, the player gets one
@@ -103,6 +114,36 @@ is harmless. Remove the `hold` when the classes come back.
 
 ## The page texts
 
-A module's line comes from its README row, minus the sentences that name repo paths or
-developer steps (`tools/workshop.py` `public`, `DEV_TEXT`). `tests/test_workshop.py` fails if
-a description still names one.
+Every page opens with **Multiplayer supported**, what it requires (Heroes of Hammerwatch II,
+any DLC, and that Heroes of Hammerwatch 1 is not needed, with the Workshop stand-ins), then each
+module in a line, install steps that repeat the requirements, where the settings are (player
+menu > Plus tab), and last a link to the All pack. The All pack's page lists the packages
+(each linked to its own page), then install, settings and how to switch modules off.
+`tests/test_workshop.py` checks that shape, and that no page names a repo path or developer
+step (`DEV_TEXT`).
+
+## The cards
+
+`tools/workshop_art.py` draws each item's picture from the game's own art, so the cards
+look like the game and like each other:
+
+- **The frame and fonts.** The gold knotwork frame is the game's panel style
+  (`gui/panelstyles.png`); names and notes are the game's pixel fonts (`gui/fonts/empire_*`,
+  no smoothing, 1 px outline). Each card is drawn at 480x270 and scaled 3x, nearest
+  neighbour.
+- **The wordmark.** "HammerwatchPlus" is set in UnifrakturMaguntia, a blackletter face under
+  the SIL Open Font License (`tools/fonts/`, licence beside it).
+- **The symbols.** Every module has a symbol (`SYMBOLS`): game sprites, or the module's own
+  art, several where one doesn't say it (farming's crops and herb, keys' three tiers).
+  `python tools/workshop_art.py --sheet` draws them all with their ids, for checking a
+  sprite box.
+- **The layouts.** Firearms shows every skill with its orbs, by specialization. The specs
+  card shows each spec's two skills and their orbs. A package of up to eight entries gets
+  large framed symbols with a note under each name; Quality of Life gets a compact grid. The
+  All pack's cover lists every package.
+
+The cards are never committed: the game's art stays in `gamecode/` (gitignored) and the
+cards land in `dist/` (`python tools/workshop_art.py` writes `dist/workshop-art/`). Only
+Steam gets them, as each item's pictures. Without `gamecode/`, `tools/workshop.py` stops and
+says so (`python -m gamelab doctor --fix` makes it). `tests/test_workshop_art.py` checks that
+every card lays out and fits under 1 MB.

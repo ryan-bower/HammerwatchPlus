@@ -119,7 +119,7 @@
     {
       "id": "pets",
       "name": "HammerwatchPlus: Pets",
-      "description": "Pet levels and skills, dyes and the HoH1 pets.",
+      "description": "Pet levels and skills, pet dyes and pickup toggles.",
       "mods": [
         "pets"
       ]

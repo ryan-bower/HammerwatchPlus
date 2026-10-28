@@ -8,7 +8,10 @@ For each package in packages.json, and the all-in-one pack, it writes
 dist/workshop/<file>/:
 
     <file>.bin         the package (dist/<file>.bin)
-    preview.png        the Workshop image (under 1 MB, the uploader's limit)
+    preview.png        the Workshop image (under 1 MB, the uploader's limit): the package's
+                       card from tools/workshop_art.py, drawn from the game's own art
+    gallery/NN-<id>.png  the All pack only: every published package's card, the item's
+                       additional pictures
     title.txt          the item's title
     description.txt    the item's description, in Steam's BBCode
     changenote.txt     version, commit and date, for an update's change note
@@ -33,21 +36,87 @@ DIST = REPO / "dist"
 OUT = DIST / "workshop"
 LEDGER = REPO / "workshop.json"
 PREVIEW_MAX = 1024 * 1024
-FONTS = Path("C:/Windows/Fonts")
-
-# one accent per package for the preview cards
-ACCENT = {
-    "qol": (86, 160, 211), "coop": (120, 190, 120), "autoaim": (229, 115, 80),
-    "firearms": (214, 162, 72), "specs": (171, 120, 214), "classes": (150, 150, 165),
-    "keys": (232, 196, 80), "campaign": (120, 140, 220), "modes": (215, 80, 90),
-    "dungeon": (190, 120, 70), "town": (110, 190, 170), "pets": (230, 140, 180),
-    "all": (237, 147, 49),
+ALL_FILE = "HammerwatchPlus-All"
+# one short line per module for its Workshop page: what a player gets, nothing else
+TERSE = {
+    "bufftips": "hover a buff to see what it does and how long it has left.",
+    "chatlinks": "linked items stay in chat with their slot and item level.",
+    "stash": "a Sort button on the town stash.",
+    "deathrecap": "what killed you, and everyone's damage after each boss.",
+    "laststats": "the party's last-run stats on a board by the town fountain.",
+    "colors": "colour-blind projectile tints; each player in their own colour on the map.",
+    "waygates": "teleport gates in the town square and at every building.",
+    "weaponswap": "a second weapon set on a hotkey (X).",
+    "summons": "summons follow you to the next floor with their HP.",
+    "legacy": "your best hero of each class buffs every character.",
+    "goldworth": "gold on the floor looks like what it is worth.",
+    "mmhmm": "some rare and epic hats say \"mm-hmm\" on crits, revives and more.",
+    "orbwarn": "the orb picker shows which orbs a pick locks out.",
+    "mapicons": "dye pots marked on the minimap.",
+    "groupcombo": "a party combo bonus, and rare combo orbs from boxes and vases.",
+    "architect": "every player can pick and pay for Architect alterations; three saved presets.",
+    "droptrade": "drop gear for friends (Q in the inventory).",
+    "autoaim": ["the reticle of an aimed skill snaps to an enemy in your aim cone",
+                "aimed skills can fire by themselves, ready area skills cast themselves",
+                "on for controllers by default, an option for mouse players"],
+    "firearms": ["rifles, pistols and hand cannons that fire from a clip and reload",
+                 "base kit: Reload, Frag Grenade, Elemental Bullets",
+                 "Marksman: Sniper Shot, Critical Aim",
+                 "Demolitionist: Rocket Launcher, Ordinance Hoarder",
+                 "Assault: Double Barrel Burst, Adrenaline",
+                 "Engineer: Deploy Turret, My Turret!",
+                 "every skill has its orbs"],
+    "specs": ["Deadeye (Ranger): Lightning Arrow, Gathering Winds",
+              "Aerotheurge (Wizard): Thunder Orb, Static Charge",
+              "Arcane (Sorcerer): Blink, Living Mana",
+              "Winddancer (Rogue): Protective Gale, Second Wind",
+              "Bannerlord (Warrior): Battlefield Standard, Righteous Crusade",
+              "Branding (Warlock): Pyrebrand, Essence Extraction",
+              "Devil Forgemaster (Priest): Necrotic Resurrection, Call of Heresy",
+              "Generosity (Paladin): Pelor's Fury, Pelor's Blessing",
+              "every skill has its orbs"],
+    "classes": "the Skill 4-6 keys; the Thief, Gladiator and Witch Hunter are coming back later.",
+    "keys": ["every chest needs a key of its tier: bronze, silver, gold",
+             "keys drop in runs",
+             "ace chests, opened with the red ace key, and seven new legendaries",
+             "the exit guard sells keys, bag slots and trinkets for your next run"],
+    "campaign": ["a portal in town to an 18-floor campaign, the Mines to the Battlements",
+                 "6 bosses, with their own NG+ versions",
+                 "HoH1 traps, teleporter pads and confusion glyphs on generated floors"],
+    "mercenary": "enlist a fresh character once its class has a level-20 hero (console: hwp merc enlist); "
+                 "climb from Private to General for more gold and XP; death is permanent.",
+    "wavemode": "a survival arena from a statue in town; each boss kill raises your rank.",
+    "puzzles": "puzzle rooms on most floors, and HoH1's Constellation puzzle.",
+    "objectives": "lever-locked loot vaults, and exits sealed until you find the lever.",
+    "strongbox": "open one, beat the pack that spawns, take the loot.",
+    "abyss": "cracks that spawn waves of enemies; the reward grows the deeper you are.",
+    "maps": "three new map layouts: Goblin Warrens, Sunken Dungeon, The High Court.",
+    "weapons": "twelve new item level 35 weapons.",
+    "trinkets": "trinket bonuses grow with NG+; 37 HoH1 trinkets and eight new trinket sets.",
+    "valuables": "vases, gems and other valuables are worth twice the gold.",
+    "fishing": "fishing spots in town and on run floors, a bait and rod shop; sell or eat the fish.",
+    "farming": "farm plots in town: crops and Holy Herbs grow with every run; smoke a herb for a buff.",
+    "gambler": "Higher or Lower for gold, and rerolls of your equipped gear.",
+    "roulette": "a roulette table in the tavern for the whole lobby.",
+    "tavern": "three more tavern levels: up to 3 foods and 5 drinks per run.",
+    "pets": ["pets level up and learn skills, trained at the Pet Shop",
+             "pet dyes at the tailor",
+             "pickup toggles per pet",
+             "pets wait outside puzzle rooms"],
 }
-SETTINGS_NOTE = ("Every module can be turned off, and its settings changed, in game: open the "
-                 "inventory and go to the [b]Plus[/b] tab. Settings that change the game for "
-                 "everyone follow the host in a lobby.")
-COOP_NOTE = ("Co-op: everyone in a lobby should run the same version of the same packages. "
-             "Each package works alone and beside any other HammerwatchPlus package.")
+# what a package needs beyond the game: DLC name, and what in the package needs it
+DLC = {"specs": ("Celestial Ruins", "Devil Forgemaster")}
+# stand-ins a page doesn't mention: the module's line never claims the HoH1 content
+QUIET_STANDINS = {"pets", "classes"}
+# the All pack's line for a one-module package
+ONE_LINE = {
+    "autoaim": "aim assist for reticle skills, for controllers and mouse.",
+    "firearms": "a new class with guns, grenades and four specializations.",
+    "specs": "a 4th specialization for eight classes.",
+    "keys": "locked chests, keys, ace chests and new legendaries.",
+    "campaign": "an 18-floor campaign from a portal in town.",
+    "pets": "pet levels, skills, dyes and pickup toggles.",
+}
 
 
 def load_packages() -> tuple[list[dict], dict]:
@@ -90,111 +159,102 @@ def standins() -> dict[str, str]:
     return out
 
 
-# a README row's sentences about this repo, not the game: its paths, its tools, the HoH1 import
+# words about this repo, not the game (its paths, its tools, the HoH1 import): never on a page
 DEV_TEXT = re.compile(r"tools/|mods/|docs/|art/|\.py\b|gitignored|doctor|the user's picks|HoH1 installed|\bcore's\b")
 
 
-def public(md: str, title: str) -> str:
-    """A README row as a player reads it: without the sentences (or ;-parts) that name repo
-    paths or developer steps, and without a leading **title**: the list item already shows."""
-    parts = re.split(r"(?<=[.;])\s+", md)
-    s = " ".join(p for p in parts if not DEV_TEXT.search(p))
-    s = re.sub(r"^\*\*" + re.escape(title) + r"\*\*:\s*", "", s).strip()
-    return s[:1].upper() + s[1:]
+WORKSHOP_URL = "https://steamcommunity.com/sharedfiles/filedetails/?id="
 
 
-def bbcode(md: str) -> str:
-    """The README's markdown, as Steam shows it."""
-    s = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", md)
-    s = re.sub(r"\*\*([^*]+)\*\*", r"[b]\1[/b]", s)
-    s = re.sub(r"`([^`]+)`", r"\1", s)
-    return s.replace("\\|", "|")
+def item_url(file: str, led: dict) -> str:
+    e = led.get("items", {}).get(file, {})
+    return WORKSHOP_URL + e["item_id"] if e.get("item_id") and not e.get("hold") else ""
 
 
-def describe(pkg: dict, lines: dict[str, str], inside: list[dict] | None = None,
-             stand: dict[str, str] | None = None) -> str:
-    out = [pkg["description"], ""]
-    if inside is None:
-        out.append("[h2]What's in it[/h2]")
-        out.append("[list]")
-        for mod in pkg["mods"]:
-            text = bbcode(public(lines.get(mod, ""), module_title(mod)))
-            out.append(f"[*][b]{module_title(mod)}[/b]" + (f": {text}" if text else ""))
-        out.append("[/list]")
-    else:
-        out.append("[h2]The packages inside[/h2]")
-        out.append("[list]")
-        for p in inside:
-            name = p["name"].split(": ", 1)[-1]
-            out.append(f"[*][b]{name}[/b]: {p['description']}")
-        out.append("[/list]")
-        out.append("Already subscribed to some of the single packages? They can stay enabled "
-                   "beside this one; it carries the same files.")
-    notes = [stand[m] for m in pkg["mods"] if stand and m in stand]
+def short(p: dict) -> str:
+    return p["name"].split(": ", 1)[-1]
+
+
+def requires(mods: list[str], pids: list[str], stand: dict[str, str]) -> list[str]:
+    """The page's first lines: multiplayer, and everything the package needs beyond the game."""
+    need = "Heroes of Hammerwatch II"
+    dlc = [DLC[p] for p in pids if p in DLC]
+    if dlc:
+        need += "; " + "; ".join(f"the [b]{d} DLC[/b] for the {what}" for d, what in dlc)
+    hoh1 = "[b]Heroes of Hammerwatch 1:[/b] not needed."
+    notes = [stand[m] for m in mods if m in stand and m not in QUIET_STANDINS]
     if notes:
-        out += ["", "[h2]Heroes of Hammerwatch 1 content[/h2]",
-                "The Workshop version can't carry Heroes of Hammerwatch 1's own art and levels, so:",
-                "[list]"] + [f"[*]{n[0].upper() + n[1:]}." for n in notes] + [
-                "[/list]", "Everything else works without it."]
-    out += ["", "[h2]Settings[/h2]", SETTINGS_NOTE, "", "[h2]Multiplayer[/h2]", COOP_NOTE]
+        hoh1 += " In this Workshop version " + "; ".join(notes) + "."
+    return ["[b]Multiplayer supported.[/b]", f"[b]Requires:[/b] {need}.", hoh1]
+
+
+def module_item(mod: str) -> list[str]:
+    t = TERSE[mod]
+    if isinstance(t, str):
+        return [f"[*][b]{module_title(mod)}[/b]: {t}"]
+    return [f"[*][b]{module_title(mod)}[/b]", "[list]"] + [f"[*]{s[0].upper() + s[1:]}" for s in t] + ["[/list]"]
+
+
+def install(name: str, pids: list[str]) -> list[str]:
+    dlc = [DLC[p] for p in pids if p in DLC]
+    need = "Heroes of Hammerwatch II" + "".join(f" (and {d} for the {what})" for d, what in dlc)
+    return ["[h2]Install[/h2]", "[olist]",
+            "[*]Subscribe.",
+            f"[*]In the game's main menu, open [b]Resource Mods[/b], tick [b]{name}[/b] and restart the game.",
+            f"[*]You need {need}. Heroes of Hammerwatch 1 is not needed.",
+            "[*]Everyone in a lobby needs the same packages.",
+            "[/olist]",
+            "[b]Settings:[/b] open the player menu (inventory), [b]Plus[/b] tab. Every module has an "
+            "on/off switch there; in a lobby the host's settings count."]
+
+
+def describe(pkg: dict, led: dict, inside: list[dict] | None = None,
+             stand: dict[str, str] | None = None) -> str:
+    stand = stand or {}
+    if inside is None:
+        out = requires(pkg["mods"], [pkg.get("pid", pkg["id"])], stand) + ["", "[h2]What's in it[/h2]", "[list]"]
+        for mod in pkg["mods"]:
+            out += module_item(mod)
+        out += ["[/list]", ""] + install(pkg["name"], [pkg.get("pid", pkg["id"])])
+        allp = item_url(ALL_FILE, led)
+        if allp:
+            out += ["", f"Want everything? [url={allp}]HammerwatchPlus: All[/url] has every "
+                        "HammerwatchPlus package in one subscription."]
+        return "\n".join(out) + "\n"
+    mods = [m for p in inside for m in p["mods"]]
+    out = requires(mods, [p["id"] for p in inside], stand) + [
+        "", f"Every HammerwatchPlus package in one subscription: {len(inside)} packages, {len(mods)} "
+            "modules. The pictures show each package.", "", "[h2]What's in it[/h2]", "[list]"]
+    for p in inside:
+        url = item_url(f"HWP-{p['id']}", led)
+        name = f"[url={url}]{short(p)}[/url]" if url else short(p)
+        if p["id"] == "classes":
+            out.append(f"[*][b]{name}[/b]: {TERSE['classes']}")
+            continue
+        titles = [module_title(m) for m in p["mods"]] if len(p["mods"]) > 1 else []
+        what = ", ".join(titles) if titles else ONE_LINE[p["id"]]
+        out.append(f"[*][b]{name}[/b]: {what}")
+    out += ["[/list]", "Each package's own page lists what every module does.", ""]
+    out += ["[h2]Install[/h2]", "[olist]", "[*]Subscribe.",
+            f"[*]In the game's main menu, open [b]Resource Mods[/b], tick [b]{pkg['name']}[/b] and restart the game.",
+            "[*]You need Heroes of Hammerwatch II (and Celestial Ruins only for the Devil Forgemaster). "
+            "Heroes of Hammerwatch 1 is not needed.",
+            "[*]Everyone in a lobby needs it too.",
+            "[/olist]",
+            "No need to enable the single packages as well. Any you already have can stay on beside this one.",
+            "", "[h2]Settings[/h2]",
+            "Open the player menu (inventory) and go to the [b]Plus[/b] tab: one row per package, every module "
+            "and its settings, with a search field. In a lobby the host's settings count.",
+            "", "[h2]Turning modules off[/h2]",
+            "Don't want a module? Switch it off in the Plus tab; the rest keep working. Turn it back on any time."]
     return "\n".join(out) + "\n"
 
 
-def font(size: int, bold: bool = False):
-    from PIL import ImageFont
-    for name in (["georgiab.ttf", "cambriab.ttf"] if bold else ["segoeui.ttf", "georgia.ttf"]):
-        p = FONTS / name
-        if p.exists():
-            return ImageFont.truetype(str(p), size)
-    return ImageFont.load_default()
-
-
-def wrap(draw, text: str, f, width: int) -> list[str]:
-    words, lines, cur = text.split(), [], ""
-    for w in words:
-        t = (cur + " " + w).strip()
-        if draw.textlength(t, font=f) <= width:
-            cur = t
-        else:
-            if cur:
-                lines.append(cur)
-            cur = w
-    if cur:
-        lines.append(cur)
-    return lines
-
-
-def preview(path: Path, pid: str, title: str, items: list[str]) -> None:
-    """A 640x360 title card: the package's name and what is in it."""
-    from PIL import Image, ImageDraw
-    W, H = 640, 360
-    acc = ACCENT.get(pid, (237, 147, 49))
-    img = Image.new("RGB", (W, H), (22, 20, 26))
-    d = ImageDraw.Draw(img)
-    for y in range(H):   # a dark vertical wash toward the accent
-        t = y / H
-        c = tuple(int(22 + (a * 0.22 - 22) * (1 - t) * 0.6) for a in acc)
-        d.line([(0, y), (W, y)], fill=c)
-    d.rectangle([0, 0, 10, H], fill=acc)
-    d.rectangle([28, 30, W - 28, 31], fill=acc)
-    d.text((28, 40), "HAMMERWATCHPLUS", font=font(20, True), fill=acc)
-    tf = font(44, True)
-    y = 70
-    for ln in wrap(d, title, tf, W - 56)[:2]:
-        d.text((28, y), ln, font=tf, fill=(244, 238, 228))
-        y += 52
-    y += 10
-    f = font(19)
-    shown = items[:7]
-    for it in shown:
-        d.text((34, y), "\u2022 " + it, font=f, fill=(214, 208, 200))
-        y += 26
-    if len(items) > len(shown):
-        d.text((34, y), f"and {len(items) - len(shown)} more", font=f, fill=(170, 165, 160))
-    d.text((W - 28, H - 32), "Heroes of Hammerwatch II mod", font=font(16), fill=(150, 145, 140), anchor="ra")
-    img.save(path, optimize=True)
+def card(im, path: Path) -> None:
+    import workshop_art
+    workshop_art.save(im, path)
     if path.stat().st_size >= PREVIEW_MAX:
-        raise SystemExit(f"{path}: preview is {path.stat().st_size} bytes, the uploader takes under 1 MB")
+        raise SystemExit(f"{path}: the image is {path.stat().st_size} bytes, Steam takes under 1 MB")
 
 
 def version() -> str:
@@ -231,8 +291,18 @@ def check(packages, allp, led) -> list[str]:
             for mod in p["mods"]:
                 if mod not in lines:
                     errors.append(f"{file}: README.md has no module line for {mod}")
+            for mod in p["mods"]:
+                if mod not in TERSE:
+                    errors.append(f"{file}: no Workshop line (TERSE) for {mod}")
+        elif any(q["id"] not in ONE_LINE for q in inside if len(q["mods"]) == 1 and q["id"] != "classes"):
+            errors.append(f"{file}: a one-module package has no ONE_LINE")
         if file not in led.get("items", {}):
             errors.append(f"workshop.json: no entry for {file}")
+            continue
+        if not errors:
+            m = DEV_TEXT.search(describe(p, led, inside, standins()))
+            if m:
+                errors.append(f"{file}: the description names {m.group(0)!r}, a repo path or dev step")
     return errors
 
 
@@ -258,8 +328,15 @@ def main(argv=None) -> int:
     if OUT.exists():
         shutil.rmtree(OUT)
     OUT.mkdir(parents=True)
-    lines = module_lines()
     stand = standins()
+    try:
+        sys.path.insert(0, str(REPO / "tools"))
+        import workshop_art
+        art = workshop_art.cards(packages, workshop_art.held_ids())
+    except FileNotFoundError as e:
+        print(f"workshop: the cards are drawn from the game's art, and {e.filename} is missing "
+              "(python -m gamelab doctor --fix makes gamecode/)", file=sys.stderr)
+        return 1
     stamp = f"HammerwatchPlus {version()} ({commit()}, {datetime.date.today().isoformat()})"
     plan = []
     for file, p, inside in items(packages, allp):
@@ -272,11 +349,12 @@ def main(argv=None) -> int:
         shutil.copy2(src, d / src.name)
         title = p["name"]
         (d / "title.txt").write_text(title + "\n", encoding="utf-8", newline="\n")
-        (d / "description.txt").write_text(describe(p, lines, inside, stand), encoding="utf-8", newline="\n")
+        (d / "description.txt").write_text(describe(p, led, inside, stand), encoding="utf-8", newline="\n")
         (d / "changenote.txt").write_text(stamp + "\n", encoding="utf-8", newline="\n")
-        shown = ([q["name"].split(": ", 1)[-1] for q in inside] if inside
-                 else [module_title(m) for m in p["mods"]])
-        preview(d / "preview.png", p["pid"], title.split(": ", 1)[-1], shown)
+        card(art[p["pid"]], d / "preview.png")
+        if inside:          # the All pack's gallery: every published package's own card
+            for n, q in enumerate((q for q in inside if not led["items"][f"HWP-{q['id']}"].get("hold")), 1):
+                card(art[q["id"]], d / "gallery" / f"{n:02d}-{q['id']}.png")
         entry = led["items"][file]
         if entry.get("hold"):
             plan.append(f"HOLD     {file}: {entry['hold']}")
