@@ -1,5 +1,5 @@
 {
-  "_doc": "The Steam Workshop packages (tools/build.py; docs/modules.md, Packages). Each package is dist/HWP-<id>.bin: its mods plus every library part they require (module.json `library: true`), so it works alone and beside any other package. Every content module is in exactly one package or on the bench (never shipped). `all` is the all-in-one pack, every package together.",
+  "_doc": "The Steam Workshop packages (tools/build.py; docs/modules.md, Packages). Each package is dist/HWP-<id>.bin: its mods plus every library part they require (module.json `library: true`), so it works alone and beside any other package. Every content module is in exactly one package or on the bench (never shipped). `all` is the all-in-one pack, every package together. `\"workshop\": false`: not on the Steam Workshop, so the Workshop's all-in-one pack leaves it out (tools/build.py --workshop); your own build still has it.",
   "packages": [
     {
       "id": "qol",
@@ -76,6 +76,7 @@
       "id": "campaign",
       "name": "HammerwatchPlus: The Forsaken Tower",
       "description": "A portal in town that starts the Forsaken Tower: an 18-floor campaign through the Mines, Prison, Armory, Archives, Chambers and Battlements of Heroes of Hammerwatch 1, rebuilt with Heroes of Hammerwatch 2 themes and bosses.",
+      "workshop": false,
       "mods": [
         "campaign"
       ]
@@ -128,7 +129,7 @@
   "all": {
     "file": "HammerwatchPlus-All",
     "name": "HammerwatchPlus: All",
-    "description": "Every HammerwatchPlus package in one: Quality of Life, Co-op Play, Auto Aim, the Firearms Specialist, Fourth Specializations, HoH1 Classes, Keys and Ace Chests, The Forsaken Tower, Challenge Modes, Dungeon Loot and Encounters, Town Life and Pets. The packages are inside it: there is no need to enable them as well."
+    "description": "Every HammerwatchPlus package in one. The packages are inside it: there is no need to enable them as well."
   },
   "bench": [
     "devarena",

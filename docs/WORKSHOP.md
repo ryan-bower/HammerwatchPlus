@@ -13,8 +13,8 @@ files (`pkg-all-every`). The packages are listed in `packages.json`, and `docs/m
 python tools/workshop.py
 ```
 
-This builds every package (`tools/build.py`) and writes one folder per Workshop item to
-`dist/workshop/`:
+This builds every package (`tools/build.py --workshop`) and writes one folder per Workshop
+item to `dist/workshop/`:
 
 | File | Goes into the uploader's |
 |---|---|
@@ -34,8 +34,9 @@ The texts come from the repo, so fix them there, not in the kit:
   short list for a one-module package (the Firearms kit, the eight specs). Keep it in step
   with the module's README row.
 - The All pack's line for a one-module package is `ONE_LINE`.
-- What needs a DLC is `DLC` (today only the Devil Forgemaster, a Priest spec: Celestial
-  Ruins). The page's Requires line, its install steps and the card's red footer all read it.
+- What needs a DLC is `DLC` (today only the Priest's 4th specialization, the Devil
+  Forgemaster: Celestial Ruins). The page's Requires line and its install steps say "only if
+  you want to use" it; the card's red footer has its short name.
 - The Heroes of Hammerwatch 1 notes come from each module's `HWP::HoH1::Report` lang
   string, the same text the game shows the player (`QUIET_STANDINS` leaves out the ones whose
   line never claims the HoH1 content).
@@ -61,12 +62,18 @@ the game closed. For each item in `workshop.json` that is not on hold, it:
   `steamapps/workshop/content/619820/<id>/` holds it), the title, description, preview, tags
   (`workshop.json` `tags`) and visibility (`--visibility`, default public), with
   `changenote.txt` as the change note;
-- replaces the page's additional pictures with the kit's `gallery/*.png` (the All pack):
-  it asks Steam how many the item has (a UGC details query), removes those and adds the new
-  ones in the same update. `--dry-run` prints both counts.
+- replaces the page's additional pictures with the kit's `gallery/*.png` (the All pack),
+  after the main update: one submit removes the old ones, then each new picture goes in a
+  submit of its own. Then it reads the gallery back (a UGC details query with the additional
+  previews) and checks that every picture has an image URL; if one hasn't, it redoes the
+  gallery, up to three times. One submit that removed and added eleven pictures left six of
+  them without an image, and the page showed only the other five. `--dry-run` prints both
+  counts.
 
 `--dry-run` checks Steam, the login and the kit and uploads nothing. `--only HWP-qol,HWP-pets`
-publishes some items.
+publishes some items. `--delete HWP-<id>` deletes an item from the Workshop for good (its page
+goes and subscribers lose it); `workshop.json` keeps the old id under `removed`, and the
+publisher skips the entry from then on.
 
 Steam asks every Workshop author to accept the Workshop legal agreement once
 (steamcommunity.com/sharedfiles/workshoplegalagreement). Until then the items stay hidden, and
@@ -104,13 +111,21 @@ chat line (`hwp.packages.mismatch`). Upload or update all of them from the same
 - **Optional dependencies.** On each single package's Workshop page you can link the All
   pack (and the reverse) as related items. No package requires another.
 
-## Held back
+## Held back, and not on the Workshop
 
 `workshop.json` marks an item `hold` with the reason, and the publisher skips it. At the
 moment that is **HoH1 Classes** (`HWP-classes`): the Thief, Gladiator and Witch Hunter are
 parked (hidden from character creation), so its page would describe classes a player can't
-pick, and the package would only add the Skill 4-6 keys. The All pack still carries it, which
-is harmless. Remove the `hold` when the classes come back.
+pick, and the package would only add the Skill 4-6 keys. The All pack still carries it (the
+Skill 4-6 keys), but its page and cover don't name it. Remove the `hold` when the classes come
+back.
+
+A package with `"workshop": false` in `packages.json` is not on the Workshop at all: it gets no
+kit folder, and `tools/build.py --workshop` (which `tools/workshop.py` runs) leaves it out of
+the All pack too. Your own build (`tools/build.py`, `/run`) still has it in the All pack. At the
+moment that is **The Forsaken Tower** (`campaign`): Steam hid its item (EResult 15 on every
+update, no reason given through the API), so it was deleted on 2026-10-28
+(`workshop.json` `removed`: item 3828529832).
 
 ## The page texts
 

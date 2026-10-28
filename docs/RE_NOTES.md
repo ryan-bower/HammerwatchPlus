@@ -5169,3 +5169,34 @@ hold are the refused updates and the public page's error. No Workshop API gives 
 `dlc has holy`. Pets and the All pack were republished from bb33faa. Their libraries match the
 other items' builds, since nothing under `mods/` changed.
 
+
+## 2026-10-28: Workshop pages v3, the cards' real art, the Forsaken Tower removed
+
+**Multicolour unit sprites.** The town's exit guard (`actors/npcs/town/npc_misc_guard_exit.unit`)
+draws `players/shared/units/mercenary_pikeman.tif` with a `Colorize` block. The TIFF is
+512x64, uncompressed, 8 bits, interleaved, with 10 samples per pixel (ExtraSamples has 7
+entries; ImageDescription is `TinyTIFFWriter_version=1.1`). PIL can't open it. Samples 0-3 are
+RGBA, and samples 4-9 are one mask per colour channel, 0 or 255. In a masked pixel R=G=B is
+the shade. It is coloured from the channel's dark colour at 0, through mid at 128, to bright at
+255. Pixels with no mask keep their own colour (the pike's red wood, the blade's blue-grey).
+`tools/workshop_art.py` `multicolor()` does this with the unit's six Colorize colours: skin,
+helmet, shoulder, overshirt, undershirt, boots. The result looks the same as the guard in
+town. Frames are 48x48; the one at x 96 faces the camera.
+
+**The map drop's art.** `Item::MissionMap` (scripts/Items/MissionMap.as) has a commented-out
+icon (`items/icons_special.png` 72,0) and draws `items/quest/quests.unit:seachart`, which is
+`items/quest/base.png` 16,0 16x16 (an unrolled sea chart). The red scroll at
+`items/misc/base.png` 0,64 is another item. The watering can the farmer NPC shows as its icon
+is `mods/farming/doodads/hwp/farm.png` 64,0 (grey); the row under it holds the coloured cans.
+
+**Deleting a Workshop item.** `ISteamUGC::DeleteItem(id)` returns a SteamAPICall; its callback
+is `DeleteItemResult_t` (k_iSteamUGCCallbacks + 17 = 3417, `{EResult; PublishedFileId_t}`,
+pack 8). The Forsaken Tower (3828529832), which Steam had hidden, deleted with result 1. A
+details query for it right after returns result 9 (FileNotFound).
+
+**A gallery that drops pictures.** One `SubmitItemUpdate` that removed the All pack's old
+pictures and added eleven new ones succeeded, but `GetQueryUGCAdditionalPreview` then listed
+six of the eleven with an empty URL (each with its original file name), and the page showed
+only the five with one. `tools/workshop_publish.py` now removes the old pictures in one
+submit, adds each new one in its own submit, and then reads the gallery back with
+`SetAllowCachedResponse(0)`. If a picture has no URL, it redoes the gallery.

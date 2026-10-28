@@ -102,10 +102,11 @@ TERSE = {
     "pets": ["pets level up and learn skills, trained at the Pet Shop",
              "pet dyes at the tailor",
              "pickup toggles per pet",
-             "pets wait outside puzzle rooms"],
+             "pets wait outside trap and puzzle rooms"],
 }
-# what a package needs beyond the game: DLC name, and what in the package needs it
-DLC = {"specs": ("Celestial Ruins", "Devil Forgemaster")}
+# what a package needs beyond the game: DLC name, what in the package needs it, and that in a
+# few words for the card
+DLC = {"specs": ("Celestial Ruins", "the Priest's 4th specialization (the Devil Forgemaster)", "Priest's 4th spec")}
 # stand-ins a page doesn't mention: the module's line never claims the HoH1 content
 QUIET_STANDINS = {"pets", "classes"}
 # the All pack's line for a one-module package
@@ -180,7 +181,7 @@ def requires(mods: list[str], pids: list[str], stand: dict[str, str]) -> list[st
     need = "Heroes of Hammerwatch II"
     dlc = [DLC[p] for p in pids if p in DLC]
     if dlc:
-        need += "; " + "; ".join(f"the [b]{d} DLC[/b] for the {what}" for d, what in dlc)
+        need += "; " + "; ".join(f"the [b]{d} DLC[/b] only if you want to use {what}" for d, what, _ in dlc)
     hoh1 = "[b]Heroes of Hammerwatch 1:[/b] not needed."
     notes = [stand[m] for m in mods if m in stand and m not in QUIET_STANDINS]
     if notes:
@@ -195,13 +196,18 @@ def module_item(mod: str) -> list[str]:
     return [f"[*][b]{module_title(mod)}[/b]", "[list]"] + [f"[*]{s[0].upper() + s[1:]}" for s in t] + ["[/list]"]
 
 
+def need_line(pids: list[str]) -> str:
+    """The install step that says what to own: the game, and each DLC with what needs it."""
+    dlc = "".join(f" If you want to use {what}, you also need the {d} DLC." for d, what, _ in
+                  (DLC[p] for p in pids if p in DLC))
+    return f"[*]You need Heroes of Hammerwatch II.{dlc} Heroes of Hammerwatch 1 is not needed."
+
+
 def install(name: str, pids: list[str]) -> list[str]:
-    dlc = [DLC[p] for p in pids if p in DLC]
-    need = "Heroes of Hammerwatch II" + "".join(f" (and {d} for the {what})" for d, what in dlc)
     return ["[h2]Install[/h2]", "[olist]",
             "[*]Subscribe.",
             f"[*]In the game's main menu, open [b]Resource Mods[/b], tick [b]{name}[/b] and restart the game.",
-            f"[*]You need {need}. Heroes of Hammerwatch 1 is not needed.",
+            need_line(pids),
             "[*]Everyone in a lobby needs the same packages.",
             "[/olist]",
             "[b]Settings:[/b] open the player menu (inventory), [b]Plus[/b] tab. Every module has an "
@@ -221,24 +227,21 @@ def describe(pkg: dict, led: dict, inside: list[dict] | None = None,
             out += ["", f"Want everything? [url={allp}]HammerwatchPlus: All[/url] has every "
                         "HammerwatchPlus package in one subscription."]
         return "\n".join(out) + "\n"
-    mods = [m for p in inside for m in p["mods"]]
-    out = requires(mods, [p["id"] for p in inside], stand) + [
-        "", f"Every HammerwatchPlus package in one subscription: {len(inside)} packages, {len(mods)} "
+    shown = listed(inside, led)
+    mods = [m for p in shown for m in p["mods"]]
+    out = requires(mods, [p["id"] for p in shown], stand) + [
+        "", f"Every HammerwatchPlus package in one subscription: {len(shown)} packages, {len(mods)} "
             "modules. The pictures show each package.", "", "[h2]What's in it[/h2]", "[list]"]
-    for p in inside:
+    for p in shown:
         url = item_url(f"HWP-{p['id']}", led)
         name = f"[url={url}]{short(p)}[/url]" if url else short(p)
-        if p["id"] == "classes":
-            out.append(f"[*][b]{name}[/b]: {TERSE['classes']}")
-            continue
         titles = [module_title(m) for m in p["mods"]] if len(p["mods"]) > 1 else []
         what = ", ".join(titles) if titles else ONE_LINE[p["id"]]
         out.append(f"[*][b]{name}[/b]: {what}")
     out += ["[/list]", "Each package's own page lists what every module does.", ""]
     out += ["[h2]Install[/h2]", "[olist]", "[*]Subscribe.",
             f"[*]In the game's main menu, open [b]Resource Mods[/b], tick [b]{pkg['name']}[/b] and restart the game.",
-            "[*]You need Heroes of Hammerwatch II (and Celestial Ruins only for the Devil Forgemaster). "
-            "Heroes of Hammerwatch 1 is not needed.",
+            need_line([p["id"] for p in shown]),
             "[*]Everyone in a lobby needs it too.",
             "[/olist]",
             "No need to enable the single packages as well. Any you already have can stay on beside this one.",
@@ -277,10 +280,22 @@ def ledger(packages: list[dict]) -> dict:
     return data
 
 
+def on_workshop(packages: list[dict]) -> list[dict]:
+    """The packages the Workshop has: not packages.json `"workshop": false` ones (the All pack's
+    Workshop build leaves those out too: tools/build.py --workshop)."""
+    return [p for p in packages if p.get("workshop", True)]
+
+
 def items(packages: list[dict], allp: dict) -> list[tuple[str, dict, list[dict] | None]]:
+    packages = on_workshop(packages)
     out = [(f"HWP-{p['id']}", dict(p, pid=p["id"]), None) for p in packages]
     out.append((allp["file"], dict(allp, pid="all", mods=[m for p in packages for m in p["mods"]]), packages))
     return out
+
+
+def listed(inside: list[dict], led: dict) -> list[dict]:
+    """The packages the All pack's page and cover name: not the held ones (their item isn't out)."""
+    return [p for p in inside if not led["items"].get(f"HWP-{p['id']}", {}).get("hold")]
 
 
 def check(packages, allp, led) -> list[str]:
@@ -294,7 +309,7 @@ def check(packages, allp, led) -> list[str]:
             for mod in p["mods"]:
                 if mod not in TERSE:
                     errors.append(f"{file}: no Workshop line (TERSE) for {mod}")
-        elif any(q["id"] not in ONE_LINE for q in inside if len(q["mods"]) == 1 and q["id"] != "classes"):
+        elif any(q["id"] not in ONE_LINE for q in listed(inside, led) if len(q["mods"]) == 1):
             errors.append(f"{file}: a one-module package has no ONE_LINE")
         if file not in led.get("items", {}):
             errors.append(f"workshop.json: no entry for {file}")
@@ -323,7 +338,7 @@ def main(argv=None) -> int:
     if not args.no_build:
         sys.path.insert(0, str(REPO / "tools"))
         import build
-        if build.main([]) not in (0, None):
+        if build.main(["--workshop"]) not in (0, None):
             return 1
     if OUT.exists():
         shutil.rmtree(OUT)
@@ -332,7 +347,7 @@ def main(argv=None) -> int:
     try:
         sys.path.insert(0, str(REPO / "tools"))
         import workshop_art
-        art = workshop_art.cards(packages, workshop_art.held_ids())
+        art = workshop_art.cards(on_workshop(packages), workshop_art.held_ids())
     except FileNotFoundError as e:
         print(f"workshop: the cards are drawn from the game's art, and {e.filename} is missing "
               "(python -m gamelab doctor --fix makes gamecode/)", file=sys.stderr)
@@ -353,7 +368,7 @@ def main(argv=None) -> int:
         (d / "changenote.txt").write_text(stamp + "\n", encoding="utf-8", newline="\n")
         card(art[p["pid"]], d / "preview.png")
         if inside:          # the All pack's gallery: every published package's own card
-            for n, q in enumerate((q for q in inside if not led["items"][f"HWP-{q['id']}"].get("hold")), 1):
+            for n, q in enumerate(listed(inside, led), 1):
                 card(art[q["id"]], d / "gallery" / f"{n:02d}-{q['id']}.png")
         entry = led["items"][file]
         if entry.get("hold"):

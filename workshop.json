@@ -54,11 +54,15 @@
    ]
   },
   "HWP-campaign": {
-   "item_id": "3828529832",
+   "item_id": null,
    "tags": [
     "Addon",
     "Mission"
-   ]
+   ],
+   "removed": {
+    "item_id": "3828529832",
+    "date": "2026-10-28"
+   }
   },
   "HWP-modes": {
    "item_id": "3828529852",

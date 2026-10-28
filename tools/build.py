@@ -9,6 +9,7 @@ build.py - package HammerwatchPlus into HoH2 mod .bin files: the Steam Workshop 
                              # and check packages.json against the modules
     build.py --no-all        # skip the all-in-one package
     build.py --with-local    # also pack `local` content (your own install only)
+    build.py --workshop      # the all-in-one pack as published: without `"workshop": false` packages
     build.py --beta          # every `beta_into` module rides in the packages that carry its host (a beta
                              # build, never published)
 
@@ -313,6 +314,9 @@ def main(argv=None):
     ap.add_argument("--check", action="store_true", help="only run the override check")
     ap.add_argument("--no-all", action="store_true", help="skip the all-in-one package")
     ap.add_argument("--store", action="store_true", help="skip LZ4 compression")
+    ap.add_argument("--workshop", action="store_true",
+                    help="the all-in-one pack as the Workshop has it: packages.json `\"workshop\": false` "
+                         "packages are left out of it (tools/workshop.py)")
     ap.add_argument("--with-local", action="store_true",
                     help="also pack module.json `local` content (converted HoH1 levels); for your own "
                          "install only, never publish such a package")
@@ -395,6 +399,9 @@ def main(argv=None):
         meta.update({"author": AUTHOR, "name": p["name"], "description": p["description"]})
         if written(p):
             write_package(PACKAGE_PREFIX + p["id"], meta, list(entries.values()), args.store)
+        if args.workshop and p.get("workshop") is False:
+            print(f"  workshop: {p['id']} is not in the all-in-one pack")
+            continue
         add_entries(all_entries, list(entries.values()), ALL_NAME + ".bin", p["id"])
         merge_meta(all_meta, meta, p["id"])
     if build_all:

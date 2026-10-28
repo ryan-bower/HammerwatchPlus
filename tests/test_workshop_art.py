@@ -1,6 +1,7 @@
 """tools/workshop_art.py: every module has a symbol, every package's card lays out (no text
 past the frame), and each card saves under Steam's 1 MB. The cards are drawn from the game's
-own art (gamecode/), so they are skipped on a machine without it."""
+own art (gamecode/) and the HoH1 trinket icons imported from the player's own HoH1, so they
+are skipped on a machine without them."""
 import sys
 from pathlib import Path
 
@@ -11,8 +12,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import workshop  # noqa: E402
 import workshop_art  # noqa: E402
 
-pytestmark = pytest.mark.skipif(not (workshop_art.BASE / "gui" / "gui.png").is_file(),
-                                reason="needs gamecode/ (python -m gamelab doctor --fix)")
+pytestmark = pytest.mark.skipif(
+    not (workshop_art.BASE / "gui" / "gui.png").is_file()
+    or not (workshop_art.MODS / "trinkets/gui/hwp/icons_trinkets_hoh1.png").is_file(),
+    reason="needs gamecode/ (python -m gamelab doctor --fix) and the HoH1 trinket icons (tools/import_hoh1.py)")
 
 
 def test_every_module_has_a_symbol():
@@ -32,5 +35,5 @@ def test_every_card_lays_out_and_fits_steam(tmp_path):
 
 
 def test_the_dlc_footer_names_only_what_needs_it():
-    assert workshop_art.prereq(["specs"]) == "Devil Forgemaster: Celestial Ruins DLC"
+    assert workshop_art.prereq(["specs"]) == "Priest's 4th spec: Celestial Ruins DLC"
     assert workshop_art.prereq(["town", "pets"]) == ""

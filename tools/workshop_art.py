@@ -71,6 +71,19 @@ def px(path, x, y, w, h):
     return (path, x, y, w, h)
 
 
+def mc(path, x, y, w, h, *colors):
+    """A multicolour unit's frame, coloured: colors as the unit's Colorize block, per channel."""
+    return ("multicolor", path, x, y, w, h, colors)
+
+
+# the town's exit guard (actors/npcs/town/npc_misc_guard_exit.unit) in its colours: the idle
+# frame facing the camera, helmet to knees (so it shows at twice its size)
+EXIT_GUARD = mc("players/shared/units/mercenary_pikeman.tif", 113, 13, 14, 21,
+                ("#4f2205", "#e9925c", "#fec79d"), ("#182426", "#829093", "#dff2f5"),
+                ("#0D090B", "#382627", "#5c3e43"), ("#270f00", "#442606", "#b27f42"),
+                ("#413025", "#ab947f", "#fff7dd"), ("#0e0400", "#411f0c", "#80593c"))
+
+
 # every module's symbol: one sprite, or several where one thing is several (farming's crops)
 SYMBOLS = {
     # Quality of Life
@@ -80,14 +93,14 @@ SYMBOLS = {
     "deathrecap": [px("gui/icons.png", 93, 77, 11, 11)],
     "laststats": [cell("town", 4, 4)],
     "colors": [px("gui/icons.png", 142, 11, 14, 13)],
-    "waygates": [cell("special", 18, 0)],
+    "waygates": [px("doodads/generic/generic.png", 0, 800, 32, 33)],
     "weaponswap": [cell("equip", 19, 3), px("gui/icons.png", 36, 63, 13, 12), cell("equip", 3, 3)],
     "summons": [cell("skills", 7, 1)],
     "legacy": [px("mods/legacy/gui/hwp_legacy.png", 0, 0, 16, 16)],
     "goldworth": [px("gui/icons.png", 0, 128, 13, 13)],
     "mmhmm": [cell("equip", 4, 11)],
-    "orbwarn": [cell("food", 7, 10)],
-    "mapicons": [px("mods/hwplib/gui/hwp/map_icons.png", 16, 0, 16, 16)],
+    "orbwarn": [px("doodads/generic/skill_sphere.png", 0, 0, 10, 10)],
+    "mapicons": [px("mods/hwplib/gui/hwp/map_icons.png", 12, 0, 11, 11)],
     # Co-op Play
     "groupcombo": [cell("combo", 0, 0)],
     "architect": [cell("town", 0, 0)],
@@ -108,16 +121,17 @@ SYMBOLS = {
     # Dungeon Loot and Encounters
     "puzzles": [px("gui/icons.png", 96, 0, 12, 12)],
     "objectives": [cell("town", 7, 3)],
-    "strongbox": [cell("trade", 4, 6)],
+    "strongbox": [px("items/misc/base.png", 100, 54, 16, 18)],
     "abyss": [cell("skills", 0, 6)],
-    "maps": [cell("special", 19, 5)],
+    "maps": [px("items/quest/base.png", 16, 0, 16, 16)],      # the map drop (items/quest/quests.unit:seachart)
     "weapons": [cell("equip", 19, 3), cell("equip", 13, 3)],
-    "trinkets": [cell("equip", 14, 13), cell("equip", 17, 14)],
+    "trinkets": [px("mods/trinkets/gui/hwp/icons_trinkets_hoh1.png", 80, 16, 16, 16),    # frying pan
+                 px("mods/trinkets/gui/hwp/icons_trinkets_hoh1.png", 0, 64, 16, 16)],    # lucky hat
     "valuables": [cell("trade", 0, 4)],
     # Town Life
     "fishing": [px("mods/fishing/gui/hwp/rods.png", 0, 0, 16, 16), px("mods/fishing/items/hwp/fish.png", 96, 0, 24, 24)],
-    "farming": [px("mods/farming/gui/hwp_harvest.png", 0, 0, 16, 16), px("mods/farming/gui/hwp_harvest.png", 16, 0, 16, 16),
-                px("mods/farming/gui/hwp_harvest.png", 80, 0, 16, 16)],
+    "farming": [px("mods/farming/doodads/hwp/farm.png", 64, 0, 16, 16),        # the watering can
+                px("doodads/terrain/crops.png", 31, 0, 19, 16), px("doodads/terrain/crops.png", 108, 0, 14, 22)],
     "gambler": [px("mods/gambler/gui/hwp/token.png", 0, 0, 16, 16), cell("town", 7, 4)],
     "roulette": [px("mods/roulette/doodads/hwp/roulette_wheel.png", 0, 0, 32, 32)],
     "tavern": [cell("town", 5, 0)],
@@ -128,12 +142,68 @@ SYMBOLS = {
 }
 
 
-def _open(path: Path):
+def _tiff_samples(data: bytes):
+    """A game TIFF PIL can't read: uncompressed, 8 bits, interleaved, RGBA and then one mask per
+    multicolour channel. (width, height, samples per pixel, the pixel bytes)."""
+    import struct
+    e = "<" if data[:2] == b"II" else ">"
+    (ifd,) = struct.unpack_from(e + "I", data, 4)
+    (count,) = struct.unpack_from(e + "H", data, ifd)
+    tags = {}
+    for i in range(count):
+        tag, typ, n, raw = struct.unpack_from(e + "HHI4s", data, ifd + 2 + 12 * i)
+        if n == 1 and typ in (3, 4):
+            tags[tag] = struct.unpack(e + ("H" if typ == 3 else "I"), raw[:2 if typ == 3 else 4])[0]
+    w, h, spp = tags[256], tags[257], tags[277]
+    if tags.get(259, 1) != 1 or tags.get(284, 1) != 1 or tags.get(258) != 8 or spp < 4:
+        raise ValueError("an uncompressed, interleaved 8-bit TIFF with 4+ samples")
+    return w, h, spp, data[tags[273]:tags[273] + w * h * spp]
+
+
+def _tiff_rgba(data: bytes):
     from PIL import Image
+    w, h, spp, px = _tiff_samples(data)
+    rgba = bytearray(w * h * 4)
+    for c in range(4):
+        rgba[c::4] = px[c::spp]
+    return Image.frombytes("RGBA", (w, h), bytes(rgba))
+
+
+def _hex(c: str):
+    return tuple(int(c.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
+
+
+@lru_cache(maxsize=None)
+def multicolor(rel: str, colors: tuple):
+    """A multicolour unit sprite (a TIFF with a mask per colour channel) coloured as a unit's
+    Colorize block colours it: in a masked pixel the grey is the shade, from the channel's dark
+    colour at 0 through its mid at 128 to its bright at 255; other pixels keep their colour.
+    colors: one (dark, mid, bright) of hex strings per channel."""
+    from PIL import Image
+    w, h, spp, px = _tiff_samples((BASE / rel).read_bytes())
+    ramps = [[_hex(c) for c in ch] for ch in colors]
+    out = bytearray(w * h * 4)
+    for i in range(w * h):
+        p = px[i * spp:(i + 1) * spp]
+        r, g, b, a = p[0], p[1], p[2], p[3]
+        for ch, m in enumerate(p[4:4 + len(ramps)]):
+            if m >= 128:
+                lo, hi, t = (ramps[ch][0], ramps[ch][1], r / 128) if r < 128 else (ramps[ch][1], ramps[ch][2], (r - 128) / 127)
+                r, g, b = (round(lo[k] + (hi[k] - lo[k]) * t) for k in range(3))
+                break
+        out[i * 4:i * 4 + 4] = bytes((r, g, b, a))
+    return Image.frombytes("RGBA", (w, h), bytes(out))
+
+
+def _open(path: Path):
+    from PIL import Image, UnidentifiedImageError
     data = path.read_bytes()
     if hwr.is_texture(data):
         data = hwr.texture_to_png(data)
-    return Image.open(io.BytesIO(data)).convert("RGBA")
+    try:
+        return Image.open(io.BytesIO(data)).convert("RGBA")
+    except UnidentifiedImageError:
+        return _tiff_rgba(data)
 
 
 @lru_cache(maxsize=None)
@@ -147,6 +217,11 @@ def image(rel: str):
 
 def sprite(ref):
     """A symbol reference -> the sprite, trimmed to its pixels."""
+    if ref[0] == "multicolor":
+        _, rel, x, y, w, h, colors = ref
+        im = multicolor(rel, colors).crop((x, y, x + w, y + h))
+        bb = im.getchannel("A").getbbox()
+        return im.crop(bb) if bb else im
     if len(ref) == 3:
         sheet, col, row = ref
         rel, size = SHEETS[sheet]
@@ -544,7 +619,7 @@ def class_kit(mod: str, class_rel: str, own: str):
         kit = []
         for s in skills:
             icons = skill_icons(mod, s)
-            if icons:
+            if icons and icons[0][1][0].startswith("mods/"):    # its own art, not a vanilla skill's
                 kit.append((icons[0][1], [r for _, r in icons[1:]]))
         groups.append((lang.get(nm.group(1), nm.group(1)), kit))
     return groups
@@ -558,8 +633,9 @@ def module_title(mod: str) -> str:
     return workshop.module_title(mod)
 
 
-CHEST = {t: px("items/misc/base.png", 100, y, 16, 18) for t, y in
-         (("bronze", 0), ("silver", 18), ("gold", 36), ("platinum", 54))}
+CHEST = {t: px("items/misc/base.png", 100, y, 16, 18) for t, y in (("bronze", 0), ("silver", 18), ("gold", 36))}
+# the ace chest: mods/keys/tweak/hwp/chest_art.sval u_gold_large, the red-lidded gold chest
+ACE_CHEST = px("items/misc/base.png", 70, 54, 14, 18)
 FEATURES = {
     # single-module packages: what is inside, as tiles (label, symbols, a few words)
     "autoaim": [("Reticle snaps on", [cell("skills", 6, 2)], "to the enemy in your aim cone"),
@@ -568,9 +644,9 @@ FEATURES = {
                  "on for controllers by default")],
     "keys": [("Keys", [cell("town", 0, 4), cell("town", 1, 4), cell("town", 2, 4)], "one for each chest tier"),
              ("Locked chests", [CHEST["bronze"], CHEST["silver"], CHEST["gold"]], "keys drop in runs"),
-             ("Ace chests", [px("mods/keys/items/hwp/keys/key_ace.png", 0, 0, 16, 16), CHEST["platinum"]],
+             ("Ace chests", [px("mods/keys/items/hwp/keys/key_ace.png", 0, 0, 16, 16), ACE_CHEST],
               "the red ace key, 7 legendaries"),
-             ("Exit guard shop", [cell("special", 7, 2)], "keys, bag slots, trinkets")],
+             ("Exit guard shop", [EXIT_GUARD], "keys, bag slots, trinkets")],
     "campaign": [("The Forsaken Tower", [cell("skills", 5, 15)], "18 floors, 6 bosses, Mines to Battlements"),
                  ("A portal in town", [cell("town", 2, 1)], "on the chapel courtyard campfire"),
                  ("Traps and tricks", [cell("town", 6, 2), cell("skills", 3, 15)], "spikes, flame jets, teleporters")],
@@ -593,17 +669,39 @@ NOTES = {
 def prereq(pids) -> str:
     """The card's red footer: what in these packages needs a DLC (tools/workshop.py DLC)."""
     import workshop
-    return ", ".join(f"{what}: {dlc} DLC" for dlc, what in (workshop.DLC[p] for p in pids if p in workshop.DLC))
+    return ", ".join(f"{card}: {dlc} DLC" for dlc, _, card in (workshop.DLC[p] for p in pids if p in workshop.DLC))
 # the All pack's cover: a short name and what the package is, in a few words
 SHORT = {
     "qol": ("Quality of Life", "14 helpers"), "coop": ("Co-op Play", "3 party features"),
     "autoaim": ("Auto Aim", "aim assist"), "firearms": ("Firearms", "a new class"),
-    "specs": ("4th Specs", "8 new specializations"), "classes": ("Skill Keys", "skills 4 to 6"),
+    "specs": ("4th Specs", "8 new specializations"),
     "keys": ("Keys & Chests", "locked loot, ace chests"), "campaign": ("Forsaken Tower", "18-floor campaign"),
     "modes": ("Challenge Modes", "mercenary, wave arena"), "dungeon": ("Dungeon Loot", "8 run features"),
     "town": ("Town Life", "fish, farm, gamble"), "pets": ("Pets", "levels, skills, dyes"),
 }
-SKILL_KEYS = [px("gui/icons.png", 88, 114, 11, 14)]
+
+
+def cover_icons(pid: str) -> list:
+    """A package's few symbols on the All pack's cover: what its own card shows most."""
+    if pid == "firearms":
+        return [SYMBOLS["firearms"][0]] + [sk for sk, _ in class_kit(
+            "firearms", "players/hwp/firearms/class_firearms.sval", "firearms")[0][1][:2]]
+    if pid == "specs":
+        return [sks[0][0] for _, sks in class_kit("specs", "players/hwp/specs/class_specs.sval", "specs")[:3]]
+    if pid == "pets":
+        return game_pets()[:3]
+    return COVER.get(pid) or [t[1][-1] for t in FEATURES[pid]][:3]
+
+
+# the cover's symbols for the packages of several modules: one each from three of them
+COVER = {
+    "qol": [SYMBOLS["bufftips"][0], SYMBOLS["waygates"][0], SYMBOLS["orbwarn"][0]],
+    "coop": [SYMBOLS["groupcombo"][0], SYMBOLS["architect"][0], SYMBOLS["droptrade"][0]],
+    "modes": [SYMBOLS["mercenary"][0], SYMBOLS["wavemode"][0]],
+    "dungeon": [SYMBOLS["strongbox"][0], SYMBOLS["trinkets"][0], SYMBOLS["abyss"][0]],
+    "town": [SYMBOLS["fishing"][0], SYMBOLS["farming"][0], SYMBOLS["roulette"][0]],
+    "keys": [px("mods/keys/items/hwp/keys/key_ace.png", 0, 0, 16, 16), ACE_CHEST, EXIT_GUARD],
+}
 
 
 def package_card(pkg: dict):
@@ -620,22 +718,20 @@ def package_card(pkg: dict):
     if pid == "pets":
         return showcase_card(title, game_pets(), ["Pets level up and learn skills at the Pet Shop",
                                                   "Pet dyes at the tailor", "Pickup toggles for each pet",
-                                                  "Pets wait outside puzzle rooms"], "", need)
+                                                  "Pets wait outside trap and puzzle rooms"], "", need)
     if len(pkg["mods"]) == 1 and pid in FEATURES:
         return tiles_card(title, FEATURES[pid], "", need)
     return tiles_card(title, [(module_title(m), SYMBOLS[m], NOTES.get(m, "")) for m in pkg["mods"]], "", need)
 
 
 def all_card(packages: list[dict], held: set[str] = frozenset()):
-    """The All pack's cover: every package, its symbol and what it is."""
-    tiles = []
-    for p in packages:
-        name, note = SHORT.get(p["id"], (p["name"].split(": ", 1)[-1], ""))
-        icons = SKILL_KEYS if p["id"] in held else SYMBOLS[p["id"] if p["id"] in SYMBOLS else p["mods"][0]][:1]
-        tiles.append((name, icons, note))
-    mods = sum(len(p["mods"]) for p in packages)
-    return tiles_card("All Packages", tiles, f"{len(packages)} packages, {mods} modules, one subscription",
-                      prereq(p["id"] for p in packages))
+    """The All pack's cover: every package it names (not the held ones), a few of its symbols
+    and what it is."""
+    shown = [p for p in packages if p["id"] not in held]
+    tiles = [(SHORT[p["id"]][0], cover_icons(p["id"]), SHORT[p["id"]][1]) for p in shown]
+    mods = sum(len(p["mods"]) for p in shown)
+    return tiles_card("All Packages", tiles, f"{len(shown)} packages, {mods} modules, one subscription",
+                      prereq([p["id"] for p in shown]))
 
 
 def symbol_sheet():
