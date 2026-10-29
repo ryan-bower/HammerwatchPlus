@@ -1,7 +1,8 @@
 %include "gui/main_menu/options_base.inc"
 
 <!-- The General Merchant (GeneralMerchant.as): gui/shops/default.gui with a
-     Keys / Trinkets tab row under the header; the list is 22 px shorter. -->
+     Keys / Trinkets tab row under the header, and the previous / next tab bindings
+     beside it; the list is 22 px shorter. -->
 <gui>
 	<sprites>
 		%block OptionsSprites
@@ -26,6 +27,8 @@
 						<menutab id="hwp-tab-keys" text=".hwp.keys.merchant.tab.keys" value="keys" padding="12 3" color="#a6a6a6" colorselected="#ffffff" colorhover="#ffffff" font="sub-header" func="hwp-tab keys" />
 						<menutab id="hwp-tab-trinkets" text=".hwp.keys.merchant.tab.trinkets" value="trinkets" padding="12 3" color="#a6a6a6" colorselected="#ffffff" colorhover="#ffffff" font="sub-header" func="hwp-tab trinkets" />
 					</menutabgroup>
+					<binding-display id="hwp-merchant-tab-p" binding="MenuPreviousTab" anchor="0 0" offset="7 41" />
+					<binding-display id="hwp-merchant-tab-n" binding="MenuNextTab" anchor="1 0" offset="-7 41" />
 
 					<rect anchor="1 0" width="15" height="212" offset="-10 64" spriteset="gui/sprite_rect.sval:square-roundedleft" />
 

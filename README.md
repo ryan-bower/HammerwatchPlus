@@ -169,6 +169,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-29, the General Merchant's tabs work with a controller (`keys`, #23). The Keys & Bags
+and Trinkets tabs switched only with a mouse click. Now a gamepad's bumpers (and Tab on a
+keyboard) switch them, as in the player menu and the stash, and the bindings show beside the
+tab row. GameLab gained `menubutton`, which presses a menu button as a gamepad does, so
+controller paths in windows can be tested without a controller.
+
 2026-10-28, the Forsaken Tower from HoH1 itself (`campaign`, "HoH1 tower" in its README).
 With HoH1 installed, the import builds HoH1's tower from the player's own install: 23 floors,
 the nine hand-made levels as HoH1 ships them and fourteen act floors from HoH1's own generator

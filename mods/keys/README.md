@@ -85,7 +85,8 @@ slots, trinkets for the next run) and red legendaries.
   `actors/npcs/town/npc_misc_guard_exit.unit`, a declared override) opens the
   shop first (`HWPGeneralMerchant`, `HWPMerchantWindow`: the stock
   `ShopWindow` on `gui/hwp_merchant.gui`, with a Keys & Bags / Trinkets tab
-  row); when it closes,
+  row: click a tab, or press the previous / next tab binding, a gamepad's
+  bumpers or Tab on a keyboard, shown beside the row); when it closes,
   NPCBehavior moves on to his vanilla speech bubble. Each key lists the loot
   quality of its chests. Prices `keys.price_<tier>` (500 / 2000 / 8000 /
   20000); only one ace key can be held at a time.
@@ -158,7 +159,9 @@ On the HammerwatchPlus tab of the player menu (`hwp set <key> <value>`; `module.
    `python -m gamelab run mod-merchant-trinkets --mode lab` covers the tabs:
    Trinkets lists 6 (2/2/2), two bought are packed (not in the run bag in
    town), both are in the run bag on the first floor, and after the run the
-   stock rerolls to 6.
+   stock rerolls to 6. `fix-merchant-controller-tabs` switches the tabs with a
+   gamepad's bumpers (GameLab's `menubutton`) and the real Tab key, buys a
+   trinket with A, and still clicks a tab with the mouse.
 3. `hwp set keys.debug 1`, `hwp keygive gold 2`, `hwp keygive ace`: HUD
    updates; `hwp keydrop silver` drops a pickup that, walked over in a run,
    adds a silver key to the party pool (host and client see it).

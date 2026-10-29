@@ -1,0 +1,213 @@
+{
+ "name": "pf-fix-merchant-controller-tabs",
+ "about": "fix-merchant-controller-tabs against the built package keys instead of the mods' source folders (tools/make_package_scenarios.py). Issue #23, mods/keys: the General Merchant's Keys / Trinkets tabs switch with the previous / next tab bindings (a gamepad's bumpers, MenuPreviousTab / MenuNextTab, sent with GameLab's menubutton verb in gamepad mode; on a keyboard MenuNextTab is Tab, sent as a real key), the bindings show beside the tab row, A buys on the tab reached, and a mouse click on a tab still works.",
+ "fixture": "town-paladin",
+ "timeout": 180,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "in town"
+  },
+  {
+   "do": "gl",
+   "verb": "material",
+   "args": [
+    "gold",
+    "50000"
+   ]
+  },
+  {
+   "do": "gl",
+   "verb": "spawn",
+   "args": [
+    "actors/npcs/town/npc_misc_guard_exit.unit",
+    "30",
+    "0"
+   ]
+  },
+  {
+   "do": "gl",
+   "verb": "use",
+   "args": [
+    "npc_misc_guard_exit"
+   ],
+   "expect": {
+    "window": "HWPMerchantWindow"
+   },
+   "name": "the exit guard opens the General Merchant"
+  },
+  {
+   "do": "gl",
+   "verb": "shop",
+   "expect": {
+    "count": 5,
+    "items.0.id": "bronze"
+   },
+   "name": "opens on the Keys tab"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "merchant-keys-tab"
+  },
+  {
+   "do": "gl",
+   "verb": "menubutton",
+   "args": [
+    "nexttab",
+    "pad"
+   ]
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:keys\\] merchant tab: trinkets",
+   "name": "next tab (a gamepad's right bumper): the Trinkets tab",
+   "timeout": 5
+  },
+  {
+   "do": "gl",
+   "verb": "shop",
+   "expect": {
+    "count": 6
+   },
+   "name": "the Trinkets tab's 6 trinkets"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "merchant-trinkets-tab"
+  },
+  {
+   "do": "gl",
+   "verb": "menubutton",
+   "args": [
+    "nexttab",
+    "pad"
+   ]
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:keys\\] merchant tab: keys",
+   "name": "next tab again wraps to Keys",
+   "timeout": 5
+  },
+  {
+   "do": "gl",
+   "verb": "shop",
+   "expect": {
+    "count": 5
+   },
+   "name": "Keys again"
+  },
+  {
+   "do": "gl",
+   "verb": "menubutton",
+   "args": [
+    "prevtab",
+    "pad"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "shop",
+   "expect": {
+    "count": 6
+   },
+   "name": "previous tab (left bumper): Trinkets"
+  },
+  {
+   "do": "gl",
+   "verb": "menubutton",
+   "args": [
+    "forward",
+    "pad"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "shop",
+   "expect": {
+    "count": 5
+   },
+   "name": "forward (A, gamepad) bought the selected trinket on the tab the bumper reached: 6 -> 5"
+  },
+  {
+   "do": "key",
+   "key": "tab"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "shop",
+   "expect": {
+    "count": 5,
+    "items.0.id": "bronze"
+   },
+   "name": "the real Tab key (MenuNextTab on a keyboard, shown as TAB beside the row): back to Keys"
+  },
+  {
+   "do": "mark",
+   "name": "before-second-tab"
+  },
+  {
+   "do": "key",
+   "key": "tab"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:keys\\] merchant tab: trinkets",
+   "since": "before-second-tab",
+   "name": "Tab again: Trinkets",
+   "timeout": 5
+  },
+  {
+   "do": "gl",
+   "verb": "press",
+   "args": [
+    "hwp-tab-keys"
+   ],
+   "expect": {
+    "widget": "MenuTabWidget"
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "shop",
+   "expect": {
+    "count": 5
+   },
+   "name": "a mouse click on the Keys tab still works"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "keys"
+ ]
+}
