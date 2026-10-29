@@ -72,10 +72,12 @@ namespace HWP
 				if (ids[i] != except && ko !is null && ko.Uses(sc))
 					names.insertLast(ko.Title());
 			}
+			// over three: the rest as a count ("..." before the hint's full stop read "....")
 			if (names.length() > 3)
 			{
+				uint more = names.length() - 3;
 				names.resize(3);
-				names.insertLast("...");
+				return join(names, ", ") + " +" + more;
 			}
 			return join(names, ", ");
 		}
@@ -891,6 +893,12 @@ class HWPOptionsTab : MenuTab
 		bool changed = false;
 		for (uint i = 0; i < m_rows.length(); i++)
 		{
+			// a hidden row keeps the origin of its last layout (Widget::DoLayout skips it), and
+			// ScrollbarWidget::DrawChildren stops at the first child below the view, hidden or
+			// not: a row hidden by a search, last laid out low in the list, hid every row after
+			// it (Skill 1 under Game keys). Parked above the view, it is passed over instead
+			if (!show[i])
+				m_rows[i].w.m_origin.y = -100000;
 			if (m_rows[i].w.m_visible == show[i])
 				continue;
 			m_rows[i].w.m_visible = show[i];

@@ -24,7 +24,7 @@
 	<string name="hwp.gamekeys.title">Game keys</string>
 	<string name="hwp.gamekeys.count">%n% keys</string>
 	<string name="hwp.gamekeys.group_about">The game's own keyboard binds, named as your keyboard labels them. Click a row, then press the new key. Saved to the game's controls: every save, and the Options menu too.</string>
-	<string name="hwp.gamekeys.about">Click, then press the new key for %what%. It replaces the keyboard keys of this action and keeps its mouse buttons. Saved to the game's controls (every save).</string>
+	<string name="hwp.gamekeys.about">Click, then press the new key for %what%. It replaces the action's keyboard keys, keeps its mouse buttons and holds in every save.</string>
 	<string name="hwp.gamekeys.move-up">Move up</string>
 	<string name="hwp.gamekeys.move-down">Move down</string>
 	<string name="hwp.gamekeys.move-left">Move left</string>

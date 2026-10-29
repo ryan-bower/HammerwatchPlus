@@ -5659,3 +5659,33 @@ mission, and `ResolveInputKey` returns the scancode.
 - **mission-ranger fails its fixture readback** before any step runs ("player.maxDashes: want
   1, got 2"; 20261028-233043, -233145). This was found here, not caused by this change, so
   mod-keys-play uses town-paladin.
+
+## 2026-10-29: Every key UI change on screen (mod-keys-ui-shots), and three layout fixes
+
+`mod-keys-ui-shots` takes a 1920x1080 shot of every UI change in PR #25: the Plus tab key
+rows, both capture prompts, AZERTY names, the shared-key hint, a short long name, search,
+the Game keys group, the Forget row, the weapon swap texts, droptrade's hints, the skill 4-5
+badges and the Dev Arena dock labels (mod-keys-ui-shots 20261029-001708, PASS). Reading the
+shots found three bugs that no probe assertion could see:
+
+- **A search hid rows it had found.** `Widget::DoLayout` skips a hidden child, so it keeps
+  the origin of its last layout (`GUI/Widget.as:461`). `ScrollbarWidget::DrawChildren` walks
+  every child, hidden or not, and `return`s at the first one whose origin is below the view
+  (`GUI/Widgets/ScrollbarWidget.as:666`). A row once laid out low in the list, then hidden by
+  a search, stopped every row after it from drawing. Searching "skill 1" drew the Game keys
+  header but not Skill 1 under it, and "scroll" lost the Quality of Life rows. The probe still
+  said `shown: true`, because the rows were visible, only not drawn. It shows once Dev Arena's
+  extra top rows push the group down. Fix: `HWPOptionsTab::Layout` parks a hidden row's
+  origin above the view, which the draw loop passes over. Before: mod-keys-ui-shots
+  20261029-001127 (10, 11); after: 20261029-001708.
+- **droptrade's hint bar ran off the screen.** Vanilla `KeyNavigationBar::Draw` centres the
+  bar under its window, and the player menu sits at the right edge. A bag fish's bar (Back,
+  Equip, Compare, Destroy, Drop, Eat) lost its Eat hint past the right edge. droptrade swaps
+  the character tab's bar for a `FitNavBar` that clamps the left edge to the screen, keeping
+  its texts.
+- **The longest hint.** The game key hint is shorter now. Over three other actions on the
+  key, the rest is a count ("Chat +1"), not "...", which read "...." before the full stop.
+  Four lines fit above the footer (11b).
+
+`gl menu hwp_options` on a closed player menu opens it on the Character tab, so the next
+`hwp-opt` press goes to the wrong tab. The shots scenario sends it twice.
