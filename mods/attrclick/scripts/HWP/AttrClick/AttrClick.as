@@ -160,8 +160,13 @@ class HWPAttributeAssignerWindow : AttributeAssignerWindow
 	bool Update(int ms, GameInput& gameInput, MenuInput& menuInput) override
 	{
 		// Shift or Ctrl pressed or let go, or the gamepad taken up: the costs and the hint follow
-		if (HWP::AttrClick::PerClick() != m_shownPerClick || HWP::AttrClick::UsingMouse() != m_shownMouse)
+		int perClick = HWP::AttrClick::PerClick();
+		if (perClick != m_shownPerClick || HWP::AttrClick::UsingMouse() != m_shownMouse)
+		{
+			if (m_shownPerClick != -1 && perClick != m_shownPerClick)
+				HWP::Log("attrclick", "a click places " + perClick + " now (" + HWP::AttrClick::g_force + ")");
 			Refresh();
+		}
 		return AttributeAssignerWindow::Update(ms, gameInput, menuInput);
 	}
 }

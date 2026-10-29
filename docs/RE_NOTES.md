@@ -5572,5 +5572,14 @@ points line.
 - Off, Shift placed 1.
 - The shots show the costs at 20 and at 4.
 
-GameLab sends no real keys, so the test forces the modifier with `hwp attrclick force`. The real
-Shift and Ctrl reading needs a hands-on try.
+The clicks are tested with the modifier forced (`hwp attrclick force`), since a step can't hold
+a key while it clicks. The real keys are tested on their own: the window logs "a click places N
+now" when the amount changes, and the harness `key` step holds a key in the lab window.
+- Left Ctrl held for 1 s gave 5, and 1 again when let go (20261029-023935).
+- Left Shift held the same way never registered (20261029-023743), though it goes through the
+  same path. The likely cause is SDL2's Windows event pump: it releases a Shift key that
+  `GetKeyState` doesn't report held, a guard against the lost key-up when both Shifts are down.
+  A posted key never sets `GetKeyState`.
+
+So GameLab can't hold Shift, and Shift+Click needs a hands-on try. It reads scancodes 225 / 229
+through the same `HWP::Options::KeyDown` as Ctrl's 224 / 228.

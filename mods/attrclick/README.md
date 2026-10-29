@@ -36,7 +36,10 @@ On the HammerwatchPlus tab of the player menu (your own), or `hwp set`:
    places 1, Shift 20, Ctrl 5, Shift with 4 left places 4, and a click with
    none left places nothing. Off, Shift places 1. The window is
    `HWPAttributeAssignerWindow`, and the shots show the costs at 20 and 4.
-2. By hand (GameLab sends no real keys): at the trainer, hold Left or Right
-   Shift and click a stat (20 points), then Left or Right Ctrl (5). Let go and
-   the costs go back to 1.
+   The real Left Ctrl, held in the lab window, turns a click into 5 and back
+   to 1 when let go.
+2. By hand: at the trainer, hold Left or Right Shift and click a stat (20
+   points), then Right Ctrl (5). Let go and the costs go back to 1. GameLab
+   can't hold Shift: SDL lets go of a Shift key that Windows doesn't see
+   held, and a posted key isn't.
 3. With a gamepad: no hint, and holding the button still repeats.
