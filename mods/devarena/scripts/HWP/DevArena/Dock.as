@@ -1,7 +1,7 @@
 // The dock (docs/devarena/SPEC.md, "Dock"): an immediate-mode overlay on the right of the
 // screen, drawn from the module's RenderWidgets the way the engine's own debug overlays are
 // (Modules/DebugModule.as), not a WindowManager window, so the game keeps running behind it.
-// F1 toggles it.
+// F1 toggles it (the default; every dev arena hotkey is rebindable in the Plus tab).
 //
 // Immediate mode. One function per tab lays the dock out through a Ui. UpdateFrame runs it with
 // no SpriteBatch: it records every clickable rect (da-dock lists them for scenarios) and takes
@@ -28,11 +28,12 @@ namespace HWP
 {
 namespace DevArena
 {
-	// SDL scancodes
+	// SDL scancodes: the hotkeys' defaults (rebindable, HotkeyOption below)
 	const int SCANCODE_F1 = 58;
 	const int SCANCODE_F2 = 59;
 	const int SCANCODE_Z = 29;
 	const int SCANCODE_Y = 28;
+	// Ctrl stays the undo/redo modifier; only the letter is bound
 	const int SCANCODE_LCTRL = 224;
 	const int SCANCODE_RCTRL = 228;
 
@@ -58,7 +59,7 @@ namespace DevArena
 	string g_tab = "tune";
 	float g_scroll;                  // content scroll, UI units
 	float g_contentH;                // content height last laid out
-	int g_hotkeys;                   // F2 / Ctrl+Z / Ctrl+Y taken
+	int g_hotkeys;                   // A/B, undo/redo, arena keys taken
 
 	const array<string> TABS = { "tune", "loadout", "arena", "golem", "bench", "compose" };
 	const array<string> TAB_LABELS = { "Tune", "Loadout", "Arena", "Golem", "Bench", "Compose" };
@@ -352,6 +353,74 @@ namespace DevArena
 		return down && !was;
 	}
 
+	// The hotkeys are rebindable in the player menu's Plus tab (HWP::Options ids devarena-<name>,
+	// no config lists them, so they sit in its top section). The key is kept per save as
+	// devarena.key.<name>, local: devarena syncs no settings prefix, so each player has their own.
+	// Read live, so a bind made in the tab takes effect the same frame.
+	int HotkeyScancode(const string &in name, int def)
+	{
+		int sc = HWP::Settings::GetInt("devarena.key." + name, def);
+		return sc > 0 && sc < int(g_keyWas.length()) ? sc : def;
+	}
+
+	int KeyDock() { return HotkeyScancode("dock", SCANCODE_F1); }
+	int KeyAB() { return HotkeyScancode("ab", SCANCODE_F2); }
+	int KeyUndo() { return HotkeyScancode("undo", SCANCODE_Z); }
+	int KeyRedo() { return HotkeyScancode("redo", SCANCODE_Y); }
+	int KeyReset() { return HotkeyScancode("reset", SCANCODE_F3); }
+	int KeyGolem() { return HotkeyScancode("golem", SCANCODE_F4); }
+	int KeyPause() { return HotkeyScancode("pause", SCANCODE_F6); }
+
+	// The dock draws with SpriteBatch::DrawString and measures with MeasureText, the raw text,
+	// so it takes the plain name (KeyText), not the game-text one (KeyName escapes a backslash).
+	string KeyLabel(int sc) { return HWP::Options::KeyText(sc); }
+	// at most 4 characters, for the fixed-width buttons
+	string ShortKeyLabel(int sc) { return HWP::Options::ShortKeyName(sc).replace("\\\\", "\\"); }
+
+	class HotkeyOption : HWP::Options::KeyOption
+	{
+		string m_name;
+		int m_default;
+		bool m_ctrl;     // shown as Ctrl+<key>: Ctrl is the fixed modifier
+
+		HotkeyOption(const string &in name, int def, bool ctrl = false)
+		{
+			m_name = name;
+			m_default = def;
+			m_ctrl = ctrl;
+		}
+
+		string Title() override { return Resources::GetString(".hwp.devarena.key." + m_name); }
+		int Scancode() override { return HotkeyScancode(m_name, m_default); }
+		string Value() override
+		{
+			string name = HWP::Options::KeyName(Scancode());
+			return m_ctrl ? "Ctrl+" + name : name;
+		}
+		void SetScancode(int scancode) override
+		{
+			if (scancode == m_default)
+				HWP::Settings::Reset("devarena.key." + m_name);
+			else
+				HWP::Settings::SetInt("devarena.key." + m_name, scancode);
+			// the new key is held right now (just pressed to bind it): no hotkey
+			if (scancode > 0 && scancode < int(g_keyWas.length()))
+				g_keyWas[scancode] = true;
+		}
+	}
+
+	// from the module ctor: options are script globals, reset every level
+	void RegisterHotkeys()
+	{
+		HWP::Options::Register("devarena-dock", HotkeyOption("dock", SCANCODE_F1));
+		HWP::Options::Register("devarena-ab", HotkeyOption("ab", SCANCODE_F2));
+		HWP::Options::Register("devarena-undo", HotkeyOption("undo", SCANCODE_Z, true));
+		HWP::Options::Register("devarena-redo", HotkeyOption("redo", SCANCODE_Y, true));
+		HWP::Options::Register("devarena-reset", HotkeyOption("reset", SCANCODE_F3));
+		HWP::Options::Register("devarena-golem", HotkeyOption("golem", SCANCODE_F4));
+		HWP::Options::Register("devarena-pause", HotkeyOption("pause", SCANCODE_F6));
+	}
+
 	bool CtrlDown()
 	{
 		return Platform::IsKeyDown(ControllerType::Keyboard, 0, SCANCODE_LCTRL)
@@ -360,10 +429,11 @@ namespace DevArena
 
 	void TickHotkeys()
 	{
-		bool f1 = KeyPressed(SCANCODE_F1);
-		bool f2 = KeyPressed(SCANCODE_F2);
-		bool z = KeyPressed(SCANCODE_Z);
-		bool y = KeyPressed(SCANCODE_Y);
+		bool f1 = KeyPressed(KeyDock());
+		bool f2 = KeyPressed(KeyAB());
+		bool z = KeyPressed(KeyUndo());
+		bool y = KeyPressed(KeyRedo());
+		// the Plus tab's key capture turns text input on, so a key being bound fires nothing
 		if (g_typing || TextInputBusy())
 			return;
 		if (f1)

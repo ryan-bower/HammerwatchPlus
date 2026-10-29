@@ -34,7 +34,9 @@ Two weapon sets per character, toggled with a hotkey.
   on-screen line says to press X.
 - **Rebinding:** player menu > **Plus** tab > "Swap weapons": click the
   button, then press the new key (Esc cancels); the key name is shown on the
-  button and in the HUD tip. The game's Controls list cannot take it: its
+  button, the alt slots' badge and in the HUD tip, as your keyboard labels it
+  (the key keeps its position: on AZERTY the default X position still reads X, and
+  a key bound at Q reads A). The game's Controls list cannot take it: its
   actions are a fixed table in the exe. A key you bind is ignored until you
   let go of it, so binding does not swap.
 - Commands: `hwp swap`, `hwp swapkey` (show), `hwp swapkey 21 R` (set

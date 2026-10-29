@@ -58,6 +58,7 @@ namespace Modules
 			HWP::HoH1::Init();
 			HWP::Market::Init();
 			HWP::Config::Init();
+			HWP::GameKeys::Init();
 			HWP::Net::OnRequest(HWP::Core::SETTINGS_PULL, HWP::Net::RequestHandler(HWP::Core::OnPull));
 			HWP::Net::OnEvent(HWP::Core::SETTINGS_SYNC, HWP::Net::EventHandler(HWP::Core::OnSync));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Core::OnSettingChanged));
@@ -91,6 +92,8 @@ namespace Modules
 
 		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
+			// typing in chat or a search box names the keys on this keyboard (Options.as)
+			HWP::Options::WatchTyping();
 			// after every mod's self-check has reported (HoH1.as, Packages.as)
 			if (g_inTown && ++m_townTicks == HWP::HoH1::TELL_TICK)
 			{

@@ -5543,3 +5543,64 @@ width, with each entry's symbols side by side before its name. In a column of 14
 tile now drops symbols from the end, keeping at least one, until the name (and the note
 under it) fits. Of the 13 cards, only Quality of Life renders differently. Republished:
 HWP-qol, HWP-pets and HammerwatchPlus-All (kit 5538d81).
+
+## 2026-10-28: Keys on any keyboard layout, and every key rebindable in game (issue #19)
+
+The problem: mod hotkeys are polled by SDL scancode (`Platform::IsKeyDown(Keyboard, 0, sc)`),
+so they follow the key's position, but they were named by the US keycap. On AZERTY the swap
+key works on the key labelled X, and the drop key on the key labelled A, yet the hint said Q.
+
+- **No layout name from the engine.** The scripts get no SDL key name call. What they get is
+  text input: `ControlBindings::ExpectTextInput()`, then `GetInput().GetTextInputCount()` /
+  `GetTextInput(i)`, which returns a `TextInputControlEvent` (`utf8string text`, `evt`:
+  None / Cancel on Esc). The capture window (`HWPKeyCaptureWindow`) turns text input on while
+  it waits, and the character typed with the key names it (`HWP::Options::LearnLabel`,
+  setting `keylabel.<sc>`, each player's own). Typing in chat or the Plus tab's search does the
+  same when exactly one labelled key went down that frame (`WatchTyping`). No label is learned
+  with Shift/Ctrl/Alt/AltGr held, or after a key that typed nothing (a dead key). A label equal
+  to the US name is reset rather than stored.
+- **Game text treats `\` as markup**, so a learned or hand-set name goes through
+  `HWP::Options::Escape`.
+- **Vanilla's own names stay US.** `FormatKeyName` (`Utils/Functions.as:1112`) upper-cases
+  the binding's one-character SDL id. Its 117 uses are left alone; overriding that file is
+  too broad. Vanilla's hints keep the US name, and ours show the layout's.
+- **The game's binds can be rebound outside the main menu.** The vanilla Controls window
+  takes keys only through `MainMenuGameMode`. The Plus tab's Game keys group (`GameKeys.as`)
+  stages a change on the `kbm` ControlMap the way `MenuControlInput.as` does:
+  - `BeginStaging`, then collect the action's keyboard bindings from `GetStaging()` before
+    any `RemoveStaging`.
+  - `AddStaging(Keyboard, scancode, action)`, or `AddStagingAxis(..., ControlBindingSetAxis::Low/High)`
+    for one half of `move_x` / `move_y`.
+  - `CommitStaging()`, then `ControlBindings::Save()`, which writes `res/controls.cfg` (global).
+  - The staging key is an SDL scancode (vanilla tests 41 for Esc and 42 for Backspace). A
+    binding's scancode is read back with `Platform::ResolveInputKey(b.ID, type)`.
+  - MenuBack and MenuToggle are left out, so Esc always closes a menu.
+  - The new probe verb `gl controls [map] [max]` dumps a map's bindings.
+- **Every mod key is rebindable now.** The droptrade item action key (`actionkey`) and the
+  Dev Arena hotkeys (`devarena-*`) join `swapkey`, `dropkey` and `skill4`-`6`.
+- **GameLab: another layout's keypress.** A key step's `typed` sends KEYDOWN, then TEXTINPUT,
+  then KEYUP through the shim's mailslot. It needs the scenario's `"shim_input": true`,
+  because a posted WM_KEYDOWN gets its character from this machine's layout.
+  `"writes_controls": true` journals GameLab's own `res/controls.cfg` and puts it back.
+
+An adversarial review of the change found these, now fixed:
+- Shift+W bound Shift. A modifier comes down first and has the lowest scancode, so a key
+  pressed with it now replaces it. A modifier alone still binds itself.
+- An Esc that closed the capture on its text Cancel could also close the menu, through the
+  same press's MenuBack. The Cancel now closes the capture only when no Back came within a
+  frame.
+- A second key held during a capture could give its character as the label. It no longer
+  can.
+- The game-key rows walked the whole binding map several times a frame. Their keys are now
+  cached until the next bind.
+- A search box still typing hands the keyboard to the capture.
+
+Verified offline: `tests/test_winproc_typed.py`, `tests/test_writes_controls.py`, the full
+pytest suite, and `make_config` / `build` / `list_verbs` / `guard_modules --check`.
+
+**Not yet run: `mod-keys-layout` (the GameLab e2e) waits for the user's approval.** Until it
+runs, these are assumed:
+- that the scripts compile;
+- that reading text events in a module does not take them from a focused text box;
+- that `ResolveInputKey` returns the scancode;
+- that staging and saving work during gameplay.

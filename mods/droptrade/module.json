@@ -18,6 +18,10 @@
         "about": "The key that drops the hovered inventory item at your feet."
       },
       {
+        "option": "actionkey",
+        "about": "The key that uses the hovered inventory item (Eat on a fish)."
+      },
+      {
         "key": "droptrade.pickup_first",
         "type": "bool",
         "default": true,

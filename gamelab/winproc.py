@@ -140,14 +140,19 @@ def shim_handoff(hwnd: int, keep_focus: bool = False) -> bool:
     return True
 
 
-def _shim_key(hwnd: int, vk: int, hold: float, extended: bool, mods: tuple = ()) -> None:
+def _shim_key(hwnd: int, vk: int, hold: float, extended: bool, mods: tuple = (),
+              typed: str | None = None) -> None:
     sc, sym = SDL_KP_ENTER if (extended and vk == 0x0D) else _SDL_KEYS[vk]
+    if typed:
+        sym = ord(typed.lower()[0])   # the layout's keycode: the key's own character
     kmod = 0
     for m in mods:                    # modifiers go down first and come up last, as typed
         kmod |= _SDL_KMOD[m]
         _shim_send(hwnd, struct.pack("<IiiH", SDL_KEYDOWN, *_SDL_KEYS[m], kmod))
         time.sleep(0.04)
     _shim_send(hwnd, struct.pack("<IiiH", SDL_KEYDOWN, sc, sym, kmod))
+    if typed:                         # SDL's order: the key's down, then the text it types
+        _shim_send(hwnd, struct.pack("<I", SDL_TEXTINPUT) + typed.encode("utf-8"))
     if hold:
         time.sleep(hold)
     _shim_send(hwnd, struct.pack("<IiiH", SDL_KEYUP, sc, sym, kmod))
@@ -159,12 +164,19 @@ def _shim_key(hwnd: int, vk: int, hold: float, extended: bool, mods: tuple = ())
         time.sleep(0.03)
 
 
-def key(hwnd: int, vk: int, hold: float = 0.05, extended: bool = False, mods: tuple = ()) -> None:
+def key(hwnd: int, vk: int, hold: float = 0.05, extended: bool = False, mods: tuple = (),
+        typed: str | None = None) -> None:
     """extended sets the extended-key bit (lParam bit 24): VK_RETURN with it is the keypad Enter.
-    mods are modifier VKs (VK["ctrl"]) held around the key."""
+    mods are modifier VKs (VK["ctrl"]) held around the key. typed: the text the key types on
+    another layout ("a" for the key at Q on AZERTY); shim input only, since SDL's own
+    TranslateMessage would give a posted WM_KEYDOWN this machine's character too."""
+    if typed is not None and (not typed or len(typed.encode("utf-8")) > 31):
+        raise ValueError(f"typed must be 1-31 UTF-8 bytes (SDL_TEXTINPUTEVENT_TEXT_SIZE): {typed!r}")
     if hwnd in _SHIM_SLOTS:
-        _shim_key(hwnd, vk, hold, extended, mods)
+        _shim_key(hwnd, vk, hold, extended, mods, typed)
         return
+    if typed is not None:
+        raise RuntimeError("a key step's typed needs shim input (the scenario's \"shim_input\": true)")
     for m in mods:
         u32.PostMessageW(hwnd, WM_KEYDOWN, m, 1 | (u32.MapVirtualKeyW(m, 0) << 16))
     sc = u32.MapVirtualKeyW(vk, 0) | (0x100 if extended or vk in EXTENDED else 0)
