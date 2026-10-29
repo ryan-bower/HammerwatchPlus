@@ -28,10 +28,13 @@ namespace HWP
 
 		// the drop key's name on this keyboard (read live: a label learned later shows at
 		// once); `hwp dropkey <code> <name>` can name it by hand
-		string KeyName()
+		// fit: the short name when the full one is too long for the options value column
+		string KeyName(bool fit = false)
 		{
 			string name = HWP::Settings::GetString("droptrade.keyname", "");
-			return name.isEmpty() ? HWP::Options::KeyName(g_scancode) : HWP::Options::Escape(name);
+			if (!name.isEmpty())
+				return HWP::Options::Escape(name);
+			return fit ? HWP::Options::FitKeyName(g_scancode) : HWP::Options::KeyName(g_scancode);
 		}
 
 		void RefreshSettings()
@@ -54,7 +57,7 @@ namespace HWP
 		{
 			string Title() override { return Resources::GetString(".hwp.droptrade.option"); }
 			int Scancode() override { return g_scancode; }
-			string Value() override { return KeyName(); }
+			string Value() override { return KeyName(true); }
 			void SetScancode(int scancode) override
 			{
 				if (scancode == DEFAULT_SCANCODE)

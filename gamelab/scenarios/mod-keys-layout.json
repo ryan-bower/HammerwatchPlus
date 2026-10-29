@@ -1,6 +1,6 @@
 {
  "name": "mod-keys-layout",
- "about": "Issue #19: keys follow the key's position on any keyboard layout, and are named as the player's keyboard labels them. Shim input sends the SDL key events another layout would (the key at Q typing 'a', as on AZERTY). Happy paths: a mod key bound at Q is named A, and every row on that key (drop key) says A too; a key that types nothing keeps the label already learned; an F-key keeps its own name; binding the default resets it; the item action key rebinds; the Game keys group lists the game's own binds, rebinds Skill 1 (keyboard keys replaced and saved to controls.cfg), rebinds half of the move axis, and search finds its rows; typing in the search names a key. Error paths: Shift held gives no label, Esc cancels a capture (mod and game key) and keeps the key, a closed group hides its rows. controls.cfg is GameLab's own and is put back after the run (writes_controls).",
+ "about": "Issue #19: keys follow the key's position on any keyboard layout, and are named as the player's keyboard labels them. Shim input sends the SDL key events another layout would (the key at Q typing 'a', as on AZERTY). Happy paths: a mod key bound at Q is named A, and every row on that key (drop key) says A too; a key that types nothing keeps the label already learned; an F-key keeps its own name; F13 and Scroll Lock are named (Scroll Lock short, ScrL, to fit the value column); binding the default resets it; the item action key rebinds; the Game keys group lists the game's own binds, rebinds Skill 1 (keyboard keys replaced and saved to controls.cfg), rebinds half of the move axis, and search finds its rows; typing in the search names a key. Error paths: Shift held gives no label, Esc cancels a capture (mod and game key) and keeps the key, a closed group hides its rows. controls.cfg is GameLab's own and is put back after the run (writes_controls).",
  "fixture": "town-paladin",
  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "weaponswap", "droptrade"],
  "shim_input": true,
@@ -51,6 +51,20 @@
   {"do": "sleep", "seconds": 0.3},
   {"do": "log_has", "pattern": "\\[HWP:options\\] swapkey key capture cancelled", "timeout": 5},
   {"do": "gl", "verb": "menu", "args": ["hwp_options", "-", "hwp-opt-swapkey"], "name": "Esc cancelled: the menu stays, the key is kept", "expect": {"tab": "HWPOptionsTab", "shown": true, "texts": "Swap weapons | F5"}},
+
+  {"do": "gl", "verb": "menu", "args": ["hwp_options", "-", "hwp-opt-swapkey", "hwp-opt", "swapkey"]},
+  {"do": "sleep", "seconds": 0.3},
+  {"do": "key", "key": "f13", "hold": 0.2},
+  {"do": "sleep", "seconds": 0.3},
+  {"do": "log_has", "pattern": "\\[HWP:options\\] swapkey key set to 104 \\(F13\\)", "timeout": 5, "name": "F13 (a custom keyboard's extra key) is named, not Key 104"},
+  {"do": "gl", "verb": "menu", "args": ["hwp_options", "-", "hwp-opt-swapkey"], "expect": {"texts": "Swap weapons | F13"}},
+  {"do": "gl", "verb": "menu", "args": ["hwp_options", "-", "hwp-opt-swapkey", "hwp-opt", "swapkey"]},
+  {"do": "sleep", "seconds": 0.3},
+  {"do": "key", "key": "scrolllock", "hold": 0.2},
+  {"do": "sleep", "seconds": 0.3},
+  {"do": "log_has", "pattern": "\\[HWP:options\\] swapkey key set to 71 \\(Scroll Lock\\)", "timeout": 5},
+  {"do": "gl", "verb": "menu", "args": ["hwp_options", "-", "hwp-opt-swapkey"], "name": "a name over 9 characters shows short in the value column", "expect": {"texts": "Swap weapons | ScrL"}},
+  {"do": "shot", "name": "long_key_name"},
 
   {"do": "gl", "verb": "menu", "args": ["hwp_options", "-", "hwp-opt-swapkey", "hwp-opt", "swapkey"]},
   {"do": "sleep", "seconds": 0.3},

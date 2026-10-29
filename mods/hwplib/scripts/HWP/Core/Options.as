@@ -32,6 +32,8 @@ namespace HWP
 			int Scancode() { return 0; }
 			void SetScancode(int scancode) {}
 			string Value() override { return FitKeyName(Scancode()); }
+			// the full names, for search when Value() shows a short one
+			string SearchText() { return KeyText(Scancode()); }
 			// bound to this key (a game action can have several)
 			bool Uses(int scancode) { return Scancode() == scancode; }
 		}
@@ -748,6 +750,9 @@ class HWPOptionsTab : MenuTab
 			string v = s.IsOption() && s.option == m_capture ? Resources::GetString(".hwp.options.press") : s.Value();
 			SetText(r.value, v);
 			r.valueL = v.toLower();
+			auto key = cast<HWP::Options::KeyOption>(s.Opt());
+			if (key !is null)
+				r.valueL += " " + key.SearchText().toLower();
 			r.button.m_enabled = !s.Locked();
 			SetColor(r.value, r.button.m_enabled ? white : dim);
 		}

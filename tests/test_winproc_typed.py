@@ -74,3 +74,9 @@ def test_typed_without_shim_input_refuses():
         with pytest.raises(RuntimeError, match="shim_input"):
             winproc.key(0x9999, winproc.VK["q"], typed="a")
     assert posted == []
+
+
+@pytest.mark.parametrize("name,sc", [("f13", 104), ("f24", 115), ("scrolllock", 71), ("printscreen", 70)])
+def test_extra_keys_send_their_sdl_scancode(shim, name, sc):
+    winproc.key(HWND, winproc.VK[name])
+    assert [e[:2] for e in events(shim)] == [("down", sc), ("up", sc)]

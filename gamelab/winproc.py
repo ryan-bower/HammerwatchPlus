@@ -41,7 +41,8 @@ WM_MOUSEMOVE, WM_LBUTTONDOWN, WM_LBUTTONUP = 0x0200, 0x0201, 0x0202
 VK = {"enter": 0x0D, "escape": 0x1B, "console": 0xC0, "backspace": 0x08, "tab": 0x09,
       "up": 0x26, "down": 0x28, "left": 0x25, "right": 0x27, "space": 0x20}
 VK.update({c: ord(c.upper()) for c in "abcdefghijklmnopqrstuvwxyz0123456789"})
-VK.update({f"f{i}": 0x6F + i for i in range(1, 13)})          # VK_F1..VK_F12 (Dev Arena hotkeys)
+VK.update({f"f{i}": 0x6F + i for i in range(1, 25)})          # VK_F1..VK_F24 (Dev Arena hotkeys; F13+ custom boards)
+VK.update({"printscreen": 0x2C, "scrolllock": 0x91})
 VK.update({"ctrl": 0xA2, "shift": 0xA0})                      # VK_LCONTROL, VK_LSHIFT: modifiers for "ctrl+z"
 
 
@@ -92,6 +93,8 @@ _SDL_KEYS = {0x0D: (40, 13), 0x1B: (41, 27), 0xC0: (53, 96), 0x08: (42, 8), 0x09
 _SDL_KEYS.update({ord(c.upper()): (4 + i, ord(c)) for i, c in enumerate("abcdefghijklmnopqrstuvwxyz")})
 _SDL_KEYS.update({ord(c): (30 + i, ord(c)) for i, c in enumerate("1234567890")})
 _SDL_KEYS.update({0x70 + i: (58 + i, 0x4000003A + i) for i in range(12)})   # F1..F12
+_SDL_KEYS.update({0x7C + i: (104 + i, 0x40000068 + i) for i in range(12)})  # F13..F24
+_SDL_KEYS.update({0x2C: (70, 0x40000046), 0x91: (71, 0x40000047)})        # PrintScreen, ScrollLock
 _SDL_KEYS.update({0xA2: (224, 0x400000E0), 0xA0: (225, 0x400000E1)})     # LCtrl, LShift
 _SDL_KMOD = {0xA2: 0x0040, 0xA0: 0x0001}                                   # KMOD_LCTRL, KMOD_LSHIFT
 SDL_KP_ENTER = (88, 0x40000058)

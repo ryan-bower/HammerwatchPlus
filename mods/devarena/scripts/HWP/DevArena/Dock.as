@@ -394,8 +394,9 @@ namespace DevArena
 		int Scancode() override { return HotkeyScancode(m_name, m_default); }
 		string Value() override
 		{
-			string name = HWP::Options::KeyName(Scancode());
-			return m_ctrl ? "Ctrl+" + name : name;
+			// "Ctrl+" leaves the 82 pixel value column room for a short name only
+			int sc = Scancode();
+			return m_ctrl ? "Ctrl+" + HWP::Options::ShortKeyName(sc) : HWP::Options::FitKeyName(sc);
 		}
 		void SetScancode(int scancode) override
 		{

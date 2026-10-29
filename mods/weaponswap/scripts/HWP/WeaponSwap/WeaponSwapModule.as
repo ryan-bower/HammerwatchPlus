@@ -86,10 +86,13 @@ namespace HWP
 
 		// the key's name on this keyboard (HWP::Options::KeyName, read live: a label learned
 		// later shows at once); `hwp swapkey <code> <name>` can name it by hand
-		string KeyName()
+		// fit: the short name when the full one is too long for the options value column
+		string KeyName(bool fit = false)
 		{
 			string name = HWP::Settings::GetString("weaponswap.keyname", "");
-			return name.isEmpty() ? HWP::Options::KeyName(g_scancode) : HWP::Options::Escape(name);
+			if (!name.isEmpty())
+				return HWP::Options::Escape(name);
+			return fit ? HWP::Options::FitKeyName(g_scancode) : HWP::Options::KeyName(g_scancode);
 		}
 
 		// at most 4 characters, for the 53 pixel label under the other set
@@ -104,7 +107,7 @@ namespace HWP
 		{
 			string Title() override { return Resources::GetString(".hwp.weaponswap.option"); }
 			int Scancode() override { return g_scancode; }
-			string Value() override { return KeyName(); }
+			string Value() override { return KeyName(true); }
 			void SetScancode(int scancode) override
 			{
 				if (scancode == DEFAULT_SCANCODE)

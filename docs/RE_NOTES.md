@@ -5597,10 +5597,23 @@ An adversarial review of the change found these, now fixed:
 
 Keys that custom and full-size keyboards add now have names before a label is learned:
 F13-F24 (scancodes 104-115), Print Screen, Scroll Lock, Pause, Num Lock, the numpad operators
-and Enter, Menu, and both Win/GUI keys. Before this they showed as "Key 104". A key row's
-value switches to the short name when the full one is longer than 9 characters, so
-"Print Screen" shows as PrSc and fits the 82-pixel value column. Labels are still stored
-per save.
+and Enter, Menu, and both Win/GUI keys. Before this they showed as "Key 104".
+- **Long names in the value column.** Every key row now shows the short name when the full one
+  is longer than 9 characters (`HWP::Options::FitKeyName`), so "Scroll Lock" shows as ScrL.
+  That includes the swap and drop keys, unless they were named by hand. A Dev Arena
+  Ctrl hotkey always shows the short name after "Ctrl+". The 9 is a guess: the 82-pixel
+  column's font was not measured, and the `long_key_name` shot in `mod-keys-layout` will
+  show whether it is too strict.
+- **Search still finds the full names.** A key row's search text is its shown value plus the
+  full names (`KeyOption.SearchText`), so "shift" still finds a row showing RShf.
+- **Print Screen may be named but not bindable.** On Windows, SDL2 sends its press and
+  release together on key-up, and capture polls `IsKeyDown` once a frame. Unverified; the
+  scenario binds Scroll Lock instead.
+- Labels are still stored per save.
+
+These follow-ups are checked by pytest only (`tests/test_winproc_typed.py`: GameLab sends
+F13-F24, Print Screen and Scroll Lock as their SDL scancodes). No test compiles the
+AngelScript. `mod-keys-layout` now binds F13 and Scroll Lock as well, and has not been run.
 
 Verified offline: `tests/test_winproc_typed.py`, `tests/test_writes_controls.py`, the full
 pytest suite, and `make_config` / `build` / `list_verbs` / `guard_modules --check`.

@@ -86,6 +86,15 @@ namespace HWP
 				return v;
 			}
 
+			string SearchText() override
+			{
+				auto keys = Keys();
+				string t;
+				for (uint i = 0; i < keys.length(); i++)
+					t += " " + HWP::Options::KeyText(keys[i]);
+				return t;
+			}
+
 			void SetScancode(int sc) override
 			{
 				auto map = Map();
