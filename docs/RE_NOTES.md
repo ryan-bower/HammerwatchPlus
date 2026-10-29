@@ -5657,7 +5657,8 @@ Tests:
   has gone off.
 - `fix-campaign-traps` (20261029-071615): a Dark Citadel cave floor had no spike plate or
   flame jet (cave floors rarely get plates and never jets now), and the fallback, a bomb
-  glyph spawned on the player, never triggered: a `TripMine` spawned on top of a player sees
-  no overlap begin. The fallback is now a spike plate spawned under the player.
+  glyph spawned on the player, did no damage in its 6 s (20261029-071403; cause not found: in
+  `fix-hoh1-traps` a bomb glyph spawned the same way goes off after its 1.1 s fuse). The
+  fallback is now a spike plate spawned under the player, the kind the check was written for.
   `fix-campaign-trap-map` (20261029-071430), `mod-campaign` (20261029-071459) and the
   package variant `pf-fix-hoh1-traps` (20261029-072748) pass.

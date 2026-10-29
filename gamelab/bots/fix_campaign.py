@@ -154,8 +154,8 @@ class Checks(Base):
         self.flag("traps_present", total > 0, f"{counts}")
         # a spike plate (up 1.5 s of every 5, after a 1 s warning) or a flame jet (activates
         # when stood on), else a spike plate spawned under the player: a cave floor has few
-        # plates and no jets since the kinds follow the theme (issue #37), and a bomb glyph
-        # (TripMine) spawned on top of the player never triggers (no overlap begins)
+        # plates and no jets since the kinds follow the theme (issue #37), and the bomb glyph
+        # this spawned before did no damage in 6 s once (20261029-071403)
         spikes = (r.get(TRAP_UNITS[0]) or {}).get("units") or []
         fires = (r.get(TRAP_UNITS[1]) or {}).get("units") or []
         before = self.player()
