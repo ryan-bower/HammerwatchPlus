@@ -1,9 +1,8 @@
 // Drop key for the inventory: with an inventory item hovered in the player
 // menu, the key (default Q, SDL scancode 20) drops it at your feet, next to
-// vanilla Destroy. The menu's own bindings have no free action for it, so
-// the key is polled raw like the weapon swap key. The item action key (Eat,
-// default E, scancode 8) the same way. Both are rebound in the Plus tab
-// (dropkey, actionkey) and named as on a US keyboard.
+// vanilla Destroy. Drop is an hwplib item action (ItemActions, DropAction): hwplib's
+// inventory shows its hint and polls its key raw, like the other bag actions. The key
+// is rebound in the Plus tab (dropkey) and named as on a US keyboard.
 //
 // droptrade.enabled (host, default on) off: no Drop hint or key, and the use key
 // is vanilla again (no pickup first); an item action (Eat) keeps working.
@@ -14,16 +13,16 @@ namespace HWP
 	{
 		const int DEFAULT_SCANCODE = 20; // SDL scancode for Q
 
+		// unused since 2026-10-28 (hwplib's tab: ItemActions::g_tab); kept for a Character.as
+		// override from an older package
 		PlayerMenuCharacterTab@ g_tab;
 		int g_scancode = DEFAULT_SCANCODE;
-		bool g_wasDown = false;
 		bool g_enabled = true;
 		bool g_pickupFirst = true;
 
 		void LoadKey()
 		{
 			g_scancode = HWP::Settings::GetInt("droptrade.key", DEFAULT_SCANCODE);
-			g_actionScancode = HWP::Settings::GetInt("droptrade.actionkey", DEFAULT_ACTION_SCANCODE);
 		}
 
 		// the drop key's name (US keycap); `hwp dropkey <code> <name>` can name it by hand
@@ -66,114 +65,53 @@ namespace HWP
 				HWP::Settings::Reset("droptrade.keyname");
 				LoadKey();
 				// the new key is held right now (just pressed to bind it): no drop
-				g_wasDown = true;
+				HWP::ItemActions::HeldNow(scancode);
 			}
 		}
 
+		// Drop the hovered bag item at your feet, no dialog. Clients send a DropItem
+		// request to the host, which spawns it for everyone.
+		class DropAction : HWP::ItemActions::Action
+		{
+			string Id() override { return "drop"; }
+			int Scancode() override { return g_scancode; }
+			string KeyName() override { return HWP::DropTrade::KeyName(); }
+			int Order() override { return 10; }
+
+			string Label(Equipment::Equipment@ item) override
+			{
+				return g_enabled ? Resources::GetString(".hwp.droptrade.drop") : "";
+			}
+
+			void Do(PlayerRecord@ record, Equipment::Equipment@ item) override
+			{
+				if (record.actor is null || !record.actor.m_unit.IsValid())
+					return;
+				// take it out of the bag first: a stale widget whose item already
+				// left the bag must not spawn a copy
+				if (!record.equipInventory.Remove(item))
+					return;
+				Item::DropItem(item, record.actor.m_unit.GetPosition(), 1, true, null);
+				HWP::Log("droptrade", "dropped " + item.GetName());
+			}
+		}
+
+		// ---- kept for a Character.as / EquipmentItemWidget.as override from a package
+		// older than 2026-10-28 (hwplib's own overrides use ItemActions) ----
 		string NavText()
 		{
 			return "[" + KeyName() + "] " + Resources::GetString(".hwp.droptrade.drop");
 		}
 
-		// the item action key (core ItemActions: Eat on a fish), default E
-		const int DEFAULT_ACTION_SCANCODE = 8; // SDL scancode for E
-		int g_actionScancode = DEFAULT_ACTION_SCANCODE;
-		bool g_actionWasDown = false;
-
-		class ActionKeyOption : HWP::Options::KeyOption
-		{
-			string Title() override { return Resources::GetString(".hwp.droptrade.action_option"); }
-			int Scancode() override { return g_actionScancode; }
-			void SetScancode(int scancode) override
-			{
-				if (scancode == DEFAULT_ACTION_SCANCODE)
-					HWP::Settings::Reset("droptrade.actionkey");
-				else
-					HWP::Settings::SetInt("droptrade.actionkey", scancode);
-				LoadKey();
-				// the new key is held right now (just pressed to bind it): no action
-				g_actionWasDown = true;
-			}
-		}
-
 		string ActionNavText(Equipment::Equipment@ item)
 		{
 			string label = HWP::ItemActions::Label(item);
-			return label == "" ? "" : "[" + HWP::Options::KeyName(g_actionScancode) + "] " + label;
-		}
-
-		// the hint bar kept on screen: vanilla centres it under the window, and the player
-		// menu sits at the right edge, so a bag item's bar (Destroy, then Drop and an item
-		// action) ran off it and hid the action's hint
-		class FitNavBar : KeyNavigationBar
-		{
-			FitNavBar(AWindowObject@ windowObject) { super(windowObject); }
-
-			void Draw(SpriteBatch& sb, vec2 pos, int width) override
-			{
-				int maxWidth = max(width, GetWidth());
-				int left = int(pos.x) - int(maxWidth * 0.5f);
-				int hi = max(2, int(g_gameMode.m_wndWidth) - 2 - maxWidth);
-				int fit = left < 2 ? 2 : (left > hi ? hi : left);
-				KeyNavigationBar::Draw(sb, pos + vec2(fit - left, 0), width);
-			}
-		}
-
-		// the window's hint bar as a FitNavBar, its texts kept (once per window)
-		void FitBar(AWindowObject@ host)
-		{
-			if (host is null || host.m_navigationBar is null || cast<FitNavBar>(host.m_navigationBar) !is null)
-				return;
-			FitNavBar@ bar = FitNavBar(host);
-			for (uint i = 0; i < bar.m_texts.length(); i++)
-				bar.m_texts[i].m_text.Cleanup();
-			bar.m_texts = host.m_navigationBar.m_texts;
-			bar.m_visible = host.m_navigationBar.m_visible;
-			@host.m_navigationBar = bar;
+			return label == "" ? "" : "[E] " + label;
 		}
 
 		void MakeButton(KeyNavigationText@ text, WindowInput::OnFunc@ func)
 		{
-			@text.m_func = func;
-			@text.m_hoverSnd = Resources::GetSoundEvent("event:/sfx/ui/hover");
-			@text.m_clickSnd = Resources::GetSoundEvent("event:/sfx/ui/click");
-		}
-
-		bool TypingInChat()
-		{
-			auto main = cast<MainMenuGameMode>(g_gameMode);
-			return main !is null && main.m_wChat !is null && main.m_wChat.m_wInput !is null && main.m_wChat.m_wInput.m_typing;
-		}
-
-		// true while the character tab is open and on top: not behind a dialog
-		// (the vanilla destroy confirm), and no text input has the keyboard,
-		// since the raw key poll cannot tell the drop key from typing a 'q'
-		bool TabOpen()
-		{
-			auto gm = cast<BaseGameMode>(g_gameMode);
-			if (g_tab is null || gm is null || gm.m_windowManager is null || gm.m_windowManager.m_objects.length() == 0)
-				return false;
-			auto cb = GetControlBindings();
-			if ((cb !is null && cb.IsExpectingTextInput()) || TypingInChat())
-				return false;
-			auto menu = cast<PlayerMenu>(gm.m_windowManager.m_objects[gm.m_windowManager.m_objects.length() - 1]);
-			return menu !is null && menu.m_tabSystem !is null
-				&& menu.m_tabSystem.m_currentIndex >= 0 && menu.m_tabSystem.m_currentIndex < int(menu.m_tabSystem.m_tabs.length())
-				&& menu.m_tabSystem.m_tabs[menu.m_tabSystem.m_currentIndex] is g_tab;
-		}
-
-		void Poll()
-		{
-			bool down = Platform::IsKeyDown(ControllerType::Keyboard, 0, g_scancode);
-			bool pressed = down && !g_wasDown;
-			g_wasDown = down;
-			if (pressed && g_enabled && TabOpen())
-				g_tab.HWPDrop();
-			bool aDown = Platform::IsKeyDown(ControllerType::Keyboard, 0, g_actionScancode);
-			bool aPressed = aDown && !g_actionWasDown;
-			g_actionWasDown = aDown;
-			if (aPressed && TabOpen())
-				g_tab.HWPAction();
+			HWP::ItemActions::MakeButton(text, func);
 		}
 
 		void CmdDropKey(array<string>@ args)
@@ -207,7 +145,7 @@ namespace Modules
 			super("hwp-droptrade");
 			HWP::Commands::Register("dropkey", "[scancode [name]]  show or set the inventory drop key", HWP::Commands::Handler(HWP::DropTrade::CmdDropKey));
 			HWP::Options::Register("dropkey", HWP::DropTrade::DropKeyOption());
-			HWP::Options::Register("actionkey", HWP::DropTrade::ActionKeyOption());
+			HWP::ItemActions::Register(HWP::DropTrade::DropAction());
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::DropTrade::OnSettingChanged));
 			HWP::Log("droptrade", "menu destroy key " + FormatKeyName(GetActionBinding("MenuAdditional")));
 		}
@@ -235,7 +173,6 @@ namespace Modules
 
 		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
-			HWP::DropTrade::Poll();
 			if (HWP::DropTrade::g_enabled && HWP::DropTrade::g_pickupFirst)
 				HWP::PickupFirst::Update();
 		}

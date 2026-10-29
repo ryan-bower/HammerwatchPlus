@@ -7,7 +7,8 @@
   "hwplib-luck",
   "hwplib-classui",
   "weaponswap",
-  "droptrade"
+  "droptrade",
+  "fishing"
  ],
  "shim_input": true,
  "writes_controls": true,
@@ -93,13 +94,13 @@
    "args": [
     "hwp_options",
     "-",
-    "hwp-opt-actionkey"
+    "hwp-opt-eatkey"
    ],
    "expect": {
     "shown": true,
-    "texts": "Item action key | E"
+    "texts": "Eat fish key | F"
    },
-   "name": "default item action key"
+   "name": "default eat fish key"
   },
   {
    "do": "sleep",
@@ -257,9 +258,9 @@
    "args": [
     "hwp_options",
     "-",
-    "hwp-opt-actionkey",
+    "hwp-opt-eatkey",
     "hwp-opt",
-    "actionkey"
+    "eatkey"
    ]
   },
   {
@@ -278,9 +279,9 @@
   },
   {
    "do": "log_has",
-   "pattern": "(?m)\\[HWP:options\\] actionkey key set to 21 \\(R\\)\\r?$",
+   "pattern": "(?m)\\[HWP:options\\] eatkey key set to 21 \\(R\\)\\r?$",
    "timeout": 5,
-   "name": "then the item action key on R"
+   "name": "then the eat fish key on R"
   },
   {
    "do": "gl",
@@ -336,11 +337,11 @@
    "args": [
     "hwp_options",
     "-",
-    "hwp-opt-actionkey"
+    "hwp-opt-eatkey"
    ],
    "expect": {
     "shown": true,
-    "texts": "Item action key | R"
+    "texts": "Eat fish key | R"
    }
   },
   {
@@ -611,9 +612,9 @@
    "args": [
     "hwp_options",
     "-",
-    "hwp-opt-actionkey",
+    "hwp-opt-eatkey",
     "hwp-opt",
-    "actionkey"
+    "eatkey"
    ]
   },
   {
@@ -622,9 +623,9 @@
   },
   {
    "do": "key",
-   "key": "e",
+   "key": "f",
    "hold": 0.2,
-   "typed": "e"
+   "typed": "f"
   },
   {
    "do": "sleep",
@@ -632,7 +633,7 @@
   },
   {
    "do": "log_has",
-   "pattern": "(?m)\\[HWP:options\\] actionkey key set to 8 \\(E\\)\\r?$",
+   "pattern": "(?m)\\[HWP:options\\] eatkey key set to 9 \\(F\\)\\r?$",
    "timeout": 5
   },
   {
@@ -676,11 +677,11 @@
    "args": [
     "hwp_options",
     "-",
-    "hwp-opt-actionkey"
+    "hwp-opt-eatkey"
    ],
    "expect": {
     "shown": true,
-    "texts": "Item action key | E"
+    "texts": "Eat fish key | F"
    }
   },
   {

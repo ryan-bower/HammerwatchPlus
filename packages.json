@@ -138,5 +138,5 @@
     "holylocal"
   ],
   "_settings_top": "What the HammerwatchPlus tab of the player menu shows above the packages: key binds and accessibility (tools/make_config.py; option:<id> or a setting key).",
-  "settings_top": ["option:swapkey", "option:skill4", "option:skill5", "option:skill6", "option:dropkey", "option:actionkey", "option:colors", "option:autoaim"]
+  "settings_top": ["option:swapkey", "option:skill4", "option:skill5", "option:skill6", "option:dropkey", "option:eatkey", "option:courierkey", "option:colors", "option:autoaim"]
 }

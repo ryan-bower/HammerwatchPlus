@@ -537,9 +537,9 @@
    "args": [
     "hwp_options",
     "-",
-    "hwp-opt-actionkey",
+    "hwp-opt-eatkey",
     "hwp-opt",
-    "actionkey"
+    "eatkey"
    ]
   },
   {
@@ -659,9 +659,9 @@
    "args": [
     "hwp_options",
     "-",
-    "hwp-opt-actionkey",
+    "hwp-opt-eatkey",
     "hwp-opt",
-    "actionkey"
+    "eatkey"
    ]
   },
   {
@@ -670,9 +670,9 @@
   },
   {
    "do": "key",
-   "key": "e",
+   "key": "f",
    "hold": 0.2,
-   "typed": "e"
+   "typed": "f"
   },
   {
    "do": "sleep",

@@ -1,7 +1,6 @@
 <lang name="English" official="false">
 	<string name="hwp.droptrade.drop">Drop</string>
 	<string name="hwp.droptrade.option">Drop item key</string>
-	<string name="hwp.droptrade.action_option">Item action key</string>
 	<string name="hwp.droptrade.key">Inventory drop key: %name% (SDL scancode %code%). Change it with hwp dropkey &lt;scancode&gt; [name].</string>
 	<string name="hwp.droptrade.key_usage">hwp dropkey &lt;SDL scancode&gt; [name], e.g. hwp dropkey 10 G</string>
 </lang>

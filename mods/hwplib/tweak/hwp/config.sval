@@ -7,7 +7,8 @@
 		<s>option:skill5</s>
 		<s>option:skill6</s>
 		<s>option:dropkey</s>
-		<s>option:actionkey</s>
+		<s>option:eatkey</s>
+		<s>option:courierkey</s>
 		<s>option:colors</s>
 		<s>option:autoaim</s>
 	</array>
@@ -200,7 +201,6 @@
 					<bool name="level">false</bool>
 					<array name="settings">
 						<dict><string name="option">dropkey</string></dict>
-						<dict><string name="option">actionkey</string></dict>
 						<dict><string name="key">droptrade.pickup_first</string><string name="type">bool</string><bool name="host">false</bool><bool name="level">false</bool><bool name="default">true</bool></dict>
 					</array>
 				</dict>
@@ -447,6 +447,7 @@
 						<dict><string name="key">fishing.run_chance</string><string name="type">int</string><bool name="host">true</bool><bool name="level">true</bool><int name="default">30</int><array name="values"><i>0</i><i>15</i><i>30</i><i>50</i><i>75</i><i>100</i></array><int name="labels">0</int><string name="suffix">%</string></dict>
 						<dict><string name="key">fishing.run_casts</string><string name="type">int</string><bool name="host">true</bool><bool name="level">false</bool><int name="default">3</int><array name="values"><i>1</i><i>2</i><i>3</i><i>5</i><i>8</i></array><int name="labels">0</int><string name="suffix"></string></dict>
 						<dict><string name="key">fishing.keys</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">false</bool><bool name="default">true</bool></dict>
+						<dict><string name="option">eatkey</string></dict>
 					</array>
 				</dict>
 				<dict>
@@ -501,6 +502,9 @@
 					<bool name="level">false</bool>
 					<array name="settings">
 						<dict><string name="key">pets.bowl</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">false</bool><bool name="default">false</bool></dict>
+						<dict><string name="key">pets.courier</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">false</bool><bool name="default">true</bool></dict>
+						<dict><string name="key">pets.courier_secs</string><string name="type">int</string><bool name="host">true</bool><bool name="level">false</bool><int name="default">60</int><array name="values"><i>15</i><i>30</i><i>60</i><i>90</i><i>120</i></array><int name="labels">0</int><string name="suffix"> s</string></dict>
+						<dict><string name="option">courierkey</string></dict>
 					</array>
 				</dict>
 				<dict>

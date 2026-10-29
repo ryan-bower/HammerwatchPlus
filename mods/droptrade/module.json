@@ -1,10 +1,7 @@
 {
   "id": "droptrade",
   "requires": ["hwplib"],
-  "overrides": [
-    "scripts/GUI/PlayerMenu/Character.as",
-    "scripts/GUI/Widgets/EquipmentItemWidget.as"
-  ],
+  "overrides": [],
   "exclude": [],
   "config": {
     "title": "Drop trade",
@@ -16,10 +13,6 @@
       {
         "option": "dropkey",
         "about": "Drops the hovered item."
-      },
-      {
-        "option": "actionkey",
-        "about": "Uses the hovered item (eats a fish)."
       },
       {
         "key": "droptrade.pickup_first",

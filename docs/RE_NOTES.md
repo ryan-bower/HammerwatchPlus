@@ -5578,6 +5578,50 @@ tile now drops symbols from the end, keeping at least one, until the name (and t
 under it) fits. Of the 13 cards, only Quality of Life renders differently. Republished:
 HWP-qol, HWP-pets and HammerwatchPlus-All (kit 5538d81).
 
+## 2026-10-28: bag item actions move to hwplib; the pet courier (issue #13)
+
+Issue #13 asked for a way to send items home from a run. The larger problem it ran into was
+the bag's item actions. droptrade owned the inventory overrides (`Character.as`,
+`EquipmentItemWidget.as`), so a package without droptrade had no action hints at all. Only
+the first registered action ever showed (`HWP::ItemActions::For`), and it was bound to a
+fixed E. E is also the player menu's own Destroy key, so one press ate the fish and opened
+the destroy confirm behind it.
+
+**What the menu binds** (`res/controls_default.cfg`, kbm map): `MenuAdditional` is E (the
+Destroy hint), `MenuContext` R (Compare), `MenuChatAll` T, `PlayerMenu` I and C.
+`GetActionBinding(action)` (`Utils/Functions.as`) returns only the **first** binding's key
+name for the current map, so PlayerMenu reads "i" and its C is missed. `FormatKeyName`
+returns markup (`\"k"E\"k"`), so it can't be compared with a key name either.
+`ItemActions::MenuClash` walks `GetInput().GetCurrentMap().GetBindings()` instead and
+compares each menu action's `ID` with the key name. Free letters the menu
+doesn't bind: F, G, H, Q and others.
+
+**Keys.** The actions still read raw keys (`Platform::IsKeyDown(ControllerType::Keyboard, 0,
+scancode)`, SDL scancodes: E 8, F 9, H 11, Q 20). GameLab's posted keys reach it. One poll
+per distinct scancode per frame (`ItemActions::Poll`, from the core module), only while the
+character tab is the top window's current tab, and not while text input or chat has the
+keyboard. When a key option captures a new key, the key is held at that moment
+(`HeldNow`), so the press that binds it doesn't also act.
+
+**Town stash in a run.** `g_myTownRecord.m_townStash` is loaded in every gameplay mode, runs
+included, so `TownStashTab.Add(item)` works from a dungeon. The 10-tab limit is the stash
+window's, not the data's (`GUI/PlayerStashEditWindow.as:13` turns the new-tab button off at 10). `AGameplayGameMode.SavePlayerAndTown()`
+writes both records in one `SetCharacter`, so an item moved from the bag to the stash is
+saved in one step. A crash between the two writes can't copy it or lose it.
+
+**Pets.** `PlayerBase.m_pet` (`MiniPet`) is not netsynced: every machine makes its own copy
+from the owner's `SetPetType`. `PlayerBase.ResetPet()` sends `SetPetType` to everyone, and
+the others re-make their copy. Destroying `m_pet.m_unit` and nulling `m_pet` takes the pet
+down locally; the courier tells the others through the host (`pets.away` -> `pets.gone`).
+The smoke puff is `effects/generic/other/spawn_smoke_puff.effect` (`PlayEffect`).
+
+**Test** (`fix-item-actions-eat`, `fix-pets-courier`, bot `gamelab/bots/fix_courier.py`):
+the fish's hints end `[Q] Drop`, `[F] Eat` and nothing on E. F eats it with no dialog. In a
+run the mace's hints end `[Q] Drop`, `[H] Send home`. H moves it into the stash tab "Pet
+deliveries" and the hint goes (the satchel is full). The pet leaves when the menu closes and
+is back after `pets.courier_secs` (5 in the test). The CheckKeys log has drop Q (20), eat F
+(9) and courier H (11), with no clash.
+
 ## 2026-10-28: Keys on any keyboard layout, and every key rebindable in game (issue #19)
 
 The problem: mod hotkeys are polled by SDL scancode (`Platform::IsKeyDown(Keyboard, 0, sc)`),
@@ -5802,3 +5846,14 @@ Runs after the fix (lab, all PASS, GameLab's controls.cfg deleted first): mod-ke
 20261029-171245 (first boot loads only the defaults), mod-keys-layout 20261029-171335,
 mod-keys-play 20261029-171421, mod-options-tab 20261029-171504 and mod-keys-ui-shots
 20261029-171530 (shot 11b: "Also on T: Item action key, Drop item key, Chat +1").
+
+## 2026-10-29: PR #39 (item actions in hwplib) merged over PR #25 (key layouts)
+
+PR #25 added one droptrade **Item action key** (`actionkey`, E) for the single item action.
+PR #39 gives each action its own key (Drop Q, Eat F, Send home H) and moves the inventory
+overrides to hwplib, so `actionkey` is gone: the Eat and Send home keys are fishing's `eatkey`
+and pets' `courierkey`, and both join the Plus tab's top rows (`packages.json`). Kept from #25:
+the drop key's US name with `Escape`/`FitKeyName` (`HWP::DropTrade::KeyName`), and the hint
+bar that stays on screen, now hwplib's (`HWP::ItemActions::FitNavBar`, called from hwplib's
+`Character.as`). `mod-keys-layout` and `mod-keys-ui-shots` rebind `eatkey` (default F)
+where they rebound `actionkey`; `mod-keys-layout` loads fishing for it.

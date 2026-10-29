@@ -9,18 +9,18 @@ Dropping uses `Item::DropItem`, which on a client sends the item to the host;
 the host spawns it and replicates it, exactly like loot. The item is removed
 from the dropper's inventory right away.
 
-The player menu has no free action binding, so the drop key is polled raw
-(SDL scancode, default 20 = Q) by `scripts/HWP/DropTrade/DropTrade.as`, only
-while the inventory tab is open and on top (not behind the destroy confirm)
-and no text input or chat has the keyboard. The item leaves the bag before it
-is dropped, so a stale hover can never spawn a copy. `hwp dropkey` shows it, `hwp dropkey 10 G`
-changes it (per machine).
+Drop is an hwplib item action (`HWP::ItemActions`, `DropAction`, order 10): hwplib's
+inventory shows its hint and polls its key, a raw SDL scancode (default 20 = Q; the
+player menu has no free action binding), only while the inventory tab is open and on
+top (not behind the destroy confirm) and no text input or chat has the keyboard. The
+item leaves the bag before it is dropped, so a stale hover can never spawn a copy.
+`hwp dropkey` shows the key, `hwp dropkey 10 G` changes it (per machine).
 
-An item with a registered action (hwplib `HWP::ItemActions`; today the fishing
-mod's **Eat** on a fish: 100 health per star, town or run, the fish is used
-up) gets a fifth hint, **`[E] Eat`**, and the E key (SDL scancode 8, polled the
-same way, rebound as **Item action key**) does it on the hovered item (`HWPAction()`).
-Both hints name the bound key as printed on a US keyboard (hwplib `HWP::Options::KeyName`;
+Other modules' item actions follow Drop, each with its own hint and key: fishing's
+**`[F] Eat`** on a fish, the pets' **`[H] Send home`** in a run. Until 2026-10-28 this
+mod owned the hints and showed only the first such action, on a fixed E, which is also
+the menu's own Destroy key, so one E press ate the fish and opened the destroy dialog.
+Every hint names its bound key as printed on a US keyboard (hwplib `HWP::Options::KeyName`;
 not localised: on AZERTY the key at Q still reads Q).
 
 **Pickup first** (`scripts/HWP/DropTrade/PickupFirst.as`, `HWP::PickupFirst`): the use key
@@ -34,27 +34,20 @@ logs it.
 On the HammerwatchPlus tab of the player menu:
 
 - **Drop trade** on/off, `droptrade.enabled` (host, default on). Off: no Drop hint or
-  key and no pickup first; the item action (Eat) keeps working, its hint right after
-  Destroy.
+  key and no pickup first; the other item actions (Eat, Send home) keep working, their
+  hints right after Destroy.
 - **Drop item key** (option `dropkey`, each player's own): click, then press the key.
   Stored as `droptrade.key` (SDL scancode, default 20 = Q), as `hwp dropkey` does.
-- **Item action key** (option `actionkey`, each player's own): the same, stored as
-  `droptrade.actionkey` (default 8 = E).
+- The Eat and Send home keys are rebound on the same tab, under fishing (`eatkey`) and
+  pets (`courierkey`).
 - **Pickup first**, `droptrade.pickup_first` (each player's own, default on).
 
 ## Overrides
 
-Two base files are replaced wholesale (declared in `module.json`, pristine
-copies next to them as `.orig`; `tools/build.py --check` reports drift):
-
-| File | Change |
-|---|---|
-| `scripts/GUI/PlayerMenu/Character.as` | `HWPDrop()`, `HWPAction()` and `HWPHoveredItem()`; `OnInteractableIndexChanged` gives the Destroy / Drop hints click handlers; the constructor registers the tab for the drop key |
-| `scripts/GUI/Widgets/EquipmentItemWidget.as` | a fourth navigation hint, `[Q] Drop`, and a fifth for an item action (`[E] Eat`) |
-
-The diff against the base is deliberately small (`diff -u X.orig X`).
-`Character` is created by the player menu by class name, so a classmap does
-not reach it.
+None since 2026-10-28. The inventory's `Character.as` and `EquipmentItemWidget.as`
+overrides moved to hwplib (see its README), so every package that registers an item
+action has the hints, not only one that carries this mod. `HWP::DropTrade::g_tab`,
+`NavText`, `ActionNavText` and `MakeButton` stay for an older package's code.
 
 ## Test checklist
 
