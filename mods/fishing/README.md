@@ -152,6 +152,10 @@ keys module, a catch can bring up a key of any tier, ace keys included.
   catch [tier]` (rolls a key too: own key in town, a pickup on a run when host), `hwp fishing bait <worm|shrimp|squid> [n]`, `hwp fishing traps <minutes>` (fill
   the traps as if back from a run that long), `hwp fishing tier <n>` (the coast's next bite tier).
 
+- **Eat** (hwplib item action `EatAction`, order 20): a fish in the bag shows **`[F] Eat`**; F or a
+  click eats it (100 health per star, town or run, the fish is used up). The key is each player's
+  own, rebound on the Plus tab (**Eat fish key**, option `eatkey`, setting `fishing.eat_key`, SDL
+  scancode, default 9 = F). It was a fixed E before 2026-10-28, which is also the menu's Destroy key.
 - **Luck from a meal.** Eating a fish (`EatFish`: the bag's Eat hint, `hwp fish eat`)
   also gives the Luck buff (hwplib-luck) for 10 minutes, +5 Luck a star
   (`HWP::Luck::GiveBuff`, `docs/design/luck.md`), refreshed by the next meal. Log:

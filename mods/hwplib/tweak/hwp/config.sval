@@ -7,6 +7,8 @@
 		<s>option:skill5</s>
 		<s>option:skill6</s>
 		<s>option:dropkey</s>
+		<s>option:eatkey</s>
+		<s>option:courierkey</s>
 		<s>option:colors</s>
 		<s>option:autoaim</s>
 	</array>
@@ -93,6 +95,7 @@
 					<bool name="level">false</bool>
 					<array name="settings">
 						<dict><string name="option">swapkey</string></dict>
+						<dict><string name="option">swappad</string></dict>
 					</array>
 				</dict>
 				<dict>
@@ -438,6 +441,16 @@
 						<dict><string name="key">valuables.gold_mult</string><string name="type">float</string><bool name="host">true</bool><bool name="level">false</bool><float name="default">2</float><array name="values"><f>1</f><f>1.5</f><f>2</f><f>3</f><f>5</f></array><int name="labels">0</int><string name="suffix">x</string></dict>
 					</array>
 				</dict>
+				<dict>
+					<string name="id">affixes</string>
+					<bool name="shared">false</bool>
+					<string name="toggle">affixes.enabled</string>
+					<bool name="host">true</bool>
+					<bool name="level">false</bool>
+					<array name="settings">
+						<dict><string name="key">affixes.chance</string><string name="type">int</string><bool name="host">true</bool><bool name="level">false</bool><int name="default">25</int><array name="values"><i>10</i><i>25</i><i>50</i><i>75</i><i>100</i></array><int name="labels">0</int><string name="suffix">%</string></dict>
+					</array>
+				</dict>
 			</array>
 		</dict>
 		<dict>
@@ -454,6 +467,7 @@
 						<dict><string name="key">fishing.run_chance</string><string name="type">int</string><bool name="host">true</bool><bool name="level">true</bool><int name="default">30</int><array name="values"><i>0</i><i>15</i><i>30</i><i>50</i><i>75</i><i>100</i></array><int name="labels">0</int><string name="suffix">%</string></dict>
 						<dict><string name="key">fishing.run_casts</string><string name="type">int</string><bool name="host">true</bool><bool name="level">false</bool><int name="default">3</int><array name="values"><i>1</i><i>2</i><i>3</i><i>5</i><i>8</i></array><int name="labels">0</int><string name="suffix"></string></dict>
 						<dict><string name="key">fishing.keys</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">false</bool><bool name="default">true</bool></dict>
+						<dict><string name="option">eatkey</string></dict>
 					</array>
 				</dict>
 				<dict>
@@ -508,6 +522,9 @@
 					<bool name="level">false</bool>
 					<array name="settings">
 						<dict><string name="key">pets.bowl</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">false</bool><bool name="default">false</bool></dict>
+						<dict><string name="key">pets.courier</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">false</bool><bool name="default">true</bool></dict>
+						<dict><string name="key">pets.courier_secs</string><string name="type">int</string><bool name="host">true</bool><bool name="level">false</bool><int name="default">60</int><array name="values"><i>15</i><i>30</i><i>60</i><i>90</i><i>120</i></array><int name="labels">0</int><string name="suffix"> s</string></dict>
+						<dict><string name="option">courierkey</string></dict>
 					</array>
 				</dict>
 				<dict>

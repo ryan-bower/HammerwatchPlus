@@ -35,7 +35,7 @@
 	<string name="hwp.pets.disabled">Pet progression is off (pets.enabled, the HammerwatchPlus tab of the player menu).</string>
 	<string name="hwp.pets.levelup">%name% reached level %lvl%! Spend the point at the Pet Shop keeper (Train your pet).</string>
 	<string name="hwp.pets.status">%name%: level %lvl%, %xp%/%next% XP, %points% point(s).</string>
-	<string name="hwp.pets.cmd_hint">hwp pet skill &lt;id&gt; | feed &lt;crop&gt; | gold|valuables|materials|caches|cursed|elixirs|xp on|off | here</string>
+	<string name="hwp.pets.cmd_hint">hwp pet skill &lt;id&gt; | feed &lt;crop&gt; | gold|valuables|materials|caches|cursed|elixirs|xp on|off | here | courier | send</string>
 	<string name="hwp.pets.host_only">Only the host can place the feeding bowl.</string>
 	<string name="hwp.pets.moved">Feeding bowl placed here (pets.bowl on).</string>
 	<string name="hwp.pets.scout">Your raven spots %n% chest(s) nearby.</string>
@@ -152,4 +152,15 @@
 	<string name="hwp.pets.dye.removed">The dye washes out.</string>
 	<string name="hwp.pets.dye.done">\c00ff00Dyed\d: %dye%</string>
 	<string name="hwp.pets.hoh1">the HoH1 pets are not in the Pet Shop</string>
+	<!-- pet courier (Courier.as) -->
+	<string name="hwp.pets.courier.send">Send home</string>
+	<string name="hwp.pets.courier.key">Send home with pet key</string>
+	<string name="hwp.pets.courier.tab">Pet deliveries</string>
+	<string name="hwp.pets.courier.far">Your pet is too far away to take it.</string>
+	<string name="hwp.pets.courier.handed">Your pet takes the %item% home to your stash (%n%/%max%). It leaves when you close the menu.</string>
+	<string name="hwp.pets.courier.left">Your pet heads for town with %n% item(s), back in %secs% s.</string>
+	<string name="hwp.pets.courier.back">Your pet is back from town.</string>
+	<string name="hwp.pets.courier.cannot">Your pet can't carry anything now (in a run, out, near you and with room in its satchel).</string>
+	<string name="hwp.pets.courier.status">Pet courier: %n%/%max% handed over this trip.</string>
+	<string name="hwp.pets.courier.status_away">Pet courier: on its way, back in %secs% s.</string>
 </lang>

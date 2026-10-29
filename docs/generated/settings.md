@@ -26,6 +26,7 @@ next level.
 | Way gates | On | `waygates.enabled` | on | on, off | host |
 | Wep. swap | On | `weaponswap.enabled` | on | on, off | host |
 | Wep. swap | (option `swapkey`) | | | | local |
+| Wep. swap | (option `swappad`) | | | | local |
 | Lasting summons | On | `summons.enabled` | on | on, off | host |
 | Lasting summons | Forgemaster risen | `summons.risen` | on | on, off | host |
 | Lasting summons | Every summon | `summons.all` | off | on, off | host |
@@ -153,6 +154,8 @@ next level.
 | Trinkets | NG+ scaling | `trinkets.ngp_scaling` | on | on, off | host |
 | Valuables | On | `valuables.enabled` | on | on, off | host |
 | Valuables | Gold multiplier | `valuables.gold_mult` | 2x | 1x, 1.5x, 2x, 3x, 5x | host |
+| Extra affixes | On | `affixes.enabled` | on | on, off | host |
+| Extra affixes | Extra affix chance | `affixes.chance` | 25% | 10%, 25%, 50%, 75%, 100% | host |
 
 ## Town Life
 
@@ -163,6 +166,7 @@ next level.
 | Fishing | Run hole chance | `fishing.run_chance` | 30% | 0%, 15%, 30%, 50%, 75%, 100% | host, level |
 | Fishing | Casts per hole | `fishing.run_casts` | 3 | 1, 2, 3, 5, 8 | host |
 | Fishing | Keys from catches | `fishing.keys` | on | on, off | host |
+| Fishing | (option `eatkey`) | | | | local |
 | Farming | On | `farm.enabled` | on | on, off | host |
 | Farming | Plant in town fields | `farm.fields` | on | on, off | host |
 | Farming | Wild plot chance | `farm.run_chance` | 35% | 0%, 15%, 35%, 50%, 75%, 100% | host, level |
@@ -177,3 +181,6 @@ next level.
 |---|---|---|---|---|---|
 | Pets | On | `pets.enabled` | on | on, off | host |
 | Pets | Feeding bowl | `pets.bowl` | off | on, off | host |
+| Pets | Pet courier | `pets.courier` | on | on, off | host |
+| Pets | Courier trip | `pets.courier_secs` | 60 s | 15 s, 30 s, 60 s, 90 s, 120 s | host |
+| Pets | (option `courierkey`) | | | | local |
