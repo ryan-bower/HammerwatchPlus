@@ -1,13 +1,19 @@
-// HoH1 traps in generated floors (bugs 10.22.26 line 29, "hoh1 traps bring em back"):
-// spike floors, flame jets, bomb glyphs, dart glyphs and confusion glyphs, in normal HoH2
-// runs and in the campaign. HoH2 has the trap units (doodads/traps/) but places them only
-// inside a few themed rooms; here a generator command of our own, HWPTrapSpawn, is added
-// at the end of every DungeonGenerator's command list (every indoor floor of every
-// mission; outdoor ForestBrush floors paint nothing from the cells and are skipped), the
-// way the puzzles module adds its rooms. It places small prefabs of the hwp_traps set
-// (prefabs/hwp/traps/*.pfb, defined in tweak/hwp/campaign_prefabs.sval) on walkable
-// cells - HoH2 units with HoH1 numbers for the new glyphs - and then one teleporter pad
-// (Teleporters.as) with a destination picked from the floor. The traps go only on the
+// HoH1 traps in generated floors (bugs 10.22.26 line 29, "hoh1 traps bring em back"; issue
+// #37, "add all the traps from hoh1"): spike, poison, drain, frost and confusion plates,
+// pressure spikes, flame jets, bomb, dart, confusion, frost and curse glyphs, arrow, poison
+// arrow, fire ball and blade shooters on the walls, arrow turrets, flame gargoyles, falling
+// stalactites and bricks and bear traps, in normal HoH2 runs and in the campaign. HoH2 has
+// some of the trap units (doodads/traps/) but places them only inside a few themed rooms;
+// here a generator command of our own, HWPTrapSpawn, is added at the end of every
+// DungeonGenerator's command list (every indoor floor of every mission; outdoor
+// ForestBrush floors paint nothing from the cells and are skipped), the way the puzzles
+// module adds its rooms. It places small prefabs of the hwp_traps set (prefabs/hwp/traps/
+// *.pfb, defined in tweak/hwp/campaign_prefabs.sval; most of them written by
+// tools/make_hwp_traps.py, the HWPTrap units of TrapBehavior.as) on walkable cells and
+// walls, the kinds weighted by the floor's theme (WEIGHTS: stalactites in caves, shooters
+// and turrets in barracks and dungeons, drain plates and curse glyphs in crypts and halls,
+// as HoH1's acts had them), and then one teleporter pad (Teleporters.as) with a destination
+// picked from the floor. The traps go only on the
 // floors of one HoH2 mission whose floors suit them, the Crypt (crypt and temple floors) by
 // default, and on the Forsaken Tower's, HoH1's own tower (issue #30: spikes on every level of
 // every map felt random); the teleporter pad still goes on every floor. Settings:
@@ -35,8 +41,53 @@ namespace HWP
 				"doodads/hwp/traps/hwp_glyph_bomb.unit", "doodads/hwp/traps/hwp_glyph_bomb_explode.unit",
 				"doodads/hwp/traps/hwp_glyph_confusion.unit", "doodads/hwp/traps/hwp_glyph_confusion_explode.unit",
 				"doodads/hwp/traps/hwp_glyph_dart.unit", "doodads/hwp/traps/hwp_glyph_dart_burst.unit",
-				"doodads/traps/floors/floor_spikes.unit", "doodads/traps/floors/floor_fire.unit",
+				"doodads/traps/floors/floor_fire.unit", "doodads/traps/mines/glyph_shadow.unit",
+				"doodads/traps/statues/haunted_gargoyle/haunted_gargoyle_s.unit",
+				"doodads/hwp/traps/hwp_plate_spikes.unit", "doodads/hwp/traps/hwp_pressure_spikes.unit",
+				"doodads/hwp/traps/hwp_plate_poison.unit", "doodads/hwp/traps/hwp_plate_drain.unit",
+				"doodads/hwp/traps/hwp_plate_frost.unit", "doodads/hwp/traps/hwp_plate_confusion.unit",
+				"doodads/hwp/traps/hwp_glyph_frost.unit", "doodads/hwp/traps/hwp_dropper_stalactite.unit",
+				"doodads/hwp/traps/hwp_crusher_bricks.unit", "doodads/hwp/traps/hwp_bear_trap.unit",
+				"doodads/hwp/traps/hwp_turret_arrows.unit",
+				"doodads/hwp/traps/hwp_shooter_arrow_s.unit", "doodads/hwp/traps/hwp_shooter_arrow_e.unit", "doodads/hwp/traps/hwp_shooter_arrow_w.unit",
+				"doodads/hwp/traps/hwp_shooter_poison_s.unit", "doodads/hwp/traps/hwp_shooter_poison_e.unit", "doodads/hwp/traps/hwp_shooter_poison_w.unit",
+				"doodads/hwp/traps/hwp_shooter_fire_s.unit", "doodads/hwp/traps/hwp_shooter_fire_e.unit", "doodads/hwp/traps/hwp_shooter_fire_w.unit",
+				"doodads/hwp/traps/hwp_shooter_blade_s.unit", "doodads/hwp/traps/hwp_shooter_blade_e.unit", "doodads/hwp/traps/hwp_shooter_blade_w.unit",
 				"doodads/hwp/teleport_pad.unit" };
+			// The kind table: how often each family of trap prefab (the prefab id without its
+			// last "_part": shooter_arrow_s and _e are shooter_arrow) comes up on a floor of
+			// each theme group, HoH1's acts translated to HoH2's themes. 0 = never there. A
+			// family's weight is shared by its prefabs (three facings of a shooter roll as
+			// often together as one plate). A family missing from the table weighs 1.
+			const array<string> GROUPS = { "cave", "crypt", "barracks", "halls", "dungeon", "other" };
+			const array<string> FAMILIES = {
+				"plate_spikes", "pressure_spikes", "fire", "plate_poison", "plate_drain", "plate_frost", "plate_confusion",
+				"glyph_bomb", "glyph_dart", "glyph_confusion", "glyph_frost", "glyph_curse",
+				"shooter_arrow", "shooter_poison", "shooter_fire", "shooter_blade", "turret_arrows", "gargoyle_flame",
+				"dropper_stalactite", "crusher_bricks", "bear_trap" };
+			const array<int> WEIGHTS = {
+			//	cave crypt barracks halls dungeon other
+				1, 3, 3, 2, 3, 3,    // plate_spikes
+				1, 2, 2, 1, 2, 2,    // pressure_spikes
+				0, 1, 2, 2, 1, 1,    // fire (HoH2's flame jet)
+				2, 1, 0, 1, 2, 1,    // plate_poison
+				0, 2, 0, 2, 1, 1,    // plate_drain
+				2, 1, 0, 1, 0, 1,    // plate_frost
+				0, 1, 0, 2, 1, 1,    // plate_confusion
+				1, 1, 1, 1, 1, 1,    // glyph_bomb
+				0, 1, 1, 1, 1, 1,    // glyph_dart
+				0, 1, 0, 1, 0, 1,    // glyph_confusion
+				1, 1, 0, 1, 0, 1,    // glyph_frost
+				0, 1, 0, 2, 0, 1,    // glyph_curse (HoH2's shadow glyph)
+				0, 2, 3, 1, 3, 2,    // shooter_arrow
+				0, 1, 1, 0, 2, 1,    // shooter_poison
+				0, 1, 2, 2, 1, 1,    // shooter_fire
+				0, 1, 2, 1, 2, 1,    // shooter_blade
+				0, 1, 2, 1, 2, 1,    // turret_arrows
+				0, 2, 0, 2, 0, 1,    // gargoyle_flame (HoH2's haunted gargoyle)
+				4, 0, 0, 0, 0, 0,    // dropper_stalactite
+				0, 1, 1, 1, 1, 1,    // crusher_bricks
+				2, 0, 1, 0, 1, 1 };  // bear_trap
 			// a prefab whose id has one of these is somewhere worth being teleported into
 			const array<string> ROOM_WORDS = { "trap", "puzzle", "secret", "treasure", "chest", "vault", "loot" };
 			const int CELLS_PER_TRAP = 120;
@@ -79,6 +130,87 @@ namespace HWP
 				if (g_map >= int(TRAP_MAPS.length()) || TOWER.find(mission) >= 0)
 					return true;
 				return mission == TRAP_MAPS[g_map];
+			}
+
+			// a DungeonBrush theme ("crypt", "cave_dark", ...) -> its GROUPS entry
+			string Group(const string &in theme)
+			{
+				if (theme.findFirst("cave") == 0)
+					return "cave";
+				if (theme.findFirst("crypt") == 0 || theme.findFirst("temple") == 0)
+					return "crypt";
+				if (theme.findFirst("barracks") == 0 || theme.findFirst("keep") == 0)
+					return "barracks";
+				if (theme.findFirst("courts") == 0 || theme.findFirst("dark_halls") == 0)
+					return "halls";
+				if (theme.findFirst("dungeon") == 0 || theme.findFirst("prison") == 0)
+					return "dungeon";
+				return "other";
+			}
+
+			// "prefabs/hwp/traps/shooter_arrow_s.pfb" -> "shooter_arrow"
+			string Family(const string &in id)
+			{
+				string name = id;
+				int slash = name.findLast("/");
+				if (slash >= 0)
+					name = name.substr(slash + 1);
+				int us = name.findLast("_");
+				return us > 0 ? name.substr(0, us) : name;
+			}
+
+			int Weight(const string &in family, int group)
+			{
+				int f = FAMILIES.find(family);
+				if (f < 0 || group < 0)
+					return 1;
+				return WEIGHTS[f * GROUPS.length() + group];
+			}
+
+			// Set this floor's roll chance on every hwp_traps prefab from the kind table, and
+			// take the weight-0 ones out of this generation (PlacePrefabs rolls among the rest;
+			// with chance 0 alone a type could still come up once the others are used up).
+			// Returns the families that can come up, for the log.
+			string ApplyWeights(const string &in group)
+			{
+				int g = GROUPS.find(group);
+				uint trapSet = HashString(SET);
+				array<string> fams;
+				array<int> counts;
+				for (uint i = 0; i < MissionPrefabDef::Instances.length(); i++)
+				{
+					auto def = MissionPrefabDef::Instances[i];
+					if (def.m_set != trapSet)
+						continue;
+					string fam = Family(def.m_id);
+					int k = fams.find(fam);
+					if (k < 0)
+					{
+						fams.insertLast(fam);
+						counts.insertLast(1);
+					}
+					else
+						counts[k]++;
+				}
+				string on = "";
+				for (uint i = 0; i < MissionPrefabDef::Instances.length(); i++)
+				{
+					auto def = MissionPrefabDef::Instances[i];
+					if (def.m_set != trapSet)
+						continue;
+					string fam = Family(def.m_id);
+					int w = Weight(fam, g);
+					def.CanGet();   // starts this generation's count for it (m_currGenNumId)
+					if (w <= 0)
+					{
+						def.m_foundNoPlacement = true;
+						continue;
+					}
+					def.m_rollChance = max(1, w * 60 / counts[fams.find(fam)]);
+					if (on.findFirst(fam + " ") < 0)
+						on += fam + " " + w + ", ";
+				}
+				return on.length() > 2 ? on.substr(0, on.length() - 2) : "none";
 			}
 
 			bool Walkable(CellGrid@ grid, int x, int y)
@@ -199,14 +331,19 @@ namespace HWP
 				string mission = MissionId();
 				bool here = TrapsOn(mission);
 				uint firstPoi = grid.m_pointsOfInterest.length();
+				string group = Group(brush.m_theme);
 				if (g_enabled && g_density > 0 && here)
 				{
+					HWP::Log("campaign", "traps: theme " + brush.m_theme + " (" + group + "): " + ApplyWeights(group));
 					want = clamp(cells * g_density / 100 / CELLS_PER_TRAP, 1, MAX_TRAPS);
 					// One roll per trap. PlacePrefabs places up to typeMinLimit of the type it
-					// rolls before it rolls another, and spikes_1 has no max-num, so a single
+					// rolls before it rolls another, and spikes_1 had no max-num, so a single
 					// call (limit 100) filled a whole floor with spike floors whenever spikes_1
 					// came up first (issue #30). With one trap per call each trap is rolled
-					// among the types that still can be placed (CanGet: max-num).
+					// among the types that still can be placed (CanGet: max-num), by the
+					// weights ApplyWeights set; a type that fits nowhere is skipped for the
+					// rest of the floor (m_foundNoPlacement), so a floor without long walls
+					// simply gets no shooters.
 					for (int k = 0; k < want; k++)
 					{
 						int n = placer.PlacePrefabs(HashString(SET), 1, 1.0f, 1);

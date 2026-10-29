@@ -5593,3 +5593,71 @@ Tests:
   on the same destination, but the player stood 13 and 16 px off a second later (enemies
   at the spot). The bot now checks the logged destination of both uses and that the player
   stands within 48 px of it.
+
+## 2026-10-29: all of HoH1's traps (issue #37)
+
+The issue: "add all the traps from hoh1". The larger issue: HoH1's traps are a few families
+of unit (plates, glyphs, shooters, droppers, crushers) that its level scripts switch on and
+off, and HoH2's generated floors have no level scripts. A port of the units alone would give
+traps that never fire, or fire with no warning (issue #38). So one behaviour, `HWPTrap`
+(`scripts/HWP/Campaign/TrapBehavior.as`), is the level script, and the kinds are data.
+
+`HWPTrap : DangerAreaBehavior`:
+- Deriving from `DangerAreaBehavior` keeps what vanilla floor traps get for free: its
+  `Initialize` reads `freq`, `radius`, `effects`, `actor-filter`; `TickDamage` hits through
+  `ApplyDamageFilter`, which only lets an effect stick to a player on that player's machine
+  and to an enemy on the host (`FilterHuskDamage`), so every machine runs every trap by itself
+  and nothing is synced. Its `Collide` returns early when `radius > 0`, so the area is a
+  `QueryCircle` each tick, not a sensor. `gl traps` reads these as "areas".
+- States off / warn / on / spent, as scenes of those names (`name_<e|w|s|n>` with `facing`).
+  Trigger `timer` (off, warn, on, off; the phase is picked from the position, so the plates of
+  a floor are not in step) or `near` (a player within `sense` px; with `los`, only one the
+  raycast `g_scene.Raycast(from, to, ~0, RaycastType::Shot)` reaches without an
+  `IDamageTaker.Impenetrable()` in the way).
+- Projectiles: `IProjectile.Initialize(owner null, ProjectileTarget(dirRadians), 1, false, 0)`
+  on a `Produce`d unit, as `ShootProjectile` does; vanilla trap projectiles are
+  `netsync="none"`, so each machine shoots its own.
+
+Placement by theme: `MissionPrefabDef.m_rollChance` (default 100) weights `RollIndex`;
+`m_foundNoPlacement` (true) keeps `GetPossiblePrefabs` from offering a def. Both are per
+generation; `CanGet()` resets them when `m_currGenNumId` differs from `g_genNumId`, so the
+module calls `CanGet()` on every def of the set first, then sets them from its table. The
+brush theme (`DungeonBrush.m_theme`) is set before the generator commands run.
+
+Wall shooters (vanilla trap_room_se_1): a `w` shooter sits on the wall cell's left edge and
+its projectile starts 4 px out and 8 px above the unit; an `s` shooter sits on the wall's
+bottom edge, 4 px below. The prefabs are a wall cell and three floor cells in front
+(pattern `05070707`), so a shooter only goes where it can shoot down a corridor.
+
+The paladin's shield blocks `shield-blockable` trap arrows from the front, as in vanilla.
+A trap that drops from above or clamps underfoot is now true-strike (spikes, stalactites,
+falling bricks, bear traps).
+
+Two things the shooters taught:
+- An arrow turret's own collision reaches 16 px out (the barrel rect of
+  `turret_arrows.unit`; south 10-14 px below the middle); an arrow (radius 3) started
+  touching it dies there. At 12 px out none flew; at 22 px with the 6 px lift, the south
+  shot (16 px down) still touched the barrel. The muzzle is 26 px.
+- Aim from where the shot starts: the turret aimed from its middle and shot from 6 px up, so
+  the arrows flew past the player in parallel.
+
+Tests:
+- `fix-hoh1-traps` (20261029-072547): the kinds section spawns each kind on clear floor
+  (`gl terrain`, 80 px all round, else 64 or 48; a shooter faces whichever side `gl rayhit`
+  finds clear) and every one hits (health, mana or its buff), the 1 s telegraphs 930-1100 ms
+  before the hit, pressure spikes 509 ms, the turret 632 ms shooting west and 670 ms shooting
+  south. A
+  generated Crypt floor (theme temple, group crypt) and Spider Caves floor (cave group) place
+  only kinds weighted above 0 for their group, none over its max-num.
+  Bot lessons: `hwp god` toggles (the floor section's screenshot left god mode on, and no
+  damage landed); the floor section leaves the player beside a placed wall shooter, so a
+  shooter spawned 48 px off went into the wall; the paladin's shield blocks a shot from the
+  front, so the player aims away; a burn from the fire shooter still ticking read as the next
+  kind's hit, so the bot heals until health holds and counts lost health only once the trap
+  has gone off.
+- `fix-campaign-traps` (20261029-071615): a Dark Citadel cave floor had no spike plate or
+  flame jet (cave floors rarely get plates and never jets now), and the fallback, a bomb
+  glyph spawned on the player, never triggered: a `TripMine` spawned on top of a player sees
+  no overlap begin. The fallback is now a spike plate spawned under the player.
+  `fix-campaign-trap-map` (20261029-071430), `mod-campaign` (20261029-071459) and the
+  package variant `pf-fix-hoh1-traps` (20261029-072748) pass.

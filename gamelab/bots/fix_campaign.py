@@ -30,7 +30,7 @@ HOH1 = "hwp_forsaken_tower_hoh1"
 BUFF = "tweak/hwp/campaign_buffs.sval:hwp_confusion"
 TRAP_BUFF = "tweak/hwp/campaign_buffs.sval:hwp_trap_confusion"
 TRAP_UNITS = [
-    "doodads/traps/floors/floor_spikes.unit",
+    "doodads/hwp/traps/hwp_plate_spikes.unit",
     "doodads/traps/floors/floor_fire.unit",
     "doodads/hwp/traps/hwp_glyph_bomb.unit",
     "doodads/hwp/traps/hwp_glyph_dart.unit",
@@ -152,7 +152,10 @@ class Checks(Base):
         counts = {u.split("/")[-1]: (r.get(u) or {}).get("count", 0) for u in TRAP_UNITS}
         total = sum(counts.values())
         self.flag("traps_present", total > 0, f"{counts}")
-        # a spike floor (always on) or a flame jet (activates when stood on), else a bomb glyph
+        # a spike plate (up 1.5 s of every 5, after a 1 s warning) or a flame jet (activates
+        # when stood on), else a spike plate spawned under the player: a cave floor has few
+        # plates and no jets since the kinds follow the theme (issue #37), and a bomb glyph
+        # (TripMine) spawned on top of the player never triggers (no overlap begins)
         spikes = (r.get(TRAP_UNITS[0]) or {}).get("units") or []
         fires = (r.get(TRAP_UNITS[1]) or {}).get("units") or []
         before = self.player()
@@ -162,13 +165,14 @@ class Checks(Base):
             self.gl("teleport", t["x"], t["y"])
             how = "spikes" if spikes else "fire"
         else:
-            self.gl("spawn", "doodads/hwp/traps/hwp_glyph_bomb.unit", 0, 0)
-            how = "bomb glyph"
+            self.gl("spawn", TRAP_UNITS[0], 0, 0)
+            how = "spawned spike plate"
         # traps kill a level-1 paladin in about a second (spikes tick fast, the jet burns):
-        # poll and leave at the first lost hit point, at most 4 s
+        # poll and leave at the first lost hit point, at most 6 s (a spike plate can be 3.5 s
+        # from coming up)
         after = self.player()
         hp1 = after.get("hp", 0)
-        for _ in range(16):
+        for _ in range(24):
             if hp1 < hp0 or after.get("dead"):
                 break
             time.sleep(0.25)
