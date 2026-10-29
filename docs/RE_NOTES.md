@@ -5707,3 +5707,40 @@ shots found three bugs that no probe assertion could see:
 
 The file is the same one the vanilla Controls menu writes. `deploy.py` copies only into
 `<install>/mods/`, so a deploy cannot remove it.
+
+## 2026-10-29: One-press rebinds, US key names, mouse buttons on Game keys rows
+
+The rebind flow is now: click the row, press the key, done. The next row can be clicked at once.
+- **No naming press.** The second press that learned a key's label is gone, along with what
+  depended on it:
+  - the `keylabel.<sc>` settings, `LearnLabel` and the Forget key names row (`keynames`);
+  - the naming prompt, and the capture's text-input state;
+  - the HUD caches keyed on `g_labelVersion`.
+  `HWPKeyCaptureWindow` binds the key when it comes up and closes. Shift+W still binds W.
+- **Key names are the US keycaps, as the vanilla Controls window shows them. Not localised.**
+  Binds still follow the key's position on any layout, but on AZERTY the key at Q reads Q.
+  The engine gives scripts no key names (no `SDL_GetKeyName`), and a typed character is
+  the only source. The group's hint says "Keys are named as on a US keyboard."
+- **Mouse buttons on Game keys rows.** A row listed keyboard keys only, so Primary weapon
+  (left click) and Off-hand weapon (right click) read "Unbound". A row now lists its keys,
+  then up to two mouse buttons as the game's own icons (`.input.mouse_left` = `\"inp-lmb"`).
+  Examples:
+  - Primary weapon: the left-button icon.
+  - Skill 1: `1 / Q / ` and the mouse 4 icon.
+  mod-keys-play 20261029-162932 checked the texts, before the naming change. The icons draw
+  in the row (Menu select: Enter and a mouse icon).
+
+GameLab runs after the change (lab, all PASS):
+- mod-keys-layout 20261029-164345, rewritten around one press:
+  - the AZERTY key at Q binds and reads Q at once;
+  - a second press binds nothing;
+  - three rows rebind back to back;
+  - mouse-only rows show their buttons;
+  - no key is ever asked to be named;
+  - the Forget row is gone.
+- The rest:
+  - mod-options-tab 20261029-163929, mod-keys-play 20261029-163956 and
+    mod-keys-persist 20261029-164044;
+  - mod-weaponswap 20261029-164133, mod-droptrade 20261029-164145 and mod-classes 20261029-164156;
+  - mod-keys-ui-shots 20261029-164500, which adds shot 09b (Primary and Off-hand weapon
+    with their mouse icons) and drops the naming and Forget shots.

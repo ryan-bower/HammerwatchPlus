@@ -59,7 +59,6 @@ namespace Modules
 			HWP::Market::Init();
 			HWP::Config::Init();
 			HWP::GameKeys::Init();
-			HWP::Options::Register("keynames", HWP::Options::KeyNamesOption());
 			HWP::Net::OnRequest(HWP::Core::SETTINGS_PULL, HWP::Net::RequestHandler(HWP::Core::OnPull));
 			HWP::Net::OnEvent(HWP::Core::SETTINGS_SYNC, HWP::Net::EventHandler(HWP::Core::OnSync));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Core::OnSettingChanged));

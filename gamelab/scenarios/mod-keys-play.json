@@ -1,6 +1,6 @@
 {
  "name": "mod-keys-play",
- "about": "The Game keys rows rebind the game's own keyboard binds, and the new keys work in play. In a mission, the Plus tab rebinds primary attack to K (named by a second posted press), off-hand to L, skill 1 to U, dash to J and move up to O (Esc skips naming). Then, with the Dev Arena input log: left and right click still attack (mouse buttons kept), K/L attack, U and mouse 4 use skill 1, J dashes, O moves up and S still moves down; the old keys 1, Q, Space and W do nothing. Keys are posted window messages (no shim), as Windows delivers them. controls.cfg is GameLab's own and is put back after the run (writes_controls). Run: python -m gamelab run mod-keys-play --mode lab.",
+ "about": "The Game keys rows rebind the game's own keyboard binds, and the new keys work in play. In a mission, the Plus tab rebinds, one press each, primary attack to K, off-hand to L, skill 1 to U, dash to J and move up to O. Then, with the Dev Arena input log: left and right click still attack (mouse buttons kept), K/L attack, U and mouse 4 use skill 1, J dashes, O moves up and S still moves down; the old keys 1, Q, Space and W do nothing. Keys are posted window messages (no shim), as Windows delivers them. controls.cfg is GameLab's own and is put back after the run (writes_controls). Run: python -m gamelab run mod-keys-play --mode lab.",
  "fixture": "town-paladin",
  "mods": [
   "hwplib",
@@ -86,6 +86,42 @@
    "args": [
     "hwp_options",
     "-",
+    "hwp-opt-game-attack"
+   ],
+   "name": "primary attack, on the mouse alone, shows the left button (not Unbound)",
+   "expect": {
+    "shown": true,
+    "texts": {
+     "match": "^Primary weapon \\| \\\\\"inp-lmb\"$"
+    }
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-offhand"
+   ],
+   "name": "off-hand shows the right button",
+   "expect": {
+    "shown": true,
+    "texts": {
+     "match": "^Off-hand weapon \\| \\\\\"inp-rmb\"$"
+    }
+   }
+  },
+  {
+   "do": "shot",
+   "name": "mouse-rows"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
     "hwp-opt-game-attack",
     "hwp-opt",
     "game-attack"
@@ -111,26 +147,6 @@
    "name": "attack rebound to K"
   },
   {
-   "do": "log_has",
-   "pattern": "\\[HWP:options\\] game-attack naming key 14",
-   "timeout": 5
-  },
-  {
-   "do": "key",
-   "key": "k",
-   "hold": 0.3
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.4
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:options\\] key 14 is labelled K on this keyboard",
-   "timeout": 5,
-   "name": "naming K with a posted key press (Windows' own text event)"
-  },
-  {
    "do": "gl",
    "verb": "menu",
    "args": [
@@ -141,7 +157,7 @@
    "expect": {
     "shown": true,
     "texts": {
-     "match": "\\| K$"
+     "match": "\\| K / \\\\\"inp-lmb\"$"
     }
    }
   },
@@ -176,25 +192,6 @@
    "name": "offhand rebound to L"
   },
   {
-   "do": "log_has",
-   "pattern": "\\[HWP:options\\] game-offhand naming key 15",
-   "timeout": 5
-  },
-  {
-   "do": "key",
-   "key": "escape",
-   "hold": 0.1
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.3
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:options\\] game-offhand key 15 keeps its name L",
-   "timeout": 5
-  },
-  {
    "do": "gl",
    "verb": "menu",
    "args": [
@@ -205,7 +202,7 @@
    "expect": {
     "shown": true,
     "texts": {
-     "match": "\\| L$"
+     "match": "\\| L / \\\\\"inp-rmb\"$"
     }
    }
   },
@@ -240,25 +237,6 @@
    "name": "skill1 rebound to U"
   },
   {
-   "do": "log_has",
-   "pattern": "\\[HWP:options\\] game-skill1 naming key 24",
-   "timeout": 5
-  },
-  {
-   "do": "key",
-   "key": "escape",
-   "hold": 0.1
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.3
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:options\\] game-skill1 key 24 keeps its name U",
-   "timeout": 5
-  },
-  {
    "do": "gl",
    "verb": "menu",
    "args": [
@@ -269,7 +247,7 @@
    "expect": {
     "shown": true,
     "texts": {
-     "match": "\\| U$"
+     "match": "\\| U / \\\\\"inp-4mb\"$"
     }
    }
   },
@@ -302,25 +280,6 @@
    "pattern": "\\[HWP:gamekeys\\] Dash bound to 13 \\(J\\)",
    "timeout": 5,
    "name": "dash rebound to J"
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:options\\] game-dash naming key 13",
-   "timeout": 5
-  },
-  {
-   "do": "key",
-   "key": "escape",
-   "hold": 0.1
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.3
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:options\\] game-dash key 13 keeps its name J",
-   "timeout": 5
   },
   {
    "do": "gl",
@@ -368,25 +327,6 @@
    "name": "move-up rebound to O"
   },
   {
-   "do": "log_has",
-   "pattern": "\\[HWP:options\\] game-move-up naming key 18",
-   "timeout": 5
-  },
-  {
-   "do": "key",
-   "key": "escape",
-   "hold": 0.1
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.3
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:options\\] game-move-up key 18 keeps its name O",
-   "timeout": 5
-  },
-  {
    "do": "gl",
    "verb": "menu",
    "args": [
@@ -399,20 +339,6 @@
     "texts": {
      "match": "\\| O$"
     }
-   }
-  },
-  {
-   "do": "gl",
-   "verb": "menu",
-   "args": [
-    "hwp_options",
-    "-",
-    "hwp-opt-keynames"
-   ],
-   "name": "one key named (K)",
-   "expect": {
-    "shown": true,
-    "texts": "Forget key names | 1 named"
    }
   },
   {

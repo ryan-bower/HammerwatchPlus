@@ -180,7 +180,6 @@ ref@ LoadHWPGearSlotWidget(WidgetLoadingContext &ctx)
 class HWPGearLabelWidget : TextWidget
 {
 	int m_seen = -1;
-	uint m_labels = 0; // HWP::Options::g_labelVersion: labels that name a key redraw when it is learned
 
 	HWPGearLabelWidget()
 	{
@@ -196,10 +195,9 @@ class HWPGearLabelWidget : TextWidget
 
 	void Update(int dt) override
 	{
-		if (m_seen != HWP::Gear::g_version || m_labels != HWP::Options::g_labelVersion)
+		if (m_seen != HWP::Gear::g_version)
 		{
 			m_seen = HWP::Gear::g_version;
-			m_labels = HWP::Options::g_labelVersion;
 			auto label = HWP::Gear::GetLabel(m_id);
 			SetText(label is null ? "" : label.Text());
 		}

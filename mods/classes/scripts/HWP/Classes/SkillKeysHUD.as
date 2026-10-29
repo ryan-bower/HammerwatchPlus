@@ -18,13 +18,11 @@ class HWPSkillKeysHUDPlayer : HUDPlayer
 	int m_hwpSlots = 4;
 	array<Widget@> m_hwpAdded;
 	int m_hwpVersion;
-	uint m_hwpLabels; // HWP::Options::g_labelVersion: a key's name learned from typing
 
 	HWPSkillKeysHUDPlayer(GUIBuilder@ b)
 	{
 		super(b);
 		m_hwpVersion = HWP::SkillKeys::g_version;
-		m_hwpLabels = HWP::Options::g_labelVersion;
 		auto g = m_wLeftBackground4;
 		if (g is null)
 			return;
@@ -139,11 +137,9 @@ class HWPSkillKeysHUDPlayer : HUDPlayer
 
 	void Update(int dt, PlayerRecord@ record) override
 	{
-		if ((m_hwpVersion != HWP::SkillKeys::g_version || m_hwpLabels != HWP::Options::g_labelVersion)
-			&& record !is null && record.equipped !is null)
+		if (m_hwpVersion != HWP::SkillKeys::g_version && record !is null && record.equipped !is null)
 		{
 			m_hwpVersion = HWP::SkillKeys::g_version;
-			m_hwpLabels = HWP::Options::g_labelVersion;
 			RefreshSkills(record);
 		}
 		HUDPlayer::Update(dt, record);

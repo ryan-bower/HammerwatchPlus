@@ -3,7 +3,7 @@
 // vanilla Destroy. The menu's own bindings have no free action for it, so
 // the key is polled raw like the weapon swap key. The item action key (Eat,
 // default E, scancode 8) the same way. Both are rebound in the Plus tab
-// (dropkey, actionkey) and named as the player's keyboard labels them.
+// (dropkey, actionkey) and named as on a US keyboard.
 //
 // droptrade.enabled (host, default on) off: no Drop hint or key, and the use key
 // is vanilla again (no pickup first); an item action (Eat) keeps working.
@@ -26,8 +26,7 @@ namespace HWP
 			g_actionScancode = HWP::Settings::GetInt("droptrade.actionkey", DEFAULT_ACTION_SCANCODE);
 		}
 
-		// the drop key's name on this keyboard (read live: a label learned later shows at
-		// once); `hwp dropkey <code> <name>` can name it by hand
+		// the drop key's name (US keycap); `hwp dropkey <code> <name>` can name it by hand
 		// fit: the short name when the full one is too long for the options value column
 		string KeyName(bool fit = false)
 		{

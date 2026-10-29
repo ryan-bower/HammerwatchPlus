@@ -86,20 +86,13 @@ namespace HWP
 		const int SC_FIRST = 4;
 		const int SC_LAST = 231;
 
-		// Keys are polled by position (SDL scancode), which is the same key on every keyboard
-		// layout, but the name on it is not: scancode 20 is Q on QWERTY and A on AZERTY. The
-		// engine has no key naming for scripts (no SDL_GetKeyName import), so the character the
-		// player's layout types for a key is learned when it is bound in the Plus tab
-		// (HWPKeyCaptureWindow), and kept per scancode as the setting keylabel.<scancode>.
-		const string LABEL = "keylabel.";
-		uint g_labelVersion = 0; // a learned label changed: HUDs that cache a key name redraw
+		// Keys are polled by position (SDL scancode) and named as printed on a US keyboard.
+		// Not localised: the engine has no key naming for scripts (no SDL_GetKeyName import),
+		// so on AZERTY scancode 20 still reads Q although that key is labelled A. The vanilla
+		// Controls window names keys the same way (FormatKeyName).
 
-		// the key's name on the player's keyboard, plain (logs): the learned label, else the US name
-		string KeyText(int sc)
-		{
-			string label = HWP::Settings::GetString(LABEL + sc, "");
-			return label.isEmpty() ? UsKeyName(sc) : label;
-		}
+		// the key's name, plain (logs, search)
+		string KeyText(int sc) { return UsKeyName(sc); }
 
 		// game text reads a backslash as markup (input.lang writes the \ key as \\)
 		string Escape(const string &in s) { return s.replace("\\", "\\\\"); }
@@ -155,22 +148,6 @@ namespace HWP
 			return "#" + sc;
 		}
 
-		// a key that types a character, its label learned from it; not the digit row (whose
-		// characters on AZERTY are & é " ...: the keycaps' digits read better, as SDL does)
-		bool Labelled(int sc) { return (sc >= 4 && sc <= 29) || (sc >= 45 && sc <= 56) || sc == 100; }
-
-		// Ctrl, Shift, Alt/AltGr or the Windows key: what is typed is not the key's own character
-		// (AltGr+E is €, Shift+- is _)
-		bool ModifierDown()
-		{
-			for (int sc = 224; sc <= 231; sc++)
-			{
-				if (KeyDown(sc))
-					return true;
-			}
-			return false;
-		}
-
 		bool IsModifier(int sc) { return sc >= 224 && sc <= 231; }
 
 		// a key held down other than `except`, Esc and the modifiers; or -1
@@ -182,71 +159,6 @@ namespace HWP
 					return sc;
 			}
 			return -1;
-		}
-
-		// a key that types a character and was not named on this keyboard yet
-		bool Unnamed(int sc)
-		{
-			return Labelled(sc) && HWP::Settings::CanSave() && HWP::Settings::GetString(LABEL + sc, "").isEmpty();
-		}
-
-		// remember what the player's layout typed for the key. Kept even when it is the US name:
-		// the key is named then, and binding it does not ask again
-		void LearnLabel(int sc, const string &in typed)
-		{
-			if (!Labelled(sc) || typed.isEmpty() || !HWP::Settings::CanSave())
-				return;
-			utf8string u = utf8string(typed).toUpper();
-			string label = u.plain();
-			if (u.length() != 1 || label.length() == 0 || label[0] <= 32 || label[0] == 127)
-				return;
-			if (label == HWP::Settings::GetString(LABEL + sc, ""))
-				return;
-			HWP::Settings::SetString(LABEL + sc, label);
-			g_labelVersion++;
-			HWP::Log("options", "key " + sc + " is labelled " + label + " on this keyboard");
-		}
-
-		// the keys named on this save
-		int NamedCount()
-		{
-			int n = 0;
-			for (int sc = SC_FIRST; sc <= 100; sc++)
-			{
-				if (Labelled(sc) && !HWP::Settings::GetString(LABEL + sc, "").isEmpty())
-					n++;
-			}
-			return n;
-		}
-
-		// a key named wrong (another key pressed while naming it, which cannot be told apart)
-		// is never asked again, so the names can be forgotten: each is asked at its next bind
-		class KeyNamesOption : Option
-		{
-			string Title() override { return Resources::GetString(".hwp.options.keynames"); }
-			string Value() override
-			{
-				int n = NamedCount();
-				return n == 0 ? Resources::GetString(".hwp.options.keynames.none")
-					: Resources::GetString(".hwp.options.keynames.n", { { "n", "" + n } });
-			}
-			string About() override { return Resources::GetString(".hwp.options.keynames.about"); }
-			void Next() override
-			{
-				if (!HWP::Settings::CanSave())
-					return;
-				int n = 0;
-				for (int sc = SC_FIRST; sc <= 100; sc++)
-				{
-					if (Labelled(sc) && !HWP::Settings::GetString(LABEL + sc, "").isEmpty())
-					{
-						HWP::Settings::SetString(LABEL + sc, "");
-						n++;
-					}
-				}
-				g_labelVersion++;
-				HWP::Log("options", "key names forgotten (" + n + ")");
-			}
 		}
 
 		// SDL scancode names (USB HID usage ids), as the keys are printed on a US keyboard
@@ -357,25 +269,14 @@ namespace HWP
 // while another window is on top. Esc is the game's menu back, which closes
 // only this top window (Back): that cancels.
 //
-// Two steps. The key is polled (Platform::IsKeyDown) with text input off: while
-// ControlBindings::ExpectTextInput is on, IsKeyDown reports no key down at all
-// (mod-options-tab 20261028-230359), so binding cannot also read the character.
-// The key is bound when it comes back up. Then, for a key that types a character
-// and has no name yet on this keyboard, a second press with text input on names it
-// (HWP::Options::LearnLabel); Esc keeps the US name. Which key typed the character
-// cannot be checked: a key that went down while text input was on is not seen by
-// IsKeyDown even after it goes off, while still held (mod-keys-layout 20261028-232634).
-// A name learned from the wrong key is undone by the Forget key names row.
+// One press: the key is polled (Platform::IsKeyDown) and bound when it comes back
+// up, then the window closes. It is named as on a US keyboard (HWP::Options::KeyText).
 class HWPKeyCaptureWindow : AWindowObject
 {
 	HWPOptionsTab@ m_tab;
 	string m_id;
 	bool m_armed;      // every key was up since the capture started
 	int m_pending = -1; // the key pressed, bound when it comes up
-	bool m_modified;   // a modifier or another key was held with it
-	int m_naming = -1; // the key bound, waiting for the character it types
-	bool m_textInput;  // text input was turned on here (and goes off with the window)
-	bool m_cancelSeen; // text input's Cancel (Esc) came: closes next frame if Back did not
 
 	HWPKeyCaptureWindow(GUIBuilder@ b, HWPOptionsTab@ tab, const string &in id)
 	{
@@ -383,34 +284,9 @@ class HWPKeyCaptureWindow : AWindowObject
 		@m_tab = tab;
 		m_id = id;
 		auto opt = HWP::Options::Get(id);
-		if (opt !is null)
-			SetText(Resources::GetString(".hwp.options.capture", { { "what", opt.Title() } }));
-	}
-
-	void SetText(const string &in s)
-	{
 		auto text = cast<TextWidget>(m_widget.GetWidgetById("text"));
-		if (text !is null)
-			text.SetText(s);
-	}
-
-	// this frame's typed text events; a Cancel (Esc while text input is on) is true
-	bool ReadTyped(array<string>@ typed)
-	{
-		auto input = GetInput();
-		if (input is null)
-			return false;
-		bool cancel = false;
-		int n = input.GetTextInputCount();
-		for (int i = 0; i < n; i++)
-		{
-			auto evt = input.GetTextInput(i);
-			if (evt.evt == TextInputControlEventType::None)
-				typed.insertLast(evt.text.plain());
-			else if (evt.evt == TextInputControlEventType::Cancel)
-				cancel = true;
-		}
-		return cancel;
+		if (opt !is null && text !is null)
+			text.SetText(Resources::GetString(".hwp.options.capture", { { "what", opt.Title() } }));
 	}
 
 	// no AWindowObject::Update: no navigation, and Esc must not close the menu
@@ -420,8 +296,6 @@ class HWPKeyCaptureWindow : AWindowObject
 		auto opt = cast<HWP::Options::KeyOption>(HWP::Options::Get(m_id));
 		if (opt is null)
 			return Done();
-		if (m_naming >= 0)
-			return UpdateNaming();
 		int sc = HWP::Options::AnyKeyDown();
 		if (!m_armed)
 		{
@@ -435,81 +309,26 @@ class HWPKeyCaptureWindow : AWindowObject
 				return false;
 			m_pending = sc;
 		}
+		// Shift+W binds W (a modifier comes first and is the lowest scancode down);
+		// a modifier alone, let go, still binds itself
 		int other = HWP::Options::OtherKeyDown(m_pending);
 		if (HWP::Options::IsModifier(m_pending) && other >= 0)
-		{
-			// Shift+W binds W (a modifier comes first and is the lowest scancode down);
-			// a modifier alone, let go, still binds itself
 			m_pending = other;
-			m_modified = true;
-		}
-		else if (other >= 0 || HWP::Options::ModifierDown())
-			m_modified = true;
 		if (HWP::Options::KeyDown(m_pending))
 			return false;
 		opt.SetScancode(m_pending);
 		HWP::Log("options", m_id + " key set to " + m_pending + " (" + HWP::Options::KeyText(m_pending) + ")");
-		if (m_modified || !HWP::Options::Unnamed(m_pending))
-			return Done();
-		// a second press names it: the character typed is this key's on the player's layout
-		m_naming = m_pending;
-		string hint = Resources::GetString(".hwp.options.name");
-		SetText(hint);
-		if (m_tab !is null)
-			m_tab.CaptureNaming(hint);
-		auto cb = GetControlBindings();
-		if (cb !is null && !cb.IsExpectingTextInput())
-		{
-			cb.ExpectTextInput();
-			m_textInput = true;
-		}
-		HWP::Log("options", m_id + " naming key " + m_naming);
-		return false;
-	}
-
-	bool UpdateNaming()
-	{
-		// Esc is the game's MenuBack, which closes this top window (Back). Its text-input
-		// Cancel only closes it here when no Back came in a frame: closing on the Cancel
-		// itself could let the same press's MenuBack close the menu underneath too
-		if (m_cancelSeen)
-			return Back() && Done();
-		array<string> typed;
-		if (ReadTyped(typed))
-		{
-			m_cancelSeen = true;
-			return false;
-		}
-		// one key's character: a frame of more text is something else (a paste, or GameLab's
-		// command text, which comes as text events too)
-		if (typed.length() != 1 || utf8string(typed[0]).length() != 1)
-			return false;
-		HWP::Options::LearnLabel(m_naming, typed[0]);
 		return Done();
 	}
 
 	bool Back() override
 	{
-		if (m_naming >= 0)
-			HWP::Log("options", m_id + " key " + m_naming + " keeps its name " + HWP::Options::KeyText(m_naming));
-		else
-			HWP::Log("options", m_id + " key capture cancelled");
+		HWP::Log("options", m_id + " key capture cancelled");
 		return true; // the window manager closes us (Cleanup ends the capture)
-	}
-
-	void StopTextInput()
-	{
-		if (!m_textInput)
-			return;
-		m_textInput = false;
-		auto cb = GetControlBindings();
-		if (cb !is null)
-			cb.StopExpectTextInput();
 	}
 
 	bool Done()
 	{
-		StopTextInput();
 		if (m_tab !is null)
 			m_tab.CaptureEnded();
 		@m_tab = null;
@@ -518,7 +337,6 @@ class HWPKeyCaptureWindow : AWindowObject
 
 	void Cleanup() override
 	{
-		StopTextInput();
 		// closed from outside (the menu force-closed): the tab stops showing it
 		if (m_tab !is null)
 			m_tab.CaptureEnded();
@@ -560,7 +378,6 @@ class HWPOptionsTab : MenuTab
 	array<string> m_query;     // the search words, lower case
 	string m_queryText;
 	string m_capture;          // id of the KeyOption waiting for a key (HWPKeyCaptureWindow), or ""
-	string m_captureNaming;    // the capture's text while it waits to name the key bound, or ""
 	int m_shown;               // rows the search left
 
 	HWPOptionsTab(GUIBuilder@ b, uint id)
@@ -781,7 +598,7 @@ class HWPOptionsTab : MenuTab
 			r.titleL = title.toLower();
 			bool live = r.mod is null || r.mod.On();
 			SetColor(r.title, !live ? dim : (r.top ? white : soft));
-			string v = s.IsOption() && s.option == m_capture && m_captureNaming.isEmpty() ? Resources::GetString(".hwp.options.press") : s.Value();
+			string v = s.IsOption() && s.option == m_capture ? Resources::GetString(".hwp.options.press") : s.Value();
 			SetText(r.value, v);
 			r.valueL = v.toLower();
 			auto key = cast<HWP::Options::KeyOption>(s.Opt());
@@ -928,8 +745,6 @@ class HWPOptionsTab : MenuTab
 	string Hint()
 	{
 		auto opt = HWP::Options::Get(m_capture);
-		if (opt !is null && !m_captureNaming.isEmpty())
-			return m_captureNaming;
 		if (opt !is null)
 			return Resources::GetString(".hwp.options.capture", { { "what", opt.Title() } });
 		if (m_query.length() > 0 && m_shown == 0)
@@ -1022,14 +837,6 @@ class HWPOptionsTab : MenuTab
 	void CaptureEnded()
 	{
 		m_capture = "";
-		m_captureNaming = "";
-		Refresh();
-	}
-
-	// the key is bound and the capture asks for its character: the row shows the key
-	void CaptureNaming(const string &in hint)
-	{
-		m_captureNaming = hint;
 		Refresh();
 	}
 

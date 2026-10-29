@@ -143,27 +143,6 @@
    "timeout": 5
   },
   {
-   "do": "log_has",
-   "pattern": "\\[HWP:options\\] swapkey naming key 21",
-   "timeout": 5,
-   "name": "R types a character: the capture asks for a second press to name it"
-  },
-  {
-   "do": "key",
-   "key": "escape",
-   "hold": 0.1
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.3
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:options\\] swapkey key 21 keeps its name R",
-   "timeout": 5,
-   "name": "Esc while naming keeps the US name"
-  },
-  {
    "do": "gl",
    "verb": "menu",
    "args": [

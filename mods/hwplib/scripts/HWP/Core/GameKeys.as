@@ -1,8 +1,7 @@
 // The game's own keyboard binds as rows of the Plus tab ("Game keys"), so every key can be
 // rebound in game: the vanilla Controls window runs only in the main menu (its key capture is
-// MainMenuGameMode's), and it names keys by their US keycap. A row shows the action's keyboard
-// keys in the kbm control map, named as the player's keyboard labels them
-// (HWP::Options::KeyName); binding one replaces the action's keyboard keys with the new key and
+// MainMenuGameMode's). A row shows the action's keyboard keys in the kbm control map, named
+// by their US keycap as vanilla does (HWP::Options::KeyName), then its mouse buttons; binding one replaces the action's keyboard keys with the new key and
 // keeps its mouse buttons, the way the vanilla window stages and saves a change:
 // BeginStaging, RemoveStaging / AddStaging(Axis), CommitStaging, ControlBindings::Save
 // (res/controls.cfg: the game's controls, every save, shared with its Options menu).
@@ -51,18 +50,27 @@ namespace HWP
 					return m_keys;
 				m_keysVersion = g_version;
 				m_keys.removeRange(0, m_keys.length());
+				m_mouse.removeRange(0, m_mouse.length());
 				auto map = Map();
 				if (map is null)
 					return m_keys;
 				auto binds = map.GetBindings();
 				for (uint i = 0; i < binds.length(); i++)
 				{
+					if (!Mine(binds[i]))
+						continue;
 					int sc = KeyboardScancode(binds[i]);
-					if (sc > 0 && Mine(binds[i]) && m_keys.find(sc) < 0)
+					if (sc > 0 && m_keys.find(sc) < 0)
 						m_keys.insertLast(sc);
+					else if (binds[i].BoundControlType == ControllerType::Mouse && binds[i].BoundControlType2 == ControllerType::None
+						&& m_mouse.find(binds[i].ID) < 0)
+						m_mouse.insertLast(binds[i].ID);
 				}
 				return m_keys;
 			}
+
+			// the action's mouse buttons ("mouse_left", "mouse_4"): kept by a bind, shown after the keys
+			array<string> m_mouse;
 
 			int Scancode() override
 			{
@@ -72,17 +80,21 @@ namespace HWP
 
 			bool Uses(int sc) override { return Keys().find(sc) >= 0; }
 
-			// one key by its name, two or more short (the value column is 82 pixels)
+			// one key by its name, two or more short (the value column is 82 pixels), then the
+			// mouse buttons as the game's own icons (vanilla .input.mouse_*): primary attack on
+			// the left button alone reads as that button, not "Unbound"
 			string Value() override
 			{
 				auto keys = Keys();
-				if (keys.length() == 0)
+				if (keys.length() == 0 && m_mouse.length() == 0)
 					return Resources::GetString(".input.unbound");
-				if (keys.length() == 1)
-					return HWP::Options::FitKeyName(keys[0]);
 				string v;
-				for (uint i = 0; i < keys.length() && i < 3; i++)
+				if (keys.length() == 1)
+					v = HWP::Options::FitKeyName(keys[0]);
+				for (uint i = 0; keys.length() > 1 && i < keys.length() && i < 3; i++)
 					v += (i > 0 ? " / " : "") + HWP::Options::ShortKeyName(keys[i]);
+				for (uint i = 0; i < m_mouse.length() && i < 2; i++)
+					v += (v.isEmpty() ? "" : " / ") + Resources::GetString(".input." + m_mouse[i]);
 				return v;
 			}
 

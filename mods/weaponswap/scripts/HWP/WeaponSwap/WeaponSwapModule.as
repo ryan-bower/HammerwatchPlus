@@ -84,8 +84,8 @@ namespace HWP
 			}
 		}
 
-		// the key's name on this keyboard (HWP::Options::KeyName, read live: a label learned
-		// later shows at once); `hwp swapkey <code> <name>` can name it by hand
+		// the key's name (HWP::Options::KeyName, US keycap); `hwp swapkey <code> <name>` can
+		// name it by hand
 		// fit: the short name when the full one is too long for the options value column
 		string KeyName(bool fit = false)
 		{
@@ -569,7 +569,6 @@ class HWPWeaponSwapHUD : HUDComponent
 {
 	TextWidget@ m_text;
 	int m_seen = -1;
-	uint m_labels = 0;
 	bool m_hasAlt = false;
 
 	HWPWeaponSwapHUD(GUIBuilder@ b)
@@ -581,10 +580,9 @@ class HWPWeaponSwapHUD : HUDComponent
 
 	void Update(int dt, PlayerRecord@ record) override
 	{
-		if (m_seen != HWP::WeaponSwap::g_version || m_labels != HWP::Options::g_labelVersion)
+		if (m_seen != HWP::WeaponSwap::g_version)
 		{
 			m_seen = HWP::WeaponSwap::g_version;
-			m_labels = HWP::Options::g_labelVersion;
 			m_hasAlt = HWP::WeaponSwap::HasAlt();
 			m_text.SetText(Resources::GetString(".hwp.weaponswap.tip", { { "key", HWP::WeaponSwap::KeyName() } }));
 		}

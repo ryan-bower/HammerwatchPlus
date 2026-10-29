@@ -1,6 +1,6 @@
 {
  "name": "mod-keys-ui-shots",
- "about": "Screenshots, at 1920x1080, of every UI change in PR #25 (issue #19): the Plus tab key rows, the capture and naming prompts, AZERTY names, the shared-key hint, a long name shown short, search on the full name, the Dev Arena hotkey rows, the Game keys group and a rebound game key, the Forget key names row, the weapon swap HUD tip and other-set slots, droptrade's Drop and Eat hints, the Skill 4-5 HUD badges (a Trickster) and the Dev Arena dock's key labels. Evidence for the eye: few assertions; mod-keys-layout and mod-keys-play are the tests.",
+ "about": "Screenshots, at 1920x1080, of every UI change in PR #25 (issue #19): the Plus tab key rows, the capture prompt and the one-press bind, US names on AZERTY, the shared-key hint, a long name shown short, search on the full name, the Dev Arena hotkey rows, the Game keys group and a rebound game key, the mouse buttons on mouse-only rows, the weapon swap HUD tip and other-set slots, droptrade's Drop and Eat hints, the Skill 4-5 HUD badges (a Trickster) and the Dev Arena dock's key labels. Evidence for the eye: few assertions; mod-keys-layout and mod-keys-play are the tests.",
  "fixture": "town-paladin",
  "mods": [
   "hwplib",
@@ -116,28 +116,18 @@
    "seconds": 0.4
   },
   {
+   "do": "log_has",
+   "pattern": "\\[HWP:options\\] swapkey key set to 20 \\(Q\\)",
+   "timeout": 5
+  },
+  {
    "do": "sleep",
    "seconds": 0.5
   },
   {
    "do": "shot",
-   "name": "03_naming_prompt",
+   "name": "03_bound_one_press",
    "size": "1920x1080"
-  },
-  {
-   "do": "key",
-   "key": "q",
-   "hold": 0.2,
-   "typed": "a"
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.4
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:options\\] key 20 is labelled A",
-   "timeout": 5
   },
   {
    "do": "key",
@@ -176,7 +166,7 @@
   },
   {
    "do": "shot",
-   "name": "04_azerty_names",
+   "name": "04_us_names",
    "size": "1920x1080"
   },
   {
@@ -391,6 +381,68 @@
    "args": [
     "hwp_options",
     "-",
+    "search",
+    "!click"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "text",
+   "text": "weapon"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "09b_mouse_buttons",
+   "size": "1920x1080"
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
     "hwp-opt-game-skill1",
     "hwp-opt",
     "game-skill1"
@@ -399,16 +451,6 @@
   {
    "do": "sleep",
    "seconds": 0.3
-  },
-  {
-   "do": "key",
-   "key": "t",
-   "hold": 0.2,
-   "typed": "t"
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.4
   },
   {
    "do": "key",
@@ -699,16 +741,6 @@
    "seconds": 0.4
   },
   {
-   "do": "key",
-   "key": "e",
-   "hold": 0.2,
-   "typed": "e"
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.4
-  },
-  {
    "do": "gl",
    "verb": "menu",
    "args": [
@@ -729,82 +761,6 @@
    "args": [
     "hwp_options",
     "-",
-    "hwp-opt-keynames"
-   ]
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.3
-  },
-  {
-   "do": "gl",
-   "verb": "hover",
-   "args": [
-    "hwp-opt-keynames",
-    1
-   ]
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.3
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.5
-  },
-  {
-   "do": "shot",
-   "name": "12_forget_row_named",
-   "size": "1920x1080"
-  },
-  {
-   "do": "gl",
-   "verb": "menu",
-   "args": [
-    "hwp_options",
-    "-",
-    "hwp-opt-keynames",
-    "hwp-opt",
-    "keynames"
-   ]
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.3
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:options\\] key names forgotten",
-   "timeout": 5
-  },
-  {
-   "do": "gl",
-   "verb": "menu",
-   "args": [
-    "hwp_options",
-    "-",
-    "hwp-opt-keynames"
-   ]
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.3
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.5
-  },
-  {
-   "do": "shot",
-   "name": "13_forget_row_none",
-   "size": "1920x1080"
-  },
-  {
-   "do": "gl",
-   "verb": "menu",
-   "args": [
-    "hwp_options",
-    "-",
     "hwp-opt-swapkey",
     "hwp-opt",
     "swapkey"
@@ -813,16 +769,6 @@
   {
    "do": "sleep",
    "seconds": 0.3
-  },
-  {
-   "do": "key",
-   "key": "x",
-   "hold": 0.2,
-   "typed": "x"
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.4
   },
   {
    "do": "key",

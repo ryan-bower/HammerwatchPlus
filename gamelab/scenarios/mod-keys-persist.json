@@ -1,6 +1,6 @@
 {
  "name": "mod-keys-persist",
- "about": "Rebinds survive quitting the game. In town, the Plus tab rebinds skill 1 to U (named), dash to J and the weapon swap mod key to Scroll Lock; the game logs 'Saved control bindings'. The run quits (WM_CLOSE, the game saves) and boots a new process: the log shows controls.cfg loaded instead of controls_default.cfg, every kbm binding matches the one before, the rows read U, J, ScrL and '1 named', and in a mission U uses skill 1 and J dashes while the old 1 and Space do nothing. controls.cfg is GameLab's own and is put back after the run (writes_controls). Run: python -m gamelab run mod-keys-persist --mode lab.",
+ "about": "Rebinds survive quitting the game. In town, the Plus tab rebinds skill 1 to U, dash to J and the weapon swap mod key to Scroll Lock; the game logs 'Saved control bindings'. The run quits (WM_CLOSE, the game saves) and boots a new process: the log shows controls.cfg loaded instead of controls_default.cfg, every kbm binding matches the one before, the rows read U, J and ScrL, and in a mission U uses skill 1 and J dashes while the old 1 and Space do nothing. controls.cfg is GameLab's own and is put back after the run (writes_controls). Run: python -m gamelab run mod-keys-persist --mode lab.",
  "fixture": "town-paladin",
  "mods": [
   "hwplib",
@@ -96,21 +96,6 @@
    "name": "skill 1 rebound to U"
   },
   {
-   "do": "key",
-   "key": "u",
-   "hold": 0.3
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.4
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:options\\] key 24 is labelled U on this keyboard",
-   "timeout": 5,
-   "name": "U named"
-  },
-  {
    "do": "gl",
    "verb": "menu",
    "args": [
@@ -139,15 +124,6 @@
    "pattern": "\\[HWP:gamekeys\\] Dash bound to 13 \\(J\\)",
    "timeout": 5,
    "name": "dash rebound to J"
-  },
-  {
-   "do": "key",
-   "key": "escape",
-   "hold": 0.1
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.4
   },
   {
    "do": "gl",
@@ -313,11 +289,11 @@
     "-",
     "hwp-opt-game-skill1"
    ],
-   "name": "after restart: Skill 1 row reads U",
+   "name": "after restart: Skill 1 row reads U and its mouse 4 icon",
    "expect": {
     "shown": true,
     "texts": {
-     "match": "\\| U$"
+     "match": "\\| U / \\\\\"inp-4mb\"$"
     }
    }
   },
@@ -358,26 +334,6 @@
     "shown": true,
     "texts": {
      "match": "\\| ScrL$"
-    }
-   }
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.3
-  },
-  {
-   "do": "gl",
-   "verb": "menu",
-   "args": [
-    "hwp_options",
-    "-",
-    "hwp-opt-keynames"
-   ],
-   "name": "after restart: the learned name U is kept",
-   "expect": {
-    "shown": true,
-    "texts": {
-     "match": "\\| 1 named$"
     }
    }
   },

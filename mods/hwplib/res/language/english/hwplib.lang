@@ -6,11 +6,6 @@
 	<string name="hwp.options.title">HammerwatchPlus Options</string>
 	<string name="hwp.options.hint">Click to change a setting or open a package.</string>
 	<string name="hwp.options.capture">Press a key for %what% (Esc cancels)</string>
-	<string name="hwp.options.name">Bound. Press the same key again to name it (Esc skips)</string>
-	<string name="hwp.options.keynames">Forget key names</string>
-	<string name="hwp.options.keynames.n">%n% named</string>
-	<string name="hwp.options.keynames.none">none</string>
-	<string name="hwp.options.keynames.about">Keys are named by what your keyboard types for them, asked once when a key is bound. Click to forget every name (one named wrong, a new keyboard); each key is asked again at its next bind.</string>
 	<string name="hwp.options.press">press a key...</string>
 	<string name="hwp.options.search">Search settings...</string>
 	<string name="hwp.options.nomatch">No settings match "%q%".</string>
@@ -23,7 +18,7 @@
 	<string name="hwp.options.shared">Also on %key%: %what%.</string>
 	<string name="hwp.gamekeys.title">Game keys</string>
 	<string name="hwp.gamekeys.count">%n% keys</string>
-	<string name="hwp.gamekeys.group_about">The game's own keyboard binds, named as your keyboard labels them. Click a row, then press the new key. Saved to the game's controls: every save, and the Options menu too.</string>
+	<string name="hwp.gamekeys.group_about">The game's own keyboard binds. Click a row, then press the new key. Keys are named as on a US keyboard. Saved to the game's controls: every save, and the Options menu too.</string>
 	<string name="hwp.gamekeys.about">Click, then press the new key for %what%. It replaces the action's keyboard keys, keeps its mouse buttons and holds in every save.</string>
 	<string name="hwp.gamekeys.move-up">Move up</string>
 	<string name="hwp.gamekeys.move-down">Move down</string>

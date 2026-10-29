@@ -20,8 +20,8 @@ An item with a registered action (hwplib `HWP::ItemActions`; today the fishing
 mod's **Eat** on a fish: 100 health per star, town or run, the fish is used
 up) gets a fifth hint, **`[E] Eat`**, and the E key (SDL scancode 8, polled the
 same way, rebound as **Item action key**) does it on the hovered item (`HWPAction()`).
-Both hints name the key as your keyboard labels it (the key at Q reads A on AZERTY once
-learned: hwplib `HWP::Options::KeyName`).
+Both hints name the bound key as printed on a US keyboard (hwplib `HWP::Options::KeyName`;
+not localised: on AZERTY the key at Q still reads Q).
 
 **Pickup first** (`scripts/HWP/DropTrade/PickupFirst.as`, `HWP::PickupFirst`): the use key
 picks up a dropped item before it talks to an NPC or opens a shop, chest or shrine
