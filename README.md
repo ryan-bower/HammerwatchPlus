@@ -102,7 +102,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | `architect` | Any player can pick and pay for Architect alterations; the host's picks are split across the party. Seven HoH1 challenges discount them, down to free. The run-start screen keeps three named presets of picks and NG+ level per character, shows NG+ last with the start hint, and lets a non-host leave. |
 | `droptrade` | Drop equipment on the ground for friends: a Drop button (Q) next to Destroy in the inventory. The use key picks up a dropped item before it talks to an NPC or opens a shop, chest or shrine underfoot. |
 | `orbwarn` | The orb picker says which orbs a pick would make unavailable (mutually exclusive orbs such as the Firearms grenades), with their icons and names. |
-| `deathrecap` | Who killed you: the top damage sources of the last 10 s, on screen and in chat. After a boss falls, a boss-fight recap of everyone's damage by skill and damage taken. |
+| `deathrecap` | Who killed you: the top damage sources of the last 10 s, on screen and in chat. After a boss fight, a recap of everyone's damage by skill and damage taken (one per fight, however many boss units it has). |
 | `bufftips` | Hover a buff icon to see what it does and how many seconds it has left. |
 | `chatlinks` | Linked items stay in chat with their slot and item level; `hwp link` links an equipped item. |
 | `colors` | Colour-blind and high-contrast tints for enemy and friendly projectiles (player menu > Plus tab), and each player in their own colour on the minimap and the overlay map, with names for players far away. |
@@ -168,6 +168,14 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 
 ## Status
+
+2026-10-29, one boss recap per boss fight (#33). The Serpents of Demise showed a damage
+recap each time one of their serpents went down, because the recap followed each
+boss-tagged unit on its own. A fight is now the whole encounter: every boss unit you hit
+joins it, and it ends when they are all down and no boss health bar is left, the way the
+game's own boss bar sees it. The same fix covers the Bandit Lord's mirror images, the
+Harbingers and spawned ghosts. Damage taken is no longer counted twice when two boss
+units are up, and the recap is named after the boss bar ("Serpents of Demise").
 
 2026-10-28, the Forsaken Tower from HoH1 itself (`campaign`, "HoH1 tower" in its README).
 With HoH1 installed, the import builds HoH1's tower from the player's own install: 23 floors,

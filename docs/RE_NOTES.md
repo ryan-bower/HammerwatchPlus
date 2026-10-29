@@ -5543,3 +5543,63 @@ width, with each entry's symbols side by side before its name. In a column of 14
 tile now drops symbols from the end, keeping at least one, until the name (and the note
 under it) fits. Of the 13 cards, only Quality of Life renders differently. Republished:
 HWP-qol, HWP-pets and HammerwatchPlus-All (kit 5538d81).
+
+## 2026-10-29: one boss recap per encounter, not per boss unit (issue #33)
+
+The issue: "the snakes boss shows the boss dam recap after one of the snakes dies constantly.
+probably happens with all bosses with mult guys"
+
+The snakes are the Serpents of Demise (dark_citadel `courts_boss`, `levels/boss_bone_serpent.lvl`).
+The level places four `boss_serpent.unit` (behavior `TransferDamageActor`, 1,000,000 hp, tag
+`boss`). `SetDamageTransfer` points each one's `m_transferTarget` at one `boss_serpent_health.unit`
+(70,000 hp, not targetable, with the `bossbar` ".boss.serpents"). `BossStart` (a `ScriptLink`) starts
+the fight. The larger issue: `BossRecap.as` keyed a fight to the boss unit hit, so every
+boss-tagged unit was its own fight and showed its own recap when it died. Other vanilla fights
+have the same shape:
+- the Bandit Lord's `boss_bandit_mirror` images (boss-tagged, 1,800 hp, no bar);
+- the Harbingers (caster and heavy, transferring to `boss_harbingers_health`);
+- Dace Arden's spawned `bell_ghost_shooter` ghosts;
+- the four totem poles (a bar each).
+
+The damage taken was also added to every open fight, so it was counted twice with two
+bosses up.
+
+Vanilla's own notion of the encounter is the HUD's boss bar:
+- `CompositeActorBehavior`'s constructor calls `HUD.AddBossBar` for a unit with a `bossbar`.
+- `HUDBossBar` stacks one `BossBarWidget` per actor in `m_barList`, newest first.
+- `IsDefeated()` = actor dead or unit destroyed.
+- The HUD shows the first bar's name (`m_bossName`), animates the frame away once every bar is
+  defeated, then clears the list.
+
+What changed (`deathrecap`, `BossRecap.as`):
+- **One `BossFight` per machine (`g_fight`)**, with members (`BossMember`: unit, name, its own
+  affliction pool count).
+  - A hit on any boss-tagged actor joins it: `boss fight <name>: <unit name> (unit N) joins, K units hit`.
+  - A member going down logs `... down, A hit units alive, B boss bars up`.
+  - The fight ends when no member is alive and `BarsUp` finds no undefeated bar.
+- **Name**: the HUD's boss name (`m_bossName.m_str`, so "Bandit Lord", not "Boss Bandit") when a
+  bar is up, else `BossName` of the first unit hit. It is adopted later if a bar comes up after
+  the first hit.
+- **Damage taken** goes to the one fight.
+- **Gathering**: the host gathers reports by fight name instead of unit id, because each machine
+  may have hit different units while the bar's name is the same everywhere. The report adds `units`.
+- **Known limit**: a bar already up for an unfought boss elsewhere on the floor keeps a
+  bar-less boss's fight open until that boss falls. No vanilla boss floor does that, because
+  boss bars appear when the boss is made.
+
+GameLab:
+- `gl kill <radius> id:<unitId> [me]` kills one unit.
+- New `fix_recaps` sections `multi` and `serpents`.
+- `serpents` loads `gl mission dark_citadel 18`, runs `gl wsexec ScriptLink BossStart`, finds
+  the serpents with `gl actors 5000 TransferDamageActor`, and kills the serpent the shots
+  actually hit (from the started line).
+- The bot's god mode goes through `god_on`, because `hwp god` toggles: the second section
+  turned it off once and the serpents killed the pilot (043810).
+
+Tests:
+- `fix-boss-recap-encounter` (20261029-044024; pkgfeat 044302):
+  - Bandit Lord: mirror, then Lord, `joins`; the mirror's `down` comes with 1 bar up and no
+    recap; one recap of 2 units.
+  - Serpents of Demise: two serpents hit; each `down` comes with the bar up; one recap,
+    "Serpents of Demise", after the health unit.
+- `fix-recaps` (044146, now expecting "Bandit Lord") and `mod-deathrecap` (044231) pass.
