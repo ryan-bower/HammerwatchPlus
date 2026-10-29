@@ -214,13 +214,20 @@ namespace HWP
 		// the menu action bound to this key name ("e" -> MenuAdditional), or ""
 		string MenuClash(const string &in keyName)
 		{
+			// every binding of the current map: GetActionBinding returns only an action's first
+			// key, and PlayerMenu has two (I and C)
+			auto input = GetInput();
+			if (input is null)
+				return "";
+			auto map = input.GetCurrentMap();
+			if (map is null)
+				return "";
 			string k = keyName.toLower();
-			for (uint i = 0; i < MENU_ACTIONS.length(); i++)
+			auto bindings = map.GetBindings();
+			for (uint i = 0; i < bindings.length(); i++)
 			{
-				// GetActionBinding: the bound key names, space separated ("e", "i c")
-				auto bound = GetActionBinding(MENU_ACTIONS[i]).toLower().split(" ");
-				if (bound.find(k) >= 0)
-					return MENU_ACTIONS[i];
+				if (MENU_ACTIONS.find(bindings[i].Action) >= 0 && bindings[i].ID.toLower() == k)
+					return bindings[i].Action;
 			}
 			return "";
 		}
@@ -234,9 +241,30 @@ namespace HWP
 				if (a.Scancode() <= 0)
 					continue;
 				string clash = MenuClash(a.KeyName());
-				HWP::Log("core", "item action " + a.Id() + " key " + a.KeyName() + " (" + a.Scancode() + ")"
-					+ (clash == "" ? "" : " CLASHES with the menu's " + clash + " key"));
+				string line = "item action " + a.Id() + " key " + a.KeyName() + " (" + a.Scancode() + ")"
+					+ (clash == "" ? "" : " CLASHES with the menu's " + clash + " key");
+				HWP::Log("core", line);
+				if (g_replying)
+					HWP::Commands::Reply(line);
 			}
+		}
+
+		bool g_replying = false;
+
+		// hwp itemkeys: the same check, now (after a rebind)
+		void CmdItemKeys(array<string>@ args)
+		{
+			if (g_actions.length() == 0)
+				HWP::Commands::Reply("no item actions registered");
+			g_replying = true;
+			CheckKeys();
+			g_replying = false;
+		}
+
+		void Init()
+		{
+			HWP::Commands::Register("itemkeys", " list the bag item action keys and any clash with a menu key",
+				HWP::Commands::Handler(CmdItemKeys));
 		}
 	}
 }

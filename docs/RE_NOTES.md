@@ -5555,9 +5555,11 @@ the destroy confirm behind it.
 
 **What the menu binds** (`res/controls_default.cfg`, kbm map): `MenuAdditional` is E (the
 Destroy hint), `MenuContext` R (Compare), `MenuChatAll` T, `PlayerMenu` I and C.
-`GetActionBinding(action)` returns the bound key names separated by spaces ("i c").
-`FormatKeyName` returns markup (`\"k"E\"k"`), so it can't be compared with a key name.
-`ItemActions::CheckKeys` splits the `GetActionBinding` names instead. Free letters the menu
+`GetActionBinding(action)` (`Utils/Functions.as`) returns only the **first** binding's key
+name for the current map, so PlayerMenu reads "i" and its C is missed. `FormatKeyName`
+returns markup (`\"k"E\"k"`), so it can't be compared with a key name either.
+`ItemActions::MenuClash` walks `GetInput().GetCurrentMap().GetBindings()` instead and
+compares each menu action's `ID` with the key name. Free letters the menu
 doesn't bind: F, G, H, Q and others.
 
 **Keys.** The actions still read raw keys (`Platform::IsKeyDown(ControllerType::Keyboard, 0,

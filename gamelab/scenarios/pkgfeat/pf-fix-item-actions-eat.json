@@ -1,6 +1,6 @@
 {
  "name": "pf-fix-item-actions-eat",
- "about": "fix-item-actions-eat against the built packages coop, pets, town instead of the mods' source folders (tools/make_package_scenarios.py). hwplib bag item actions (moved from droptrade, issue #13): each action has its own hint and key in Order; the fish's Eat is [F] after [Q] Drop, never E (the menu's Destroy key, MenuAdditional), F eats it with no destroy dialog, and a bag item in town has no Send home hint. The self-check logs every action's key and no clash with a menu key.",
+ "about": "fix-item-actions-eat against the built packages coop, pets, town instead of the mods' source folders (tools/make_package_scenarios.py). hwplib bag item actions (moved from droptrade, issue #13): each action has its own hint and key in Order; the fish's Eat is [F] after [Q] Drop, never E (the menu's Destroy key, MenuAdditional), F eats it with no destroy dialog, and a bag item in town has no Send home hint. The self-check logs every action's key and no clash with a menu key. Rebinding Eat to C or E is flagged (hwp itemkeys): every binding of the current map counts, not only an action's first.",
  "fixture": "town-paladin",
  "timeout": 420,
  "steps": [
@@ -44,6 +44,45 @@
    "pattern": "CLASHES with the menu"
   },
   {
+   "do": "console",
+   "line": "hwp set fishing.eat_key 6"
+  },
+  {
+   "do": "console",
+   "line": "hwp itemkeys"
+  },
+  {
+   "do": "log_has",
+   "pattern": "item action eat key C \\(6\\) CLASHES with the menu's PlayerMenu key",
+   "timeout": 10,
+   "name": "a menu action's second key clashes (PlayerMenu is I and C)"
+  },
+  {
+   "do": "console",
+   "line": "hwp set fishing.eat_key 8"
+  },
+  {
+   "do": "console",
+   "line": "hwp itemkeys"
+  },
+  {
+   "do": "log_has",
+   "pattern": "item action eat key E \\(8\\) CLASHES with the menu's MenuAdditional key",
+   "timeout": 10
+  },
+  {
+   "do": "console",
+   "line": "hwp set fishing.eat_key 9"
+  },
+  {
+   "do": "console",
+   "line": "hwp itemkeys"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
    "do": "bot",
    "bot": "fix_courier",
    "kwargs": {
@@ -63,7 +102,7 @@
   {
    "do": "log_clean",
    "allow": [
-    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)(-gamelab)?\\.bin' for file "
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
    ]
   }
  ],
