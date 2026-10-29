@@ -1,12 +1,13 @@
 // Extra materials in the character menu's materials tab (gui/playermenu/
 // character.gui): sections under the run and town rows for things a module
 // keeps per character. Core names none of them: the gui has two empty sections,
-// "a" (29x26 cells, hwp-mat-a0..a7) and "b" (28x24, drawn compact, hwp-mat-b0..b15),
+// "a" (29x26 cells, hwp-mat-a0..a7) and "b" (24x24, drawn compact, hwp-mat-b0..b23),
 // and modules fill them (the gambler's bet tokens and fishing's bait in "a" as
 // Supplies, farming's seeds and harvest in "b" as Plants & Herbs). A module's
 // providers take a section's cells in their order; a cell takes its provider's id
 // (so `gl menu` finds it by that), a cell without one (its module is off) is hidden
-// and the grid closes the gap, and a section without any hides. Each section sits
+// and the grid closes the gap, and a section without any hides. A provider past the
+// section's last cell would never show, so the section logs an error once (Count). Each section sits
 // under the one before it, with the title its first module gave it. Hovering a
 // cell shows the provider's Title() / Text(); clicking it calls Click().
 //
@@ -66,6 +67,16 @@ namespace HWP
 			if (g_titles.get(section, key))
 				return Resources::GetString(key);
 			return "";
+		}
+
+		// how many providers a section has
+		int Count(const string &in section)
+		{
+			int n = 0;
+			for (uint i = 0; i < g_entries.length(); i++)
+				if (g_entries[i].section == section)
+					n++;
+			return n;
 		}
 
 		// the index-th provider of a section, or null
@@ -243,6 +254,7 @@ class HWPMaterialsWidget : GroupWidget
 	string m_section;  // from the gui id: hwp-materials-<section>
 	TextWidget@ m_title;
 	string m_titleShown;
+	bool m_warned = false; // more providers than cells, logged
 
 	HWPMaterialsWidget()
 	{
@@ -302,6 +314,13 @@ class HWPMaterialsWidget : GroupWidget
 		int shown = 0;
 		int cellW = 0;
 		int cellH = 0;
+		if (m_cells !is null && !m_warned && HWP::Materials::Count(m_section) > int(m_cells.m_children.length()))
+		{
+			// (seen when farming's seeds and harvests outgrew section b's 16 cells, issue #15)
+			m_warned = true;
+			HWP::LogError("core", "materials section " + m_section + ": " + HWP::Materials::Count(m_section) + " providers, "
+				+ m_cells.m_children.length() + " cells (gui/playermenu/character.gui); the rest never show");
+		}
 		if (m_cells !is null)
 		{
 			for (uint i = 0; i < m_cells.m_children.length(); i++)
