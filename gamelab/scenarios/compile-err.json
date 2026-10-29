@@ -1,0 +1,11 @@
+{
+ "name": "compile-err",
+ "about": "Measures what the game does when an enabled mod's script no longer compiles (a game update renaming a function a mod calls): gamelab-compile-err calls a function that does not exist. \"compile_error\": the runner expects the compile to fail, shoots what the player sees 8 s after the menu level starts, records the errors and whether the game is still running, then kills it (no script runs, so it never answers WM_CLOSE).",
+ "fixture": "town-paladin",
+ "mods": [
+  "gamelab-compile-err"
+ ],
+ "timeout": 150,
+ "steps": [],
+ "compile_error": true
+}

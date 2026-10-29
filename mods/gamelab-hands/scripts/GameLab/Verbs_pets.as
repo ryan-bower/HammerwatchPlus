@@ -161,8 +161,8 @@ namespace GameLab
 	}
 
 	// unitdestroy <radius> <filter>: UnitPtr.Destroy on every unit within radius of the player
-	// (not the player) whose debug name contains filter: a pet gone missing, so the game's own
-	// recovery (the Gold Collector vendor's Summon) can be tested. Capped.
+	// (not the player) whose debug name contains filter: a pet or a puzzle
+	// button gone, so recovery paths can be tested. Capped.
 	void VerbUnitDestroy(const string &in id, array<string>@ args)
 	{
 		if (args.length() < 2 || args[1].isEmpty())

@@ -34,7 +34,7 @@
 	<string name="skills.hwp_firearms.steady_crit.desc">Every round left in the clip gives %crit-chance% critical hit chance.</string>
 
 	<string name="skills.hwp_firearms.snipe.name">Sniper Shot</string>
-	<string name="skills.hwp_firearms.snipe.desc">Take aim and fire a single high-velocity round for %damage% of weapon damage with %armor-pen% armor penetration. Uses mana, not rounds.</string>
+	<string name="skills.hwp_firearms.snipe.desc">Take aim for %channel% and fire a single high-velocity round for %damage% of weapon damage with %armor-pen% armor penetration. Higher ranks aim faster. Uses mana, not rounds.</string>
 
 	<string name="skills.hwp_firearms.rpg.name">Rocket Launcher</string>
 	<string name="skills.hwp_firearms.rpg.desc">Fire a rocket that explodes for %damage% fire damage in a wide radius.</string>
@@ -129,6 +129,9 @@
 	<!-- Marksman -->
 	<string name="skills.hwp_firearms.snipe_headshot.name">Headshot</string>
 	<string name="skills.hwp_firearms.snipe_headshot.desc">The first enemy a Sniper Shot hits takes a critical hit.</string>
+	<string name="skills.hwp_firearms.snipe_recoil.name">Recoil Roll</string>
+	<string name="skills.hwp_firearms.snipe_recoil.desc">The Sniper Shot's recoil throws you backwards in a dodge roll, and you evade all damage while you roll.</string>
+	<string name="skills.hwp_firearms.snipe_recoil.buff">Recoil Roll</string>
 	<string name="skills.hwp_firearms.snipe_pierce.name">Piercing Bullet</string>
 	<string name="skills.hwp_firearms.snipe_pierce.desc">The Sniper Shot passes through %pierce% more enemies, dealing 15% less damage after each one.</string>
 	<string name="skills.hwp_firearms.focus.name">Critical Aim</string>
@@ -168,6 +171,7 @@
 	<string name="skills.desc.params.hwp_window">Perfect Window:</string>
 	<string name="skills.desc.params.hwp_reload_time">Reload Time:</string>
 	<string name="skills.desc.params.hwp_stun">Stun Duration:</string>
+	<string name="skills.desc.params.hwp_channel">Aim Time:</string>
 	<string name="skills.desc.params.hwp_crit_per_stack">Crit per Stack:</string>
 	<string name="skills.desc.params.hwp_crit_per_element">Crit Chance per Element:</string>
 	<string name="skills.desc.params.hwp_blind">Blind Duration:</string>

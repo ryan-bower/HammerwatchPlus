@@ -15,20 +15,24 @@ generated floors in the closest HoH2 theme plus a vanilla boss level.
 | Battlements | theme_keep | boss_avatar |
 
 - **The real HoH1 levels** are a second, optional mission in the same set,
-  "The Forsaken Tower (HoH1 levels)": the same 18 floors, with the five act
-  boss rooms, both Battlements levels and Thundersnow taken from the
-  player's own HoH1 install by `tools/import_hoh1.py campaign` (see below).
-  Without the import only the mission above exists. The generated act
-  floors stay HoH2 themes: HoH1 builds those from 755 unit types HoH2 lacks
-  (`tools/import_hoh1.py levels` reports them).
+  "The Forsaken Tower (HoH1 levels)": HoH1's own 23 floors (`tweak/dungeons/base.sval`),
+  the nine hand-made levels as HoH1 ships them and the fourteen act floors built by
+  HoH1's own floor generator, all taken from the player's own HoH1 install by
+  `tools/import_hoh1.py campaign` (see "HoH1 tower" below). Without the import only the
+  mission above exists.
 - **Portal.** `doodads/hwp/forsaken_portal.unit` is an NPC doodad whose
   interact is `HWPCampaignShopContent`, the vanilla `MissionShopContent` limited to set
-  `hwp_campaign` (`num` 2: both missions when the HoH1 one is imported), so the host picks
-  the mission and the normal loadout menu opens. The missions need the story intro flag
+  `hwp_campaign`, so the host picks the mission and the normal loadout menu opens.
+  **Which version:** whenever the HoH1 mission (`hwp_forsaken_tower_hoh1`) exists at
+  runtime, the portal offers it alone (`HWP::Campaign::PreferHoH1`, decided per
+  interact, so a fresh import is picked up without a module change); without the
+  import it offers the HoH2-theme mission. `campaign.portal_both` (default off) lists
+  both. The log says what it offered (`portal: offering hwp_forsaken_tower_hoh1 (HoH1
+  levels)`) and what the host started (`portal: starting <id> (<version>, N floors)`). The missions need the story intro flag
   (`mission_story_intro_find_npcs`), like the vanilla mission boards; before that the portal
   shows "The portal is dormant..." over the player instead of opening (vanilla would throw:
   sorting an empty array is an "Index out of bounds" in this engine). Clients see the host's portal (netsynced doodad). The host spawns
-  it (`HWP::Town::Placeable` in core) 0.6 s after the town loads, **in the
+  it (`HWP::Town::Placeable` in hwplib) 0.6 s after the town loads, **in the
   chapel courtyard in place of its campfire** (the unbuilt Pyre). Every
   machine computes that spot from the town layout data the way
   `TownRecord::SpawnTown` does (`PyreSpot`: the base segment's chapel cell +
@@ -57,11 +61,18 @@ Converts `levels/boss_{mines,prison,armory,archives,chambers,dragon}.lvl` and
 textures, effects, prefabs, tilesets) into `mods/campaign/hoh1/` (in-game
 paths `hoh1/...`) and writes
 `tweak/hwp/missions/missions_hwp_forsaken_tower_hoh1.sval`, plus
-`tweak/missions/missions_dark_citadel.sval`: the main game's Dark Citadel with
-both Battlements floors (clouds, glass walkways, giants; diff 21 and 22) before
-the Avatar, a declared override (`.orig` committed) that only the import
-generates. A save in the middle of a Dark Citadel run shifts by two floors
-when it appears or goes away. All of them are
+`tweak/missions/missions_dark_citadel.sval`: the main game's Dark Citadel as
+**two Dark Halls floors (`dark_halls_1`, `dark_halls_2`: vanilla ships the second one
+commented out) then both HoH1 Battlements floors (clouds, breaking bridges, glass
+walkways, giants) before the Avatar**, every floor at diff 22 / NG+ 22 like the
+surrounding floors; a declared override (`.orig` committed) that only the import
+generates. `Citadel.as` repairs the list at runtime as well (`HWP::Campaign::Citadel::Fix`
+on every level load): an import made before this change (doctor does not re-import an
+existing one) gets `dark_halls_2` inserted and the Battlements raised to 22, and when the
+import is absent the vanilla floors stay with the log line `vanilla Dark Citadel floors
+(HoH1 import absent): ...`. `hwp campaign citadel` prints the floor list
+(`N:id, ...`) and the `m_idNext` chain. A save in the middle of a Dark Citadel run shifts
+by two floors when the import appears or goes away. All of them are
 gitignored and only exist on a machine with HoH1 installed; `build.py`
 leaves them out unless `--with-local`. The log is
 `hoh1_import/campaign/convert.md` (every rewrite counted, plus the 14
@@ -83,7 +94,7 @@ against HoH2's base classes with HoH1's unit parameters:
 | `WorldScripts.as` | HoH1 level scripts by their HoH1 names: environment, boss bar, wind, lich / vampire nodes and room, eye wisp scripts, elevators, shops... |
 
 Boss state the host decides (which node the councilors go to, vampire
-roaming, eye wisps) goes to the clients over the core `HWP::Net` bus
+roaming, eye wisps) goes to the clients over the hwplib `HWP::Net` bus
 (`hoh1.lich.node`, `hoh1.vampire.*`, `hoh1.eye.*`); skills use the usual
 `NetSendUnitUseSkill` stages.
 
@@ -98,13 +109,118 @@ Design calls to look at:
   buff; the blood altar too, HoH2 has no blood altar rewards) and `Imp`.
 - **Lunar Shield block, Soul Dagger, Combustion** effects are inert
   (`HoH1InertEffect`) until there is a HoH2 equivalent.
-- **Minibosses** are plain `CompositeActorBehavior`: HoH1's overhead
-  miniboss bar is gone. `CompositeActorBehaviorNoNGPScale` (the dragon's ice
+- **Minibosses** are plain `CompositeActorBehavior`. HoH1's overhead miniboss bar was
+  only on DLC minibosses, none of them in the tower. HoH2's own small bar shows over
+  any damaged enemy. `CompositeActorBehaviorNoNGPScale` (the dragon's ice
   block) scales with NG+ like everything else.
 - **Bat toss** "on-target" speed is our own formula (slow enough to land on
   the aimed spot within its time to live).
 - Wraith statues (`TransferDamageActor`) get one empty state injected; HoH2
   requires a "states" list.
+
+## HoH1 tower (`hwp_forsaken_tower_hoh1`)
+
+The mission is HoH1's tower as its dungeon file lists it, difficulty 5 to 22:
+
+| Act | Floors |
+|---|---|
+| Mines | mines_1-3 (generated), mines_boss (Stone Guardian) |
+| Prison | prison_1-3 (generated), prison_boss (the Warden) |
+| Armory | armory_1-3 (generated), armory_boss (the Three Councilors) |
+| Archives | archives_1-3 (generated), archives_boss (the Watcher) |
+| Chambers | chambers_1-2 (generated), chambers_boss (the Vampire Lord) |
+| Battlements | battlements_1, battlements_2, bridge, battlements_boss (Thundersnow) |
+
+- **Generated floors** run HoH1's generator scripts, copied out of the player's install at
+  import time into the local `scripts/HWP/Campaign/HoH1Gen/` behind the committed
+  `HWPHoH1Generator`; the log says `HoH1 floor generated: N prefabs, start at X,Y`.
+- **Level scripts.** HoH1 world scripts whose HoH2 namesake reads other param names are
+  renamed on import (`hoh1_convert.SCRIPT_PARAMS`: ChangeVariables, RandomChance,
+  DestroyUnitCount, DamageUnits, DangerArea, AnnounceText, CheckTimeOfDay). The ones HoH2
+  lacks or does differently are ours in `WorldScripts.as`: `HoH1ShowSpeechBubble` (HoH1's
+  bubble style files, title, one player), `HoH1LevelExitNext` (keeps the exit's StartID:
+  battlements_1's left and right exits), CreateBossBar, SetBossKilled and the rest.
+- **Magical damage** (HoH1's armor-ignoring `magical`) goes to the element its source
+  names: fire, ice, poison, or lightning (`hoh1_convert.MAGIC_ELEMENTS`).
+- **Texts.** The import reads HoH1's `res/language/english.lang` and writes the strings
+  the levels use, as `hoh1.<key>`, into the local `res/language/english/hwp_campaign_hoh1.lang`
+  (announcements, speech bubbles, NPC names), plus `hoh1.bosses.<unit>` from HoH1's
+  bestiary for the boss bars: HoH1's bar has no name, HoH2's has a name plate.
+- **Tests.** `python -m gamelab run tower-floors --mode lab` (about 3 min) loads all 23
+  floors: clean log, generated floors built and the player at their start, enemies around,
+  a screenshot each. `python -m gamelab run tower-bosses --mode lab` (about 4 min) plays
+  each boss floor the way its scripts run: the trigger met, the bosses spawned and
+  fighting a god-mode player for 15 s, the boss bar titled with the boss's HoH1 name,
+  each boss killed until SetBossKilled logs `HoH1 boss N killed`, then the exit it opens
+  used to load the next floor; on the armory floor the painting's speech bubble is read
+  back too. `plan-generosity-hoh1` and `plan-forgemaster-hoh1` hold every tower boss with
+  the Paladin's Generosity Fury and raise every tower boss body with the Devil
+  Forgemaster. `tower-run` (about an hour) plays floor 1 to the end through each floor's
+  own exit: the enemies cleared, the traps toured until they fire, chests, doors, levers,
+  shrines and pickups used, each boss fought, and the character's level and xp kept from
+  floor to floor (20261028-190322, 16 min). `tower-interfaces` bets at a gambler room
+  fabricated on floor 1 and takes the end window's CONTINUE after Thundersnow. All of them
+  need the import.
+- **The gambler and the end window.** HoH1's `ItemDealer` and `EndOfGame` interfaces are
+  ported in `Interfaces.as` on HoH1's own .gui files. The gambler bets HoH2 trinkets
+  (cursed, quest and unique ones are left out) at HoH1's points and odds, one gamble per
+  gambler. The end window's CONTINUE ends the mission as a success. HoH1's `scrollrect` and
+  `scrollbar` are ported as `hoh1-scrollrect` and `hoh1-scrollbar`, and the import renames
+  the tags in HoH1's .gui files (`hoh1_convert.GUI_TAGS`).
+- **The bridge's exit** is a plain LevelExit to boss_dragon.lvl in HoH1. The import turns it
+  into `HoH1LevelExitNext`, so the mission's floor follows (`hoh1_convert.MISSION_EXITS`).
+- **The vampire's crosses.** As in HoH1, a cross picked up on the chambers floors keeps the
+  Vampire Lord asleep until the crosses are placed on the boss room's altars.
+- **AddNotification.** HoH2's is a stub that logs an error. The import maps it to
+  `HoH1AddNotification`, which shows the text through HoH2's announcer, with no icon
+  (the town-unlock notices).
+
+## HoH1 traps, Confusion and teleporters in HoH2 runs
+
+HoH2 runs and the campaign floors get three HoH1 mechanics, built from HoH2 units
+(`Traps.as`, `Confusion.as`, `Teleporters.as`). They are placed by the dungeon
+generator: `Traps::Install` appends one `HWPTrapSpawn` generation command to every
+indoor `DungeonGenerator` (outdoor `ForestBrush` floors are skipped) and the command
+places prefab set `hwp_traps` (`tweak/hwp/campaign_prefabs.sval`,
+`prefabs/hwp/traps/*.pfb`, 3x3 walkable-floor patterns) then one `hwp_teleporters`
+pad, host side like every prefab. The log says `traps: placed N/M on a WxH floor
+(C floor cells, density D%)`.
+
+| Trap | Unit | HoH1 feel |
+|---|---|---|
+| Spike floor, spike row | vanilla `doodads/traps/floors/floor_spikes.unit` (on) | the always-on spikes of the Mines |
+| Flame jet | vanilla `doodads/traps/floors/floor_fire.unit` (proximity) | Armory floor burners |
+| Bomb glyph | `doodads/hwp/traps/hwp_glyph_bomb.unit` (`TripMine`, shows at 48 px, triggers at 24, 1.1 s fuse, fire + lightning blast, re-arms after 8 s) | the Archives' exploding glyphs |
+| Dart glyph | `hwp_glyph_dart.unit` (fan of 8 vanilla arrows after 0.2 s, re-arms after 5 s) | dart traps |
+| Confusion glyph | `hwp_glyph_confusion.unit` (1 s Confused on everyone in 40 px) | the Chambers' confusion glyphs |
+
+**Confusion** (`tweak/hwp/campaign_buffs.sval:hwp_confusion`, 2.5 s, engine `confuse`
+flag: movement input inverted, with an icon and a purple pulsing screen tint while it
+lasts; `hwp_trap_confusion` is the 1 s trap version). HoH2 has no enemy that applies it,
+so the sources are HoH1's: the eyes (`actors/aberrations/eyes/*`, 35 % per hit,
+`campaign.confusion_eye_chance`) through the `PlayerDamageTaken` hook, and the glyph.
+`hwp campaign confuse [ms]` applies it (cheats on).
+
+**Teleporters** (`doodads/hwp/teleport_pad.unit`, `HWPTeleportPad : IUsable`): a pad
+with one fixed destination the player cannot see, the same on every use, like HoH1's
+Archives pads. The generator picks it when it places the pad: the farthest trap, puzzle or
+treasure point of interest on the floor (so it sometimes lands you in a trap room),
+else the farthest floor cell, logged as `teleporter placed at X,Y (cell x,y) -> DX,DY
+(cell x,y, why)`. The host moves the user (`UnitTeleported` message like a vanilla
+teleport); a client's use reaches the host as `NetUse`. The destination survives a
+save (`Save`/`Load`). `hwp campaign teleporter [dx dy]` spawns a pad next to the player
+on the host and prints every pad with its destination.
+
+| Setting | Default | What |
+|---|---|---|
+| `campaign.portal_both` | false | the portal lists both tower versions |
+| `campaign.traps` | true | HoH1 traps on generated indoor floors |
+| `campaign.trap_density` | 100 | % of one trap per 120 floor cells (0..400, 1..24 traps a floor) |
+| `campaign.confusion` | true | Confusion from eyes and glyphs |
+| `campaign.confusion_eye_chance` | 35 | % chance an eye's hit confuses |
+| `campaign.teleporters` | true | one teleporter pad per indoor floor |
+
+`hwp campaign traps` prints the settings and how many floors carry the command.
 
 ## HoH1 level import (`tools/import_hoh1.py levels`)
 
@@ -153,6 +269,19 @@ What that means for a real port, in order:
    six bosses. Each is a HoH1 `.unit` XML whose behaviours only partly exist
    in HoH2; this is a per-enemy rebuild, not a conversion.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (`hwp set <key> <value>`; `module.json`
+`config`). All host-authoritative.
+
+- `campaign.enabled` (on): the switch. Off: the town portal is not placed (next town load),
+  generated floors get no traps or teleporter (next level), pads already placed do nothing
+  and nothing confuses. A tower run already under way plays on, and the Dark Citadel keeps
+  its extra floors (`Citadel::Fix`): changing them under a run would move its floors.
+- `campaign.portal_both`, `campaign.traps`, `campaign.trap_density`, `campaign.teleporters`,
+  `campaign.confusion`, `campaign.confusion_eye_chance` (the table above). Not on the page:
+  `campaign.portal_x/y` (`hwp campaign here`).
+
 ## Test checklist
 
 1. `python -m gamelab run mod-campaign --mode lab`: `[HWP:campaign] self-check done: mission ok, N/N schemes`
@@ -171,12 +300,25 @@ What that means for a real port, in order:
    back on the campfire.
 5. Co-op: a client sees the portal and can read the mission; only the host
    can start it (vanilla rule).
-6. With HoH1 installed: `python tools/import_hoh1.py campaign`, then the
-   portal offers both missions and the self-check line ends in
-   "HoH1 floors installed". Loading each HoH1 floor (mines_boss, prison_boss,
-   armory_boss, archives_boss, chambers_boss, battlements_1, battlements_2,
-   battlements_boss) is a GameLab scenario still to write. It will use the `gamelab-hands`
-   verb `mission <id> [floor]`, which replaces the retired `dev_check.py --level`.
+6. With HoH1 installed (`python -m gamelab doctor --fix` imports it), the
+   portal offers the HoH1 mission alone and the self-check line reads
+   "HoH1 floors installed, N trap prefabs, traps on N floors; Dark Citadel: ...".
+   `python -m gamelab run fix-campaign-portal-version` (hwplib + campaign, about 3 min)
+   checks the portal version in the log and the dialog, `hwp campaign citadel` =
+   dark_halls_1, dark_halls_2, hwp_battlements_1, hwp_battlements_2, dark_halls_boss,
+   and the Confusion cheat (buff on, right moves left, expiry, glyph applies it).
+   Every HoH1 tower floor and boss: `tower-floors` and `tower-bosses`, and the playthrough
+   `tower-run` ("HoH1 tower" above).
+8. `python -m gamelab run fix-campaign-battlements` (about 3 min): `gl mission
+   dark_citadel <index of hwp_battlements_1>` loads `hoh1/levels/battlements_1.lvl`
+   with no script exception, screenshot `battlements-1`.
+9. `python -m gamelab run fix-campaign-traps` (about 4 min): the indoor Dark Citadel
+   floor (`gl mission dark_citadel 2`, retried on another seed) logs `traps: placed N/M`,
+   `gl unitsof` finds the trap units, standing on spikes / a bomb blast costs health,
+   the generator's teleporter pad moves the player to the logged destination and to the
+   same spot on a second use; screenshot `traps-floor`. Without the import the same
+   scenario still passes (traps and pads need no HoH1 file; the HoH1 teleport effect
+   falls back to the vanilla smoke puff).
 7. Play each HoH1 boss once, solo and in co-op: the Stone Guardian's ground
    spikes, the Warden's whirlwind and bombs, the councilors teleporting
    between nodes (client sees the same node), the Watcher's wisps circling

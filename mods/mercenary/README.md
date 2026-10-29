@@ -56,8 +56,17 @@ town. Shops stay open to it, which is harmless: gold is the town's.
 Closing the game in the moment of death can dodge a fall: the game only saves at
 level changes.
 
-Settings (`hwp set`, host-synced): `mercenary.start_level`,
-`mercenary.unlock_level`, `mercenary.revivable`.
+## Settings
+
+On the HammerwatchPlus tab of the player menu (host settings, they apply at once):
+
+- **Mercenary** on/off, `mercenary.enabled` (default on). Off: no enlisting, no prestige
+  or rank bonus, no falls, and a fallen mercenary can be played again. Nothing is
+  deleted: turned back on, every mercenary has its prestige, and a fallen one is fallen
+  again.
+- **Start level**, `mercenary.start_level`: 1, 5, 10 (default), 15, 20.
+- **Veteran level**, `mercenary.unlock_level`: 1, 5, 10, 15, 20 (default).
+- **Revivable**, `mercenary.revivable` (default off).
 
 Test: `gamelab/scenarios/mod-mercenary.json` covers:
 - enlisting: locked without a veteran, then forced, confirmed and levelled to 10;

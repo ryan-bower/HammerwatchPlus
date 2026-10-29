@@ -3,7 +3,9 @@
  "about": "Test plan through the plan_newb bot: mercenary s1-s7, enlisting is locked without a level-20 Paladin and refused for a levelled hero; a fresh Paladin confirms and enlists at level 10 as Private (+15% experience); 50 prestige is Corporal (+30%); a floor reminds, counts a prestige and a gold pickup lands x1.30; the boss floor and its boss count once; a death is a fall, announced, the picker opens in town, the bonus is gone, no run starts and the ledger lists it. The enlist step must run before any mission in the process (g_diffLevel skews the experience baseline).",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",
@@ -17,7 +19,6 @@
    "firearms",
    "fishing",
    "gambler",
-   "goldpet",
    "groupcombo",
    "keys",
    "laststats",

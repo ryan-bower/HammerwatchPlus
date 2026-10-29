@@ -53,6 +53,55 @@ Architect alterations for the whole party.
   challenges and the cost multiplier of a pick list), `hwp architect try <id...>`
   (cheats, host: these picks for the next level).
 
+- **Run-start screen** (overrides `scripts/GUI/MissionLoadoutMenu.as`,
+  `scripts/Town/MissionShopContent.as` and `gui/mission_loadout.gui`, each with its
+  pristine `.orig`; memory in `scripts/HWP/Architect/Memory.as`):
+  - **Clients can leave.** Vanilla's `Back()` returned false on a client, which kept it
+    in the window until the host started or closed it. Now Escape / Back closes the
+    client's own window (its status goes to None, so the host's ready count and start
+    skip it, and the architect module drops its picks). While the host's setup is still
+    open, picking any mission on the mission board reopens the client's window
+    (`HWP::Architect::RejoinLoadout`, `MissionShopContent.Buy`); a chat line says so.
+  - **Remembered picks and NG+.** Every change of your own picks is stored on your
+    player record (`architect.last`, under the hwp key) and the host's New Game+ level
+    too (`architect.ngp`); they follow the character, not the town, because the picks
+    are per player and the NG+ level is capped by the character's own. When the setup
+    opens with none of your picks in the party list, the remembered ones (those the
+    character may still pick) are sent as a pick; the NG+ arrows start on the remembered
+    level (clamped to the character's). `hwp architect` lists both.
+  - **Presets.** The picker has a row of three slots under its list: the slot button
+    loads the preset (your picks become its picks; on the host the NG+ level follows),
+    its `S` button asks for a name (the game's input dialog) and saves your current picks
+    and NG+ level. `hwp architect preset [save <n> [name] | load <n> | clear <n>]` does
+    the same from the console. Stored as `architect.preset1..3` on the player record.
+  - **New Game+ row.** The `< Starting on New Game+ N >` row sits as the last row of the
+    options, right above the Start line, instead of vanilla's arrow row at the top; the
+    host's Start hint reads `Start NG+ N`, and pressing Start at NG+ 1 or higher asks
+    `Start this run on New Game+ N?` (the force-start question carries the line too).
+    `hwp set architect.confirm_ngp false` turns the question off.
+  - **Fits the screen.** The window is centred and its key hints are drawn 20 px under
+    it, so a tall loadout (every town building, farming's herb line, the NG+ row) pushed
+    Start and the hints off a 360-unit screen. `HWPFitToScreen` drops the decorative
+    bridges when the window would not leave 22 px above and below, then moves the window
+    to the top edge when it still would not; the `[HWP:architect] run-start layout:`
+    line says what it did. Farming's herb line is a 14 px row for the same reason.
+
+## Settings
+
+On the HammerwatchPlus tab of the player menu:
+
+- **Architect** on/off, `architect.enabled` (host, default on). Off is the vanilla
+  architect: only the host can open the picker and the host pays for everything, the
+  challenges are not in the list, there is no preset row, remembered picks and the
+  remembered NG+ level do not come back, a client cannot leave the setup with Escape and
+  there is no NG+ question. Turning it off drops the clients' picks and any challenge from
+  the party's list. The run-start layout (the NG+ row above Start, the fit to the screen,
+  the Start NG+ hint) stays, since the gui file is an override. Presets and remembered
+  picks stay saved for when it is turned back on.
+- **Share host's picks**, `architect.split` (host, default on): the host's alterations are
+  split across the party.
+- **Confirm NG+ start**, `architect.confirm_ngp` (each player's own, default on).
+
 Morning decisions:
 - The **town fountain** as a second entry point for sponsoring (open the
   picker in town, outside the loadout screen). The well/fountain unit sits at
@@ -76,3 +125,15 @@ Morning decisions:
    own pick works and the host's list updates.
 5. `hwp set architect.split false` on the host: the client's cost drops to its
    own picks only.
+6. `python -m gamelab run fix-architect-runstart --mode lab`: the NG+ row is the last
+   options row and reads "Starting on New Game+ 2", the Start hint "Start NG+ 2", the
+   window bottom + 20 px within the screen, two picks remembered, preset 1 saved through
+   the name dialog ("Tanky") and preset 2 through the command, preset 1 loaded back,
+   Escape closes the setup, it reopens with the same picks and NG+ 1, Start asks "Start
+   this run on New Game+ 1?" and the run starts at NG+ 1. Shots runstart-window,
+   runstart-picker, runstart-confirm.
+7. Co-op (manual): a client presses Escape in the run-start setup: its window closes, the
+   host's ready count drops it; the client picks any mission on the board: its window is
+   back with the party's picks. The host's remembered NG+ comes back on the next setup.
+8. By eye: with a smoked herb, the herb line is one text row and Start plus the key hints
+   stay on screen at the default resolution.

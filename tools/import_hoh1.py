@@ -8,6 +8,7 @@ install and convert it for HammerwatchPlus. Nothing it writes is committed
     import_hoh1.py levels            # HoH1 campaign levels -> hoh1_import/campaign (decoded + gap report)
     import_hoh1.py campaign          # HoH1 boss + Battlements levels converted into mods/campaign/hoh1
     import_hoh1.py classes           # HoH1 Thief/Gladiator/Witch Hunter art -> mods/classes/hoh1art
+    import_hoh1.py trinkets          # HoH1 icons of the HoH1 trinkets -> mods/trinkets
     import_hoh1.py pets --force      # overwrite existing output
     import_hoh1.py --list            # what the tool can import
 
@@ -60,6 +61,18 @@ classes (a skill there uses its HoH1 icon rect unchanged):
 
 hoh1art/ is the classes module's `local_overlay`: build.py --with-local packs
 these in place of the committed placeholder art at the same paths.
+
+trinkets: the HoH1 icon of every trinket in mods/trinkets/tweak/hwp/trinkets_hoh1.sval
+(hwp_<id> is HoH1's <id> with dashes), from HoH1's items/*.sval and items/items.png:
+
+    mods/trinkets/gui/hwp/icons_trinkets_hoh1.png              the 12x12 icons, each in the
+                                                                middle of a 16x16 cell, 8 a row
+    mods/trinkets/res/language/english/hwp_trinkets_hoh1art.lang  .hwp.trinkets.hoh1art: the
+                                                                ids in sheet order
+
+Both are the trinkets module's `local` files. HWP/Trinkets/HoH1.as points the trinkets
+at the sheet when the string is there; without it they keep their placeholder icons
+(vanilla items/icons_trinkets.png cells).
 """
 from __future__ import annotations
 
@@ -76,6 +89,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import class_units  # noqa: E402
 import hoh1_convert as hoh1c  # noqa: E402
+import hoh1_tower as tower  # noqa: E402
+import hoh1_risen  # noqa: E402
 import hwr_archive as hwr  # noqa: E402
 import gamepaths as paths  # noqa: E402
 
@@ -580,29 +595,30 @@ CAMPAIGN_OUT = CAMPAIGN_MODULE / "hoh1"
 CAMPAIGN_MISSION_SRC = CAMPAIGN_MODULE / "tweak" / "hwp" / "missions" / "missions_hwp_forsaken_tower.sval"
 CAMPAIGN_MISSION_OUT = CAMPAIGN_MODULE / "tweak" / "hwp" / "missions" / "missions_hwp_forsaken_tower_hoh1.sval"
 CAMPAIGN_MISSION_ID = "hwp_forsaken_tower_hoh1"
+# HoH1's own texts (announcements, speech bubbles, boss names), as the levels reference them
+CAMPAIGN_LANG_SRC = Path("res") / "language" / "english.lang"
+CAMPAIGN_LANG_OUT = CAMPAIGN_MODULE / "res" / "language" / "english" / "hwp_campaign_hoh1.lang"
+HOH1_DIR: Path | None = None    # the HoH1 install, set by main
+# HoH1's floor generator, transformed from the player's install (tools/hoh1_tower.py)
+CAMPAIGN_GEN_OUT = CAMPAIGN_MODULE / "scripts" / "HWP" / "Campaign" / "HoH1Gen"
+# the Devil Forgemaster's risen and bodies of the HoH1 enemies (tools/hoh1_risen.py)
+CAMPAIGN_FORGE_OUT = CAMPAIGN_MODULE / hoh1_risen.mfr.FORGE
 # The main game's Dark Citadel with both HoH1 Battlements floors (clouds, glass
 # walkways, ice trolls) spliced in before the Avatar: a wholesale override of
 # the vanilla mission file, declared in the campaign module.json with its .orig.
 CITADEL_REL = "tweak/missions/missions_dark_citadel.sval"
 CITADEL_OUT = CAMPAIGN_MODULE / CITADEL_REL
 CITADEL_BEFORE = "dark_halls_boss"
-# (floor id, level, diff-level, diff-level-ngp, level-name key)
+# (floor id, level, diff-level, diff-level-ngp, level-name key); both at the level of
+# dark_halls_2 and the Avatar, so the Battlements scale like the floors around them
 CITADEL_FLOORS = [
-    ("hwp_battlements_1", "levels/battlements_1.lvl", 21, 21, ".hwp.campaign.h1.battlements_1"),
+    ("hwp_battlements_1", "levels/battlements_1.lvl", 22, 22, ".hwp.campaign.h1.battlements_1"),
     ("hwp_battlements_2", "levels/battlements_2.lvl", 22, 22, ".hwp.campaign.h1.battlements_2"),
 ]
-
-# floor id in the committed mission -> (HoH1 level, lang key of the floor name)
-CAMPAIGN_FLOORS = {
-    "mines_boss": ("levels/boss_mines.lvl", ".hwp.campaign.h1.golem"),
-    "prison_boss": ("levels/boss_prison.lvl", ".hwp.campaign.h1.warden"),
-    "armory_boss": ("levels/boss_armory.lvl", ".hwp.campaign.h1.councilors"),
-    "archives_boss": ("levels/boss_archives.lvl", ".hwp.campaign.h1.watcher"),
-    "chambers_boss": ("levels/boss_chambers.lvl", ".hwp.campaign.h1.vampire"),
-    "battlements_1": ("levels/battlements_1.lvl", ".hwp.campaign.h1.battlements_1"),
-    "battlements_2": ("levels/battlements_2.lvl", ".hwp.campaign.h1.battlements_2"),
-    "battlements_boss": ("levels/boss_dragon.lvl", ".hwp.campaign.h1.dragon"),
-}
+# vanilla ships dark_halls_2 commented out; the citadel keeps both Dark Halls floors
+# (bugs 10.22.26 line 39). The module re-adds it at runtime when an older generated
+# file lacks it (scripts/HWP/Campaign/Citadel.as).
+CITADEL_HALLS_2 = "dark_halls_2"
 
 # HoH1 class -> HoH2 class (or our port, scripts/HWP/Campaign/HoH1/). Filled in
 # as the in-game checks find them; anything not listed keeps its HoH1 name.
@@ -613,11 +629,18 @@ CLASS_MAP: dict[str, str] = {
     "GiveOre": "HoH1GiveOre",
     "Decimate": "HoH1Decimate",
     "AddCurse": "HoH1AddCurse",
+    "GiveKey": "HoH1GiveKey",                 # HoH1 numbers its keys ("lock"), HoH2 names them
     "AddMtBlock": "HoH1InertEffect",          # HoH1 Lunar Shield block; no HoH2 match yet
     "ApplySoulDaggerBuff": "HoH1InertEffect",
     "CombustionDamage": "HoH1InertEffect",
+    # keys, chests, doors, items, doodad animations (HoH1/Objects.as)
+    "Chest": "HoH1Chest",
+    "Door": "HoH1Door",
+    "Item": "HoH1Item",                      # a HoH2 trinket of the same quality
+    "StateAnimations": "HoH1StateAnimations",
     # projectiles (HoH1/Projectiles.as)
     "Projectile": "HoH1Projectile",
+    "SteeringRayProjectile": "HoH1SteeringRayProjectile",
     "TossProjectile": "HoH1TossProjectile",
     "LurkerProjectile": "HoH1LurkerProjectile",
     # bosses (HoH1/Bosses.as)
@@ -630,18 +653,34 @@ CLASS_MAP: dict[str, str] = {
     "BossEyeWisp": "HoH1BossEyeWisp",
     "Miniboss": "CompositeActorBehavior",    # drops HoH1's overhead miniboss bar
     "CompositeActorBehaviorNoNGPScale": "CompositeActorBehavior",
+    "CompositeActorBehaviorColorized": "HoH1CompositeActorBehaviorColorized",   # the Battlemage (HoH1/Bosses.as)
     # enemy skills (HoH1/Skills.as)
     "ChargeStrike": "HoH1ChargeStrike",
     "JumpStrike": "HoH1JumpStrike",
     "SpewSkill": "HoH1SpewSkill",
     "WhirlwindSkill": "HoH1WhirlwindSkill",
     "WhirlNovaSkill": "HoH1WhirlNovaSkill",
+    "NovaSkill": "HoH1NovaSkill",
     "CompositeActorBurstSkill": "HoH1BurstSkill",   # HoH2's never fires without an anim-begin
     # world scripts: HoH2 has these rooms under other names, with the same fields
     "RandomTemporaryBuff": "Shrine",
     "RandomBuff": "Shrine",                  # the blood altar; HoH2 has no blood altar rewards
     "RandomStuff": "Imp",
+    # HoH1's bubble: its own style files, a title, one player's (HoH1/WorldScripts.as)
+    "ShowSpeechBubble": "HoH1ShowSpeechBubble",
+    "AddNotification": "HoH1AddNotification",   # HoH2's is a stub that logs an error
+    "LevelExitNext": "HoH1LevelExitNext",    # with HoH1's StartID (the Battlements' two exits)
+    # OpenInterface classes, on HoH1's own .gui files (HoH1/Interfaces.as)
+    "ItemDealer": "HoH1ItemDealer",          # the gambler room; bets HoH2 trinkets
+    "EndOfGame": "HoH1EndOfGame",            # after Thundersnow; ends the mission as won
 }
+
+# files HoH1's scripts name as defaults, which no level lists (ShowSpeechBubble's Style,
+# the item dealer's quality table)
+SCRIPT_DEFAULT_FILES = ("gui/speechbubbles/white.sval", "tweak/itemdealer.sval")
+
+# strings only HoH1's scripts use (the item dealer's dice tooltip), as hoh1.<key>
+SCRIPT_STRINGS = ("itemdealer.tooltip.title", "itemdealer.tooltip.single", "itemdealer.tooltip.plural")
 
 # "<mats path>:<HoH1 material>" -> HoH2 material name in the same file
 MATERIAL_MAP = {
@@ -649,58 +688,32 @@ MATERIAL_MAP = {
 }
 
 
-def campaign_mission(src: str) -> str:
-    """The committed mission, re-pointed at the converted HoH1 levels."""
-    head, sep, rest = src.partition('<array name="levels">')
-    if not sep:
-        sys.exit(f"{CAMPAIGN_MISSION_SRC}: no levels array")
-    head = head.replace('<string name="id">hwp_forsaken_tower</string>',
-                        f'<string name="id">{CAMPAIGN_MISSION_ID}</string>', 1)
-    head = head.replace('.mission.hwp_forsaken_tower.name', f'.mission.{CAMPAIGN_MISSION_ID}.name', 1)
-    head = head.replace('.mission.hwp_forsaken_tower.desc', f'.mission.{CAMPAIGN_MISSION_ID}.desc', 1)
-    head = re.sub(r"<!--.*?-->", "<!-- Generated by tools/import_hoh1.py campaign from "
-                  "missions_hwp_forsaken_tower.sval. Do not edit; not committed. -->", head, count=1, flags=re.S)
-    blocks = re.split(r"(?m)^(?=\t\t<dict>)", rest)
-    out = []
-    done = set()
-    for b in blocks:
-        m = re.search(r'<string name="id">(\w+)</string>', b)
-        fid = m.group(1) if m else None
-        if fid in CAMPAIGN_FLOORS and b.lstrip().startswith("<dict>"):
-            level, name_key = CAMPAIGN_FLOORS[fid]
-            diff = re.search(r'<int name="diff-level">(\d+)</int>', b).group(1)
-            ngp = re.search(r'<int name="diff-level-ngp">(\d+)</int>', b).group(1)
-            act = re.search(r'<string name="act-name">([^<]+)</string>', b)
-            # the floor ends at its own (two-tab) </dict>; the last floor's block
-            # also carries the closing </array></dict> of the mission
-            end = re.search(r"(?m)^\t\t</dict>", b)
-            tail = b[end.end():]
-            floor = ["\t\t<dict>",
-                     f'\t\t\t<string name="id">{fid}</string>',
-                     f'\t\t\t<string name="level">{hoh1c.PREFIX}{level}</string>',
-                     f'\t\t\t<int name="diff-level">{diff}</int>',
-                     f'\t\t\t<int name="diff-level-ngp">{ngp}</int>',
-                     ""]
-            if act:
-                floor.append(f'\t\t\t<string name="act-name">{act.group(1)}</string>')
-            floor.append(f'\t\t\t<string name="level-name">{name_key}</string>')
-            floor.append("\t\t</dict>")
-            out.append("\n".join(floor) + tail)
-            done.add(fid)
-        else:
-            out.append(b)
-    missing = set(CAMPAIGN_FLOORS) - done
-    if missing:
-        sys.exit(f"{CAMPAIGN_MISSION_SRC}: floors {sorted(missing)} not found")
-    return head + sep + "".join(out)
+def citadel_halls_2(src: str, nl: str) -> str:
+    """The vanilla file with its commented-out dark_halls_2 floor made live: the comment
+    markers go, the stray width/height lines (commented out on dark_halls_1 too) go, and
+    the floor gets the NG+ level dark_halls_1 has."""
+    rx = re.compile(r'<!--(\s*\t\t<dict>\s*\t\t\t<string name="id">%s</string>.*?\t\t</dict>)\s*-->' % CITADEL_HALLS_2, re.S)
+    m = rx.search(src)
+    if m is None:
+        if re.search(r'<string name="id">%s</string>' % CITADEL_HALLS_2, src):
+            return src        # already live (game update?)
+        sys.exit(f"{CITADEL_REL}: commented-out floor {CITADEL_HALLS_2} not found (game update?)")
+    block = m.group(1)
+    block = re.sub(r'(?m)^\t\t\t<int name="(width|height)">\d+</int>\r?\n', "", block)
+    block = re.sub(r"(?m)^\t\t\t\r?\n", "", block)
+    block = block.replace('<int name="diff-level">22</int>',
+                          '<int name="diff-level">22</int>' + nl + '\t\t\t<int name="diff-level-ngp">22</int>', 1)
+    return src[:m.start()] + block.lstrip("\r\n") + src[m.end():]
 
 
 def citadel_mission(src: str) -> str:
-    """The vanilla Dark Citadel with the Battlements floors before its last boss."""
+    """The vanilla Dark Citadel with both Dark Halls floors and the Battlements floors
+    before its last boss."""
+    nl = "\r\n" if "\r\n" in src else "\n"
+    src = citadel_halls_2(src, nl)
     m = re.search(r'(?m)^\t\t<dict>\s*\n\t\t\t<string name="id">%s</string>' % CITADEL_BEFORE, src)
     if m is None:
         sys.exit(f"{CITADEL_REL}: floor {CITADEL_BEFORE} not found (game update?)")
-    nl = "\r\n" if "\r\n" in src else "\n"
     floors = ["\t\t%// Battlements (HoH1, tools/import_hoh1.py campaign)"]
     for fid, level, diff, ngp, name_key in CITADEL_FLOORS:
         floors += ["\t\t<dict>",
@@ -714,7 +727,7 @@ def citadel_mission(src: str) -> str:
                    "\t\t</dict>",
                    ""]
     head = ("<!-- Generated by tools/import_hoh1.py campaign from the vanilla " + CITADEL_REL +
-            " (Battlements floors before the Avatar). Do not edit; not committed. -->" + nl)
+            " (dark_halls_2 live, Battlements floors before the Avatar). Do not edit; not committed. -->" + nl)
     return head + src[:m.start()] + nl.join(floors) + nl + src[m.start():]
 
 
@@ -756,15 +769,34 @@ def import_campaign(archive: hwr.Archive, force: bool) -> None:
     import shutil
     if not (paths.BASE_HOH2 / "system").is_dir():
         sys.exit(f"{paths.BASE_HOH2} has no extracted HoH2 base; run tools/bootstrap.py first")
-    roots = [lv for lv, _ in CAMPAIGN_FLOORS.values()]
+    floors = tower.tower_floors(archive.read_file(tower.DUNGEON_DEF).decode("utf-8"))
+    roots = sorted({f["level"] for f in floors if not tower.generated(f)})
+    gen_src = {p: archive.read_file(p).decode("utf-8", errors="replace") for p in tower.GEN_SCRIPTS + [tower.GEN_DUNGEON]}
+    entries = {e.path for e in archive.entries}
+    gen_roots = sorted(tower.theme_roots(entries) | tower.literal_roots(gen_src.values(), entries))
     closure = hoh1c.Closure(archive, hoh2_has=lambda p: (paths.BASE_HOH2 / p).is_file())
     closure.add_roots(roots)
+    closure.add_roots(gen_roots)
+    closure.add_roots([p for p in SCRIPT_DEFAULT_FILES if p in entries])
     unitmap = campaign_unitmap(archive, closure.files)
     closure.add_roots([t for _, tiers in unitmap for _, t in tiers])
     rw = hoh1c.Rewriter(copied=closure.files, hoh2_materials=hoh1c.hoh2_material_names(paths.BASE_HOH2),
                         class_map=CLASS_MAP, material_map=MATERIAL_MAP)
+    lang_path = (HOH1_DIR or paths.hoh1_dir()) / CAMPAIGN_LANG_SRC
+    rw.lang = hoh1c.read_lang(lang_path.read_text(encoding="utf-8-sig")) if lang_path.is_file() else {}
+    # HoH1 spawns its generator's prefabs without their tile layer (PrefabToSpawn's
+    # includeTileset false); HoH2's queue always paints it, so those prefabs lose it,
+    # unless a level or another prefab places them too
+    rw.strip_tiles = hoh1c.generator_only_prefabs(archive, closure.files, tower.GEN_DIRS)
+    gen_scripts = tower.generator_scripts(lambda p: gen_src[p])
+    # HoH2's tags (HoH1 has none): the bosses are what HoH1's boss bars show, with their NG+ copies
+    bosses = hoh1c.boss_bar_units(archive, roots)
+    bosses |= {t for base, tiers in unitmap if base in bosses for _, t in tiers}
+    rw.unit_tags, rw.tag_hosts = hoh1c.actor_tags(archive, closure.files, bosses)
     # convert everything first: a file that fails leaves the previous output intact
     converted = [(path, hoh1c.convert_file(archive, path, rw, to_png_pot)) for path in sorted(closure.files)]
+    forge, raisable = hoh1_risen.build({p: d.decode("utf-8") for p, d in converted if p.endswith(hoh1c.TEXT_EXT)},
+                                       rw.unit_tags)
     marker = CAMPAIGN_OUT / ".hwp-generated"     # dot files are never packed
     if CAMPAIGN_OUT.exists():
         # generated and gitignored, so it is rebuilt from scratch; but only delete
@@ -779,9 +811,26 @@ def import_campaign(archive: hwr.Archive, force: bool) -> None:
     marker.write_text("written by tools/import_hoh1.py campaign; deleted and rebuilt on every run" + chr(10), encoding="utf-8")
     written: list[str] = []
     for path, data in converted:
-        write(CAMPAIGN_OUT / path, data, True, written)
+        write(CAMPAIGN_OUT / hoh1c.out_path(path), data, True, written)
     write(CAMPAIGN_OUT / UNITMAP_OUT, unitmap_sval(unitmap, closure.files), True, written)
-    write(CAMPAIGN_MISSION_OUT, campaign_mission(CAMPAIGN_MISSION_SRC.read_text(encoding="utf-8")), True, written)
+    # the boss bars' names: hoh1.bosses.<unit name> (WorldScripts.as CreateBossBar)
+    strings = {k: rw.lang[k] for k in rw.lang_used}
+    strings.update({k: rw.lang[k] for k in SCRIPT_STRINGS if k in rw.lang})
+    for b in sorted(bosses):
+        key = hoh1c.boss_name_key(b, rw.lang)
+        if key:
+            strings["bosses." + b.rsplit("/", 1)[-1].rsplit(".", 1)[0]] = rw.lang[key]
+    write(CAMPAIGN_LANG_OUT, hoh1c.lang_file(strings), True, written)
+    if CAMPAIGN_GEN_OUT.exists():
+        shutil.rmtree(CAMPAIGN_GEN_OUT)
+    if CAMPAIGN_FORGE_OUT.exists():
+        shutil.rmtree(CAMPAIGN_FORGE_OUT)
+    for rel, text in forge.items():
+        write(CAMPAIGN_MODULE / rel, text, True, written)
+    for name, text in gen_scripts.items():
+        write(CAMPAIGN_GEN_OUT / name, text, True, written)
+    write(CAMPAIGN_MISSION_OUT, tower.tower_mission(CAMPAIGN_MISSION_SRC.read_text(encoding="utf-8"), floors,
+                                                    CAMPAIGN_MISSION_ID), True, written)
     citadel = (paths.BASE_HOH2 / CITADEL_REL).read_bytes().decode("utf-8")
     write(CITADEL_OUT, citadel_mission(citadel), True, written)
     exts: dict[str, int] = {}
@@ -800,8 +849,16 @@ def import_campaign(archive: hwr.Archive, force: bool) -> None:
     print("campaign: %d HoH1 files converted into %s, %d broken references (see %s)" % (
         len(closure.files), CAMPAIGN_OUT.relative_to(paths.REPO), len(closure.broken),
         (IMPORT_DIR / "convert.md").relative_to(paths.REPO)))
-    print("  mission %s -> %s" % (CAMPAIGN_MISSION_ID, CAMPAIGN_MISSION_OUT.relative_to(paths.REPO)))
+    print("  mission %s (%d floors, %d generated) -> %s" % (
+        CAMPAIGN_MISSION_ID, len(floors), sum(tower.generated(f) for f in floors), CAMPAIGN_MISSION_OUT.relative_to(paths.REPO)))
+    print("  HoH1 floor generator: %d scripts -> %s, %d generator prefabs without their tile layer" % (
+        len(gen_scripts), CAMPAIGN_GEN_OUT.relative_to(paths.REPO), len(rw.strip_tiles)))
+    print("  HoH2 tags on %d HoH1 units (%d bosses); %d raisable by the Devil Forgemaster -> %s" % (
+        len(rw.unit_tags), sum("boss" in t for t in rw.unit_tags.values()), len(raisable),
+        CAMPAIGN_FORGE_OUT.relative_to(paths.REPO)))
     print("  Dark Citadel with the Battlements before the Avatar -> %s" % CITADEL_OUT.relative_to(paths.REPO))
+    print("  %d HoH1 strings (%d referenced, %d boss names) -> %s" % (
+        len(strings), len(rw.lang_used), len(strings) - len(rw.lang_used), CAMPAIGN_LANG_OUT.relative_to(paths.REPO)))
 
 
 # ------------------------------------------------------------------ classes
@@ -998,6 +1055,10 @@ def import_classes(archive: hwr.Archive, force: bool) -> None:
     if placeholder.size != hoh1_icons.size:
         raise SystemExit(f"remastered/icons.png is {placeholder.size}, HoH1's sheet {hoh1_icons.size}")
     write(CLASS_ART / "players/hwp/remastered/icons.png", png_bytes(hoh1_icons), force, written)
+    # the classes module reads this string to know the art is there (HWP::HoH1::Report)
+    write(CLASS_ART / "res/language/english/hwp_classes_hoh1art.lang", '<lang name="English" official="false">\n'
+          '\t<!-- generated by tools/import_hoh1.py classes: the HoH1 class art is in this overlay -->\n'
+          '\t<string name="hwp.classes.hoh1art">1</string>\n</lang>\n', force, written)
 
     print(f"classes: HoH1 class and skill icons for {', '.join(HOH1_CLASS_ART)}, and the Remastered sheet")
     print("  (build.py --with-local packs them over the placeholders; unpacked dev links show the placeholders)")
@@ -1007,8 +1068,62 @@ def import_classes(archive: hwr.Archive, force: bool) -> None:
         print("  nothing written (outputs exist; use --force to overwrite)")
 
 
+TRINKETS_MODULE = paths.MODULES / "trinkets"
+TRINKET_SHEET = TRINKETS_MODULE / "gui" / "hwp" / "icons_trinkets_hoh1.png"
+TRINKET_LANG = TRINKETS_MODULE / "res" / "language" / "english" / "hwp_trinkets_hoh1art.lang"
+TRINKET_COLS = 8
+HOH1_ITEM_FILES = [f"items/{q}.sval" for q in ("common", "uncommon", "rare", "epic", "legendary")]
+
+
+def hoh1_item_icons(archive: hwr.Archive) -> dict:
+    """HoH1 item id -> (texture, (x, y, w, h)) from items/*.sval."""
+    icons = {}
+    for f in HOH1_ITEM_FILES:
+        text = archive.read_file(f).decode("utf-8", "replace")
+        for block in re.split(r'\n\t<dict name="', text)[1:]:
+            m = re.search(r'<array name="icon">\s*<string>([^<]+)</string>\s*<int>-?\d+</int>\s*<vec4>([\d ]+)</vec4>', block)
+            if m:
+                icons[block.split('"', 1)[0]] = (m.group(1), tuple(int(v) for v in m.group(2).split()))
+    return icons
+
+
+def import_trinkets(archive: hwr.Archive, force: bool) -> None:
+    from PIL import Image
+    written: list[str] = []
+    sval = (TRINKETS_MODULE / "tweak" / "hwp" / "trinkets_hoh1.sval").read_text(encoding="utf-8")
+    ids = re.findall(r'<string name="id">(hwp_\w+)</string>', sval)
+    icons = hoh1_item_icons(archive)
+    missing = [i for i in ids if i[4:].replace("_", "-") not in icons]
+    if missing:
+        raise SystemExit(f"no HoH1 icon for {missing}")
+    textures = {}
+    rows = (len(ids) + TRINKET_COLS - 1) // TRINKET_COLS
+    side = 1
+    while side < max(TRINKET_COLS, rows) * 16:
+        side *= 2
+    sheet = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+    for n, tid in enumerate(ids):
+        tex, (x, y, w, h) = icons[tid[4:].replace("_", "-")]
+        if tex not in textures:
+            data = archive.read_file(tex)
+            if hwr.is_texture(data):
+                data = hwr.texture_to_png(data)
+            textures[tex] = Image.open(io.BytesIO(data)).convert("RGBA")
+        cx, cy = (n % TRINKET_COLS) * 16, (n // TRINKET_COLS) * 16
+        sheet.paste(textures[tex].crop((x, y, x + w, y + h)), (cx + (16 - w) // 2, cy + (16 - h) // 2))
+    write(TRINKET_SHEET, png_bytes(sheet), force, written)
+    write(TRINKET_LANG, '<lang name="English" official="false">\n'
+          '\t<!-- generated by tools/import_hoh1.py trinkets: the ids in icons_trinkets_hoh1.png order -->\n'
+          f'\t<string name="hwp.trinkets.hoh1art">{" ".join(ids)}</string>\n</lang>\n', force, written)
+    print(f"trinkets: the HoH1 icons of {len(ids)} trinkets")
+    for w in written:
+        print("  wrote", w)
+    if not written:
+        print("  nothing written (outputs exist; use --force to overwrite)")
+
+
 IMPORTERS = {"pets": import_pets, "levels": import_levels, "campaign": import_campaign,
-             "classes": import_classes}
+             "classes": import_classes, "trinkets": import_trinkets}
 
 # What each import made, to tell whether it ever ran, and the stamp naming the
 # converter version (hwr_archive.CONVERTER_VERSION) it ran with.
@@ -1017,6 +1132,7 @@ IMPORT_OUTPUTS = {
     "levels": paths.REPO / "hoh1_import" / "campaign" / "report.json",
     "campaign": CAMPAIGN_OUT,
     "classes": paths.MODULES / "classes" / "hoh1art",
+    "trinkets": TRINKET_SHEET,
 }
 STAMPS = paths.REPO / "hoh1_import" / "stamps"
 
@@ -1052,6 +1168,8 @@ def main(argv=None):
             print(k)
         return
     hoh1 = Path(args.hoh1) if args.hoh1 else paths.hoh1_dir()
+    global HOH1_DIR
+    HOH1_DIR = hoh1
     bin_path = hoh1 / "res" / "assets.bin"
     if not bin_path.is_file():
         sys.exit(f"{bin_path} not found")

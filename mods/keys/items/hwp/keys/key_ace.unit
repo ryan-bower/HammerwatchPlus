@@ -20,7 +20,10 @@
 		<scene>
 			<minimap_sprite origin="5 5" texture="gui/minimap.png" frame="78 104 9 9" />
 			<scene src="items/base.unit:pickup_common"/>
-			<scene src="items/special/keys.unit:key_universal_ace"/>
+			%// the vanilla skull key (items/special/keys.unit:key_skull) tinted red
+			<sprite origin="8 8" texture="./key_ace.png" material="items/items.mats:item">
+				<frame>0 0 16 16</frame>
+			</sprite>
 		</scene>
 	</scenes>
 </unit>

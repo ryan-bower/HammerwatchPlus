@@ -1,0 +1,69 @@
+<!-- HoH1 dart trap (the arrow-spitting pressure plate) on HoH2's glyph trip mine: step
+     within 20 px and a ring of 8 trap arrows (doodads/traps/projectiles/arrow.unit, the
+     HoH2 arrow turret's projectile) flies out after a 200 ms click; the plate is back
+     after 5 s. Placed by scripts/HWP/Campaign/Traps.as (set hwp_traps). -->
+<unit slot="doodad" layer="0">
+	<behavior class="TripMine">
+		<string name="team">enemy</string>
+		<int name="hp">10000</int>
+		<bool name="targetable">false</bool>
+		<bool name="targeting">false</bool>
+		<bool name="no-buffs">true</bool>
+		<bool name="must-see-target">false</bool>
+		<bool name="crosshair-colors">false</bool>
+		<bool name="counts-as-kill">false</bool>
+		<bool name="floating-hurt">false</bool>
+		<bool name="hide-health">true</bool>
+		<string name="anim-visible">visible</string>
+		<string name="anim-invisible">invisible</string>
+
+		<int name="dist-visible">40</int>
+		<int name="dist-trigger">20</int>
+
+		<dict name="movement">
+			<string name="class">EmptyMovement</string>
+		</dict>
+
+		<array name="skills">
+			<dict>
+				<string name="class">CompositeActorTriggeredSkill</string>
+				<string name="trigger">OnDeath</string>
+				<int name="range">999</int>
+
+				<array name="actions">
+					<dict>
+						<string name="class">SpawnUnit</string>
+						<string name="unit">doodads/hwp/traps/hwp_glyph_dart_burst.unit</string>
+					</dict>
+
+					<dict>
+						<string name="class">SpawnUnit</string>
+						<string name="unit">doodads/hwp/traps/hwp_glyph_dart.unit</string>
+						<int name="delay">5000</int>
+					</dict>
+				</array>
+			</dict>
+		</array>
+	</behavior>
+
+	<scenes>
+		<scene name="invisible" editor-bounds="-12 -12 24 24">
+			<collision static="true">
+				<circle sensor="true" shoot-through="true" aim-through="true" radius="20" />
+			</collision>
+			<sprite origin="16 16" texture="doodads/traps/floors/floor_spikes.png" material="system/default.mats:floor">
+				<frame>0 96 32 32</frame>
+			</sprite>
+		</scene>
+
+		<scene name="visible" editor-bounds="-12 -12 24 24">
+			<collision static="true">
+				<circle sensor="true" shoot-through="true" aim-through="true" radius="20" />
+			</collision>
+			<sprite origin="16 16" texture="doodads/traps/floors/floor_spikes.png" material="system/default.mats:floor">
+				<frame>0 96 32 32</frame>
+			</sprite>
+			<effect src="effects/generic/other/trap_indicator.effect"/>
+		</scene>
+	</scenes>
+</unit>

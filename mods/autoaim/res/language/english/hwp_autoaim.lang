@@ -1,0 +1,13 @@
+<lang name="English" official="false">
+	<string name="hwp.autoaim.option.mode">Auto aim (AOE skills)</string>
+	<string name="hwp.autoaim.option.cone">Auto aim cone</string>
+	<string name="hwp.autoaim.option.fire">Auto fire</string>
+	<string name="hwp.autoaim.option.skill">Auto skill</string>
+	<string name="hwp.autoaim.mode.0">Off</string>
+	<string name="hwp.autoaim.mode.1">Controller</string>
+	<string name="hwp.autoaim.mode.2">Controller + mouse</string>
+	<string name="hwp.autoaim.cone">%deg% degrees</string>
+	<string name="hwp.autoaim.on">On</string>
+	<string name="hwp.autoaim.off">Off</string>
+	<string name="hwp.autoaim.skill.mana">Mana %pct%%+</string>
+</lang>

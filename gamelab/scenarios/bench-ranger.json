@@ -3,7 +3,9 @@
  "about": "Measurement (balance): ranger damage on a pack of target dummies at levels 1/12/20/25 (NG+), every specialization and weapon build, at the start of a run and late in one (orbs, trinkets); gamelab/bots/bench.py. Writes gamelab/results/bench/ranger.json.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 5400,

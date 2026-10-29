@@ -3,7 +3,9 @@
   "about": "Native Paladin seed fixture, then normal all31 module activation and one new Firearms record before measurement. Four fixed natural P,C,P bursts from15+9 leave7+5/shared12; proportional8+4 reconstruction must fail. Same Firearms record on floor2, native WM_CLOSE save/restart choice=resume, identical skill/gear/clip12/per-hand crit before setters, next real critical burst5+4/shared9.",
   "fixture": "qa-firearms-resume",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

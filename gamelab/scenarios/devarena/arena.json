@@ -2,7 +2,7 @@
  "name": "devarena-arena",
  "about": "The Dev Arena for a human: python -m gamelab run devarena/arena --mode watch. A lab copy of the game (the fixture's ranger, never the user's saves or install) boots onto dark_citadel floor 13 with the floor cleared and ranger_nature/mid applied, then holds until the game window is closed (up to 4 h). F1 dock, F2 A/B, F3 fresh golem, F4 golem room (mods/devarena/README.md). Edits go through the dock; [Relaunch] is not available here (the runner's relaunch step is a scripted run's), so a REFS edit waits for the next session.",
  "fixture": "mission-ranger",
- "mods": ["core", "devarena", "spec-ranger-test"],
+ "mods": ["hwplib", "devarena", "spec-ranger-test"],
  "timeout": 4800,
  "steps": [
   {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},

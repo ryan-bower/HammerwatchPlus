@@ -1,0 +1,67 @@
+{
+ "name": "pf-mod-classes-hidden",
+ "about": "mod-classes-hidden against the built packages classes, firearms instead of the mods' source folders (tools/make_package_scenarios.py). Thief, Gladiator and Witch Hunter are parked: the create-character list leaves them out (core's HWP::HideClass), and the Firearms Specialist is still offered.",
+ "fixture": "town-paladin",
+ "timeout": 200,
+ "steps": [
+  {
+   "do": "wait_phase",
+   "phase": "town",
+   "timeout": 60
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "charcreate",
+   "args": []
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] create-character: hid hwp_thief",
+   "timeout": 20
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] create-character: hid hwp_gladiator",
+   "timeout": 5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] create-character: hid hwp_witch_hunter",
+   "timeout": 5
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "create-character: hid hwp_firearms"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "classlist"
+  },
+  {
+   "do": "key",
+   "key": "escape"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "firearms"
+ ]
+}

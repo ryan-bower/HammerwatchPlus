@@ -1,16 +1,19 @@
 <unit netsync="none">
 	<!--
 		Thunder Orb's orb (invocation/tempest_torrent.sval, HWPSpecsZap in
-		scripts/HWP/Specs/Invocation.as). Slow (1.6 px a tick, about 50 px/s), through enemies
-		(penetration 999, no hit effects), stopped by a wall (bounce speed 0: it stays and keeps
-		zapping). Every 250 ms: tt-zaps zaps of tt-dmg lightning within tt-radius (3 and 70; Lightning Rod
+		scripts/HWP/Specs/Invocation.as). Slow (2.0 px a tick, about 60 px/s; 1.6 / 48 until
+		2026-10-25, +25% as the user asked), through enemies (penetration 999, no hit effects),
+		stopped by a wall (bounce speed 0: it stays and keeps zapping). Its body is a 3 px circle
+		(6 until 2026-10-25) so a corner of the geometry snags it less; the look is bigger: the
+		vanilla lightning ball at radius 5 (was 3) under orb.effect at 1.5x. HWPSpecsTtlAdd logs
+		the speed and the time to live of every orb shot ("thunder orb: speed ..."). Every 250 ms: tt-zaps zaps of tt-dmg lightning within tt-radius (3 and 70; Lightning Rod
 		raises both). Binds: tt-ttl (+tt-ttl-add, Lingering Storm), tt-overcharge (Focal Point),
 		tt-clap (Thunderclap, on the way out). Sounds (art/specs/AUDIO.md): the static loop while
 		it flies, one zap sound a tick that zaps anything, the blast with Thunderclap's burst.
 	-->
 	<behavior class="NewProjectile">
 		<string name="anim">default</string>
-		<float name="speed">1.6</float>
+		<float name="speed">2.0</float>
 		<string name="ttl-bind">tt-ttl</string>
 		<int name="penetration">999</int>
 		<int name="bounces">999</int>
@@ -77,9 +80,9 @@
 	<scenes start="default">
 		<scene name="default">
 			<collision static="false">
-				<circle radius="6" projectile="true" />
+				<circle radius="3" projectile="true" />
 			</collision>
-			<effect layer="0" src="effects/generic/projectiles/lightning_projectile_ball_2.effect?radius=3" />
+			<effect layer="0" src="effects/generic/projectiles/lightning_projectile_ball_2.effect?radius=5" />
 			<effect layer="1" src="players/hwp/specs/effects/orb.effect" />
 		</scene>
 	</scenes>

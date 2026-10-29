@@ -1,0 +1,10 @@
+<!-- HWP objectives vault switch: a 3x3 floor patch (ReserveFloor), the lever at the centre cell's centre -->
+<dict>
+	<int name="version">1</int>
+	<dict name="units">
+		<array name="doodads/hwp/objective_switch.unit">
+			<vec2>24 24</vec2>
+			<int>1</int>
+		</array>
+	</dict>
+</dict>

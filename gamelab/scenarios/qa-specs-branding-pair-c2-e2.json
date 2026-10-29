@@ -3,7 +3,9 @@
   "about": "Three fixed zero/ten-Essence native-button controls for interacting Combustion2/Empowerment2, Proliferation3/Released2; independent Raw9 f32 Fire direct+settled pool model, exact source payment and all original strict geometry/input/crit/CD controls. Controlled prerequisite acquisition;1/9Essence boundaries, other identity sets and lifecycle remain separate.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">HammerwatchPlus Map Icons</string>
+	<string name="author">Ryan Bower</string>
+	<string name="description">A dye-pot marker on the minimap over every dye bucket of a floor (setting mapicons.dyes). Part of HammerwatchPlus.</string>
+</dict>

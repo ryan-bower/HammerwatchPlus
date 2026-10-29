@@ -2,7 +2,7 @@
   "name": "qa-classes-kill-procs",
   "about": "Bloodlust heal10..50 and Judgement mana3..7 at every rank via one same-frame real actor.Kill(localPlayer) event each, with raw before/after resources. Resource deficits and lethal kills are labeled lab fixtures; this does not prove ordinary combat kills.",
   "fixture": "town-paladin",
-  "mods": ["core", "classes"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes"],
   "timeout": 300,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},

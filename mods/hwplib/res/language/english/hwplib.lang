@@ -1,0 +1,40 @@
+<lang name="English" official="false">
+	<string name="hwp.core.hello">HammerwatchPlus language file loaded</string>
+	<string name="hwp.guard.new_build">Heroes of Hammerwatch II is on build %build%; this HammerwatchPlus was tested on build %tested%. If a mod misbehaves, look for a HammerwatchPlus update (hwp guard lists any mod script errors).</string>
+	<string name="hwp.guard.tripped">The %mod% mod hit a script error and switched part of itself off until the next level; the game keeps running. A game update may have broken it: look for a HammerwatchPlus update (hwp guard lists the errors).</string>
+	<string name="hwp.options.tab">Plus</string>
+	<string name="hwp.options.title">HammerwatchPlus Options</string>
+	<string name="hwp.options.hint">Click to change a setting or open a package.</string>
+	<string name="hwp.options.capture">Press a key for %what% (Esc cancels)</string>
+	<string name="hwp.options.press">press a key...</string>
+	<string name="hwp.options.search">Search settings...</string>
+	<string name="hwp.options.nomatch">No settings match "%q%".</string>
+	<string name="hwp.options.top">Keys and accessibility</string>
+	<string name="hwp.options.count">%on%/%n% on</string>
+	<string name="hwp.options.open">Click to show this package's modules and settings.</string>
+	<string name="hwp.options.close">Click to fold this package away.</string>
+	<string name="hwp.options.host">In a lobby the host decides this.</string>
+	<string name="hwp.options.level">Takes effect on the next level.</string>
+	<string name="hwp.cfg.on">On</string>
+	<string name="hwp.cfg.off">Off</string>
+	<string name="hwp.cfg.always">Always on</string>
+	<string name="hwp.market.none">You carry no wares.</string>
+	<string name="hwp.market.list">Wares: %list% (worth %price%)</string>
+	<string name="hwp.market.sold">Sold your wares for %price%.</string>
+	<string name="hwp.market.gold">%n% gold</string>
+	<string name="hwp.market.and">%a% and %b%</string>
+	<string name="hwp.market.gold_short">%n% g</string>
+	<string name="hwp.market.and_short">%a%, %b%</string>
+	<string name="hwp.town.host_only">Only the host can do that.</string>
+	<string name="hwp.town.no_actor">No player actor (are you in town?).</string>
+	<string name="hwp.town.moved">The %what% spot moved to %x%,%y% (saved).</string>
+	<string name="hwp.town.reset">The %what% spot is back at its own place (%x%,%y%).</string>
+	<string name="hwp.luck.stat.tip">Rarer loot comes up more often: chests, strongboxes, abyss cracks, keys and fish. A chest never drops more often, only better, except its dyes, which Luck finds more of.\n\nYour Luck %luck%: rarer outcomes x%factor%. A chest or strongbox rolls at the Luck of whoever opens it, and the whole party gets what it rolled; an abyss crack, which nobody opens, at the party's average (x%party%).\n\nThe party's average also reaches each new floor: a chance of an extra secret room and of the imp, more and better food, potions, chests and other floor rewards, rarer blueprints, more fishing holes, more and higher keys and more ace chests. At the roulette table it raises your winnings by the same percent.
+
+Luck never changes the chance of a skill, item or trinket effect.</string>
+	<string name="stat.custom.hwpluck">Luck</string>
+	<string name="hwp.hoh1.missing">Heroes of Hammerwatch 1 content is not installed, so these use stand-ins: %list%. Everything else works. To add it, own HoH1 and install HammerwatchPlus with run.cmd from its project page (hwp hoh1 lists them).</string>
+	<string name="hwp.hoh1.none">No enabled HammerwatchPlus mod uses Heroes of Hammerwatch 1 content.</string>
+	<string name="hwp.hoh1.present">Heroes of Hammerwatch 1 content installed</string>
+	<string name="hwp.packages.mismatch">HammerwatchPlus packages from different updates are enabled together (%list% differ from the rest), so some mods may misbehave. Update them all in the Steam Workshop, or enable only HammerwatchPlus-All.</string>
+</lang>

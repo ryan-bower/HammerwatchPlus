@@ -18,7 +18,7 @@ instead (Skill.Activate as the helper calls it, the cooldown cleared first), so 
 wait out each variant's cooldown.
 
 The game has three skill buttons: vanilla GetSkillInput (PlayerTargetingHelper.as:744-749)
-gives the third and every later active spell Skill3. Core's extra skill keys (mods/core,
+gives the third and every later active spell Skill3. The library's extra skill keys (mods/hwplib,
 SkillKeys.as) give the 4th to 6th their own key, which `gl input` holds as hwp_skill4..6.
 Reload and frag hold Skill1 and Skill2; a specialization's active is the 3rd (Skill3).
 `<spec>_own_buttons`: the finished doctrine has a button per active skill (`gl skillbar`), and
@@ -1390,6 +1390,39 @@ class Checks(Base):
         self.flag(f"{gun}_arm_lowers_on_reload", held is not None and low is not None and low.group(1) == "reloading",
                   f"{low and low.group(0)}")
         time.sleep(1.5)
+
+
+    # --- frames through a rifle burst (Combat.as AimHold, the pin against the base update)
+    def firearms_rifle_burst(self, frames=12, timescale=0.2):
+        """Hold the rifle's trigger through more than one 800 ms cycle at a slowed clock and
+        take frames all the way through: with the arm pinned they show the same raised pose
+        in every frame (judged offline on the player's crop, not flagged here); logged
+        held/lowered lines bracket the burst."""
+        self.gl("char", "hwp_firearms", "LabBurst")
+        self.wait_phase("town", 60)
+        time.sleep(2)
+        if not self.enter_floor("burst"):
+            return
+        eq = self.gl("equip", "hwp_rifle_01", "common").get("ok")
+        time.sleep(1.0)
+        self.gl("givestacks", self.CLIP, 999)
+        pos = self.log_pos()
+        self.gl("timescale", timescale)
+        self.gl("input", 2400, 0, 0, 1, 0, "main")     # game ms: three cycles, 12 s real at 0.2
+        held = self.wait_log(r"gun arm: held", pos, 3.0)
+        t0 = time.time()
+        times = []
+        for i in range(frames):
+            self.g.shot(f"burst {i:02d}", settle=False)
+            times.append(round(time.time() - t0, 2))
+            time.sleep(0.5)
+        self.gl("timescale", 1)
+        low = self.wait_log(r"gun arm: lowered \(([^)]*)\)", pos, 4.0)
+        self.flag("rifle_burst_equipped", bool(eq), f"equip {eq}")
+        self.flag("rifle_burst_held", held is not None, f"{held and held.group(0)}")
+        self.flag("rifle_burst_lowers_after", low is not None and "without a shot" in low.group(1), f"{low and low.group(0)}")
+        self.notes.append(f"burst frames at {times} s after held")
+        self.to_town()
 
 
 def run(p, sections="firearms_frag", **_):

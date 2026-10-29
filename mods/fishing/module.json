@@ -1,6 +1,63 @@
 {
   "id": "fishing",
-  "requires": ["core"],
+  "requires": [
+    "hwplib",
+    "hwplib-luck"
+  ],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Fishing",
+    "about": "The coast, the pirate and run fishing holes. Off keeps your fish and gear saved.",
+    "toggle": "fishing.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": [
+      {
+        "key": "fishing.coast",
+        "type": "bool",
+        "default": true,
+        "title": "Coast and pirate",
+        "about": "The coast's fishing spots, crab traps and the pirate in town."
+      },
+      {
+        "key": "fishing.run_chance",
+        "type": "int",
+        "default": 30,
+        "values": [
+          0,
+          15,
+          30,
+          50,
+          75,
+          100
+        ],
+        "suffix": "%",
+        "title": "Run hole chance",
+        "applies": "level",
+        "about": "The chance a run gets a fishing hole on its first floor (Luck raises it)."
+      },
+      {
+        "key": "fishing.run_casts",
+        "type": "int",
+        "default": 3,
+        "values": [
+          1,
+          2,
+          3,
+          5,
+          8
+        ],
+        "title": "Casts per hole",
+        "about": "Catches each player gets at a run's fishing hole."
+      },
+      {
+        "key": "fishing.keys",
+        "type": "bool",
+        "default": true,
+        "title": "Keys from catches",
+        "about": "Catches can bring up a key now and then."
+      }
+    ]
+  }
 }

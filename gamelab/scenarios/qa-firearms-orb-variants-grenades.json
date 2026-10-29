@@ -3,7 +3,9 @@
   "about": "All3 Stun/Incendiary/Gas ranks: natural grenade HP damage, native per-frame area lifetimes and live stun/slow durations or continuing damage/tags; no TTL/HP setters.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

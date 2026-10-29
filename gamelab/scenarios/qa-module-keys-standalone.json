@@ -3,7 +3,9 @@
   "about": "Standalone functional subset with only required modules. Native bag purchases/cap and actual locked-chest key/refusal/loot checks; controlled floor setup and chest spawns. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "keys"
   ],
   "timeout": 600,

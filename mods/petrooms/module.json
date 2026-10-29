@@ -1,0 +1,33 @@
+{
+  "id": "petrooms",
+  "shared": true,
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [],
+  "exclude": [],
+  "config": {
+    "title": "Improved behavior",
+    "about": "Your pet waits outside puzzle and trap rooms, so it leaves buttons and pressure plates alone, and walks back out if it ends up in one.",
+    "toggle": "petwait.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": [
+      {
+        "key": "petwait.radius",
+        "type": "int",
+        "default": 120,
+        "values": [
+          60,
+          90,
+          120,
+          180,
+          240
+        ],
+        "suffix": " px",
+        "title": "Room distance",
+        "about": "How close to a puzzle or to traps counts as in the room."
+      }
+    ]
+  }
+}

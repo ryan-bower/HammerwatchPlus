@@ -12,11 +12,41 @@ slots, trinkets for the next run) and red legendaries.
   its own vanilla loot. `keys.lock_chance` (default 1) can make it a share;
   the roll is a hash of the chest's position, the mission reward seed and the
   level index, so host and clients agree without a message.
-- **Ace chests.** 15 % of gold chests (`keys.ace_chance`) turn red and
-  need an ace key. Opening one spawns the chest's own loot plus, 50/50
+- **"The chest was trapped!!"** (bugs 10.22.26 line 41, `Trapped.as`).
+  `HWPChest::Use` calls `HWP::Keys::Trapped::OnChestUse` before the vanilla
+  `Chest::Use` destroys the unit: on the host, a cursed chest
+  (`items/chests/*cursed*`, the ones whose loot is an ambush) logs
+  `trapped chest opened by <name> at x,y` and broadcasts `keys.trapped` with
+  the position; every machine within 900 px shows the `hwp_trapped` announce
+  (`tweak/hwp/announce_keys.sval`: arial24, mid-screen, 2 s, trip-wire alert
+  sound, lang `hwp.keys.trapped`) and logs `trapped chest banner at x,y`;
+  farther away it logs `out of range`. If the style failed to load it falls
+  back to the vanilla `region_enter` style and logs an error.
+- **Ace chests.** 15 % of gold chests (`keys.ace_chance`) become ace chests
+  (the art below; red-tinted where there is none) and need an ace key, the
+  vanilla skull key tinted red (`items/hwp/keys/key_ace.png`, on the floor, in
+  the HUD and at the merchant). Opening one spawns the chest's own loot plus, 50/50
   (`keys.legendary_chance`), either an epic equipment drop or one red
   legendary **per player in the lobby** (instanced through `Item::DropItem`;
   tables in `tweak/hwp/loot_chests_ace.sval`).
+  The opener's machine counts its Ace chests in GlobalCache `hwp_keys_aces_opened`
+  (it outlives the level; vanilla's `chest-unlocked-<key>` stat is not defined for
+  "ace", so `Stats::Add` books nothing), which mods/mmhmm reads.
+- **Chest art by area** (`ChestArt.as`, `tweak/hwp/chest_art.sval`, picked in the
+  Chest Art Picker). An area is an act of the mission: it changes where a floor's
+  act-name (the region banner) changes, so Dark Citadel's forest, dark caves,
+  forest, temple, crypt, dungeon, barracks, courts and dark halls are areas 1-9;
+  past area 8 the area 8 art is used. Trinket chests (bronze, silver, gold) are the
+  plain unused chests in areas 1-3, their own art in 4-5 and the strapped ones
+  from 6; cursed chests the blue steel rimmed chest in 1-4 and the large one from
+  5; ace trinket chests the gold chest with the red lid in 1-5 and the red and gold
+  large one from 6; ace equipment chests the map reward chest. Equipment and
+  platinum chests keep their art. `tools/class_units.py` (module.json `scene_art`)
+  gives the generated chest units one scene per sprite; `HWPChest` switches to the
+  area's on its first tick (log `chest art <unit>: <scene> (area n)`) and to the ace
+  one when the chest rolls ace. Every machine counts the area from the mission
+  definition, so nothing is sent. `hwp chestart` shows the floor's area; with
+  `keys.debug`, `hwp chestart area <n>|off` sets it for chests made afterwards.
 - **Party key pool.** Keys found in a run (drops, the imp's offer) go into
   one pool for the whole party, held by the host (`HWP::Keys::g_pool`, kept on
   the host's record so it outlives the level, broadcast as `keys.pool`). Every
@@ -43,6 +73,12 @@ slots, trinkets for the next run) and red legendaries.
   the mission's second-to-last boss on it is an ace key (Bone Serpent and
   Avatar in the Dark Citadel). `hwp keys` shows the pool, the floor's locked
   chests and the budget left per tier.
+- **Luck on the floor.** The party's floor Luck (hwplib-luck `HWP::Luck::FloorFactor`)
+  multiplies the budget share (still at most 95 %), weighs the budget's higher tiers up
+  and multiplies the ace chance (at most 50 %, `HWP::Luck::AceChance`). A client's chest
+  waits for the host's floor value (`hwp.luck.floor`) before it rolls its lock. Log
+  `[HWP:keys] luck x<f> chest lock <tier>[ (ace chance C%: ace|gold)]`; `hwp keys` shows
+  `floor Luck x<f>` after the budget.
 - **Imp offer.** `HWPImpKeyEffect` adds "a key" to the vanilla imp's random
   offers (`ImpEffect`), the tier scaled by the floor the same way.
 - **General Merchant.** The exit guard by the run start (our copy of
@@ -52,8 +88,8 @@ slots, trinkets for the next run) and red legendaries.
   row); when it closes,
   NPCBehavior moves on to his vanilla speech bubble. Each key lists the loot
   quality of its chests. Prices `keys.price_<tier>` (500 / 2000 / 8000 /
-  50000); only one ace key can be held at a time.
-  He also sells **bag slots** (core `HWP::Bag`): one more equipment bag slot
+  20000); only one ace key can be held at a time.
+  He also sells **bag slots** (`HWP::BagShop` in this module; the bag size is hwplib's `HWP::Bag`): one more equipment bag slot
   per purchase for the buyer's character, 1000 g rising to 20000 g, up to a
   full extra row (32 slots).
 - **Trinkets tab.** Six trinkets per character (2 common, 2 uncommon, 2 rare;
@@ -74,14 +110,40 @@ slots, trinkets for the next run) and red legendaries.
   hurt, kill-same-type, and periodic magic bolts),
   quality `Legendary`, drop-rate 0 so they only come from ace chests.
 - All `keys.*` settings are host-authoritative: clients read the host's
-  values (core `settings.sync`), so every machine rolls the same locks.
+  values (hwplib `settings.sync`), so every machine rolls the same locks.
 - HUD: left of the bottom bar, one key icon per tier you can use (party pool
   plus your own) with its count, while you can use any.
-- Commands: `hwp keys` (counts + settings), `hwp keygive <tier> [n]` and
-  `hwp keydrop <tier>` when `keys.debug` is on.
+- Commands: `hwp keys` (counts + settings), `hwp chestart`, `hwp keygive <tier> [n]`,
+  `hwp keydrop <tier>` and `hwp chestart area <n>|off` when `keys.debug` is on.
 
 Open decisions: the budget share (`keys.budget_share`), legendary balance and slots,
 whether resource caches should want keys too.
+
+- **Luck** (hwplib-luck `HWP::Luck`, `docs/design/luck.md`). `HWPChest::Use` rolls the
+  chest's table through `HWP::Luck::SpawnLoot` at the opener's factor, once for the party (the rarer
+  entries of each pool weigh more; the table is taken off the behaviour around
+  `Chest::Use` and put back), which covers every reward chest, cache and puzzle
+  room reward. A kill's boss key chance and the normal-kill candidate share use the
+  killer's factor, the host's accept roll the party's (`HWP::Luck::Chance`, capped
+  at 1). Logs: `[HWP:keys] luck x<f> chest <key|open> loot`, `... boss key roll`,
+  `... <elite|normal> kill drop candidate`, `... candidate accept roll`.
+
+## Settings
+
+On the HammerwatchPlus tab of the player menu (`hwp set <key> <value>`; `module.json`
+`config`). All host-authoritative.
+
+- `keys.enabled` (on): the switch. Off: chests don't lock and keep their vanilla art (from
+  the next level: a chest decides when it first ticks), no key drops or imp keys, no
+  trapped-chest banner, the exit guard only talks (`HWPGeneralMerchant.CanInteract`), no
+  `hwp bag buy`, and the key HUD hides (unless a chest on this floor locked while it was
+  on; such a chest still opens with a key). Keys, the party pool, bag slots and packed
+  trinkets stay as they are; packed trinkets are still handed over at the next run.
+- `keys.lock_chance` (1), `keys.budget_share` (0.5), `keys.ace_chance` (0.15),
+  `keys.legendary_chance` (0.5), `keys.boss_chance` (0.2).
+- `keys.price_bronze`/`_silver`/`_gold`/`_ace` (500 / 2000 / 8000 / 20000 g).
+- Not on the page: `keys.budget_per_player`, `keys.normal_try`, `keys.accept` (tuning) and
+  `keys.debug`.
 
 ## Test checklist
 
@@ -115,3 +177,9 @@ whether resource caches should want keys too.
    drop keys the host spawned into the shared pool; either player can open a
    chest with a party key, and the client with their own bought key.
 8. Disable the module: vanilla saves still load, keys remain in the record.
+9. `python -m gamelab run fix-map-trapped --mode lab`: a cursed chest beside the
+   player logs the opening and the banner (shot `trapped-banner`), one 1500 px
+   away logs `out of range` without a banner, a plain chest logs nothing.
+   Co-op: the client near the chest sees the banner too.
+10. `python -m gamelab run fix-core-luck --mode lab`: a spawned cache used at 60 Luck
+   logs `[HWP:keys] luck x1.6 chest open loot` and `[HWP:luck] loot chest factor 1.6`.

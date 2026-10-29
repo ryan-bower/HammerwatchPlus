@@ -3,7 +3,9 @@
   "about": "Standalone functional subset with only required modules. Native rerolls, actual gold/tokens/item changes, affordability/refusals and bet animation/payout arithmetic. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
   "fixture": "town-tavern",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "gambler"
   ],
   "timeout": 600,

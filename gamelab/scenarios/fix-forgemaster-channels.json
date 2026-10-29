@@ -1,0 +1,129 @@
+{
+ "name": "fix-forgemaster-channels",
+ "about": "The Devil Forgemaster fixes of 2026-10-25 (plan_forgemaster channel_lock, penance_icon, pyre_heresy, orb_boss sections): a Necrotic Resurrection or Sacrificial Penance channel locks the priest onto the body (the facing holds against a turned aim, a dash press is refused and logged, nothing moves), runs a beam and pulses that grow with the channel and draws a progress bar over the priest; the skill's icon swaps to the Penance icon at max Divine Favor; a pyre is usable with Heresy and no curse and removes Pyre Sacrifice's Heresy, the large WorldScript pyre included; Deeper Depravity's epic rank gives every boss an intact body.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "classes",
+  "specs"
+ ],
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",
+   "timeout": 30
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "plan_forgemaster",
+   "kwargs": {
+    "sections": "channel_lock"
+   },
+   "name": "channel_lock",
+   "expect": {
+    "lock_char": true,
+    "lock_learned": true,
+    "lock_raise_locked": true,
+    "lock_beam": true,
+    "lock_bar": true,
+    "lock_facing_held": true,
+    "lock_dash_refused": true,
+    "lock_fx": true,
+    "lock_raise_done": true,
+    "lock_dash_after": true,
+    "lock_pen_locked": true,
+    "lock_pen_dash_refused": true,
+    "lock_pen_done": true
+   }
+  },
+  {
+   "do": "shot",
+   "name": "after_channel_lock"
+  },
+  {
+   "do": "bot",
+   "bot": "plan_forgemaster",
+   "kwargs": {
+    "sections": "penance_icon"
+   },
+   "name": "penance_icon",
+   "expect": {
+    "icon_char": true,
+    "icon_learned": true,
+    "icon_raise_below_max": true,
+    "icon_penance_at_max": true,
+    "icon_back_to_raise": true
+   }
+  },
+  {
+   "do": "bot",
+   "bot": "plan_forgemaster",
+   "kwargs": {
+    "sections": "pyre_heresy"
+   },
+   "name": "pyre_heresy",
+   "expect": {
+    "pyre_char": true,
+    "pyre_learned": true,
+    "pyre_canuse_with_heresy": true,
+    "pyre_heresy_removed": true,
+    "pyre_needs_heresy_or_curse": true,
+    "pyre_large_present": true,
+    "pyre_large_canuse": true,
+    "pyre_large_heresy": true
+   }
+  },
+  {
+   "do": "bot",
+   "bot": "plan_forgemaster",
+   "kwargs": {
+    "sections": "orb_boss"
+   },
+   "name": "orb_boss",
+   "expect": {
+    "orb_char": true,
+    "orb_learned": true,
+    "orb_boss_epic_only": true,
+    "orb_boss_always": true
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] channel locked on \\d+ facing",
+   "timeout": 5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] dash refused during (raise|penance) channel",
+   "timeout": 5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] resurrection icon -> penance",
+   "timeout": 5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] brazier pyre used with no curse: heresy -3 -> 1",
+   "timeout": 5
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

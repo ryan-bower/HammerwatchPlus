@@ -5,6 +5,10 @@
 // the condition holds. All living players in combo -> Group Unity: 2 s of no
 // damage taken, once per 30 s, announced in chat.
 //
+// The combo orb (ComboOrb.as) is a 0.1 % drop from boxes, barrels, sacks and vases,
+// up to 1 % with the breaker's Luck:
+// every player with combo unlocked gets their own, and picking it up starts combo.
+//
 // Buff delivery: the host's own player gets a real ActorBuff (the engine then
 // mirrors it to clients as a husk buff). Remote players are husks on the host
 // and refuse non-husk buffs, so they get the vanilla "UnitBuffed" message,
@@ -29,6 +33,8 @@ namespace HWP
 		void RefreshSettings()
 		{
 			g_enabled = HWP::Settings::GetBool("groupcombo.enabled", true);
+			g_orbPermille = clamp(HWP::Settings::GetInt("groupcombo.orb.permille", 1), 0, 1000);
+			g_orbMaxPermille = clamp(HWP::Settings::GetInt("groupcombo.orb.max_permille", 10), 0, 1000);
 		}
 
 		void OnSettingChanged(const string &in key)
@@ -145,6 +151,9 @@ namespace Modules
 			super("hwp-groupcombo");
 			HWP::Net::OnEvent(HWP::GroupCombo::UNITY_EVENT, HWP::Net::EventHandler(HWP::GroupCombo::OnUnity));
 			HWP::Commands::Register("groupcombo", " show the group combo state", HWP::Commands::Handler(HWP::GroupCombo::CmdStatus));
+			HWP::Net::OnEvent(HWP::GroupCombo::ORB_EVENT, HWP::Net::EventHandler(HWP::GroupCombo::OnOrb));
+			HWP::Commands::Register("comboorb", "[drop|break [radius]]  the combo orb drop (drop and break: cheats, host)", HWP::Commands::Handler(HWP::GroupCombo::CmdOrb));
+			HWP::GroupCombo::InstallOrbLoot();
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::GroupCombo::OnSettingChanged));
 
 			// resolve the buff file at boot so a broken sval shows in the log
@@ -160,7 +169,23 @@ namespace Modules
 			HWP::GroupCombo::RefreshSettings();
 		}
 
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardUpdateFrame;
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
+		{
+			if (m_guardUpdateFrame.Skip("groupcombo", "HWPGroupComboModule.UpdateFrame"))
+				return;
+			if (m_guardUpdateFrame.Raw())
+			{
+				GuardedUpdateFrame(ms, gameInput, menuInput, paused);
+				m_guardUpdateFrame.Ok();
+				return;
+			}
+			try { GuardedUpdateFrame(ms, gameInput, menuInput, paused); m_guardUpdateFrame.Ok(); }
+			catch { m_guardUpdateFrame.Failed(); }
+		}
+
+		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
 			if (paused)
 				return;

@@ -1,7 +1,8 @@
 {
   "id": "keys",
   "requires": [
-    "core"
+    "hwplib",
+    "hwplib-luck"
   ],
   "overrides": [
     "actors/npcs/town/npc_misc_guard_exit.unit"
@@ -9,5 +10,176 @@
   "class_swaps": {
     "Chest": "HWPChest"
   },
-  "exclude": []
+  "scene_art": "tweak/hwp/chest_art.sval",
+  "exclude": [],
+  "config": {
+    "title": "Keys and ace chests",
+    "about": "Reward chests lock and want a key; ace chests pay legendaries. Off: chests open freely.",
+    "toggle": "keys.enabled",
+    "scope": "host",
+    "applies": "level",
+    "settings": [
+      {
+        "key": "keys.lock_chance",
+        "type": "float",
+        "default": 1,
+        "values": [
+          0.25,
+          0.5,
+          0.75,
+          1
+        ],
+        "labels": [
+          "25%",
+          "50%",
+          "75%",
+          "All"
+        ],
+        "title": "Locked chests",
+        "about": "The share of reward chests that lock."
+      },
+      {
+        "key": "keys.budget_share",
+        "type": "float",
+        "default": 0.5,
+        "values": [
+          0.25,
+          0.5,
+          0.75,
+          0.95
+        ],
+        "labels": [
+          "25%",
+          "50%",
+          "75%",
+          "95%"
+        ],
+        "title": "Key drops",
+        "about": "Keys a floor drops, as a share of its locked chests."
+      },
+      {
+        "key": "keys.ace_chance",
+        "type": "float",
+        "default": 0.15,
+        "values": [
+          0,
+          0.05,
+          0.15,
+          0.3,
+          0.5
+        ],
+        "labels": [
+          "Never",
+          "5%",
+          "15%",
+          "30%",
+          "50%"
+        ],
+        "title": "Ace chests",
+        "about": "The share of gold chests that become ace chests."
+      },
+      {
+        "key": "keys.legendary_chance",
+        "type": "float",
+        "default": 0.5,
+        "values": [
+          0.25,
+          0.5,
+          0.75,
+          1
+        ],
+        "labels": [
+          "25%",
+          "50%",
+          "75%",
+          "Always"
+        ],
+        "title": "Ace legendaries",
+        "about": "The chance an ace chest pays a legendary rather than an epic.",
+        "applies": "now"
+      },
+      {
+        "key": "keys.boss_chance",
+        "type": "float",
+        "default": 0.2,
+        "values": [
+          0,
+          0.1,
+          0.2,
+          0.5,
+          1
+        ],
+        "labels": [
+          "Never",
+          "10%",
+          "20%",
+          "50%",
+          "Always"
+        ],
+        "title": "Boss keys",
+        "about": "The chance a floor's first boss drops a key.",
+        "applies": "now"
+      },
+      {
+        "key": "keys.price_bronze",
+        "type": "int",
+        "default": 500,
+        "values": [
+          250,
+          500,
+          1000,
+          2000
+        ],
+        "suffix": " g",
+        "title": "Bronze key price",
+        "about": "What the exit guard asks for a bronze key.",
+        "applies": "now"
+      },
+      {
+        "key": "keys.price_silver",
+        "type": "int",
+        "default": 2000,
+        "values": [
+          1000,
+          2000,
+          4000,
+          8000
+        ],
+        "suffix": " g",
+        "title": "Silver key price",
+        "about": "What the exit guard asks for a silver key.",
+        "applies": "now"
+      },
+      {
+        "key": "keys.price_gold",
+        "type": "int",
+        "default": 8000,
+        "values": [
+          4000,
+          8000,
+          16000,
+          32000
+        ],
+        "suffix": " g",
+        "title": "Gold key price",
+        "about": "What the exit guard asks for a gold key.",
+        "applies": "now"
+      },
+      {
+        "key": "keys.price_ace",
+        "type": "int",
+        "default": 20000,
+        "values": [
+          10000,
+          20000,
+          40000,
+          80000
+        ],
+        "suffix": " g",
+        "title": "Ace key price",
+        "about": "What the exit guard asks for an ace key.",
+        "applies": "now"
+      }
+    ]
+  }
 }

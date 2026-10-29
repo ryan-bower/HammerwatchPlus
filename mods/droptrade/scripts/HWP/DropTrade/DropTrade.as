@@ -2,6 +2,10 @@
 // menu, the key (default Q, SDL scancode 20) drops it at your feet, next to
 // vanilla Destroy. The menu's own bindings have no free action for it, so
 // the key is polled raw like the weapon swap key.
+//
+// droptrade.enabled (host, default on) off: no Drop hint or key, and the use key
+// is vanilla again (no pickup first); an item action (Eat) keeps working.
+// droptrade.pickup_first (each player's own, default on) turns pickup first off alone.
 namespace HWP
 {
 	namespace DropTrade
@@ -12,11 +16,47 @@ namespace HWP
 		int g_scancode = DEFAULT_SCANCODE;
 		string g_keyName = "Q";
 		bool g_wasDown = false;
+		bool g_enabled = true;
+		bool g_pickupFirst = true;
 
 		void LoadKey()
 		{
 			g_scancode = HWP::Settings::GetInt("droptrade.key", DEFAULT_SCANCODE);
-			g_keyName = HWP::Settings::GetString("droptrade.keyname", g_scancode == DEFAULT_SCANCODE ? "Q" : "key " + g_scancode);
+			g_keyName = HWP::Settings::GetString("droptrade.keyname", HWP::Options::KeyName(g_scancode));
+		}
+
+		void RefreshSettings()
+		{
+			g_enabled = HWP::Settings::GetBool("droptrade.enabled", true);
+			g_pickupFirst = HWP::Settings::GetBool("droptrade.pickup_first", true);
+			LoadKey();
+		}
+
+		void OnSettingChanged(const string &in key)
+		{
+			if (key.findFirst("droptrade.") == 0)
+				RefreshSettings();
+		}
+
+		bool Enabled() { return g_enabled; }
+
+		// the row in the player menu's HammerwatchPlus tab: click, then press the new key
+		class DropKeyOption : HWP::Options::KeyOption
+		{
+			string Title() override { return Resources::GetString(".hwp.droptrade.option"); }
+			int Scancode() override { return g_scancode; }
+			string Value() override { return g_keyName; }
+			void SetScancode(int scancode) override
+			{
+				if (scancode == DEFAULT_SCANCODE)
+					HWP::Settings::Reset("droptrade.key");
+				else
+					HWP::Settings::SetInt("droptrade.key", scancode);
+				HWP::Settings::Reset("droptrade.keyname");
+				LoadKey();
+				// the new key is held right now (just pressed to bind it): no drop
+				g_wasDown = true;
+			}
 		}
 
 		string NavText()
@@ -70,7 +110,7 @@ namespace HWP
 			bool down = Platform::IsKeyDown(ControllerType::Keyboard, 0, g_scancode);
 			bool pressed = down && !g_wasDown;
 			g_wasDown = down;
-			if (pressed && TabOpen())
+			if (pressed && g_enabled && TabOpen())
 				g_tab.HWPDrop();
 			bool aDown = Platform::IsKeyDown(ControllerType::Keyboard, 0, g_actionScancode);
 			bool aPressed = aDown && !g_actionWasDown;
@@ -106,17 +146,37 @@ namespace Modules
 		{
 			super("hwp-droptrade");
 			HWP::Commands::Register("dropkey", "[scancode [name]]  show or set the inventory drop key", HWP::Commands::Handler(HWP::DropTrade::CmdDropKey));
+			HWP::Options::Register("dropkey", HWP::DropTrade::DropKeyOption());
+			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::DropTrade::OnSettingChanged));
 			HWP::Log("droptrade", "menu destroy key " + FormatKeyName(GetActionBinding("MenuAdditional")));
 		}
 
 		void Start(StartMode sMode)
 		{
-			HWP::DropTrade::LoadKey();
+			HWP::DropTrade::RefreshSettings();
 		}
 
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardUpdateFrame;
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
 		{
+			if (m_guardUpdateFrame.Skip("droptrade", "HWPDropTradeModule.UpdateFrame"))
+				return;
+			if (m_guardUpdateFrame.Raw())
+			{
+				GuardedUpdateFrame(ms, gameInput, menuInput, paused);
+				m_guardUpdateFrame.Ok();
+				return;
+			}
+			try { GuardedUpdateFrame(ms, gameInput, menuInput, paused); m_guardUpdateFrame.Ok(); }
+			catch { m_guardUpdateFrame.Failed(); }
+		}
+
+		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
+		{
 			HWP::DropTrade::Poll();
+			if (HWP::DropTrade::g_enabled && HWP::DropTrade::g_pickupFirst)
+				HWP::PickupFirst::Update();
 		}
 	}
 }

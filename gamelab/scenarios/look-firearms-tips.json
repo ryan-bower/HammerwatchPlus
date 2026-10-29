@@ -3,7 +3,9 @@
  "about": "Measurement only: where gun rounds start relative to the player (hwp firearms muzzle: ahead of the player along the aim, and to its right) for the rifle and dual pistols; then a Marksman's Sniper Shot: the laser dot during its windup (shot at timescale 0.1), its cost (mana, no rounds) and how far its round flies. Not evidence of play.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 180,

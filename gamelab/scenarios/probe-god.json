@@ -3,7 +3,9 @@
  "about": "Does hwp god keep the player alive among wolves, and what turns it off (settings write, swap key, abyss)?",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",
@@ -17,7 +19,6 @@
    "firearms",
    "fishing",
    "gambler",
-   "goldpet",
    "groupcombo",
    "keys",
    "laststats",

@@ -3,7 +3,7 @@
  "about": "The adversarial review's edge cases, typed into the Tune tab as a player would: (D2) an int past int32 (4294967396) is refused, not wrapped to 100; (N1) a negative castpoint is refused; (D4) castpoint 0 then 200 moves only the cast event, the timeline's start stays at 0; (D3) a REFS path longer than 48 chars reaches the submit whole, and one past the 160-char field limit is refused instead of committed cut off. Review 2: (B2) a typed edit committed by clicking the A/B swap or another skill's chip lands on the slot and skill it was typed for; (B1) a timeline that opens on the cast (Trap's [100,\"cast\"]) moves with the castpoint. Review 3: committing a filter or search by a click must not let the reflowed layout hand that click to a row that was never under the pointer.",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
   "devarena",
   "spec-ranger-test"
  ],

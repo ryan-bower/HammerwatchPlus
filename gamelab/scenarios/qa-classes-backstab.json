@@ -2,7 +2,7 @@
   "name": "qa-classes-backstab",
   "about": "Backstab ranks0/1/5: one actual main-weapon activation each, independently confirmed by numeric ! critical text, exact target HP loss and bleeding stacks0/2/6. Expiring native skillcrit fixture set/rebuilt/restored; no direct damage or modifier callbacks.",
   "fixture": "town-paladin",
-  "mods": ["core", "classes"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes"],
   "timeout": 300,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},

@@ -77,7 +77,7 @@ namespace GameLab
 	}
 
 	// levelup <n>: n levels' worth of experience through PlayerRecord.GiveExperience, gain
-	// modifiers skipped, as core's "hwp levelup" (mods/core/scripts/HWP/Core/Cheats.as:89-102)
+	// modifiers skipped, as hwplib's "hwp levelup" (mods/hwplib/scripts/HWP/Core/Cheats.as:89-102)
 	void VerbLevelup(const string &in id, array<string>@ args)
 	{
 		auto rec = FixtureRecord(id);
@@ -115,7 +115,7 @@ namespace GameLab
 
 	// points <skill|stat> <n>: bonus skill or attribute points (PlayerRecord.bonusSkillPts /
 	// bonusStatPts, then SyncStatPoints), as core's "hwp skillpoints" and "hwp statpoints"
-	// (mods/core/scripts/HWP/Core/Cheats.as:119-146)
+	// (mods/hwplib/scripts/HWP/Core/Cheats.as:119-146)
 	void VerbPoints(const string &in id, array<string>@ args)
 	{
 		auto rec = FixtureRecord(id);

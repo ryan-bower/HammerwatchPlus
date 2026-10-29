@@ -12,7 +12,7 @@ dependency order, with the safe ones fixed on request.
 --fix never writes the user's saves, config or install: bootstrap writes gamecode/ and
 tools/bin/ (the patched PACKAGER is a copy there, not in the install), env_link writes
 gamelab/env/userdata/, tools/class_units.py writes the class-swapped base units into
-mods/keys/, mods/pets/ and mods/colors/, and tools/import_hoh1.py (pets, levels, campaign, classes; only
+mods/keys/, mods/pets/ and mods/colors/, and tools/import_hoh1.py (pets, levels, campaign, classes, trinkets; only
 the ones whose output is missing, never --force) writes the HoH1 content into mods/ and
 hoh1_import/, tools/make_pet_dyes.py the dye-ready pet copies into mods/pets/, and
 tools/make_forgemaster_risen.py the Devil Forgemaster's risen and body units into mods/specs/.
@@ -271,19 +271,19 @@ def has_files(d: Path) -> bool:
 
 def class_units_problems() -> tuple[list[str], int]:
     """(units missing or different from what tools/class_units.py would write, units expected).
-    Same rules as class_units.generate, read only."""
+    The text class_units.generate writes (class_units.expected), read only."""
     import class_units
     bad, total = [], 0
     for mod in gamepaths.module_dirs():
         mj = mod / "module.json"
-        swaps = (json.loads(mj.read_text(encoding="utf-8")).get("class_swaps") or {}) if mj.is_file() else {}
-        for rel in class_units.units_for(swaps):
+        cfg = json.loads(mj.read_text(encoding="utf-8")) if mj.is_file() else {}
+        if not cfg.get("class_swaps"):
+            continue
+        cfg.update(id=mod.name, dir=mod)
+        for rel, text in class_units.expected(cfg).items():
             total += 1
-            src = (gamepaths.BASE_HOH2 / rel).read_text(encoding="utf-8", errors="replace")
-            want = (f"{class_units.GENERATED} from the base unit, with our script class -->\n"
-                    + class_units.swap(src, swaps)).encode("utf-8")
             out = mod / rel
-            if not out.is_file() or out.read_bytes() != want:
+            if not out.is_file() or out.read_bytes() != text.encode("utf-8"):
                 bad.append(f"mods/{mod.name}/{rel}")
     return bad, total
 
@@ -303,6 +303,8 @@ IMPORTS = {
     "classes": lambda: [CLASSES / "hoh1art" / "players" / "hwp" / c / f
                         for c in HOH1_CLASSES for f in ("class_showcase.png", "icons.png")]
                        + [CLASSES / "hoh1art" / "players" / "hwp" / "remastered" / "icons.png"],
+    "trinkets": lambda: [gamepaths.MODS / "trinkets" / "gui" / "hwp" / "icons_trinkets_hoh1.png",
+                         gamepaths.MODS / "trinkets" / "res" / "language" / "english" / "hwp_trinkets_hoh1art.lang"],
 }
 NEEDS_BASE = {"levels", "campaign"}
 
@@ -606,7 +608,7 @@ def smoke(r: Report, fix: bool, force: bool) -> None:
     r.check(label, True, f"PASS in {time.time() - t0:.0f}s{where}")
 
 
-def diagnose(fix: bool, force_smoke: bool = False) -> Report:
+def diagnose(fix: bool, force_smoke: bool = False, no_smoke: bool = False) -> Report:
     r = Report()
     print("machine:")
     if not r.check("Windows", sys.platform == "win32", sys.platform):
@@ -693,6 +695,11 @@ def diagnose(fix: bool, force_smoke: bool = False) -> Report:
     print("local content (gitignored, made from your own installs):")
     local_content(r, fix, hoh1)
 
+    if no_smoke:
+        # tools/run.py: a play session needs the content rows, not a lab boot (the launcher's
+        # own preflight still guards every GameLab run); the stamp is left as it is
+        r.info("smoke boot skipped (--no-smoke)")
+        return r
     print("smoke boot (this machine's GPU, antivirus and cores):")
     smoke(r, fix, force_smoke)
     return r
@@ -706,6 +713,8 @@ def main(argv=None) -> int:
     ap.add_argument("--confirm-saves", action="store_true")
     ap.add_argument("--no-saves-yet", action="store_true")
     ap.add_argument("--smoke", action="store_true", help="boot null-payload now, even if it passed before")
+    ap.add_argument("--no-smoke", action="store_true",
+                    help="skip the smoke boot (tools/run.py: setup for a play session, no lab boot)")
     hg = ap.add_mutually_exclusive_group()
     hg.add_argument("--hoh1", metavar="DIR", help="the HoH1 install dir the user named: validated, then "
                     "remembered in tools/paths.local.json (gitignored)")
@@ -723,7 +732,7 @@ def main(argv=None) -> int:
         confirm_saves(r, a.no_saves_yet, auto=False)
         print(f"doctor: saves {'confirmed' if r.green else 'NOT confirmed'}")
         return 0 if r.green else 2
-    r = diagnose(a.fix, a.smoke)
+    r = diagnose(a.fix, a.smoke, a.no_smoke)
     bad = [n for n, ok, _ in r.rows if not ok]
     print(f"doctor: {'green' if not bad else 'NOT ready: ' + ', '.join(bad)}")
     return 0 if not bad else 2

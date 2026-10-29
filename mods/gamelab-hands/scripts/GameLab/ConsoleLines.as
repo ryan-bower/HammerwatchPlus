@@ -61,11 +61,21 @@ namespace GameLab
 	//   cht_finish_level               Console::Cheats::FinishLevelCFunc (Console/Cheats.as:1117)
 	//   dbg_show_stash                 Console::Cheats::ShowPlayerStashCFunc (Console/Cheats.as:1070)
 	//   show_chat                      ShowChatCFunc (GameModes/MainMenuGameMode.as:3)
+	//   cht_give_health <n>            GiveHealthCFunc (Console/Cheats.as:716)
+	//   cht_damage <n>                 DamageCFunc (Console/Cheats.as:723)
+	//   cht_give_mana <n>              GiveManaCFunc (Console/Cheats.as:754)
+	//   cht_clear_trinkets             ClearTrinketsCFunc (Console/Cheats.as:702)
+	//   cht_give_specific_trinket <id> GiveSpecificTrinketCfunc (Console/Cheats.as:621)
+	//   cht_spawn_specific_equipment <id>  SpawnSpecificEquipmentCfunc (Console/Cheats.as:487); in
+	//                                  the game's script, so mod base items exist (the console's
+	//                                  copy runs in the menu's and has none, verb dropitem)
+	//   cht_add_blueprint <id>         addSingleBlueprintCFunc (Console/Cheats.as:1246)
+	//   cht_add_all_blueprints         addAllBlueprintsCFunc (Console/Cheats.as:1160)
 	void VerbCheat(const string &in id, array<string>@ args)
 	{
 		if (args.length() < 1)
 		{
-			Fail(id, "usage: cheat <ply_kill|cht_revive|cht_set_flag|cht_give_material|cht_add_all_dyes|cht_unlock_town_flags|mission_start|cht_finish_level|dbg_show_stash|show_chat> [args]");
+			Fail(id, "usage: cheat <ply_kill|cht_revive|cht_set_flag|cht_give_material|cht_add_all_dyes|cht_unlock_town_flags|mission_start|cht_finish_level|dbg_show_stash|show_chat|cht_give_health|cht_damage|cht_give_mana|cht_clear_trinkets|cht_give_specific_trinket|cht_spawn_specific_equipment|cht_add_blueprint|cht_add_all_blueprints> [args]");
 			return;
 		}
 		string fn = args[0];
@@ -181,6 +191,91 @@ namespace GameLab
 		else if (fn == "show_chat")
 		{
 			ShowChatCFunc();
+		}
+		else if (fn == "cht_give_health" || fn == "cht_damage" || fn == "cht_give_mana")
+		{
+			if (args.length() < 2)
+			{
+				Fail(id, "usage: cheat " + fn + " <n>");
+				return;
+			}
+			auto ply = GetLocalPlayer();
+			if (ply is null)
+			{
+				Fail(id, "cheat " + fn + ": no local player");
+				return;
+			}
+			int n = parseInt(args[1]);
+			if (fn == "cht_give_health")
+				ply.Heal(n);
+			else if (fn == "cht_damage")
+				ply.Damage(DamageInfo(null, n, false, true, 0), vec2(), vec2());
+			else
+				ply.GiveMana(n);
+		}
+		else if (fn == "cht_clear_trinkets")
+		{
+			auto plr = GetLocalPlayerRecord();
+			if (plr is null)
+			{
+				Fail(id, "cheat cht_clear_trinkets: no local player record");
+				return;
+			}
+			plr.trinketInventory.Clear();
+		}
+		else if (fn == "cht_give_specific_trinket")
+		{
+			auto plr = GetLocalPlayerRecord();
+			auto item = args.length() > 1 ? Item::Trinket::Get(args[1]) : null;
+			if (plr is null || item is null)
+			{
+				Fail(id, "cheat cht_give_specific_trinket: " + (plr is null ? "no local player record" : "no trinket " + (args.length() > 1 ? args[1] : "")));
+				return;
+			}
+			if (!CheckGlobalConditionals(item.m_dropConds))
+			{
+				Fail(id, "cheat cht_give_specific_trinket: conditional blocked " + args[1]);
+				return;
+			}
+			plr.GiveItem(item);
+		}
+		else if (fn == "cht_spawn_specific_equipment")
+		{
+			auto plr = GetLocalPlayerRecord();
+			auto baseItem = args.length() > 1 ? Equipment::BaseItem::Get(args[1]) : null;
+			if (plr is null || plr.actor is null || baseItem is null)
+			{
+				Fail(id, "cheat cht_spawn_specific_equipment: " + (baseItem is null ? "no BaseItem " + (args.length() > 1 ? args[1] : "") : "no local player"));
+				return;
+			}
+			if (!CheckGlobalConditionals(baseItem.m_conditionals))
+			{
+				Fail(id, "cheat cht_spawn_specific_equipment: conditional blocked " + args[1]);
+				return;
+			}
+			Equipment::Generator gen;
+			gen.m_ilvl = plr.level;
+			gen.m_qualities = Item::Quality(int(pow(2, randi(4))));
+			auto item = gen.GenerateItem(baseItem);
+			auto spawnPos = plr.actor.m_unit.GetPosition() + xyz(randdir() * (randf() + 1.0f) * 25);
+			Item::DropItem(item, spawnPos, 1, true, null);
+		}
+		else if (fn == "cht_add_blueprint" || fn == "cht_add_all_blueprints")
+		{
+			if (g_myTownRecord is null)
+			{
+				Fail(id, "cheat " + fn + ": no town record");
+				return;
+			}
+			if (fn == "cht_add_all_blueprints")
+				Console::Cheats::addAllBlueprintsCFunc();
+			else if (args.length() < 2)
+			{
+				Fail(id, "usage: cheat cht_add_blueprint <id>");
+				return;
+			}
+			else
+				g_myTownRecord.m_blueprints.SetBlueprint(args[1]);
 		}
 		else
 		{

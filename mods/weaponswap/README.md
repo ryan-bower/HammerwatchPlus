@@ -27,7 +27,7 @@ Two weapon sets per character, toggled with a hotkey.
   character menu; the channel runs there too, so a swap clicked in the menu
   lands in it.
 - **Character screen:** the other set shows in two `hwp-gear-slot` widgets
-  (core `HWP::Gear`, ids `hwp-alt-main` / `hwp-alt-off`) next to the 3x3 gear
+  (hwplib `HWP::Gear`, ids `hwp-alt-main` / `hwp-alt-off`) next to the 3x3 gear
   grid. A two-hander's off-hand slot mirrors the main hand, dimmed. Click a
   slot (or press X) to swap; the tooltip shows the stored item or how to use it.
 - **HUD tip:** while you are empty-handed with weapons in the other set, an
@@ -40,6 +40,18 @@ Two weapon sets per character, toggled with a hotkey.
 - Commands: `hwp swap`, `hwp swapkey` (show), `hwp swapkey 21 R` (set
   scancode + label), `hwp swapdrop` (other set back to the inventory if it
   fits).
+
+## Settings
+
+On the HammerwatchPlus tab of the player menu (Quality of Life > Wep. swap):
+
+- **On/off** `weaponswap.enabled` (default on, the host's value in a lobby). Off: the key
+  does nothing, a channel under way is cancelled, the alt slots, their labels and the HUD tip
+  go away and `hwp swap` says it is off. The other set stays stored in the save as it was,
+  so turning it back on finds it; `hwp swapdrop` still moves it to your bag. After turning
+  it back on the alt slots return the next time the character menu opens.
+- **Swap weapons** (option `swapkey`): the hotkey, rebound as above (`weaponswap.key`,
+  `weaponswap.keyname`; your own).
 
 ## Test checklist
 

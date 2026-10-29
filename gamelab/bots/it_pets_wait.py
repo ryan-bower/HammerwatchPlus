@@ -2,7 +2,7 @@
 polling one gl verb until its reply matches, so a scenario need not guess a `sleep`.
 
   {"do": "bot", "bot": "it_pets_wait",
-   "kwargs": {"verb": "near", "args": [9999, "HWPGoldCollectorPet"], "expect": {"count": 1}, "timeout": 20},
+   "kwargs": {"verb": "near", "args": [9999, "pet_bowl"], "expect": {"count": 1}, "timeout": 20},
    "expect": {"terminal": "done"}}
 
 kwargs:

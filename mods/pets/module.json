@@ -1,13 +1,37 @@
 {
   "id": "pets",
   "requires": [
-    "core"
+    "hwplib",
+    "petrooms"
   ],
   "overrides": [],
   "class_swaps": {
     "MiniPetWalking": "HWPMiniPetWalking",
     "MiniPetFlying": "HWPMiniPetFlying",
-    "EquipmentDyerShopContent": "HWPDyerShopContent"
+    "EquipmentDyerShopContent": "HWPDyerShopContent",
+    "PetsShopContent": "HWPPetShopContent"
   },
-  "exclude": []
+  "exclude": [],
+  "local": [
+    "players/pets/hwp/",
+    "gui/hwp/",
+    "doodads/hwp/outlook_props.png",
+    "tweak/hwp/pets_hoh1.sval"
+  ],
+  "config": {
+    "title": "Pets",
+    "about": "Pet levels, skills, pickups and dyes. Off: vanilla pets; their progress stays saved.",
+    "toggle": "pets.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": [
+      {
+        "key": "pets.bowl",
+        "type": "bool",
+        "default": false,
+        "title": "Feeding bowl",
+        "about": "A feeding bowl in town that opens the same pet menu as the Pet Shop keeper."
+      }
+    ]
+  }
 }

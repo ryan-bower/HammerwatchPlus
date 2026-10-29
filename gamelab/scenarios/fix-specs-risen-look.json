@@ -1,0 +1,18 @@
+{
+ "name": "fix-specs-risen-look",
+ "about": "Devil Forgemaster looks (the user, 2026-10-25): an intact body is grey (HWPSpecsBodyUnit tint, '[HWP:specs] body N ... tint grey'), has no silhouette through walls (npc-noxray), no minimap dot and no elite ring; a risen has the NPC material (the crusaders' green silhouette, not the enemies' red), the npc_normal minimap dot and, when elite, the ring from players/hwp/specs/forgemaster/marker/ in the summon HP bar's orange (255 84 0; the vanilla minion bar is vec4(1, 0.33, 0), not yellow); a Dark Citadel electric orb's body is a still grey core (dead_core.png) with no effects. tools/make_forgemaster_risen.py writes all of it; tools/test_make_forgemaster_risen.py checks every generated unit offline. plan_forgemaster section risen_look: the file checks, the body's log line and mapicons (no minimap sprite), the raised elite's mapicons (a sprite) and no error, the wisp body standing; the shot after it is for the eye (a grey still orb beside the priest, no lightning).",
+ "fixture": "town-paladin",
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "mapicons", "classes", "specs"],
+ "timeout": 300,
+ "steps": [
+  {"do": "log_has", "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered", "timeout": 30},
+  {"do": "console", "line": "e_cheats 1"},
+  {"do": "console", "line": "show_chat"},
+  {"do": "sleep", "seconds": 1},
+  {"do": "bot", "bot": "plan_forgemaster", "name": "risen_look", "kwargs": {"sections": "risen_look"},
+   "expect": {"look_files": true, "look_body_grey": true, "look_body_no_map": true, "look_risen_map": true, "look_no_errors": true, "look_wisp_body": true}},
+  {"do": "log_has", "pattern": "\\[HWP:specs\\] body \\d+ players/hwp/specs/forgemaster/risen/aberrations/wisp/wisp_lightning\\.unit tint grey", "timeout": 5},
+  {"do": "shot", "name": "wisp_body_still_core"},
+  {"do": "log_clean"}
+ ]
+}

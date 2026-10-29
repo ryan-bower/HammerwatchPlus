@@ -2,7 +2,7 @@
   "name": "qa-classes-procs",
   "about": "Fixed 30-second real held-main-attack benches for Poisoned Blades ranks0/1/5 and Torch ranks1/5, with actual per-skill damage/hits and exact target HP. Planned Attack applied multiplier at all five ranks plus actual low/max-rank damage. Controlled 1x fixtures; no ordinary-run claim or retries.",
   "fixture": "town-paladin",
-  "mods": ["core", "classes"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes"],
   "timeout": 600,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},

@@ -1,0 +1,45 @@
+{
+  "id": "autoaim",
+  "requires": ["hwplib"],
+  "overrides": [],
+  "exclude": [],
+  "config": {
+    "title": "Auto aim",
+    "about": "Aims, fires and casts reticle skills at enemies for you; controller by default.",
+    "toggle": "autoaim.enabled",
+    "scope": "local",
+    "applies": "now",
+    "settings": [
+      {
+        "option": "autoaim",
+        "about": "Off, on for a controller, or on for a controller and the mouse."
+      },
+      {
+        "option": "aimcone",
+        "about": "How far from where you aim an enemy can be and still be picked."
+      },
+      {
+        "option": "autofire",
+        "about": "The skill fires once the reticle is on an enemy."
+      },
+      {
+        "option": "autoskill",
+        "about": "A ready AOE skill casts itself at an enemy when your mana allows."
+      },
+      {
+        "key": "autoaim.skill_buffer_ms",
+        "type": "int",
+        "default": 2000,
+        "values": [
+          1000,
+          2000,
+          3000,
+          5000
+        ],
+        "suffix": " ms",
+        "title": "Auto skill delay",
+        "about": "The least time between two auto skill casts."
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">GameLab Throw Ctor</string>
+	<string name="author">HammerwatchPlus GameLab</string>
+	<string name="description">Test harness only: a module whose constructor throws a script exception, to measure what that does to Modules::MakeModules and the other modules (the throw-ctor scenario). Never deployed to a play install.</string>
+</dict>

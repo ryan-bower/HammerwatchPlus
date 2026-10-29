@@ -3,7 +3,7 @@
  "about": "HP2 (docs/devarena/SPEC.md, happy paths): apply ranger_nature/mid, raise Entangle's area-dmg growth three steps into slot B on the Tune tab, F4 into the golem room, pick the footman elite profile (the spec's 'barracks elite' has no unit of that name; footman elite is the nearest guard elite), NG+3, a 4M pool, then the Bench tab: bot, 5 pulls of 10 s, Start, a verdict, Keep B>A and the CSV (preset, variant, version, n, spread). Buttons are aimed by id (gl da-dock).",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
   "devarena"
  ],
  "timeout": 600,

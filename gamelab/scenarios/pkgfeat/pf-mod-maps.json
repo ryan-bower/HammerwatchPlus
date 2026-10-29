@@ -1,0 +1,27 @@
+{
+ "name": "pf-mod-maps",
+ "about": "mod-maps against the built package dungeon instead of the mods' source folders (tools/make_package_scenarios.py). mods/maps loads in town: the self-check lines from mods/maps/README.md Testing step 1, no script errors in our files.",
+ "fixture": "town-paladin",
+ "timeout": 120,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:maps\\] self-check done: 3/3 missions, \\d+/\\d+ schemes",
+   "timeout": 20
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "still in town"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "dungeon"
+ ]
+}

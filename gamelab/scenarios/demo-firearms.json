@@ -3,7 +3,9 @@
  "about": "Hands-on demo, run in watch mode (2560x1440): a fresh level 20 Firearms Specialist in the lab town with 60 skill points, +100 to every attribute and 2x weapon attack speed (fire rate, gamelab/buffs_demo.sval), the Subclass Picker and the Skill Trainer (the lab town has none; skills are learned there) beside them, five training dummies in a row to the east (two normal, armored, magic, breakable), every firearms item on the ground (rifles, and two of each pistol tier: one pistol fits either hand) and cheats on. The whole setup is one typed command, gl setup gamelab/setup_demo_firearms.sval. Then the game stays open for four hours of play (an hour cut the user off mid-test, demo-firearms 20261019-170119). Not evidence of anything.",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",
@@ -17,7 +19,6 @@
    "firearms",
    "fishing",
    "gambler",
-   "goldpet",
    "groupcombo",
    "keys",
    "laststats",

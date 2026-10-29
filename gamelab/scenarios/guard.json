@@ -1,0 +1,36 @@
+{
+ "name": "guard",
+ "about": "HWP::Guard (hwplib Guard.as) around a module whose UpdateFrame throws every frame from frame 300 (gamelab-guard, wrapped as tools/guard_modules.py wraps every HWP module): the guard logs the failure, lets one call through so the engine logs the stack trace (once per game process: on the next level the guard catches every failure), turns the entry point off after 30 in a row with one chat line, and the game mode's update after the module loop keeps running (a screen shake entry ages; unguarded it does not: throw 20261027-030133). Then hwp guard lists it.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "gamelab-guard"
+ ],
+ "timeout": 240,
+ "steps": [
+  {"do": "wait_phase", "phase": "town", "timeout": 60},
+  {"do": "log_has", "pattern": "\\[HWP:guard\\] GameLabGuardModule\\.UpdateFrame threw a script exception", "timeout": 40, "name": "the first failure is logged"},
+  {"do": "log_has", "pattern": "#0  void GameLabGuard::GameLabGuardModule::GuardedUpdateFrame", "timeout": 10, "name": "the trace run: the engine logs where"},
+  {"do": "log_has", "pattern": "\\[HWP:guard\\] GameLabGuardModule\\.UpdateFrame turned off until the next level after 30 script exception\\(s\\), 30 in a row", "timeout": 20, "name": "turned off after 30 in a row"},
+  {"do": "log_has", "pattern": "\\[HWP\\] The gamelab-guard mod hit a script error", "timeout": 10, "name": "the chat line, from the lang string"},
+  {"do": "log_has", "pattern": "\\[GL-guard\\] shake failing: [1-9]\\d{3} ms", "timeout": 30, "name": "the update after the module loop runs while it fails"},
+  {"do": "log_has", "pattern": "\\[GL-guard\\] shake tripped: [1-9]\\d{3} ms", "timeout": 30, "name": "and after it is turned off"},
+  {"do": "log_has", "pattern": "\\[GL-guard\\] ticks body 329 hook 720", "timeout": 10, "name": "the body stopped running at the trip"},
+  {"do": "console", "line": "hwp guard"},
+  {"do": "log_has", "pattern": "\\[HWP\\] GameLabGuardModule\\.UpdateFrame: 30 error\\(s\\), turned off 1 time\\(s\\)", "timeout": 10, "name": "hwp guard lists it"},
+  {"do": "log_has", "pattern": "\\[HWP:core\\] module created, version [\\d.]+, game build 176 \\(tested on 176\\)", "timeout": 5, "name": "the game build, as the pin names it"},
+  {"do": "console", "line": "hwp set guard.tested_build 175"},
+  {"do": "console", "line": "hwp guard build"},
+  {"do": "log_has", "pattern": "\\[HWP\\] Heroes of Hammerwatch II is on build 176; this HammerwatchPlus was tested on build 175", "timeout": 10, "name": "a build it was not tested on: the chat line"},
+  {"do": "mark", "name": "told"},
+  {"do": "console", "line": "hwp guard build"},
+  {"do": "log_has", "pattern": "game build 176, tested on 175", "since": "told", "timeout": 10, "name": "the second check ran"},
+  {"do": "log_lacks", "pattern": "Heroes of Hammerwatch II is on build", "since": "told", "settle": 2, "name": "once per build"},
+  {"do": "shot", "name": "tripped"},
+  {"do": "mark", "name": "level2"},
+  {"do": "gl", "verb": "mission", "args": ["dark_citadel", 0], "expect": {"ok": true}},
+  {"do": "wait_phase", "phase": "mission", "timeout": 120},
+  {"do": "log_has", "pattern": "\\[HWP:guard\\] GameLabGuardModule\\.UpdateFrame turned off until the next level after 30 script exception\\(s\\), 30 in a row", "since": "level2", "timeout": 60, "name": "the next level: turned off again"},
+  {"do": "log_lacks", "pattern": "runs unguarded once|GameLabGuardModule::GuardedUpdateFrame", "since": "level2", "settle": 1, "name": "and no second trace run in the same game process"}
+ ]
+}

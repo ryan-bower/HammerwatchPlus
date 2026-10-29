@@ -6,6 +6,13 @@
 	stage) and held model (players/models/equipment/hwp_joint_<n>.model). Holding one re-applies
 	the smoulder buff (a thin wisp, players/hwp/farming/buffs_joint.sval); right click is the
 	off-hand skill hwp_joint_puff (attacks_joint.sval). Never dropped by the game (spawn-chance 0 and a never-set conditional).
+
+	Two joints at once: hwp_joint_mh_<strain>_<n> is the same joint for the main hand (as
+	Firearms' pistols have a twin for either hand). A joint clicked in the bag while the off
+	hand already holds one becomes its twin (Joint.as JointEquip, core's HWP::Bag::OnEquip) and
+	lands in the main hand; back in the bag it is the off-hand joint again (UpdateTwins). Its
+	model is the same mesh on the right hand (hwp_joint_mh_<n>.model); left click is the
+	main-hand skill hwp_joint_puff_mh, with its own puffs and its own herb buff slot.
 -->
 <array>
 %defblock Joint STRAIN N X
@@ -48,6 +55,44 @@
 	</dict>
 %endblock
 
+%defblock JointMH STRAIN N X
+	<dict>
+		<string name="id">hwp_joint_mh_%%STRAIN%%_%%N%%</string>
+		<string name="name">.hwp.farming.joint.%%STRAIN%%.%%N%%</string>
+
+		<array name="icon">
+			<string>items/hwp/joint.png</string>
+			<int>100</int><vec4>%%X%% 0 24 24</vec4>
+		</array>
+
+		<string name="graphic">items/hwp/joint_drops.unit:joint_%%N%%</string>
+		<string name="model">players/models/equipment/hwp_joint_mh_%%N%%.model</string>
+
+		<string name="slot">mainhand</string>
+		<string name="quality">common</string>
+		<int name="ilvl">1</int>
+		<int name="ilvl-max">999</int>
+		<float name="spawn-chance">0</float>
+		<array name="conditionals">
+			<a><s>flag</s><s>is</s><s>hwp_joint_never_drops</s></a>
+		</array>
+
+		<array name="tags">
+			<string>hwp_joint</string>
+		</array>
+
+		<string name="skill">hwp_joint_puff_mh</string>
+
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::Buff</string>
+				<string name="buff">players/hwp/farming/buffs_joint.sval:smoulder</string>
+				<int name="freq">250</int>
+			</dict>
+		</array>
+	</dict>
+%endblock
+
 	%block Joint lucky_leaf 5 0
 	%block Joint lucky_leaf 4 24
 	%block Joint lucky_leaf 3 48
@@ -65,4 +110,22 @@
 	%block Joint saints_sage 3 48
 	%block Joint saints_sage 2 72
 	%block Joint saints_sage 1 96
+
+	%block JointMH lucky_leaf 5 0
+	%block JointMH lucky_leaf 4 24
+	%block JointMH lucky_leaf 3 48
+	%block JointMH lucky_leaf 2 72
+	%block JointMH lucky_leaf 1 96
+
+	%block JointMH ember_kush 5 0
+	%block JointMH ember_kush 4 24
+	%block JointMH ember_kush 3 48
+	%block JointMH ember_kush 2 72
+	%block JointMH ember_kush 1 96
+
+	%block JointMH saints_sage 5 0
+	%block JointMH saints_sage 4 24
+	%block JointMH saints_sage 3 48
+	%block JointMH saints_sage 2 72
+	%block JointMH saints_sage 1 96
 </array>

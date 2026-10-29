@@ -1,0 +1,31 @@
+{
+ "name": "pf-mod-strongbox",
+ "about": "mod-strongbox against the built package dungeon instead of the mods' source folders (tools/make_package_scenarios.py). mods/strongbox loads in town: the self-check lines from mods/strongbox/README.md Testing step 1, no script errors in our files.",
+ "fixture": "town-paladin",
+ "timeout": 120,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:strongbox\\] self-check done",
+   "timeout": 20
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "still in town"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "(?i)missing (unit|item|loot)"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "dungeon"
+ ]
+}

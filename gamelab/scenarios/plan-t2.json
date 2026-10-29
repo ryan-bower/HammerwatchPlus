@@ -3,7 +3,9 @@
  "about": "Test plan tiers 0-2: solo steps shown by commands, the log and shots (core, colors, chatlinks, droptrade, weaponswap, deathrecap).",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",
@@ -17,7 +19,6 @@
    "firearms",
    "fishing",
    "gambler",
-   "goldpet",
    "groupcombo",
    "keys",
    "laststats",

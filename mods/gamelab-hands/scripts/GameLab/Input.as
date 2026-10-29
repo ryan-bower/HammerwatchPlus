@@ -21,12 +21,13 @@ namespace GameLab
 	const array<string> BUTTONS = { "use", "potion", "dash", "main", "off", "skill1", "skill2", "skill3",
 		"hwp_skill4", "hwp_skill5", "hwp_skill6" };
 
-	// core's extra skill keys (mods/core/scripts/HWP/Core/SkillKeys.as) are raw keyboard keys,
+	// the classes module's extra skill keys (mods/classes/scripts/HWP/Classes/SkillKeys.as) are raw keyboard keys,
 	// no GameInput button: a held hwp_skillN goes to GlobalCache "hwp_skillkeys_held" as "4,5",
 	// which SkillKeys.Poll reads as the key being down. No symbol is shared, so hands still
-	// loads without core.
+	// loads without it.
 	const array<string> HWP_SKILL_KEYS = { "hwp_skill4", "hwp_skill5", "hwp_skill6" };
 	const string SKILLKEYS_HELD = "hwp_skillkeys_held";
+	const string SKILLKEYS_ON = "hwp_skillkeys_on";   // "1" once the classes module's keys run
 
 	void WriteSkillKeys(array<string>@ buttons)
 	{
@@ -41,7 +42,7 @@ namespace GameLab
 	}
 
 	// the button the idx-th active spell (0 = first, the GetSkillInput count) listens on: the
-	// 4th to 6th have their own key once core swapped in HWPSkillKeysHelper, else (vanilla
+	// 4th to 6th have their own key while the classes module's keys run, else (vanilla
 	// PlayerTargetingHelper.GetSkillInput) every spell from the 3rd on shares Skill3
 	string SpellButton(PlayerBase@ plr, int idx)
 	{
@@ -51,7 +52,8 @@ namespace GameLab
 			return "skill2";
 		auto p = cast<Player>(plr);
 		if (idx >= 3 && idx < 6 && p !is null && p.m_targetHelper !is null
-			&& Reflect::GetTypeName(p.m_targetHelper).findFirst("HWPSkillKeysHelper") >= 0)
+			&& Reflect::GetTypeName(p.m_targetHelper).findFirst("HWPTargetingHelper") >= 0
+			&& GlobalCache::Get(SKILLKEYS_ON) == "1")
 			return "hwp_skill" + (idx + 1);
 		return "skill3";
 	}

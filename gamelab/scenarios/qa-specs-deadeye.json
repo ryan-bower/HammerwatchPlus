@@ -3,7 +3,9 @@
   "about": "All5 Lightning Arrow ranks measured through real native input and HP; all5 Gathering Winds ranks earn Tailwind from25 native1HP fixture kills, compare move/cast/weapon stats and natural expiry. Boomerang1/2 lone-return damage, Storm Arrow1..3 target count and radius boundaries with isolated secondary targets. Tailwind Catch separate; no Gale Force/Wind Ward claim.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "classes",
     "specs"
   ],

@@ -3,7 +3,9 @@
   "about": "Original four custom Frostbrand/Warhammer entries plus four ordinary hwp_rifle_01/hwp_autorifle_01 entries at legal ilvl15..20. Native Sort must preserve class/slot order, separate all four families before descending ilvl, preserve all8 items and be idempotent. Guards against generic hwp namespace stripping.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

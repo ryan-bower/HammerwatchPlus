@@ -2,7 +2,7 @@
  "name": "spike-dock",
  "about": "SUPERSEDED by tuner-dock (fixed window px from before the dock layout and dock-id clicks; kept as the spike record, expected to fail now). Spike 4 (docs/devarena/SPEC.md build order): the non-pausing dock with mouse capture. F1 (posted key) opens the immediate-mode dock on a mission floor; the game keeps running; with the pointer off the dock, keys still move the player and skills still cast; with the pointer on it, the module holds input focus (PLAYERMENU, as an open window does) so a skill press is held back; a click on the dock's button reaches the dock. Lab window 640x360 px = 768x432 UI (scale 0.833): the dock starts near px 416 (35% of the UI width, snapped to a pixel); its freeze button is the row under the title, px y ~18-28 for the hw8 font, clicked at (528, 23).",
  "fixture": "mission-ranger",
- "mods": ["core", "devarena"],
+ "mods": ["hwplib", "devarena"],
  "timeout": 300,
  "steps": [
   {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},

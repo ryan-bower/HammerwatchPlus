@@ -1,0 +1,34 @@
+{
+ "name": "pf-fix-gold-sprites",
+ "about": "fix-gold-sprites against the built package qol instead of the mods' source folders (tools/make_package_scenarios.py). Gold pickups by amount (mods/goldworth items/materials/gold.unit): drops at each of the 15 thresholds show the bronze, silver and gold coin and four piles of items/misc/base.png (bronze 1/5/10/15/20, silver 25/50/75/100/150, gold 200/250/300/350/400+); amounts just under a threshold take the tier below; picking one up still pays. Screenshot of the 5 x 3 grid.",
+ "fixture": "mission-ranger",
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   }
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "fix_gold_sprites",
+   "expect": {
+    "tier_scenes": true,
+    "edge_scenes": true,
+    "pickup_pays": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "qol"
+ ]
+}

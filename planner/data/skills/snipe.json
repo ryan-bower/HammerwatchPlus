@@ -4,18 +4,18 @@
   "group": "sniper",
   "kind": "active",
   "levels": [
-    "300% damage with 25% armor penetration for 20 mana",
-    "400% damage with 25% armor penetration for 20 mana",
-    "500% damage with 40% armor penetration for 25 mana",
-    "600% damage with 40% armor penetration for 25 mana",
-    "750% damage with 60% armor penetration for 30 mana"
+    "300% damage with 30% armor penetration for 20 mana, 0.65 s aim",
+    "400% damage with 35% armor penetration for 20 mana, 0.57 s aim",
+    "500% damage with 45% armor penetration for 25 mana, 0.49 s aim",
+    "600% damage with 50% armor penetration for 25 mana, 0.41 s aim",
+    "750% damage with 60% armor penetration for 30 mana, 0.33 s aim"
   ],
   "mana": "20",
   "name": "Sniper Shot",
-  "notes": "Similar to Rogue Mortal Strike",
+  "notes": "Similar to Rogue Mortal Strike. Channel per rank and the armor steps 30/35/45/50/60 are the user's call of 2026-10-22 (sniper_snipe.sval: each upgrade dict sets castpoint, the windows and the timeline). A red laser dot marks the aim while it channels.",
   "order": 0,
   "role": "",
   "status": "built",
-  "summary": "Expends 10 ammo to fire a high damage armor penetrating shot. Damage scales off of main-hand and offhand combined, or two hand, damage.",
+  "summary": "Take aim (the channel: 650 ms at rank 1, shorter each rank, half at rank 5) and fire one high damage armor penetrating shot for mana, no rounds. Damage is main hand plus off hand, or the two-hander's. Armor penetration 30/35/45/50/60%.",
   "unlock": "free"
 }

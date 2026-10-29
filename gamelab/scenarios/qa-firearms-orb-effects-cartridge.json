@@ -3,7 +3,9 @@
   "about": "All ranks of Extended Crit Chance after real mixed-gun depletion, separate live main/off modifier probabilities. Cleared-floor fixture; fixed samples/no retries.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

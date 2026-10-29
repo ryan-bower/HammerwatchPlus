@@ -2,7 +2,7 @@
  "name": "spike-class",
  "about": "Spike 6 (docs/devarena/SPEC.md build order): a mod class through InstantiateClass. Entangle's 'start' action (PlaySound) is swapped for HWP::DevArena::ProbeAction, a class in mods/devarena, by patching the base skill's actions.start.0.class; the rebuild runs the engine's own action loader (Actions/IAction.as:282), and one cast fires the mod class.",
  "fixture": "mission-ranger",
- "mods": ["core", "devarena"],
+ "mods": ["hwplib", "devarena"],
  "timeout": 300,
  "steps": [
   {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},

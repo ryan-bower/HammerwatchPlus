@@ -1,0 +1,26 @@
+{
+ "name": "pf-mod-groupcombo",
+ "about": "mod-groupcombo against the built package coop instead of the mods' source folders (tools/make_package_scenarios.py). mods/groupcombo loads in town: the self-check lines from mods/groupcombo/README.md Testing step 1, no script errors in our files.",
+ "fixture": "town-paladin",
+ "timeout": 120,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "still in town"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:groupcombo\\] cannot load"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "coop"
+ ]
+}

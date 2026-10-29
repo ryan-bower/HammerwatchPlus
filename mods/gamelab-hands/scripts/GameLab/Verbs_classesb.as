@@ -7,7 +7,7 @@ namespace GameLab
 	// the button a learned skill listens on: the same walk as
 	// PlayerTargetingHelper.GetSkillInput (Behaviors/Actors/Player/PlayerTargetingHelper.as:713-750):
 	// spells that are not passive count from m_skills[1] on; the 3rd is Skill3, the 4th to 6th
-	// core's extra keys hwp_skill4..6 (SpellButton, Input.as; all Skill3 without core)
+	// the classes module's extra keys hwp_skill4..6 (SpellButton, Input.as)
 	string SkillButton(PlayerBase@ plr, Skills::Skill@ skill)
 	{
 		if (skill.m_type == PlayerSkillType::MainHand)

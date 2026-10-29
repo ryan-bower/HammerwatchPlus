@@ -35,9 +35,10 @@ namespace HWP
 
 		// ---- tiers (index = tier - 1) ------------------------------------------
 		const array<string> TIERS = { "bronze", "silver", "gold", "ace" };
-		const array<int> DEFAULT_PRICE = { 500, 2000, 8000, 50000 };
-		// sprites in items/special/base.png (vanilla items/special/keys.unit)
-		const array<vec4> ICON_FRAME = { vec4(0, 0, 16, 16), vec4(16, 0, 16, 16), vec4(32, 0, 16, 16), vec4(112, 16, 16, 16) };
+		// sprites in items/special/base.png (vanilla items/special/keys.unit); the ace key is
+		// our red tint of the vanilla skull key (48 0), a sheet of its own
+		const array<vec4> ICON_FRAME = { vec4(0, 0, 16, 16), vec4(16, 0, 16, 16), vec4(32, 0, 16, 16), vec4(0, 0, 16, 16) };
+		const array<string> ICON_TEXTURE = { "items/special/base.png", "items/special/base.png", "items/special/base.png", "items/hwp/keys/key_ace.png" };
 		const array<vec4> TINT = { vec4(0.85f, 0.55f, 0.3f, 1.0f), vec4(0.85f, 0.88f, 0.95f, 1.0f), vec4(1.0f, 0.85f, 0.25f, 1.0f), vec4(1.0f, 0.25f, 0.2f, 1.0f) };
 		const array<Item::Quality> QUALITY = { Item::Quality::Common, Item::Quality::Uncommon, Item::Quality::Rare, Item::Quality::Legendary };
 
@@ -85,11 +86,18 @@ namespace HWP
 
 		int KeyPrice(int tier)
 		{
-			if (!ValidTier(tier))
-				return 0;
-			return HWP::Settings::GetInt("keys.price_" + TIERS[tier - 1], DEFAULT_PRICE[tier - 1]);
+			// one literal key each, so tools/make_config.py can check them against module.json
+			switch (tier)
+			{
+				case 1: return HWP::Settings::GetInt("keys.price_bronze", 500);
+				case 2: return HWP::Settings::GetInt("keys.price_silver", 2000);
+				case 3: return HWP::Settings::GetInt("keys.price_gold", 8000);
+				case 4: return HWP::Settings::GetInt("keys.price_ace", 20000);
+			}
+			return 0;
 		}
 		vec4 KeyIconFrame(int tier) { return ValidTier(tier) ? ICON_FRAME[tier - 1] : vec4(0, 0, 16, 16); }
+		string KeyIconTexture(int tier) { return ValidTier(tier) ? ICON_TEXTURE[tier - 1] : ICON_TEXTURE[0]; }
 		vec4 TierColor(int tier) { return ValidTier(tier) ? TINT[tier - 1] : vec4(1, 1, 1, 1); }
 		Item::Quality TierQuality(int tier) { return ValidTier(tier) ? QUALITY[tier - 1] : Item::Quality::Common; }
 
@@ -144,16 +152,24 @@ namespace HWP
 			g_legendaryChance = clamp(HWP::Settings::GetFloat("keys.legendary_chance", 0.5f), 0.0f, 1.0f);
 		}
 
-		void OnSettingChanged(const string &in key)
-		{
-			if (key.findFirst("keys.") == 0)
-				RefreshSettings();
-		}
-
 		void RefreshHUD()
 		{
 			if (g_hud !is null)
 				g_hud.Refresh(GetLocalPlayerRecord());
+		}
+
+		// keys.enabled off (the settings page's switch): chests don't lock and keep their
+		// vanilla art (decided when a chest first ticks: the next level), no key drops, no
+		// imp keys, no trapped banner, the exit guard only talks and the HUD hides. Keys,
+		// the pool, bag slots and packed trinkets stay in the save as they are; a chest
+		// that locked before the switch still opens with a key.
+		void OnSettingChanged(const string &in key)
+		{
+			if (key.findFirst("keys.") != 0)
+				return;
+			RefreshSettings();
+			if (key == "keys.enabled")
+				RefreshHUD();
 		}
 
 		int CurrentLevel()
@@ -314,20 +330,27 @@ namespace HWP
 
 			vec2 pos = xy(killed.m_unit.GetPosition());
 			bool elite = HasTag(killed, "elite");
+			// Luck (core HWP::Luck): the killer's own factor scales the boss key chance
+			// and the share of normal kills that become candidates (capped at 1)
+			float luck = HWP::Luck::Factor(player);
 			if (HasTag(killed, "boss"))
 			{
 				int level = CurrentLevel();
 				if (g_bossKeyLevel != level)
 				{
 					g_bossKeyLevel = level;
-					if (randf() < clamp(HWP::Settings::GetFloat("keys.boss_chance", 0.2f), 0.0f, 1.0f))
+					HWP::Luck::LogRoll("keys", "boss key roll", luck);
+					if (randf() < HWP::Luck::Chance(clamp(HWP::Settings::GetFloat("keys.boss_chance", 0.2f), 0.0f, 1.0f), luck))
 						RequestDrop(pos, BossTier(), false, true);
 					return;
 				}
 				elite = true;
 			}
-			if (elite || randf() < g_normalTry)
+			if (elite || randf() < HWP::Luck::Chance(g_normalTry, luck))
+			{
+				HWP::Luck::LogRoll("keys", (elite ? "elite" : "normal") + " kill drop candidate", luck);
 				RequestDrop(pos, 0, elite, false);
+			}
 		}
 
 		// ---- the floor's key budget (host) ---------------------------------------
@@ -342,13 +365,14 @@ namespace HWP
 		}
 
 		// Keys this floor may still drop of a tier: the floor's locked chests of
-		// that tier times the party's share, its fraction rounded up or down by a
+		// that tier times the party's share (times the party's floor Luck factor,
+		// at most 95 %), its fraction rounded up or down by a
 		// hash roll, minus the party keys of that tier held when the floor
 		// started and the ones dropped since. Recomputed per call, so chests
 		// that lock after the level starts still count.
 		int BudgetTotal(int tier)
 		{
-			float share = clamp(g_budgetShare + g_budgetPerPlayer * (PartySize() - 1), 0.0f, 0.95f);
+			float share = clamp((g_budgetShare + g_budgetPerPlayer * (PartySize() - 1)) * HWP::Luck::FloorFactor(), 0.0f, 0.95f);
 			float want = g_lockedTier[tier - 1] * share;
 			int budget = int(floor(want));
 			string seed = MissionManager::g_module is null ? "" : ("" + MissionManager::g_module.m_missionRewardSeed + ":" + CurrentLevel());
@@ -362,8 +386,9 @@ namespace HWP
 			return max(0, BudgetTotal(tier) - g_droppedTier[tier - 1]);
 		}
 
-		// A tier with budget left, weighted by what is left; elites take the
-		// highest such tier. 0 = the budget is spent.
+		// A tier with budget left, weighted by what is left (a tier above the lowest
+		// one left also by the party's floor Luck factor); elites take the highest
+		// such tier. 0 = the budget is spent.
 		int PickBudgetTier(bool elite)
 		{
 			array<int> left(4, 0);
@@ -381,13 +406,23 @@ namespace HWP
 					if (left[t - 1] > 0)
 						return t;
 			}
-			int r = randi(total);
+			int lowest = 1;
+			while (left[lowest - 1] == 0)
+				lowest++;
+			float luck = HWP::Luck::FloorFactor();
+			float sum = 0;
+			for (int t = 1; t <= 4; t++)
+				sum += left[t - 1] * (t > lowest ? luck : 1.0f);
+			float r = randf() * sum;
 			for (int t = 1; t <= 4; t++)
 			{
-				r -= left[t - 1];
-				if (r < 0)
+				r -= left[t - 1] * (t > lowest ? luck : 1.0f);
+				if (r < 0 && left[t - 1] > 0)
 					return t;
 			}
+			for (int t = 4; t >= 1; t--)
+				if (left[t - 1] > 0)
+					return t;
 			return 0;
 		}
 
@@ -640,7 +675,10 @@ namespace HWP
 			}
 			else
 			{
-				if (randf() >= g_accept)
+				// Luck: the party's factor scales the host's accept chance (capped at 1)
+				float luck = HWP::Luck::PartyFactor();
+				HWP::Luck::LogRoll("keys", "candidate accept roll", luck);
+				if (randf() >= HWP::Luck::Chance(g_accept, luck))
 					return;
 				tier = PickBudgetTier(HWP::SV::Int(data, "elite", 0) != 0);
 				if (tier == 0)
@@ -675,6 +713,10 @@ namespace HWP
 
 		// ---- chests --------------------------------------------------------------
 
+		// Ace chests the local player opened this session, for other modules (GlobalCache
+		// ACES_OPENED, a count as text: mods/mmhmm reads it without needing this module)
+		const string ACES_OPENED = "hwp_keys_aces_opened";
+
 		// Runs on every machine (UseUnit broadcast); only the opener's own
 		// machine books the stat, like vanilla Chest::Use.
 		void OnUnlocked(PlayerBase@ player, int tier)
@@ -682,6 +724,8 @@ namespace HWP
 			if (player is null || player.m_record is null || !player.m_record.local)
 				return;
 			Stats::Add(HashString("hwp-chest-unlocked-" + TIERS[tier - 1]), 1, player.m_record);
+			if (TIERS[tier - 1] == "ace")
+				GlobalCache::Set(ACES_OPENED, "" + (parseInt(GlobalCache::Get(ACES_OPENED)) + 1)); // outlives the level
 			RefreshHUD();
 			HWP::Log("keys", player.m_record.GetName() + " unlocked a " + TIERS[tier - 1] + " chest");
 		}
@@ -752,7 +796,7 @@ namespace HWP
 			auto rec = GetLocalPlayerRecord();
 			if (rec is null)
 				return;
-			string info = Counts(rec, ".hwp.keys.status") + "; party pool";
+			string info = (g_enabled ? "" : "keys.enabled off; ") + Counts(rec, ".hwp.keys.status") + "; party pool";
 			for (int t = 1; t <= 4; t++)
 				info += " " + TIERS[t - 1] + " " + PoolCount(t);
 			info += "; locked chests this level: " + g_chestsLocked;
@@ -763,7 +807,7 @@ namespace HWP
 				info += "; budget (left/total)";
 				for (int t = 1; t <= 4; t++)
 					info += " " + TIERS[t - 1] + " " + BudgetLeft(t) + "/" + BudgetTotal(t);
-				info += ", party " + PartySize();
+				info += ", party " + PartySize() + ", floor Luck x" + HWP::Luck::Fmt(HWP::Luck::FloorFactor());
 			}
 			HWP::Commands::Reply(info);
 		}
@@ -834,7 +878,8 @@ class HWPKeysHUD : HUDComponent
 
 	void Refresh(PlayerRecord@ record) override
 	{
-		if (record is null)
+		// off: hidden, unless a chest on this floor locked while it was on
+		if (record is null || (!HWP::Keys::g_enabled && HWP::Keys::g_chestsLocked == 0))
 		{
 			m_visible = false;
 			return;
@@ -908,9 +953,12 @@ namespace Modules
 			HWP::Net::OnRequest(HWP::Keys::POOL_GET, HWP::Net::RequestHandler(HWP::Keys::OnPoolGetRequest));
 			HWP::Net::OnEvent(HWP::Keys::POOL, HWP::Net::EventHandler(HWP::Keys::OnPoolEvent));
 			HWP::Net::OnEvent(HWP::Keys::CHEST_PAID, HWP::Net::EventHandler(HWP::Keys::OnChestPaidEvent));
+			HWP::Keys::Trapped::Register(); // "The chest was trapped!!" banner (Trapped.as)
 			HWP::Commands::Register("keys", " show your keys and the chest lock settings", HWP::Commands::Handler(HWP::Keys::CmdKeys));
 			HWP::Commands::Register("keygive", "<tier> [n]  (debug) give yourself keys", HWP::Commands::Handler(HWP::Keys::CmdKeyGive));
 			HWP::Commands::Register("keydrop", "<tier>  (debug) drop a key at your feet", HWP::Commands::Handler(HWP::Keys::CmdKeyDrop));
+			HWP::Commands::Register("bag", " your bag size and the next slot's price; 'buy' buys it (or at the exit guard)", HWP::Commands::Handler(HWP::BagShop::CmdBag));
+			HWP::Commands::Register("chestart", "[area <n>|off]  the floor's chest art area; area n is a keys.debug test", HWP::Commands::Handler(HWP::Keys::ChestArt::CmdChestArt));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Keys::OnSettingChanged));
 		}
 
@@ -935,7 +983,23 @@ namespace Modules
 				HWP::Net::Request(HWP::Keys::POOL_GET);
 		}
 
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardUpdateFrame;
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
+		{
+			if (m_guardUpdateFrame.Skip("keys", "HWPKeysModule.UpdateFrame"))
+				return;
+			if (m_guardUpdateFrame.Raw())
+			{
+				GuardedUpdateFrame(ms, gameInput, menuInput, paused);
+				m_guardUpdateFrame.Ok();
+				return;
+			}
+			try { GuardedUpdateFrame(ms, gameInput, menuInput, paused); m_guardUpdateFrame.Ok(); }
+			catch { m_guardUpdateFrame.Failed(); }
+		}
+
+		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
 			// clients keep the host's copy of their key counts fresh
 			if (!Network::IsServer())

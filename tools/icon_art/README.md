@@ -23,6 +23,7 @@ through `art/firearms/override/` and `tools/make_firearms_icons.py`.
 | sp_pri2.py | its round 2: three refinements of each round-1 pick (the pick beside them) and first ideas for the emblem, the four orbs and the eating status (ids `specsP2.<name>`) |
 | sp_pri3.py | its round 3: the five noted round-2 picks redone in necrotic green (and the eating status's teeth), ids `specsP3.<name>`; `--finals` writes the six settled ones to `art/specs/override/` |
 | sp_pri4.py | its round 4: the Heresy 5+ status with its purple swapped for the green, ids `specsP4.<name>`; `--finals` writes round 3's four picks |
+| sp_pal.py | the Paladin's 4th spec (Generosity): three ideas each for the emblem, Pelor's Fury, Pelor's Blessing, its four orbs and the Blessing stack, and their picker (ids `specsPal.<name>`) |
 | sp_fx.py | their four world sprites: frame strips on a transparent ground to `art/specs/fx/`, 4x GIF previews in `out/specs/fx/` |
 | planner_icons.py | the class planner's icon sheet (`planner/web/`), cut from the game's atlases (and `art/specs/override/` for records with `icon_art`/`hud_art`) |
 | orb_groups.py | the picker's per-class orb lists, from the planner's data |
@@ -46,6 +47,7 @@ python tools/icon_art/sp_r3.py --picker        # round 3 -> out/specs/r3/, sheet
 python tools/icon_art/sp_pri.py --picker       # the Priest's 4th spec -> out/specs/pri/, sheet_priest.png, picker.html
 python tools/icon_art/sp_pri2.py --picker      # its round 2 -> out/specs/pri2/
 python tools/icon_art/sp_pri3.py --picker      # its round 3 -> out/specs/pri3/ (--finals: the settled six)
+python tools/icon_art/sp_pal.py --picker       # the Paladin's 4th spec -> out/specs/pal/, sheet_paladin.png, picker.html
 python tools/icon_art/sp_fx.py                 # the world sprite strips -> art/specs/fx/, previews out/specs/fx/
 ```
 

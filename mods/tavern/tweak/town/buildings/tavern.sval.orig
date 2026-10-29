@@ -1,0 +1,48 @@
+<loader order="1">BuildingManagement::BuildingDef::LoadSingle</loader>
+<dict>
+	<string name="id">tavern</string>
+
+	<array name="icon"><s>gui/icons_town.png</s><i>100</i><vec4>168 72 24 24</vec4></array>
+	<array name="conditionals"><a>
+		<s>my town building</s><s>tavern</s><s>lt</s><i>0</i>
+		<s>my town building</s><s>guild_hall</s><s>ge</s><i>1</i>
+	</a></array>
+
+	<string name="name">.building.tavern.name</string>
+	<string name="description">.building.tavern.desc1</string>
+	<string name="unbuilt-prefab">prefabs/town/buildings/tavern/tavern_tier_0.pfb</string>
+	<string name="prefab">prefabs/town/buildings/tavern/tavern_tier_1.pfb</string>
+
+	<int name="cost-wood">25</int>
+	<int name="cost-stone">5</int>
+
+	<array name="upgrades">
+
+		<dict>
+			<array name="conditionals"><a>
+				<s>my town building</s><s>guild_hall</s><s>ge</s><i>3</i>
+			</a></array>
+			
+			<string name="name">.building.tavern.name</string>
+			<string name="description">.building.tavern.desc2</string>
+			<string name="prefab">prefabs/town/buildings/tavern/tavern_tier_2.pfb</string>
+			
+			<int name="cost-wood">50</int>
+			<int name="cost-stone">10</int>
+		</dict>
+
+		<dict>
+			<array name="conditionals"><a>
+				<s>my town building</s><s>guild_hall</s><s>ge</s><i>5</i>
+			</a></array>
+			
+			<string name="name">.building.tavern.name</string>
+			<string name="description">.building.tavern.desc2</string>
+			<string name="prefab">prefabs/town/buildings/tavern/tavern_tier_3.pfb</string>
+			
+			<int name="cost-wood">100</int>
+			<int name="cost-stone">20</int>
+		</dict>
+
+	</array>
+</dict>

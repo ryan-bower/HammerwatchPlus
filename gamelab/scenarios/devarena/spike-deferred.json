@@ -3,7 +3,7 @@
  "about": "Spike 2: deferred apply. Lengthen Entangle's cast (anim-length 600->4000, live), start a cast, patch the cooldown mid-cast: da-set must report applied=false/casting=true, and the module must apply it on the first frame after the cast ends (pending back to 0, deferredFrames > 0, cooldown read back).",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
   "devarena"
  ],
  "timeout": 400,

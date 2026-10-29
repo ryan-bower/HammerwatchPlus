@@ -13,7 +13,11 @@ Sections, in this order:
   the run, the floors left after it);
   plan-farming-b: wild_char (LabForager), wild_floor (s11, leaves the player on the plot for a
   shot), wild_use, wild_yield, wild_boss;
-  plan-farming-c: wild_char, wild_rate (s11: floors with a plot at the default chance)."""
+  plan-farming-c: wild_char, wild_rate (s11: floors with a plot at the default chance);
+  fix-farming-hotbox: hotbox (a puff outdoors in town leaves four haze banks);
+  fix-farming-dual-joints: dual_joints (a joint in each hand, right/left click, both buffs);
+  fix-farming-wild-pickup: wild_pick (the harvest goes through the host: request, grant, yield,
+  hidden for the picker only)."""
 import json
 import re
 import time
@@ -28,8 +32,10 @@ BUILDINGS = ["guild_hall", "tavern", "chapel", "blacksmith", "general_store", "m
              "apothecary", "trading_post", "library", "tailor", "hunters_cabin", "enchanter", "architect", "pyre"]
 # the seeds (FarmingModule.as DefineSeeds); a wild plot yields its WILD_PLANTS (3)
 YIELD = {k: (3, 3) for k in ("cabbage", "carrot", "onion", "potato", "wheat", "lucky_leaf", "ember_kush", "saints_sage")}
-HERB_SLOT = hash_string("hwp_herb")
+HERB_SLOT = hash_string("hwp_herb")          # the off-hand joint's buff slot
+HERB_SLOT2 = hash_string("hwp_herb2")        # the main-hand joint's
 LUCKY_BUFF = hash_string("hwp_herb_lucky_leaf")
+EMBER_BUFF = hash_string("hwp_herb_ember_kush")
 REPO = Path(__file__).resolve().parents[2]
 # the wild plot units' minimap sprite (tools/make_wild_plots.py): the crop icon of core's map icons
 WILD_ICON = 'texture="gui/hwp/map_icons.png" frame="24 0 9 11"'
@@ -473,11 +479,36 @@ class Checks(Base):
         self.flag("s7_harvested", bool(got) and int(got[-1][0]) == len(drawn) > 0,
                   f"{planted!r}; plot {plot}; {got}; {len(drawn)} plants drawn; windows instead {missed}")
 
-    def joint_status(self):
-        """hwp joint: (held "strain n/5" or "none", rolled, puffs, hazes, the herb line)."""
+    JOINT_KEYS = ("held", "main", "rolled", "puffs", "hazes", "alive", "lit", "herb")
+
+    def joint_fields(self):
+        """hwp joint (Joint.as JointStatus): {held: the off hand's "strain n/5" or "none", main: the
+        main hand's, rolled, puffs, hazes (spawned), alive (haze units still there), lit, herb:
+        the herb line ("herb: ...; herb2: ...")}; "?" / "-1" when the line is missing."""
         st = plain(self.hwp("joint", 0.4, until="joint: held"))
-        m = re.findall(r"joint: held (.*?), rolled (\d+), puffs (\d+), hazes (\d+).*?; (herb: .*)", st)
-        return m[-1] if m else ("?", "-1", "-1", "-1", "")
+        m = re.findall(r"joint: held (.*?), main (.*?), rolled (\d+), puffs (\d+), hazes (\d+) \(alive (\d+)\), lit (\d+)"
+                       r".*?; (herb: .*)", st)
+        if not m:
+            return dict(zip(self.JOINT_KEYS, ("?", "?", "-1", "-1", "-1", "-1", "-1", "")))
+        return dict(zip(self.JOINT_KEYS, m[-1]))
+
+    def joint_status(self):
+        """(held "strain n/5" or "none", rolled, puffs, hazes, the herb line): the older sections."""
+        f = self.joint_fields()
+        return f["held"], f["rolled"], f["puffs"], f["hazes"], f["herb"]
+
+    def herb_slots(self):
+        """The record's mission buffs as {slot hash: buff hash} (PlayerRecord "mission-buffs")."""
+        v = self.gl("inspect", "player", "mission-buffs").get("value") or []
+        v = [x & 0xFFFFFFFF for x in v if isinstance(x, int)]
+        return {v[i]: v[i + 1] for i in range(0, len(v) - 1, 2)}
+
+    def give_joint(self, strain):
+        """A rolled 5/5 joint of the strain in the bag: farm.debug's `hwp farm herb` gives the
+        ware, `hwp joint roll` rolls it (what the Plants & Herbs click does)."""
+        self.hwp("set farm.debug 1")
+        self.hwp(f"farm herb {strain} 1", 0.4, until="ware(s)")
+        return plain(self.hwp(f"joint roll {strain}", 0.6, until="rolled a"))
 
     def joint(self):
         """s7: click the Lucky Leaf cell under Plants & Herbs, "Roll J?" -> Huzzah! (the
@@ -567,6 +598,109 @@ class Checks(Base):
                   f"rolled {plain(r)[-80:]!r}; held {held0} -> {held1} (puffed {puffed}) -> run {ok}: {held2}")
         self.to_town()
 
+    # --- fix-farming-hotbox / -dual-joints / -wild-pickup
+    def hotbox(self):
+        """Fix: outdoors in town a puff left no haze (Joint.as SpawnHaze returned early: nothing
+        held the smoke). Now it hotboxes the square: HOTBOX_BANKS (4) haze banks around the
+        smoker, HOTBOX_RADIUS out, logged `haze: 4 bank(s) at x,y (town outdoors, radius 70)`,
+        counted alive in `hwp joint`; the buff lands as before."""
+        self.close_windows()
+        rolled = self.give_joint("lucky_leaf")
+        eq = self.gl("wield", "hwp_joint_lucky_leaf_5")
+        # the off hand's puff skill comes with the next stats refresh: a click 1 s after the
+        # wield did nothing (hotbox 20261026-140459; the console's round trip used to wait)
+        time.sleep(1.5)
+        f0 = self.joint_fields()
+        mark = len(self.g.read_log())
+        self.gl("input", 300, 0, 0, 1, 0, "off")
+        time.sleep(1.0)
+        log = self.g.read_log()[mark:]
+        haze = re.findall(r"haze: (\d+) bank\(s\) at (-?\d+),(-?\d+) \((.*?)\)", log)
+        f1 = self.joint_fields()
+        near = self.gl("near", 150, "joint_haze")
+        n_near = near.get("count", len(near.get("units") or []))
+        buff, _ = self.herb_buff()
+        self.flag("hotbox_haze_in_town", f0["held"] == "lucky_leaf 5/5" and bool(haze) and haze[-1][0] == "4"
+                  and "town outdoors" in haze[-1][3] and int(f1["alive"]) > 0,
+                  f"rolled {rolled[-60:]!r}; held {f0['held']}; log {haze}; status hazes {f1['hazes']}, alive {f1['alive']}; "
+                  f"near joint_haze {n_near}; {json.dumps(eq)[:120]}")
+        self.flag("hotbox_buff", buff and "puffed a lucky_leaf joint (5 -> 4 puffs) in the off hand" in log,
+                  f"buff {buff}; {f1['herb']!r}")
+
+    def dual_joints(self):
+        """A joint in each hand: `hwp joint wield off` (Lucky Leaf) and `hwp joint wield main`
+        (Ember Kush, as its main-hand twin hwp_joint_mh_*). Right click puffs the off-hand one,
+        left click the main-hand one, each with its own count; both herb buffs are on at once
+        (mission-buff slots hwp_herb and hwp_herb2); a twin back in the bag is an off-hand joint
+        again."""
+        self.close_windows()
+        self.give_joint("lucky_leaf")
+        w1 = plain(self.hwp("joint wield off", 0.6, until="wielding"))
+        self.give_joint("ember_kush")
+        w2 = plain(self.hwp("joint wield main", 0.6, until="wielding"))
+        f0 = self.joint_fields()
+        self.flag("dual_both_hands", f0["held"] == "lucky_leaf 5/5" and f0["main"] == "ember_kush 5/5",
+                  f"{f0['held']} / {f0['main']}; {w1[-80:]!r} {w2[-80:]!r}")
+        mark = len(self.g.read_log())
+        self.gl("input", 300, 0, 0, 1, 0, "off")
+        time.sleep(2.4)  # cooldown 1700, the tip burns LIT_MS (1500) before the stage drops
+        f1 = self.joint_fields()
+        self.gl("input", 300, 0, 0, 1, 0, "main")
+        time.sleep(2.4)
+        f2 = self.joint_fields()
+        log = self.g.read_log()[mark:]
+        self.flag("dual_right_click_off_hand", f1["held"] == "lucky_leaf 4/5" and f1["main"] == "ember_kush 5/5"
+                  and "puffed a lucky_leaf joint (5 -> 4 puffs) in the off hand" in log,
+                  f"after the right click: {f1['held']} / {f1['main']}")
+        self.flag("dual_left_click_main_hand", f2["held"] == "lucky_leaf 4/5" and f2["main"] == "ember_kush 4/5"
+                  and "puffed a ember_kush joint (5 -> 4 puffs) in the main hand" in log,
+                  f"after the left click: {f2['held']} / {f2['main']}; puffs {f2['puffs']}")
+        slots = self.herb_slots()
+        self.flag("dual_both_buffs", slots.get(HERB_SLOT) == LUCKY_BUFF and slots.get(HERB_SLOT2) == EMBER_BUFF,
+                  f"slots {slots}; {f2['herb']!r}")
+        # a third joint into the main hand: the Ember Kush twin goes to the bag and turns back
+        # into the off-hand joint (UpdateTwins, within 250 ms)
+        self.give_joint("saints_sage")
+        self.hwp("joint wield main", 0.6, until="wielding")
+        time.sleep(0.6)
+        bag = [it.get("id") for it in self.gl("bagitems").get("bag", [])]
+        f3 = self.joint_fields()
+        self.flag("dual_twin_back_in_bag", f3["main"] == "saints_sage 5/5" and "hwp_joint_ember_kush_4" in bag
+                  and not any((i or "").startswith("hwp_joint_mh_") for i in bag),
+                  f"main {f3['main']}; bag {bag}")
+
+    def wild_pick(self):
+        """Fix: a client's use of a wild plot was refused on the host (HWPWildPlot.CanInteract
+        wanted player.local, false there for a client's record), so only the host could pick
+        one. The harvest now goes through the host: farm.wild_pick (the request) -> the host
+        checks the plot per (peer, unit) -> farm.wild_yield (that player's wares and seeds; the
+        plot hidden for that player only, every player harvests each plot once). Single player
+        drives the whole path on the host: asked, granted, harvested, hidden for the picker, a
+        second pick refused. The two-machine check is manual (README, test 10)."""
+        if not self.start_floor(0):
+            self.flag("wild_pick_via_host", False, "no run")
+            return
+        self.god_on()
+        self.hwp("set farm.debug 1")
+        mark = len(self.g.read_log())
+        self.hwp("farm wild cabbage", 0.3, until="wild cabbage plot placed")
+        self.hwp("farm wild pick", 0.5, until="harvested a wild")
+        log = self.g.read_log()[mark:]
+        asked = re.findall(r"asked the host for the wild cabbage plot (\d+)", log)
+        granted = re.findall(r"wild pick: peer (\d+) harvests the cabbage plot (\d+) \((\d+), \+(\d+) seeds\)", log)
+        got = re.findall(r"harvested a wild cabbage plot: (\d+) \(\+(\d+) seeds\)", log)
+        ok = bool(asked) and bool(granted) and bool(got) and asked[-1] == granted[-1][1] \
+            and granted[-1][2:] == got[-1] and 2 <= int(got[-1][0]) <= 4
+        self.flag("wild_pick_via_host", ok, f"asked {asked}, granted {granted}, got {got}")
+        units = self.gl("unitsof", "doodads/hwp/wild/cabbage.unit").get("doodads/hwp/wild/cabbage.unit") or {}
+        mine = [u for u in units.get("units") or [] if asked and str(u.get("unit")) == asked[-1]]
+        self.flag("wild_pick_hidden_for_picker", bool(mine) and all(u.get("hidden") for u in mine), f"{mine}")
+        mark2 = len(self.g.read_log())
+        again = plain(self.hwp("farm wild pick", 0.5, until="already harvested"))
+        self.flag("wild_pick_once", "already harvested" in again and "harvested a wild" not in self.g.read_log()[mark2:],
+                  f"{again[-80:]!r}")
+        self.to_town()
+
     # --- plan-farming-b / -c
     def wild_char(self):
         """A saved town (a fixture boot has none, and a run loads the town's HWP settings from
@@ -615,7 +749,7 @@ class Checks(Base):
         boxes = ctl.get("units") or []
         unit_file = REPO / "mods" / "farming" / "doodads" / "hwp" / "wild" / f"{wild[-1][1]}.unit"
         sprite = unit_file.read_text(encoding="utf-8") if unit_file.is_file() else ""
-        crop = WILD_ICON in sprite and (REPO / "mods" / "core" / "gui" / "hwp" / "map_icons.png").is_file()
+        crop = WILD_ICON in sprite and (REPO / "mods" / "hwplib" / "gui" / "hwp" / "map_icons.png").is_file()
         self.flag("s11_wild_minimap_icon", bool(r.get("minimap")) and bool(mine) and all(u["icon"] and not u["hidden"] for u in mine)
                   and crop, f"minimap {r.get('minimap')} (ui_minimap {r.get('uiMinimap')}); plot {mine[:1]}; crop icon in "
                   f"{unit_file.name}: {crop}; containers within 80 px with an icon {sum(1 for u in boxes if u.get('icon'))} "

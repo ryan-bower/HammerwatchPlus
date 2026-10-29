@@ -3,7 +3,9 @@
  "about": "Test plan, use-driven (exploratory): General Merchant key buy, gambler flips, farming plot cycle, wave statue and campaign portal reached on foot, locked chests with and without a key, HWP class creation.",
  "fixture": "town-tavern",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",
@@ -17,7 +19,6 @@
    "firearms",
    "fishing",
    "gambler",
-   "goldpet",
    "groupcombo",
    "keys",
    "laststats",

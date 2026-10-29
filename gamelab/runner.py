@@ -57,6 +57,10 @@ class RunTimeout(GameError):
     """The scenario ran past its own deadline: verdict TIMEOUT, not FAIL."""
 
 
+class CompileMeasured(GameError):
+    """A `compile_error` scenario saw the compile error it expects: its result, not a failure."""
+
+
 def dotted(obj, path: str):
     """Resolve "a.b.0.c" through dicts and lists; a KeyError instance when missing."""
     for part in path.split("."):
@@ -158,7 +162,9 @@ class Run:
 
     # ---- one boot of the game ----------------------------------------------
 
-    def boot(self, expect_mods: bool, probe_menu: bool = False) -> Game:
+    def boot(self, expect_mods: bool, probe_menu: bool = False, compile_error: bool = False) -> Game:
+        """compile_error: this boot is the one a `compile_error` scenario measures (its
+        enter_fixture boot; a fixture pass that fails to compile is a plain failure)."""
         self.passes += 1
         game = Game(self.results, self.mode)
         # "transport": "console" (the console-* measurement scenarios only): every line typed
@@ -173,6 +179,9 @@ class Run:
             # the probe included, so say so now rather than wait a minute for a boot event
             # (chest-watch 20261018-153312: 84 s to the same answer)
             if logparse.compile_failed(game.read_log()):
+                if compile_error:
+                    self.measure_compile_error(game)
+                    raise CompileMeasured("mod scripts failed to compile, as the scenario expects")
                 raise GameError("mod scripts failed to compile")
             live = game.verify_live()
             self.live.append(live)
@@ -247,12 +256,25 @@ class Run:
                     raise GameError("gamelab-probe never booted (mods not enabled, or a script error)")
             elif not game.wait_log("SHOWING PickCharacterWindow", 60):
                 raise GameError("session never reached PickCharacterWindow")
+        except CompileMeasured:
+            self.finish(game)
+            raise
         except GameError as e:
             # a mod compile error stops every mod script, the probe included: name it
             errors = logparse.errors_in(game.read_log())
             self.finish(game)                      # stop the game, keep its logs, assert its exit
             raise GameError(f"{e}" + (f"; script errors: {'; '.join(errors[:5])}" if errors else "")) from None
         return game
+
+    def measure_compile_error(self, game: Game) -> None:
+        """`"compile_error": true` (the compile-err measurement): what a player is left with when
+        an enabled mod no longer compiles. No script runs then, the quit handling included, so
+        the game is killed after the shot; that kill is the expected end of the pass."""
+        time.sleep(float(self.scenario.get("compile_error_wait", 8)))
+        shot = game.shot("compile-error", settle=False)
+        self.out["compile_error"] = {"errors": logparse.errors_in(game.read_log())[:5], "shot": bool(shot),
+                                     "alive": game.alive()}
+        self.compile_measured = True
 
     def finish(self, game: Game) -> None:
         code = game.stop()
@@ -265,6 +287,11 @@ class Run:
             shutil.copy2(shim, logs / f"pass{self.passes}.shim.log")
         game.close()
         self.game = None
+        if getattr(self, "compile_measured", False):
+            # nothing compiled, so nothing ran that could save or leave state behind
+            self.assert_(f"pass {self.passes} exited cleanly", code is not None,
+                         f"exit code {code} (killed after the measured compile error)")
+            return
         self.assert_(f"pass {self.passes} exited cleanly", code == 0, f"exit code {code}")
 
     def check_console(self, game: Game) -> None:
@@ -359,7 +386,8 @@ class Run:
         if readback is not None and not isinstance(readback, dict):
             raise GameError("restart readback must be a mapping")
         expected = {**recipe["readback"], **(readback or {})}
-        game = self.boot(expect_mods=True, probe_menu=self.scenario.get("probe_menu", False))
+        game = self.boot(expect_mods=True, probe_menu=self.scenario.get("probe_menu", False),
+                         compile_error=bool(self.scenario.get("compile_error")))
         hb = game.wait_gl(lambda o: o.get("ev") == "hb", 30)
         self.out.setdefault("first_frame_at", time.time())   # watch mode's focus window ends here
         if self.mode == "watch":
@@ -997,7 +1025,10 @@ class Run:
             fixture = self.materialize(self.scenario["fixture"])
             out["fixture"] = {k: fixture[k] for k in ("name", "cache_key", "cache")}
             # mods under test: enabled on top of the fixture's set, in this run's copy of the save
-            extra = list(self.scenario.get("mods", []))
+            extra = env.expand_mods(self.scenario.get("mods", []))   # + what they require
+            extra += env.package_ids(self.scenario.get("packages"))   # built packages: id = file stem
+            # a requires can reach a fixture mod (devarena requires gamelab-probe): each id once
+            extra = [m for m in extra if m not in fixture["recipe"]["binary_edits"]["enable_mods"]]
             if extra:
                 hps.enable(hps.current_save(0, env.GAME / "saves"), fixture["recipe"]["binary_edits"]["enable_mods"] + extra)
                 out["mods_under_test"] = extra
@@ -1007,6 +1038,9 @@ class Run:
                 write_plan([f"{st['at']}|{st['name']}|{st['line']}" for st in self.plan])
                 out["plan_lines"] = len(self.plan)
             game = self.enter_fixture(fixture["recipe"], extra)
+            # a compile_error scenario ends in CompileMeasured; a boot that compiled is its failure
+            if self.scenario.get("compile_error"):
+                self.assert_("mod scripts failed to compile (expected)", False, "the scripts compiled")
             saved: dict = {}
             out["saved"] = saved
             for s in self.scenario["steps"]:
@@ -1026,6 +1060,8 @@ class Run:
                     out["restored_for_end_shot"] = True
                     time.sleep(0.3)
                 self.step(game, {"do": "shot", "name": "end"}, saved)
+        except CompileMeasured as e:
+            self.assert_("mod scripts failed to compile (expected)", True, str(e))
         except Exception as e:                     # noqa: BLE001 - every failure is a result
             out["timeout"] = isinstance(e, RunTimeout)
             out["error"] = f"{type(e).__name__}: {e}"

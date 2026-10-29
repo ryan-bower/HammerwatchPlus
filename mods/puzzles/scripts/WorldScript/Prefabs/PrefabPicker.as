@@ -3,7 +3,8 @@
 // it (one that can also pick a large vanilla puzzle, see HWP::Puzzles::BIG),
 // HoH1's Constellation (prefabs/puzzles/hwp/puzzle_constellation.pfb) joins the
 // candidates with weight puzzles.constellation (default 10, the vanilla weight
-// of each candidate; 0 turns it off). Everything else is the vanilla pick.
+// of each candidate; 0 turns it off, and so does puzzles.enabled off).
+// Everything else is the vanilla pick.
 namespace HWP
 {
 	namespace Puzzles
@@ -87,7 +88,7 @@ namespace WorldScript
 			// (once per floor, like the flagged vanilla picks)
 			int hwpChance = 0;
 			Prefab@ hwpPrefab;
-			if (big && !g_flags.IsSet(HWP::Puzzles::CONSTELLATION_FLAG))
+			if (big && !g_flags.IsSet(HWP::Puzzles::CONSTELLATION_FLAG) && HWP::Puzzles::Enabled())
 			{
 				hwpChance = max(0, HWP::Settings::GetInt("puzzles.constellation", 10));
 				if (hwpChance > 0)

@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">GameLab Duplicate Path B</string>
+	<string name="author">HammerwatchPlus GameLab</string>
+	<string name="description">Test harness only: ships the same file paths as gamelab-dup-a, to measure which copy the game uses when two mods ship one path (the dup-path scenarios). Never deployed to a play install.</string>
+</dict>

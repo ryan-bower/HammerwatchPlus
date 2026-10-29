@@ -1,0 +1,23 @@
+{
+  "name": "town-ranger",
+  "about": "Fresh profile, GameLab mods enabled, one level-1 ranger standing in town (for the Beastmaster's wolf, a passive summon; the priest would need the Celestial Ruins DLC: class_priest.sval conditional 'dlc has holy', which PickCharacterWindow's play refuses in the lab).",
+  "slot": 0,
+  "binary_edits": {
+    "enable_mods": [
+      "gamelab-probe",
+      "gamelab-hands",
+      "gamelab-pilot"
+    ]
+  },
+  "character": {
+    "class": "ranger",
+    "name": "GameLab"
+  },
+  "readback": {
+    "phase": "town",
+    "player.class": "ranger",
+    "player.name": "GameLab",
+    "player.level": 1,
+    "player.dead": false
+  }
+}

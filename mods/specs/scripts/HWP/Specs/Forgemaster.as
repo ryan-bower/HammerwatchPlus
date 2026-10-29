@@ -28,9 +28,21 @@
 //   around the body. A Penance channel dodges to the same spot, faces up and stands still while
 //   a golden light pulses out of the body (penance_light.effect every PEN_LIGHT_MS), brighter
 //   as the channel runs (the user, 2026-10-22).
+// - A channel locks the priest onto its body (the user, 2026-10-25): the raising buff locks the
+//   rotation, a raise faces the body at its start (SetAngle) and the Penance faces up after its
+//   dodge; the Dash (ignore-blocking: silence never stops it) is pinned on cooldown for the
+//   channel's remaining time (PinDash) so no lunge or dodge can start mid-channel. The channel's
+//   effects: a necrotic beam from the priest to the body (necrotic_beam_1, green for a raise,
+//   gold and straight up out of the body for a Penance) whose width grows with the progress
+//   (EffectBehavior.SetParam each frame), a pulse on the body every CHANNEL_PULSE_MS scaled by
+//   the progress (channel_pulse.effect / penance_light.effect), and a progress bar with a label
+//   over the priest's head (RenderForgemaster, drawn by HWPSpecsModule.RenderFrame).
 // - HWPSpecsRisenCap lifts the vanilla one-per-unit summon cap for risen producers; the owner's
 //   client keeps the total at nr-count, the oldest going first (EnforceCap, as Player.as does).
-// - HWPSpecsPyre (class swap of PyreUnitBehavior): Pyre Sacrifice lowers Heresy on use.
+// - HWPSpecsPyre (class swap of PyreUnitBehavior): Pyre Sacrifice lowers Heresy on use, and a
+//   Forgemaster with Heresy can use a pyre with no curse (CanUse). The large pyre (a
+//   WorldScript::Pyre, which no class swap reaches) is the module's override of
+//   scripts/WorldScript/Pyre.as, with the same two rules (PyreHeresyAllows / PyreHeresyUsed).
 // - PlayerInitialize hook: a Forgemaster gets Divine Favor level 1 for free, once per character.
 namespace HWP
 {
@@ -42,6 +54,11 @@ namespace HWP
 		const string HERESY = "heresy";
 		const string RISEN_DIR = "players/hwp/specs/forgemaster/risen/";
 		const string BODIES_DIR = "players/hwp/specs/forgemaster/bodies/";
+		// the HoH1 enemies' risen and bodies: written with the player's own HoH1 import into the
+		// campaign module (tools/import_hoh1.py campaign) under RISEN_DIR/BODIES_DIR + their full
+		// "hoh1/actors/..." path, listed in this file (absent without the import)
+		const string HOH1_RISEN_LIST = "players/hwp/specs/forgemaster/hoh1_risen.sval";
+		const string HOH1_ACTORS = "hoh1/actors/";
 		const int HERESY_BLOCK = 5;
 		const int BODY_TTL = 60000;
 		const int RAISE_RANGE = 150;
@@ -51,6 +68,12 @@ namespace HWP
 		const int EAT_BOB_MS = 250;      // half period of the eating bob (1 px up, 1 px down)
 		const int EAT_BLOOD_MS = 300;    // blood out of the body while eating
 		const int PEN_LIGHT_MS = 150;    // the golden light's pulses during a Penance channel
+		const int CHANNEL_PULSE_MS = 150; // a raise channel's pulses on the body
+		const int DASH_PIN_MS = 50;      // the dash stays on cooldown this long past the channel's end
+		const int BAR_W = 44;            // the channel bar over the priest's head
+		const int BAR_H = 5;
+		const int BAR_ABOVE = 34;        // px above the priest's origin
+		const string BEAM = "effects/generic/raycast/necrotic_beam_1.effect";
 		const int DODGE_MAX_MS = 600;    // a dodge to the body that takes longer is snapped there
 		const uint DASH = HashString("dash_skill");
 		const int BLOOM_RADIUS = 60;
@@ -80,7 +103,23 @@ namespace HWP
 			int m_dodgeC;
 			vec2 m_spot;
 			int m_lightC;
+			// the lock and the effects (the user, 2026-10-25)
+			bool m_locked;      // facing set and the dash pinned (a Penance: after its dodge lands)
+			float m_angle;      // the facing the channel holds, radians
+			UnitPtr m_beam;     // the looping beam, its width grows with the progress
+			int m_pulseC;
+			int m_pulses;
+			int m_dashRefused;  // dash presses seen while pinned
+			int m_dashReal = -1;  // the dash's own cooldown when the pin first took over (-1: not pinned)
+			int m_dashPinLeft;    // m_left at that moment, so UnpinDash knows how much of it ran out
+			string m_label;     // the bar's text
+
+			float Progress() { return m_total > 0 ? clamp(1.0f - float(m_left) / float(m_total), 0.0f, 1.0f) : 1.0f; }
 		}
+		// the last channel's measurements, kept after it ends for a slow reader (the test bot)
+		int g_chanPulses, g_chanDashRefused, g_chanLockFacing = 999, g_chanBeamFrames;
+		bool g_dashPinned = false;
+		bool g_chanDrawn = false;
 
 		// the priest eating a body after a lunge (the Forgemaster's own client)
 		class Eating
@@ -107,6 +146,8 @@ namespace HWP
 		RaiseChannel@ g_channel;
 		dictionary g_enemyUnits;
 		dictionary g_risenRels;
+		dictionary g_hoh1Risen;
+		bool g_hoh1Loaded = false;
 		bool g_unitSetsBuilt = false;
 		uint g_risenSeq = 0;
 		int g_capC = 0;
@@ -132,7 +173,11 @@ namespace HWP
 		void ClearForgemaster()
 		{
 			g_bodies.removeRange(0, g_bodies.length());
+			if (g_channel !is null)
+				EndChannelFx(g_channel);
 			@g_channel = null;
+			g_dashPinned = false;
+			g_chanDrawn = false;
 			g_capC = 0;
 		}
 
@@ -147,16 +192,40 @@ namespace HWP
 				g_risenRels.set(RISEN_RELS[i], true);
 		}
 
+		// a risen's SpawnUnit of one of these is dropped: every HoH1 actor is one (HoH1 units
+		// carry no team, so the hazards they drop are the enemies' too)
 		bool IsEnemyUnit(const string &in path)
 		{
 			BuildUnitSets();
-			return g_enemyUnits.exists(path);
+			return g_enemyUnits.exists(path) || path.findFirst(HOH1_ACTORS) == 0;
 		}
 
-		// the "actors/..." path's part after actors/, when it is a raisable enemy; else ""
+		bool HoH1Raisable(const string &in path)
+		{
+			if (!g_hoh1Loaded)
+			{
+				g_hoh1Loaded = true;
+				SValue@ sv = Resources::GetSValue(HOH1_RISEN_LIST);
+				if (sv !is null && sv.GetType() == SValueType::Array)
+				{
+					auto arr = sv.GetArray();
+					for (uint i = 0; i < arr.length(); i++)
+					{
+						if (arr[i].GetType() == SValueType::String)
+							g_hoh1Risen.set(arr[i].GetString(), true);
+					}
+				}
+			}
+			return g_hoh1Risen.exists(path);
+		}
+
+		// the raisable enemy's name under RISEN_DIR and BODIES_DIR, else "": a HoH2 enemy's
+		// "actors/..." path after actors/, a HoH1 one's whole "hoh1/actors/..." path
 		string RisenRel(const string &in unitPath)
 		{
 			BuildUnitSets();
+			if (unitPath.findFirst(HOH1_ACTORS) == 0)
+				return HoH1Raisable(unitPath) ? unitPath : "";
 			if (unitPath.findFirst("actors/") != 0)
 				return "";
 			string rel = unitPath.substr(7);
@@ -447,12 +516,135 @@ namespace HWP
 			@c.m_cost = cost;
 			c.m_dodge = penance && duration > 0;
 			c.m_spot = EatSpot(body.m_unit);
+			c.m_label = penance ? "Penance" : "Raising";
 			@g_channel = c;
+			g_chanPulses = 0;
+			g_chanDashRefused = 0;
+			g_chanLockFacing = 999;
+			g_chanBeamFrames = 0;
 			if (duration > 0)
 				Give(plr, plr, Buff("raising"), 1.0f, duration);
 			if (c.m_dodge)
 				Give(plr, plr, Buff("penance_stance"), 1.0f, duration);
+			// a raise locks onto the body at once: facing it, the dash pinned, the beam on; a Penance
+			// does the same once its dodge has landed (UpdatePenanceStance -> LockOn)
+			if (!penance && duration > 0)
+			{
+				vec2 d = xy(body.m_unit.GetPosition()) - xy(plr.m_unit.GetPosition());
+				LockOn(c, length(d) > 0.5f ? atan(d.y, d.x) : plr.m_dirAngle);
+			}
 			Log("specs", (penance ? "penance" : "raise") + " channel " + duration + " ms on " + body.m_unit.GetId());
+		}
+
+		// the channel's lock: the facing held (the raising buff's lock-rotation keeps SetAngle's
+		// value, Player.as aimDir), the dash pinned, the beam started
+		void LockOn(RaiseChannel@ c, float angle)
+		{
+			if (c.m_locked)
+				return;
+			c.m_locked = true;
+			c.m_angle = angle;
+			c.m_plr.SetAngle(angle);
+			PinDash(c);
+			StartBeam(c);
+			Log("specs", "channel locked on " + c.m_body.GetId() + " facing " + Rounded(angle * 180 / PI));
+		}
+
+		// the Dash has ignore-blocking (dash.sval), so the raising buff's silence never stops it:
+		// its cooldown is kept past the channel's end instead (ActiveSkill.Activate refuses on
+		// m_cooldownC > 0), and let go when the channel ends (UnpinDash)
+		void PinDash(RaiseChannel@ c)
+		{
+			auto dash = cast<Skills::Charge>(FindSkill(c.m_plr, DASH));
+			if (dash is null)
+				return;
+			if (c.m_dashReal < 0)
+			{
+				c.m_dashReal = max(0, dash.m_cooldownC);
+				c.m_dashPinLeft = c.m_left;
+			}
+			int want = c.m_left + DASH_PIN_MS;
+			if (dash.m_cooldownC < want)
+				dash.m_cooldownC = want;
+			g_dashPinned = true;
+		}
+
+		void UnpinDash(RaiseChannel@ c)
+		{
+			if (!g_dashPinned)
+				return;
+			g_dashPinned = false;
+			if (c is null || c.m_plr is null)
+				return;
+			auto dash = cast<Skills::Charge>(FindSkill(c.m_plr, DASH));
+			// still the pin's cooldown: back to what is left of the dash's own (a dash just
+			// before the channel keeps its cooldown when the channel is cut short)
+			if (dash !is null && dash.m_cooldownC > 0 && dash.m_cooldownC <= c.m_left + DASH_PIN_MS)
+			{
+				int real = c.m_dashReal < 0 ? 0 : max(0, c.m_dashReal - (c.m_dashPinLeft - c.m_left));
+				dash.m_cooldownC = real;
+			}
+			c.m_dashReal = -1;
+		}
+
+		// the beam: a raise's runs from the priest to the body in necrotic green; a Penance's rises
+		// straight up out of the body in gold (the priest stands under it)
+		void StartBeam(RaiseChannel@ c)
+		{
+			if (c.m_beam.IsValid())
+				return;
+			if (c.m_penance)
+			{
+				vec2 at = xy(c.m_body.GetPosition());
+				dictionary ps = { { 'angle', -PI / 2 }, { 'length', 24.0f }, { 'width', 2.0f }, { 'cR', 1.6f }, { 'cG', 1.2f }, { 'cB', 0.3f } };
+				c.m_beam = Loop(BEAM, at, ps);
+				return;
+			}
+			vec2 from = xy(c.m_plr.m_unit.GetPosition());
+			vec2 to = xy(c.m_body.GetPosition());
+			dictionary ps = { { 'angle', atan(to.y - from.y, to.x - from.x) }, { 'length', max(8.0f, dist(from, to)) }, { 'width', 2.0f },
+				{ 'cR', 0.4f }, { 'cG', 1.6f }, { 'cB', 0.5f } };
+			c.m_beam = Loop(BEAM, from, ps);
+		}
+
+		// each frame: the beam widens (a Penance's also rises) with the progress, the body pulses
+		void UpdateChannelFx(RaiseChannel@ c, int ms)
+		{
+			if (!c.m_locked)
+				return;
+			float t = c.Progress();
+			if (c.m_beam.IsValid() && !c.m_beam.IsDestroyed())
+			{
+				auto eb = cast<EffectBehavior>(c.m_beam.GetScriptBehavior());
+				if (eb !is null)
+				{
+					eb.SetParam("width", 2.0f + 14.0f * t);
+					if (c.m_penance)
+						eb.SetParam("length", 24.0f + 110.0f * t);
+					g_chanBeamFrames++;
+				}
+			}
+			if (c.m_penance)
+				return;   // UpdatePenanceStance pulses the golden light
+			c.m_pulseC -= ms;
+			if (c.m_pulseC <= 0)
+			{
+				c.m_pulseC += CHANNEL_PULSE_MS;
+				dictionary ps = { { 'scale', 0.4f + 2.0f * t } };
+				PlayEffect(FX + "channel_pulse.effect", xy(c.m_body.GetPosition()), ps);
+				c.m_pulses++;
+				g_chanPulses = c.m_pulses;
+				g_chanLockFacing = Rounded(c.m_plr.m_dirAngle * 180 / PI);
+			}
+		}
+
+		void EndChannelFx(RaiseChannel@ c)
+		{
+			if (c is null)
+				return;
+			c.m_beam = Kill(c.m_beam);
+			UnpinDash(c);
+			g_chanDashRefused = c.m_dashRefused;
 		}
 
 		void CancelChannel(const string &in why)
@@ -460,6 +652,7 @@ namespace HWP
 			if (g_channel is null)
 				return;
 			Log("specs", "channel cancelled: " + why);
+			EndChannelFx(g_channel);
 			@g_channel = null;
 		}
 
@@ -469,6 +662,7 @@ namespace HWP
 			@g_channel = null;
 			if (c is null)
 				return;
+			EndChannelFx(c);
 			auto body = BodyOf(c.m_body);
 			auto plr = c.m_plr;
 			if (body is null || plr is null || plr.IsDead())
@@ -526,9 +720,59 @@ namespace HWP
 			}
 			if (c.m_penance && c.m_total > 0)
 				UpdatePenanceStance(c, ms);
+			if (c.m_locked)
+			{
+				// the lock holds: the facing (a frame can slip before the buff's lock-rotation lands),
+				// the dash's cooldown (a dash charge gained mid-channel resets nothing here)
+				if (abs(c.m_plr.m_dirAngle - c.m_angle) > 0.01f)
+					c.m_plr.SetAngle(c.m_angle);
+				PinDash(c);
+			}
+			UpdateChannelFx(c, ms);
 			c.m_left -= ms;
 			if (c.m_left <= 0)
 				CompleteChannel();
+		}
+
+		// a dash press while the channel holds the dash: refused (the pinned cooldown), counted, logged
+		void OnDashPressed()
+		{
+			if (g_channel is null || !g_channel.m_locked)
+				return;
+			g_channel.m_dashRefused++;
+			g_chanDashRefused = g_channel.m_dashRefused;
+			Log("specs", "dash refused during " + (g_channel.m_penance ? "penance" : "raise") + " channel, " + g_channel.m_left + " ms left");
+		}
+
+		// the channel bar over the priest's head: the label, the progress, gold for a Penance and
+		// necrotic green for a raise. Drawn by HWPSpecsModule.RenderFrame (the UI-scaled batch, so
+		// world -> screen is ToScreenspace / m_wndScale, as FloatingText.as does).
+		BitmapString@ g_barText;
+		string g_barTextFor;
+
+		void RenderForgemaster(int idt, SpriteBatch& sb)
+		{
+			auto c = g_channel;
+			if (c is null || c.m_plr is null || !IsLocal(c.m_plr) || c.m_total <= 0)
+			{
+				g_chanDrawn = false;
+				return;
+			}
+			if (g_barText is null || g_barTextFor != c.m_label)
+			{
+				auto font = Resources::GetBitmapFont("gui/fonts/arial11.fnt");
+				@g_barText = font.BuildText(c.m_label, -1, TextAlignment::Center, vec4(1, 1, 1, 1));
+				g_barTextFor = c.m_label;
+			}
+			vec2 at = ToScreenspace(c.m_plr.m_unit.GetInterpolatedPosition(idt) + vec3(0, -BAR_ABOVE, 0)) / g_gameMode.m_wndScale;
+			at = vec2(int(at.x - BAR_W / 2), int(at.y));
+			float t = c.Progress();
+			vec4 fill = c.m_penance ? vec4(1.0f, 0.85f, 0.3f, 1) : vec4(0.45f, 1.0f, 0.5f, 1);
+			sb.FillRectangle(vec4(at.x - 1, at.y - 1, BAR_W + 2, BAR_H + 2), vec4(0, 0, 0, 0.75f));
+			sb.FillRectangle(vec4(at.x, at.y, int(BAR_W * t), BAR_H), fill);
+			if (g_barText !is null)
+				sb.DrawString(vec2(int(at.x + BAR_W / 2), int(at.y - g_barText.GetHeight() - 1)), g_barText);
+			g_chanDrawn = true;
 		}
 
 		// the Penance stance: the first frame dodges to under the body (not from inside the skill's
@@ -553,12 +797,16 @@ namespace HWP
 					Land(plr, c.m_spot);
 				}
 			}
+			if (!c.m_dodging && !c.m_locked)
+				LockOn(c, -PI / 2);   // landed: facing up, the dash pinned, the golden beam out of the body
 			c.m_lightC -= ms;
 			if (c.m_lightC <= 0)
 			{
 				c.m_lightC += PEN_LIGHT_MS;
 				float t = 1.0f - float(c.m_left) / float(max(1, c.m_total));   // 0 at the start, 1 at the end
-				dictionary ps = { { 'scale', 0.3f + 1.2f * t } };
+				dictionary ps = { { 'scale', 0.4f + 2.0f * t } };
+				c.m_pulses++;
+				g_chanPulses = c.m_pulses;
 				vec2 at = xy(c.m_body.GetPosition());
 				PlayEffect(FX + "penance_light.effect", at, ps);
 				g_penLights++;
@@ -1067,9 +1315,11 @@ namespace HWP
 			}
 		}
 
-		void UpdateForgemaster(int ms)
+		void UpdateForgemaster(int ms, bool dashPressed = false)
 		{
 			auto fm = LocalForgemaster();
+			if (dashPressed)
+				OnDashPressed();
 			UpdateBodies(ms, fm);
 			if (fm is null)
 			{
@@ -1144,14 +1394,14 @@ namespace HWP
 			vec2 pos = xy(plr.m_unit.GetPosition());
 			if (sub == "body" && args.length() >= 2)
 			{
-				// hwp forge body <rel under actors/> [dx dy]: the host drops that enemy's intact body
+				// hwp forge body <rel under actors/ | hoh1/actors/...> [dx dy]: the host drops that enemy's intact body
 				if (!Network::IsServer())
 				{
 					HWP::Commands::Reply("forge: bodies are the host's");
 					return;
 				}
 				string rel = args[1];
-				if (RisenRel("actors/" + rel).isEmpty())
+				if (RisenRel(rel.findFirst(HOH1_ACTORS) == 0 ? rel : "actors/" + rel).isEmpty())
 				{
 					HWP::Commands::Reply("forge: not raisable: " + rel);
 					return;
@@ -1278,6 +1528,12 @@ namespace HWP
 				+ "; penances " + g_penances + "; lunges " + g_lunges + "; blooms " + g_blooms + "; cap kills " + g_capKills
 				+ "; decay deaths " + g_decayDeaths + "; moves swapped " + g_movesSwapped + " actions stripped " + g_actionsStripped
 				+ "; channel " + (g_channel is null ? "none" : (g_channel.m_penance ? "penance " : "raise ") + g_channel.m_left + " ms")
+				+ " locked " + (g_channel !is null && g_channel.m_locked ? 1 : 0) + " beam " + (g_channel !is null && Alive(g_channel.m_beam) ? 1 : 0)
+				+ " pulses " + g_chanPulses + " lockface " + g_chanLockFacing + " beamframes " + g_chanBeamFrames
+				+ " bar " + (g_chanDrawn ? 1 : 0) + " dashpin " + (g_dashPinned ? 1 : 0) + " dashrefused " + g_chanDashRefused
+				+ " dashcd " + (cast<Skills::Charge>(FindSkill(plr, DASH)) !is null ? cast<Skills::Charge>(FindSkill(plr, DASH)).m_cooldownC : -1)
+				+ "; icon " + (cast<HWPSpecsResurrection>(FindSkill(plr, NR)) !is null ? cast<HWPSpecsResurrection>(FindSkill(plr, NR)).IconName() : "none")
+				+ "; pyreuses " + g_pyreUses + " pyreremoved " + g_pyreHeresyRemoved + " pyrenocurse " + g_pyreNoCurseUses   // no "heresy N" here: the tests read the last one
 				+ "; hud " + (g_hudHeresyHigh ? "high" : "low")
 				+ "; eat " + (g_eat is null ? "none" : (g_eat.m_dodging ? "dodging" : "eating")) + " bobs " + (g_eat is null ? g_eatBobs : g_eat.m_bobs)
 				+ " bloods " + (g_eat is null ? g_eatBloods : g_eat.m_bloods) + " facing " + g_eatFacing
@@ -1632,6 +1888,26 @@ class HWPSpecsRisenCap : Modifiers::Modifier
 	}
 }
 
+// the devouring buff's heal: health regeneration of pct of the maximum health a second. Post,
+// so stats.Health is the final maximum (Player.Update regen adds HealthRegen x HealthGain /
+// Health a second)
+class HWPSpecsMaxHealthRegen : Modifiers::StatModifier
+{
+	float m_pct;
+
+	HWPSpecsMaxHealthRegen(UnitPtr unit, SValue& params)
+	{
+		super(unit, params);
+		Ordering = int(Modifiers::ModifierOrdering::Post);
+		m_pct = GetParamFloat(unit, params, "pct", false, 0);
+	}
+
+	void Modify(PlayerRecord@ player, PlayerStats@ stats, float intensity) override
+	{
+		stats.HealthRegen += float(stats.Health) * m_pct;
+	}
+}
+
 // Necrotic Resurrection / Sacrificial Penance
 class HWPSpecsResurrection : Skills::PlayerSkillDirectional
 {
@@ -1644,15 +1920,38 @@ class HWPSpecsResurrection : Skills::PlayerSkillDirectional
 	void Initialize(Actor@ owner, UnitPtr unit, array<SValue@>@ params, uint id) override
 	{
 		Skills::PlayerSkillDirectional::Initialize(owner, unit, params, id);
-		@m_iconRaise = m_icon;
 		@m_iconPenance = ScriptSprite(Resources::GetTexture2D("players/hwp/specs/icons.png"), vec4(120, 144, 24, 24));
+		// m_icon is still null here: PlayerBase.LoadSkills assigns `@skill.m_icon = def.m_icon` AFTER
+		// Initialize (PlayerBase.as LoadSkills), so the raise icon is taken on the first RefreshIcon
+		// instead (the icon never swapped before, the user 2026-10-25)
 	}
 
+	// the HUD's SkillWidget draws skill.m_icon every frame, so swapping it here is enough
 	void RefreshIcon(bool penance)
 	{
 		if (m_iconRaise is null)
+		{
+			if (m_icon is null || m_icon is m_iconPenance)
+				return;
+			@m_iconRaise = m_icon;
+		}
+		ScriptSprite@ want = penance ? m_iconPenance : m_iconRaise;
+		if (m_icon is want)
 			return;
-		@m_icon = penance ? m_iconPenance : m_iconRaise;
+		@m_icon = want;
+		HWP::Log("specs", "resurrection icon -> " + (penance ? "penance" : "raise"));
+	}
+
+	// for `hwp forge`: which icon the skill shows now
+	string IconName()
+	{
+		if (m_icon is null)
+			return "null";
+		if (m_icon is m_iconPenance)
+			return "penance";
+		if (m_icon is m_iconRaise)
+			return "raise";
+		return "unset";
 	}
 
 	bool CanActivate(bool warn = true) override
@@ -1716,21 +2015,66 @@ class HWPSpecsResurrection : Skills::PlayerSkillDirectional
 	}
 }
 
-// Pyre Sacrifice: the Pyre (class swap of doodads/lamps/brazier_pyre.unit) also removes Heresy
+// Pyre Sacrifice: the Pyre (class swap of doodads/lamps/brazier_pyre.unit) also removes Heresy,
+// and a Forgemaster with Heresy can use it with no curse. The large pyre (WorldScript::Pyre, the
+// module's override of scripts/WorldScript/Pyre.as) calls the same two helpers.
+namespace HWP
+{
+	namespace Specs
+	{
+		int g_pyreUses = 0, g_pyreHeresyRemoved = 0, g_pyreNoCurseUses = 0;
+
+		// the vanilla CanUse wants a curse: a local Forgemaster with Heresy may use the pyre without
+		// one (the user, 2026-10-25: "pyres shouldn't require you to have curse if you have heresy"),
+		// when Pyre Sacrifice would take some Heresy off; without the orb the use would only spend
+		// the pyre
+		bool PyreHeresyAllows(PlayerBase@ player)
+		{
+			return player !is null && IsLocal(player) && Learned(player, NR) && Heresy(player) > 0
+				&& BindI(player, NR, "ps-reduce", 0) > 0;
+		}
+
+		// after the vanilla Use on the user's own client: Pyre Sacrifice's Heresy, counted and logged
+		void PyreHeresyUsed(PlayerBase@ player, const string &in kind, int cursesBefore)
+		{
+			if (player is null || !IsLocal(player))
+				return;
+			g_pyreUses++;
+			if (cursesBefore <= 0)
+				g_pyreNoCurseUses++;
+			int rm = min(BindI(player, NR, "ps-reduce", 0), Heresy(player));
+			if (rm > 0)
+			{
+				AddHeresy(player, -rm);
+				g_pyreHeresyRemoved += rm;
+				AddFloatingText(FloatingTextType::Pickup, "-" + rm + " Heresy", player.m_unit.GetPosition());
+			}
+			Log("specs", kind + " pyre used" + (cursesBefore <= 0 ? " with no curse" : "") + ": heresy -" + rm + " -> " + Heresy(player));
+		}
+	}
+}
+
 class HWPSpecsPyre : PyreUnitBehavior
 {
 	HWPSpecsPyre(UnitPtr unit, SValue& params) { super(unit, params); }
 
+	bool CanUse(PlayerBase@ player) override
+	{
+		if (PyreUnitBehavior::CanUse(player))
+			return true;
+		// the vanilla refusals: used already (stays), or a local player with no curse
+		if (player is null || (m_used && player.m_record.local))
+			return false;
+		return HWP::Specs::PyreHeresyAllows(player);
+	}
+
 	void Use(PlayerBase@ player) override
 	{
 		bool was = m_used;
+		int curses = player !is null ? player.m_record.shadowCurses : 0;
 		PyreUnitBehavior::Use(player);
-		if (was || player is null || !HWP::Specs::IsLocal(player))
+		if (was || player is null)
 			return;
-		int rm = HWP::Specs::BindI(player, HWP::Specs::NR, "ps-reduce", 0);
-		if (rm > 0)
-		{
-			HWP::Specs::AddHeresy(player, -min(rm, HWP::Specs::Heresy(player)));
-		}
+		HWP::Specs::PyreHeresyUsed(player, "brazier", curses);
 	}
 }

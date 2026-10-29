@@ -3,7 +3,9 @@
   "about": "All5Burst ranks: matched fixed full2shell and first-shell/native-dash cancel1shell; actualHP+unconditionalshelllogcount/nativefirst-v-second timing/full sourceManaCost/no-refund prefixconservation/unchangedCLIP/nativeinput_done/release and normalwalk return. Cleared fixture, no direct activation/cancel.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

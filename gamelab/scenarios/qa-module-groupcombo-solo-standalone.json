@@ -3,7 +3,9 @@
   "about": "Standalone functional subset with only required modules. Actual solo combo with no group buff; no true co-op claim. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "groupcombo"
   ],
   "timeout": 300,

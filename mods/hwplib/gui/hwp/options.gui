@@ -1,0 +1,47 @@
+<gui>
+	<!-- HammerwatchPlus core: the HammerwatchPlus tab of the player menu (HWPOptionsTab, scripts/HWP/Core/Options.as).
+	     The list is built by the script from HWP::Config (tweak/hwp/config.sval): the top section, then one
+	     collapsible header per package, its modules (on/off) and their settings, each row a clone of a template
+	     below. The scrollbar navigates its own rows (keyboard, gamepad, wheel). The value text sits over the
+	     button (centred on it) so a script can change it every frame. -->
+	<sprites>
+		%include "gui/scalablebutton_sprites.inc"
+		%include "gui/scrollbar_sprites.inc"
+	</sprites>
+
+	<doc>
+		<group>
+			<group anchor="1 0.5" width="251" height="292" offset="0 17" >
+				<text text=".hwp.options.title" anchor="0.5 0" offset="0 4" font="title" color="#ffffff" />
+				<!-- Search: fuzzy over every row's title, its module and package, its text and value (func-edit) -->
+				<rect width="231" height="18" offset="10 22" spriteset="gui/sprite_rect.sval:rounded" >
+					<text id="search-hint" text=".hwp.options.search" anchor="0 0.5" offset="5 0" font="text" color="#808080" />
+					<textinput id="search" nav-pos="0 0" textlimit="32" anchor="0 0.5" offset="5 0" textoffset="0 1" width="221" height="14" font="gui/fonts/hw8.fnt" check-reserved-characters="true" func-edit="hwp-search" func="hwp-search" func-cancel="hwp-search-clear" />
+				</rect>
+				<rect width="231" height="206" offset="10 43" spriteset="gui/sprite_rect.sval:rounded" >
+					<scrollbar id="rows" nav-pos="0 1" spriteset="angular-scrollbar" width="225" height="200" anchor="0.5 0.5" bar-offset="4 0" flow="vbox" spacing="1" >
+					</scrollbar>
+				</rect>
+				<text id="hint" text="" anchor="0.5 1" offset="0 -3" width="231" align="center" font="text" color="#a6a6a6" />
+
+				<!-- templates (cloned by HWPOptionsTab) -->
+				<!-- a section label (the top section) -->
+				<group id="tpl-section" width="212" height="13" visible="false" >
+					<text id="title" text="" anchor="0 0.5" offset="2 0" font="text" color="#ed9331" />
+				</group>
+				<!-- a package: click opens/closes it -->
+				<group id="tpl-package" width="212" height="18" visible="false" >
+					<scalebutton id="button" func="" spriteset="scalebutton-regular" width="212" anchor="0 0.5" />
+					<text id="title" text="" anchor="0 0.5" offset="6 0" font="text" color="#ed9331" />
+					<text id="value" text="" anchor="1 0.5" offset="-6 0" font="text" color="#a6a6a6" />
+				</group>
+				<!-- a module (its on/off) or a setting (the next value) -->
+				<group id="tpl-row" width="212" height="18" visible="false" >
+					<text id="title" text="" anchor="0 0.5" offset="4 0" font="text" color="#ffffff" />
+					<scalebutton id="button" func="" spriteset="scalebutton-regular" width="82" anchor="1 0.5" offset="0 0" />
+					<group width="82" height="18" anchor="1 0.5" offset="0 0" ><text id="value" text="" anchor="0.5 0.5" offset="0 0" font="text" color="#ffffff" /></group>
+				</group>
+			</group>
+		</group>
+	</doc>
+</gui>

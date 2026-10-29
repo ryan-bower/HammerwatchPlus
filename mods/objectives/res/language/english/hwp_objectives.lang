@@ -1,0 +1,12 @@
+<lang name="English" official="false">
+	<string name="hwp.objectives.exit_find">Find the switch to open the way down</string>
+	<string name="hwp.objectives.exit_open">The way down is open</string>
+	<string name="hwp.objectives.vault_open">A vault opened</string>
+	<string name="hwp.objectives.vaults">Vaults: %open%/%total%</string>
+	<string name="hwp.objectives.status">Objectives: %vaults% vault(s), %open% open; exit switch %exit%</string>
+	<string name="hwp.objectives.exit_none">none on this floor</string>
+	<string name="hwp.objectives.exit_sealed">sealed</string>
+	<string name="hwp.objectives.exit_opened">pressed, the way down is open</string>
+	<string name="hwp.objectives.usage">hwp objectives [open]  (settings: objectives.vaults 0-2, objectives.exit on/off)</string>
+	<string name="hwp.objectives.opened_all">Opened every objective on this floor (host)</string>
+</lang>

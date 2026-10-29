@@ -3,7 +3,9 @@
   "about": "Harness regression: requested native bench radius200 includes one known26px target and excludes a live600px foreign target; actual focused main hits/localHP and unchanged foreignHP required. Explicit cleared-floor setup; no class-rank credit.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

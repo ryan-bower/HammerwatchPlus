@@ -1,0 +1,71 @@
+<loader>Equipment::ItemModifier::LoadMultiple</loader>
+<!--
+	The Luck affixes ("... of Fortune", scripts/HWP/Core/Luck.as, docs/design/luck.md): one per
+	modifier slot of the vanilla generator, on armour only (head, chest, feet, hands, back).
+	Quality picks the slot the affix competes for (uncommon: the first slot, with the common
+	pool; rare: the second; epic: the third), spawn-chance 1 like every vanilla affix, so a
+	vanilla drop rolls it as often as any other affix of that slot. One exclusive group, so a
+	piece never carries two. The value is fixed per tier (+5 / +10 / +20) so the tooltip can
+	say exactly what the piece gives; the character sheet shows the total ("Luck").
+-->
+<array>
+	<dict>
+		<string name="id">hwp_mod_luck_1</string>
+		<string name="suffix">.hwp.luck.mod.suffix</string>
+		<string name="quality">uncommon</string>
+		<string name="exclusive">hwp_luck</string>
+		<array name="tags">
+			<string>mods_head</string>
+			<string>mods_chest</string>
+			<string>mods_feet</string>
+			<string>mods_hands</string>
+			<string>mods_back</string>
+		</array>
+		<dict name="modifier">
+			<string name="class">Modifiers::CustomStat</string>
+			<string name="description">.hwp.luck.mod.desc?amnt=5</string>
+			<string name="name">hwp-luck</string>
+			<float name="add">5</float>
+		</dict>
+	</dict>
+
+	<dict>
+		<string name="id">hwp_mod_luck_2</string>
+		<string name="suffix">.hwp.luck.mod.suffix</string>
+		<string name="quality">rare</string>
+		<string name="exclusive">hwp_luck</string>
+		<array name="tags">
+			<string>mods_head</string>
+			<string>mods_chest</string>
+			<string>mods_feet</string>
+			<string>mods_hands</string>
+			<string>mods_back</string>
+		</array>
+		<dict name="modifier">
+			<string name="class">Modifiers::CustomStat</string>
+			<string name="description">.hwp.luck.mod.desc?amnt=10</string>
+			<string name="name">hwp-luck</string>
+			<float name="add">10</float>
+		</dict>
+	</dict>
+
+	<dict>
+		<string name="id">hwp_mod_luck_3</string>
+		<string name="suffix">.hwp.luck.mod.suffix</string>
+		<string name="quality">epic</string>
+		<string name="exclusive">hwp_luck</string>
+		<array name="tags">
+			<string>mods_head</string>
+			<string>mods_chest</string>
+			<string>mods_feet</string>
+			<string>mods_hands</string>
+			<string>mods_back</string>
+		</array>
+		<dict name="modifier">
+			<string name="class">Modifiers::CustomStat</string>
+			<string name="description">.hwp.luck.mod.desc?amnt=20</string>
+			<string name="name">hwp-luck</string>
+			<float name="add">20</float>
+		</dict>
+	</dict>
+</array>

@@ -15,6 +15,14 @@ them as declared overrides ("generated", no .orig needed, since they are remade
 from gamecode/sdk/hoh2/ on every build) and keeps them out of git (a marked block in the
 module's .gitignore), because they are made from the player's own install.
 
+A module can also give those copies alternative art: "scene_art" names an sval
+(see mods/keys/tweak/hwp/chest_art.sval) with an "art" dict of sprites (x y w h in
+the unit's own sprite sheet) and a "chests" array of {unit, areas}. Each listed
+unit gets one extra scene per sprite it uses, a copy of its only top-level scene
+named after the sprite, with the floor sprite swapped (kept bottom-centred); the
+original scene is named "vanilla" and stays the start scene. Scripts switch with
+UnitPtr.SetUnitScene.
+
     python tools/class_units.py          # every module with class_swaps
     python tools/class_units.py keys     # only these
     python tools/class_units.py --list   # print the units, write nothing
@@ -22,6 +30,7 @@ module's .gitignore), because they are made from the player's own install.
 import argparse
 import re
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -65,21 +74,95 @@ def write_ignore(mod_dir: Path, rels: list[str]) -> None:
         f.write(text)
 
 
+FLOOR_SPRITE = re.compile(r'<sprite origin="(-?\d+) (-?\d+)"( texture="[^"]*" material="system/default\.mats:floor">\s*<frame>)'
+                          r'(\d+) (\d+) (\d+) (\d+)(</frame>)')
+
+
+def load_scene_art(cfg: dict) -> tuple[dict, dict]:
+    """(sprite id -> (x, y, w, h), unit rel -> sorted sprite ids) from the module's scene_art sval"""
+    rel = cfg.get("scene_art")
+    if not rel:
+        return {}, {}
+    root = ET.parse(cfg["dir"] / rel).getroot()
+    art, units = {}, {}
+    for d in root.findall("dict"):
+        if d.get("name") == "art":
+            for v in d.findall("vec4"):
+                art[v.get("name")] = tuple(int(n) for n in v.text.split())
+    for a in root.findall("array"):
+        if a.get("name") != "chests":
+            continue
+        for d in a.findall("dict"):
+            unit = d.find("string[@name='unit']").text.strip()
+            areas = [e.text.strip() for e in d.find("array[@name='areas']").findall("s")]
+            for name in areas:
+                if name != "vanilla" and name not in art:
+                    raise SystemExit(f"{rel}: {unit} names sprite {name!r}, not in its art dict")
+            units.setdefault(unit, set()).update(n for n in areas if n != "vanilla")
+    return art, {u: sorted(n) for u, n in units.items()}
+
+
+def add_scenes(text: str, rel: str, names: list[str], art: dict) -> str:
+    """name the unit's only top-level scene "vanilla" and add one copy per sprite name"""
+    a = text.index("<scenes>")
+    b = text.index("</scenes>")
+    body = text[a + len("<scenes>"):b]
+    if body.count("</scene>") != 1:
+        raise SystemExit(f"{rel}: scene_art wants exactly one top-level scene (nested ones self-closing)")
+    start = body.index("<scene ")
+    end = body.index("</scene>") + len("</scene>")
+    indent = body[:start].split("\n")[-1]
+    scene = body[start:end]
+    m = list(FLOOR_SPRITE.finditer(scene))
+    if len(m) != 1:
+        raise SystemExit(f"{rel}: scene_art wants one floor sprite, found {len(m)}")
+    m = m[0]
+    ox, oy, bw, bh = int(m.group(1)), int(m.group(2)), int(m.group(6)), int(m.group(7))
+    copies = []
+    for name in names:
+        x, y, w, h = art[name]
+        sprite = (f'<sprite origin="{ox + (w - bw) // 2} {oy + (h - bh)}"{m.group(3)}'
+                  f'{x} {y} {w} {h}{m.group(8)}')
+        copy = scene[:m.start()] + sprite + scene[m.end():]
+        copies.append(indent + copy.replace("<scene ", f'<scene name="{name}" ', 1))
+    named = scene.replace("<scene ", '<scene name="vanilla" ', 1)
+    body = body[:start] + named + "\n" + "\n".join(copies) + body[end:]
+    return text[:a] + '<scenes start="vanilla">' + body + text[b:]
+
+
+def expected(cfg: dict) -> dict[str, str]:
+    """unit rel -> the text generate writes for it (doctor.py compares the files with this)"""
+    swaps = cfg.get("class_swaps") or {}
+    rels = units_for(swaps)
+    art, scened = load_scene_art(cfg)
+    missing = sorted(set(scened) - set(rels))
+    if missing:
+        raise SystemExit(f"{cfg['id']}: scene_art lists units with no class swap: {', '.join(missing)}")
+    out = {}
+    for rel in rels:
+        src = swap((paths.BASE_HOH2 / rel).read_text(encoding="utf-8", errors="replace"), swaps)
+        note = "with our script class"
+        if rel in scened:
+            src = add_scenes(src, rel, scened[rel], art)
+            note += f" and the scene_art scenes ({', '.join(scened[rel])})"
+        out[rel] = f"{GENERATED} from the base unit, {note} -->\n" + src
+    return out
+
+
 def generate(cfg: dict, write: bool = True) -> list[str]:
     """write the module's class-swapped units; returns their relative paths"""
     swaps = cfg.get("class_swaps") or {}
-    rels = units_for(swaps)
     if not write:
-        return rels
-    for rel in rels:
-        src = (paths.BASE_HOH2 / rel).read_text(encoding="utf-8", errors="replace")
+        return units_for(swaps)
+    units = expected(cfg)
+    for rel, text in units.items():
         out = cfg["dir"] / rel
         out.parent.mkdir(parents=True, exist_ok=True)
         with open(out, "w", encoding="utf-8", newline="\n") as f:
-            f.write(f"{GENERATED} from the base unit, with our script class -->\n" + swap(src, swaps))
+            f.write(text)
     if swaps:
-        write_ignore(cfg["dir"], rels)
-    return rels
+        write_ignore(cfg["dir"], list(units))
+    return list(units)
 
 
 def main(argv=None) -> None:

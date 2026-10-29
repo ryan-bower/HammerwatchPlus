@@ -3,7 +3,9 @@
   "about": "Per-magazine regression: uneven mixed pairs, atomic paired shots, natural reload, shared stack changes and empty-hand borrowing. Cleared fixture floor; fixed sample counts, no retries.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

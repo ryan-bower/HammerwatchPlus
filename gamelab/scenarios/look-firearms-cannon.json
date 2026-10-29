@@ -3,7 +3,9 @@
  "about": "Look only (timescale 0.1 while firing): the Hand Cannon held alone, with an off-hand pistol and paired, the Flamethrower Rifle's held model and flame (flame_jet.effect) and the Full Auto Rifle's model and spray; their ground sprites, item icons and the flamethrower's and full auto's off-hand close-ups on the character screen. Judged by eye from the shots; not evidence of play.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 420,

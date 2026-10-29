@@ -187,9 +187,48 @@ def install_res_snapshot() -> dict[str, dict]:
     return _res_tree_snapshot(install() / "res")
 
 
-def link(fix: bool = True, mods: list[str] | None = None) -> list[str]:
+def expand_mods(mods: list[str] | None) -> list[str]:
+    """`mods` plus every module they require (module.json `requires`, transitively), each once,
+    in first-seen order: a scenario names the modules under test and gets the library parts
+    they build on (hwplib, hwplib-luck, ...) without listing them."""
+    out: list[str] = []
+
+    def add(m: str) -> None:
+        if m in out:
+            return
+        out.append(m)
+        cfg = REPO / "mods" / m / "module.json"
+        if cfg.is_file():
+            for r in json.loads(cfg.read_text(encoding="utf-8")).get("requires", []):
+                add(r)
+    for m in mods or []:
+        add(m)
+    return out
+
+
+def package_file(pkg: str) -> Path:
+    """dist/ file of a Workshop package (packages.json): HWP-<id>.bin, `all` the all-in-one pack."""
+    if pkg == "all":
+        doc = json.loads((REPO / "packages.json").read_text(encoding="utf-8"))
+        return gamepaths.DIST / f"{doc['all'].get('file', 'HammerwatchPlus-All')}.bin"
+    return gamepaths.DIST / f"HWP-{pkg}.bin"
+
+
+def package_ids(packages: list[str] | None) -> list[str]:
+    """The mod ids the game gives built packages: a packed mod's id is its file stem."""
+    return [package_file(p).stem for p in packages or []]
+
+
+def is_package_copy(p: Path) -> bool:
+    """A built package GameLab copied into its mods dir (link(packages=...)), not a link."""
+    return p.is_file() and p.suffix == ".bin" and (p.name.startswith("HWP-") or p.name.startswith("HammerwatchPlus"))
+
+
+def link(fix: bool = True, mods: list[str] | None = None, packages: list[str] | None = None) -> list[str]:
     """Create (fix=True) and verify the gamelab game dir. Returns the problems left ([] = green).
-    `mods` = extra repo mods to junction in besides the environment's own GameLab mods."""
+    `mods` = extra repo mods to junction in besides the environment's own GameLab mods;
+    `packages` = built Workshop packages (dist/, tools/build.py) to copy in, sha256-checked: a
+    scenario's `packages` test what players get, packed."""
     problems: list[str] = []
     env = environments()["gamelab"]
     game_install = install()
@@ -212,7 +251,26 @@ def link(fix: bool = True, mods: list[str] | None = None) -> list[str]:
             problems.append(f"mods/{m} has no info.xml")
             continue
         ensure_junction(mods_dir / m, src, problems, fix)
+    shipped = {package_file(k).name: package_file(k) for k in packages or []}
+    for name, src in shipped.items():
+        dst = mods_dir / name
+        if not src.is_file():
+            problems.append(f"{src} not built (tools/build.py)")
+            continue
+        want = sha256(src)                  # a package is several MB: hash each side once
+        ok = dst.is_file() and sha256(dst) == want
+        if fix and not ok:
+            shutil.copy2(src, dst)
+            ok = sha256(dst) == want
+        if not ok:
+            problems.append(f"{dst} differs from {src}")
     for p in list(mods_dir.iterdir()):
+        if is_package_copy(p):
+            # a previous scenario's package: removed by the next fix, tolerated by a check like a
+            # previous scenario's mod junction (a pkg-* run is not a dirty environment)
+            if p.name not in shipped and fix:
+                p.unlink()
+            continue
         t = link_target(p)
         if fix and p.name not in wanted and t is not None and (REPO / "mods") in t.parents:
             remove_junction(p)              # a previous scenario's mod under test: undeclared now

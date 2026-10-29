@@ -19,9 +19,22 @@ longer afford (after a loss) is refused with "Not enough gold" on the result lin
 His **Sell** button buys your wares (`HWP::Market`): crops and herbs for gold,
 fish for bet tokens (1 / 3 / 5 per 1 / 2 / 3-star fish). The tokens line
 under the reroll row shows how many you have, and so does a red chip cell
-(`gui/hwp/token.png`) first in the materials tab's Supplies section (core
-`HWP::Materials`, cell `hwp-mat-bet-tokens`, `HWPTokenMaterial`); it hides
-while you have none.
+(`gui/hwp/token.png`) first in the materials tab's Supplies section (hwplib
+`HWP::Materials` section a, which this module titles; cell `hwp-mat-bet-tokens`,
+`HWPTokenMaterial`); it hides while you have none.
+
+The tokens are this module's (`scripts/HWP/Gambler/Tokens.as`: `bet_tokens` per
+character, `HWP::Gambler::Tokens`, `AddTokens`, `SpendTokens`). It registers them as
+hwplib's market currency (`HWP::Market::SetCurrency`), so wares priced in tokens pay
+tokens; without this module they sell for gold. `hwp tokens [n]` (cheat, needs
+`e_cheats 1`) shows or adds them.
+
+## Settings
+
+`gambler.enabled` (host-synced, on the HammerwatchPlus tab of the player menu) turns the
+module off at once: the host takes the gambler away, and the bet tokens stop being the
+market's currency, so fish sell for gold. From the next level the token cell is hidden.
+The tokens stay in the save data. Turned back on, he is back within a second.
 
 ## Test checklist
 

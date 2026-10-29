@@ -124,6 +124,28 @@ class HWPStrongbox : Chest
 
 	void SetRemoteState(int state) { m_state = state; }
 
+	// The payout (host): Chest::Use destroys the box and would spawn the loot with the
+	// vanilla roll; the table is taken off for that call and rolled once by core
+	// HWP::Luck::SpawnLoot at the opener's luck factor instead, every player getting
+	// what it picked (docs/design/luck.md).
+	void Pay(PlayerBase@ player)
+	{
+		Item::LootTable@ table = m_lootTable;
+		vec3 pos = m_unit.GetPosition();
+		float factor = HWP::Luck::OpenerFactor(player.m_record);
+		if (Network::IsServer() && table !is null)
+		{
+			@m_lootTable = null;
+			HWP::Luck::LogRoll("strongbox", "payout" + HWP::Luck::OpenerNote(player.m_record), factor);
+		}
+		Chest::Use(player);
+		if (Network::IsServer() && table !is null)
+		{
+			@m_lootTable = table;
+			HWP::Luck::SpawnLoot(table, player, pos, factor, "strongbox");
+		}
+	}
+
 	bool CanUse(PlayerBase@ player) override
 	{
 		if (m_state != 0)
@@ -158,7 +180,7 @@ class HWPStrongbox : Chest
 		{
 			HWP::Log("strongbox", "no enemies left to sample a pack from; opening");
 			m_state = 2;
-			Chest::Use(player);
+			Pay(player);
 			return;
 		}
 		int count = HWP::Strongbox::g_packBase + HWP::Strongbox::g_packPerPlayer * HWP::Spawner::PlayerCount();
@@ -167,7 +189,7 @@ class HWPStrongbox : Chest
 		{
 			HWP::Log("strongbox", "no free spot for a pack; opening");
 			m_state = 2;
-			Chest::Use(player);
+			Pay(player);
 			return;
 		}
 		if (randi(100) < HWP::Strongbox::g_eliteChance)
@@ -221,7 +243,7 @@ class HWPStrongbox : Chest
 		if (opener is null)
 			@opener = HWP::Spawner::NearestPlayer(m_unit.GetPosition());
 		if (opener !is null)
-			Chest::Use(opener); // destroys the box and spawns the loot on the host
+			Pay(opener); // destroys the box and spawns the loot on the host
 		else
 			m_unit.Destroy();
 	}
@@ -250,7 +272,23 @@ namespace Modules
 		}
 
 		// Host, once per level, a little after the enemies exist.
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardUpdateFrame;
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
+		{
+			if (m_guardUpdateFrame.Skip("strongbox", "HWPStrongboxModule.UpdateFrame"))
+				return;
+			if (m_guardUpdateFrame.Raw())
+			{
+				GuardedUpdateFrame(ms, gameInput, menuInput, paused);
+				m_guardUpdateFrame.Ok();
+				return;
+			}
+			try { GuardedUpdateFrame(ms, gameInput, menuInput, paused); m_guardUpdateFrame.Ok(); }
+			catch { m_guardUpdateFrame.Failed(); }
+		}
+
+		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
 			if (!m_placer.Tick(ms, paused, 2500, HWP::Strongbox::g_enabled))
 				return;

@@ -2,7 +2,7 @@
   "name": "qa-classes-shadow-strike",
   "about": "Controlled Thief Assassin Shadow Strike ranks1/5: land near a fresh frozen brute, verify movement plus actual HP loss and separate landing minor stun. Preserves parked class visibility.",
   "fixture": "town-paladin",
-  "mods": ["core", "classes"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes"],
   "timeout": 240,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},

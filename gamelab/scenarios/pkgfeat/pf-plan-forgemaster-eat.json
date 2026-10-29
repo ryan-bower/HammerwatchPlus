@@ -1,0 +1,82 @@
+{
+ "name": "pf-plan-forgemaster-eat",
+ "about": "plan-forgemaster-eat against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). The Devil Forgemaster's eating and Penance stances (plan_forgemaster penance + lunge sections only): the Heresy lunge dodges (the Dash skill) to 10 px under the body, faces up, bobs 1 px every 250 ms with blood out of the body every 300 ms, and the body goes when the devouring ends; a Penance channel dodges to the same spot, faces up and the body shines gold brighter as it runs (penance_light.effect every 150 ms), its 50 mana spent when the channel completes. Shots: eating, penance_light.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",
+   "timeout": 30
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "plan_forgemaster",
+   "kwargs": {
+    "sections": "penance"
+   },
+   "name": "penance",
+   "expect": {
+    "pen_char": true,
+    "pen_learned": true,
+    "pen_normal": true,
+    "pen_mana": true,
+    "pen_elite": true,
+    "pen_boss": true,
+    "pen_faces_up": true,
+    "pen_light": true,
+    "pen_rank5_bind": true,
+    "pen_boss_rank5": true,
+    "pen_elite_rank5": true,
+    "pen_needs_max_favor": true
+   }
+  },
+  {
+   "do": "bot",
+   "bot": "plan_forgemaster",
+   "kwargs": {
+    "sections": "lunge"
+   },
+   "name": "lunge",
+   "expect": {
+    "lunge_char": true,
+    "lunge_learned": true,
+    "lunge_jump": true,
+    "lunge_devour": true,
+    "lunge_heal": true,
+    "lunge_hit": true,
+    "lunge_faces_up": true,
+    "lunge_bobs": true,
+    "lunge_blood": true,
+    "lunge_body_eaten": true,
+    "lunge_rng": true,
+    "lunge_rolls": true,
+    "lunge_chance": true,
+    "lunge_none_at_zero": true,
+    "lunge_lift": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

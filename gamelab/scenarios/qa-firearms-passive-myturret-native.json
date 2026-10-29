@@ -3,7 +3,9 @@
   "about": "All5MyTurret ranks: fixed native-frame repair/decay HP slopes, sourcebounded callback/float32 error, selected+globalSpellCrit0 and two5s constant per-hit actual damage samples perrank; retain original failed capture. Controlled clear floor, not ordinary-run proof.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

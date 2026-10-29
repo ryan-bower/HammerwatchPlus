@@ -1,0 +1,27 @@
+{
+ "name": "pf-mod-pets",
+ "about": "mod-pets against the built package pets instead of the mods' source folders (tools/make_package_scenarios.py). mods/pets loads in town: the self-check lines from mods/pets/README.md Testing step 1, no script errors in our files.",
+ "fixture": "town-paladin",
+ "timeout": 120,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "self-check done: 7 skills, 5 foods",
+   "timeout": 20
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "still in town"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "pets"
+ ]
+}

@@ -1,0 +1,42 @@
+{
+ "name": "pf-qa-classes-thief-actives",
+ "about": "qa-classes-thief-actives against the built package classes instead of the mods' source folders (tools/make_package_scenarios.py). Controlled missing HoH1 mastery active damage/debuff behavior at ranks1/5; no natural-run or multiplayer claim.",
+ "fixture": "town-paladin",
+ "timeout": 480,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_classes",
+   "kwargs": {
+    "sections": "caltrops"
+   },
+   "expect": {
+    "caltrops_r1_rank": true,
+    "caltrops_r1_target": true,
+    "caltrops_r1_damage": true,
+    "caltrops_r5_rank": true,
+    "caltrops_r5_target": true,
+    "caltrops_r5_damage": true,
+    "caltrops_r1_debuff": true,
+    "caltrops_r5_debuff": true,
+    "caltrops_r1_bleed": true,
+    "caltrops_r5_bleed": true,
+    "caltrops_damage_scales": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "classes"
+ ]
+}

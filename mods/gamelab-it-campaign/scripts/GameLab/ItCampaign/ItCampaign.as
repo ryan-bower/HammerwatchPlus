@@ -3,7 +3,8 @@
 // (MissionDef, the level's SurvivalMission module), so this compiles in any scenario.
 //
 // Read-only: itc-mission, itc-survival, itc-prefab.
-// Setup (labelled, each mirrors a game path): itc-kill, itc-use, itc-abandon.
+// Setup (labelled, each mirrors a game path): itc-kill, itc-use, itc-abandon, itc-host with arguments.
+// Read-only: itc-host without arguments.
 namespace GameLab
 {
 	const uint ITC_LEVEL_CAP = 40;
@@ -163,8 +164,10 @@ namespace GameLab
 			.Raw("names", StrArray(killed)));
 	}
 
-	// itc-use <filter> [radius]: SETUP. What the Use key does for the nearest usable unit
-	// within radius (default 300) whose unit file or behaviour type contains filter
+	// itc-use <filter/#id> [radius]: SETUP. What the Use key does for the nearest usable unit
+	// within radius (default 300) whose unit file or behaviour type contains filter, or
+	// with "#<id>" the unit of that id (a level's world script has its script id: the
+	// UseTrigger an exit pad's area belongs to, whose unit stands elsewhere)
 	// (Player.as:1341-1356: CanUse, then Use; on a netsynced unit the host also sends
 	// UseUnit), without the sensor contact the key needs. Replies canUse and used.
 	void VerbItCampaignUse(const string &in id, array<string>@ args)
@@ -181,6 +184,7 @@ namespace GameLab
 			return;
 		}
 		int radius = args.length() > 1 ? int(parseInt(args[1])) : 300;
+		int byId = args[0].findFirst("#") == 0 ? int(parseInt(args[0].substr(1))) : -1;
 		vec2 center = xy(plr.m_unit.GetPosition());
 		auto units = g_scene.FetchAllUnits(~0, center, radius);
 		IUsable@ best = null;
@@ -194,7 +198,8 @@ namespace GameLab
 			auto usable = cast<IUsable>(b);
 			if (usable is null)
 				continue;
-			if (units[i].GetDebugName().findFirst(args[0]) < 0 && Reflect::GetTypeName(b).findFirst(args[0]) < 0)
+			if (byId >= 0 ? units[i].GetId() != byId
+				: units[i].GetDebugName().findFirst(args[0]) < 0 && Reflect::GetTypeName(b).findFirst(args[0]) < 0)
 				continue;
 			float d = dist(center, xy(units[i].GetPosition()));
 			if (d < bestD)
@@ -240,6 +245,141 @@ namespace GameLab
 		GlobalCache::Set("main_restart", "1");
 		Emit(Reply(id, true).Str("did", "main_restart"));
 	}
+
+	const uint ITC_HOST_TEXT_CAP = 24;
+
+	void ItCampaignTexts(Widget@ w, array<string>@ found)
+	{
+		if (w is null || found.length() >= ITC_HOST_TEXT_CAP)
+			return;
+		auto t = cast<TextWidget>(w);
+		if (t !is null && t.m_str != "")
+			found.insertLast(t.m_str);
+		for (uint i = 0; i < w.m_children.length(); i++)
+			ItCampaignTexts(w.m_children[i], found);
+	}
+
+	// itc-host [check <n> | func <name> | fill <common> <uncommon> <rare> <epic> <cursed>]: the OpenInterface windows (BaseGameMode
+	// m_widgetScriptHosts, which the window verbs don't see), by script class, and the last
+	// one opened: its texts (capped at ITC_HOST_TEXT_CAP), its "list-items" checkboxes
+	// (count, enabled, checked), its "gamble" button, its "final-item" tooltip and the
+	// percentages under "list-qualities"; plus the local player's trinkets (id:quality).
+	// Read-only without arguments. Setup: "check <n>" ticks the first n enabled unticked
+	// checkboxes and calls OnFunc "item-checked", as a click does; "func <name>" calls the
+	// window's OnFunc(null, name), the handler its buttons call; "fill" gives the local
+	// player that many random trinkets of each quality (cht_fill_trinkets' body, Cheats.as).
+	void VerbItCampaignHost(const string &in id, array<string>@ args)
+	{
+		auto gm = cast<BaseGameMode>(g_gameMode);
+		if (gm is null)
+		{
+			Fail(id, "no BaseGameMode");
+			return;
+		}
+		ScriptWidgetHost@ host = gm.m_widgetScriptHosts.length() > 0
+			? gm.m_widgetScriptHosts[gm.m_widgetScriptHosts.length() - 1] : null;
+		string did = "";
+		if (args.length() >= 6 && args[0] == "fill")
+		{
+			auto rec = GetLocalPlayerRecord();
+			array<Item::Quality> qs = { Item::Quality::Common, Item::Quality::Uncommon, Item::Quality::Rare,
+				Item::Quality::Epic, Item::Quality::Cursed };
+			int given = 0;
+			for (uint i = 0; rec !is null && i < qs.length(); i++)
+			{
+				for (int j = 0; j < int(parseInt(args[i + 1])); j++)
+				{
+					auto t = Item::GetRandomTrinket(rec, qs[i]);
+					if (t !is null)
+					{
+						rec.trinketInventory.Add(t);
+						given++;
+					}
+				}
+			}
+			if (rec !is null)
+				rec.RefreshModifiers();
+			did = "filled " + given;
+		}
+		else if (args.length() >= 2 && host !is null)
+		{
+			if (args[0] == "check" && host.m_widget !is null)
+			{
+				int want = int(parseInt(args[1]));
+				auto list = host.m_widget.GetWidgetById("list-items");
+				int ticked = 0;
+				for (uint i = 0; list !is null && i < list.m_children.length() && ticked < want; i++)
+				{
+					auto c = cast<CheckBoxWidget>(list.m_children[i]);
+					if (c is null || !c.m_enabled || c.IsChecked())
+						continue;
+					c.SetChecked(true);
+					ticked++;
+				}
+				host.OnFunc(null, "item-checked");
+				did = "checked " + ticked;
+			}
+			else if (args[0] == "func")
+			{
+				host.OnFunc(null, args[1]);
+				did = "func " + args[1];
+			}
+		}
+
+		array<string> types;
+		for (uint i = 0; i < gm.m_widgetScriptHosts.length(); i++)
+			types.insertLast(Reflect::GetTypeName(gm.m_widgetScriptHosts[i]));
+		@host = gm.m_widgetScriptHosts.length() > 0 ? gm.m_widgetScriptHosts[gm.m_widgetScriptHosts.length() - 1] : null;
+
+		array<string> trinkets;
+		auto record = GetLocalPlayerRecord();
+		if (record !is null && record.trinketInventory !is null)
+		{
+			for (uint i = 0; i < record.trinketInventory.m_items.length(); i++)
+			{
+				auto t = record.trinketInventory.m_items[i];
+				trinkets.insertLast(t.m_id + ":" + Item::QualityToString(t.m_quality));
+			}
+		}
+
+		auto r = Reply(id, true).Str("did", did).Raw("hosts", StrArray(types)).Raw("trinkets", StrArray(trinkets));
+		if (host !is null && host.m_widget !is null)
+		{
+			array<string> texts;
+			ItCampaignTexts(host.m_widget, texts);
+			r.Str("top", Reflect::GetTypeName(host)).Raw("texts", StrArray(texts));
+
+			auto list = host.m_widget.GetWidgetById("list-items");
+			if (list !is null)
+			{
+				int n = 0, enabled = 0, checked = 0;
+				for (uint i = 0; i < list.m_children.length(); i++)
+				{
+					auto c = cast<CheckBoxWidget>(list.m_children[i]);
+					if (c is null)
+						continue;
+					n++;
+					if (c.m_enabled) enabled++;
+					if (c.IsChecked()) checked++;
+				}
+				r.Int("items", n).Int("itemsEnabled", enabled).Int("itemsChecked", checked);
+			}
+			auto gamble = cast<AInteractableWidget>(host.m_widget.GetWidgetById("gamble"));
+			if (gamble !is null)
+				r.Bool("gambleEnabled", gamble.m_enabled).Str("gambleTip", gamble.m_tooltip is null ? "" : gamble.m_tooltip.m_tooltipText);
+			auto fin = host.m_widget.GetWidgetById("final-item");
+			if (fin !is null)
+				r.Str("final", fin.m_tooltip is null ? "" : fin.m_tooltip.m_tooltipTitle);
+			auto quals = host.m_widget.GetWidgetById("list-qualities");
+			if (quals !is null)
+			{
+				array<string> pct;
+				ItCampaignTexts(quals, pct);
+				r.Raw("chances", StrArray(pct));
+			}
+		}
+		Emit(r);
+	}
 }
 
 namespace Modules
@@ -253,8 +393,9 @@ namespace Modules
 			GameLab::RegisterVerb("itc-survival", "", GameLab::Verb(GameLab::VerbItCampaignSurvival));
 			GameLab::RegisterVerb("itc-prefab", "<path>", GameLab::Verb(GameLab::VerbItCampaignPrefab));
 			GameLab::RegisterVerb("itc-kill", "<filter|*> [radius]", GameLab::Verb(GameLab::VerbItCampaignKill));
-			GameLab::RegisterVerb("itc-use", "<filter> [radius]", GameLab::Verb(GameLab::VerbItCampaignUse));
+			GameLab::RegisterVerb("itc-use", "<filter|#id> [radius]", GameLab::Verb(GameLab::VerbItCampaignUse));
 			GameLab::RegisterVerb("itc-abandon", "", GameLab::Verb(GameLab::VerbItCampaignAbandon));
+			GameLab::RegisterVerb("itc-host", "[check <n> | func <name> | fill <c> <u> <r> <e> <cursed>]", GameLab::Verb(GameLab::VerbItCampaignHost));
 		}
 	}
 }

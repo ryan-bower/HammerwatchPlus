@@ -62,6 +62,9 @@ def suite(folder: str, mode: str, wait: float, stop_on_fail: bool, accept_drift:
             continue
         start = time.time()
         code = launcher.run(str(f), mode, accept_drift, wait)
+        if code == launcher.EXIT_SKIPPED:
+            print(f"SUITE skip {name} (needs_hoh1, no HoH1 import here)", flush=True)
+            continue
         runs = sorted((d for d in launcher.RESULTS.glob(f"*-{f.stem}-{mode}") if d.stat().st_mtime >= start - 1),
                       key=lambda d: d.name)
         rj = runs[-1] / "run.json" if runs else None

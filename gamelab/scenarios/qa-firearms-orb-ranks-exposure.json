@@ -3,7 +3,9 @@
   "about": "Every rank of Elemental Exposure against clean and naturally burning target controls on fresh floors. Controlled cleared-floor fixture; no co-op or ordinary-run claim.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

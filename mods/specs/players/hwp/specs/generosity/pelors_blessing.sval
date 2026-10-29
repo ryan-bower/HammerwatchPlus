@@ -1,0 +1,100 @@
+%include "players/skills_cost.inc"
+<!--
+	Pelor's Blessing (Generosity passive), the planner's paladin-spec4-passive. Stacks
+	(stacks_specs.sval:pelors_blessing, max 10, no timer) come from: Lay on Hands healing a
+	teammate (solo: healing yourself; in a party your own heal does not count), dg-max at most per
+	cast, one per ally healed; a Blessed Strike kill (1 a kill); Conviction giving mana, at most
+	once every 6 s. Every gain shares a 2 s cooldown. Each stack adds pb-pct to Lay on Hands
+	healing (this spec's copy of the skill: HWPGenHeal / HWPGenHPHeal), Blessed Strike damage
+	(the PlayerDamageActor hook) and Conviction mana (HWPGenConvictionMana). The stacks reset when
+	a party player dies (pets and summons do not count), when Pelor's Fury is cast and in town;
+	they carry over between floors. All in scripts/HWP/Specs/Generosity.as.
+	Planner numbers: +0.5/1/1.5/2/2.5% a stack.
+	Orbs: Display of Generosity (dg-max: Lay on Hands gives up to 2/3/4 stacks a cast, one per ally
+	healed), Descendent of Pentival (dp-on: each stack also adds pb-pct to the effects of the
+	dragon trinkets and the Dragon Lord set bonuses, HWPGenPentival on the stack's buff).
+	Wearing the spec also doubles crop growth and how often crops are found in runs (the farming
+	mod, FarmingModule.as, checks for the subclass id).
+-->
+<dict>
+	<string name="name">.hwp.specs.pelors_blessing.name</string>
+	<string name="type-name">.skills.type.passive</string>
+	<string name="description">.hwp.specs.pelors_blessing.desc</string>
+
+	<array name="description-params">
+		<array><s>pct</s><s>.hwp.specs.param.per_blessing</s><s>0.5%</s><s>1%</s><s>1.5%</s><s>2%</s><s>2.5%</s></array>
+	</array>
+
+	<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>48 168 24 24</vec4></array>
+
+	<string name="id">hwp_pal_pelors_blessing</string>
+	<array name="tags"><s>passive</s></array>
+	<int name="starting-level">1</int>
+
+	<dict name="skill">
+		<int name="skill-cost">SKILLCOSTMASTERYLEVEL_1</int>
+		<string name="class">Skills::PassiveSkill</string>
+		<dict name="binds">
+			<float name="pb-pct">0.005</float>
+			<int name="dg-max">1</int>
+			<int name="dp-on">0</int>
+		</dict>
+	</dict>
+
+	<array name="upgrades">
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_2</int>
+			<dict name="binds"><float name="pb-pct">0.01</float></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_3</int>
+			<dict name="binds"><float name="pb-pct">0.015</float></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_4</int>
+			<dict name="binds"><float name="pb-pct">0.02</float></dict>
+		</dict>
+		<dict>
+			<int name="skill-cost">SKILLCOSTMASTERYLEVEL_5</int>
+			<dict name="binds"><float name="pb-pct">0.025</float></dict>
+		</dict>
+	</array>
+
+	<array name="modifier-skills">
+		<dict>
+			<string name="name">.hwp.specs.display_of_generosity.name</string>
+			<string name="description">.hwp.specs.display_of_generosity.desc</string>
+			<array name="description-params">
+				<array><s>max</s><s>.hwp.specs.param.stacks_per_cast</s><s>2</s><s>3</s><s>4</s></array>
+			</array>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>144 168 24 24</vec4></array>
+			<array name="tags"><s>passive</s></array>
+			<string name="id">hwp_pal_pb_display_of_generosity</string>
+			<string name="quality">uncommon</string>
+			<dict name="skill">
+				<dict name="binds"><int name="dg-max">2</int></dict>
+			</dict>
+			<array name="upgrades">
+				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds"><int name="dg-max">3</int></dict>
+				</dict>
+				<dict>
+					<string name="quality">rare</string>
+					<dict name="binds"><int name="dg-max">4</int></dict>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<string name="name">.hwp.specs.descendent_of_pentival.name</string>
+			<string name="description">.hwp.specs.descendent_of_pentival.desc</string>
+			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>168 168 24 24</vec4></array>
+			<array name="tags"><s>passive</s></array>
+			<string name="id">hwp_pal_pb_descendent_of_pentival</string>
+			<string name="quality">rare</string>
+			<dict name="skill">
+				<dict name="binds"><int name="dp-on">1</int></dict>
+			</dict>
+		</dict>
+	</array>
+</dict>

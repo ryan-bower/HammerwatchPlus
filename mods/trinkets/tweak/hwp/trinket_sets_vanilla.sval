@@ -1,0 +1,182 @@
+<!-- Changes to vanilla trinket sets and trinkets, applied once by HWP/Trinkets/VanillaSets.as.
+     A set's add-items join it; its numbered tiers replace the set's bonuses (each tier lists
+     all its modifiers). A trinket's modifier and attune-modifier are added to its own, and its
+     desc and attune-desc replace the tooltip lines. -->
+<dict>
+	<dict name="emblems_of_hermes">
+		<array name="add-items">
+			<s>hwp_cape_of_withdrawal</s>
+			<s>hwp_greaves_of_the_barbarian</s>
+		</array>
+		<dict name="2">
+			<string name="desc">.trinket.set.emblems_of_hermes.2?mov=7</string>
+			<dict name="modifier">
+				<string name="class">Modifiers::SpeedAdd</string>
+				<float name="move-speed">0.07</float>
+			</dict>
+		</dict>
+		<dict name="3">
+			<string name="desc">.trinket.set.emblems_of_hermes.3?mov=15</string>
+			<dict name="modifier">
+				<string name="class">Modifiers::SpeedAdd</string>
+				<float name="move-speed">0.15</float>
+			</dict>
+		</dict>
+		<dict name="4">
+			<string name="desc">.hwp.trinkets.set.emblems_of_hermes.4</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::SpeedAdd</string>
+					<float name="move-speed">0.15</float>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::BuffImmune</string>
+					<array name="tags">
+						<s>slow</s>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<dict name="5">
+			<string name="desc">.hwp.trinkets.set.emblems_of_hermes.5?mov=20</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::SpeedAdd</string>
+					<float name="move-speed">0.2</float>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::BuffImmune</string>
+					<array name="tags">
+						<s>slow</s>
+					</array>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<dict name="apothecarys">
+		<array name="add-items">
+			<s>hwp_apothecarys_mortar_pestle</s>
+			<s>hwp_apothecarys_satchel</s>
+			<s>hwp_apothecarys_sphere</s>
+		</array>
+		<dict name="2">
+			<string name="desc">.trinket.set.apothecarys.2?num=15</string>
+			<dict name="modifier">
+				<string name="class">Modifiers::ConvertStat</string>
+				<string name="from">resistancepoison</string>
+				<string name="to">resistancepoison</string>
+				<float name="mul">0.15</float>
+				<bool name="add">true</bool>
+			</dict>
+		</dict>
+		<dict name="3">
+			<string name="desc">.trinket.set.apothecarys.3?num=20</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::ConvertStat</string>
+					<string name="from">resistancepoison</string>
+					<string name="to">resistancepoison</string>
+					<float name="mul">0.15</float>
+					<bool name="add">true</bool>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::AttribMul</string>
+					<float name="mana-gain">1.2</float>
+				</dict>
+			</array>
+		</dict>
+		<dict name="4">
+			<string name="desc">.trinket.set.apothecarys.4?num=30</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::ConvertStat</string>
+					<string name="from">resistancepoison</string>
+					<string name="to">resistancepoison</string>
+					<float name="mul">0.15</float>
+					<bool name="add">true</bool>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::AttribMul</string>
+					<float name="mana-gain">1.2</float>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::AttribMul</string>
+					<float name="health-gain">1.3</float>
+				</dict>
+			</array>
+		</dict>
+		<dict name="5">
+			<string name="desc">.hwp.trinkets.set.apothecarys.5</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::ConvertStat</string>
+					<string name="from">resistancepoison</string>
+					<string name="to">resistancepoison</string>
+					<float name="mul">0.15</float>
+					<bool name="add">true</bool>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::AttribMul</string>
+					<float name="mana-gain">1.2</float>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::AttribMul</string>
+					<float name="health-gain">1.3</float>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::Potion</string>
+					<int name="charges">1</int>
+				</dict>
+			</array>
+		</dict>
+		<dict name="7">
+			<string name="desc">.hwp.trinkets.set.apothecarys.7</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::ConvertStat</string>
+					<string name="from">resistancepoison</string>
+					<string name="to">resistancepoison</string>
+					<float name="mul">0.15</float>
+					<bool name="add">true</bool>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::AttribMul</string>
+					<float name="mana-gain">1.2</float>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::AttribMul</string>
+					<float name="health-gain">1.3</float>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::Potion</string>
+					<int name="charges">1</int>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::TriggerEffect</string>
+					<string name="trigger">potion</string>
+					<bool name="target-self">true</bool>
+					<array name="effects">
+						<dict>
+							<string name="class">ApplyBuff</string>
+							<string name="buff">tweak/hwp/buffs_trinkets_hoh1.sval:hwp_apothecary_tonic</string>
+						</dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<dict name="traders_coin">
+		<string name="desc">.hwp.trinkets.traders_coin.desc?num=25&disc=25</string>
+		<dict name="modifier">
+			<string name="class">Modifiers::CustomStat</string>
+			<string name="name">hwp-shop-discount</string>
+			<float name="add">25</float>
+		</dict>
+		<string name="attune-desc">.hwp.trinkets.traders_coin.desc?num=50&disc=50</string>
+		<dict name="attune-modifier">
+			<string name="class">Modifiers::CustomStat</string>
+			<string name="name">hwp-shop-discount</string>
+			<float name="add">50</float>
+		</dict>
+	</dict>
+</dict>

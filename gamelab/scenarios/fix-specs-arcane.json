@@ -1,0 +1,126 @@
+{
+ "name": "fix-specs-arcane",
+ "about": "The Arcane (Sorcerer) and Aerotheurge (Wizard) fixes of 2026-10-25 (bot fix_specs_arcane): Blink is 112 px (90 before) with a vanish, a bead trail and an arrival effect, Far Step rare 151; Blink crosses a line of ledge rails the dash cannot (the Shot raycast, not the vanilla Teleport's Any ray); the Thunder Orb moves 2.0 px a tick (about 60 px/s, +25%) on a 3 px body (6 before) with a bigger look and logs its speed; Living Mana is one pool shown as one blue bar in place of the health and mana bars for the local player (hwp specs arcane: living 1 bar on), the wizard keeps the vanilla bars.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "classes",
+  "specs"
+ ],
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",
+   "timeout": 30
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "fix_specs_arcane",
+   "kwargs": {
+    "sections": "blink_range"
+   },
+   "name": "blink_range",
+   "expect": {
+    "range_char": true,
+    "range_learned": true,
+    "range_112": true,
+    "range_fx": true,
+    "range_far_step": true,
+    "range_status": true
+   }
+  },
+  {
+   "do": "bot",
+   "bot": "fix_specs_arcane",
+   "kwargs": {
+    "sections": "blink_ledge"
+   },
+   "name": "blink_ledge",
+   "expect": {
+    "ledge_char": true,
+    "ledge_learned": true,
+    "ledge_lane": true,
+    "ledge_body": true,
+    "ledge_shot_ray": true,
+    "ledge_dash_blocked": true,
+    "ledge_crossed": true,
+    "ledge_status": true
+   }
+  },
+  {
+   "do": "bot",
+   "bot": "fix_specs_arcane",
+   "kwargs": {
+    "sections": "orb"
+   },
+   "name": "orb",
+   "expect": {
+    "orb_char": true,
+    "orb_learned": true,
+    "orb_unit_file": true,
+    "orb_vanilla_bars": true,
+    "orb_cast": true,
+    "orb_speed": true
+   }
+  },
+  {
+   "do": "bot",
+   "bot": "fix_specs_arcane",
+   "kwargs": {
+    "sections": "pool"
+   },
+   "name": "pool",
+   "expect": {
+    "pool_char": true,
+    "pool_learned": true,
+    "pool_bar_on": true,
+    "pool_numbers": true,
+    "pool_one_fraction": true,
+    "pool_hit_drains": true,
+    "pool_heal_fills": true
+   }
+  },
+  {
+   "do": "shot",
+   "name": "after_pool"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] blink: \\d+ px of 112, ",
+   "timeout": 5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] blink: \\d+ px of 112, .*over ledge",
+   "timeout": 5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] thunder orb: speed 2\\.00 px/tick, ttl \\d+ ms",
+   "timeout": 5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] living mana bar: on, health and mana bars hidden",
+   "timeout": 5
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

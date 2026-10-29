@@ -1,9 +1,11 @@
 {
  "name": "plan-t5",
- "about": "Test plan town tiers (exploratory): wares, gambler, fishing coast and pirate, traps, farming, goldpet vendor, pets, wave arena, campaign portal.",
+ "about": "Test plan town tiers (exploratory): wares, gambler, fishing coast and pirate, traps, farming, pets, wave arena, campaign portal.",
  "fixture": "town-tavern",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",
@@ -17,7 +19,6 @@
    "firearms",
    "fishing",
    "gambler",
-   "goldpet",
    "groupcombo",
    "keys",
    "laststats",
@@ -398,89 +399,6 @@
   {
    "do": "sleep",
    "seconds": 1
-  },
-  {
-   "do": "gl",
-   "verb": "build",
-   "args": [
-    "hunters_cabin"
-   ]
-  },
-  {
-   "do": "gl",
-   "verb": "townrefresh"
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:goldpet\\] spawned the pet vendor",
-   "timeout": 6,
-   "name": "vendor appears after building the lodge"
-  },
-  {
-   "do": "sleep",
-   "seconds": 2
-  },
-  {
-   "do": "console",
-   "line": "e_cheats 1"
-  },
-  {
-   "do": "console",
-   "line": "show_chat"
-  },
-  {
-   "do": "gl",
-   "verb": "near",
-   "args": [
-    "4000",
-    "hwp_pet_vendor"
-   ]
-  },
-  {
-   "do": "gl",
-   "verb": "use",
-   "args": [
-    "hwp_pet_vendor"
-   ]
-  },
-  {
-   "do": "sleep",
-   "seconds": 1.5
-  },
-  {
-   "do": "gl",
-   "verb": "ui"
-  },
-  {
-   "do": "gl",
-   "verb": "inv"
-  },
-  {
-   "do": "gl",
-   "verb": "press",
-   "args": [
-    "buy-tier1"
-   ]
-  },
-  {
-   "do": "sleep",
-   "seconds": 1.5
-  },
-  {
-   "do": "gl",
-   "verb": "inv"
-  },
-  {
-   "do": "shot",
-   "name": "petvendor"
-  },
-  {
-   "do": "key",
-   "key": "escape"
-  },
-  {
-   "do": "sleep",
-   "seconds": 2
   },
   {
    "do": "gl",

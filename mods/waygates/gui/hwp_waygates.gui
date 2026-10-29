@@ -1,0 +1,27 @@
+<gui>
+	<sprites>
+		%include "gui/scalablebutton_sprites.inc"
+		%include "gui/panel_decoration.inc"
+		%include "gui/closebutton_sprites.inc"
+	</sprites>
+
+	<doc>
+		<group>
+			<!-- HWPWayGateMenu (scripts/HWP/WayGates/WayGateShop.as): one button per gate,
+			     cloned from "template" into "list", two columns -->
+			<panel width="300" height="236" anchor="0.5 0.5" style="standard">
+				<panel anchor="0.5 0" width="220" height="22" offset="0 0" style="character_pick_top">
+					<text text=".hwp.waygates.title" color="#7fc4ff" font="title" align="center" anchor="0.5 0.5" width="200" offset="0 1" />
+				</panel>
+
+				<spritebutton id="close-btn" nav-pos="1 0" spriteset="close" anchor="1 0" offset="-1 1" func="close" />
+
+				<text text=".hwp.waygates.prompt" color="#ffffff" font="text" align="center" anchor="0.5 0" offset="0 28" width="270" />
+
+				<group id="list" width="276" height="180" anchor="0.5 0" offset="0 46" flow="hboxwrapped" spacing="4" />
+
+				<scalebutton id="template" visible="false" spriteset="scalebutton-regular" width="136" text="" font="gui/fonts/arial11.fnt" func="" />
+			</panel>
+		</group>
+	</doc>
+</gui>

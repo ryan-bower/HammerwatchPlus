@@ -1,0 +1,5 @@
+<lang name="English" official="false">
+	<string name="hwp.waygates.title">Way Gates</string>
+	<string name="hwp.waygates.prompt">Step through to another gate in town.</string>
+	<string name="hwp.waygates.square">Town Square</string>
+</lang>

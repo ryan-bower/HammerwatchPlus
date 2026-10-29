@@ -148,6 +148,20 @@
 			</dict>
 		</array>
 	</dict>
+	<!-- Recoil Roll (Snipe orb): evade everything while the shot throws you back (Marksman.as).
+	     Named so `gl state` lists it among the player's buffs. -->
+	<dict name="snipe_recoil">
+		<string name="name">.skills.hwp_firearms.snipe_recoil.buff</string>
+		<bool name="debuff">false</bool>
+		<int name="duration">400</int>
+		<bool name="ignore-buff-scaling">true</bool>
+		<array name="modifiers">
+			<dict>
+				<string name="class">Modifiers::Evade</string>
+				<float name="chance">1</float>
+			</dict>
+		</array>
+	</dict>
 	<!-- My Turret!: the turret's glow while someone boosts it (Turret.as re-applies it) -->
 	<dict name="turret_glow">
 		<bool name="debuff">false</bool>

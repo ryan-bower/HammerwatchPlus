@@ -3,7 +3,9 @@
  "about": "Test plan through the plan_checks bot: the Gambler's bets (affordable ones only, flips pay what the result line says, Reshuffle), the farm (can, seed, plant, water twice, the well), the Pet Shop's HoH1 pets, pet XP and feeding at the bowl, the pet's Gold toggle in a run.",
  "fixture": "town-tavern",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",
@@ -17,7 +19,6 @@
    "firearms",
    "fishing",
    "gambler",
-   "goldpet",
    "groupcombo",
    "keys",
    "laststats",

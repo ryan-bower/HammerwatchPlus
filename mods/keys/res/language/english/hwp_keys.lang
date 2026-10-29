@@ -39,4 +39,12 @@
 	<string name="item.hwp_wand_of_chaos.desc">Every 2 seconds a bolt is fired at a random enemy in range.</string>
 	<string name="hwp.keys.buff.spirit_cloak">Spirit Cloak</string>
 	<string name="hwp.keys.buff.spirit_cloak.desc">You take no damage.</string>
+	<string name="hwp.keys.trapped">The chest was trapped!!</string>
+	<string name="hwp.bag.status">Bag: %items%/%cap% items (full size %max%). The exit guard sells the next slot for %price% gold.</string>
+	<string name="hwp.bag.status_full">Bag: %items%/%cap% items, the biggest bag there is.</string>
+	<string name="hwp.bag.no_gold">The next bag slot costs %price% gold.</string>
+	<string name="hwp.bag.shop_title">Bag Slot</string>
+	<string name="hwp.bag.shop_sub">Your bag: %cap% slots (up to %max%)</string>
+	<string name="hwp.bag.shop_sub_full">Your bag is full size (%max% slots)</string>
+	<string name="hwp.bag.bought">Bag slot (%cap%)</string>
 </lang>

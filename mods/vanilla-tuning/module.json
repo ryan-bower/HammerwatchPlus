@@ -1,6 +1,0 @@
-{
-  "id": "vanilla-tuning",
-  "requires": ["core"],
-  "overrides": [],
-  "exclude": []
-}

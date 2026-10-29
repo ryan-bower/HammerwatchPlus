@@ -1,0 +1,103 @@
+{
+ "name": "pkg-autoaim",
+ "about": "HammerwatchPlus: Auto Aim (HWP-autoaim.bin, built by tools/build.py) alone, packed as players get it: the library boots from the package's own copy, the stamp check passes, the Luck cell is hidden (no hwplib-luck in it), and the log is clean. tools/make_package_scenarios.py.",
+ "fixture": "town-paladin",
+ "packages": [
+  "autoaim"
+ ],
+ "timeout": 240,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] module created, version \\S+",
+   "timeout": 30,
+   "name": "library: module created"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-autoaim, library [0-9a-f]{12}",
+   "name": "HWP-autoaim: stamp check passed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] gameplay started; server=yes town=yes",
+   "timeout": 60,
+   "name": "gameplay started in town"
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "in town"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "was built with library",
+   "name": "no package of another library build"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:luck\\]",
+   "name": "no Luck part"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character",
+    "-",
+    "hwp-luck-stat"
+   ],
+   "expect": {
+    "tab": "PlayerMenuCharacterTab"
+   },
+   "name": "character tab open"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character",
+    "-",
+    "hwp-luck-stat"
+   ],
+   "expect": {
+    "tab": "PlayerMenuCharacterTab",
+    "shown": false
+   },
+   "name": "the Luck cell is hidden"
+  },
+  {
+   "do": "shot",
+   "name": "character-tab"
+  },
+  {
+   "do": "key",
+   "key": "escape"
+  },
+  {
+   "do": "console",
+   "line": "hwp help"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] commands \\(\\d+\\):",
+   "timeout": 5,
+   "name": "hwp help answers"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP\\] hwp bag ",
+   "name": "no bag shop without keys"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

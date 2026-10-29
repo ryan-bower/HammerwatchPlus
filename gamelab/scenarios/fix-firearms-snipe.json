@@ -1,0 +1,70 @@
+{
+ "name": "fix-firearms-snipe",
+ "about": "The Marksman's Sniper Shot (2026-10-22, the user's items): the channel is a rank value, 650 ms at rank 1 down to 325 at rank 5, armor penetration 30/35/45/50/60 % (sniper_snipe.sval upgrade dicts), and the Recoil Roll orb (hwp_fs_snipe_recoil, Marksman.as HWPFirearmsSnipeRecoil) throws the shooter back a dash with 400 ms of evade. Through the fix_firearms_snipe bot: `hwp firearms snipe` at every rank, a real Snipe at ranks 1 and 5, then the orb on, off, and the shooter's displacement, the buff in gl state and the log line.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "firearms"
+ ],
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "fix_firearms_snipe",
+   "kwargs": {
+    "sections": "snipe_ranks"
+   },
+   "name": "snipe ranks",
+   "expect": {
+    "snipe_rank_readback": true,
+    "snipe_channel_per_rank": true,
+    "snipe_armor_steps": true,
+    "snipe_damage_steps": true,
+    "snipe_fires_rank1": true,
+    "snipe_fires_rank5": true,
+    "snipe_rank5_sooner": true
+   }
+  },
+  {
+   "do": "bot",
+   "bot": "fix_firearms_snipe",
+   "kwargs": {
+    "sections": "snipe_recoil"
+   },
+   "name": "recoil roll",
+   "expect": {
+    "recoil_orb_taken": true,
+    "recoil_shot_hits": true,
+    "recoil_pushes_back": true,
+    "recoil_buff_seen": true,
+    "recoil_logged": true,
+    "recoil_counted": true,
+    "recoil_rolled_in_game": true,
+    "recoil_none_without_orb": true,
+    "recoil_off_when_removed": true
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:firearms\\] snipe recoil: thrown back along ",
+   "timeout": 5
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

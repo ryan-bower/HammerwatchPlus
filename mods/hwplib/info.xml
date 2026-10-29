@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">HammerwatchPlus Library</string>
+	<string name="author">Ryan Bower</string>
+	<string name="description">The HammerwatchPlus shared library: settings, save data, networking, the Plus options tab, the character screen's extra gear slots, bag and materials sections. Every HammerwatchPlus package carries its own copy, so it is never installed on its own.</string>
+</dict>

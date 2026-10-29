@@ -6,6 +6,8 @@
 // (GetPlayerOwner), enemy otherwise. Colours come from a preset plus optional
 // per-team overrides, stored in HWP settings (per machine). The preset is
 // picked in the player menu's Plus tab (core HWP::Options) or with hwp colors.
+// Setting colors.enabled (per machine): off, no projectile tint and no player
+// colours on the maps (PlayerColors.as); the chosen colours stay stored.
 namespace HWP
 {
 	namespace Colors
@@ -114,7 +116,7 @@ namespace HWP
 			if (!f.isEmpty() && ParseHex(f, c))
 				g_friendly = c;
 
-			g_active = !(IsWhite(g_enemy) && IsWhite(g_friendly));
+			g_active = HWP::Settings::GetBool("colors.enabled", true) && !(IsWhite(g_enemy) && IsWhite(g_friendly));
 		}
 
 		int PresetIndex(const string &in name)
@@ -161,6 +163,44 @@ namespace HWP
 		{
 			if (key.findFirst("colors.") == 0)
 				Refresh();
+			if (key.findFirst("playercolors.") == 0 || key == "colors.enabled")
+				HWP::PlayerColors::Refresh();
+		}
+
+		// hwp playercolors [default|safe] [names on|off] [distance N]: the map
+		// colours of PlayerColors.as (per machine)
+		void CmdPlayerColors(array<string>@ args)
+		{
+			bool changed = false;
+			for (uint i = 0; i < args.length(); i++)
+			{
+				auto what = args[i].toLower();
+				if (what == "default" || what == "safe")
+				{
+					HWP::Settings::SetString(HWP::PlayerColors::KEY_PALETTE, what);
+					changed = true;
+				}
+				else if (what == "names" && i + 1 < args.length())
+				{
+					auto v = args[++i].toLower();
+					HWP::Settings::SetBool(HWP::PlayerColors::KEY_NAMES, v == "on" || v == "1" || v == "true");
+					changed = true;
+				}
+				else if (what == "distance" && i + 1 < args.length())
+				{
+					HWP::Settings::SetInt(HWP::PlayerColors::KEY_DISTANCE, int(parseInt(args[++i])));
+					changed = true;
+				}
+				else
+				{
+					HWP::Commands::Reply(Resources::GetString(".hwp.colors.players.usage"));
+					return;
+				}
+			}
+			HWP::PlayerColors::Refresh();
+			HWP::Commands::Reply(HWP::PlayerColors::Status());
+			if (changed)
+				HWP::Log("colors", "player colours set: " + HWP::PlayerColors::Status());
 		}
 
 		void Tint(UnitPtr unit, Actor@ owner)
@@ -266,15 +306,63 @@ namespace Modules
 			HWP::Commands::Register("colors", "[preset|enemy RRGGBB|friendly RRGGBB|off]  projectile colours", HWP::Commands::Handler(HWP::Colors::CmdColors));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Colors::OnSettingChanged));
 			HWP::Options::Register("colors", HWP::Colors::PresetOption());
+			HWP::Options::Register("playercolors", HWP::PlayerColors::PaletteOption());
+			HWP::Commands::Register("playercolors", "[default|safe] [names on|off] [distance N]  player colours on the maps", HWP::Commands::Handler(HWP::Colors::CmdPlayerColors));
 		}
 
 		void Start(StartMode sMode)
 		{
 			HWP::Colors::Refresh();
+			HWP::PlayerColors::Refresh();
+			HWP::PlayerColors::g_loggedTint = false;
+			HWP::Log("colors", "player colours: " + HWP::PlayerColors::Status());
 			HWP::Log("colors", "preset " + HWP::Colors::g_presetName + (HWP::Colors::g_active ? "" : " (no tint)"));
 			if (HWP::Colors::g_active)
 				HWP::Log("colors", "tint " + HWP::Colors::g_presetName + " enemy #" + HWP::Colors::ToHex(HWP::Colors::g_enemy)
 					+ " friendly #" + HWP::Colors::ToHex(HWP::Colors::g_friendly));
+		}
+
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardUpdateFrame;
+		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
+		{
+			if (m_guardUpdateFrame.Skip("colors", "HWPColorsModule.UpdateFrame"))
+				return;
+			if (m_guardUpdateFrame.Raw())
+			{
+				GuardedUpdateFrame(ms, gameInput, menuInput, paused);
+				m_guardUpdateFrame.Ok();
+				return;
+			}
+			try { GuardedUpdateFrame(ms, gameInput, menuInput, paused); m_guardUpdateFrame.Ok(); }
+			catch { m_guardUpdateFrame.Failed(); }
+		}
+
+		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
+		{
+			HWP::PlayerColors::Tick(ms);
+		}
+
+		// after the window manager: the Map tab's own players
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardRenderWidgets;
+		void RenderWidgets(PlayerRecord@ player, int idt, SpriteBatch& sb) override
+		{
+			if (m_guardRenderWidgets.Skip("colors", "HWPColorsModule.RenderWidgets"))
+				return;
+			if (m_guardRenderWidgets.Raw())
+			{
+				GuardedRenderWidgets(player, idt, sb);
+				m_guardRenderWidgets.Ok();
+				return;
+			}
+			try { GuardedRenderWidgets(player, idt, sb); m_guardRenderWidgets.Ok(); }
+			catch { m_guardRenderWidgets.Failed(); }
+		}
+
+		void GuardedRenderWidgets(PlayerRecord@ player, int idt, SpriteBatch& sb)
+		{
+			HWP::PlayerColors::DrawMapTab(sb);
 		}
 	}
 }

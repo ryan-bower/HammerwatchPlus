@@ -3,7 +3,9 @@
  "about": "mods/campaign loads in town: the self-check lines from mods/campaign/README.md Testing step 1, the portal replaces the chapel campfire (step 2), no script errors in our files.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "campaign"
  ],
  "timeout": 120,

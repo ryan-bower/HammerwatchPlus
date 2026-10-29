@@ -16,7 +16,15 @@
 // "hwp abyss here"). The window, not a plain set, lets a new Session reuse ids on the same game.
 // Inside a line "%21" is "!", "%7E" is "~" and "%25" is "%" (session.py inbox_frame escapes them).
 // A "!" mid-line drops the partial line (a lost "~"), and lines are capped. The heartbeat
-// carries the totals (inLines, inDropped) and whether text input is armed (textIn).
+// carries the totals (inLines, inDropped, inScrubbed) and whether text input is armed (textIn).
+// A textinput that is typing (a search field) reads the same text events and inserted the
+// command text ("fish!gl c26 menu hwp_options - ", mod-settings-page 20261027-134819), so
+// InboxScrub cuts each line's characters ("!" to "~", as received) out of it again: at once when
+// the line ends, before its verb runs (the widget reads the frame's text before the probe does,
+// so a "menu ... search" query saw its own text), else on the next frame. The field's limit
+// (textlimit) can cut the line short and its forbidden characters drop out, so the match is the
+// run from a "!" that follows the line to its end or the field's (inScrubbed counts the characters
+// cut; a field left holding a "!" after a line's last try logs {"ev":"inbox_scrub_miss"}).
 namespace GameLab
 {
 	const uint INBOX_LINE_CAP = 4096;
@@ -32,6 +40,10 @@ namespace GameLab
 	array<uint> g_inboxIdFrames;
 	uint g_inboxFrame = 0;
 	uint g_inboxDups = 0;
+	string g_scrubCur;              // the line being received, "!" included
+	array<string> g_scrubRaws;      // received lines to cut from a typing textinput
+	array<uint> g_scrubFrames;      // the frame each one ended in
+	uint g_inboxScrubbed = 0;
 
 	void InboxFrame()
 	{
@@ -63,6 +75,8 @@ namespace GameLab
 		auto input = GetInput();
 		if (input is null)
 			return;
+		if (g_scrubRaws.length() > 0)
+			InboxScrub();
 		int n = input.GetTextInputCount();
 		for (int i = 0; i < n; i++)
 		{
@@ -71,6 +85,123 @@ namespace GameLab
 				continue;
 			InboxText(evt.text.plain());
 		}
+	}
+
+	// a line ended (or was dropped): out of the typing textinput now, else on the next frame
+	void InboxScrubEnd()
+	{
+		if (g_scrubCur.length() == 0)
+			return;
+		auto ti = InboxTypingInput();
+		if (ti is null || !InboxCut(ti, g_scrubCur))
+		{
+			g_scrubRaws.insertLast(g_scrubCur);
+			g_scrubFrames.insertLast(g_inboxFrame);
+		}
+		g_scrubCur = "";
+	}
+
+	// the textinput taking typed text: in a window, or in the player menu's open tab (a tab's
+	// widgets are not under the menu's)
+	TextInputWidget@ InboxTypingInput()
+	{
+		auto gm = cast<BaseGameMode>(g_gameMode);
+		if (gm is null || gm.m_windowManager is null)
+			return null;
+		auto@ windows = gm.m_windowManager.m_objects;
+		for (uint i = 0; i < windows.length(); i++)
+		{
+			if (windows[i] is null)
+				continue;
+			auto ti = InboxTyping(windows[i].m_widget);
+			if (ti !is null)
+				return ti;
+			auto menu = cast<PlayerMenu>(windows[i]);
+			if (menu is null || menu.m_tabSystem is null)
+				continue;
+			auto@ tabs = menu.m_tabSystem.m_tabs;
+			for (uint t = 0; t < tabs.length(); t++)
+			{
+				if (tabs[t] is null)
+					continue;
+				@ti = InboxTyping(tabs[t].m_widget);
+				if (ti !is null)
+					return ti;
+			}
+		}
+		return null;
+	}
+
+	// the lines that ended before this frame, out of the typing textinput (if one is)
+	void InboxScrub()
+	{
+		auto ti = InboxTypingInput();
+		uint k = 0;
+		while (k < g_scrubRaws.length())
+		{
+			if (g_scrubFrames[k] >= g_inboxFrame)
+			{
+				k++;
+				continue;
+			}
+			if (ti !is null && !InboxCut(ti, g_scrubRaws[k]) && ti.m_text.plain().findFirst("!") >= 0)
+			{
+				Json miss;
+				miss.Str("ev", "inbox_scrub_miss").Str("line", g_scrubRaws[k]).Str("text", ti.m_text.plain());
+				Emit(miss);
+			}
+			g_scrubRaws.removeAt(k);
+			g_scrubFrames.removeAt(k);
+		}
+	}
+
+	TextInputWidget@ InboxTyping(Widget@ w)
+	{
+		if (w is null)
+			return null;
+		auto ti = cast<TextInputWidget>(w);
+		if (ti !is null && ti.m_typing)
+			return ti;
+		for (uint i = 0; i < w.m_children.length(); i++)
+		{
+			auto found = InboxTyping(w.m_children[i]);
+			if (found !is null)
+				return found;
+		}
+		return null;
+	}
+
+	bool InboxCut(TextInputWidget@ ti, const string &in raw)
+	{
+		string text = ti.m_text.plain();
+		for (uint p = 0; p < text.length(); p++)
+		{
+			if (text.substr(p, 1) != "!")
+				continue;
+			uint i = p;
+			uint j = 0;
+			while (i < text.length() && j < raw.length())
+			{
+				string ch = raw.substr(j, 1);
+				if (text.substr(i, 1) == ch)
+					i++;
+				else if (ti.m_forbiddenCharacters.find(ch) < 0)
+					break;
+				j++;
+			}
+			// all of the line, or up to the field's end (its limit cut the line there); a run
+			// that only starts alike is another line (a resent one's copy matched "!gl c1" of
+			// the next, plan-newa-a 20261027-140538)
+			if (i - p < 2 || (j < raw.length() && i < text.length()))
+				continue;
+			ti.SetText(text.substr(0, p) + text.substr(i));
+			g_inboxScrubbed += i - p;
+			// as the widget does after an edit (TextInputWidget.Update): a search refilters
+			if (ti.m_funcEdit != "" && ti.m_host !is null)
+				ti.m_host.OnFunc(ti, ti.m_funcEdit);
+			return true;
+		}
+		return false;
 	}
 
 	bool InboxExpecting()
@@ -88,14 +219,18 @@ namespace GameLab
 			{
 				if (g_inboxIn && g_inboxBuf.length() > 0)
 					g_inboxDropped++;
+				InboxScrubEnd();
 				g_inboxIn = true;
 				g_inboxBuf = "";
+				g_scrubCur = "!";
 				continue;
 			}
 			if (!g_inboxIn)
 				continue;
+			g_scrubCur += ch;
 			if (ch == "~")
 			{
+				InboxScrubEnd();   // before InboxLine: the verb sees the field without it
 				g_inboxIn = false;
 				string line = g_inboxBuf;
 				g_inboxBuf = "";
@@ -104,6 +239,7 @@ namespace GameLab
 			}
 			if (g_inboxBuf.length() >= INBOX_LINE_CAP)
 			{
+				InboxScrubEnd();
 				g_inboxIn = false;
 				g_inboxBuf = "";
 				g_inboxDropped++;

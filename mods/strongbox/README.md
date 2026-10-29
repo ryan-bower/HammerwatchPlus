@@ -21,10 +21,22 @@ Path of Exile style strongboxes.
   as fallback), which destroys the box and spawns `hwp_strongbox`
   (`tweak/hwp/loot_strongbox.sval`: gold, a valuable, a rare/epic trinket, a
   rare/epic equipment piece, maybe ore).
+- **Luck.** The payout goes through `HWPStrongbox::Pay`: the table is taken off
+  the behaviour around `Chest::Use` and rolled by hwplib-luck `HWP::Luck::SpawnLoot` at
+  the opener's luck factor, once for the party (rare/epic shares weigh more;
+  `docs/design/luck.md`). Log: `[HWP:strongbox] luck x<f> payout (opener <name>, Luck <n>)`.
 - **State sync.** `strongbox.state {unit, state}` is broadcast on arm and on
   clear so clients show the cross icon while the pack is alive.
-- Settings: `strongbox.enabled`, `strongbox.chance`, `strongbox.pack`,
-  `strongbox.pack_per_player`, `strongbox.elite_chance` (host-synced).
+
+## Settings
+
+On the HammerwatchPlus tab of the player menu (host, host-synced; next level), or `hwp set`:
+
+- `strongbox.enabled` (on): off places no strongbox on new floors. A box
+  already on the floor stays usable, and `hwp strongbox here` still places one
+  (the timeout QA runs with the module off).
+- `strongbox.chance` (40 %), `strongbox.pack` (4), `strongbox.pack_per_player`
+  (2), `strongbox.elite_chance` (50 %).
 
 ## Test checklist
 
@@ -33,9 +45,12 @@ Path of Exile style strongboxes.
    spawns, the use icon turns into a cross, the chest opens when they are dead.
 3. Run a few levels with `strongbox.chance 100`: the log shows `placed a
    strongbox at ...` each level, far from the party. A strongbox and an abyss
-   crack placed on the same level stay at least 300 px apart (core `PickFarSpot`
+   crack placed on the same level stay at least 300 px apart (hwplib `PickFarSpot`
    claims each spot it hands out).
 4. Co-op: the client sees the box, can arm it, and gets the loot when cleared.
+5. `python -m gamelab run fix-core-luck --mode lab`: a box spawned in town and used
+   (nothing to sample) pays at once and logs `[HWP:strongbox] luck x1.6 payout`;
+   `hwp luck roll hwp_strongbox 3000 500` shows the epic shares up.
 
 Timeout: if the pack is still alive 3 minutes after arming (kited, stuck,
 left behind) the box seals itself and disappears without loot. Pack members

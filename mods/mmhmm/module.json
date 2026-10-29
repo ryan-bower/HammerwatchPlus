@@ -1,0 +1,42 @@
+{
+  "id": "mmhmm",
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [],
+  "exclude": [],
+  "class_swaps": {
+    "PlayerCorpse": "HWPMmHmmCorpse"
+  },
+  "config": {
+    "title": "Mm-hmm! hats",
+    "about": "Some rare and epic hats make a merchant approve, out loud, of your best moments.",
+    "toggle": "mmhmm.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": [
+      {
+        "key": "mmhmm.chance",
+        "type": "int",
+        "default": 25,
+        "values": [
+          10,
+          25,
+          50,
+          75,
+          100
+        ],
+        "suffix": "%",
+        "title": "Hats with it",
+        "about": "The share of rare and epic hats that get it. Hats that have it keep it."
+      },
+      {
+        "key": "mmhmm.crits",
+        "type": "bool",
+        "default": true,
+        "title": "On every crit",
+        "about": "Also on every critical hit of the wearer, not only the big moments."
+      }
+    ]
+  }
+}

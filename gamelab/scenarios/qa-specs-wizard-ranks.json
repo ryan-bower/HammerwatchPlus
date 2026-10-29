@@ -2,7 +2,7 @@
   "name": "qa-specs-wizard-ranks",
   "about": "Actual Thunder Orb/Static Charge damage at every skill rank and Lightning Rod target counts/radius at every orb rank. Source damage progression, earned release prerequisites, high-HP/maxHP readback, independent native crit controls and actual projectile geometry. Measurement-only, no co-op claims.",
   "fixture": "town-paladin",
-  "mods": ["core", "classes", "specs"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs"],
   "timeout": 900,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},

@@ -26,8 +26,26 @@ too many (plan-t12: 2 in, 3 out).
   `crusader_crossbowman.unit`, `crusader_pikeman_boon.unit`. Setting
   `summons.all` (default off) tracks every saveable summon instead (wolves,
   Warlock minions, ...). `summons.enabled` turns it off. Both host-synced.
+- The Devil Forgemaster's risen (mods/specs, 2026-10-25) are tracked by producer prefix
+  `players/hwp/specs/forgemaster/risen/` (one producer per raisable enemy), setting
+  `summons.risen` (default on). Every floor restore logs
+  `floor restore: N in the snapshot, M already live, K produced` so a run shows whether the
+  game carried them (M) or the module did (K). The lab could not reproduce the user's loss
+  (fix-specs-risen-floors 20261025-181000: 2 in the snapshot, 2 already live, 0 produced,
+  both at the HP they had less the risen decay); the module is the safety net for whatever
+  drops them in a real run, and the restore line is what to ask for.
 - `hwp summons` shows the state, snapshot size and how many were restored on
   this floor.
+
+## Settings
+
+On the HammerwatchPlus tab of the player menu (Quality of Life > Lasting summons); the
+host's values rule in a lobby:
+
+- **On/off** `summons.enabled` (default on). Off: no snapshots and no restore; the game's
+  own carrying of summons through a floor change is untouched.
+- **Forgemaster risen** `summons.risen` (default on).
+- **Every summon** `summons.all` (default off).
 
 ## Test checklist
 
@@ -40,3 +58,6 @@ too many (plan-t12: 2 in, 3 out).
 4. Return to town: no crusaders in town on arrival (the passive skill
    summons a fresh one in town a second later, as in vanilla).
 5. Co-op: a client Priest's crusaders also come through (host produces them).
+6. `python -m gamelab run fix-specs-risen-floors --mode lab`: two Forgemaster risen at 60% HP
+   stand on the next floor at that HP; the restore line adds up to 2; no "Exception when
+   saving summons" in the log.

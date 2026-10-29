@@ -1,6 +1,14 @@
 {
   "id": "chatlinks",
-  "requires": ["core"],
+  "requires": ["hwplib"],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Chat item links",
+    "about": "An item you link (hold the context key on it) is also posted in chat.",
+    "toggle": "chatlinks.enabled",
+    "scope": "local",
+    "applies": "now",
+    "settings": []
+  }
 }

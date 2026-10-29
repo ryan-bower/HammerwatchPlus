@@ -20,6 +20,7 @@
 	<string name="hwp.farming.status">Farm: %state%, %plots% plot(s) (%where%) at %x%,%y%, %runs% run(s) counted. Planted: %list%</string>
 	<string name="hwp.farming.moved">Farm plots moved off the fields to %x%,%y% (saved; hwp farm fields puts them back).</string>
 	<string name="hwp.farming.host_only">Only the host can do that.</string>
+	<string name="hwp.farming.off">Farming is off (farm.enabled, the HammerwatchPlus tab of the player menu).</string>
 	<string name="hwp.farming.debug_off">Host only, and farm.debug must be on.</string>
 	<string name="hwp.farming.no_herb">You have no %name%.</string>
 	<string name="hwp.farming.unknown_herb">Unknown herb. Strains: %list%</string>
@@ -92,15 +93,19 @@
 	<string name="hwp.farming.joint.saints_sage.2">Saint's Sage Joint (2/5)</string>
 	<string name="hwp.farming.joint.saints_sage.1">Saint's Sage Joint (1/5)</string>
 	<string name="hwp.farming.joint.puff">Puff</string>
-	<string name="hwp.farming.joint.puff.desc">Take a hit: the strain's buff for 10 floors (boss floors count). Five puffs to a joint. Indoors it leaves a haze.</string>
+	<string name="hwp.farming.joint.puff.desc">Take a hit: the strain's buff for 10 floors (boss floors count). Five puffs to a joint. It leaves a haze: a cloud indoors, and outdoors in town you hotbox the square. A second joint goes in your main hand (left click puffs it) and its buff stacks with this one.</string>
+	<string name="hwp.farming.joint.puff_mh.desc">Take a hit from the joint in your main hand: the strain's buff for 10 floors (boss floors count), stacking with the off-hand joint's. Five puffs to a joint. It leaves a haze: a cloud indoors, and outdoors in town you hotbox the square.</string>
 	<string name="hwp.farming.joint.click">Click to roll a joint.</string>
 	<string name="hwp.farming.joint.roll_q">Roll J? (one %name%)</string>
 	<string name="hwp.farming.joint.huzzah">Huzzah!</string>
-	<string name="hwp.farming.joint.rolled">Rolled a %name%. Hold it in your off hand; right click to puff.</string>
+	<string name="hwp.farming.joint.rolled">Rolled a %name%. Hold it in your off hand and right click to puff; a second one goes in your main hand, left click puffs that.</string>
+	<string name="hwp.farming.joint.no_bag_joint">No joint in your bag to wield.</string>
+	<string name="hwp.farming.joint.wielded">%name% in your %hand% hand.</string>
 	<string name="hwp.farming.joint.bag_full">Your bag is full.</string>
 	<string name="hwp.farming.joint.done">The joint is smoked down.</string>
 	<string name="hwp.farming.joint.take_hint">%key%: take %name%'s joint</string>
 	<string name="hwp.farming.joint.taken_from">%name% took your joint.</string>
 	<string name="hwp.farming.joint.took">You took the %name%.</string>
 	<string name="hwp.farming.harvest_text">Sells for %price% gold at the Gambler.</string>
+	<string name="hwp.farming.plants">Plants &amp; Herbs</string>
 </lang>

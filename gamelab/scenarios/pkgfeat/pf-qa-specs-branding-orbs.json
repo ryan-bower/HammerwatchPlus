@@ -1,0 +1,33 @@
+{
+ "name": "pf-qa-specs-branding-orbs",
+ "about": "qa-specs-branding-orbs against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Combustion all3 actual damage/radius/spend, Proliferation all3 spread-boundary real damage, Empowerment all3 actual1/5/10-stack fire multipliers plus native HP damage. Max legal four-orb/two-transferred-brand combination checks Empowerment before shared Essence spend. Elite/boss Released Essence payouts remain separate.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_specs_branding_effects",
+   "kwargs": {
+    "section": "orbs"
+   },
+   "expect": {
+    "brand_orbs_lane": true,
+    "branding_orbs_measured": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

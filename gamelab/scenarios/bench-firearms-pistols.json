@@ -3,7 +3,9 @@
  "about": "Measurement (balance): bench-firearms for the dual-pistol build only; its rows replace the pistols rows in gamelab/results/bench/hwp_firearms.json.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 3000,

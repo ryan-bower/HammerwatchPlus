@@ -1,13 +1,23 @@
 {
  "name": "mod-mmhmm",
- "about": "core's Mm-hmm! hat bonus: rare hats from the kit verb get it exactly when they qualify (25 %, a function of the item), on top of their rolled modifiers; a common hat never; the worn hat with it counts crits while a rifle shoots a target dummy (bench). The voice is the modifier's net-synced crit trigger; GameLab is muted, so the sound is not measured. Uses levelup, kit and give cheats: not evidence of play.",
+ "about": "mods/mmhmm's Mm-hmm! hat bonus: rare hats from the kit verb get it exactly when they qualify (25 %, a function of the item), on top of their rolled modifiers; a common hat never; the worn hat with it counts crits while a pistol shoots a target dummy (bench). Then in a run, with the hat: the last orb of a 3-orb tree voices it once, not its first orb nor a 1-orb tree; a well and a secret room (their run stats, gl statadd) and a real Ace chest (mods/keys) once each; the 4th piece of Charms of Fortune, not the 3rd; nothing once the hat is off. The voice goes through the host to every peer ([HWP:mmhmm] voice: <why>); GameLab is muted, so the sound is not measured, and a real revive needs two players (covered: the corpse is HWPMmHmmCorpse and cht_revive, which has no other reviver, stays quiet). Uses levelup, kit, give, orb and trinket cheats: not evidence of play.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
-  "firearms"
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "mmhmm",
+  "firearms",
+  "trinkets",
+  "keys"
  ],
- "timeout": 200,
+ "timeout": 360,
  "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:mmhmm\\] ready",
+   "timeout": 20
+  },
   {
    "do": "bot",
    "bot": "check_mmhmm",
@@ -32,6 +42,31 @@
     "mmhmm_given": true,
     "mmhmm_crits": true
    }
+  },
+  {
+   "do": "bot",
+   "bot": "check_mmhmm",
+   "kwargs": {
+    "sections": "moments"
+   },
+   "name": "the other moments",
+   "expect": {
+    "mmhmm_run_hat": true,
+    "mmhmm_single_orb_quiet": true,
+    "mmhmm_last_orb": true,
+    "mmhmm_well": true,
+    "mmhmm_ace": true,
+    "mmhmm_secret": true,
+    "mmhmm_trinket_set": true,
+    "mmhmm_needs_hat": true,
+    "mmhmm_corpse_swapped": true,
+    "mmhmm_self_revive_quiet": true
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:mmhmm\\] voice: last orb",
+   "timeout": 5
   },
   {
    "do": "log_clean"

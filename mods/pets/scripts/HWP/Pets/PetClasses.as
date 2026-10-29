@@ -1,7 +1,8 @@
 // The pet units name these classes themselves (tools/make_pet_dyes.py writes
 // copies of the vanilla pet units and rewrites the HoH1 imports; the engine
 // ignores info.xml classmaps for unit behaviours), so every pet gets:
-//   - puzzle-room waiting (HWP::PetWait::Watcher; also the candle's Secret Sense hover),
+//   - puzzle and trap room waiting (HWP::PetWait::Watcher, mods/petrooms; Owned, so
+//     petrooms' driver for vanilla pets leaves them be; also the candle's Secret Sense hover),
 //   - the owner's pickup toggles (PlayerRecord.petOptions instead of the
 //     hardcoded 319 the base ResetPet passes),
 //   - the Fetch passives and the skill runner (HWP::Pets::SkillRunner),
@@ -11,7 +12,7 @@
 // Pets are not netsynced: each machine simulates its copy and only the owner's
 // (non-husk) pet picks up or fires skills, exactly like the base behaviour.
 
-class HWPMiniPetWalking : MiniPetWalking
+class HWPMiniPetWalking : MiniPetWalking, HWP::PetWait::Owned
 {
 	HWP::PetWait::Watcher m_wait;
 	HWP::Pets::SkillRunner m_skills;
@@ -59,7 +60,7 @@ class HWPMiniPetWalking : MiniPetWalking
 	}
 }
 
-class HWPMiniPetFlying : MiniPetFlying
+class HWPMiniPetFlying : MiniPetFlying, HWP::PetWait::Owned
 {
 	HWP::PetWait::Watcher m_wait;
 	HWP::Pets::SkillRunner m_skills;

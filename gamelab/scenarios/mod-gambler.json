@@ -3,7 +3,9 @@
  "about": "mods/gambler spawns its NPC once the tavern is built: fixture town-tavern builds it through the game's own builder path. The NPC is then found in the scene by the near probe (the log line alone only proves the code ran). No script errors in our files.",
  "fixture": "town-tavern",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "gambler"
  ],
  "timeout": 120,

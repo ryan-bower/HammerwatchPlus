@@ -1,0 +1,47 @@
+{
+ "name": "fix-firearms-reload-world",
+ "about": "The reload bar sits over the player in the world, not on the bottom HUD (2026-10-22, the user's item 2): Combat.as OverReloadState.Render anchors it RELOAD_BAR_ABOVE (34) px above the player's interpolated position, the Over-Reload gold window unchanged. Through the fix_firearms_feel bot: an emptied clip starts the automatic reload, the bar logs where it drew, a frame of it, and `hwp firearms reload` says 'over player: drawn at x,y' centred on the player 34 px up.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "firearms"
+ ],
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "fix_firearms_feel",
+   "kwargs": {
+    "sections": "reload_world"
+   },
+   "name": "reload world",
+   "expect": {
+    "reload_bar_drawn_in_world": true,
+    "reload_bar_centered_over_player": true,
+    "reload_bar_not_on_hud": true
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:firearms\\] reload bar: over the player at -?\\d+,-?\\d+ \\(gui\\), 34 px up",
+   "timeout": 5
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

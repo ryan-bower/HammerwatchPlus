@@ -3,7 +3,9 @@
   "about": "Over-Reload ranks1?3 fixed protocol: one deliberately early native miss, then3 fixed timed natural gold presses per rank, native logged timing classification and nonstacking capacities35/40/45. Every attempt retained; no retry-until-pass.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

@@ -59,6 +59,13 @@ rank, and the rank is the arena's NG+ level next time.
   the boss is the valor spirit, not an arena champion of its own; the
   rank has no cap.
 
+## Settings
+
+**Wave arena** on/off on the HammerwatchPlus tab, `wave.enabled` (host, default on). Off:
+no statue in town (removed at once), no arena start and no rank from a boss kill. The
+rank (`wave.rank`) is kept. No other settings: the rank and the statue spot are state,
+set with `hwp wave`.
+
 ## Test checklist
 
 1. `python -m gamelab run mod-wavemode --mode lab`: `[HWP:wave] self-check done: mission ok, boon ok, 4/4 spawn

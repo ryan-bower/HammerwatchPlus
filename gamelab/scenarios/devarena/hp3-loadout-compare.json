@@ -3,7 +3,7 @@
  "about": "HP3 (docs/devarena/SPEC.md, happy paths): on the Loadout tab tick two ranger loadouts for compare, 'Bench these on the golem' opens the Bench tab with them as A and B, F4, 3 pulls of 5 s, Start: each pull applies its side's loadout first (the Loadout.as queue), then a verdict, the CSV, and Star winner makes the winner a favorite. The bench restores the loadout applied before it. Buttons are aimed by id (gl da-dock).",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
   "devarena"
  ],
  "timeout": 600,

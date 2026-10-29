@@ -1,0 +1,24 @@
+{
+ "name": "hoh1-installed",
+ "needs_hoh1": true,
+ "about": "With this machine's own HoH1 import (the mods' source folders carry the local content tools/import_hoh1.py wrote): the Forsaken Tower's HoH1 levels, the HoH1 pets and the HoH1 trinket icons report installed, and hwplib does not tell the player about stand-ins. The HoH1 class art is a packed-only overlay, so the classes mod is left out here.",
+ "fixture": "town-paladin",
+ "mods": [
+  "campaign",
+  "pets",
+  "trinkets"
+ ],
+ "timeout": 240,
+ "steps": [
+  {"do": "log_has", "pattern": "\\[HWP:core\\] gameplay started; server=yes town=yes", "timeout": 60, "name": "gameplay started in town"},
+  {"do": "log_has", "pattern": "\\[HWP:campaign\\] self-check done: .*HoH1 floors installed", "timeout": 10, "name": "the HoH1 campaign floors"},
+  {"do": "log_has", "pattern": "\\[HWP:pets\\] \\d+ HoH1 pet\\(s\\) in the Pet Shop", "timeout": 10, "name": "the HoH1 pets"},
+  {"do": "log_has", "pattern": "\\[HWP:trinkets\\] HoH1 icons: \\d+ of \\d+", "timeout": 10, "name": "the HoH1 trinket icons"},
+  {"do": "mark", "name": "loaded"},
+  {"do": "console", "line": "hwp hoh1"},
+  {"do": "log_has", "pattern": "\\[HWP\\] campaign: Heroes of Hammerwatch 1 content installed", "timeout": 10, "name": "hwp hoh1: campaign installed"},
+  {"do": "log_has", "pattern": "\\[HWP\\] trinkets: Heroes of Hammerwatch 1 content installed", "timeout": 5, "name": "hwp hoh1: trinkets installed"},
+  {"do": "log_lacks", "pattern": "\\[HWP:hoh1\\] on stand-ins|Heroes of Hammerwatch 1 content is not installed", "name": "no stand-in notice"},
+  {"do": "log_clean"}
+ ]
+}

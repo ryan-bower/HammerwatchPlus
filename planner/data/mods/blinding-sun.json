@@ -1,0 +1,22 @@
+{
+  "built": "hwp_pal_pf_blinding_sun",
+  "cls": "paladin",
+  "exclusive": "",
+  "icon_art": "pal_pf_blinding_sun",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "4 seconds Minor Blindness (20% miss)"
+    },
+    {
+      "q": "rare",
+      "text": "6 seconds Greater Blindness (40% miss)"
+    }
+  ],
+  "name": "Blinding Sun",
+  "notes": "Decided 2026-10-27: the vanilla Minor and Greater Blindness, 4 s and 6 s, when the hold ends. Tested: plan-generosity 20261027-020522.",
+  "order": null,
+  "skill": "paladin-spec4-active",
+  "status": "built",
+  "summary": "Pelor's Fury blinds the enemy after the channeling ends. "
+}

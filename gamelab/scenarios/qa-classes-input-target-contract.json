@@ -3,7 +3,9 @@
   "about": "Controlled normal Net TargetAOE protocol for additive sole-local current-GameInput world cursor sequence. Actual bound-button/normal-main-confirm, exact native input frames/cursor projection+restoration/timeline, real center immobilize/outside untouched+HP, paid nativeCD/MP and natural buff expiry. No castat/Activate/helper-state/resource setters, ordinary or cancellation credit. Native3500ms status differs from authored2s tooltip and remains separate correctness gap.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

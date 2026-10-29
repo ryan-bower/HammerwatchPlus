@@ -1,0 +1,58 @@
+{
+ "name": "pf-qa-specs-wizard-charge-orbs",
+ "about": "qa-specs-wizard-charge-orbs against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Native1x real-input Wizard orb effects. Source-pinned damage-round controls, fresh native15k targets, bounded crit setup and explicit prerequisite cooldown resets. All fixed trials retained. Runtime untested until root gate.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_specs_wizard_orbs",
+   "expect": {
+    "wizorbs_char": true,
+    "wizorbs_learned": true,
+    "wizorbs_input_own_button": true,
+    "wizorbs_rank5": true,
+    "wizorbs_crit_restored": true,
+    "font_0_equipped": true,
+    "font_0_earned": true,
+    "font_1_equipped": true,
+    "font_1_earned": true,
+    "font_2_equipped": true,
+    "font_2_earned": true,
+    "conduit_0_equipped": true,
+    "conduit_0_earned": true,
+    "conduit_1_equipped": true,
+    "conduit_1_earned": true,
+    "conduit_2_equipped": true,
+    "conduit_2_earned": true,
+    "font_0_actual_refund": true,
+    "font_1_actual_refund": true,
+    "font_2_actual_refund": true,
+    "conduit_0_actual_cast_speed": true,
+    "conduit_1_actual_cast_speed": true,
+    "conduit_2_actual_cast_speed": true
+   },
+   "kwargs": {
+    "section": "charge_orbs"
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

@@ -3,7 +3,9 @@
   "about": "Five exact native Essence cooldown coefficients:3fixed plain/branded actualwand trials each with temporary native2.5attack-speed buff; must uniquely match its own cooldown among all5source models using unchanged67ms phase bound. NativeHP/hits/gains and complete untruncated observer retained. Controlled timing fixture, not ordinary cadence/acquisition.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

@@ -1,0 +1,71 @@
+{
+ "name": "fix-pets-inventory-level",
+ "about": "mods/pets: the active pet's level and XP progress sit beside the character's own level in the player menu's character tab (widget hwp-pet-level, a clone of player-level made by PetLevelTab.as; no Character.as override). The bot buys a pet, opens the character tab and reads the widget through `gl menu character - hwp-pet-level` (the tab is a MenuTab with its own widget tree, which `wtext` does not reach): `pet lvl N (xx%)`, shown; after `hwp pet xp 500` (pets.debug) the text shows the higher level.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "pets"
+ ],
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "still in town"
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "fix_pets",
+   "kwargs": {
+    "check": "inventory"
+   },
+   "expect": {
+    "ok": true,
+    "pet_bought": true,
+    "pet_level_shown": true,
+    "pet_level_logged": true,
+    "pet_level_updates": true
+   },
+   "name": "character tab shows the pet's level and keeps it current"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:pets\\] pet level line added to the character tab \\(hwp-pet-level\\)",
+   "timeout": 5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character"
+   ],
+   "expect": {
+    "tab": "PlayerMenuCharacterTab"
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "character-tab"
+  },
+  {
+   "do": "key",
+   "key": "escape"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

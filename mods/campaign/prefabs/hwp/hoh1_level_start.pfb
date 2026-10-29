@@ -1,0 +1,8 @@
+<!-- Where the players arrive on a HoH1 generated floor (scripts/HWP/Campaign/HoH1/Generator.as):
+     HoH1's generator only sets g_spawnPos, HoH2 spawns at a LevelStart script -->
+<dict>
+	<int name="version">1</int>
+	<array name="scripts">
+		<array><string>LevelStart</string><int>1</int><vec3>0 0 0</vec3><bool>t</bool><int>-1</int><bool>f</bool></array>
+	</array>
+</dict>

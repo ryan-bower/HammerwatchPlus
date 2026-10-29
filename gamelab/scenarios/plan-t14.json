@@ -3,7 +3,9 @@
  "about": "Test plan through the plan_checks bot: firearms clip. The rifle spawns with 30 rounds, a shot uses 1 round and no mana, the grenade launcher uses mana and no rounds, an empty clip starts Reloading and refills, a dodge restarts the reload, Reload refills.",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",
@@ -17,7 +19,6 @@
    "firearms",
    "fishing",
    "gambler",
-   "goldpet",
    "groupcombo",
    "keys",
    "laststats",

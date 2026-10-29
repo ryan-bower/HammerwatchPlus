@@ -3,7 +3,9 @@
   "about": "Four explicit common HWP warhammer/frostbrand items alternate family and ilvl. Natural Sort button must group actual weapon families, preserve every item and be idempotent. Original prefix-only Family source is expected to expose interleaving; fixture readbacks required.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

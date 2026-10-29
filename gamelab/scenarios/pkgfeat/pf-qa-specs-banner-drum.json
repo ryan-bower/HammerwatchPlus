@@ -1,0 +1,53 @@
+{
+ "name": "pf-qa-specs-banner-drum",
+ "about": "qa-specs-banner-drum against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). All3 WarDrum qualities:4 actual Standard raises/plants each, actual target Weakness lifetime identifies each incremental tier and quality cap, followed by natural expiry. Enemy outgoing attack damage UNTESTED.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_specs_banner_orbs",
+   "kwargs": {
+    "section": "drum"
+   },
+   "expect": {
+    "drum_god_off": true,
+    "drum_lane": true,
+    "drum_char": true,
+    "drum_learned": true,
+    "drum_r1_equipped": true,
+    "drum_r1_step1": true,
+    "drum_r1_step2": true,
+    "drum_r1_step3": true,
+    "drum_r1_step4": true,
+    "drum_r1_expires": true,
+    "drum_r2_equipped": true,
+    "drum_r2_step1": true,
+    "drum_r2_step2": true,
+    "drum_r2_step3": true,
+    "drum_r2_step4": true,
+    "drum_r2_expires": true,
+    "drum_r3_equipped": true,
+    "drum_r3_step1": true,
+    "drum_r3_step2": true,
+    "drum_r3_step3": true,
+    "drum_r3_step4": true,
+    "drum_r3_expires": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

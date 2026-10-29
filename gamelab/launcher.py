@@ -18,7 +18,8 @@ gate and stamps "build_drift": true into its run.json.
 Verdicts (exit code): PASS (0), FAIL (1: an assertion failed), INVALID (5: the run itself
 cannot be trusted: the user's config or saves changed, focus moved, or probes and the
 renderer disagreed), TIMEOUT (6: the scenario's deadline passed; whatever was collected
-is still in run.json, flagged "partial").
+is still in run.json, flagged "partial"), SKIPPED (7: a `"needs_hoh1": true` scenario on a
+machine without the HoH1 import its mods read; nothing ran).
 """
 from __future__ import annotations
 
@@ -62,7 +63,8 @@ def mods_version() -> dict:
     return out
 
 
-def preflight(mode: str, accept_drift: bool = False, mods: list[str] | None = None) -> tuple[list[str], list[str]]:
+def preflight(mode: str, accept_drift: bool = False, mods: list[str] | None = None,
+              packages: list[str] | None = None) -> tuple[list[str], list[str]]:
     errors = [f"saves: {p}" for p in saves.confirmation_problems()]
     if errors:
         return errors, []
@@ -75,7 +77,14 @@ def preflight(mode: str, accept_drift: bool = False, mods: list[str] | None = No
         sys.exit(pin_build.EXIT_BUILD_MISMATCH)
     if mism:
         print("BUILD DRIFT accepted for this run:", "; ".join(mism))
-    problems = env.link(fix=True, mods=mods)
+    if packages:
+        # the packages as players get them: built from this tree now, without local content
+        r = subprocess.run([sys.executable, str(REPO / "tools" / "build.py"), *packages], cwd=REPO,
+                           capture_output=True, text=True)
+        if r.returncode:
+            errors.append("tools/build.py " + " ".join(packages) + ": " + (r.stderr or r.stdout).strip()[-400:])
+            return errors, mism
+    problems = env.link(fix=True, mods=mods, packages=packages)
     errors += [f"env_link: {p}" for p in problems]
     gl = env.environments()["gamelab"]
     user_data = Path(gl["user_data"].replace("<repo>", str(REPO))).resolve()
@@ -113,10 +122,29 @@ def acquire(scenario_name: str, mode: str, wait: float = 0) -> None:
             time.sleep(3)
 
 
+EXIT_SKIPPED = 7
+
+
+def hoh1_missing(scenario: dict) -> list[str]:
+    """`"needs_hoh1": true`: the HoH1 imports (tools/import_hoh1.py, named like the mods that read
+    them; every import when none of its mods has one) this machine lacks."""
+    if not scenario.get("needs_hoh1"):
+        return []
+    from tools import import_hoh1
+    outputs = import_hoh1.IMPORT_OUTPUTS
+    want = [m for m in env.expand_mods(scenario.get("mods")) if m in outputs] or list(outputs)
+    return [m for m in want if not outputs[m].exists()]
+
+
 def run(scenario_name: str, mode: str, accept_drift: bool = False, wait: float = 0) -> int:
     scenario_path = scenario_file(scenario_name)
     scenario_name = scenario_path.stem
     scenario = json.loads(scenario_path.read_text(encoding="utf-8"))
+    missing = hoh1_missing(scenario)
+    if missing:
+        print("SKIPPED", f"needs_hoh1: no HoH1 import of {', '.join(missing)} on this machine "
+              "(python -m gamelab doctor --hoh1 <folder> --fix)")
+        return EXIT_SKIPPED
     # the lock before preflight: preflight re-links the lab mods dir (env.link), and doing that
     # under another live run drops that run's mods under test from the game dir
     try:
@@ -125,7 +153,7 @@ def run(scenario_name: str, mode: str, accept_drift: bool = False, wait: float =
         print("REFUSED", e)
         return lock.EXIT_REFUSED
     try:
-        errors, drift = preflight(mode, accept_drift, scenario.get("mods"))
+        errors, drift = preflight(mode, accept_drift, env.expand_mods(scenario.get("mods")), scenario.get("packages"))
     except BaseException:
         lock.release(scenario_name, [])     # nothing ran (e.g. the build gate's exit 3)
         raise

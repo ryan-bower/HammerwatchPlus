@@ -3,7 +3,9 @@
   "about": "Original three ExplosiveReload qualities5/8/12, natural27remaining-round throw/refill/realHP ratio, now with full Directional heldAim through native windup. Same-batch nativeclock/track/sequencer, actual forward landing and source min-radius12 target guard, exact input_done/release; original133709 retained.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

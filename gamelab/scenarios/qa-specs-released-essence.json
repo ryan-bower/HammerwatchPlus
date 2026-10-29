@@ -3,7 +3,9 @@
   "about": "Native Claw kills on controlled HP1 ordinary/elite/boss tagged actors: no-orb control, Released Essence ranks1/2 payout3/6, native cap10, and legal Combustion3/Released2 spend-before-payout. Actual HP death plus complete native stack observer, no positive stack setter after the measured cast. Not ordinary boss AI or co-op proof.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

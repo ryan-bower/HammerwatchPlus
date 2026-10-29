@@ -34,9 +34,31 @@ namespace HWP
 			return n;
 		}
 
+		// architect.enabled (host, default on). Off is the vanilla architect: only the
+		// host picks and pays, no challenges, presets or remembered picks
+		bool Enabled()
+		{
+			return HWP::Settings::GetBool("architect.enabled", true);
+		}
+
+		// with the module off: what vanilla allows of a pick list, the host's own
+		// picks without the challenges
+		array<int>@ VanillaPicks(uint8 peer, array<int>@ ids)
+		{
+			array<int> kept;
+			if (peer != uint8(Lobby::GetLocalPeer()))
+				return kept;
+			for (uint i = 0; i < ids.length(); i++)
+			{
+				if (ChallengeIndex(uint(ids[i])) < 0)
+					kept.insertLast(ids[i]);
+			}
+			return kept;
+		}
+
 		bool ShowPayer()
 		{
-			return ActivePlayers() > 1;
+			return Enabled() && ActivePlayers() > 1;
 		}
 
 		string PayerName(uint8 payer)
@@ -72,7 +94,7 @@ namespace HWP
 
 		void RefreshSplit()
 		{
-			g_split = HWP::Settings::GetBool("architect.split", true);
+			g_split = Enabled() && HWP::Settings::GetBool("architect.split", true);
 		}
 
 		void BroadcastState()
@@ -84,7 +106,9 @@ namespace HWP
 
 		void OnPick(uint8 peer, SValue@ data)
 		{
-			auto ids = HWP::SV::Ints(data, "ids");
+			array<int>@ ids = HWP::SV::Ints(data, "ids");
+			if (!Enabled())
+				@ids = VanillaPicks(peer, ids);
 
 			// log the difference for the chat/debug trail
 			for (uint i = 0; i < ids.length(); i++)
@@ -224,8 +248,18 @@ namespace HWP
 
 		void OnSettingChanged(const string &in key)
 		{
-			if (key != "architect.split" || !Network::IsServer())
+			if ((key != "architect.split" && key != "architect.enabled") || !Network::IsServer())
 				return;
+			// turned off: the picks vanilla would not allow go (the clients', the challenges)
+			if (key == "architect.enabled" && !Enabled())
+			{
+				uint8 host = uint8(Lobby::GetLocalPeer());
+				for (int j = int(g_picks.length()) - 1; j >= 0; j--)
+				{
+					if (g_picks[j].payer != host || ChallengeIndex(uint(g_picks[j].id)) >= 0)
+						g_picks.removeAt(j);
+				}
+			}
 			RefreshSplit();
 			BroadcastState();
 		}
@@ -242,10 +276,21 @@ namespace HWP
 				CmdTry(args);
 				return;
 			}
+			if (args.length() > 0 && args[0] == "preset")
+			{
+				CmdPreset(args);
+				return;
+			}
 			HWP::Commands::Reply(Resources::GetString(".hwp.architect.status", {
 				{ "count", "" + g_ids.length() }, { "split", g_split ? "on" : "off" }, { "players", "" + ActivePlayers() } }));
 			for (uint i = 0; i < g_ids.length(); i++)
 				HWP::Commands::Reply("- " + BuffName(g_ids[i]) + " (" + PayerName(uint8(i < g_payers.length() ? g_payers[i] : 0)) + ")");
+			// the run-start memory (Memory.as): what comes back when the setup opens
+			auto last = LastPicks();
+			string names = "";
+			for (uint i = 0; i < last.length(); i++)
+				names += (i > 0 ? ", " : "") + BuffName(last[i]);
+			HWP::Commands::Reply("remembered: " + last.length() + " pick(s) [" + names + "], NG+ " + LastNGP() + " (-1 = none yet)");
 		}
 
 		// hwp architect challenges [id...]: every challenge with its discount,
@@ -322,7 +367,7 @@ namespace Modules
 			HWP::Net::OnRequest(HWP::Architect::PICK, HWP::Net::RequestHandler(HWP::Architect::OnPick));
 			HWP::Net::OnRequest(HWP::Architect::QUERY, HWP::Net::RequestHandler(HWP::Architect::OnQuery));
 			HWP::Net::OnEvent(HWP::Architect::SYNC, HWP::Net::EventHandler(HWP::Architect::OnSync));
-			HWP::Commands::Register("architect", " [challenges [id...] | try <id...>] show the party's architect picks, the challenges and a cost multiplier", HWP::Commands::Handler(HWP::Architect::CmdStatus));
+			HWP::Commands::Register("architect", " [challenges [id...] | try <id...> | preset [save <n> [name] | load <n> | clear <n>]] the party's architect picks and what the run-start remembers, the challenges and a cost multiplier, the three presets", HWP::Commands::Handler(HWP::Architect::CmdStatus));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Architect::OnSettingChanged));
 			int n = HWP::Architect::AddChallengeSetup();
 			if (n > 0)
@@ -331,7 +376,23 @@ namespace Modules
 
 		bool m_menuOpen = false;
 
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardUpdateFrame;
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
+		{
+			if (m_guardUpdateFrame.Skip("architect", "HWPArchitectModule.UpdateFrame"))
+				return;
+			if (m_guardUpdateFrame.Raw())
+			{
+				GuardedUpdateFrame(ms, gameInput, menuInput, paused);
+				m_guardUpdateFrame.Ok();
+				return;
+			}
+			try { GuardedUpdateFrame(ms, gameInput, menuInput, paused); m_guardUpdateFrame.Ok(); }
+			catch { m_guardUpdateFrame.Failed(); }
+		}
+
+		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
 			bool open = HWP::Architect::LoadoutMenuOpen();
 			if (m_menuOpen && !open)

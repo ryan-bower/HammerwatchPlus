@@ -1,0 +1,108 @@
+{
+ "_doc": "Published Steam Workshop item ids, one per package (tools/workshop.py, docs/WORKSHOP.md). After a package's first upload, put the id from its Workshop page URL (?id=...) here, so the next build says Update instead of Upload new. hold: not published yet, and why. tags: the item's Workshop tags (the game's tag list: Addon, Gameplay, Player Class, Equipment, Mission, Graphics, Item Pack, Total Conversion, Language, Other). tools/workshop_publish.py fills item_id when it creates an item.",
+ "items": {
+  "HWP-qol": {
+   "item_id": "3828529629",
+   "tags": [
+    "Addon",
+    "Gameplay"
+   ]
+  },
+  "HWP-coop": {
+   "item_id": "3828529663",
+   "tags": [
+    "Addon",
+    "Gameplay"
+   ]
+  },
+  "HWP-autoaim": {
+   "item_id": "3828529696",
+   "tags": [
+    "Addon",
+    "Gameplay"
+   ]
+  },
+  "HWP-firearms": {
+   "item_id": "3828529723",
+   "tags": [
+    "Addon",
+    "Player Class",
+    "Equipment"
+   ]
+  },
+  "HWP-specs": {
+   "item_id": "3828529765",
+   "tags": [
+    "Addon",
+    "Player Class"
+   ]
+  },
+  "HWP-classes": {
+   "item_id": null,
+   "hold": "the HoH1 classes are parked (hidden from character creation), so this package only adds the Skill 4-6 keys; publish it when they are back",
+   "tags": [
+    "Addon",
+    "Player Class"
+   ]
+  },
+  "HWP-keys": {
+   "item_id": "3828529805",
+   "tags": [
+    "Addon",
+    "Gameplay",
+    "Equipment"
+   ]
+  },
+  "HWP-campaign": {
+   "item_id": null,
+   "tags": [
+    "Addon",
+    "Mission"
+   ],
+   "removed": {
+    "item_id": "3828529832",
+    "date": "2026-10-28"
+   }
+  },
+  "HWP-modes": {
+   "item_id": "3828529852",
+   "tags": [
+    "Addon",
+    "Gameplay",
+    "Mission"
+   ]
+  },
+  "HWP-dungeon": {
+   "item_id": "3828529889",
+   "tags": [
+    "Addon",
+    "Gameplay",
+    "Equipment"
+   ]
+  },
+  "HWP-town": {
+   "item_id": "3828529916",
+   "tags": [
+    "Addon",
+    "Gameplay"
+   ]
+  },
+  "HWP-pets": {
+   "item_id": "3828529416",
+   "tags": [
+    "Addon",
+    "Gameplay"
+   ]
+  },
+  "HammerwatchPlus-All": {
+   "item_id": "3828529950",
+   "tags": [
+    "Addon",
+    "Gameplay",
+    "Player Class",
+    "Equipment",
+    "Mission"
+   ]
+  }
+ }
+}

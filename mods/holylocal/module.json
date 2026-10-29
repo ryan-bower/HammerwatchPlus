@@ -2,7 +2,7 @@
   "id": "holylocal",
   "requires": [],
   "local_only": true,
-  "beta_into": "core",
+  "beta_into": "hwplib",
   "local": ["players/", "tweak/"],
   "overrides": [
     "players/priest/class_priest.sval",

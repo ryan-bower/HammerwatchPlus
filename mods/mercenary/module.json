@@ -1,6 +1,50 @@
 {
   "id": "mercenary",
-  "requires": ["core"],
+  "requires": ["hwplib"],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Mercenary",
+    "about": "HoH1 mercenary mode: death is permanent, prestige ranks give more gold and XP.",
+    "toggle": "mercenary.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": [
+      {
+        "key": "mercenary.start_level",
+        "type": "int",
+        "default": 10,
+        "values": [
+          1,
+          5,
+          10,
+          15,
+          20
+        ],
+        "title": "Start level",
+        "about": "The level a new mercenary starts at."
+      },
+      {
+        "key": "mercenary.unlock_level",
+        "type": "int",
+        "default": 20,
+        "values": [
+          1,
+          5,
+          10,
+          15,
+          20
+        ],
+        "title": "Veteran level",
+        "about": "Enlisting needs another hero of the class at this level."
+      },
+      {
+        "key": "mercenary.revivable",
+        "type": "bool",
+        "default": false,
+        "title": "Revivable",
+        "about": "A mercenary falls only when the run fails, so a revive saves it."
+      }
+    ]
+  }
 }

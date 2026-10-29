@@ -120,13 +120,15 @@ namespace GameLab
 			return;
 		}
 		string file = args[0], entry = "";
+		// a file of named roots (<svals><dict name="keys">) resolves only as file:entry
+		auto sv = Resources::GetSValue(file);
 		int colon = file.findFirst(".sval:");
-		if (colon >= 0)
+		if (sv is null && colon >= 0)
 		{
 			entry = file.substr(colon + 6);
 			file = file.substr(0, colon + 5);
+			@sv = Resources::GetSValue(file);
 		}
-		auto sv = Resources::GetSValue(file);
 		if (sv is null)
 		{
 			Fail(id, "no sval '" + file + "'");

@@ -3,7 +3,9 @@
   "about": "All15 visible Firearms guns and6 hidden hand twins across3 tiers:54 common natural primary/secondary/hand cases, plus18 legal epic rifle-family cases (72 total). Seeded explicit-quality kit plus equipped quality/skill readback; native epic handguns are N/A because they have no skill-epic. Target HP damage and clip/mana resource observations, god off on cleared fixture floor.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

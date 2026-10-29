@@ -10,4 +10,7 @@
 	<string name="hwp.laststats.player_of">%index%/%count%</string>
 	<string name="hwp.laststats.category.skill_dmg">Skill damage</string>
 	<string name="hwp.laststats.death">Death recap</string>
+	<string name="hwp.laststats.search">Search stats...</string>
+	<string name="hwp.laststats.nomatch">No stat matches the search.</string>
+	<string name="hwp.laststats.players">%count% player(s)</string>
 </lang>

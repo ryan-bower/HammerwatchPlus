@@ -209,7 +209,8 @@ class HoH1BossLich : CompositeActorBehavior
 		}
 
 		m_touchTimeC -= dt;
-		if (m_touchTimeC > 0)
+		// a stun (disarm: the Paladin's Pelor's Fury) stops the touch as it stops the skills
+		if (m_touchTimeC > 0 || m_buffs.Disarm())
 			return;
 		m_touchTimeC = m_touchTime;
 
@@ -310,6 +311,16 @@ class HoH1BossLichMovement : ActorMovement
 			return;
 		}
 
+		// held (a stun: the Paladin's Pelor's Fury): it stands solid, so it stays
+		// targetable as it does in a cast, instead of drifting untouchable through
+		// the stun. HoH1 had no stun to hold one
+		if (m_behavior.m_buffs.MoveSpeedMul() <= 0)
+		{
+			body.SetLinearVelocity(vec2());
+			body.SetStatic(true);
+			return;
+		}
+
 		SetUnitScene(m_walkAnim.GetSceneName(m_dir), false);
 		body.SetStatic(false);
 
@@ -329,7 +340,8 @@ class HoH1BossLichMovement : ActorMovement
 		if (m_node !is null)
 		{
 			vec2 dir = xy(normalize(m_node.Position - m_unit.GetPosition()));
-			body.SetLinearVelocity(dir * m_speed);
+			// the buffs' speed (a stun is 0), as HoH2's own movements take it
+			body.SetLinearVelocity(dir * m_speed * m_behavior.m_buffs.MoveSpeedMul());
 			m_dir = atan(dir.y, dir.x);
 		}
 	}
@@ -358,6 +370,13 @@ class HoH1BossLichRandomSkill : CompositeActorPeriodicTriggeredSkill
 
 	void Update(int dt, bool isCasting) override
 	{
+		// a disarm (a stun: the Paladin's Pelor's Fury) stops it as HoH1's disarm stops
+		// skills. HoH2 runs triggered skills through a disarm (phase changes, death
+		// reactions), so this one would cast again the frame the hold cut it
+		// (plan-generosity-hoh1 20261028-164709)
+		if (!isCasting && m_behavior.m_buffs.Disarm())
+			return;
+
 		vec2 pos = xy(m_unit.GetPosition());
 		if (m_maxRange != -1 && !isCasting && g_scene.FetchActorsWithOtherTeam(m_behavior.Team, pos, m_maxRange).length() == 0)
 			return;
@@ -388,6 +407,15 @@ class HoH1BossLichRandomSkill : CompositeActorPeriodicTriggeredSkill
 	{
 		m_meleeCooldownC = m_meleeCooldown;
 		CompositeActorPeriodicTriggeredSkill::Trigger(target);
+	}
+
+	// HoH2's triggered skills have no cancel: a stun's cut (the Paladin's Pelor's Fury) left
+	// the attack's wind-up running to its cast point through the hold (plan-generosity-hoh1
+	// 20261028-165541). Cut, it neither fires nor counts as casting
+	void CancelSkill() override
+	{
+		m_castPointC = 0;
+		m_animTimeC = 0;
 	}
 }
 
@@ -604,10 +632,14 @@ class HoH1BossVampireMovement : ActorMovement
 		if (m_nodeWaitTimeC > 0)
 			m_nodeWaitTimeC -= dt;
 
-		// standing: casting or resting at a node
-		if ((isCasting || m_nodeWaitTimeC > 0) && !Roaming())
+		// standing: casting, resting at a node, or held (a stun: the Paladin's
+		// Pelor's Fury, so it stays solid and targetable through the stun)
+		bool held = m_behavior.m_buffs.MoveSpeedMul() <= 0;
+		if (held)
+			body.SetLinearVelocity(vec2());
+		if (((isCasting || m_nodeWaitTimeC > 0) && !Roaming()) || held)
 		{
-			if (m_behavior.m_target is null)
+			if (m_behavior.m_target is null && !held)
 				return;
 			if (m_transformed)
 			{
@@ -646,7 +678,7 @@ class HoH1BossVampireMovement : ActorMovement
 		if (m_node !is null)
 		{
 			vec2 dir = xy(normalize(m_node.Position - m_unit.GetPosition()));
-			body.SetLinearVelocity(dir * (Roaming() ? m_speedRoam : m_speed));
+			body.SetLinearVelocity(dir * (Roaming() ? m_speedRoam : m_speed) * m_behavior.m_buffs.MoveSpeedMul());
 			m_dir = atan(dir.y, dir.x);
 		}
 	}
@@ -1064,5 +1096,35 @@ namespace WorldScript
 		}
 
 		void ClientExecute(SValue@ val) { ServerExecute(); }
+	}
+}
+
+// An actor whose colors pulse between the two "hoh1-colorize" colors at
+// "hoh1-colorize-speed" (HoH1's Battlemage; HoH1 named them "colorize", which
+// HoH2's CompositeActorBehavior reads itself, so the import renames them).
+class HoH1CompositeActorBehaviorColorized : CompositeActorBehavior
+{
+	float m_colorSpeed;
+	vec3 m_colorA;
+	vec3 m_colorB;
+
+	HoH1CompositeActorBehaviorColorized(UnitPtr unit, SValue& params)
+	{
+		super(unit, params);
+		m_colorSpeed = GetParamFloat(unit, params, "hoh1-colorize-speed", false, 1);
+		array<SValue@>@ colorArr = GetParamArray(unit, params, "hoh1-colorize", true);
+		if (colorArr !is null && colorArr.length() >= 2)
+		{
+			m_colorA = colorArr[0].GetVector3();
+			m_colorB = colorArr[1].GetVector3();
+		}
+	}
+
+	void Update(int dt) override
+	{
+		CompositeActorBehavior::Update(dt);
+		float xt = (sin(g_scene.GetTime() / 1000.0 * m_colorSpeed) + 1.0) / 2.0;
+		vec3 color = lerp(m_colorA, m_colorB, xt);
+		m_unit.SetMultiColor(0, xyzw(color * 0.1, 1), xyzw(color * 0.5, 1), xyzw(color * 2, 1), false);
 	}
 }

@@ -17,6 +17,15 @@ All three unlock with the same flag as the vanilla maps
 whether your character is eligible. The self-check verifies that every
 mission and every enemy scheme they reference is registered.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (host, host-synced; at once), or `hwp set`:
+
+- `maps.enabled` (on): off takes the three layouts out of the random picks
+  (`MissionDef.m_hidden`), so new map drops roll only the vanilla maps. A map
+  item already rolled keeps its mission and still plays; `hwp maps` says the
+  module is off.
+
 ## Test checklist
 
 1. `python -m gamelab run mod-maps --mode lab`: `[HWP:maps] self-check done: 3/3 missions, N/N schemes`.
@@ -24,3 +33,5 @@ mission and every enemy scheme they reference is registered.
 3. Use a few map drops (or the console's mission commands): the new names
    show up on the map item; each layout generates, has enemies and ends in
    its boss.
+4. `hwp set maps.enabled 0`: `hwp maps` says off; map drops show only Bandit
+   Keep, Ghostly Crypt and Spider Caves. `1` brings the three back.

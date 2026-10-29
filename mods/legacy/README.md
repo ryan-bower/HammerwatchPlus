@@ -35,6 +35,14 @@ module presents them the way HoH1 did; the bonuses themselves stay vanilla.
 
 - `hwp legacy` prints the bonuses and the classes without a hero.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (Quality of Life > Title bonuses):
+
+- **On/off** `legacy.enabled` (default on, each player's own). Off: no Title Bonuses icon
+  (gone within half a second) and the Guild Hall's Titles tab stays vanilla (from the next
+  time it opens). The bonuses themselves are vanilla hero titles and stay.
+
 ## Test checklist
 
 1. `python -m gamelab run mod-legacy --mode lab`: `[HWP:legacy] ready: 12 classes with a hero title`.

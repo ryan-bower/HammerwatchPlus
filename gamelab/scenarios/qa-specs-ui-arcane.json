@@ -3,7 +3,9 @@
   "about": "Controlled actual original sphere/native top-usable Use input/native menu callback acquisition and native widget text/quality/screenshots. No forced offers/RNG/orbs. Native compile and rendered visual review required; ordinary naturally dropped acquisition and trainer UI are separate.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

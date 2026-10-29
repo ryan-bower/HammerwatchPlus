@@ -3,7 +3,9 @@
   "about": "Standalone functional subset with only required modules. Native arena UI/start/NG+5 and controlled accelerated clock expiry/death without rank reward. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "wavemode"
   ],
   "timeout": 600,

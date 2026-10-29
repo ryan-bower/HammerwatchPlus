@@ -16,8 +16,22 @@ Sections:
   uncommon / rare fish, which is caught with its quality's modifiers (fishing s6).
 - gambler_sell: fish of 1/2/3 stars, crops and a worked fish at the Gambler: the Sell
   caption, gold for crops, tokens for fish, the token line, the worked fish kept (gambler s7).
-- rod_slot: a new character has no rod (an empty slot, and Cast at a coast spot refuses);
-  the character screen's rod slot and its tooltip, before and after a rod (fishing s13).
+- rod_slot: a new character starts with the Driftwood Rod; with the rod taken away (debug
+  `fishing rod 0`) the slot is empty and Cast at a coast spot refuses; the character
+  screen's rod slot and its tooltip, with the rod back and upgraded (fishing s13).
+- starter_rod: a fresh character's status shows the Driftwood Rod and the slot drawn, the
+  log says it was given, and the pirate's rod button prices Sturdy / Sea / Captain's at
+  1000 / 5000 / 25000 g, each purchase taking that gold (fishing s6).
+- keys: with the keys module, `fishing.key_chance 1000` makes every debug catch bring a
+  key; `key_tier 4` an ace key into the character's own keys; 20 rolled catches give 20
+  keys over the tiers; trap fish give keys on collection; `fishing_keys.sval` as parsed
+  (fishing s11).
+- keys_run: on a floor the host's debug catch drops a key pickup unit beside the player
+  and logs it (fishing s11).
+- personal_loot: a hole catch logs `loot for them alone, K drop(s)` and K new item units
+  lie near the player (fishing s13; the co-op half is the README's manual step 7).
+- smooth: a forced 3-star coast bite runs out; `hwp fishing smooth` reports its per-frame
+  marker motion: frames, stall share, coefficient of variation (fishing s12).
 - traps_run: three traps, a run at g_timescale 16 until 20+ game minutes, back to town: the
   rolls, the full-trap units and icon, walking up to one (fishing s9).
 - run_spot: a floor's fishing spot beside a well (run_chance 100): no bait, three casts
@@ -82,7 +96,8 @@ def fish_tier(item):
 class Checks(Base):
     # --- plumbing
     def fresh(self, name, rod=1):
-        """A new character; it starts without a rod, so this gives one (debug) unless rod=0."""
+        """A new character (it starts with the Driftwood Rod); rod=N sets its rod tier (debug),
+        rod=0 leaves the starter rod in place."""
         r = self.gl("char", "paladin", name)
         self.wait_phase("town", 60)
         time.sleep(2)
@@ -552,7 +567,11 @@ class Checks(Base):
     def rod_slot(self):
         self.fresh("LabRod", rod=0)
         self.hwp("fishing bait worm 7", 0.4, until="[HWP]")
-        # a new character has no rod: an empty slot (no icon) and no cast at a coast spot
+        # a new character starts with the Driftwood Rod (2026-10-25)
+        st = self.hwp("fishing", 0.4, until="rod slot: ")
+        self.flag("rod_starter_new_char", "rod slot: drawn" in st and ROD_NAMES[1] in st, st.strip()[-200:])
+        # taken away (debug): an empty slot (no icon) and no cast at a coast spot
+        self.hwp("fishing rod 0", 0.4, until="rod: ")
         st = self.hwp("fishing", 0.4, until="rod slot: ")
         self.flag("rod_slot_empty", "rod slot: empty" in st, st.strip()[-60:])
         self.flag("rod_none_new_char", "No fishing rod" in st, st.strip()[-200:])
@@ -570,7 +589,7 @@ class Checks(Base):
         self.flag("cast_needs_rod", "no rod" in log0 and "Worms 7" in worms, f"{log0!r} ({how})")
         self.close_windows()
         self.hwp("material gold 300000")
-        self.hwp("fishing buy rod", 0.5, until="[HWP]")
+        self.hwp("fishing buy rod", 0.5, until="[HWP]")  # from none: the Driftwood, free
         st = self.hwp("fishing", 0.4, until="rod slot: ")
         self.flag("rod_slot_drawn", "rod slot: drawn" in st and ROD_NAMES[1] in st, st.strip()[-200:])
         self.gl("menu", "character")
@@ -1017,6 +1036,223 @@ class Checks(Base):
         self.flag("stars_later_2star", len(f3) >= 10 and any(STARS[t] == 2 for t in f3) and all(t <= 3 for t in f3),
                   f"floor 3 tiers {f3}")
         self.flag("stars_boss_3star", len(f5) >= 5 and all(STARS[t] == 3 for t in f5), f"boss floor tiers {f5}")
+
+
+    # --- 2026-10-25: the starter rod and the rod prices
+    ROD_PRICES = {2: 1000, 3: 5000, 4: 25000}
+
+    def starter_rod(self):
+        mark = len(self.g.read_log())
+        self.fresh("LabStarter", rod=0)
+        log = self.g.read_log()[mark:]
+        self.flag("starter_rod_logged", "starts with the Driftwood Rod" in log,
+                  " / ".join(re.findall(r"\[HWP:fishing\] [^\n]*Driftwood[^\n]*", log))[-200:])
+        st = self.hwp("fishing", 0.4, until="rod slot: ")
+        self.flag("starter_rod_status", ROD_NAMES[1] in st and "rod slot: drawn" in st, st.strip()[-200:])
+        self.gl("menu", "character")
+        time.sleep(0.5)
+        texts, r = self.tooltip("hwp-gear-rod")
+        self.flag("starter_rod_tooltip", bool(texts) and ROD_NAMES[1] in texts[0], f"{texts} ({r.get('tooltip', r.get('error'))})")
+        self.close_windows()
+        # the pirate's rod button: the next rod and its price, bought three times
+        self.hwp("material gold 300000")
+        self.gl("use", "pirate_fisher")
+        time.sleep(0.8)
+        self.flag("starter_pirate_open", "Pirate" in self.window(), self.window())
+        for tier in (2, 3, 4):
+            cap = plain((self.gl("wcaption", "rod-btn").get("texts") or {}).get("rod-btn", ""))
+            g0 = self.gold()
+            self.gl("press", "rod-btn")
+            time.sleep(0.6)
+            g1 = self.gold()
+            self.flag(f"rod_price_t{tier}", ROD_NAMES[tier] in cap and f"{self.ROD_PRICES[tier]}g" in cap and g0 - g1 == self.ROD_PRICES[tier],
+                      f"caption {cap!r}, gold {g0} -> {g1}")
+        cap = plain((self.gl("wcaption", "rod-btn").get("texts") or {}).get("rod-btn", ""))
+        self.flag("rod_price_none_left", "Finest rod" in cap, cap)
+        self.close_windows()
+        st = self.hwp("fishing", 0.4, until="rod slot: ")
+        self.flag("starter_rod_captains", ROD_NAMES[4] in st, st.strip()[-200:])
+
+    # --- 2026-10-25: keys with a catch
+    def own_keys(self):
+        """The status line's own key counts: {bronze: n, ...}."""
+        st = self.hwp("fishing", 0.4, until="keys: bronze")
+        m = re.findall(r"keys: bronze (\d+), silver (\d+), gold (\d+), ace (\d+)", st)
+        if not m:
+            return {}
+        return dict(zip(("bronze", "silver", "gold", "ace"), (int(x) for x in m[-1])))
+
+    def keys(self):
+        self.fresh("LabKeys")
+        self.hwp("material gold 300000")
+        # the odds as the engine parsed them (tweak/hwp/fishing_keys.sval, no loader)
+        r = self.gl("sval", "tweak/hwp/fishing_keys.sval:keys")
+        data = {}
+        try:
+            data = json.loads(r.get("chunk") or "{}")
+        except Exception as e:
+            self.notes.append(f"keys: sval parse {e!r}")
+        chance, t4 = data.get("chance") or [], data.get("tier4") or []
+        self.flag("keys_sval_parsed", len(chance) == 4 and all(c > 0 for c in chance) and len(t4) == 4 and t4[3] > 0,
+                  f"chance {chance}, tier4 {t4} ({r.get('error', '')})")
+        odds = self.hwp("fishing keys", 0.4, until="fishing keys:")
+        self.flag("keys_odds_live", "fishing keys: on" in odds and "tier 4: 150/1000 (200/400/300/100)" in odds, odds.strip()[-300:])
+        k0 = self.own_keys()
+        self.flag("keys_status_counts", bool(k0), f"{k0}")
+        # every catch a key, forced ace: one debug catch -> one ace key of our own
+        self.hwp("set fishing.key_chance 1000")
+        self.hwp("set fishing.key_tier 4")
+        mark = len(self.g.read_log())
+        self.catch(4)
+        time.sleep(0.5)
+        k1 = self.own_keys()
+        log = self.g.read_log()[mark:]
+        self.flag("keys_ace_from_catch", k1.get("ace", 0) == k0.get("ace", 0) + 1
+                  and "key: a ace key with a tier 4" in log and "came up tangled" in log,
+                  f"{k0} -> {k1}; {' / '.join(re.findall(r'key: [^\n]*', log))[-200:]}")
+        # rolled tiers: 20 catches, 20 keys over the four tiers
+        self.hwp("set fishing.key_tier 0")
+        mark = len(self.g.read_log())
+        for _ in range(20):
+            self.catch(1)
+        time.sleep(0.5)
+        k2 = self.own_keys()
+        got = {k: k2.get(k, 0) - k1.get(k, 0) for k in k1}
+        lines = re.findall(r"key: a (\w+) key with a tier (\d)", self.g.read_log()[mark:])
+        self.flag("keys_every_catch", sum(got.values()) == 20 and len(lines) == 20 and got.get("bronze", 0) >= 10,
+                  f"gained {got}; logged {len(lines)}")
+        # traps: a filled trap's fish each roll a key on collection
+        self.hwp("fishing buy trap", 0.5)
+        self.hwp("fishing traps 60", 0.6, until="[HWP] Fish traps")
+        time.sleep(1.5)
+        st = self.hwp("fishing traps", 0.3, until="[HWP] Fish traps")
+        lists = re.findall(r"Fish traps \d+/\d+: (.*?)\. This run", st)
+        ids = (lists[-1].split(": ", 1)[-1] if lists else "-")
+        n_fish = 0 if ids == "-" else len(ids.split(","))
+        full = self.gl("near", 8000, TRAP_FULL).get("units") or []
+        mark = len(self.g.read_log())
+        if full:
+            # the walk-up (traps_walk), gl use as the fallback: the keys come either way
+            self.trap_approach(full[0])
+            self.p.use(full[0]["unit"], timeout=30)
+            time.sleep(1.2)
+            if self.trap_counts() and sum(self.trap_counts()) == n_fish:
+                self.gl("use", "fish_trap_full")
+                time.sleep(1.0)
+        k3 = self.own_keys()
+        trap_keys = re.findall(r"key: a \w+ key with a tier \d \w+ \(trap", self.g.read_log()[mark:])
+        self.flag("keys_from_trap", n_fish > 0 and len(trap_keys) == n_fish
+                  and sum(k3.values()) - sum(k2.values()) == n_fish, f"{n_fish} trap fish, {len(trap_keys)} key lines, {k2} -> {k3}")
+        # off: no key
+        self.hwp("set fishing.keys 0")
+        mark = len(self.g.read_log())
+        self.catch(1)
+        time.sleep(0.4)
+        k4 = self.own_keys()
+        self.flag("keys_off_none", k4 == k3 and "key: a" not in self.g.read_log()[mark:], f"{k3} -> {k4}")
+        self.hwp("set fishing.keys 1")
+        self.hwp("set fishing.key_chance -1")
+
+    def keys_run(self):
+        self.fresh("LabKeyRun")
+        self.hwp("set fishing.key_chance 1000")
+        self.hwp("set fishing.key_tier 3")
+        if not self.start_floor(0):
+            self.flag("keys_run_pickup", False, "no mission")
+            return
+        self.hwp("god")
+        self.gl("kill", 6000, "tag:enemy")
+        before = len(self.gl("near", 200, "items/hwp/keys/").get("units") or [])
+        mark = len(self.g.read_log())
+        self.catch(2)
+        time.sleep(1.0)
+        units = self.gl("near", 200, "items/hwp/keys/").get("units") or []
+        gold = [u for u in units if "key_gold" in u.get("name", "")]
+        log = self.g.read_log()[mark:]
+        self.flag("keys_run_pickup", len(units) == before + 1 and len(gold) == 1 and "key: a gold key with a tier 2 catch" in log,
+                  f"{before} -> {len(units)} key units ({[u.get('name', '').split('/')[-1] for u in units]}); {' / '.join(re.findall(r'key: [^\n]*', log))[-200:]}")
+        self.hwp("set fishing.key_chance -1")
+        self.hwp("set fishing.key_tier 0")
+        self.to_town()
+
+    # --- 2026-10-25: a hole's loot is the fisher's alone
+    def personal_loot(self):
+        self.fresh("LabLoot")
+        self.hwp("set fishing.run_chance 100")
+        self.hwp("set fishing.keys 0")
+        spot = None
+        for fl in (1, 3):
+            mark = len(self.g.read_log())
+            if not self.start_floor(fl):
+                continue
+            end = time.time() + 10
+            while time.time() < end and "run spot in a well" not in self.g.read_log()[mark:]:
+                time.sleep(0.5)
+            if re.findall(RUN_SPOT, self.g.read_log()[mark:]):
+                spot = fl
+                break
+            self.to_town()
+        self.hwp("set fishing.run_chance 30")
+        self.flag("loot_spot_placed", spot is not None, f"floor {spot}")
+        if spot is None:
+            self.hwp("set fishing.keys 1")
+            return
+        self.hwp("god")
+        self.gl("kill", 6000, "tag:enemy")
+        self.hwp("set fishing.bite_min 300")
+        self.hwp("set fishing.bite_max 600")
+        u, how = self.open_spot("fishing_hole_well")
+        loot0 = {x["unit"] for x in self.gl("near", 150, "items/").get("units") or []}
+        mark = len(self.g.read_log())
+        ev = self.reel(1)
+        time.sleep(1.0)
+        log = self.g.read_log()[mark:]
+        m = re.findall(r"caught tier (\d) \(\d+ casts left\): loot for them alone, (\d+) drop\(s\)", log)
+        loot1 = {x["unit"] for x in self.gl("near", 150, "items/").get("units") or []}
+        # loot_fishing.sval: pools per tier (every pool rolls one entry)
+        pools = {1: 2, 2: 3, 3: 2, 4: 3}
+        tier, drops = (int(m[-1][0]), int(m[-1][1])) if m else (0, -1)
+        self.flag("loot_for_catcher_logged", bool(m) and drops == pools.get(tier), f"{m[-1:]}, reel {ev.get('result')}, {how}")
+        # a material pool is one shared pile, a unit pool one pickup, gear one owned item: one unit each
+        self.flag("loot_units_match", bool(m) and len(loot1 - loot0) == drops, f"{len(loot1 - loot0)} new item units for {drops} drops")
+        self.gl("press", "close-btn")
+        time.sleep(0.5)
+        self.hwp("set fishing.bite_min 800")
+        self.hwp("set fishing.bite_max 3000")
+        self.hwp("set fishing.keys 1")
+        self.to_town()
+
+    # --- 2026-10-25: the marker's motion per frame
+    def smooth(self):
+        self.fresh("LabSmooth")
+        self.hwp("fishing bait squid 5", 0.4, until="[HWP]")
+        self.hwp("fishing tier 4", 0.4, until="next coast bites")
+        self.hwp("set fishing.bite_min 200")
+        self.hwp("set fishing.bite_max 300")
+        _, how = self.open_spot("doodads/hwp/fishing_spot.unit")
+        self.flag("smooth_window", "FishingMenu" in self.window(), how)
+        mark = len(self.g.read_log())
+        self.gl("press", "cast-btn")
+        time.sleep(3.6)  # the bite within 0.3 s, then the 2.5 s window runs out
+        log0 = plain(self.widget("log").get("text", ""))
+        self.close_windows()
+        rep = self.hwp("fishing smooth", 0.4, until="smooth:")
+        m = re.findall(r"smooth: tier (\d), (\d+) frames over (\d+) ticks, mean ([\d.]+) px/frame, cv ([\d.]+), stalls (\d+)%, max ([\d.]+) px, (\d+) frames with idt 0", rep)
+        if not m:
+            self.flag("smooth_measured", False, rep.strip()[-200:])
+            return
+        tier, frames, ticks, mean, cv, stalls, mx, zero = m[-1]
+        frames, ticks, mean, cv, stalls, zero = int(frames), int(ticks), float(mean), float(cv), int(stalls), int(zero)
+        note = f"tier {tier}, {frames} frames / {ticks} ticks, mean {mean}, cv {cv}, stalls {stalls}%, max {mx}, idt0 {zero}; {log0!r}"
+        self.flag("smooth_measured", tier == "4" and frames >= 20 and ticks >= 20 and "got away" in log0, note)
+        self.flag("smooth_no_stalls", stalls <= 25, note)
+        self.flag("smooth_even_steps", cv <= 0.5, note)
+        self.notes.append("smooth: frames per tick " + (f"{frames / ticks:.2f}" if ticks else "?")
+                          + " (the lab draws about one frame a tick; the bound bites where frames outnumber ticks)")
+        self.flag("smooth_logged", bool(re.findall(r"\[HWP:fishing\] smooth: tier 4", self.g.read_log()[mark:])))
+        self.hwp("fishing tier 0", 0.4)
+        self.hwp("set fishing.bite_min 800")
+        self.hwp("set fishing.bite_max 3000")
 
 
 def run(p, sections="fish_sword,fish_enchant,rod_slot", **_):

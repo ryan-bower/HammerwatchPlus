@@ -1,0 +1,28 @@
+<loader>Item::Trinket::LoadMultiple</loader>
+<!-- Rabbit's Foot: +10 Luck, +20 attuned (scripts/HWP/Core/Luck.as). An uncommon trinket,
+     so trinket chests, shops and Item::GetRandomTrinket roll it like any other uncommon
+     one. Icon: the apothecary's flask's cell for now. -->
+<array>
+	<dict>
+		<string name="id">hwp_trinket_rabbit_foot</string>
+		<string name="name">.hwp.luck.trinket.name</string>
+		<string name="quality">uncommon</string>
+		<int name="price">750</int>
+
+		<a name="icon"><s>items/icons_trinkets.png</s><i>100</i><vec4>128 80 16 16</vec4></a>
+
+		<string name="desc">.hwp.luck.trinket.desc?amnt=10</string>
+		<dict name="modifier">
+			<string name="class">Modifiers::CustomStat</string>
+			<string name="name">hwp-luck</string>
+			<float name="add">10</float>
+		</dict>
+
+		<string name="attune-desc">.hwp.luck.trinket.desc?amnt=20</string>
+		<dict name="attune-modifier">
+			<string name="class">Modifiers::CustomStat</string>
+			<string name="name">hwp-luck</string>
+			<float name="add">20</float>
+		</dict>
+	</dict>
+</array>

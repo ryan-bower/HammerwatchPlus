@@ -1,0 +1,136 @@
+{
+ "name": "pf-fix-objectives",
+ "about": "fix-objectives against the built package dungeon instead of the mods' source folders (tools/make_package_scenarios.py). Floor objectives (bugs 10.22.26 line 46, mods/objectives): with objectives.vaults 1 and objectives.exit on, a generated keep floor gets one loot vault (a sealed room with two chests and a nav-blocking door) whose lever sits elsewhere on the floor, and an exit switch; the floor's exit areas are disabled until it is pressed and the HUD says so. The generator logs every placement; the bot reads the positions back, proves the vault is closed (no path in) and the exits disabled, uses the vault lever (door opens, a path in, Vaults 1/1), uses the exit lever (exits enabled, 'The way down is open', then the line clears) and checks hwp objectives. Mods core + objectives. About 4 minutes.",
+ "fixture": "mission-ranger",
+ "timeout": 540,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:objectives\\] generator command on [1-9]\\d* indoor floor\\(s\\)",
+   "timeout": 20,
+   "name": "the module hooked the indoor dungeon generators"
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp set objectives.vaults 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp set objectives.exit 1"
+  },
+  {
+   "do": "retry",
+   "times": 3,
+   "timeout": 10,
+   "until": "\\[HWP:objectives\\] vault 0 at cell \\d+,\\d+ of \\d+x\\d+, corridor \\d+, world -?\\d+,-?\\d+ \\d+x\\d+, door -?\\d+,-?\\d+, switch -?\\d+,-?\\d+",
+   "name": "a generated keep floor placed a vault with its switch",
+   "steps": [
+    {
+     "do": "gl",
+     "verb": "mission",
+     "args": [
+      "bandit_keep",
+      0
+     ],
+     "expect": {
+      "ok": true
+     }
+    },
+    {
+     "do": "wait_phase",
+     "phase": "mission",
+     "timeout": 150
+    },
+    {
+     "do": "sleep",
+     "seconds": 2
+    }
+   ]
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:objectives\\] exit switch at cell \\d+,\\d+ world -?\\d+,-?\\d+",
+   "timeout": 5,
+   "name": "the generator placed the exit switch"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:objectives\\] placed 1 vault\\(s\\), exit switch yes",
+   "timeout": 5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:objectives\\] exits sealed: [1-9]\\d* \\(switch at -?\\d+,-?\\d+\\)",
+   "timeout": 10,
+   "name": "the host disabled the floor's exit areas at start"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:objectives\\] start: 1 vault\\(s\\), exit switch sealed, [1-9]\\d* door unit\\(s\\), [2-9]\\d* switch unit\\(s\\)",
+   "timeout": 10,
+   "name": "the door and both lever units constructed on this floor"
+  },
+  {
+   "do": "console",
+   "line": "hwp god"
+  },
+  {
+   "do": "shot",
+   "name": "floor-start-hud"
+  },
+  {
+   "do": "bot",
+   "bot": "fix_objectives",
+   "expect": {
+    "vault_logged": true,
+    "exit_switch_logged": true,
+    "vault_has_switch": true,
+    "vault_sealed_blocks_walk": true,
+    "vault_two_chests": true,
+    "exits_present": true,
+    "exits_sealed": true,
+    "hud_exit_find": true,
+    "hud_vaults_0_of_1": true,
+    "vault_switch_used": true,
+    "vault_opened_logged": true,
+    "vault_units_found": true,
+    "vault_open_walk_in": true,
+    "hud_vaults_1_of_1": true,
+    "vault_switch_spent": true,
+    "exit_switch_used": true,
+    "exit_opened_logged": true,
+    "exits_open_logged": true,
+    "exits_enabled": true,
+    "hud_exit_open": true,
+    "hud_exit_line_clears": true,
+    "status_reply": true
+   }
+  },
+  {
+   "do": "shot",
+   "name": "after-switches"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:objectives\\] (prefab defs missing|vault \\d+: no 3x3 floor block|exit switch used at|vault switch used at)",
+   "name": "no objectives error lines"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "dungeon"
+ ]
+}

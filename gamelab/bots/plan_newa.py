@@ -1,5 +1,5 @@
 """Test-plan checks for three features that had no plan steps yet: the stash Sort button
-(mods/stash), the search field on the HammerwatchPlus options tab (mods/core) and the
+(mods/stash), the search field on the HammerwatchPlus options tab (mods/hwplib) and the
 General Merchant's Trinkets tab (mods/keys). Same style as plan_checks: each section flags
 booleans, the scenario's expect asserts them, measured values go in the notes.
 

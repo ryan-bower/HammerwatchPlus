@@ -1,0 +1,14 @@
+{
+ "name": "mod-tavern",
+ "about": "The six-level tavern (mods/tavern: tweak/town/buildings/tavern.sval with levels 4-6 on tavern_tier_3.pfb, Missions/MissionFoods.as with a food list) through the fix_tavern bot: the food and drink picker reads Food n/1 and Drinks n/1 at level 1, n/1 and n/4 at level 4, n/2 and n/4 at level 5, n/3 and n/5 at level 6 (gl buildup); at level 6 four foods and six drinks picked leave 3 and 5 (the oldest drops) and 8 icons; the picks come back when the loadout reopens; the started run holds 3 foods and 5 drinks as mission buffs (gl run). Shots: tavern-picker, tavern-loadout.",
+ "fixture": "town-paladin",
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "tavern"],
+ "timeout": 360,
+ "steps": [
+  {"do": "console", "line": "e_cheats 1"},
+  {"do": "bot", "bot": "fix_tavern", "kwargs": {"sections": "tavern"}, "name": "six-level tavern",
+   "expect": {"tv_town": true, "tv_built": true, "tv_levels": true, "tv_slots": true, "tv_sval_six": true,
+              "tv_full_pick": true, "tv_picks_kept": true, "tv_run_buffs": true}},
+  {"do": "log_clean"}
+ ]
+}

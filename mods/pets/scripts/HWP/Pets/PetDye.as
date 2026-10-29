@@ -46,8 +46,7 @@ namespace HWP
 			return null;
 		}
 
-		// the vanilla pet (a MiniPet our pet units make) the record has out, or "":
-		// external pets like the Gold Collector make their own units and are not dyed
+		// the vanilla pet (a MiniPet our pet units make) the record has out, or ""
 		string DyeablePetId(PlayerRecord@ rec)
 		{
 			if (rec is null || rec.pet is null || rec.pet.m_unit is null)
@@ -181,6 +180,10 @@ namespace HWP
 		{
 			if (pet is null || owner is null || !pet.m_unit.IsValid())
 				return false;
+			// pets.enabled off: the plain, undyed pet (a dye-ready copy swaps back); the
+			// dyes stay in the save data
+			if (!HWP::Pets::g_enabled)
+				return !variant.isEmpty() && Swap(pet, owner, petId, "", options);
 			auto rec = owner.m_record;
 			if (TwoParts(petId))
 			{

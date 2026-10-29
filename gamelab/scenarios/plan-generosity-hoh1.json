@@ -1,0 +1,19 @@
+{
+ "name": "plan-generosity-hoh1",
+ "needs_hoh1": true,
+ "about": "Pelor's Fury on the HoH1 tower's bosses (plan_generosity bot, section hoh1): each boss floor of hwp_forsaken_tower_hoh1 loaded and its fight started the way the HoH1 level does, then a god-mode Paladin of Generosity's Fury through the skill's own Activate on every boss unit: held, or (a boss that cannot be targeted or buffed then, by design) refused with the stacks, mana and cooldown kept; while held no skill of the boss but a triggered or aura one is casting and it stays put; armor and resistances 0; the 60 s boss cooldown; 4 beams or more; no script error. Needs the HoH1 import. kwargs only: a comma list of boss levels (boss_mines, ...).",
+ "fixture": "town-paladin",
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs", "campaign", "gamelab-it-campaign"],
+ "timeout": 1500,
+ "steps": [
+  {"do": "log_has", "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered", "timeout": 30},
+  {"do": "console", "line": "e_cheats 1"},
+  {"do": "console", "line": "show_chat"},
+  {"do": "sleep", "seconds": 1},
+  {"do": "bot", "bot": "plan_generosity", "kwargs": {"sections": "hoh1"}, "name": "hoh1 bosses",
+   "expect": {"h1_char": true, "h1_learned": true, "hoh1_floors": true, "hoh1_spawned": true, "hoh1_held_most": true, "hoh1_refused_by_design": true,
+              "hoh1_refusal_keeps": true, "hoh1_attack_cut": true, "hoh1_stays": true, "hoh1_cooldown_60": true, "hoh1_spent": true,
+              "hoh1_armor_0": true, "hoh1_beams": true, "hoh1_no_errors": true}},
+  {"do": "log_clean"}
+ ]
+}
