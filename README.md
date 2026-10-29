@@ -103,7 +103,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | `droptrade` | Drop equipment on the ground for friends: a Drop button (Q) next to Destroy in the inventory. The use key picks up a dropped item before it talks to an NPC or opens a shop, chest or shrine underfoot. |
 | `orbwarn` | The orb picker says which orbs a pick would make unavailable (mutually exclusive orbs such as the Firearms grenades), with their icons and names. |
 | `deathrecap` | Who killed you: the top damage sources of the last 10 s, on screen and in chat. After a boss falls, a boss-fight recap of everyone's damage by skill and damage taken. |
-| `bufftips` | Hover a buff icon to see what it does and how many seconds it has left. |
+| `bufftips` | Hover a buff icon to see what it does and how many seconds it has left. Class buffs the game leaves off the buff bar, like War Cry, get an icon. |
 | `chatlinks` | Linked items stay in chat with their slot and item level; `hwp link` links an equipped item. |
 | `colors` | Colour-blind and high-contrast tints for enemy and friendly projectiles (player menu > Plus tab), and each player in their own colour on the minimap and the overlay map, with names for players far away. |
 | `goldworth` | Gold on the floor shows what it is worth: 15 coin and pile looks, from a bronze coin to a big pile of gold. |
@@ -168,6 +168,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 
 ## Status
+
+2026-10-29, War Cry shows on the buff bar (#28). The game gives almost none of the class
+skills' buffs an icon, so War Cry, Power Surge, Hot Pursuit and others worked but never
+showed. The buff tooltips mod (`bufftips`) now gives 13 of them an icon cut from the skill's
+own art, with a name and a short description for the tooltip. A setting turns it off.
+Untried in co-op: an ally hit by War Cry should see it on their own bar too.
 
 2026-10-28, the Forsaken Tower from HoH1 itself (`campaign`, "HoH1 tower" in its README).
 With HoH1 installed, the import builds HoH1's tower from the player's own install: 23 floors,
