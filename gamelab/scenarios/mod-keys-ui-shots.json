@@ -1,0 +1,1161 @@
+{
+ "name": "mod-keys-ui-shots",
+ "about": "Screenshots, at 1920x1080, of every UI change in PR #25 (issue #19): the Plus tab key rows, the capture prompt and the one-press bind, US names on AZERTY, the shared-key hint, a long name shown short, search on the full name, the Dev Arena hotkey rows, the Game keys group and a rebound game key, the weapon swap HUD tip and other-set slots, droptrade's Drop and Eat hints, the Skill 4-5 HUD badges (a Trickster) and the Dev Arena dock's key labels. Evidence for the eye: few assertions; mod-keys-layout and mod-keys-play are the tests.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "weaponswap",
+  "droptrade",
+  "fishing",
+  "classes",
+  "devarena"
+ ],
+ "shim_input": true,
+ "writes_controls": true,
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "args": [],
+   "expect": {
+    "phase": "town"
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "da-res",
+   "args": [
+    "1920x1080"
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "01_plus_tab_default",
+   "size": "1920x1080"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey",
+    "hwp-opt",
+    "swapkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "02_capture_prompt",
+   "size": "1920x1080"
+  },
+  {
+   "do": "key",
+   "key": "q",
+   "hold": 0.2,
+   "typed": "a"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:options\\] swapkey key set to 20 \\(Q\\)",
+   "timeout": 5
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "03_bound_one_press",
+   "size": "1920x1080"
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "04_us_names",
+   "size": "1920x1080"
+  },
+  {
+   "do": "gl",
+   "verb": "hover",
+   "args": [
+    "hwp-opt-swapkey",
+    1
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "05_shared_key_hint",
+   "size": "1920x1080"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey",
+    "hwp-opt",
+    "swapkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "scrolllock",
+   "hold": 0.2
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "06_long_key_name",
+   "size": "1920x1080"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "search",
+    "!click"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "text",
+   "text": "scroll"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "07_search_full_name",
+   "size": "1920x1080"
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-devarena-pause"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "08_devarena_rows",
+   "size": "1920x1080"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-pkg-gamekeys",
+    "hwp-open",
+    "gamekeys"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-move-up"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "09_game_keys_open",
+   "size": "1920x1080"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-skill1",
+    "hwp-opt",
+    "game-skill1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "t",
+   "hold": 0.2,
+   "typed": "t"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "search",
+    "!click"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "text",
+   "text": "skill 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "10_game_key_rebound",
+   "size": "1920x1080"
+  },
+  {
+   "do": "gl",
+   "verb": "hover",
+   "args": [
+    "hwp-opt-game-skill1",
+    1
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "11_game_key_hint",
+   "size": "1920x1080"
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey",
+    "hwp-opt",
+    "swapkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "t",
+   "hold": 0.2
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-dropkey",
+    "hwp-opt",
+    "dropkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "t",
+   "hold": 0.2
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-actionkey",
+    "hwp-opt",
+    "actionkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "t",
+   "hold": 0.2
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "search",
+    "!click"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "text",
+   "text": "skill 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "hover",
+   "args": [
+    "hwp-opt-game-skill1",
+    1
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "11b_game_key_hint_longest",
+   "size": "1920x1080"
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-dropkey",
+    "hwp-opt",
+    "dropkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "q",
+   "hold": 0.2
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-actionkey",
+    "hwp-opt",
+    "actionkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "e",
+   "hold": 0.2,
+   "typed": "e"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-pkg-gamekeys",
+    "hwp-close",
+    "gamekeys"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey",
+    "hwp-opt",
+    "swapkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "x",
+   "hold": 0.2,
+   "typed": "x"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "console",
+   "line": "hwp swap now"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "14_weaponswap_hud_tip",
+   "size": "1920x1080"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character",
+    "equipment-inventory"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "hover",
+   "args": [
+    "hwp-alt-main"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "15_weaponswap_alt_slots",
+   "size": "1920x1080"
+  },
+  {
+   "do": "console",
+   "line": "hwp swap now"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "gl",
+   "verb": "equip",
+   "args": [
+    "mainhand_longsword_01",
+    "common",
+    1
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "console",
+   "line": "hwp set fishing.debug 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp fishing catch 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "gl",
+   "verb": "bagitems",
+   "args": [],
+   "save_as": "bag"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character",
+    "equipment-inventory"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "hover",
+   "args": [
+    "equipment-inventory",
+    0
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "16_droptrade_drop_hint",
+   "size": "1920x1080"
+  },
+  {
+   "do": "gl",
+   "verb": "hover",
+   "args": [
+    "equipment-inventory",
+    1
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "17_droptrade_action_hint",
+   "size": "1920x1080"
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "gl",
+   "verb": "char",
+   "args": [
+    "hwp_thief",
+    "LabThief"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "wait_phase",
+   "phase": "town",
+   "timeout": 90
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "da-res",
+   "args": [
+    "1920x1080"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp levelup 20"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "gl",
+   "verb": "subclass",
+   "args": [
+    "hwp_thief_trickster"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "console",
+   "line": "hwp skillpoints 30"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "skill",
+   "args": [
+    "hwp_thief_slice",
+    1
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "skill",
+   "args": [
+    "hwp_thief_caltrops",
+    1
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "skillbar",
+   "args": [],
+   "save_as": "skillbar"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "18_skill_badges_town",
+   "size": "1920x1080"
+  },
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "da-res",
+   "args": [
+    "1920x1080"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "19_skill_badges_mission",
+   "size": "1920x1080"
+  },
+  {
+   "do": "key",
+   "key": "f1",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "da-dock",
+   "args": [
+    "tab-"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "20_dock_tune",
+   "size": "1920x1080"
+  },
+  {
+   "do": "click",
+   "dock": "tab-arena",
+   "verify": false
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "21_dock_arena",
+   "size": "1920x1080"
+  },
+  {
+   "do": "click",
+   "dock": "tab-golem",
+   "verify": false
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "22_dock_golem",
+   "size": "1920x1080"
+  },
+  {
+   "do": "key",
+   "key": "f1",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "gl",
+   "verb": "da-res",
+   "args": [
+    "640x360"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

@@ -170,6 +170,9 @@ class Run:
         # "transport": "console" (the console-* measurement scenarios only): every line typed
         # into the console, exempt from check_console
         game.transport = self.scenario.get("transport", game.transport)
+        # "shim_input": true: keys through the shim's mailslot in lab mode too (a key step's
+        # "typed" needs it: a posted WM_KEYDOWN gets its character from the machine's layout)
+        game.want_shim = bool(self.scenario.get("shim_input"))
         self.game = game
         game.start()
         try:
@@ -946,7 +949,9 @@ class Run:
             while game.alive() and time.time() < end:
                 time.sleep(1)
         elif kind == "key":
-            game.key(s["key"], s.get("hold", 0.05))
+            # "typed": the character this key types, as on another keyboard layout (the key
+            # at "q" typing "a" on AZERTY): SDL then reports the position and the character
+            game.key(s["key"], s.get("hold", 0.05), typed=s.get("typed"))
         elif kind == "mouse":
             # posted mouse messages, a player's hand: "at" is a client fraction [fx, fy];
             # "button" left|right|middle|x1|x2 presses there for "hold" s, absent only moves
@@ -1018,6 +1023,11 @@ class Run:
         self.plan = None
         try:
             write_plan([])                     # a fixture build must not run a plan left behind
+            # "writes_controls": true: the run rebinds the game's keys, which the game saves to
+            # GameLab's res/controls.cfg (env.RES_OWN, kept across runs): journalled here, put
+            # back (or removed again) when the run ends, so later runs get the default binds
+            if self.scenario.get("writes_controls"):
+                remember_written(self.results, env.GAME / "res" / "controls.cfg")
             if "plan" in self.scenario:
                 bad = sorted({st["do"] for st in self.scenario["steps"]} - PLAN_STEP_KINDS)
                 if bad:

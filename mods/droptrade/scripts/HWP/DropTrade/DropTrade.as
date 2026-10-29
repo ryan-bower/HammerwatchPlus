@@ -1,7 +1,9 @@
 // Drop key for the inventory: with an inventory item hovered in the player
 // menu, the key (default Q, SDL scancode 20) drops it at your feet, next to
 // vanilla Destroy. The menu's own bindings have no free action for it, so
-// the key is polled raw like the weapon swap key.
+// the key is polled raw like the weapon swap key. The item action key (Eat,
+// default E, scancode 8) the same way. Both are rebound in the Plus tab
+// (dropkey, actionkey) and named as on a US keyboard.
 //
 // droptrade.enabled (host, default on) off: no Drop hint or key, and the use key
 // is vanilla again (no pickup first); an item action (Eat) keeps working.
@@ -14,7 +16,6 @@ namespace HWP
 
 		PlayerMenuCharacterTab@ g_tab;
 		int g_scancode = DEFAULT_SCANCODE;
-		string g_keyName = "Q";
 		bool g_wasDown = false;
 		bool g_enabled = true;
 		bool g_pickupFirst = true;
@@ -22,7 +23,17 @@ namespace HWP
 		void LoadKey()
 		{
 			g_scancode = HWP::Settings::GetInt("droptrade.key", DEFAULT_SCANCODE);
-			g_keyName = HWP::Settings::GetString("droptrade.keyname", HWP::Options::KeyName(g_scancode));
+			g_actionScancode = HWP::Settings::GetInt("droptrade.actionkey", DEFAULT_ACTION_SCANCODE);
+		}
+
+		// the drop key's name (US keycap); `hwp dropkey <code> <name>` can name it by hand
+		// fit: the short name when the full one is too long for the options value column
+		string KeyName(bool fit = false)
+		{
+			string name = HWP::Settings::GetString("droptrade.keyname", "");
+			if (!name.isEmpty())
+				return HWP::Options::Escape(name);
+			return fit ? HWP::Options::FitKeyName(g_scancode) : HWP::Options::KeyName(g_scancode);
 		}
 
 		void RefreshSettings()
@@ -45,7 +56,7 @@ namespace HWP
 		{
 			string Title() override { return Resources::GetString(".hwp.droptrade.option"); }
 			int Scancode() override { return g_scancode; }
-			string Value() override { return g_keyName; }
+			string Value() override { return KeyName(true); }
 			void SetScancode(int scancode) override
 			{
 				if (scancode == DEFAULT_SCANCODE)
@@ -61,7 +72,7 @@ namespace HWP
 
 		string NavText()
 		{
-			return "[" + g_keyName + "] " + Resources::GetString(".hwp.droptrade.drop");
+			return "[" + KeyName() + "] " + Resources::GetString(".hwp.droptrade.drop");
 		}
 
 		// the item action key (core ItemActions: Eat on a fish), default E
@@ -69,10 +80,56 @@ namespace HWP
 		int g_actionScancode = DEFAULT_ACTION_SCANCODE;
 		bool g_actionWasDown = false;
 
+		class ActionKeyOption : HWP::Options::KeyOption
+		{
+			string Title() override { return Resources::GetString(".hwp.droptrade.action_option"); }
+			int Scancode() override { return g_actionScancode; }
+			void SetScancode(int scancode) override
+			{
+				if (scancode == DEFAULT_ACTION_SCANCODE)
+					HWP::Settings::Reset("droptrade.actionkey");
+				else
+					HWP::Settings::SetInt("droptrade.actionkey", scancode);
+				LoadKey();
+				// the new key is held right now (just pressed to bind it): no action
+				g_actionWasDown = true;
+			}
+		}
+
 		string ActionNavText(Equipment::Equipment@ item)
 		{
 			string label = HWP::ItemActions::Label(item);
-			return label == "" ? "" : "[E] " + label;
+			return label == "" ? "" : "[" + HWP::Options::KeyName(g_actionScancode) + "] " + label;
+		}
+
+		// the hint bar kept on screen: vanilla centres it under the window, and the player
+		// menu sits at the right edge, so a bag item's bar (Destroy, then Drop and an item
+		// action) ran off it and hid the action's hint
+		class FitNavBar : KeyNavigationBar
+		{
+			FitNavBar(AWindowObject@ windowObject) { super(windowObject); }
+
+			void Draw(SpriteBatch& sb, vec2 pos, int width) override
+			{
+				int maxWidth = max(width, GetWidth());
+				int left = int(pos.x) - int(maxWidth * 0.5f);
+				int hi = max(2, int(g_gameMode.m_wndWidth) - 2 - maxWidth);
+				int fit = left < 2 ? 2 : (left > hi ? hi : left);
+				KeyNavigationBar::Draw(sb, pos + vec2(fit - left, 0), width);
+			}
+		}
+
+		// the window's hint bar as a FitNavBar, its texts kept (once per window)
+		void FitBar(AWindowObject@ host)
+		{
+			if (host is null || host.m_navigationBar is null || cast<FitNavBar>(host.m_navigationBar) !is null)
+				return;
+			FitNavBar@ bar = FitNavBar(host);
+			for (uint i = 0; i < bar.m_texts.length(); i++)
+				bar.m_texts[i].m_text.Cleanup();
+			bar.m_texts = host.m_navigationBar.m_texts;
+			bar.m_visible = host.m_navigationBar.m_visible;
+			@host.m_navigationBar = bar;
 		}
 
 		void MakeButton(KeyNavigationText@ text, WindowInput::OnFunc@ func)
@@ -130,10 +187,13 @@ namespace HWP
 					return;
 				}
 				HWP::Settings::SetInt("droptrade.key", code);
-				HWP::Settings::SetString("droptrade.keyname", args.length() >= 2 ? args[1].toUpper() : "key " + code);
+				if (args.length() >= 2)
+					HWP::Settings::SetString("droptrade.keyname", args[1].toUpper());
+				else
+					HWP::Settings::Reset("droptrade.keyname");
 				LoadKey();
 			}
-			HWP::Commands::Reply(Resources::GetString(".hwp.droptrade.key", { { "code", "" + g_scancode }, { "name", g_keyName } }));
+			HWP::Commands::Reply(Resources::GetString(".hwp.droptrade.key", { { "code", "" + g_scancode }, { "name", KeyName() } }));
 		}
 	}
 }
@@ -147,6 +207,7 @@ namespace Modules
 			super("hwp-droptrade");
 			HWP::Commands::Register("dropkey", "[scancode [name]]  show or set the inventory drop key", HWP::Commands::Handler(HWP::DropTrade::CmdDropKey));
 			HWP::Options::Register("dropkey", HWP::DropTrade::DropKeyOption());
+			HWP::Options::Register("actionkey", HWP::DropTrade::ActionKeyOption());
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::DropTrade::OnSettingChanged));
 			HWP::Log("droptrade", "menu destroy key " + FormatKeyName(GetActionBinding("MenuAdditional")));
 		}

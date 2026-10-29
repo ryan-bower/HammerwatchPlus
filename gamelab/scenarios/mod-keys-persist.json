@@ -1,0 +1,563 @@
+{
+ "name": "mod-keys-persist",
+ "about": "Rebinds survive quitting the game. In town, the Plus tab rebinds skill 1 to U, dash to J and the weapon swap mod key to Scroll Lock; the game logs 'Saved control bindings'. The run quits (WM_CLOSE, the game saves) and boots a new process: the log shows controls.cfg loaded instead of controls_default.cfg, every kbm binding matches the one before, the rows read U, J and ScrL, and in a mission U uses skill 1 and J dashes while the old 1 and Space do nothing. controls.cfg is GameLab's own and is put back after the run (writes_controls). Run: python -m gamelab run mod-keys-persist --mode lab.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "weaponswap",
+  "devarena"
+ ],
+ "writes_controls": true,
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "Loading control bindings from 'res/controls_default\\.cfg'",
+   "timeout": 5,
+   "name": "first boot: defaults loaded"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "Loading control bindings from 'res/controls\\.cfg'",
+   "name": "first boot: no controls.cfg (no stale binds from an earlier run)"
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "args": [],
+   "expect": {
+    "phase": "town"
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-pkg-gamekeys",
+    "hwp-open",
+    "gamekeys"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-skill1",
+    "hwp-opt",
+    "game-skill1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "u",
+   "hold": 0.2
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:gamekeys\\] Skill1 bound to 24 \\(U\\)",
+   "timeout": 5,
+   "name": "skill 1 rebound to U"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-dash",
+    "hwp-opt",
+    "game-dash"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "j",
+   "hold": 0.2
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:gamekeys\\] Dash bound to 13 \\(J\\)",
+   "timeout": 5,
+   "name": "dash rebound to J"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey",
+    "hwp-opt",
+    "swapkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "scrolllock",
+   "hold": 0.2
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "Saved control bindings to 'res/controls.cfg'",
+   "timeout": 5,
+   "name": "the game wrote controls.cfg"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey"
+   ],
+   "name": "swap key on ScrL before the restart",
+   "expect": {
+    "shown": true,
+    "texts": {
+     "match": "\\| ScrL$"
+    }
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "controls",
+   "args": [],
+   "save_as": "before",
+   "expect": {
+    "ok": true,
+    "map": "kbm",
+    "truncated": false
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "restart"
+  },
+  {
+   "do": "log_has",
+   "pattern": "Loading control bindings from 'res/controls\\.cfg'",
+   "timeout": 10,
+   "name": "after the restart the game loads the saved controls.cfg"
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "args": [],
+   "expect": {
+    "phase": "town"
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "controls",
+   "args": [],
+   "save_as": "after",
+   "expect": {
+    "ok": true,
+    "map": "kbm",
+    "truncated": false
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "compare",
+   "a": "before",
+   "b": "after",
+   "same": [
+    "bindings"
+   ],
+   "name": "every kbm binding came back unchanged"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-pkg-gamekeys",
+    "hwp-open",
+    "gamekeys"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-skill1"
+   ],
+   "name": "after restart: Skill 1 row reads U and its mouse 4 icon",
+   "expect": {
+    "shown": true,
+    "texts": {
+     "match": "\\| U / \\\\\"inp-4mb\"$"
+    }
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-dash"
+   ],
+   "name": "after restart: Dash row reads J",
+   "expect": {
+    "shown": true,
+    "texts": {
+     "match": "\\| J$"
+    }
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey"
+   ],
+   "name": "after restart: swap key row reads ScrL (the save kept it)",
+   "expect": {
+    "shown": true,
+    "texts": {
+     "match": "\\| ScrL$"
+    }
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "da-inputlog",
+   "args": [
+    "on",
+    "reset"
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "handoff",
+   "keep_focus": true
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "mark",
+   "name": "key-u"
+  },
+  {
+   "do": "key",
+   "key": "u",
+   "hold": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn skill1 down",
+   "since": "key-u",
+   "timeout": 5,
+   "name": "after restart: U presses skill 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "key-1"
+  },
+  {
+   "do": "key",
+   "key": "1",
+   "hold": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:devarena\\] input-btn skill1",
+   "since": "key-1",
+   "settle": 1,
+   "name": "after restart: the old key 1 still does nothing"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "key-j"
+  },
+  {
+   "do": "key",
+   "key": "j",
+   "hold": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn dash down",
+   "since": "key-j",
+   "timeout": 5,
+   "name": "after restart: J dashes"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "key-space"
+  },
+  {
+   "do": "key",
+   "key": "space",
+   "hold": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:devarena\\] input-btn dash",
+   "since": "key-space",
+   "settle": 1,
+   "name": "after restart: the old Space still does not dash"
+  },
+  {
+   "do": "gl",
+   "verb": "da-inputlog",
+   "args": [
+    "off"
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "shot",
+   "name": "after-restart"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

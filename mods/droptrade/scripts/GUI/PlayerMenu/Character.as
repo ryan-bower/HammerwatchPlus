@@ -202,6 +202,7 @@ class PlayerMenuCharacterTab : MenuTab
 		// HammerwatchPlus: the Destroy and Drop hints (Back, Equip, Compare, Destroy, Drop) are clickable;
 		// with droptrade off there is no Drop hint and the item action's hint comes right after Destroy
 		auto host = cast<AWindowObject>(m_tabSystem is null ? null : m_tabSystem.m_host);
+		HWP::DropTrade::FitBar(host);
 		if (host is null || host.m_navigationBar is null || HWPHoveredItem() is null)
 			return;
 		uint texts = host.m_navigationBar.m_texts.length();

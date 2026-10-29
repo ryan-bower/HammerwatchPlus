@@ -52,6 +52,7 @@ next level.
 | Architect | Confirm NG+ start | `architect.confirm_ngp` | on | on, off | local |
 | Drop trade | On | `droptrade.enabled` | on | on, off | host |
 | Drop trade | (option `dropkey`) | | | | local |
+| Drop trade | (option `actionkey`) | | | | local |
 | Drop trade | Pickup first | `droptrade.pickup_first` | on | on, off | local |
 
 ## Auto Aim

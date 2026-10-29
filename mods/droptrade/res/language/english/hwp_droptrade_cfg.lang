@@ -2,7 +2,8 @@
 <lang name="English" official="false">
 	<string name="hwp.cfg.droptrade">Drop trade</string>
 	<string name="hwp.cfg.droptrade.about">A key drops inventory items for friends; the use key picks up items first.</string>
-	<string name="hwp.cfg.o.dropkey.about">The key that drops the hovered inventory item at your feet.</string>
+	<string name="hwp.cfg.o.dropkey.about">Drops the hovered item.</string>
+	<string name="hwp.cfg.o.actionkey.about">Uses the hovered item (eats a fish).</string>
 	<string name="hwp.cfg.s.droptrade.pickup_first">Pickup first</string>
 	<string name="hwp.cfg.s.droptrade.pickup_first.about">The use key picks up an item before it talks to an NPC there.</string>
 </lang>

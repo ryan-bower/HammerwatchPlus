@@ -19,7 +19,9 @@ changes it (per machine).
 An item with a registered action (hwplib `HWP::ItemActions`; today the fishing
 mod's **Eat** on a fish: 100 health per star, town or run, the fish is used
 up) gets a fifth hint, **`[E] Eat`**, and the E key (SDL scancode 8, polled the
-same way) does it on the hovered item (`HWPAction()`).
+same way, rebound as **Item action key**) does it on the hovered item (`HWPAction()`).
+Both hints name the bound key as printed on a US keyboard (hwplib `HWP::Options::KeyName`;
+not localised: on AZERTY the key at Q still reads Q).
 
 **Pickup first** (`scripts/HWP/DropTrade/PickupFirst.as`, `HWP::PickupFirst`): the use key
 picks up a dropped item before it talks to an NPC or opens a shop, chest or shrine
@@ -36,6 +38,8 @@ On the HammerwatchPlus tab of the player menu:
   Destroy.
 - **Drop item key** (option `dropkey`, each player's own): click, then press the key.
   Stored as `droptrade.key` (SDL scancode, default 20 = Q), as `hwp dropkey` does.
+- **Item action key** (option `actionkey`, each player's own): the same, stored as
+  `droptrade.actionkey` (default 8 = E).
 - **Pickup first**, `droptrade.pickup_first` (each player's own, default on).
 
 ## Overrides
