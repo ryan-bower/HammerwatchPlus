@@ -52,12 +52,23 @@ copy wins is the same code. Two rules keep packages of different builds working 
   `[HWP:core] package HWP-<id>, library <stamp>`. When the loaded stamp is another build's,
   it logs an error and calls `HWP::Packages::Mismatch("HWP-<id>")`, and the player gets one
   chat line in town (`hwp.packages.mismatch`, `pkg-mismatch`).
+- **Each package carries its update** (issue #24): `tools/build.py` `update_id()`, the last
+  commit's date and short hash, with `+` for uncommitted changes. The check module calls
+  `HWP::Builds::Package("HWP-<id>", "<update>", "<stamp>", HWP::LIB_STAMP)`, so the town notice
+  names each odd package's update and whether it is older (`hwp.builds.mixed`), and `hwp version`
+  lists them. In a lobby, a client in town sends its updates to the host, and both are told
+  which packages differ and whose are older (`hwp.builds.peer`). A side that never reports runs
+  an update from before these reports (`hwp.builds.silent`). The game's own join check compares
+  mod ids only, so players with different updates get in. `fix-mod-version-notice`.
 
 The rule "only grows" covers an older package running on a newer library. The reverse can
 still break: when an older package's library copy wins, a newer package that calls something
 added since will not compile, and with it nothing compiles (`docs/GAME_UPDATES.md`). So
 `HWP::Packages::Mismatch(const string &in)` and `HWP::LIB_STAMP` are frozen from the first
-release on, since every generated check module calls them. Code that can run on an older
+release on, since every generated check module calls them. So is `HWP::Builds::Package`
+(`tests/test_builds.py`). `Builds.as` is a library file older packages lack, so a game whose
+library came from one of them still takes it from a newer package. That is why it calls only
+what every published library has. Code that can run on an older
 library goes through what that library already had. With the all-in-one pack and single
 packages of the same build enabled together, every path is the same file and every check
 passes (`pkg-all-every`).

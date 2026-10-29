@@ -169,6 +169,15 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-29, notices name the HammerwatchPlus updates (#24). The game's join check compares mod
+ids, not their contents, so friends with different updates got into one lobby and things
+quietly broke: on 2026-10-28 a client on per-module packages from before 2026-10-26 joined a
+newer host, and only the log said `no handler for event` for four of the host's events. Every
+package now carries its update (the commit's date and hash). In town, a client and the host
+compare theirs, and both are told which packages differ, which side is older and who should
+update. Packages of different updates in one game are named with their updates too, and `hwp
+version` lists them. The Workshop change note shows the same update.
+
 2026-10-28, the Forsaken Tower from HoH1 itself (`campaign`, "HoH1 tower" in its README).
 With HoH1 installed, the import builds HoH1's tower from the player's own install: 23 floors,
 the nine hand-made levels as HoH1 ships them and fourteen act floors from HoH1's own generator

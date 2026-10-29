@@ -14,7 +14,7 @@ dist/workshop/<file>/:
                        additional pictures
     title.txt          the item's title
     description.txt    the item's description, in Steam's BBCode
-    changenote.txt     version, commit and date, for an update's change note
+    changenote.txt     version, update (as the game shows it) and date, for an update's change note
 
 and dist/workshop/UPLOAD.txt, the list of what to upload new and what to update, from
 workshop.json (repo root), the ledger of published item ids. tools/workshop_publish.py
@@ -353,7 +353,16 @@ def main(argv=None) -> int:
         print(f"workshop: the cards are drawn from the game's art, and {e.filename} is missing "
               "(python -m gamelab doctor --fix makes gamecode/)", file=sys.stderr)
         return 1
-    stamp = f"HammerwatchPlus {version()} ({commit()}, {datetime.date.today().isoformat()})"
+    # the update as the game shows it (`hwp version`, the mismatch notices): HWP::Builds
+    sys.path.insert(0, str(REPO / "tools"))
+    import build
+    update = build.update_id()
+    if update.endswith("+"):
+        print("workshop: the tree has uncommitted changes (update " + update + "); commit before publishing",
+              file=sys.stderr)
+    day, _, sha = update.partition(" ")
+    stamp = (f"HammerwatchPlus {version()}, update {day} ({sha or commit()}), "
+             f"built {datetime.date.today().isoformat()}")
     plan = []
     for file, p, inside in items(packages, allp):
         src = DIST / f"{file}.bin"

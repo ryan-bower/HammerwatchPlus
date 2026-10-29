@@ -60,6 +60,8 @@ namespace Modules
 			HWP::Config::Init();
 			HWP::Net::OnRequest(HWP::Core::SETTINGS_PULL, HWP::Net::RequestHandler(HWP::Core::OnPull));
 			HWP::Net::OnEvent(HWP::Core::SETTINGS_SYNC, HWP::Net::EventHandler(HWP::Core::OnSync));
+			HWP::Net::OnRequest(HWP::Builds::REPORT, HWP::Net::RequestHandler(HWP::Builds::OnReport));
+			HWP::Net::OnEvent(HWP::Builds::ANSWER, HWP::Net::EventHandler(HWP::Builds::OnAnswer));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Core::OnSettingChanged));
 
 			auto forest = MissionThemeDef::Get("theme_forest");
@@ -95,8 +97,10 @@ namespace Modules
 			if (g_inTown && ++m_townTicks == HWP::HoH1::TELL_TICK)
 			{
 				HWP::HoH1::Tell();
-				HWP::Packages::Tell();
+				HWP::Builds::Tell(); // Packages::Tell's list, with each package's update
 			}
+			if (g_inTown)
+				HWP::Builds::Update(ms);
 			if (m_announced)
 				return;
 			m_announced = true;
@@ -109,7 +113,12 @@ namespace Modules
 			if (!Network::IsServer())
 				HWP::Net::Request(HWP::Core::SETTINGS_PULL, HWP::Net::Empty());
 			if (g_inTown)
+			{
 				HWP::Guards::CheckBuild();
+				// a client tells the host which update each package is (issue #24)
+				HWP::Builds::Report();
+				HWP::Log("core", "update: " + HWP::Builds::Summary());
+			}
 		}
 
 		void Start(StartMode sMode)
