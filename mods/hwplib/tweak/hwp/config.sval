@@ -7,6 +7,8 @@
 		<s>option:skill5</s>
 		<s>option:skill6</s>
 		<s>option:dropkey</s>
+		<s>option:eatkey</s>
+		<s>option:courierkey</s>
 		<s>option:colors</s>
 		<s>option:autoaim</s>
 	</array>

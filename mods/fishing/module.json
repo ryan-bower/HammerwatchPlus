@@ -60,7 +60,7 @@
       },
       {
         "option": "eatkey",
-        "about": "The key that eats the hovered fish in your bag (each player's own)."
+        "about": "Eats the hovered fish."
       }
     ]
   }

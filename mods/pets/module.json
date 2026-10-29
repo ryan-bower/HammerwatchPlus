@@ -56,7 +56,7 @@
       },
       {
         "option": "courierkey",
-        "about": "The key that hands the hovered bag item to your pet (each player's own)."
+        "about": "Sends the hovered item home with your pet."
       }
     ]
   }

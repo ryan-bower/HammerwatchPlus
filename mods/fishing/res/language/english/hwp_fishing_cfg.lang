@@ -10,5 +10,5 @@
 	<string name="hwp.cfg.s.fishing.run_casts.about">Catches each player gets at a run's fishing hole.</string>
 	<string name="hwp.cfg.s.fishing.keys">Keys from catches</string>
 	<string name="hwp.cfg.s.fishing.keys.about">Catches can bring up a key now and then.</string>
-	<string name="hwp.cfg.o.eatkey.about">The key that eats the hovered fish in your bag (each player's own).</string>
+	<string name="hwp.cfg.o.eatkey.about">Eats the hovered fish.</string>
 </lang>

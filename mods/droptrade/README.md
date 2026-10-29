@@ -20,6 +20,8 @@ Other modules' item actions follow Drop, each with its own hint and key: fishing
 **`[F] Eat`** on a fish, the pets' **`[H] Send home`** in a run. Until 2026-10-28 this
 mod owned the hints and showed only the first such action, on a fixed E, which is also
 the menu's own Destroy key, so one E press ate the fish and opened the destroy dialog.
+Every hint names its bound key as printed on a US keyboard (hwplib `HWP::Options::KeyName`;
+not localised: on AZERTY the key at Q still reads Q).
 
 **Pickup first** (`scripts/HWP/DropTrade/PickupFirst.as`, `HWP::PickupFirst`): the use key
 picks up a dropped item before it talks to an NPC or opens a shop, chest or shrine
@@ -36,6 +38,8 @@ On the HammerwatchPlus tab of the player menu:
   hints right after Destroy.
 - **Drop item key** (option `dropkey`, each player's own): click, then press the key.
   Stored as `droptrade.key` (SDL scancode, default 20 = Q), as `hwp dropkey` does.
+- The Eat and Send home keys are rebound on the same tab, under fishing (`eatkey`) and
+  pets (`courierkey`).
 - **Pickup first**, `droptrade.pickup_first` (each player's own, default on).
 
 ## Overrides

@@ -151,6 +151,36 @@ namespace HWP
 			@text.m_clickSnd = Resources::GetSoundEvent("event:/sfx/ui/click");
 		}
 
+		// the hint bar kept on screen: vanilla centres it under the window, and the player
+		// menu sits at the right edge, so a bag item's bar (Destroy, then the item actions)
+		// ran off it and hid the last hints
+		class FitNavBar : KeyNavigationBar
+		{
+			FitNavBar(AWindowObject@ windowObject) { super(windowObject); }
+
+			void Draw(SpriteBatch& sb, vec2 pos, int width) override
+			{
+				int maxWidth = max(width, GetWidth());
+				int left = int(pos.x) - int(maxWidth * 0.5f);
+				int hi = max(2, int(g_gameMode.m_wndWidth) - 2 - maxWidth);
+				int fit = left < 2 ? 2 : (left > hi ? hi : left);
+				KeyNavigationBar::Draw(sb, pos + vec2(fit - left, 0), width);
+			}
+		}
+
+		// the window's hint bar as a FitNavBar, its texts kept (once per window)
+		void FitBar(AWindowObject@ host)
+		{
+			if (host is null || host.m_navigationBar is null || cast<FitNavBar>(host.m_navigationBar) !is null)
+				return;
+			FitNavBar@ bar = FitNavBar(host);
+			for (uint i = 0; i < bar.m_texts.length(); i++)
+				bar.m_texts[i].m_text.Cleanup();
+			bar.m_texts = host.m_navigationBar.m_texts;
+			bar.m_visible = host.m_navigationBar.m_visible;
+			@host.m_navigationBar = bar;
+		}
+
 		// ---- keys ----------------------------------------------------------------
 
 		PlayerMenuCharacterTab@ g_tab; // set by the Character tab's ctor

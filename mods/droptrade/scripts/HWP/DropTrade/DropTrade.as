@@ -1,7 +1,8 @@
 // Drop key for the inventory: with an inventory item hovered in the player
 // menu, the key (default Q, SDL scancode 20) drops it at your feet, next to
 // vanilla Destroy. Drop is an hwplib item action (ItemActions, DropAction): hwplib's
-// inventory shows its hint and polls its key raw, like the other bag actions.
+// inventory shows its hint and polls its key raw, like the other bag actions. The key
+// is rebound in the Plus tab (dropkey) and named as on a US keyboard.
 //
 // droptrade.enabled (host, default on) off: no Drop hint or key, and the use key
 // is vanilla again (no pickup first); an item action (Eat) keeps working.
@@ -16,14 +17,22 @@ namespace HWP
 		// override from an older package
 		PlayerMenuCharacterTab@ g_tab;
 		int g_scancode = DEFAULT_SCANCODE;
-		string g_keyName = "Q";
 		bool g_enabled = true;
 		bool g_pickupFirst = true;
 
 		void LoadKey()
 		{
 			g_scancode = HWP::Settings::GetInt("droptrade.key", DEFAULT_SCANCODE);
-			g_keyName = HWP::Settings::GetString("droptrade.keyname", HWP::Options::KeyName(g_scancode));
+		}
+
+		// the drop key's name (US keycap); `hwp dropkey <code> <name>` can name it by hand
+		// fit: the short name when the full one is too long for the options value column
+		string KeyName(bool fit = false)
+		{
+			string name = HWP::Settings::GetString("droptrade.keyname", "");
+			if (!name.isEmpty())
+				return HWP::Options::Escape(name);
+			return fit ? HWP::Options::FitKeyName(g_scancode) : HWP::Options::KeyName(g_scancode);
 		}
 
 		void RefreshSettings()
@@ -46,7 +55,7 @@ namespace HWP
 		{
 			string Title() override { return Resources::GetString(".hwp.droptrade.option"); }
 			int Scancode() override { return g_scancode; }
-			string Value() override { return g_keyName; }
+			string Value() override { return KeyName(true); }
 			void SetScancode(int scancode) override
 			{
 				if (scancode == DEFAULT_SCANCODE)
@@ -66,7 +75,7 @@ namespace HWP
 		{
 			string Id() override { return "drop"; }
 			int Scancode() override { return g_scancode; }
-			string KeyName() override { return g_keyName; }
+			string KeyName() override { return HWP::DropTrade::KeyName(); }
 			int Order() override { return 10; }
 
 			string Label(Equipment::Equipment@ item) override
@@ -91,7 +100,7 @@ namespace HWP
 		// older than 2026-10-28 (hwplib's own overrides use ItemActions) ----
 		string NavText()
 		{
-			return "[" + g_keyName + "] " + Resources::GetString(".hwp.droptrade.drop");
+			return "[" + KeyName() + "] " + Resources::GetString(".hwp.droptrade.drop");
 		}
 
 		string ActionNavText(Equipment::Equipment@ item)
@@ -116,10 +125,13 @@ namespace HWP
 					return;
 				}
 				HWP::Settings::SetInt("droptrade.key", code);
-				HWP::Settings::SetString("droptrade.keyname", args.length() >= 2 ? args[1].toUpper() : "key " + code);
+				if (args.length() >= 2)
+					HWP::Settings::SetString("droptrade.keyname", args[1].toUpper());
+				else
+					HWP::Settings::Reset("droptrade.keyname");
 				LoadKey();
 			}
-			HWP::Commands::Reply(Resources::GetString(".hwp.droptrade.key", { { "code", "" + g_scancode }, { "name", g_keyName } }));
+			HWP::Commands::Reply(Resources::GetString(".hwp.droptrade.key", { { "code", "" + g_scancode }, { "name", KeyName() } }));
 		}
 	}
 }

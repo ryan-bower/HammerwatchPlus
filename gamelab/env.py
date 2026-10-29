@@ -96,6 +96,9 @@ def ensure_res(src: Path, dst: Path, problems: list[str], fix: bool) -> None:
     dst.mkdir(parents=True, exist_ok=True)
     for f in src.iterdir():
         d = dst / f.name
+        if f.name in RES_OWN:
+            # the user's own binds (their game saved them): never GameLab's starting state
+            continue
         if f.is_dir():
             # read-only trees (assets/, language/, ...): junctions; the known write is a root file
             ensure_junction(d, f, problems, fix)

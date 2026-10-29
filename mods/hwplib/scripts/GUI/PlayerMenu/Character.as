@@ -203,6 +203,7 @@ class PlayerMenuCharacterTab : MenuTab
 		// actions (hwplib ItemActions: Drop, Eat, Send home), in the order EquipmentItemWidget
 		// lists them; Destroy and every action hint are clickable
 		auto host = cast<AWindowObject>(m_tabSystem is null ? null : m_tabSystem.m_host);
+		HWP::ItemActions::FitBar(host);
 		auto hovered = HWPHoveredItem();
 		if (host is null || host.m_navigationBar is null || hovered is null)
 			return;

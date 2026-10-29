@@ -201,6 +201,7 @@ Send one as `gl <id> <verb> args` (a `{"do": "gl", "verb": ...}` scenario step, 
 | `state` |  | state: phase, level, NG+, open window and the local player (class, level, hp, position, combo, buffs); fixtures read back through it. |
 | `mods` |  | which resource mods the running game sees and has enabled: the live half of the environment check (gamelab/env/environments.json "mods") |
 | `ui` |  | open windows, bottom to top, by script class |
+| `controls` | `[mapId] [max]` | controls [mapId] [max]: a control map's live bindings (default kbm, at most 80) and the engine's action list. key/key2 are BoundKey/BoundKey2; sc is the binding's id resolved back through Platform::ResolveInputKey, so a scenario can see whether they agree |
 | `overlays` |  | overlays: everything drawn over the world at this moment, so a scenario can require the set to be empty or expected (repro playbook 1.3). Windows (bottom to top), the tutorial panel (Tutorials::TutorialModule.m_showing, drawn by HUDTutorials), live announce / loot-log entries (HUDAnnounce subclasses, style id + text) and the boss bar. HUD notifications are not listed: HoH2's AddNotification is a stub ("TODO: Add notifications", WorldScript/GUI/AddNotification.as). |
 | `buildings` |  | buildings: the current town record's buildings (id -> variation), as the town builder and the gambler read them (TownRecord.GetVariationOnBuilding) |
 | `clock` |  | clock: scene time (g_scene.GetTime(), what behaviours time themselves with), the probe's own frame count, and the time-scale / hour cvars |

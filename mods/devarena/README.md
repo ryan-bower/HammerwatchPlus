@@ -16,16 +16,21 @@ window (up to 4 h). Press F1.
 
 ## Keys
 
-| Key | Does |
-|---|---|
-| F1 | Open or close the dock (right 35% of the screen, 45% on Loadout). The game keeps running. |
-| F2 | Swap the live slot between A and B. |
-| Ctrl+Z / Ctrl+Y | Step the live slot back or forward through versions. |
-| Enter / Esc | Commit or revert the field being typed in. A click elsewhere commits. |
-| F3 | Arena reset: kill what the brush placed, clear encounters, fresh golem. |
-| F4 | Into / out of the golem room. |
-| F6 | Pause / resume. |
-| Middle click | Place the armed brush unit or encounter at the pointer. Esc disarms. |
+The keys below are defaults. Those with an option id can be rebound in the player menu's Plus
+tab (top section, "Dev Arena: ..."); the binding is kept per save as `devarena.key.<name>`, per
+player. The dock's buttons and texts show the current binding. For undo/redo only the letter
+is bound; Ctrl stays the modifier (Z and Y are the US positions, swapped on QWERTZ).
+
+| Key | Option id | Does |
+|---|---|---|
+| F1 | `devarena-dock` | Open or close the dock (right 35% of the screen, 45% on Loadout). The game keeps running. |
+| F2 | `devarena-ab` | Swap the live slot between A and B. |
+| Ctrl+Z / Ctrl+Y | `devarena-undo` / `devarena-redo` | Step the live slot back or forward through versions. |
+| Enter / Esc | | Commit or revert the field being typed in. A click elsewhere commits. |
+| F3 | `devarena-reset` | Arena reset: kill what the brush placed, clear encounters, fresh golem. |
+| F4 | `devarena-golem` | Into / out of the golem room. |
+| F6 | `devarena-pause` | Pause / resume. |
+| Middle click | | Place the armed brush unit or encounter at the pointer. Esc disarms. |
 
 While the pointer is over the dock or a field is being typed in, the player takes no attack,
 skill or move input.
@@ -52,7 +57,7 @@ skill or move input.
 
 ## Arena tab
 
-- **FLOOR**: Reset (F3), Reload (same seed, the NG+ set here), Cull, Pause (F6).
+- **FLOOR**: Reset (F3 by default), Reload (same seed, the NG+ set here), Cull, Pause (F6 by default).
 - **MOBS**: freeze, unkillable (hp kept at 1 or more), passive (never targets).
 - **ME**: god, no cooldowns, free mana, speed x0.5-x4, boons by level.
 - **BRUSH**: a unit chip arms it, single/pack/swarm picks the encounter, a middle click places it.
@@ -61,7 +66,7 @@ skill or move input.
 
 ## Golem tab
 
-- F4 walls a room in (barracks wall pieces) where you stand and spawns the golem north of
+- F4 (by default) walls a room in (barracks wall pieces) where you stand and spawns the golem north of
   you; other enemies near it are culled. F4 again takes the walls down and you back. Profile (dummies, guard elites, knight), NG+, hp pool, debuffs and how
   often they are re-applied.
 - A pull starts on the first hit and ends 4 s after the last: dps, hits, time to kill and a
