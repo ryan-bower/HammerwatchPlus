@@ -5553,12 +5553,23 @@ key works on the key labelled X, and the drop key on the key labelled A, yet the
 - **No layout name from the engine.** The scripts get no SDL key name call. What they get is
   text input: `ControlBindings::ExpectTextInput()`, then `GetInput().GetTextInputCount()` /
   `GetTextInput(i)`, which returns a `TextInputControlEvent` (`utf8string text`, `evt`:
-  None / Cancel on Esc). The capture window (`HWPKeyCaptureWindow`) turns text input on while
-  it waits, and the character typed with the key names it (`HWP::Options::LearnLabel`,
-  setting `keylabel.<sc>`, each player's own). Typing in chat or the Plus tab's search does the
-  same when exactly one labelled key went down that frame (`WatchTyping`). No label is learned
-  with Shift/Ctrl/Alt/AltGr held, or after a key that typed nothing (a dead key). A label equal
-  to the US name is reset rather than stored.
+  None / Cancel on Esc).
+- **While text input is on, `Platform::IsKeyDown` reports no key down.** Measured: the
+  capture polled `AnyKeyDown()` every frame with text input on and saw -1 while R was held
+  (sc stayed -1, the typed events arrived; mod-options-tab 20261028-230359, debug logging).
+  The first design read the key and its character in one press, and no key ever bound
+  (mod-keys-layout 20261028-225950, mod-options-tab 20261028-230250). Typing in chat or the
+  search could not name keys either, so `WatchTyping` is gone.
+- **So the capture (`HWPKeyCaptureWindow`) takes two steps.** It binds the key with text input
+  off, by position, when the key comes back up. Then, for a key that types a character (letters,
+  punctuation, ISO key 100; not the digit row) with no name yet, it turns text input on and
+  asks for one more press. That frame's single one-character text event names the key
+  (`HWP::Options::LearnLabel`, setting `keylabel.<sc>`, each player's own). A frame with more
+  text (a paste, GameLab's inbox command text) is ignored. Esc keeps the US name and asks
+  again on the next bind. A name equal to the US one is stored too, so the key is not asked
+  again. A key bound with Shift/Ctrl/Alt/AltGr or a second key held is not asked. A press
+  that types nothing (a dead key) names nothing.
+  Verified: mod-keys-layout 20261028-231028 and mod-options-tab 20261028-230956, both PASS.
 - **Game text treats `\` as markup**, so a learned or hand-set name goes through
   `HWP::Options::Escape`.
 - **Vanilla's own names stay US.** `FormatKeyName` (`Utils/Functions.as:1112`) upper-cases
@@ -5588,9 +5599,9 @@ An adversarial review of the change found these, now fixed:
   pressed with it now replaces it. A modifier alone still binds itself.
 - An Esc that closed the capture on its text Cancel could also close the menu, through the
   same press's MenuBack. The Cancel now closes the capture only when no Back came within a
-  frame.
+  frame (now in the naming step).
 - A second key held during a capture could give its character as the label. It no longer
-  can.
+  can: such a bind is not asked for a name.
 - The game-key rows walked the whole binding map several times a frame. Their keys are now
   cached until the next bind.
 - A search box still typing hands the keyboard to the capture.

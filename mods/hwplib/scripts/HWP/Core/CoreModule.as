@@ -92,8 +92,6 @@ namespace Modules
 
 		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
-			// typing in chat or a search box names the keys on this keyboard (Options.as)
-			HWP::Options::WatchTyping();
 			// after every mod's self-check has reported (HoH1.as, Packages.as)
 			if (g_inTown && ++m_townTicks == HWP::HoH1::TELL_TICK)
 			{
