@@ -5907,3 +5907,50 @@ pauses a solo game. `pad on` sets `hwp_pad_using`, which stands for `GameInput.U
 main, 20261029-002059 here). The bot looks for a `> gl <id>` echo and a `HUD:HWPWeaponSwapHUD`
 widget root that the current harness no longer logs or lists. The full plan-t8 also lost its
 player to floor traps twice, walking to a chest (20261029-001059, -001407).
+
+## 2026-10-29: Lightning Kush and the strain table (issue #15)
+
+Issue #15 asked for a Lightning Kush strain. It is the fourth Holy Herb: violet (the game's
+lightning colour, `tweak/player_colors.sval` `lightning_gem` e69eff / c318e7), with
+`Modifiers::DamageMulAdd` `lightning 0.2`, like Ember Kush's `fire 0.2`.
+
+**The larger issue: a strain lived in ten places.** These were:
+- its mission buff in `buffs_herbs.sval`, with its icon cell in `farm.png` hand-indexed;
+- ten `%block` lines in `equipment_joints.sval`;
+- 7 lang strings (name, buff text, 5 joint names);
+- an `AddSeed` line, whose position indexes two sprite sheets;
+- a crop unit with a hand-indexed frame;
+- `tools/make_wild_plots.py`'s hard-coded seed list;
+- three pieces of art: the plant and buff icon in `farm.png`, a seed packet in
+  `gui/hwp_seeds.png` and a bud in `gui/hwp_harvest.png`.
+
+The harvest sheet was full: 8 cells of 16 px in 128 px.
+
+`tools/make_herbs.py` `STRAINS` now writes all of them. The art is Lucky Leaf's, recoloured
+by its three-tone ramp: light 96dc78, mid 40a848, dark 1c6028. The stem 2c682c stays, and a
+seed packet's plant takes one colour. Regenerating the three existing strains gives
+pixel-identical sheets, so the old art was drawn this way too. `hwp_harvest.png` grows to
+256 px (power of two). `farm.png` has four strain slots; the old Gambler's Gold slot
+becomes Lightning Kush. `--check` and `tests/test_make_herbs.py` fail when a generated file
+is out of date, or when `DefineSeeds` stops being the food crops followed by `DefineHerbs()`.
+
+**Found while testing: the materials grid's 16 cells.** farming registers a seed cell and a
+harvest cell per seed in hwplib's `HWP::Materials` section b. The gui had cells b0-b15, so the
+17th and 18th providers (Saint's Sage's and Lightning Kush's harvest) would have had no cell,
+and nothing said so. Section b now has 24 cells. They are 24 px wide, so 9 fit across
+((217 - 24) / 23 + 1), and the seeds sit over their harvests as before.
+`HWPMaterialsWidget` logs `materials section <s>: N providers, M cells` once when a section
+outgrows its gui (`HWP::Materials::Count`, new).
+
+**Measured** (`fix-farming-lightning-kush`, 20261029-003913):
+- A puff sets `hwp_herb` to `hwp_herb_lightning_kush`.
+- gamelab-hands `dmgmuls`: lightning 1.0 -> 1.2, fire 1.0 -> 1.0.
+- A wild Lightning Kush plot spawns (`hwp farm wild lightning_kush`).
+- All 18 Plants & Herbs cells show at 24 px.
+- The self-check reads `9 seeds, 4 herb buffs, 40 joint items`.
+
+**Seen on the way.** plan-farming-a fails three checks, the same ones on origin/main
+(20261029-004641) and here (20261029-004133):
+- `s2_sprouts_whole_groove`: the bot's hold-to-walk never reaches the groove's plots.
+- `s8_water_drops`: no drops logged.
+- `s7_joint_puffs`: the fifth puff isn't counted before the bot reads it.

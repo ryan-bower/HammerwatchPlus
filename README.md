@@ -175,6 +175,15 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-29, Lightning Kush (#15), a fourth Holy Herb strain: violet, +20 % lightning damage,
+Ember Kush's counterpart. Each strain had been copied by hand into seven files and three
+sprite sheets indexed by seed order, and the harvest sheet was full. So now one table makes
+them all: `tools/make_herbs.py` writes the buffs, joints, names, seed lines, units and art,
+and a test fails when a file is out of date. Adding the strain also showed that the
+materials tab's Plants & Herbs grid had only 16 cells for 18 seeds and harvests: the last
+two would never have shown. The grid now has 24 cells, 9 across, and hwplib logs an error
+when a section has more providers than cells.
+
 2026-10-29, weapon swap on a controller (#14): D-pad left swaps, the one button vanilla's
 gamepad map leaves free in gameplay, and the Plus tab binds another (press it). The hints show
 the button while you play on a controller. Behind it, hwplib gains `HWP::Input`, so a mod's
@@ -551,6 +560,7 @@ python -m gamelab doctor --hoh1 "D:\Games\Heroes of Hammerwatch" --fix   # HoH1 
 python -m gamelab doctor --no-hoh1    # you don't own HoH1: skip its content, stop asking
 python -m gamelab doctor --smoke      # boot null-payload again; a failure names its cause (antivirus, GPU, cores)
 python tools/build.py                 # pack dist/HWP-<module>.bin + dist/HammerwatchPlus-All.bin
+python tools/make_herbs.py            # farming's Holy Herb strains from one table: buffs, joints, lang, art (--check)
 python tools/hwr_archive.py --help    # low-level archive tool (list/extract/pack HW2R and HWRR)
 python tools/icon_art/render.py all   # skill icon ideas in the vanilla style (tools/icon_art/README.md)
 python -m planner                     # the class planner in your browser (or planner.cmd / ./planner.sh; planner/README.md)
