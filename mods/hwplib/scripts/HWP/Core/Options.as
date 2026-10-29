@@ -31,7 +31,7 @@ namespace HWP
 		{
 			int Scancode() { return 0; }
 			void SetScancode(int scancode) {}
-			string Value() override { return KeyName(Scancode()); }
+			string Value() override { return FitKeyName(Scancode()); }
 			// bound to this key (a game action can have several)
 			bool Uses(int scancode) { return Scancode() == scancode; }
 		}
@@ -104,6 +104,12 @@ namespace HWP
 		// the key's name for game text (TextWidget, nav bars, chat)
 		string KeyName(int sc) { return Escape(KeyText(sc)); }
 
+		// a key's name for the 82 pixel value column: the short one when the full one is long
+		string FitKeyName(int sc)
+		{
+			return utf8string(KeyText(sc)).length() <= 9 ? KeyName(sc) : ShortKeyName(sc);
+		}
+
 		// at most 4 characters, for a badge over a HUD slot (the game's own short names, input.lang)
 		string ShortKeyName(int sc)
 		{
@@ -118,18 +124,30 @@ namespace HWP
 				case 42: return "BSp";
 				case 44: return "Spc";
 				case 57: return "Caps";
+				case 70: return "PrSc";
+				case 71: return "ScrL";
+				case 72: return "Paus";
 				case 73: return "Ins";
 				case 75: return "PgUp";
 				case 76: return "Del";
 				case 78: return "PgDn";
 				case 79: return "Rgt";
 				case 80: return "Lft";
+				case 83: return "NumL";
+				case 84: return "N/";
+				case 85: return "N*";
+				case 86: return "N-";
+				case 87: return "N+";
+				case 88: return "NEnt";
+				case 99: return "N.";
 				case 224: return "LCtr";
 				case 225: return "LShf";
 				case 226: return "LAlt";
+				case 227: return "LWin";
 				case 228: return "RCtr";
 				case 229: return "RShf";
 				case 230: return "RAlt";
+				case 231: return "RWin";
 			}
 			return "#" + sc;
 		}
@@ -234,6 +252,8 @@ namespace HWP
 				return "1234567890".substr(sc - 30, 1);
 			if (sc >= 58 && sc <= 69)
 				return "F" + (sc - 57);
+			if (sc >= 104 && sc <= 115)
+				return "F" + (sc - 91);
 			if (sc >= 89 && sc <= 98)
 				return "Num " + "1234567890".substr(sc - 89, 1);
 			switch (sc)
@@ -256,6 +276,9 @@ namespace HWP
 				case 55: return ".";
 				case 56: return "/";
 				case 57: return "Caps Lock";
+				case 70: return "Print Screen";
+				case 71: return "Scroll Lock";
+				case 72: return "Pause";
 				case 73: return "Insert";
 				case 74: return "Home";
 				case 75: return "Page Up";
@@ -266,13 +289,23 @@ namespace HWP
 				case 80: return "Left";
 				case 81: return "Down";
 				case 82: return "Up";
+				case 83: return "Num Lock";
+				case 84: return "Num /";
+				case 85: return "Num *";
+				case 86: return "Num -";
+				case 87: return "Num +";
+				case 88: return "Num Enter";
+				case 99: return "Num .";
 				case 100: return "\\";
+				case 101: return "Menu";
 				case 224: return "Left Ctrl";
 				case 225: return "Left Shift";
 				case 226: return "Left Alt";
+				case 227: return "Left Win";
 				case 228: return "Right Ctrl";
 				case 229: return "Right Shift";
 				case 230: return "Right Alt";
+				case 231: return "Right Win";
 			}
 			return "Key " + sc;
 		}

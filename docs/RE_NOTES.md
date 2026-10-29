@@ -5595,6 +5595,13 @@ An adversarial review of the change found these, now fixed:
   cached until the next bind.
 - A search box still typing hands the keyboard to the capture.
 
+Keys that custom and full-size keyboards add now have names before a label is learned:
+F13-F24 (scancodes 104-115), Print Screen, Scroll Lock, Pause, Num Lock, the numpad operators
+and Enter, Menu, and both Win/GUI keys. Before this they showed as "Key 104". A key row's
+value switches to the short name when the full one is longer than 9 characters, so
+"Print Screen" shows as PrSc and fits the 82-pixel value column. Labels are still stored
+per save.
+
 Verified offline: `tests/test_winproc_typed.py`, `tests/test_writes_controls.py`, the full
 pytest suite, and `make_config` / `build` / `list_verbs` / `guard_modules --check`.
 

@@ -79,7 +79,7 @@ namespace HWP
 				if (keys.length() == 0)
 					return Resources::GetString(".input.unbound");
 				if (keys.length() == 1)
-					return HWP::Options::KeyName(keys[0]);
+					return HWP::Options::FitKeyName(keys[0]);
 				string v;
 				for (uint i = 0; i < keys.length() && i < 3; i++)
 					v += (i > 0 ? " / " : "") + HWP::Options::ShortKeyName(keys[i]);
