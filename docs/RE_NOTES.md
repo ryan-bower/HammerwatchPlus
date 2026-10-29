@@ -6037,3 +6037,43 @@ and would have lacked `affixes`. Both are in now (20261029-020849), and
 on main with 1203 resource hash conflicts and a HWP-campaign stamp from another build. That is
 the subscribed Workshop copy of All loading beside the local one, which PR #40 fixes;
 `pkg-dungeon`, which carries `affixes`, passes (20261029-020719).
+
+## 2026-10-29: Shift+Click and Ctrl+Click at the Attribute Trainer (issue #22, `attrclick`)
+
+Attribute points are placed at the Attribute Trainer only. The Character menu once had "add"
+buttons, but their `OnFunc` branch is commented out (`GUI/PlayerMenu/Character.as`). The trainer,
+`npc_attrib_trainer.unit`, is an `AttributeAssignerShopContent`
+(`Town/AttributeAssignerShopContent.as`):
+- A click on a stat button (widget id `strength`, `dexterity`, `intelligence`, `focus`,
+  `vitality`; func `buy`) runs `ShopWindow.OnFunc`, then `Buy("assign")`.
+- `Buy` adds 1 to `pickedStr`/`Dex`/`Int`/`Foc`/`Vit`, then calls `SyncStatPoints` and
+  `RefreshModifiers`.
+- `AttributeAssignerWindow.Update` repeats `Buy` while the button is held: first after 800 ms,
+  then each gap is 0.6x the last plus 15 ms.
+
+Scripts read keys with `Platform::IsKeyDown(ControllerType::Keyboard, 0, sc)`, using SDL
+scancodes: Left Ctrl 224, Left Shift 225, Right Ctrl 228, Right Shift 229. devarena's Ctrl+Z
+already works this way. `GetInput().UsingGamepad` tells a gamepad apart.
+
+`attrclick` swaps the class (`HWPAttributeAssignerShopContent`). Its `Buy` adds
+min(20 with Shift or 5 with Ctrl, the points left) at once, with one sync; a plain click goes to
+vanilla. Its window shows the amount as each stat's cost and appends "Shift 20, Ctrl 5" to the
+points line.
+
+`mod-attrclick` (20261029-021911):
+- With 50 points, a plain click placed 1, Shift 20, Ctrl 5, and Shift 20 again.
+- Shift with 4 left placed 4, and a click with none left placed nothing.
+- Off, Shift placed 1.
+- The shots show the costs at 20 and at 4.
+
+The clicks are tested with the modifier forced (`hwp attrclick force`), since a step can't hold
+a key while it clicks. The real keys are tested on their own: the window logs "a click places N
+now" when the amount changes, and the harness `key` step holds a key in the lab window.
+- Left Ctrl held for 1 s gave 5, and 1 again when let go (20261029-023935).
+- Left Shift held the same way never registered (20261029-023743), though it goes through the
+  same path. The likely cause is SDL2's Windows event pump: it releases a Shift key that
+  `GetKeyState` doesn't report held, a guard against the lost key-up when both Shifts are down.
+  A posted key never sets `GetKeyState`.
+
+So GameLab can't hold Shift, and Shift+Click needs a hands-on try. It reads scancodes 225 / 229
+through the same `HWP::Options::KeyDown` as Ctrl's 224 / 228.
