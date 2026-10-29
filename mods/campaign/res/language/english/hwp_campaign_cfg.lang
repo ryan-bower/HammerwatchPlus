@@ -18,7 +18,7 @@
 	<string name="hwp.cfg.s.campaign.teleporters">Teleporters</string>
 	<string name="hwp.cfg.s.campaign.teleporters.about">One teleporter pad on each generated indoor floor.</string>
 	<string name="hwp.cfg.s.campaign.confusion">Confusion</string>
-	<string name="hwp.cfg.s.campaign.confusion.about">Eyes and confusion glyphs turn your movement around.</string>
+	<string name="hwp.cfg.s.campaign.confusion.about">Eyes, confusion glyphs and confusion plates turn your movement around.</string>
 	<string name="hwp.cfg.s.campaign.confusion_eye_chance">Eye confusion</string>
 	<string name="hwp.cfg.s.campaign.confusion_eye_chance.about">The chance an eye's hit confuses you.</string>
 </lang>

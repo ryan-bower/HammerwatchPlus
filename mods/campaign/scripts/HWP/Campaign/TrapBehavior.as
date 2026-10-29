@@ -22,6 +22,9 @@
 //   has a clear line to (a turret does not wake for a player behind a wall), and with
 //   `facing` it shows its scenes for the side the shot goes to ("on_e", "off_n", ...).
 // - `uses` (default endless): after that many "on"s the unit stays in its "spent" scene.
+// - `setting`: a bool setting that must be on for it to go off at all (the confusion
+//   glyph and plate: campaign.confusion, which says it applies now, so a trap already on
+//   the floor stays dark while it is off; issue #38).
 //
 // Every machine runs every trap by itself, the way vanilla floor traps do: an effect only
 // sticks to a player on that player's machine and to an enemy on the host
@@ -49,6 +52,7 @@ class HWPTrap : DangerAreaBehavior
 	int m_volleyMs;
 	bool m_los;
 	bool m_facing;
+	string m_setting;
 	string m_face = "s";
 
 	SoundEvent@ m_warnSnd;
@@ -95,6 +99,7 @@ class HWPTrap : DangerAreaBehavior
 		m_los = GetParamBool(unit, params, "los", false, false);
 		m_facing = GetParamBool(unit, params, "facing", false, false);
 		m_volleyMs = GetParamInt(unit, params, "volley-ms", false, 0);
+		m_setting = GetParamString(unit, params, "setting", false, "");
 
 		@m_warnSnd = Resources::GetSoundEvent(GetParamString(unit, params, "warn-snd", false));
 		@m_onSnd = Resources::GetSoundEvent(GetParamString(unit, params, "on-snd", false));
@@ -287,6 +292,12 @@ class HWPTrap : DangerAreaBehavior
 		if (m_state == 0)
 		{
 			bool go = m_trigger == "timer" ? m_c <= 0 : (m_c <= 0 && PlayerNear());
+			if (go && m_setting != "" && !HWP::Settings::GetBool(m_setting, true))
+			{
+				// switched off: look again after another off spell, not every frame
+				go = false;
+				m_c = m_offMs;
+			}
 			if (go)
 			{
 				m_state = 1;

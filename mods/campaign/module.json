@@ -86,7 +86,7 @@
         "type": "bool",
         "default": true,
         "title": "Confusion",
-        "about": "Eyes and confusion glyphs turn your movement around.",
+        "about": "Eyes, confusion glyphs and confusion plates turn your movement around.",
         "applies": "now"
       },
       {
