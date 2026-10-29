@@ -132,6 +132,131 @@ namespace GameLab
 		Emit(Reply(id, true).Int("count", items.length()).Raw("actors", RawArray(items)));
 	}
 
+	// projs [radius] [filter]: read-only. The projectiles within radius (default 400) of the player:
+	// units whose script behavior's class names a projectile (NewProjectile, RayProjectile,
+	// BeamProjectile, their HWP subclasses and the others), with the multiply colour the unit draws
+	// with (GetMultiplyColor: what mods/colors' Tint sets), its owner and whether that owner is a
+	// player's (GetPlayerOwner, the colors module's friend test). At most 32.
+	void VerbProjs(const string &in id, array<string>@ args)
+	{
+		auto plr = GetLocalPlayer();
+		if (plr is null)
+		{
+			Fail(id, "no local player");
+			return;
+		}
+		int radius = args.length() > 0 ? int(parseInt(args[0])) : 400;
+		string filter = args.length() > 1 ? args[1] : "";
+		vec2 center = xy(plr.m_unit.GetPosition());
+		auto units = g_scene.FetchAllUnits(~0, center, radius);
+		array<string> items;
+		int seen = 0;
+		for (uint i = 0; i < units.length(); i++)
+		{
+			UnitPtr u = units[i];
+			if (!u.IsValid() || u.IsDestroyed())
+				continue;
+			auto b = u.GetScriptBehavior();
+			string cls = b is null ? "" : Reflect::GetTypeName(b);
+			if (cls.findFirst("Projectile") < 0)
+				continue;
+			if (filter != "" && cls.findFirst(filter) < 0 && u.GetDebugName().findFirst(filter) < 0)
+				continue;
+			seen++;
+			if (items.length() >= 32)
+				continue;
+			Actor@ owner = null;
+			auto np = cast<NewProjectile>(b);
+			if (np !is null)
+				@owner = np.m_owner;
+			auto rp = cast<RayProjectile>(b);   // and BeamProjectile, a RayProjectile
+			if (rp !is null)
+				@owner = rp.m_owner;
+			vec4 c = u.GetMultiplyColor();
+			vec3 pos = u.GetPosition();
+			Json e;
+			e.Int("unit", u.GetId()).Str("name", u.GetDebugName()).Str("behavior", cls)
+				.Num("x", pos.x).Num("y", pos.y).Raw("mul", "[" + formatFloat(c.x, "", 0, 3) + "," + formatFloat(c.y, "", 0, 3)
+				+ "," + formatFloat(c.z, "", 0, 3) + "," + formatFloat(c.w, "", 0, 3) + "]")
+				.Str("owner", owner is null ? "" : owner.m_unit.GetDebugName())
+				.Bool("friendly", owner !is null && GetPlayerOwner(owner) !is null);
+			items.insertLast(e.Close());
+		}
+		Emit(Reply(id, true).Int("count", seen).Raw("projs", RawArray(items)));
+	}
+
+	// projshow <unit> <dx> <dy> [friendly]: a projectile unit made at the player + (dx, dy) and
+	// initialized like a shot along +x (owner the player when friendly is 1, else none: an enemy
+	// shot), then held still (speed 0, a minute to live) so a screenshot can read its pixels. Its
+	// tint is whatever the class gives it (mods/colors). Replies the unit and its colours.
+	void VerbProjShow(const string &in id, array<string>@ args)
+	{
+		auto plr = GetLocalPlayer();
+		if (plr is null || args.length() < 3)
+		{
+			Fail(id, plr is null ? "no local player" : "usage: projshow <unit> <dx> <dy> [friendly]");
+			return;
+		}
+		auto prod = Resources::GetUnitProducer(args[0]);
+		if (prod is null)
+		{
+			Fail(id, "no unit " + args[0]);
+			return;
+		}
+		vec3 pos = plr.m_unit.GetPosition() + vec3(parseFloat(args[1]), parseFloat(args[2]), 0);
+		UnitPtr u = prod.Produce(g_scene, pos);
+		auto proj = cast<IProjectile>(u.GetScriptBehavior());
+		if (proj is null)
+		{
+			if (u.IsValid())
+				u.Destroy();
+			Fail(id, "not a projectile: " + args[0]);
+			return;
+		}
+		bool friendly = args.length() > 3 && args[3] == "1";
+		proj.Initialize(friendly ? cast<Actor>(plr) : null, ProjectileTarget(0.0f), 1.0f, false, 0);
+		auto np = cast<NewProjectile>(proj);
+		if (np !is null)
+		{
+			np.m_speed = 0;
+			np.m_ttl = 60000;
+		}
+		vec4 c = u.GetMultiplyColor();
+		vec4 o = u.GetOverlayColor();
+		Emit(Reply(id, true).Int("unit", u.GetId()).Str("behavior", Reflect::GetTypeName(proj)).Bool("held", np !is null)
+			.Raw("mul", "[" + formatFloat(c.x, "", 0, 3) + "," + formatFloat(c.y, "", 0, 3) + "," + formatFloat(c.z, "", 0, 3) + "," + formatFloat(c.w, "", 0, 3) + "]")
+			.Raw("overlay", "[" + formatFloat(o.x, "", 0, 3) + "," + formatFloat(o.y, "", 0, 3) + "," + formatFloat(o.z, "", 0, 3) + "," + formatFloat(o.w, "", 0, 3) + "]"));
+	}
+
+	// unitcolor <unitId|me> <mul|overlay> <r> <g> <b> [a]: set a unit's multiply or overlay colour
+	// (the two ways a sprite takes a colour: SetMultiplyColor scales it, SetOverlayColor blends
+	// it toward the colour by a, the damage flash)
+	void VerbUnitColor(const string &in id, array<string>@ args)
+	{
+		if (args.length() < 5)
+		{
+			Fail(id, "usage: unitcolor <unitId> <mul|overlay> <r> <g> <b> [a]");
+			return;
+		}
+		UnitPtr u;
+		auto plr = GetLocalPlayer();
+		if (args[0] == "me" && plr !is null)
+			u = plr.m_unit;
+		else
+			u = g_scene.GetUnit(parseInt(args[0]));
+		if (!u.IsValid())
+		{
+			Fail(id, "no unit " + args[0]);
+			return;
+		}
+		vec4 c = vec4(parseFloat(args[2]), parseFloat(args[3]), parseFloat(args[4]), args.length() > 5 ? parseFloat(args[5]) : 1.0f);
+		if (args[1] == "overlay")
+			u.SetOverlayColor(c);
+		else
+			u.SetMultiplyColor(c);
+		Emit(Reply(id, true).Int("unit", u.GetId()).Str("mode", args[1]));
+	}
+
 	// rayhit <x0> <y0> <x1> <y1> [hardness]: where a RayProjectile from (x0,y0) toward (x1,y1) stops:
 	// "wall", the first Shot raycast hit that is no damage taker (RayProjectile.HitUnit destroys a
 	// bounceless one there), and "tile", the first point (4 px steps) on tiles harder than
@@ -360,6 +485,9 @@ namespace GameLab
 		RegisterVerb("pressfunc", "<func...>", Verb(VerbPressFunc));
 		RegisterVerb("wsexec", "<type> <comment>", Verb(VerbWsExec));
 		RegisterVerb("actors", "[radius] [filter]", Verb(VerbActors));
+		RegisterVerb("projs", "[radius] [filter]", Verb(VerbProjs));
+		RegisterVerb("projshow", "<unit> <dx> <dy> [friendly]", Verb(VerbProjShow));
+		RegisterVerb("unitcolor", "<unitId|me> <mul|overlay> <r> <g> <b> [a]", Verb(VerbUnitColor));
 		RegisterVerb("rayhit", "<x0> <y0> <x1> <y1> [hardness]", Verb(VerbRayHit));
 		RegisterVerb("trail", "<tag> <ms> <radius> <filter> [stepMs]", Verb(VerbTrail));
 		RegisterVerb("statadd", "<statId> [n]", Verb(VerbStatAdd));

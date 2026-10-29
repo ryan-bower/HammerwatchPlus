@@ -71,6 +71,7 @@
 					<bool name="level">false</bool>
 					<array name="settings">
 						<dict><string name="option">colors</string></dict>
+						<dict><string name="key">colors.markers</string><string name="type">bool</string><bool name="host">false</bool><bool name="level">false</bool><bool name="default">true</bool></dict>
 						<dict><string name="option">playercolors</string></dict>
 						<dict><string name="key">playercolors.names</string><string name="type">bool</string><bool name="host">false</bool><bool name="level">false</bool><bool name="default">true</bool></dict>
 						<dict><string name="key">playercolors.distance</string><string name="type">int</string><bool name="host">false</bool><bool name="level">false</bool><int name="default">300</int><array name="values"><i>0</i><i>150</i><i>300</i><i>600</i><i>1000</i></array><int name="labels">0</int><string name="suffix"> px</string></dict>

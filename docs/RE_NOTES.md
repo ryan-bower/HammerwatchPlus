@@ -5543,3 +5543,46 @@ width, with each entry's symbols side by side before its name. In a column of 14
 tile now drops symbols from the end, keeping at least one, until the name (and the note
 under it) fits. Of the 13 cards, only Quality of Life renders differently. Republished:
 HWP-qol, HWP-pets and HammerwatchPlus-All (kit 5538d81).
+
+## 2026-10-29: Projectile colours that show (issue #36)
+
+"Projectile colors option not changing anything". The tint did reach real shots. `gl projs`
+(new GameLab verb: the projectiles near the player, with `GetMultiplyColor`, owner and side)
+read the preset's colour on the ranger's arrows and on enemy shots in flight
+(20261029-060530). Nor is it packaging: the Workshop All pack (3828529950) carries the class
+swaps, 119 HWPNewProjectile, 37 HWPRayProjectile and 3 HWPBeamProjectile units.
+
+The tint is just too faint to see:
+- `UnitPtr.SetMultiplyColor` multiplies the sprite. Held still next to the player (`gl projshow`
+  holds a NewProjectile with speed 0 and a long ttl), the wizard's orange fireball under the
+  contrast blue only goes a dimmer yellow, and the cult shadow bolt under red just gets darker
+  (pixel probes 060822, 061019, 061152). Pale sprites (arrows) take the colour best. The
+  projectiles' lights and particles are not tinted at all.
+- `SetOverlayColor` (the damage flash) does not stay on: set on the player, nothing showed
+  (`gl unitcolor`, 061152).
+- Ray projectiles (guard crossbow bolt, goblin dart, wisp ice) cannot be held (`held: false`)
+  and live too briefly to be caught by polling; most held NewProjectiles die in a moment
+  (arrow, magic missile, bandit fireball). The wizard fireball, cult shadow bolt and warlock
+  soul projectile stay.
+
+Fix: a marker on every tinted projectile, a ring in the team's colour. `Tint` records the unit,
+and the module's `RenderFrame` draws `DrawCircle(p, 6, dark, 12, 3)` then `DrawCircle(p, 6,
+colour, 12, 1)` at `ToScreenspace(GetInterpolatedPosition(idt)) / m_wndScale` (as
+AGameplayGameMode draws player names; RenderFrame runs under the UI-scale transform). Gone
+units are pruned each frame. The ring renders lighter than its colour (#73ccff came out as
+(173,225,249)) and sits at the ground point, under the sprite's height.
+
+Test (`fix-colors`): a ranger fires at a fire magic tower (`actors/misc/tower_magic/
+tower_magic_fire.unit`, a static enemy whose fireball is a NewProjectile that flies for
+seconds) in the contrast, deuteranopia and default presets. Every shot seen in flight, friendly
+and enemy, has the preset's colour. A held friendly fireball and enemy shadow bolt each show a
+ring in their team's colour: 17-36 pixels of it that a markers-off shot of the same scene lacks,
+4.5-7.5 px around a centre, in all four quadrants, with a hollow middle. With default, none. A
+plain colour count in a square was not enough: torch flicker and fire sparks gave 7 pixels with
+no ring drawn. Up to 9 projectiles were marked at once. The camera leads the aim, so a ring is
+not exactly 40 px from the screen's middle; the test looks within 16 px.
+
+Runs: 061445 (fail: the guard sentry's ray bolts were never caught between polls, and the held
+shadow bolt sat in the wall and died), 061924 (pass), pf 062036 (fail: the plain colour count),
+062340 and pf 062430 (pass). Regressions pass: mod-colors 062124, mod-options-tab 062137,
+fix-map-colors 062203, pf-mod-colors 062247.
