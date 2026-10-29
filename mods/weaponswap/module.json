@@ -7,13 +7,16 @@
   "exclude": [],
   "config": {
     "title": "Wep. swap",
-    "about": "A second weapon set you swap to with a key (X by default), in a 2 s channel.",
+    "about": "A second weapon set you swap to with a key (X by default) or a controller button (D-pad left), in a 2 s channel.",
     "toggle": "weaponswap.enabled",
     "scope": "host",
     "applies": "now",
     "settings": [
       {
         "option": "swapkey"
+      },
+      {
+        "option": "swappad"
       }
     ]
   }

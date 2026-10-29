@@ -32,7 +32,7 @@ SCENARIOS = REPO / "gamelab" / "scenarios"
 # all-in-one pack beside a package it already holds
 PAIRS = [("qol", "keys"), ("town", "dungeon"), ("all", "qol"), ("firearms", "classes")]
 # the engine's line for a path a second package also ships
-SHARED_PATH = r"Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\.bin' for file "
+SHARED_PATH = r"Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)(-gamelab)?\.bin' for file "
 # what `hwp help` lists for a package's own commands, and a command whose reply shows it works
 PROBES = {
     "keys": [("hwp bag", r"\[HWP\] Bag: \d+/\d+ items")],
