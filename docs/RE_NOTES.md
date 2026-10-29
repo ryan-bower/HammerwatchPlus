@@ -5629,9 +5629,33 @@ AngelScript. `mod-keys-layout` now binds F13 and Scroll Lock as well, and has no
 Verified offline: `tests/test_winproc_typed.py`, `tests/test_writes_controls.py`, the full
 pytest suite, and `make_config` / `build` / `list_verbs` / `guard_modules --check`.
 
-**Not yet run: `mod-keys-layout` (the GameLab e2e) waits for the user's approval.** Until it
-runs, these are assumed:
-- that the scripts compile;
-- that reading text events in a module does not take them from a focused text box;
-- that `ResolveInputKey` returns the scancode;
-- that staging and saving work during gameplay.
+**GameLab runs (user-approved, lab mode).** mod-keys-layout 20261028-232952 PASS (85/85),
+which covers the F13 and Scroll Lock binds. mod-keys-play 20261028-233203 PASS (new). With these
+runs the earlier assumptions are measured: the scripts compile, staging and saving work during a
+mission, and `ResolveInputKey` returns the scancode.
+
+- **Rebound game keys work in play** (`mod-keys-play`, town-paladin, dark_citadel floor 13,
+  with the Dev Arena input log). The Plus tab rebinds:
+  - primary attack to K, named by a second posted press (Windows' own WM_CHAR);
+  - off-hand to L, skill 1 to U, dash to J and move up to O.
+
+  Results:
+  - Left and right click still attack (a bind keeps the mouse buttons), and K and L attack too.
+  - U and mouse 4 use skill 1, J dashes, O moves up and S still moves down.
+  - The old keys 1, Q, Space and W do nothing. Skill 2 on 2 is untouched.
+  - The log has `Skill1 bound to 24 (U), 2 keyboard key(s) replaced`.
+- **Forget key names row** (`keynames`, top of the Plus tab: "N named" / "none"). A name
+  learned wrong cannot be caught (below), so this row clears every `keylabel.<sc>` and each key
+  is asked again at its next bind. mod-keys-layout checks the count, the "forgotten" log line,
+  the US name coming back, and the re-ask.
+- **The naming prompt is shorter**: "Bound. Press the same key again to name it (Esc skips)".
+  It has no key name, because the US one confused AZERTY players.
+- **Checking which key typed the name does not work.** The attempt was: after the naming
+  character, turn text input off and require the bound key still held within 6 frames.
+  Every naming press failed (mod-keys-layout 20261028-232634). A key that went down while text
+  input was on is not seen by `IsKeyDown` even after text input is off and the key is still
+  held. Reverted. Pressing a different key while naming still names the bound key with that
+  key's character. The Forget row is the fix.
+- **mission-ranger fails its fixture readback** before any step runs ("player.maxDashes: want
+  1, got 2"; 20261028-233043, -233145). This was found here, not caused by this change, so
+  mod-keys-play uses town-paladin.

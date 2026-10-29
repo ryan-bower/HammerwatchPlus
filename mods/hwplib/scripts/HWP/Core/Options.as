@@ -205,6 +205,48 @@ namespace HWP
 			HWP::Log("options", "key " + sc + " is labelled " + label + " on this keyboard");
 		}
 
+		// the keys named on this save
+		int NamedCount()
+		{
+			int n = 0;
+			for (int sc = SC_FIRST; sc <= 100; sc++)
+			{
+				if (Labelled(sc) && !HWP::Settings::GetString(LABEL + sc, "").isEmpty())
+					n++;
+			}
+			return n;
+		}
+
+		// a key named wrong (another key pressed while naming it, which cannot be told apart)
+		// is never asked again, so the names can be forgotten: each is asked at its next bind
+		class KeyNamesOption : Option
+		{
+			string Title() override { return Resources::GetString(".hwp.options.keynames"); }
+			string Value() override
+			{
+				int n = NamedCount();
+				return n == 0 ? Resources::GetString(".hwp.options.keynames.none")
+					: Resources::GetString(".hwp.options.keynames.n", { { "n", "" + n } });
+			}
+			string About() override { return Resources::GetString(".hwp.options.keynames.about"); }
+			void Next() override
+			{
+				if (!HWP::Settings::CanSave())
+					return;
+				int n = 0;
+				for (int sc = SC_FIRST; sc <= 100; sc++)
+				{
+					if (Labelled(sc) && !HWP::Settings::GetString(LABEL + sc, "").isEmpty())
+					{
+						HWP::Settings::SetString(LABEL + sc, "");
+						n++;
+					}
+				}
+				g_labelVersion++;
+				HWP::Log("options", "key names forgotten (" + n + ")");
+			}
+		}
+
 		// SDL scancode names (USB HID usage ids), as the keys are printed on a US keyboard
 		string UsKeyName(int sc)
 		{
@@ -318,7 +360,10 @@ namespace HWP
 // (mod-options-tab 20261028-230359), so binding cannot also read the character.
 // The key is bound when it comes back up. Then, for a key that types a character
 // and has no name yet on this keyboard, a second press with text input on names it
-// (HWP::Options::LearnLabel); Esc keeps the US name.
+// (HWP::Options::LearnLabel); Esc keeps the US name. Which key typed the character
+// cannot be checked: a key that went down while text input was on is not seen by
+// IsKeyDown even after it goes off, while still held (mod-keys-layout 20261028-232634).
+// A name learned from the wrong key is undone by the Forget key names row.
 class HWPKeyCaptureWindow : AWindowObject
 {
 	HWPOptionsTab@ m_tab;
@@ -406,7 +451,7 @@ class HWPKeyCaptureWindow : AWindowObject
 			return Done();
 		// a second press names it: the character typed is this key's on the player's layout
 		m_naming = m_pending;
-		string hint = Resources::GetString(".hwp.options.name", { { "key", HWP::Options::KeyName(m_naming) } });
+		string hint = Resources::GetString(".hwp.options.name");
 		SetText(hint);
 		if (m_tab !is null)
 			m_tab.CaptureNaming(hint);

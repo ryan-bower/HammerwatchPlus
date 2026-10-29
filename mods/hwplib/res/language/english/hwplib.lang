@@ -6,7 +6,11 @@
 	<string name="hwp.options.title">HammerwatchPlus Options</string>
 	<string name="hwp.options.hint">Click to change a setting or open a package.</string>
 	<string name="hwp.options.capture">Press a key for %what% (Esc cancels)</string>
-	<string name="hwp.options.name">Bound to %key%. Press it once more to read its name on your keyboard (Esc keeps %key%)</string>
+	<string name="hwp.options.name">Bound. Press the same key again to name it (Esc skips)</string>
+	<string name="hwp.options.keynames">Forget key names</string>
+	<string name="hwp.options.keynames.n">%n% named</string>
+	<string name="hwp.options.keynames.none">none</string>
+	<string name="hwp.options.keynames.about">Keys are named by what your keyboard types for them, asked once when a key is bound. Click to forget every name (one named wrong, a new keyboard); each key is asked again at its next bind.</string>
 	<string name="hwp.options.press">press a key...</string>
 	<string name="hwp.options.search">Search settings...</string>
 	<string name="hwp.options.nomatch">No settings match "%q%".</string>
