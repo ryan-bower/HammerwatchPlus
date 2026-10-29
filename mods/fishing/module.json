@@ -52,6 +52,27 @@
         "about": "Catches each player gets at a run's fishing hole."
       },
       {
+        "key": "fishing.reel_hits",
+        "type": "int",
+        "default": 0,
+        "values": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "labels": [
+          "By fish (2-4)",
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "title": "Hits to land",
+        "about": "Hits in the green a bite takes. By fish: 2 for 1-star fish, 3 for 2-star, 4 for 3-star. 1 is one press, as before."
+      },
+      {
         "key": "fishing.keys",
         "type": "bool",
         "default": true,

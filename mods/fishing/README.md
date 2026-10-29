@@ -16,7 +16,19 @@ keys module, a catch can bring up a key of any tier, ace keys included.
   while the sweeping marker is inside the green zone. The zone shrinks and the
   marker speeds up with the fish tier: 40 / 26 / 16 / 10 px of the 240 px
   bar, 0.18 / 0.23 / 0.28 / 0.34 px per ms; the marker counts as soon as it
-  touches the zone. It is drawn every frame between game ticks at sub-pixel
+  touches the zone. **A bite takes several hits** (issue #32): 2 for a 1-star
+  fish (tiers 1-2), 3 for 2-star, 4 for 3-star (`REEL_HITS`). After each hit but
+  the last the fish fights: the zone jumps at least 24 px clear of the marker,
+  the marker gets 15 % faster and the 2.5 s window starts again. A miss, or a
+  window running out, at any hit loses the fish ("It fought free and got away").
+  The speed-up stops where one ~33 ms game tick would carry the marker past
+  90 % of the zone plus its own width: Reel reads the marker where the last
+  tick left it, so a faster marker could step over the zone on every pass. The
+  3-star fish is already there (11 px a tick past a 10 px zone), so it gets
+  only x1.04; the fewer, harder hits are its challenge. Each hit logs
+  `reel: hit H of N (tier T), zone to X, marker xM` and the end `reel:
+  landed|missed|too slow at hit H of N (tier T)`. `fishing.reel_hits` 1-4
+  sets one count for every fish (1 is the old single press). It is drawn every frame between game ticks at sub-pixel
   positions, so it glides instead of stepping. The window pauses the game, and
   a paused game renders every frame with a sub-tick time of 0
   (`AGameplayGameMode.RenderFrame`), so until 2026-10-25 the marker only moved
@@ -161,7 +173,8 @@ keys module, a catch can bring up a key of any tier, ace keys included.
 
 On the HammerwatchPlus tab of the player menu (`config` in module.json), host-synced:
 `fishing.enabled` (the module), `fishing.coast`, `fishing.run_chance` (from the next
-level), `fishing.run_casts`, `fishing.keys`.
+level), `fishing.run_casts`, `fishing.reel_hits` (hits to land: 0 by fish, 2-4; or 1-4 for
+every fish), `fishing.keys`.
 
 `fishing.enabled 0` takes effect at once: the coast spots, the crab traps and the pirate
 go away in town, and on a run the host removes the holes and buckets. Casting, catches,
@@ -232,3 +245,9 @@ again.
 13. Personal loot (`fix-fishing-personal-loot`, solo): a hole catch logs `loot
     for them alone, K drop(s)` with K equal to the table's pool count and
     exactly those item units appear near the player. The co-op half is step 7.
+14. Several hits (`fix-fishing-reel-hits`): forced coast bites reeled through the
+    window's own bar (gl sweepclick reading the `marker` widget): tier 4 lands on
+    the 4th click, tier 1 on the 2nd, tier 3 on the 3rd with the marker x1.15
+    then x1.32 and the zone moved each time; the 3-star fish stays at x1.04; a
+    miss at the 2nd of 3 loses it; `fishing.reel_hits 1` lands on one click. By
+    hand: a 3-star fish in a boss room should feel hard but fair.

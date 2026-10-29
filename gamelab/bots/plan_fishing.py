@@ -187,11 +187,14 @@ class Checks(Base):
             time.sleep(0.25)
         return len(re.findall(r"adding ItemModifier to town", self.g.read_log()[mark:]))
 
-    def reel(self, rod, timeout_ms=9000, report="log,casts"):
-        """One cast and reel through gl sweepclick; the sweepclick event (result, zx, zw, texts)."""
+    def reel(self, rod, timeout_ms=9000, report="log,casts", miss_at=0):
+        """One cast and reel through gl sweepclick; the sweepclick event (result, zx, zw, clicks, texts).
+        sweepclick reads the window's marker widget and clicks every hit a bite takes
+        (fishing.reel_hits, issue #32); miss_at=k clicks the k-th one outside the zone."""
         widths, speeds = reel_table(rod)
         pairs = ",".join(f"{w}:{s:.5f}" for w, s in zip(widths, speeds))
-        r = self.gl("sweepclick", "cast-btn", "zone", BAR_WIDTH, MARKER_WIDTH, pairs, timeout_ms, BITE_WINDOW, report)
+        r = self.gl("sweepclick", "cast-btn", "zone", BAR_WIDTH, MARKER_WIDTH, pairs, timeout_ms, BITE_WINDOW, report,
+                    "marker", miss_at)
         if not r.get("ok"):
             return {"result": "error", "error": r.get("error", "")}
         cid = r["id"]
@@ -1251,6 +1254,59 @@ class Checks(Base):
                           + " (the lab draws about one frame a tick; the bound bites where frames outnumber ticks)")
         self.flag("smooth_logged", bool(re.findall(r"\[HWP:fishing\] smooth: tier 4", self.g.read_log()[mark:])))
         self.hwp("fishing tier 0", 0.4)
+        self.hwp("set fishing.bite_min 800")
+        self.hwp("set fishing.bite_max 3000")
+
+
+    def reel_hits(self):
+        """Issue #32: a bite takes 2 / 2 / 3 / 4 hits in the green by fish tier (fishing.reel_hits 0);
+        the zone moves and the marker speeds up after each hit; a miss at any hit loses it;
+        fishing.reel_hits 1 is the old single press."""
+        self.fresh("LabReel")
+        self.hwp("fishing bait squid 20", 0.4, until="[HWP]")
+        self.hwp("set fishing.bite_min 200")
+        self.hwp("set fishing.bite_max 300")
+        _, how = self.open_spot("doodads/hwp/fishing_spot.unit")
+        self.flag("reel_window", "FishingMenu" in self.window(), how)
+
+        def one(tier, miss_at=0):
+            self.hwp(f"fishing tier {tier}", 0.4, until="next coast bites")
+            mark = len(self.g.read_log())
+            ev = self.reel(1, timeout_ms=20000, miss_at=miss_at)
+            time.sleep(0.4)
+            log = self.g.read_log()[mark:]
+            hits = re.findall(r"reel: hit (\d) of (\d) \(tier (\d)\), zone to (\d+), marker x([\d.]+)", log)
+            end = re.findall(r"reel: (landed|missed|too slow) at hit (\d) of (\d) \(tier (\d)\)", log)
+            text = plain(ev.get("texts", {}).get("log", ""))
+            return ev, hits, end, text
+
+        for tier, need in ((4, 4), (1, 2), (3, 3)):
+            ev, hits, end, text = one(tier)
+            zones = [int(h[3]) for h in hits]
+            ok = (ev.get("result") == "clicked" and ev.get("clicks") == need and len(hits) == need - 1
+                  and end[-1:] == [("landed", str(need), str(need), str(tier))] and "Caught" in text)
+            self.flag(f"reel_tier{tier}_{need}_hits", ok,
+                      f"{ev.get('result')} clicks {ev.get('clicks')}; hits {hits}; end {end}; {text!r}")
+            if tier == 3:
+                speeds = [float(h[4]) for h in hits]
+                self.flag("reel_fights_back", len(speeds) == 2 and speeds[0] > 1.0 and speeds[1] > speeds[0],
+                          f"marker speed after each hit {speeds}, zone moved to {zones} from {ev.get('zx')}")
+            if tier == 4:
+                speeds = [float(h[4]) for h in hits]
+                self.flag("reel_fast_fish_catchable", all(s <= 1.05 for s in speeds),
+                          f"3-star marker multipliers {speeds} (capped: one tick's step stays catchable)")
+        ev, hits, end, text = one(3, miss_at=2)
+        self.flag("reel_miss_loses_it", ev.get("clicks") == 2 and len(hits) == 1
+                  and end[-1:] == [("missed", "2", "3", "3")] and "fought free" in text,
+                  f"{ev.get('result')} clicks {ev.get('clicks')}; hits {hits}; end {end}; {text!r}")
+        self.hwp("set fishing.reel_hits 1")
+        ev, hits, end, text = one(4)
+        self.flag("reel_setting_one_press", ev.get("clicks") == 1 and not hits
+                  and end[-1:] == [("landed", "1", "1", "4")] and "Caught" in text,
+                  f"{ev.get('result')} clicks {ev.get('clicks')}; end {end}; {text!r}")
+        self.hwp("set fishing.reel_hits 0")
+        self.hwp("fishing tier 0", 0.4)
+        self.close_windows()
         self.hwp("set fishing.bite_min 800")
         self.hwp("set fishing.bite_max 3000")
 

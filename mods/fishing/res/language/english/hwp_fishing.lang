@@ -9,6 +9,9 @@
 	<string name="hwp.fishing.waiting">Waiting for a bite...</string>
 	<string name="hwp.fishing.bite">\cffd27fBite!\d Reel it in when the marker is in the green.</string>
 	<string name="hwp.fishing.escaped">It got away.</string>
+	<string name="hwp.fishing.escaped_fight">It fought free and got away.</string>
+	<string name="hwp.fishing.bite_hits">\cffd27fBite!\d Reel when the marker is in the green, %n% times.</string>
+	<string name="hwp.fishing.fighting">\cffd27fIt's fighting!\d %hit% of %n%. Again, in the green.</string>
 	<string name="hwp.fishing.caught">\c00ff00Caught: %fish%!\d</string>
 	<string name="hwp.fishing.caught_run">\c00ff00Something bit!\d The fish goes in your bag, and more lies on the ground.</string>
 	<string name="hwp.fishing.denied">Nothing bites here any more.</string>

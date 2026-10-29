@@ -5543,3 +5543,48 @@ width, with each entry's symbols side by side before its name. In a column of 14
 tile now drops symbols from the end, keeping at least one, until the name (and the note
 under it) fits. Of the 13 cards, only Quality of Life renders differently. Republished:
 HWP-qol, HWP-pets and HammerwatchPlus-All (kit 5538d81).
+
+## 2026-10-29: fishing harder, several hits to land (issue #32)
+
+The issue: "fishing needs to be harder. multiple hits to win?"
+
+Why it was easy: a bite was one timed press, and every knob made it easier. The marker counts
+as soon as it touches the zone (any overlap with its 3 px). Rods widen the zone 20 % and slow
+the marker 10 % a tier, so the Captain's Rod makes a 3-star zone 16 px at 0.24 px/ms. Luck
+only changes which fish bites. The larger issue: one press can only be tuned by zone width
+and speed, and both hit a floor. A 10 px zone with a marker moving 11 px per ~33 ms tick
+(the 3-star fish) is already at the edge of hittable. Reel (`HWPFishingMenu.Reel`) reads
+`m_markerPos` as the last game tick left it, so a faster marker can step over the zone and
+make a press impossible on some passes. So difficulty has to come from more decisions, not
+from a faster bar.
+
+What changed (`fishing`, `FishingModule.as`):
+- `REEL_HITS` 2 / 2 / 3 / 4 hits by fish tier (`HitsNeeded`; `fishing.reel_hits` 1-4 overrides,
+  1 = before). A hit short of the count calls `Fight`: the zone jumps to a random spot at
+  least `HIT_ZONE_GAP` 24 px clear of the marker (no free hit on the next frame), the speed
+  multiplier goes up x1.15 and the bite window restarts. A miss or a timeout at any hit loses
+  the fish.
+- `MarkerSpeed` = max(base, min(base x multiplier, 0.9 x (zone + marker) / 33 ms)). The speed-up
+  never lets one tick's step pass what the zone can catch, and never slows a fish below its
+  vanilla speed. The 3-star fish is capped at x1.04 (rod 1); a 2-star fish gets x1.15 then
+  x1.32.
+- The marker widget's offset now follows the marker every tick, even while Draw paints it
+  (it was only placed when the widget was the visible fallback), so GameLab can read it.
+- Status: "Bite! Reel when the marker is in the green, N times.", then "It's fighting! H of N".
+  Logs: `reel: hit H of N (tier T), zone to X, marker xM`, `reel: landed|missed|too slow at
+  hit H of N (tier T)`.
+
+GameLab: `gl sweepclick` used to integrate the marker itself from the moment the zone
+appeared and click once. That can't follow a zone that moves or a marker that speeds up.
+It takes an optional marker widget id (it reads the real position, clicks every hit until
+the zone closes, and reports `clicks`) and `missAt` (that click is made outside the zone).
+`plan_fishing.reel` passes `marker`, so every fishing bot reels the whole bite.
+
+Tests:
+- `fix-fishing-reel-hits` (20261029-042427; pkgfeat 043617): tier 4 landed on click 4
+  (Abyssal Eel, x1.04 each hit), tier 1 on 2, tier 3 on 3 (x1.15, x1.32, zone 142 -> 11 ->
+  142); a miss at the 2nd of 3 logs `missed at hit 2 of 3` and "It fought free and got
+  away."; `fishing.reel_hits 1` lands a 3-star on one click.
+- Regressions with every bot reeling the whole bite: plan-fishing-a (042549), mod-fishing-spots
+  (042724), fix-fishing-personal-loot (043201), fix-fishing-keys (043400), fix-fishing-smooth
+  (043512), fix-fishing-starter-rod (043552).

@@ -85,7 +85,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 
 | Module | What it does |
 |---|---|
-| `fishing` | Six fishing spots on the town coast (a timing minigame), more in the water of run floors' potion wells (always one in a boss room), greyed on the map once fished out. A pirate sells bait, rods (priced per tier; new characters start with the wooden rod) and fish traps from the trading post's wreck, later its boat. Fish are swords, sell for the gambler's bet tokens (for gold without the gambler) and can be eaten (100 HP per star, plus Luck). Catches can hold keys and ace keys, and a hole's loot goes to whoever caught it. |
+| `fishing` | Six fishing spots on the town coast (a timing minigame: two to four hits in the green to land a fish), more in the water of run floors' potion wells (always one in a boss room), greyed on the map once fished out. A pirate sells bait, rods (priced per tier; new characters start with the wooden rod) and fish traps from the trading post's wreck, later its boat. Fish are swords, sell for the gambler's bet tokens (for gold without the gambler) and can be eaten (100 HP per star, plus Luck). Catches can hold keys and ace keys, and a hole's loot goes to whoever caught it. |
 | `farming` | The town's field grooves become farm plots: food crops and four Holy Herb strains grow with each completed run, faster when watered (the farmer sells the can and seeds; the well refills it). Smoke a herb for a buff that lasts 10 floors (hotboxing works outdoors too), or roll it into a joint: an off-hand with 5 puffs that a friend can take from you, with smoke that fills the room; a second joint goes in the main hand, left and right click puffing each. |
 | `gambler` | A gambler in the tavern plays Higher/Lower for gold. He buys crops and herbs for gold and fish for bet tokens, and rerolls equipped gear for 2000 gold × item level, or 1 bet token per 5 item levels. Bet tokens are this module's: they show in the Materials tab, and without it fish sell for gold. |
 | `tavern` | Three more tavern levels (from guild hall levels 7 and 8, the top one): a run can start with up to 3 foods and 5 drinks. |
@@ -168,6 +168,13 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 
 ## Status
+
+2026-10-29, fishing is harder (#32). A bite now takes several hits in the green: two for a
+1-star fish, three for 2-star, four for 3-star. After each hit the fish fights back: the
+green zone jumps away, the marker speeds up and the timer restarts, and one miss loses the
+fish. The fastest fish keep their speed, so their tiny zone can't be skipped over between
+game ticks. A "Hits to land" setting picks one count for every fish (1 is the old single
+press).
 
 2026-10-28, the Forsaken Tower from HoH1 itself (`campaign`, "HoH1 tower" in its README).
 With HoH1 installed, the import builds HoH1's tower from the player's own install: 23 floors,
