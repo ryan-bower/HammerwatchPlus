@@ -264,10 +264,23 @@ class Run:
             raise
         except GameError as e:
             # a mod compile error stops every mod script, the probe included: name it
-            errors = logparse.errors_in(game.read_log())
+            log = game.read_log()
+            errors = logparse.errors_in(log)
+            # the same mod id twice (a Workshop subscription beside the build under test) mixes
+            # two builds' files: name it, the compile error alone reads like a bug in the code
+            dup = logparse.duplicate_mods(log)
             self.finish(game)                      # stop the game, keep its logs, assert its exit
-            raise GameError(f"{e}" + (f"; script errors: {'; '.join(errors[:5])}" if errors else "")) from None
+            raise GameError(f"{e}" + (f"; mods found twice (a Workshop copy?): {dup}" if dup else "")
+                            + (f"; script errors: {'; '.join(errors[:5])}" if errors else "")) from None
         return game
+
+    def assert_found_once(self, game: Game, enabled: list[str]) -> None:
+        """No enabled mod is in the game twice: a Workshop subscription with the id of a mod
+        under test loads beside it and its files win (env.SHADOW_SUFFIX), so the run would test
+        a mix. The lab renames a shadowed package; an unpacked mod it cannot rename."""
+        dup = sorted(set(logparse.duplicate_mods(game.read_log())) & set(enabled))
+        self.assert_("every enabled mod found once (no Workshop copy of a mod under test)", not dup,
+                     f"found twice: {dup}; Workshop items: {logparse.workshop_items(game.read_log())}")
 
     def measure_compile_error(self, game: Game) -> None:
         """`"compile_error": true` (the compile-err measurement): what a player is left with when
@@ -438,6 +451,7 @@ class Run:
         enabled = sorted(m["id"] for m in mods.get("mods", []) if m.get("enabled"))
         want = sorted(recipe["binary_edits"]["enable_mods"] + extra_mods)
         self.assert_("enabled mods are exactly the fixture's + the scenario's", enabled == want, f"enabled={enabled}")
+        self.assert_found_once(game, enabled)
         # preflight assertion 3: the profile actually loaded, read from the running game.
         # Every numeric / boolean cvar of the profile (false/true = 0/1); v_resolution is
         # checked on the captured frame size instead (the shot steps).
@@ -519,6 +533,7 @@ class Run:
         enabled = sorted(m["id"] for m in mods.get("mods", []) if m.get("enabled"))
         want = sorted(recipe["binary_edits"]["enable_mods"] + extra_mods)
         self.assert_("enabled mods are exactly the fixture's + the scenario's", enabled == want, f"enabled={enabled}")
+        self.assert_found_once(game, enabled)
         o = self.plan_wait(game, lambda o: o.get("ev") == "plan_step_end" and o.get("k") == 2, 60)
         if o is None or o.get("ev") == "plan":
             raise GameError(f"the plan ended or stalled before the profile cvars: {o}")
@@ -1037,6 +1052,13 @@ class Run:
             # mods under test: enabled on top of the fixture's set, in this run's copy of the save
             extra = env.expand_mods(self.scenario.get("mods", []))   # + what they require
             extra += env.package_ids(self.scenario.get("packages"))   # built packages: id = file stem
+            shadowed = env.shadowed_packages(self.scenario.get("packages"))
+            if shadowed:
+                # a Workshop subscription has the package's id: the lab copy goes in under
+                # another id (env.SHADOW_SUFFIX), so only the build under test is enabled
+                out["workshop_shadowed"] = shadowed
+                print(f"  note: Workshop item(s) with a package's id: {shadowed}; the lab copy is "
+                      f"enabled as <id>{env.SHADOW_SUFFIX}")
             # a requires can reach a fixture mod (devarena requires gamelab-probe): each id once
             extra = [m for m in extra if m not in fixture["recipe"]["binary_edits"]["enable_mods"]]
             if extra:

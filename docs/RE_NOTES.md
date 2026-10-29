@@ -5123,7 +5123,41 @@ are parked.
 **To update.** Run `tools/workshop.py`, then `tools/workshop_publish.py`. With the ids in
 `workshop.json`, every item is updated in place.
 
-## 2026-10-28: Workshop pages v2, cards from the game's art
+## 2026-10-28: Workshop subscriptions in the lab game (two mods of one id)
+
+The game loads every Workshop item the Steam account subscribes to. It asks the Steam client
+(`STEAMUGC_INTERFACE_VERSION015`) and logs `Workshop: Subscribed items: N`, then
+`Workshop: Item: <hex> - <steamapps>/workshop/content/619820/<item>` per item. There is no
+cvar or switch to skip them, and GameLab's lab copy runs the same `steam_api64.dll`, so it
+loads them too. Each mod found shows as `Resource mod: <file>: <name> (<id>)`. A packed mod's
+id is its file stem, and the enabled set in the save is by `HashString(id)`. A subscription
+whose file has the same name as a local mod is therefore the same mod twice: enabling the id
+enables both.
+
+With both enabled, the resource index keeps the **first** copy of each path and logs
+`Resource name hash conflict in package 'mods/<file>' for file '<path>'` for the second. The
+Workshop's copy came first (the conflicts named the local `mods/` file). Only enabled mods
+load: with the subscription present but its id not enabled (`pkg-pets`), nothing conflicts.
+
+Found when `pkg-all-every` failed (20261028-232218) with `Courier.as: Identifier 'KeyedAction'
+is not a data type in namespace 'HWP::ItemActions'`. Every local bin held the same
+`ItemActions.as`, and every package enabled on its own passed. `pkg-all` alone failed the same
+way. Its log listed two `Resource mod: HammerwatchPlus-All.bin` and 1203 conflicts (the last
+passing `pkg-all` had none). The second copy was Workshop item 3828529950, subscribed at 21:24,
+library stamp 19c76653f770. That stamp check couldn't say so: it runs in a module, and nothing
+runs when the scripts don't compile.
+
+GameLab now handles it:
+- `env.workshop_ids()` reads the Workshop folder next to the install.
+- A built package with such an id goes into the lab mods dir as `<id>-gamelab.bin`
+  (`env.lab_package_name`). That changes only its id, so only the build under test is
+  enabled. The run records `workshop_shadowed`.
+- An unpacked mod under test can't be renamed (its id is its folder), so `env.link` reports
+  it instead.
+- `logparse.duplicate_mods` names a mod found twice in a boot error, and every boot asserts
+  that no enabled mod was (`every enabled mod found once`).
+- `tools/run.py` warns (`run: workshop:`) when a deployed package has a subscription's id.
+
 
 **Cards.** `tools/workshop_art.py` draws each item's picture at 480x270, then scales it 3x
 nearest neighbour to 1440x810, about 20-65 KB as PNG. The cards use:

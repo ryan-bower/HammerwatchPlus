@@ -217,9 +217,48 @@ def package_file(pkg: str) -> Path:
     return gamepaths.DIST / f"HWP-{pkg}.bin"
 
 
+def workshop_dir() -> Path:
+    """Where Steam keeps this game's Workshop items: <steamapps>/workshop/content/619820, one
+    folder per subscription of the Steam account. The game loads every one of them, the lab
+    copy too (it asks the Steam client, there is no switch to turn that off)."""
+    return install().parent.parent / "workshop" / "content" / gamepaths.HOH2_APPID
+
+
+def workshop_ids() -> dict[str, Path]:
+    """mod id -> file, for every packed mod a Workshop subscription installs (id = file stem)."""
+    out: dict[str, Path] = {}
+    d = workshop_dir()
+    if d.is_dir():
+        for f in sorted(d.glob("*/*.bin")):
+            out.setdefault(f.stem, f)
+    return out
+
+
+# A built package whose id a Workshop subscription also has goes into the lab under this
+# suffix. Two mods of one id are both enabled and the game keeps the first copy of each path,
+# the Workshop's (20261028-232806-pkg-all-lab: the published HammerwatchPlus-All won 153 of 170
+# scripts and the build under test failed to compile against its older library), so a run
+# would test a mix of the published build and this one. Only the id changes, not the content.
+SHADOW_SUFFIX = "-gamelab"
+
+
+def lab_package_name(pkg: str, shadowed: dict[str, Path] | None = None) -> str:
+    """The file name a built package gets in the lab mods dir (its stem is the id enabled)."""
+    stem = package_file(pkg).stem
+    return stem + (SHADOW_SUFFIX if stem in (workshop_ids() if shadowed is None else shadowed) else "") + ".bin"
+
+
+def shadowed_packages(packages: list[str] | None) -> dict[str, str]:
+    """package id -> the Workshop file that has its mod id, for the packages a run installs."""
+    ws = workshop_ids()
+    return {p: str(ws[package_file(p).stem]) for p in packages or [] if package_file(p).stem in ws}
+
+
 def package_ids(packages: list[str] | None) -> list[str]:
-    """The mod ids the game gives built packages: a packed mod's id is its file stem."""
-    return [package_file(p).stem for p in packages or []]
+    """The mod ids the game gives built packages: a packed mod's id is its file stem (the
+    lab's file name: lab_package_name)."""
+    ws = workshop_ids()
+    return [Path(lab_package_name(p, ws)).stem for p in packages or []]
 
 
 def is_package_copy(p: Path) -> bool:
@@ -248,13 +287,19 @@ def link(fix: bool = True, mods: list[str] | None = None, packages: list[str] | 
     wanted = list(env["mods"]) + list(mods or [])
     mods_dir = GAME / "mods"
     mods_dir.mkdir(exist_ok=True)
+    ws = workshop_ids()
     for m in wanted:
         src = REPO / "mods" / m
         if not (src / "info.xml").is_file():
             problems.append(f"mods/{m} has no info.xml")
             continue
+        if m in ws:
+            # an unpacked mod's id is its folder name: the lab cannot rename it the way it
+            # renames a package (lab_package_name), and both copies would load
+            problems.append(f"mods/{m}: the Workshop subscription {ws[m]} has the same mod id; the game would "
+                            "load both and keep the Workshop's files (unsubscribe while testing it)")
         ensure_junction(mods_dir / m, src, problems, fix)
-    shipped = {package_file(k).name: package_file(k) for k in packages or []}
+    shipped = {lab_package_name(k, ws): package_file(k) for k in packages or []}
     for name, src in shipped.items():
         dst = mods_dir / name
         if not src.is_file():
