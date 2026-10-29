@@ -2,5 +2,6 @@
   "id": "vanilla-tuning",
   "requires": ["core"],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "local_only": true
 }

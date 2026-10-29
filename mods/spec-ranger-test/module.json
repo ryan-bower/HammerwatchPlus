@@ -4,5 +4,6 @@
     "core"
   ],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "local_only": true
 }

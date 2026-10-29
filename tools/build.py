@@ -202,7 +202,8 @@ def main(argv=None):
     mods = [load_module(d) for d in paths.module_dirs()]
     if args.check:
         sys.exit(1 if check_overrides(mods) else 0)
-    mods = [m for m in mods if not m["dev"]]     # dev harnesses are only ever linked (deploy.py --env gamelab)
+    # dev harnesses and GameLab tools (module.json "gamelab": true, e.g. devarena) are only ever linked
+    mods = [m for m in mods if not m["dev"] and not m.get("gamelab")]   # (deploy.py --env gamelab)
     # --beta: the beta_into modules ride inside their hosts and are never built on their own
     beta = [m for m in mods if m["beta_into"]] if args.beta else []
     for m in beta:
