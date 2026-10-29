@@ -32,6 +32,22 @@ namespace HWP
 			string Value() override { return KeyName(Scancode()); }
 		}
 
+		// a controller button (HWP::Input, a gp id like "gp_dl"; "" none): clicking the
+		// button waits for the next button press, on the controller
+		class PadOption : Option
+		{
+			string PadButton() { return ""; }
+			void SetPadButton(const string &in gp) {}
+			string Value() override
+			{
+				string gp = PadButton();
+				return gp.isEmpty() ? Resources::GetString(".menu.none") : HWP::Input::Name(gp);
+			}
+		}
+
+		// the buttons a capture never takes: B is the menu's back (it cancels), Start its toggle
+		const array<string> PAD_RESERVED = { "gp_b", "gp_start" };
+
 		dictionary g_options;
 		// the ids of the packages open in the Plus tab (this level); not a dictionary of bools:
 		// get(key, bool &out) copies its out temp back for a missing key too, so a package
@@ -159,13 +175,17 @@ class HWPKeyCaptureWindow : AWindowObject
 		auto opt = HWP::Options::Get(id);
 		auto text = cast<TextWidget>(m_widget.GetWidgetById("text"));
 		if (text !is null && opt !is null)
-			text.SetText(Resources::GetString(".hwp.options.capture", { { "what", opt.Title() } }));
+			text.SetText(Resources::GetString(cast<HWP::Options::PadOption>(opt) !is null ? ".hwp.options.capture_pad" : ".hwp.options.capture",
+				{ { "what", opt.Title() }, { "back", FormatKeyName("gp_b") } }));
 	}
 
 	// no AWindowObject::Update: no navigation, and Esc must not close the menu
 	bool Update(int ms, GameInput& gameInput, MenuInput& menuInput) override
 	{
 		IWidgetHoster::Update(ms);
+		auto pad = cast<HWP::Options::PadOption>(HWP::Options::Get(m_id));
+		if (pad !is null)
+			return UpdatePad(pad);
 		auto opt = cast<HWP::Options::KeyOption>(HWP::Options::Get(m_id));
 		if (opt is null)
 			return Done();
@@ -180,6 +200,24 @@ class HWPKeyCaptureWindow : AWindowObject
 			return false;
 		opt.SetScancode(sc);
 		HWP::Log("options", m_id + " key set to " + sc + " (" + HWP::Options::KeyName(sc) + ")");
+		return Done();
+	}
+
+	// a PadOption: the next controller button (B cancels: the menu's back calls Back)
+	bool UpdatePad(HWP::Options::PadOption@ opt)
+	{
+		string gp = HWP::Input::AnyHeld();
+		if (!m_armed)
+		{
+			// the button that pressed the row's button (A) must come up first
+			m_armed = gp.isEmpty();
+			return false;
+		}
+		if (gp.isEmpty() || HWP::Options::PAD_RESERVED.find(gp) >= 0)
+			return false;
+		opt.SetPadButton(gp);
+		string clash = HWP::Input::Clash(gp);
+		HWP::Log("options", m_id + " button set to " + gp + (clash.isEmpty() ? "" : " (also the controller's " + clash + ")"));
 		return Done();
 	}
 
@@ -721,7 +759,7 @@ class HWPOptionsTab : MenuTab
 			auto opt = HWP::Options::Get(id);
 			if (opt is null)
 				return;
-			if (cast<HWP::Options::KeyOption>(opt) !is null)
+			if (cast<HWP::Options::KeyOption>(opt) !is null || cast<HWP::Options::PadOption>(opt) !is null)
 			{
 				if (m_capture.isEmpty())
 					StartCapture(id);
