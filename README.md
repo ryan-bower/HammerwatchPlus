@@ -138,6 +138,12 @@ No releases are published yet; until then the repo builds and installs everythin
    later redeploys stay enabled. Everyone in the lobby does the same.
 3. In game, open the console (the key left of 1) and type `hwp help` for the commands and settings.
 
+Subscribed to HammerwatchPlus on the Steam Workshop as well? Then the game finds two mods with
+the same id, loads both, and keeps the Workshop copy's file wherever they overlap. You would
+play a mix of the two builds, or the scripts fail to compile. Use one or the other: unsubscribe
+while you play your own build (`run` warns: `run: workshop: ...`), or remove the `.bin` from
+`mods/` to play the published one.
+
 Without Heroes of Hammerwatch 1 every module still works: the campaign runs on HoH2 tiles,
 the HoH1 classes and trinkets show placeholder icons and the HoH1 pets stay out of the Pet
 Shop, and the game says so once in chat (`hwp hoh1` lists them). If `run` asks
@@ -186,6 +192,16 @@ attack no longer casts through the hold, and a held Councilor or Vampire Lord st
 targetable. The Devil Forgemaster raises every HoH1 elite, miniboss and boss, including each
 tower boss from its body on its own floor (`plan-forgemaster-hoh1`, 20261028-170645). The
 dragon is the exception, unraisable as designed.
+
+2026-10-28, GameLab tests the build under test even when you are subscribed to the
+published one. With the All pack published, this machine's Steam account subscribed to it
+(Workshop item 3828529950). The lab game loads subscriptions too, so `pkg-all` and
+`pkg-all-every` enabled two `HammerwatchPlus-All` mods. The game keeps the first copy of each
+path, which was the Workshop's: 153 of 170 scripts came from the published build, and the new
+code failed to compile against its older library. A mix that happened to compile would have
+passed while testing the wrong code. A package whose id a subscription has now goes into the
+lab as `<id>-gamelab`, a boot error names any mod found twice, and every run asserts none
+was. `run` warns about the same mix in your own install (`run: workshop:`).
 
 2026-10-28, the Quality of Life card no longer overlaps: a tile on a card drops its extra
 symbols when its name would run into the next column ("Improved behavior" ran into the hat).
@@ -486,6 +502,10 @@ and [regression map](docs/qa/REGRESSIONS.md); the [detailed skill](.claude/skill
 covers authoring and troubleshooting.
 Before merging to main, run `python -m gamelab run mod-all --mode lab` (every content
 mod loaded together; GUI textures must be power-of-two sized or the game won't boot).
+The lab game also loads your Steam account's Workshop subscriptions (the game asks Steam,
+with no switch to turn that off). A built package whose id a subscription has goes into
+the lab as `<id>-gamelab` (the run records `workshop_shadowed`), and every run asserts that
+no enabled mod was found twice.
 
 ## Developing
 
