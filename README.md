@@ -175,6 +175,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-29, guns work for every class (#16, #29). A Ranger's pistol never fired: a gun
+shoots from its clip, and the clip was filled and reloaded only for the Firearms Specialist.
+The clip, its reloads and how a gun handles now go with the gun, so a Ranger with a pistol
+and a hand crossbow shoots both, and the clip shows on the HUD. The class keeps its skills and
+the shops' guns.
+
 2026-10-29, Lightning Kush (#15), a fourth Holy Herb strain: violet, +20 % lightning damage,
 Ember Kush's counterpart. Each strain had been copied by hand into seven files and three
 sprite sheets indexed by seed order, and the harvest sheet was full. So now one table makes

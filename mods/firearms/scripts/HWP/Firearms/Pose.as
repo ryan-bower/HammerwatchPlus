@@ -408,7 +408,7 @@ namespace HWP
 		void UpdatePose(int ms)
 		{
 			auto plr = cast<PlayerBase>(GetLocalPlayer());
-			if (plr !is null && IsFirearms(GetLocalPlayerRecord()))
+			if (plr !is null && UsesGuns(GetLocalPlayerRecord()))
 				g_pose.Update(plr, ms);
 			else if (g_pose.m_state != "")
 				g_pose.Reset();
