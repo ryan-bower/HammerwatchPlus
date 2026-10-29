@@ -5584,3 +5584,9 @@ outgrows its gui (`HWP::Materials::Count`, new).
 - A wild Lightning Kush plot spawns (`hwp farm wild lightning_kush`).
 - All 18 Plants & Herbs cells show at 24 px.
 - The self-check reads `9 seeds, 4 herb buffs, 40 joint items`.
+
+**Seen on the way.** plan-farming-a fails three checks, the same ones on origin/main
+(20261029-004641) and here (20261029-004133):
+- `s2_sprouts_whole_groove`: the bot's hold-to-walk never reaches the groove's plots.
+- `s8_water_drops`: no drops logged.
+- `s7_joint_puffs`: the fifth puff isn't counted before the bot reads it.
