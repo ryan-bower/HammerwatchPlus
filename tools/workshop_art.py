@@ -414,6 +414,11 @@ def tiles_card(title, tiles, subtitle="", prereq=""):
         c, r = i // rows, i % rows
         x = 20 + c * colw + (8 if cols == 1 else 0)
         y = y0 + r * row_h + (row_h - slot) // 2
+        # fewer symbols when the name would run into the next column (keep at least one)
+        step = slot - (2 if slot == 32 else -1)
+        room = colw - (8 if cols == 1 else 0) - 3 - 8
+        while len(icons) > 1 and len(icons) * step + max(text_width(label, lab), text_width(t[2], small) if len(t) > 2 and t[2] else 0) > room:
+            icons = icons[:-1]
         used = badge(im, icons, x, y, slot)
         tl = text_layer(label, lab, TEXT)
         if len(t) > 2 and t[2]:
