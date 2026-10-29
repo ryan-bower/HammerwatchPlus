@@ -108,6 +108,7 @@ next level.
 | The Forsaken Tower | On | `campaign.enabled` | on | on, off | host, level |
 | The Forsaken Tower | Both tower versions | `campaign.portal_both` | off | on, off | host |
 | The Forsaken Tower | HoH1 traps | `campaign.traps` | on | on, off | host, level |
+| The Forsaken Tower | Trap map | `campaign.trap_map` | 0 | Crypt (0), Bandit Keep (1), Dark Citadel (2), Spider Caves (3), Every map (4) | host, level |
 | The Forsaken Tower | Trap density | `campaign.trap_density` | 100% | 25%, 50%, 100%, 200%, 400% | host, level |
 | The Forsaken Tower | Teleporters | `campaign.teleporters` | on | on, off | host, level |
 | The Forsaken Tower | Confusion | `campaign.confusion` | on | on, off | host |
