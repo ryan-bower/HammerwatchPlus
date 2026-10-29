@@ -5543,3 +5543,47 @@ width, with each entry's symbols side by side before its name. In a column of 14
 tile now drops symbols from the end, keeping at least one, until the name (and the note
 under it) fits. Of the 13 cards, only Quality of Life renders differently. Republished:
 HWP-qol, HWP-pets and HammerwatchPlus-All (kit 5538d81).
+
+## 2026-10-29: guns on any class (issues #16, #29)
+
+Issue #16 asked for a Ranger with a pistol and a hand crossbow; #29 said guns don't work off
+the Firearms Specialist. The cause is the same. A gun's attack fires only while the clip stack
+holds rounds (`attacks_firearms.sval`, `buff stacks clip ge 1`). Each gun gives the clip its
+size through a marker buff, for any class. But filling it on spawn (`UpdateFill`), the reload
+on an empty trigger (`UpdateEmptyTrigger`), the magazine (`MagazineShot`, `UpdateMagazine`),
+the aim hold and reload sounds (`UpdateCombat`, `PreRenderCombat`) and the pose (`UpdatePose`)
+all asked `IsFirearms(rec)`, the class.
+
+Measured on the town-ranger fixture, pistol plus `offhand_crossbow_01` (20261029-005234):
+- The Ranger's clip stayed at 0, so the pistol never fired.
+- The hand crossbow fired.
+- A Specialist with the same gear spent 5 rounds.
+
+Now those ask `UsesGuns(rec)`: the class, or a gun (tag `hwp_firearm`) in either hand
+(`HoldsGun`). Taking a gun up counts as a change for the fill, like a class change. The class
+keeps its skills, start ranks and the shops' gun stock.
+
+`fix-firearms-ranger-offhand` (20261029-013722; its pf run -013915):
+- no clip without a gun;
+- the clip fills to 10 in town and is full on floor 1;
+- the pistol hurts a breakable target dummy and spends rounds;
+- the crossbow hurts it and spends none;
+- `hwp firearms empty` and a trigger pull reload it.
+
+**Seen on the way: a bot's gun misses unless the cursor is on the target's body.** A gun aims
+from the point its round is drawn at, `AIM_HEIGHT` (11) px above the feet, toward the cursor
+(`Combat.as AimAtCursor`). So the round's collision line ends 11 px below the cursor. A cursor on
+a target's feet makes a sideways shot pass under it: with a dummy at (60, 0) the gun read 10 deg
+and the dummy took 0 (20261029-010935), while a shot from above or below hit. A player puts the
+crosshair on the body and hits. The bot now puts the cursor 11 px above the target's feet: 5 of 5
+runs hit at 0, 45 and 135 deg (20261029-013722 to -013954). Two other things read as "no damage"
+on the way:
+- A bandit brute's `BlockSkill` blocks a front hit 1 in 4 for 30 physical, more than a pistol
+  round does (24), so a blocked burst reads 0. The crossbow's bolt gets through.
+- A bandit hunter walks out of the line of fire.
+
+The bot shoots a breakable target dummy. Bots that fire guns with `input` alone and no `cursor`
+miss since the cursor aim came in (5167447, 2026-10-25), as 2026-10-26 noted for the bench:
+`qa-firearms-magazine-edges` and `-continuity` (actual damage 0 on the dummy) and bench-smoke's
+pierce check (0 at every distance, 20261029-010334). The gun damage itself is fine; those bots
+need a `cursor` on the target's body.

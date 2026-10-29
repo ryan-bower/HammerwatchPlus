@@ -169,6 +169,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-29, guns work for every class (#16, #29). A Ranger's pistol never fired: a gun
+shoots from its clip, and the clip was filled and reloaded only for the Firearms Specialist.
+The clip, its reloads and how a gun handles now go with the gun, so a Ranger with a pistol
+and a hand crossbow shoots both, and the clip shows on the HUD. The class keeps its skills and
+the shops' guns.
+
 2026-10-28, the Forsaken Tower from HoH1 itself (`campaign`, "HoH1 tower" in its README).
 With HoH1 installed, the import builds HoH1's tower from the player's own install: 23 floors,
 the nine hand-made levels as HoH1 ships them and fourteen act floors from HoH1's own generator
