@@ -5534,3 +5534,12 @@ Runs:
 - tower-run: 20261028-173522, then 182249 (stopped at the chambers boss: the crosses), then
   184122 (stopped at battlements_1: the exit through a SetFlag), 185918 (the last four
   floors only, partial), 190322 (pass: 23 of 23 floors, every flag).
+
+## 2026-10-28: Workshop cards, a name that runs into the next column
+
+`tools/workshop_art.tiles_card` lays more than eight entries out in columns of a fixed
+width, with each entry's symbols side by side before its name. In a column of 146 px,
+"Improved behavior" (105 px) behind two symbols ran into the third column's hat icon. A
+tile now drops symbols from the end, keeping at least one, until the name (and the note
+under it) fits. Of the 13 cards, only Quality of Life renders differently. Republished:
+HWP-qol, HWP-pets and HammerwatchPlus-All (kit 5538d81).

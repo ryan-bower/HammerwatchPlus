@@ -187,6 +187,11 @@ targetable. The Devil Forgemaster raises every HoH1 elite, miniboss and boss, in
 tower boss from its body on its own floor (`plan-forgemaster-hoh1`, 20261028-170645). The
 dragon is the exception, unraisable as designed.
 
+2026-10-28, the Quality of Life card no longer overlaps: a tile on a card drops its extra
+symbols when its name would run into the next column ("Improved behavior" ran into the hat).
+Only the QoL card changed. Quality of Life, Pets and the All pack are republished on the
+Workshop, carrying the shorter "Wep. swap" and "Improved behavior" labels too.
+
 2026-10-28, the Forsaken Tower played from floor 1 to the end (`tower-run`, 20261028-190322,
 pass in 16 min). The run used every floor's own exit for all 23 floors. On the way it cleared
 657 enemies, used 55 level triggers and the chests, doors, shrines and wells, and fought all
