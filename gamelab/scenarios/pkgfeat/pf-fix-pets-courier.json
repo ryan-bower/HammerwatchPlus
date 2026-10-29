@@ -1,0 +1,86 @@
+{
+ "name": "pf-fix-pets-courier",
+ "about": "fix-pets-courier against the built packages coop, pets, town instead of the mods' source folders (tools/make_package_scenarios.py). mods/pets courier (issue #13): with a pet out in a run, a bag item's hints read [Q] Drop, [H] Send home; H puts it in the stash tab 'Pet deliveries' at once (saved with the character), the hint goes when the level 1 pet's one-item satchel is full; closing the menu sends the pet off (no pet unit near) and it is back after pets.courier_secs (5 here). Shot: the run after the return.",
+ "fixture": "town-paladin",
+ "timeout": 420,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "still in town"
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] item action drop key Q \\(20\\)",
+   "timeout": 30
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] item action eat key F \\(9\\)",
+   "timeout": 5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] item action courier key H \\(11\\)",
+   "timeout": 5
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "CLASHES with the menu"
+  },
+  {
+   "do": "bot",
+   "bot": "fix_courier",
+   "kwargs": {
+    "check": "courier"
+   },
+   "expect": {
+    "ok": true,
+    "pet_bought": true,
+    "courier_bag_item": true,
+    "run_started": true,
+    "pet_in_run": true,
+    "courier_hint": true,
+    "courier_hint_clickable": true,
+    "courier_handed": true,
+    "courier_in_stash": true,
+    "courier_full_no_hint": true,
+    "pet_waits_for_close": true,
+    "pet_leaves": true,
+    "pet_back": true,
+    "courier_status": true
+   },
+   "name": "mods/pets courier (issue #13): with a pet out in a run, a ba"
+  },
+  {
+   "do": "shot",
+   "name": "pet-back"
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)(-gamelab)?\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "coop",
+  "pets",
+  "town"
+ ]
+}

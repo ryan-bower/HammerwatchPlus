@@ -130,7 +130,7 @@ class HWPSkillKeysHUDPlayer : HUDPlayer
 			if (binding is null)
 				continue;
 			binding.m_offset = vec2(1, -29);
-			binding.SetText(HWP::SkillKeys::KeyName(k));
+			binding.SetText(HWP::SkillKeys::ShortName(k));
 		}
 		Invalidate();
 	}

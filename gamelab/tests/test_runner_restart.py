@@ -16,6 +16,10 @@ class FakeGame:
         self.mods = [{"id": "hwplib", "enabled": True}]
         self.cvars = {"snd_volume": 0, "e_cheats": 1}
         self.saved_run = "qa-run"
+        self.log = ""
+
+    def read_log(self):
+        return self.log
 
     def wait_gl(self, predicate, timeout):
         for phase in ("no_character", self.phase):
@@ -90,6 +94,14 @@ class RestartTests(unittest.TestCase):
         failures = [a["name"] for a in self.runner.assertions if not a["ok"]]
         self.assertTrue(any("enabled mods" in name for name in failures))
         self.assertTrue(any("profile loaded" in name for name in failures))
+
+    def test_resume_flags_a_mod_found_twice(self):
+        # a Workshop subscription with an enabled mod's id: both copies load (gamelab/env.py SHADOW_SUFFIX)
+        self.game.log = ("[NFO] [23:28:07] Resource mod: hwplib: HammerwatchPlus library (hwplib)\n"
+                         "[NFO] [23:28:07] Resource mod: hwplib: HammerwatchPlus library (hwplib)\n")
+        self.resume()
+        failures = [a["name"] for a in self.runner.assertions if not a["ok"]]
+        self.assertTrue(any("found once" in name for name in failures), failures)
 
     def test_resume_requires_actual_saved_run(self):
         self.game.saved_run = ""

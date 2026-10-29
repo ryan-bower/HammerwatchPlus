@@ -35,7 +35,6 @@ namespace HWP
 		const string SWAP_BUFF = "players/hwp/weaponswap/buffs_weaponswap.sval:swapping";
 
 		int g_scancode = DEFAULT_SCANCODE;
-		string g_keyName = "X";
 		bool g_wasDown = false;
 		string g_pad = DEFAULT_PAD; // "" none
 		bool g_padWasDown = false;
@@ -80,7 +79,6 @@ namespace HWP
 		{
 			int was = g_scancode;
 			g_scancode = HWP::Settings::GetInt("weaponswap.key", DEFAULT_SCANCODE);
-			g_keyName = HWP::Settings::GetString("weaponswap.keyname", HWP::Options::KeyName(g_scancode));
 			// a new key that is held right now (just pressed to bind it) must not swap
 			if (g_scancode != was)
 				g_wasDown = true;
@@ -103,12 +101,30 @@ namespace HWP
 			}
 		}
 
+		// the key's name (HWP::Options::KeyName, US keycap); `hwp swapkey <code> <name>` can
+		// name it by hand
+		// fit: the short name when the full one is too long for the options value column
+		string KeyName(bool fit = false)
+		{
+			string name = HWP::Settings::GetString("weaponswap.keyname", "");
+			if (!name.isEmpty())
+				return HWP::Options::Escape(name);
+			return fit ? HWP::Options::FitKeyName(g_scancode) : HWP::Options::KeyName(g_scancode);
+		}
+
+		// at most 4 characters, for the 53 pixel label under the other set
+		string ShortKeyName()
+		{
+			string name = HWP::Settings::GetString("weaponswap.keyname", "");
+			return (name.isEmpty() || utf8string(name).length() > 4) ? HWP::Options::ShortKeyName(g_scancode) : HWP::Options::Escape(name);
+		}
+
 		// the row in the player menu's Plus tab: click, then press the new key
 		class SwapKeyOption : HWP::Options::KeyOption
 		{
 			string Title() override { return Resources::GetString(".hwp.weaponswap.option"); }
 			int Scancode() override { return g_scancode; }
-			string Value() override { return g_keyName; }
+			string Value() override { return KeyName(true); }
 			void SetScancode(int scancode) override
 			{
 				if (scancode == DEFAULT_SCANCODE)
@@ -143,11 +159,12 @@ namespace HWP
 		}
 
 		// what the hints name: the button while a controller is in use (and one is set), else the key
-		string HotkeyName()
+		// brief: at most 4 characters, for the label under the other set
+		string HotkeyName(bool brief = false)
 		{
 			if (g_usingPad && !g_pad.isEmpty())
 				return HWP::Input::Name(g_pad);
-			return g_keyName;
+			return brief ? ShortKeyName() : KeyName();
 		}
 
 		void OnSettingChanged(const string &in key)
@@ -575,7 +592,7 @@ namespace HWP
 				auto altOff = LoadAlt(KEY_OFF);
 				HWP::Commands::Reply(Resources::GetString(".hwp.weaponswap.status", {
 					{ "set", "" + ActiveSet() }, { "main", altMain is null ? "-" : altMain.GetName() },
-					{ "off", altOff is null ? "-" : altOff.GetName() }, { "code", "" + g_scancode }, { "name", g_keyName } }));
+					{ "off", altOff is null ? "-" : altOff.GetName() }, { "code", "" + g_scancode }, { "name", KeyName() } }));
 				HWP::Commands::Reply("swap channel: " + (g_channel > 0 ? g_channel + " ms left" : "none") + ", swaps " + g_swaps + ", cancelled " + g_cancels);
 				return;
 			}
@@ -587,7 +604,7 @@ namespace HWP
 				HWP::Settings::Reset("weaponswap.keyname");
 			RefreshSettings();
 			Changed();
-			HWP::Commands::Reply(Resources::GetString(".hwp.weaponswap.key_set", { { "code", "" + code }, { "name", g_keyName } }));
+			HWP::Commands::Reply(Resources::GetString(".hwp.weaponswap.key_set", { { "code", "" + code }, { "name", KeyName() } }));
 		}
 	}
 }
@@ -690,7 +707,7 @@ class HWPAltWeaponLabel : HWP::Gear::Label
 	string Text() override
 	{
 		if (m_hint)
-			return Resources::GetString(".hwp.weaponswap.label_hint", { { "key", HWP::WeaponSwap::HotkeyName() } });
+			return Resources::GetString(".hwp.weaponswap.label_hint", { { "key", HWP::WeaponSwap::HotkeyName(true) } });
 		return Resources::GetString(".hwp.weaponswap.label");
 	}
 }
@@ -712,7 +729,7 @@ namespace Modules
 		{
 			super("hwp-weaponswap");
 			HWP::WeaponSwap::ShowSlots(true); // Start hides them again when the module is off
-			HWP::Commands::Register("swap", "[now]  swap weapon sets (hotkey X): a 2 s channel, again to cancel; now (cheat) at once", HWP::Commands::Handler(HWP::WeaponSwap::CmdSwap));
+			HWP::Commands::Register("swap", "[now]  swap weapon sets (the swap key, X by default): a 2 s channel, again to cancel; now (cheat) at once", HWP::Commands::Handler(HWP::WeaponSwap::CmdSwap));
 			HWP::Commands::Register("swapkey", "[scancode [name]]  show or set the swap hotkey", HWP::Commands::Handler(HWP::WeaponSwap::CmdSwapKey));
 			HWP::Commands::Register("swapdrop", " move the other weapon set back into your inventory", HWP::Commands::Handler(HWP::WeaponSwap::CmdSwapDrop));
 			HWP::Commands::Register("swappad", "[button|none|default]  show or set the controller swap button (D-pad left, gp_dl, by default)", HWP::Commands::Handler(HWP::WeaponSwap::CmdSwapPad));

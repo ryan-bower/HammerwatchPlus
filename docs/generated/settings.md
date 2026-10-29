@@ -163,6 +163,7 @@ next level.
 | Fishing | Run hole chance | `fishing.run_chance` | 30% | 0%, 15%, 30%, 50%, 75%, 100% | host, level |
 | Fishing | Casts per hole | `fishing.run_casts` | 3 | 1, 2, 3, 5, 8 | host |
 | Fishing | Keys from catches | `fishing.keys` | on | on, off | host |
+| Fishing | (option `eatkey`) | | | | local |
 | Farming | On | `farm.enabled` | on | on, off | host |
 | Farming | Plant in town fields | `farm.fields` | on | on, off | host |
 | Farming | Wild plot chance | `farm.run_chance` | 35% | 0%, 15%, 35%, 50%, 75%, 100% | host, level |
@@ -177,3 +178,6 @@ next level.
 |---|---|---|---|---|---|
 | Pets | On | `pets.enabled` | on | on, off | host |
 | Pets | Feeding bowl | `pets.bowl` | off | on, off | host |
+| Pets | Pet courier | `pets.courier` | on | on, off | host |
+| Pets | Courier trip | `pets.courier_secs` | 60 s | 15 s, 30 s, 60 s, 90 s, 120 s | host |
+| Pets | (option `courierkey`) | | | | local |

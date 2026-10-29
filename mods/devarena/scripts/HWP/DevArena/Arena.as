@@ -21,6 +21,7 @@ namespace HWP
 {
 namespace DevArena
 {
+	// the arena hotkeys' defaults (rebindable: Dock.as, HotkeyOption)
 	const int SCANCODE_F3 = 60;
 	const int SCANCODE_F4 = 61;
 	const int SCANCODE_F6 = 63;
@@ -176,7 +177,7 @@ namespace DevArena
 		GolemReset();
 		g_resets++;
 		HWP::Log("devarena", "arena reset " + g_resets);
-		g_lastAction = "reset (F3)";
+		g_lastAction = "reset (" + KeyLabel(KeyReset()) + ")";
 	}
 
 	void ReloadFloor()
@@ -229,7 +230,7 @@ namespace DevArena
 		g_paused = !IsPaused();
 		PauseGame(g_paused, true);
 		HWP::Log("devarena", "arena pause " + (g_paused ? "on" : "off"));
-		g_lastAction = g_paused ? "paused (F6)" : "unpaused (F6)";
+		g_lastAction = (g_paused ? "paused (" : "unpaused (") + KeyLabel(KeyPause()) + ")";
 	}
 
 	// ---- brush ------------------------------------------------------------------------
@@ -347,9 +348,9 @@ namespace DevArena
 	// ---- frame ------------------------------------------------------------------------
 	void TickArenaKeys()
 	{
-		bool f3 = KeyPressed(SCANCODE_F3);
-		bool f4 = KeyPressed(SCANCODE_F4);
-		bool f6 = KeyPressed(SCANCODE_F6);
+		bool f3 = KeyPressed(KeyReset());
+		bool f4 = KeyPressed(KeyGolem());
+		bool f6 = KeyPressed(KeyPause());
 		vec2 midAt;
 		bool mid = MiddlePressed(midAt);
 		InstallEscGuard();     // Esc: EscGuard.MenuBack
@@ -471,13 +472,13 @@ namespace DevArena
 			+ "  seed " + GameLab::g_genSeed + "  NG+" + int(g_ngp + 0.5f), COL_DIM);
 		y += row;
 		float bw = (w - gap * 3) / 4;
-		if (ui.Button("reset", vec4(x, y, bw, row), "Reset F3"))
+		if (ui.Button("reset", vec4(x, y, bw, row), "Reset " + ShortKeyLabel(KeyReset())))
 			ArenaReset();
 		if (ui.Button("reload", vec4(x + (bw + gap), y, bw, row), g_reloadIn >= 0 ? "Reloading" : "Reload"))
 			g_reloadIn = RELOAD_DELAY;
 		if (ui.Button("cull", vec4(x + (bw + gap) * 2, y, bw, row), "Cull"))
 			CullAll();
-		if (ui.Button("pause", vec4(x + (bw + gap) * 3, y, bw, row), IsPaused() ? "Resume F6" : "Pause F6", IsPaused() ? COL_ON : COL_BUTTON))
+		if (ui.Button("pause", vec4(x + (bw + gap) * 3, y, bw, row), (IsPaused() ? "Resume " : "Pause ") + ShortKeyLabel(KeyPause()), IsPaused() ? COL_ON : COL_BUTTON))
 			TogglePause();
 		y += row + gap;
 		int ngp = g_arenaNgp >= 0 ? g_arenaNgp : int(g_ngp + 0.5f);
