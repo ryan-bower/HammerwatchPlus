@@ -6,6 +6,7 @@
 	<string name="hwp.options.title">HammerwatchPlus Options</string>
 	<string name="hwp.options.hint">Click to change a setting or open a package.</string>
 	<string name="hwp.options.capture">Press a key for %what% (Esc cancels)</string>
+	<string name="hwp.options.capture_pad">Press a controller button for %what% (%back% or Esc cancels)</string>
 	<string name="hwp.options.press">press a key...</string>
 	<string name="hwp.options.search">Search settings...</string>
 	<string name="hwp.options.nomatch">No settings match "%q%".</string>

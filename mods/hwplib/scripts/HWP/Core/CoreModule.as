@@ -58,6 +58,7 @@ namespace Modules
 			HWP::HoH1::Init();
 			HWP::Market::Init();
 			HWP::ItemActions::Init();
+			HWP::Input::Init();
 			HWP::Config::Init();
 			HWP::GameKeys::Init();
 			HWP::Net::OnRequest(HWP::Core::SETTINGS_PULL, HWP::Net::RequestHandler(HWP::Core::OnPull));

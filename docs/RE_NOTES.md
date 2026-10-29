@@ -5857,3 +5857,53 @@ the drop key's US name with `Escape`/`FitKeyName` (`HWP::DropTrade::KeyName`), a
 bar that stays on screen, now hwplib's (`HWP::ItemActions::FitNavBar`, called from hwplib's
 `Character.as`). `mod-keys-layout` and `mod-keys-ui-shots` rebind `eatkey` (default F)
 where they rebound `actionkey`; `mod-keys-layout` loads fishing for it.
+
+## 2026-10-29: controller buttons for mod hotkeys (issue #14)
+
+Issue #14 asked for weapon swap on a controller. The larger problem: every HWP hotkey read the
+keyboard alone (`Platform::IsKeyDown(ControllerType::Keyboard, 0, scancode)`): weapon swap, the
+classes module's Skill 4-6, the bag item actions, droptrade. A controller player had no way to
+reach any of them. The engine's `GameInput` has a fixed set of actions (Use, Dash, Skill1-3,
+MapOverlay, ...), and the game's Controls list is a fixed table in the exe, so a mod can't add
+an action there either.
+
+**Reading a button.** `Platform::ResolveInputKey(id, type)` turns a control map id into the
+engine's code and type; `Platform::IsKeyDown(type, ctrlIndex, code)` reads it. Measured with
+`hwp pad` (20261029-000132):
+- `gp_*` ids are `ControllerType::Gamepad` (4) with SDL game controller button numbers: a 0,
+  b 1, x 2, y 3, back 4, start 6, left stick 7, right stick 8, lb 9, rb 10, D-pad up 11,
+  down 12, left 13, right 14. (Vanilla's rebind widget skips Gamepad 4 as "Select",
+  `MenuControlInput.SetExpectedInput`.)
+- `ds4_*` ids are `Joystick` (7) buttons: square 0, cross 1, circle 2, triangle 3, l1 4, r1 5,
+  share 8, options 9, l3 10, r3 11. The D-pad is `JoystickHat` (10): up 0, right 1, down 2,
+  left 3.
+- Without a controller plugged in, `GameInput.GetControlMaps()` and
+  `GetControlBindings().GetMaps()` list only `kbm` (index -1) (20261029-000159). The `gp1-gp4`
+  / `ds41-ds44` maps of `res/controls_default.cfg` appear only for a connected device, so a pad
+  map's `Index` couldn't be measured in the lab. `HWP::Input::Held` reads each listed pad map
+  at its `Index`, and with a controller in use but none listed, Gamepad index 0. To check with
+  a real controller: `hwp pad` lists its map and shows `DOWN` beside a held button.
+- Vanilla catches a rebind's button through `OnBindingInput(type, key)`, which only the main
+  menu's game mode has (`MainMenuGameMode`). A gameplay mod polls instead (`AnyHeld`).
+
+**What is free.** Vanilla's gamepad map binds every face button, both bumpers and triggers,
+back, start, D-pad up / down / right to gameplay actions. D-pad left is only `MenuLeft`, and the
+stick clicks are unbound. Weapon swap takes D-pad left and reads it only with no window open
+(in a menu it moves left). The DualShock 4 map is the same with its own ids.
+
+**Glyphs.** `FormatKeyName("gp_dl")` is `\"inp-gp-dl"` (`language/english/input.lang`), and a
+Plus tab row and the HUD text draw it as the button's icon (shots swappad-row, swappad-tip,
+20261029-000930).
+
+**GameLab.** No OS input reaches the lab game, and an emulated `GameInput` write doesn't reach
+`IsKeyDown`. gamelab-hands' `pad hold <gp id> <ms>` writes the button to GlobalCache
+`hwp_pad_held`, which `HWP::Input::Held` reads as down. Unlike `input` holds, it counts down in
+paused frames too, because the Plus tab's capture runs behind the character menu, which
+pauses a solo game. `pad on` sets `hwp_pad_using`, which stands for `GameInput.UsingGamepad`.
+`fix-weaponswap-pad` passes (20261029-000930, packages 20261029-002338).
+
+**Seen on the way.** plan-t8's swap checks `swap_channel_waits`, `s1_tip_shown` and
+`s6_swapdrop` fail on origin/main as well (swap sections alone in town: 20261029-002212 on
+main, 20261029-002059 here). The bot looks for a `> gl <id>` echo and a `HUD:HWPWeaponSwapHUD`
+widget root that the current harness no longer logs or lists. The full plan-t8 also lost its
+player to floor traps twice, walking to a chest (20261029-001059, -001407).

@@ -26,6 +26,7 @@ next level.
 | Way gates | On | `waygates.enabled` | on | on, off | host |
 | Wep. swap | On | `weaponswap.enabled` | on | on, off | host |
 | Wep. swap | (option `swapkey`) | | | | local |
+| Wep. swap | (option `swappad`) | | | | local |
 | Lasting summons | On | `summons.enabled` | on | on, off | host |
 | Lasting summons | Forgemaster risen | `summons.risen` | on | on, off | host |
 | Lasting summons | Every summon | `summons.all` | off | on, off | host |
