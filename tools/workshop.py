@@ -336,10 +336,20 @@ def main(argv=None) -> int:
         if not errors:
             print("workshop: texts and ledger OK")
         return 1 if errors else 0
+    sys.path.insert(0, str(REPO / "tools"))
+    import build
     if not args.no_build:
-        sys.path.insert(0, str(REPO / "tools"))
-        import build
         if build.main(["--workshop"]) not in (0, None):
+            return 1
+    # a --with-local or --beta build (deploy.py modded-prod makes one in dist/) carries content made
+    # from the player's own installs: it never goes into the kit
+    local = build.local_entries([build.load_module(d) for d in build.paths.module_dirs()])
+    for file, _p, _inside in items(packages, allp):
+        src = DIST / f"{file}.bin"
+        mine = build.personal_files(src, local) if src.exists() else []
+        if mine:
+            print(f"workshop: {src} is a personal build ({len(mine)} file(s) made from your own installs, "
+                  f"e.g. {mine[0]}); rebuild it with tools/build.py --workshop", file=sys.stderr)
             return 1
     if OUT.exists():
         shutil.rmtree(OUT)

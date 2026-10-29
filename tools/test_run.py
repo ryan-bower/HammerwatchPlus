@@ -47,7 +47,8 @@ class RunPlan(unittest.TestCase):
         self.assertEqual(len(calls), 1, calls)
         self.assertIn("--dry-run", calls[0])
         self.assertIn("modded-prod", calls[0])
-        self.assertEqual("--with-local" in calls[0], run.CAMPAIGN_MARKER.is_file())
+        # deploy.py decides about the HoH1 content (it packs every import there is)
+        self.assertNotIn("--with-local", calls[0])
 
     def test_refuses_while_the_game_runs(self):
         out = io.StringIO()

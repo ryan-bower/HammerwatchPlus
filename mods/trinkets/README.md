@@ -94,9 +94,12 @@ uncommon 750, rare 3000, epic 6000.
 `python -m gamelab doctor --fix`) has run on a machine with HoH1 installed. It cuts them from
 the player's own install into `gui/hwp/icons_trinkets_hoh1.png` and lists their order in
 `res/language/english/hwp_trinkets_hoh1art.lang`. Both are gitignored `local` files, packed
-only with `build.py --with-local`, never released. `HoH1.as` (`ApplyArt`) points the
-trinkets at the sheet when that string is there. Without it, they keep the placeholder
-icons in the sval (vanilla `items/icons_trinkets.png` cells).
+only with `build.py --with-local` (which `deploy.py modded-prod` adds whenever they are
+there), never released. `HoH1.as` (`ApplyArt`) points the trinkets at the sheet when that
+string is there. Without it, they keep the placeholder icons in the sval: vanilla
+`items/icons_trinkets.png` cells, each another trinket's icon (the Frying Pan shows Symbol
+of Deflection's), which is what the Workshop build shows. The log says `HoH1 icons: 37 of
+37` or `HoH1 icons not imported`.
 
 | Trinket | Quality | Effect | Attuned |
 |---|---|---|---|

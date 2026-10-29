@@ -7,9 +7,11 @@
     deploy.py modded-prod --dry-run      # list what would be written, write nothing
     deploy.py modded-prod --beta         # a beta build: build.py --beta folds the `beta_into` modules
                                          # (holylocal, the Priest without the DLC) into their hosts' .bin
-    deploy.py modded-prod --with-local   # a personal build: build.py --with-local packs the content made
-                                         # from your own HoH1 install (the real HoH1 campaign levels); never
-                                         # publish those .bin files. tools/run.py passes it when HoH1 is imported
+    deploy.py modded-prod                # packs what you imported from your own HoH1 install (the HoH1
+                                         # campaign floors, pets, trinket icons, class art: build.py
+                                         # --with-local) whenever any of it is there: it is your install
+    deploy.py modded-prod --no-local     # a release build in your install (what the Workshop has)
+    deploy.py modded-prod --with-local   # pack the local content (the default when there is some)
     deploy.py vanilla                    # refuses: vanilla declares no mods
 
 gamelab: mods are directory junctions into mods/<id>/, so an edit in the repo *is* the
@@ -42,6 +44,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import build  # noqa: E402
 import gamepaths  # noqa: E402
 import saves  # noqa: E402
 from gamelab import env  # noqa: E402
@@ -71,7 +74,23 @@ def stale_packages(target: Path, keep: set[str]) -> list[Path]:
     return sorted(p for p in target.iterdir() if env.is_package_copy(p) and p.name not in keep)
 
 
-def deploy_prod(packages: list[str], dry_run: bool, beta: bool = False, with_local: bool = False) -> int:
+def personal_default() -> bool:
+    """modded-prod is the player's own install, so the content made from their own HoH1 install goes
+    in whenever there is some. Without it a deploy silently drops the HoH1 floors, pets and trinket
+    icons the player imported (2026-10-29: a deploy without --with-local left every HoH1 trinket on
+    a vanilla trinket's icon; only tools/run.py passed it, and only for the campaign import)."""
+    found = build.personal_content([build.load_module(d) for d in gamepaths.module_dirs()])
+    mods = sorted({f.split("/", 1)[0] for f in found})
+    if found:
+        print(f"modded-prod: packing {len(found)} file(s) made from your own HoH1 install ({', '.join(mods)}); "
+              "--no-local leaves them out")
+    else:
+        print("modded-prod: nothing imported from HoH1 (tools/import_hoh1.py): a release build")
+    return bool(found)
+
+
+def deploy_prod(packages: list[str], dry_run: bool, beta: bool = False, with_local: bool | None = None) -> int:
+    """with_local None: personal_default()."""
     decl = env.environments()["modded-prod"]
     forbidden = decl.get("forbidden_mods", [])
     wanted = packages or decl["packages"]
@@ -79,6 +98,8 @@ def deploy_prod(packages: list[str], dry_run: bool, beta: bool = False, with_loc
     if bad:
         print(f"REFUSED: not a package in packages.json (or forbidden): {bad}; known: {sorted(package_ids())}")
         return 2
+    if with_local is None:
+        with_local = personal_default()
     target = Path(env.install()) / "mods"
     plan = [(env.package_file(p), target / env.package_file(p).name) for p in wanted]
     stale = stale_packages(target, {dst.name for _, dst in plan})
@@ -126,9 +147,12 @@ def main(argv=None) -> int:
                     help="gamelab: repo mods to link; modded-prod: packages.json ids or `all`")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--beta", action="store_true", help="modded-prod: build with build.py --beta (never publish those .bin files)")
-    ap.add_argument("--with-local", action="store_true",
-                    help="modded-prod: build with build.py --with-local, packing the content made from your own "
-                         "HoH1 install (never publish those .bin files)")
+    local = ap.add_mutually_exclusive_group()
+    local.add_argument("--with-local", dest="with_local", action="store_true", default=None,
+                       help="modded-prod: build with build.py --with-local, packing the content made from your "
+                            "own HoH1 install (never publish those .bin files); the default when there is some")
+    local.add_argument("--no-local", dest="with_local", action="store_false",
+                       help="modded-prod: a release build, without the content made from your own HoH1 install")
     a = ap.parse_args(argv)
     if a.env == "vanilla":
         print("REFUSED: the vanilla environment declares no mods")
