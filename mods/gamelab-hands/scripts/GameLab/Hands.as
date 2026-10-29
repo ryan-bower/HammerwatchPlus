@@ -688,6 +688,7 @@ namespace Modules
 			GameLab::RegisterVerb("setvar", "<name> <value...>", GameLab::Verb(GameLab::VerbSetVar));
 			GameLab::RegisterVerb("cheat", "<ply_kill|cht_revive|cht_set_flag|cht_give_material|mission_start> [args]", GameLab::Verb(GameLab::VerbCheat));
 			GameLab::RegisterVerb("input", "<ms> <mx> <my> [aimX aimY] [button,button]", GameLab::Verb(GameLab::VerbInput));
+			GameLab::RegisterVerb("pad", "[on|off|hold <gp id> <ms>|release]", GameLab::Verb(GameLab::VerbPad));
 		}
 
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
@@ -699,6 +700,7 @@ namespace Modules
 			}
 			GameLab::SeeInput(gameInput);
 			GameLab::UpdatePendingClick(ms);
+			GameLab::UpdatePad(ms);
 			if (!paused)
 				GameLab::ApplyHeld(ms, gameInput);
 		}

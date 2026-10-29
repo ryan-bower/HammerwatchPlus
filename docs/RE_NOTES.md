@@ -5123,7 +5123,41 @@ are parked.
 **To update.** Run `tools/workshop.py`, then `tools/workshop_publish.py`. With the ids in
 `workshop.json`, every item is updated in place.
 
-## 2026-10-28: Workshop pages v2, cards from the game's art
+## 2026-10-28: Workshop subscriptions in the lab game (two mods of one id)
+
+The game loads every Workshop item the Steam account subscribes to. It asks the Steam client
+(`STEAMUGC_INTERFACE_VERSION015`) and logs `Workshop: Subscribed items: N`, then
+`Workshop: Item: <hex> - <steamapps>/workshop/content/619820/<item>` per item. There is no
+cvar or switch to skip them, and GameLab's lab copy runs the same `steam_api64.dll`, so it
+loads them too. Each mod found shows as `Resource mod: <file>: <name> (<id>)`. A packed mod's
+id is its file stem, and the enabled set in the save is by `HashString(id)`. A subscription
+whose file has the same name as a local mod is therefore the same mod twice: enabling the id
+enables both.
+
+With both enabled, the resource index keeps the **first** copy of each path and logs
+`Resource name hash conflict in package 'mods/<file>' for file '<path>'` for the second. The
+Workshop's copy came first (the conflicts named the local `mods/` file). Only enabled mods
+load: with the subscription present but its id not enabled (`pkg-pets`), nothing conflicts.
+
+Found when `pkg-all-every` failed (20261028-232218) with `Courier.as: Identifier 'KeyedAction'
+is not a data type in namespace 'HWP::ItemActions'`. Every local bin held the same
+`ItemActions.as`, and every package enabled on its own passed. `pkg-all` alone failed the same
+way. Its log listed two `Resource mod: HammerwatchPlus-All.bin` and 1203 conflicts (the last
+passing `pkg-all` had none). The second copy was Workshop item 3828529950, subscribed at 21:24,
+library stamp 19c76653f770. That stamp check couldn't say so: it runs in a module, and nothing
+runs when the scripts don't compile.
+
+GameLab now handles it:
+- `env.workshop_ids()` reads the Workshop folder next to the install.
+- A built package with such an id goes into the lab mods dir as `<id>-gamelab.bin`
+  (`env.lab_package_name`). That changes only its id, so only the build under test is
+  enabled. The run records `workshop_shadowed`.
+- An unpacked mod under test can't be renamed (its id is its folder), so `env.link` reports
+  it instead.
+- `logparse.duplicate_mods` names a mod found twice in a boot error, and every boot asserts
+  that no enabled mod was (`every enabled mod found once`).
+- `tools/run.py` warns (`run: workshop:`) when a deployed package has a subscription's id.
+
 
 **Cards.** `tools/workshop_art.py` draws each item's picture at 480x270, then scales it 3x
 nearest neighbour to 1440x810, about 20-65 KB as PNG. The cards use:
@@ -5543,6 +5577,336 @@ width, with each entry's symbols side by side before its name. In a column of 14
 tile now drops symbols from the end, keeping at least one, until the name (and the note
 under it) fits. Of the 13 cards, only Quality of Life renders differently. Republished:
 HWP-qol, HWP-pets and HammerwatchPlus-All (kit 5538d81).
+
+## 2026-10-28: bag item actions move to hwplib; the pet courier (issue #13)
+
+Issue #13 asked for a way to send items home from a run. The larger problem it ran into was
+the bag's item actions. droptrade owned the inventory overrides (`Character.as`,
+`EquipmentItemWidget.as`), so a package without droptrade had no action hints at all. Only
+the first registered action ever showed (`HWP::ItemActions::For`), and it was bound to a
+fixed E. E is also the player menu's own Destroy key, so one press ate the fish and opened
+the destroy confirm behind it.
+
+**What the menu binds** (`res/controls_default.cfg`, kbm map): `MenuAdditional` is E (the
+Destroy hint), `MenuContext` R (Compare), `MenuChatAll` T, `PlayerMenu` I and C.
+`GetActionBinding(action)` (`Utils/Functions.as`) returns only the **first** binding's key
+name for the current map, so PlayerMenu reads "i" and its C is missed. `FormatKeyName`
+returns markup (`\"k"E\"k"`), so it can't be compared with a key name either.
+`ItemActions::MenuClash` walks `GetInput().GetCurrentMap().GetBindings()` instead and
+compares each menu action's `ID` with the key name. Free letters the menu
+doesn't bind: F, G, H, Q and others.
+
+**Keys.** The actions still read raw keys (`Platform::IsKeyDown(ControllerType::Keyboard, 0,
+scancode)`, SDL scancodes: E 8, F 9, H 11, Q 20). GameLab's posted keys reach it. One poll
+per distinct scancode per frame (`ItemActions::Poll`, from the core module), only while the
+character tab is the top window's current tab, and not while text input or chat has the
+keyboard. When a key option captures a new key, the key is held at that moment
+(`HeldNow`), so the press that binds it doesn't also act.
+
+**Town stash in a run.** `g_myTownRecord.m_townStash` is loaded in every gameplay mode, runs
+included, so `TownStashTab.Add(item)` works from a dungeon. The 10-tab limit is the stash
+window's, not the data's (`GUI/PlayerStashEditWindow.as:13` turns the new-tab button off at 10). `AGameplayGameMode.SavePlayerAndTown()`
+writes both records in one `SetCharacter`, so an item moved from the bag to the stash is
+saved in one step. A crash between the two writes can't copy it or lose it.
+
+**Pets.** `PlayerBase.m_pet` (`MiniPet`) is not netsynced: every machine makes its own copy
+from the owner's `SetPetType`. `PlayerBase.ResetPet()` sends `SetPetType` to everyone, and
+the others re-make their copy. Destroying `m_pet.m_unit` and nulling `m_pet` takes the pet
+down locally; the courier tells the others through the host (`pets.away` -> `pets.gone`).
+The smoke puff is `effects/generic/other/spawn_smoke_puff.effect` (`PlayEffect`).
+
+**Test** (`fix-item-actions-eat`, `fix-pets-courier`, bot `gamelab/bots/fix_courier.py`):
+the fish's hints end `[Q] Drop`, `[F] Eat` and nothing on E. F eats it with no dialog. In a
+run the mace's hints end `[Q] Drop`, `[H] Send home`. H moves it into the stash tab "Pet
+deliveries" and the hint goes (the satchel is full). The pet leaves when the menu closes and
+is back after `pets.courier_secs` (5 in the test). The CheckKeys log has drop Q (20), eat F
+(9) and courier H (11), with no clash.
+
+## 2026-10-28: Keys on any keyboard layout, and every key rebindable in game (issue #19)
+
+The problem: mod hotkeys are polled by SDL scancode (`Platform::IsKeyDown(Keyboard, 0, sc)`),
+so they follow the key's position, but they were named by the US keycap. On AZERTY the swap
+key works on the key labelled X, and the drop key on the key labelled A, yet the hint said Q.
+
+- **No layout name from the engine.** The scripts get no SDL key name call. What they get is
+  text input: `ControlBindings::ExpectTextInput()`, then `GetInput().GetTextInputCount()` /
+  `GetTextInput(i)`, which returns a `TextInputControlEvent` (`utf8string text`, `evt`:
+  None / Cancel on Esc).
+- **While text input is on, `Platform::IsKeyDown` reports no key down.** Measured: the
+  capture polled `AnyKeyDown()` every frame with text input on and saw -1 while R was held
+  (sc stayed -1, the typed events arrived; mod-options-tab 20261028-230359, debug logging).
+  The first design read the key and its character in one press, and no key ever bound
+  (mod-keys-layout 20261028-225950, mod-options-tab 20261028-230250). Typing in chat or the
+  search could not name keys either, so `WatchTyping` is gone.
+- **So the capture (`HWPKeyCaptureWindow`) takes two steps.** It binds the key with text input
+  off, by position, when the key comes back up. Then, for a key that types a character (letters,
+  punctuation, ISO key 100; not the digit row) with no name yet, it turns text input on and
+  asks for one more press. That frame's single one-character text event names the key
+  (`HWP::Options::LearnLabel`, setting `keylabel.<sc>`, each player's own). A frame with more
+  text (a paste, GameLab's inbox command text) is ignored. Esc keeps the US name and asks
+  again on the next bind. A name equal to the US one is stored too, so the key is not asked
+  again. A key bound with Shift/Ctrl/Alt/AltGr or a second key held is not asked. A press
+  that types nothing (a dead key) names nothing.
+  Verified: mod-keys-layout 20261028-231028 and mod-options-tab 20261028-230956, both PASS.
+- **Game text treats `\` as markup**, so a learned or hand-set name goes through
+  `HWP::Options::Escape`.
+- **Vanilla's own names stay US.** `FormatKeyName` (`Utils/Functions.as:1112`) upper-cases
+  the binding's one-character SDL id. Its 117 uses are left alone; overriding that file is
+  too broad. Vanilla's hints keep the US name, and ours show the layout's.
+- **The game's binds can be rebound outside the main menu.** The vanilla Controls window
+  takes keys only through `MainMenuGameMode`. The Plus tab's Game keys group (`GameKeys.as`)
+  stages a change on the `kbm` ControlMap the way `MenuControlInput.as` does:
+  - `BeginStaging`, then collect the action's keyboard bindings from `GetStaging()` before
+    any `RemoveStaging`.
+  - `AddStaging(Keyboard, scancode, action)`, or `AddStagingAxis(..., ControlBindingSetAxis::Low/High)`
+    for one half of `move_x` / `move_y`.
+  - `CommitStaging()`, then `ControlBindings::Save()`, which writes `res/controls.cfg` (global).
+  - The staging key is an SDL scancode (vanilla tests 41 for Esc and 42 for Backspace). A
+    binding's scancode is read back with `Platform::ResolveInputKey(b.ID, type)`.
+  - MenuBack and MenuToggle are left out, so Esc always closes a menu.
+  - The new probe verb `gl controls [map] [max]` dumps a map's bindings.
+- **Every mod key is rebindable now.** The droptrade item action key (`actionkey`) and the
+  Dev Arena hotkeys (`devarena-*`) join `swapkey`, `dropkey` and `skill4`-`6`.
+- **GameLab: another layout's keypress.** A key step's `typed` sends KEYDOWN, then TEXTINPUT,
+  then KEYUP through the shim's mailslot. It needs the scenario's `"shim_input": true`,
+  because a posted WM_KEYDOWN gets its character from this machine's layout.
+  `"writes_controls": true` journals GameLab's own `res/controls.cfg` and puts it back.
+
+An adversarial review of the change found these, now fixed:
+- Shift+W bound Shift. A modifier comes down first and has the lowest scancode, so a key
+  pressed with it now replaces it. A modifier alone still binds itself.
+- An Esc that closed the capture on its text Cancel could also close the menu, through the
+  same press's MenuBack. The Cancel now closes the capture only when no Back came within a
+  frame (now in the naming step).
+- A second key held during a capture could give its character as the label. It no longer
+  can: such a bind is not asked for a name.
+- The game-key rows walked the whole binding map several times a frame. Their keys are now
+  cached until the next bind.
+- A search box still typing hands the keyboard to the capture.
+
+Keys that custom and full-size keyboards add now have names before a label is learned:
+F13-F24 (scancodes 104-115), Print Screen, Scroll Lock, Pause, Num Lock, the numpad operators
+and Enter, Menu, and both Win/GUI keys. Before this they showed as "Key 104".
+- **Long names in the value column.** Every key row now shows the short name when the full one
+  is longer than 9 characters (`HWP::Options::FitKeyName`), so "Scroll Lock" shows as ScrL.
+  That includes the swap and drop keys, unless they were named by hand. A Dev Arena
+  Ctrl hotkey always shows the short name after "Ctrl+". The 9 is a guess: the 82-pixel
+  column's font was not measured, and the `long_key_name` shot in `mod-keys-layout` will
+  show whether it is too strict.
+- **Search still finds the full names.** A key row's search text is its shown value plus the
+  full names (`KeyOption.SearchText`), so "shift" still finds a row showing RShf.
+- **Print Screen may be named but not bindable.** On Windows, SDL2 sends its press and
+  release together on key-up, and capture polls `IsKeyDown` once a frame. Unverified; the
+  scenario binds Scroll Lock instead.
+- Labels are still stored per save.
+
+These follow-ups are checked by pytest only (`tests/test_winproc_typed.py`: GameLab sends
+F13-F24, Print Screen and Scroll Lock as their SDL scancodes). No test compiles the
+AngelScript. `mod-keys-layout` now binds F13 and Scroll Lock as well, and has not been run.
+
+Verified offline: `tests/test_winproc_typed.py`, `tests/test_writes_controls.py`, the full
+pytest suite, and `make_config` / `build` / `list_verbs` / `guard_modules --check`.
+
+**GameLab runs (user-approved, lab mode).** mod-keys-layout 20261028-232952 PASS (85/85),
+which covers the F13 and Scroll Lock binds. mod-keys-play 20261028-233203 PASS (new). With these
+runs the earlier assumptions are measured: the scripts compile, staging and saving work during a
+mission, and `ResolveInputKey` returns the scancode.
+
+- **Rebound game keys work in play** (`mod-keys-play`, town-paladin, dark_citadel floor 13,
+  with the Dev Arena input log). The Plus tab rebinds:
+  - primary attack to K, named by a second posted press (Windows' own WM_CHAR);
+  - off-hand to L, skill 1 to U, dash to J and move up to O.
+
+  Results:
+  - Left and right click still attack (a bind keeps the mouse buttons), and K and L attack too.
+  - U and mouse 4 use skill 1, J dashes, O moves up and S still moves down.
+  - The old keys 1, Q, Space and W do nothing. Skill 2 on 2 is untouched.
+  - The log has `Skill1 bound to 24 (U), 2 keyboard key(s) replaced`.
+- **Forget key names row** (`keynames`, top of the Plus tab: "N named" / "none"). A name
+  learned wrong cannot be caught (below), so this row clears every `keylabel.<sc>` and each key
+  is asked again at its next bind. mod-keys-layout checks the count, the "forgotten" log line,
+  the US name coming back, and the re-ask.
+- **The naming prompt is shorter**: "Bound. Press the same key again to name it (Esc skips)".
+  It has no key name, because the US one confused AZERTY players.
+- **Checking which key typed the name does not work.** The attempt was: after the naming
+  character, turn text input off and require the bound key still held within 6 frames.
+  Every naming press failed (mod-keys-layout 20261028-232634). A key that went down while text
+  input was on is not seen by `IsKeyDown` even after text input is off and the key is still
+  held. Reverted. Pressing a different key while naming still names the bound key with that
+  key's character. The Forget row is the fix.
+- **mission-ranger fails its fixture readback** before any step runs ("player.maxDashes: want
+  1, got 2"; 20261028-233043, -233145). This was found here, not caused by this change, so
+  mod-keys-play uses town-paladin.
+
+## 2026-10-29: Every key UI change on screen (mod-keys-ui-shots), and three layout fixes
+
+`mod-keys-ui-shots` takes a 1920x1080 shot of every UI change in PR #25: the Plus tab key
+rows, both capture prompts, AZERTY names, the shared-key hint, a short long name, search,
+the Game keys group, the Forget row, the weapon swap texts, droptrade's hints, the skill 4-5
+badges and the Dev Arena dock labels (mod-keys-ui-shots 20261029-001708, PASS). Reading the
+shots found three bugs that no probe assertion could see:
+
+- **A search hid rows it had found.** `Widget::DoLayout` skips a hidden child, so it keeps
+  the origin of its last layout (`GUI/Widget.as:461`). `ScrollbarWidget::DrawChildren` walks
+  every child, hidden or not, and `return`s at the first one whose origin is below the view
+  (`GUI/Widgets/ScrollbarWidget.as:666`). A row once laid out low in the list, then hidden by
+  a search, stopped every row after it from drawing. Searching "skill 1" drew the Game keys
+  header but not Skill 1 under it, and "scroll" lost the Quality of Life rows. The probe still
+  said `shown: true`, because the rows were visible, only not drawn. It shows once Dev Arena's
+  extra top rows push the group down. Fix: `HWPOptionsTab::Layout` parks a hidden row's
+  origin above the view, which the draw loop passes over. Before: mod-keys-ui-shots
+  20261029-001127 (10, 11); after: 20261029-001708.
+- **droptrade's hint bar ran off the screen.** Vanilla `KeyNavigationBar::Draw` centres the
+  bar under its window, and the player menu sits at the right edge. A bag fish's bar (Back,
+  Equip, Compare, Destroy, Drop, Eat) lost its Eat hint past the right edge. droptrade swaps
+  the character tab's bar for a `FitNavBar` that clamps the left edge to the screen, keeping
+  its texts.
+- **The longest hint.** The game key hint is shorter now. Over three other actions on the
+  key, the rest is a count ("Chat +1"), not "...", which read "...." before the full stop.
+  Four lines fit above the footer (11b).
+
+`gl menu hwp_options` on a closed player menu opens it on the Character tab, so the next
+`hwp-opt` press goes to the wrong tab. The shots scenario sends it twice.
+
+## 2026-10-29: Rebinds survive a restart (mod-keys-persist)
+
+`mod-keys-persist 20261029-004515` PASS checks that a rebind is still there after quitting.
+- **First boot.** The log reads `Loading control bindings from 'res/controls_default.cfg'`.
+- **Rebinding in town.** Skill 1 goes to U (named), dash to J and the weapon swap key to ScrL.
+  Each game-key bind logs `Saved control bindings to 'res/controls.cfg'`.
+- **Restart.** The run quits (WM_CLOSE) and boots a new process. That process loads
+  `controls_default.cfg`, then `res/controls.cfg` on top of it.
+- **After the restart:**
+  - the 37 kbm bindings match the ones from before (Skill1 = mouse_4 + u, Dash = j);
+  - the rows read U, J and ScrL, and "1 named" (the mod key and the learned name are kept
+    in the save);
+  - in a mission, U uses skill 1 and J dashes;
+  - the old 1 and Space do nothing.
+
+The file is the same one the vanilla Controls menu writes. `deploy.py` copies only into
+`<install>/mods/`, so a deploy cannot remove it.
+
+## 2026-10-29: One-press rebinds, US key names, mouse buttons on Game keys rows
+
+The rebind flow is now: click the row, press the key, done. The next row can be clicked at once.
+- **No naming press.** The second press that learned a key's label is gone, along with what
+  depended on it:
+  - the `keylabel.<sc>` settings, `LearnLabel` and the Forget key names row (`keynames`);
+  - the naming prompt, and the capture's text-input state;
+  - the HUD caches keyed on `g_labelVersion`.
+  `HWPKeyCaptureWindow` binds the key when it comes up and closes. Shift+W still binds W.
+- **Key names are the US keycaps, as the vanilla Controls window shows them. Not localised.**
+  Binds still follow the key's position on any layout, but on AZERTY the key at Q reads Q.
+  The engine gives scripts no key names (no `SDL_GetKeyName`), and a typed character is
+  the only source. The group's hint says "Keys are named as on a US keyboard."
+- **Mouse buttons on Game keys rows.** A row listed keyboard keys only, so Primary weapon
+  (left click) and Off-hand weapon (right click) read "Unbound". A row now lists its keys,
+  then up to two mouse buttons as the game's own icons (`.input.mouse_left` = `\"inp-lmb"`).
+  Examples:
+  - Primary weapon: the left-button icon.
+  - Skill 1: `1 / Q / ` and the mouse 4 icon.
+  mod-keys-play 20261029-162932 checked the texts, before the naming change. The icons draw
+  in the row (Menu select: Enter and a mouse icon).
+
+GameLab runs after the change (lab, all PASS):
+- mod-keys-layout 20261029-164345, rewritten around one press:
+  - the AZERTY key at Q binds and reads Q at once;
+  - a second press binds nothing;
+  - three rows rebind back to back;
+  - mouse-only rows show their buttons;
+  - no key is ever asked to be named;
+  - the Forget row is gone.
+- The rest:
+  - mod-options-tab 20261029-163929, mod-keys-play 20261029-163956 and
+    mod-keys-persist 20261029-164044;
+  - mod-weaponswap 20261029-164133, mod-droptrade 20261029-164145 and mod-classes 20261029-164156;
+  - mod-keys-ui-shots 20261029-164500, which adds shot 09b (Primary and Off-hand weapon
+    with their mouse icons) and drops the naming and Forget shots.
+
+## 2026-10-29: No weapon attack rows, short hover text, GameLab never copies the user's controls.cfg
+
+- **Primary and Off-hand weapon rows removed** (25 Game keys rows). Those are mouse binds, and
+  the capture window cannot take a mouse button, so the row could only add a keyboard key next
+  to the click. Mouse buttons stay in the game's own Options > Controls. The group's hover
+  text now says so: "The game's keys. Mouse buttons: Options > Controls." The other rows still
+  show their mouse buttons as icons (Skill 1: `1 / Q /` and mouse 4).
+- **Hover text is short.** Every key row, mod keys included, ends with "Click a binding and
+  press a new key to rebind." (`.hwp.options.rebind`, added in `HWP::Options`). The mod keys'
+  own abouts are cut to a few words ("Toggles the dock.", "Drops the hovered item."). The
+  "Also on <key>: ..." line for shared keys stays.
+- **GameLab copied the user's binds.** `env.ensure_res` copied every small file from the
+  install's `res/`, so `res/controls.cfg` was copied too. The user's game wrote that file
+  (their log: Primary weapon -> K at 16:51, Chat -> K at 16:52). Every lab run after that
+  started from their keys, which showed up as Chat missing from the "Also on T" hint.
+  `ensure_res` now skips `RES_OWN` (`controls.cfg` stays GameLab's own;
+  `tests/test_writes_controls.py`). mod-keys-persist now asserts a first boot loads no
+  controls.cfg, which catches the leak. The user's file was only read, never changed.
+
+Runs after the fix (lab, all PASS, GameLab's controls.cfg deleted first): mod-keys-persist
+20261029-171245 (first boot loads only the defaults), mod-keys-layout 20261029-171335,
+mod-keys-play 20261029-171421, mod-options-tab 20261029-171504 and mod-keys-ui-shots
+20261029-171530 (shot 11b: "Also on T: Item action key, Drop item key, Chat +1").
+
+## 2026-10-29: PR #39 (item actions in hwplib) merged over PR #25 (key layouts)
+
+PR #25 added one droptrade **Item action key** (`actionkey`, E) for the single item action.
+PR #39 gives each action its own key (Drop Q, Eat F, Send home H) and moves the inventory
+overrides to hwplib, so `actionkey` is gone: the Eat and Send home keys are fishing's `eatkey`
+and pets' `courierkey`, and both join the Plus tab's top rows (`packages.json`). Kept from #25:
+the drop key's US name with `Escape`/`FitKeyName` (`HWP::DropTrade::KeyName`), and the hint
+bar that stays on screen, now hwplib's (`HWP::ItemActions::FitNavBar`, called from hwplib's
+`Character.as`). `mod-keys-layout` and `mod-keys-ui-shots` rebind `eatkey` (default F)
+where they rebound `actionkey`; `mod-keys-layout` loads fishing for it.
+
+## 2026-10-29: controller buttons for mod hotkeys (issue #14)
+
+Issue #14 asked for weapon swap on a controller. The larger problem: every HWP hotkey read the
+keyboard alone (`Platform::IsKeyDown(ControllerType::Keyboard, 0, scancode)`): weapon swap, the
+classes module's Skill 4-6, the bag item actions, droptrade. A controller player had no way to
+reach any of them. The engine's `GameInput` has a fixed set of actions (Use, Dash, Skill1-3,
+MapOverlay, ...), and the game's Controls list is a fixed table in the exe, so a mod can't add
+an action there either.
+
+**Reading a button.** `Platform::ResolveInputKey(id, type)` turns a control map id into the
+engine's code and type; `Platform::IsKeyDown(type, ctrlIndex, code)` reads it. Measured with
+`hwp pad` (20261029-000132):
+- `gp_*` ids are `ControllerType::Gamepad` (4) with SDL game controller button numbers: a 0,
+  b 1, x 2, y 3, back 4, start 6, left stick 7, right stick 8, lb 9, rb 10, D-pad up 11,
+  down 12, left 13, right 14. (Vanilla's rebind widget skips Gamepad 4 as "Select",
+  `MenuControlInput.SetExpectedInput`.)
+- `ds4_*` ids are `Joystick` (7) buttons: square 0, cross 1, circle 2, triangle 3, l1 4, r1 5,
+  share 8, options 9, l3 10, r3 11. The D-pad is `JoystickHat` (10): up 0, right 1, down 2,
+  left 3.
+- Without a controller plugged in, `GameInput.GetControlMaps()` and
+  `GetControlBindings().GetMaps()` list only `kbm` (index -1) (20261029-000159). The `gp1-gp4`
+  / `ds41-ds44` maps of `res/controls_default.cfg` appear only for a connected device, so a pad
+  map's `Index` couldn't be measured in the lab. `HWP::Input::Held` reads each listed pad map
+  at its `Index`, and with a controller in use but none listed, Gamepad index 0. To check with
+  a real controller: `hwp pad` lists its map and shows `DOWN` beside a held button.
+- Vanilla catches a rebind's button through `OnBindingInput(type, key)`, which only the main
+  menu's game mode has (`MainMenuGameMode`). A gameplay mod polls instead (`AnyHeld`).
+
+**What is free.** Vanilla's gamepad map binds every face button, both bumpers and triggers,
+back, start, D-pad up / down / right to gameplay actions. D-pad left is only `MenuLeft`, and the
+stick clicks are unbound. Weapon swap takes D-pad left and reads it only with no window open
+(in a menu it moves left). The DualShock 4 map is the same with its own ids.
+
+**Glyphs.** `FormatKeyName("gp_dl")` is `\"inp-gp-dl"` (`language/english/input.lang`), and a
+Plus tab row and the HUD text draw it as the button's icon (shots swappad-row, swappad-tip,
+20261029-000930).
+
+**GameLab.** No OS input reaches the lab game, and an emulated `GameInput` write doesn't reach
+`IsKeyDown`. gamelab-hands' `pad hold <gp id> <ms>` writes the button to GlobalCache
+`hwp_pad_held`, which `HWP::Input::Held` reads as down. Unlike `input` holds, it counts down in
+paused frames too, because the Plus tab's capture runs behind the character menu, which
+pauses a solo game. `pad on` sets `hwp_pad_using`, which stands for `GameInput.UsingGamepad`.
+`fix-weaponswap-pad` passes (20261029-000930, packages 20261029-002338).
+
+**Seen on the way.** plan-t8's swap checks `swap_channel_waits`, `s1_tip_shown` and
+`s6_swapdrop` fail on origin/main as well (swap sections alone in town: 20261029-002212 on
+main, 20261029-002059 here). The bot looks for a `> gl <id>` echo and a `HUD:HWPWeaponSwapHUD`
+widget root that the current harness no longer logs or lists. The full plan-t8 also lost its
+player to floor traps twice, walking to a chest (20261029-001059, -001407).
 
 ## 2026-10-29: Lightning Kush and the strain table (issue #15)
 

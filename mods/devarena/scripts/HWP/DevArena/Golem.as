@@ -290,7 +290,7 @@ namespace DevArena
 			vec2 c = RoomCentre() + vec2(0, GOLEM_OFFSET);
 			plr.m_unit.SetPosition(c.x, c.y, at.z, true);
 			HWP::Log("devarena", "golem room in");
-			g_lastAction = "golem room (F4 back)";
+			g_lastAction = "golem room (" + KeyLabel(KeyGolem()) + " back)";
 		}
 		else
 		{
@@ -489,9 +489,9 @@ namespace DevArena
 	{
 		float row = RowH();
 		float gap = 2;
-		y = Head(ui, x, y, "ROOM  (F4 in/out, F3 resets the golem)");
+		y = Head(ui, x, y, "ROOM  (" + KeyLabel(KeyGolem()) + " in/out, " + KeyLabel(KeyReset()) + " resets the golem)");
 		float bw = (w - gap * 2) / 3;
-		if (ui.Button("groom", vec4(x, y, bw, row), g_inRoom ? "Leave F4" : "Enter F4", g_inRoom ? COL_ON : COL_BUTTON))
+		if (ui.Button("groom", vec4(x, y, bw, row), (g_inRoom ? "Leave " : "Enter ") + ShortKeyLabel(KeyGolem()), g_inRoom ? COL_ON : COL_BUTTON))
 			GolemRoomToggle();
 		if (ui.Button("gspawn", vec4(x + bw + gap, y, bw, row), "Respawn"))
 			SpawnGolem();
