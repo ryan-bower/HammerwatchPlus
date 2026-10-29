@@ -10,7 +10,7 @@
   },
   "config": {
     "title": "Mm-hmm! hats",
-    "about": "Some rare and epic hats make a merchant approve, out loud, of your best moments.",
+    "about": "Some rare and epic hats have their wearer say a shopkeeper's mm-hmm! at their best moments.",
     "toggle": "mmhmm.enabled",
     "scope": "host",
     "applies": "now",

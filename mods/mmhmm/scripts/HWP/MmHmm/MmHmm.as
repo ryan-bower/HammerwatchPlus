@@ -1,5 +1,7 @@
 // "Mm-hmm!": a bonus modifier on some rare and epic head items (tweak/hwp/modifiers_mmhmm.sval):
-// every crit of its wearer plays a village merchant's voice for everyone, no cooldown. It
+// every crit of its wearer plays a village woman's "mm-hmm!" from the wearer's body. A voice
+// plays to the end before the same wearer says it again (Voice: crits closer together than
+// VOICE_MS are held back, issue #31). It
 // never takes one of the item's rolled modifier slots: the generator has no hook, so the
 // local character's hats (worn and in the bag) are checked twice a second and a qualifying
 // one gets it added on top. Which hats qualify is a pure function of the item (its base
@@ -7,23 +9,61 @@
 // agrees: mmhmm.chance (25) percent of rare and epic hats. A dropped or shop hat shows it once it is
 // yours. Legendary items keep no modifiers at all (Item.Finalize), so they never have it.
 // The wearer's other moments (revives, wells, secret rooms, trinket sets, last orbs, Ace
-// chests: Moments.as, Corpse.as) go through the host as `mmhmm.say` so every peer hears them.
-// `hwp mmhmm` lists the worn hat; `hwp mmhmm give` (cheats) adds it to the worn hat.
+// chests: Moments.as, Corpse.as) go through the host as `mmhmm.say` so every peer hears them,
+// from that wearer. `hwp mmhmm` lists the worn hat; `hwp mmhmm give` (cheats) adds it to the
+// worn hat; `hwp mmhmm voice [n]` (cheats) says it n times at once (one plays).
 namespace HWP
 {
 	namespace MmHmm
 	{
 		const string MOD_ID = "hwp_mod_mmhmm";
 		const int CHECK_MS = 500;
-		const string SOUND = "event:/sfx/actors/npcs/male_8/interact_male_8"; // the Material Trader
-		const string SAY = "mmhmm.say"; // owner -> host: { why, key }; host -> every peer: { why }
+		// the village's Equipment Buyer, Enchanter and Mystic (female_2): two takes of "mm-hmm!",
+		// 0.28 and 0.37 s; it was the Material Trader's (male_8) before issue #31
+		const string SOUND = "event:/sfx/actors/npcs/female_2/interact_female_2";
+		const string SAY = "mmhmm.say"; // owner -> host: { why, key }; host -> every peer: { why, peer }
 		const int DEDUPE_MS = 1500; // one voice when two machines report the same moment (a revive)
+		// a wearer's next voice waits this long after the last, so each one plays to the end
+		// (the longer take is 0.37 s; SoundInstance cannot tell when an event has stopped)
+		const int VOICE_MS = 500;
 
 		int g_checkMs = 0;
 		int g_added = 0;
 		int g_crits = 0; // this machine's crits while wearing it (what `hwp mmhmm` reports)
-		int g_said = 0; // voices this machine played for the non-crit moments
+		int g_said = 0; // non-crit moments this machine was told to voice
+		int g_voiced = 0; // voices this machine played (crits and moments)
+		int g_held = 0; // voices held back because the wearer's last one was still playing
 		dictionary g_lastKey; // host: key -> time of its last voice
+		dictionary g_voiceUntil; // unit id -> scene time its voice ends
+
+		// The wearer says it, from their body (3D, following the unit), unless their last
+		// voice is still playing. Every machine runs this for every wearer: the crit
+		// trigger is net-synced and the moments are broadcast.
+		bool Voice(UnitPtr who, const string &in why)
+		{
+			if (!g_enabled || !who.IsValid())
+				return false;
+			int now = g_scene.GetTime();
+			string id = "" + who.GetId();
+			int until;
+			if (g_voiceUntil.get(id, until) && now < until)
+			{
+				g_held++;
+				return false;
+			}
+			auto snd = Resources::GetSoundEvent(SOUND);
+			if (snd is null)
+			{
+				HWP::LogError("mmhmm", "no sound " + SOUND);
+				return false;
+			}
+			g_voiceUntil.set(id, now + VOICE_MS);
+			PlaySound3D(snd, who);
+			g_voiced++;
+			vec3 pos = who.GetPosition();
+			HWP::Log("mmhmm", "voice: " + why + " from " + who.GetDebugName() + " at " + int(pos.x) + "," + int(pos.y));
+			return true;
+		}
 
 		// Settings (host-synced, so every machine agrees). mmhmm.enabled off: no hat gets the
 		// bonus, no voice plays (the crit trigger's chance is 0); hats that have it keep it, so
@@ -103,8 +143,18 @@ namespace HWP
 			SValueBuilder b;
 			b.PushDictionary();
 			b.PushString("why", why);
+			b.PushInteger("peer", peer);
 			b.PopDictionary();
 			HWP::Net::Broadcast(SAY, b.Build());
+		}
+
+		// the moment's wearer: the player of the machine that reported it
+		UnitPtr WearerUnit(int peer)
+		{
+			auto rec = GetPlayerRecordByPeer(peer);
+			if (rec !is null && rec.actor !is null)
+				return rec.actor.m_unit;
+			return UnitPtr();
 		}
 
 		void OnSay(SValue@ data)
@@ -112,9 +162,15 @@ namespace HWP
 			if (!g_enabled)
 				return;
 			string why = HWP::SV::Str(data, "why");
-			PlaySound2D(Resources::GetSoundEvent(SOUND));
+			int peer = HWP::SV::Int(data, "peer", -1);
 			g_said++;
-			HWP::Log("mmhmm", "voice: " + why);
+			UnitPtr who = WearerUnit(peer);
+			if (!who.IsValid())
+			{
+				HWP::Log("mmhmm", "voice: " + why + ", no wearer unit (peer " + peer + "), not played");
+				return;
+			}
+			Voice(who, why);
 		}
 
 		Equipment::ItemModifier@ Mod()
@@ -210,6 +266,20 @@ namespace HWP
 				return;
 			}
 			auto head = cast<Equipment::Item>(rec.equipped.m_items[int(EquippedItemsSlots::Head)]);
+			if (args.length() >= 1 && args[0] == "voice")
+			{
+				if (!HWP::Cheats::On() || rec.actor is null)
+					return;
+				int n = args.length() >= 2 ? clamp(parseInt(args[1]), 1, 20) : 1;
+				int played = 0;
+				for (int i = 0; i < n; i++)
+				{
+					if (Voice(rec.actor.m_unit, "test"))
+						played++;
+				}
+				HWP::Commands::Reply("mmhmm voice: " + played + " of " + n + " played, voices " + g_voiced + ", held back " + g_held);
+				return;
+			}
 			if (args.length() >= 1 && args[0] == "give")
 			{
 				if (!HWP::Cheats::On() || !g_enabled)
@@ -229,14 +299,38 @@ namespace HWP
 			}
 			HWP::Commands::Reply("mmhmm: hat " + (head is null ? "none" : head.baseItem.m_id + " (" + head.GetName() + ")")
 				+ ", bonus " + (Has(head) ? "yes" : "no") + ", qualifies " + (Qualifies(head) ? "yes" : "no")
-				+ ", added " + g_added + ", crits with it " + g_crits + ", moments " + g_said + " this session; " + g_chance + "% of rare and epic hats" + (g_enabled ? "" : " (off: mmhmm.enabled)"));
+				+ ", added " + g_added + ", crits with it " + g_crits + ", moments " + g_said + ", voices " + g_voiced + ", held back " + g_held + " this session; " + g_chance + "% of rare and epic hats" + (g_enabled ? "" : " (off: mmhmm.enabled)"));
 		}
+	}
+}
+
+// The crit trigger's effect (modifiers_mmhmm.sval): the wearer says it through Voice, so a
+// burst of crits does not cut the last voice short. The TriggerEffect is net-synced, so every
+// machine runs it with the wearer (or their husk) as owner.
+class HWPMmHmmVoice : IEffect
+{
+	HWPMmHmmVoice(UnitPtr unit, SValue& params) {}
+
+	void SetWeaponInformation(uint weapon) {}
+	CanEvade IsEvadable(Actor@ attacker) { return CanEvade::Neither; }
+
+	bool Apply(Actor@ owner, UnitPtr target, vec2 pos, vec2 dir, float intensity, bool husk)
+	{
+		if (!CanApply(owner, target, pos, dir, intensity))
+			return false;
+		HWP::MmHmm::Voice(owner !is null ? owner.m_unit : target, "crit");
+		return true;
+	}
+
+	bool CanApply(Actor@ owner, UnitPtr target, vec2 pos, vec2 dir, float intensity) override
+	{
+		return intensity > 0 && ((owner !is null && owner.m_unit.IsValid()) || target.IsValid());
 	}
 }
 
 namespace HWPMmHmm
 {
-	// counts only; the voice is the modifier's own crit trigger (modifiers_mmhmm.sval)
+	// counts only; the voice is the modifier's crit trigger (HWPMmHmmVoice)
 	[Hook]
 	void PlayerDamagedActor(Player@ player, Actor@ actor, DamageInfo@ di)
 	{
@@ -257,7 +351,7 @@ namespace Modules
 			HWP::Net::OnRequest(HWP::MmHmm::SAY, HWP::Net::RequestHandler(HWP::MmHmm::OnSayRequest));
 			HWP::Net::OnEvent(HWP::MmHmm::SAY, HWP::Net::EventHandler(HWP::MmHmm::OnSay));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::MmHmm::OnSettingChanged));
-			HWP::Commands::Register("mmhmm", " the worn hat's Mm-hmm! bonus; 'give' (cheats) adds it to the worn hat", HWP::Commands::Handler(HWP::MmHmm::CmdMmHmm));
+			HWP::Commands::Register("mmhmm", " the worn hat's Mm-hmm! bonus; 'give' (cheats) adds it to the worn hat; 'voice [n]' (cheats) says it n times at once", HWP::Commands::Handler(HWP::MmHmm::CmdMmHmm));
 			if (HWP::MmHmm::Mod() is null)
 				HWP::LogError("mmhmm", "no item modifier " + HWP::MmHmm::MOD_ID + " (tweak/hwp/modifiers_mmhmm.sval)");
 			HWP::Log("mmhmm", "ready");

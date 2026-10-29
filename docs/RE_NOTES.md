@@ -5543,3 +5543,46 @@ width, with each entry's symbols side by side before its name. In a column of 14
 tile now drops symbols from the end, keeping at least one, until the name (and the note
 under it) fits. Of the 13 cards, only Quality of Life renders differently. Republished:
 HWP-qol, HWP-pets and HammerwatchPlus-All (kit 5538d81).
+
+## 2026-10-29: Mm-hmm! from the wearer, whole (issue #31)
+
+The issue: "mmhmm should play in it's entirety before repeating. and it should be the female
+"mmhmm!" from the village. and should play from the player's body, not globally for everyone".
+
+Why:
+- The crit voice was the modifier's own `PlaySound` effect with `2d` true and no cooldown
+  (TriggerEffect `timeout` 0). Every crit started another instance at full volume on every
+  machine. The moments played `PlaySound2D` too.
+- Larger issue: the module had no idea of a voice in progress. Anything that can fire faster
+  than the sound lasts (crit bursts, multi-hit skills, a moment on the same frame as a crit)
+  overlapped it, and nothing tied it to a player.
+
+What changed (`mmhmm`):
+- One `HWP::MmHmm::Voice(unit, why)` for every voice: `PlaySound3D(snd, unit)` on the wearer,
+  held back while that wearer's last voice is under `VOICE_MS` (500 ms) old. The crit
+  trigger's effect is a new `HWPMmHmmVoice : IEffect`. The TriggerEffect is net-synced, so
+  every machine runs it with the wearer, or their husk, as `owner`. A moment's `mmhmm.say`
+  broadcast carries the reporting peer, and each machine voices it from that peer's player.
+- `SoundInstance` has no "is playing" or length (the API strings list Play, PlayTracked, Stop,
+  SetPosition, SetVolume, SetParameter, SetPaused, SetLooped, SetTimelinePosition), so the gate
+  is a time measured from the takes.
+- The voice: the female village NPCs use `female_1`..`female_4` (`actors/npcs/town/*.unit`);
+  `female_5`..`female_10` are only in `players/voices.sval`. Every `interact_female_*` take
+  was rendered offline (`tools/audio_pick/fmod.py`, 16 plays each) and measured: share of
+  energy under 500 Hz (a closed-mouth hum keeps most of it there), voicing, and the pitch
+  contour. `interact_female_2` (Equipment Buyer, Enchanter, Mystic, farmer woman, Alice) has
+  two takes, both fully voiced and nasal (0.69 and 0.70 under 500 Hz, centroids 877 and 985
+  Hz). The 0.37 s take is two voiced parts with a gap, the second higher and then falling:
+  "mm-HMM!". The 0.28 s take is one falling hum. The Material Trader's `interact_male_8`
+  measures alike (0.79, 0.83). The other women's events mix a hum with open-vowel takes.
+  Picked by measurement, not by ear; a script cannot choose the take (FMOD picks one per
+  play).
+
+Tests:
+- `mod-mmhmm` (20261029-041026): 4 crits with the hat log 4 `voice: crit from
+  players/player.unit`; `hwp mmhmm voice 5` plays 1 of 5, logged at 1984,598 where the player
+  stands, and 0.7 s later 1 of 1; every moment (last orb, well, secret room, Ace chest,
+  trinket set) logs `voice: <why> from players/player.unit`; the old checks pass.
+  `mod-settings-off` (20261029-041247) passes.
+- GameLab is muted and solo: the sound itself, its 3D falloff, and another player hearing
+  it from the wearer are not measured.
