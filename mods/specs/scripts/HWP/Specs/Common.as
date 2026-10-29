@@ -153,12 +153,20 @@ namespace HWP
 			return (a.Tags & mask) != 0;
 		}
 
-		// a looping effect that the caller moves and destroys
+		// a looping effect that the caller moves and destroys. PlayEffect never reads the effect
+		// file's looping flag: EffectBehavior.m_looping starts false and the unit dies after one
+		// scene length (the beam of fix-forgemaster-channels 20261025-171508 lived 31 frames), so
+		// it is set here, as BeamSection.as does for the enemies' beams.
 		UnitPtr Loop(const string &in effect, vec2 pos, dictionary@ params = null)
 		{
-			if (params is null)
-				return PlayEffect(effect, pos);
-			return PlayEffect(effect, pos, params);
+			UnitPtr u = params is null ? PlayEffect(effect, pos) : PlayEffect(effect, pos, params);
+			if (u.IsValid())
+			{
+				auto eb = cast<EffectBehavior>(u.GetScriptBehavior());
+				if (eb !is null)
+					eb.m_looping = true;
+			}
+			return u;
 		}
 
 		// destroys a looping effect; returns the empty UnitPtr to store back

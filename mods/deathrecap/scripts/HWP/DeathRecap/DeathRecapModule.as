@@ -2,7 +2,9 @@
 // PlayerDamageTaken hook, which fires after mitigation), summarised when the
 // PlayerDied event fires for the local player. The summary is shown in a HUD
 // panel while dead, kept in the player record ("deathrecap.last") and announced
-// to the party through the host.
+// to the party through the host. Setting deathrecap.enabled (per machine): off, no
+// death panel or recap chat lines, no boss panel; the boss fight's share is still
+// recorded and reported (BossRecap.as) so the party's boss recap stays whole.
 namespace HWP
 {
 	namespace DeathRecap
@@ -26,6 +28,19 @@ namespace HWP
 		array<Hit@> g_hits;
 		HWPDeathRecapHUD@ g_hud;
 		string g_lastSummary;
+
+		bool Enabled() { return HWP::Settings::GetBool("deathrecap.enabled", true); }
+
+		// turned off (or the boss panel off): the panels go at once
+		void OnSettingChanged(const string &in key)
+		{
+			if (key != "deathrecap.enabled" && key != "deathrecap.boss")
+				return;
+			if (!Enabled() && g_hud !is null)
+				g_hud.m_visible = false;
+			if ((!Enabled() || !BossEnabled()) && g_bossHud !is null)
+				g_bossHud.Hide();
+		}
 
 		// "actors/undead/lich_king_2.unit" -> "Lich King 2"
 		string Prettify(const string &in path)
@@ -74,7 +89,7 @@ namespace HWP
 
 		void Record(PlayerBase@ player, DamageInfo@ dmg)
 		{
-			if (player is null || dmg is null || player.m_record is null || !player.m_record.local)
+			if (player is null || dmg is null || player.m_record is null || !player.m_record.local || !Enabled())
 				return;
 
 			int amount = dmg.DamageDealt > 0 ? dmg.DamageDealt : dmg.Damage;
@@ -225,7 +240,7 @@ namespace HWP
 
 		void OnShow(SValue@ data)
 		{
-			if (!HWP::Settings::GetBool("deathrecap.chat", true))
+			if (!Enabled() || !HWP::Settings::GetBool("deathrecap.chat", true))
 				return;
 			auto name = HWP::SV::Str(data, "name");
 			auto sources = HWP::SV::Str(data, "sources");
@@ -381,11 +396,12 @@ namespace Modules
 			HWP::Net::OnRequest(HWP::DeathRecap::ANNOUNCE, HWP::Net::RequestHandler(HWP::DeathRecap::OnAnnounce));
 			HWP::Net::OnEvent(HWP::DeathRecap::SHOW, HWP::Net::EventHandler(HWP::DeathRecap::OnShow));
 			HWP::Commands::Register("recap", " show your last death recap", HWP::Commands::Handler(HWP::DeathRecap::CmdRecap));
+			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::DeathRecap::OnSettingChanged));
 		}
 
 		void OnEventPlayerDied(PlayerBase@ player)
 		{
-			if (player is null || player.m_record is null || !player.m_record.local)
+			if (player is null || player.m_record is null || !player.m_record.local || !HWP::DeathRecap::Enabled())
 				return;
 			HWP::DeathRecap::OnLocalPlayerDied(player);
 		}

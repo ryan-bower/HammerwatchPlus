@@ -3,7 +3,9 @@
  "about": "mods/architect challenges: the seven HoH1 bad-wish challenges load as free architect alterations; each takes a fixed gold + material amount off the bill after vanilla's cost curve, and a material stops at 0 (never pays out). Picked for a run (hwp architect try, the loadout Play's effect), the generation ones reach the floor (Crowded Halls + Champions set on the enemy placer) and the picks are on the player record. Then no script errors in our files.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "architect"
  ],
  "timeout": 240,

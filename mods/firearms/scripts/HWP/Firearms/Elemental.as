@@ -20,15 +20,7 @@ namespace HWP
 
 		float CustomStat(PlayerBase@ plr, const string &in name)
 		{
-			if (plr is null || plr.m_record is null)
-				return 0;
-			auto stats = plr.m_record.currStats.m_customStats;
-			for (uint i = 0; i < stats.length(); i++)
-			{
-				if (stats[i].id == name && stats[i].svalue !is null)
-					return stats[i].svalue.GetFloat();
-			}
-			return 0;
+			return plr is null ? 0 : HWP::CustomStat(plr.m_record, name);
 		}
 
 		// -1 for a plain round, else an index into ELEMENTS
@@ -159,6 +151,8 @@ class HWPFirearmsGunShot : ShootProjectile
 		{
 			vec2 d = shootPos - xy(m_shooter.m_unit.GetPosition());
 			HWP::Firearms::g_lastMuzzle = vec2(dot(d, m_aim), dot(d, vec2(-m_aim.y, m_aim.x)));
+			HWP::Firearms::g_shotCount++;
+			HWP::Firearms::PoseShot(m_shooter, m_magOff);
 			HWP::Firearms::g_shotTimes.insertLast(g_scene.GetTime());
 			if (HWP::Firearms::g_shotTimes.length() > HWP::Firearms::SHOT_TIMES)
 				HWP::Firearms::g_shotTimes.removeAt(0);

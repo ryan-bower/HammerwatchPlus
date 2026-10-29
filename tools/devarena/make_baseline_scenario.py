@@ -75,7 +75,7 @@ def scenario(name: str, ids: list[str], about: str) -> dict:
         {"do": "bench_csv", "since": "bench", "min_rows": PULLS * len(ids), "name": "CSV: every pull, stats agree"},
         {"do": "log_lacks", "pattern": "\\[HWP:devarena\\].*(error|ERR)", "name": "no devarena errors"},
     ]
-    return {"name": name, "about": about, "fixture": "mission-ranger", "mods": ["core", "devarena"],
+    return {"name": name, "about": about, "fixture": "mission-ranger", "mods": ["devarena"],
             "timeout": 300 + len(ids) * (PULLS * (PULL_S + 8) + 20), "steps": head + body + tail}
 
 

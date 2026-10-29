@@ -1,0 +1,177 @@
+{
+ "name": "pf-fix-puzzles-summon-hold",
+ "about": "fix-puzzles-summon-hold against the built package dungeon instead of the mods' source folders (tools/make_package_scenarios.py). mods/puzzles: summons wait outside puzzle rooms (SummonHold.as), generically for every PlayerRecord.summons unit. A Beastmaster Ranger (fixture town-ranger, subclass ranger_beasts, Wolf Companion: a passive summon, PassiveSummonSkill spawns it within a second of the floor) on a keep floor whose puzzle room was forced: the bot parks the player in the corridor outside the doorway (the wolf leashes along), steps into the room's centre and samples the wolf for 4 s: never inside the room's world rect, `[HWP:puzzles] summons of ... held outside <room>` logged; stepping back out logs the release and the wolf rejoins within the leash. (The priest's crusaders would be the same code path, but the Priest class is DLC-gated and unavailable in the lab.)",
+ "fixture": "town-ranger",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town",
+    "player.class": "ranger"
+   },
+   "name": "a ranger in town"
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "gl",
+   "verb": "subclass",
+   "args": [
+    "ranger_beasts"
+   ],
+   "expect": {
+    "class": "ranger_beasts"
+   },
+   "name": "Beastmaster subclass"
+  },
+  {
+   "do": "console",
+   "line": "hwp skillpoints 20"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "skill",
+   "args": [
+    "beasts_wolf",
+    1
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "Wolf Companion learned (a passive summon: the wolf appears on the floor by itself)"
+  },
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "story_intro_find_npcs",
+    0
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "a first run (a new profile saves no town before one)"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "cht_finish_level"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "town",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "key",
+   "key": "escape"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "console",
+   "line": "hwp set puzzles.room_chance 100"
+  },
+  {
+   "do": "console",
+   "line": "hwp set puzzles.debug_force 1"
+  },
+  {
+   "do": "gl",
+   "verb": "save",
+   "expect": {
+    "ok": true
+   },
+   "name": "town saved with the settings"
+  },
+  {
+   "do": "retry",
+   "times": 5,
+   "timeout": 5,
+   "until": "\\[HWP:puzzles\\] keep_puzzle rolled \\(100%\\): forced",
+   "name": "a keep floor with a forced puzzle room (its world rect and doorway are in the log line)",
+   "steps": [
+    {
+     "do": "gl",
+     "verb": "mission",
+     "args": [
+      "bandit_keep",
+      0
+     ],
+     "expect": {
+      "ok": true
+     }
+    },
+    {
+     "do": "wait_phase",
+     "phase": "mission",
+     "timeout": 150
+    }
+   ]
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "fix_puzzles_summon_hold",
+   "kwargs": {
+    "settle": 3.0,
+    "samples": 8,
+    "unit": "players/ranger/units/wolf"
+   },
+   "expect": {
+    "ok": true,
+    "summons_out": true,
+    "summons_outside_room": true,
+    "hold_logged": true,
+    "release_logged": true,
+    "summons_rejoin": true
+   },
+   "name": "the wolf held at the doorway while the owner is in the room, released after"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:puzzles\\] summons of \\S+ held outside \\S+: [1-9]\\d* unit\\(s\\) at -?\\d+,-?\\d+",
+   "timeout": 5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:puzzles\\] summons of \\S+ released: \\d+ unit\\(s\\)",
+   "timeout": 5
+  },
+  {
+   "do": "shot",
+   "name": "after"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "dungeon"
+ ]
+}

@@ -51,7 +51,8 @@ class SelectArchitectLoadout : MissionGUILoadout
 		auto rect = cast<AInteractableWidget>(segment.GetWidgetById("rect").Clone());
 		rect.m_visible = true;
 		rect.m_func = m_id + " open";
-		rect.m_enabled = true; // HWP: every player may pick (and pay for) alterations
+		// HWP: every player may pick (and pay for) alterations; the host only with the module off
+		rect.m_enabled = Network::IsServer() || HWP::Architect::Enabled();
 		rect.m_navPos = ivec2(0, yNavPos);
 
 		auto group = rect.GetWidgetById("group");
@@ -63,6 +64,18 @@ class SelectArchitectLoadout : MissionGUILoadout
 		// with the window manager, so the sync cannot find it - hence the list
 		// is seeded from the synced state right here on every machine.
 		HWP::Architect::RequestState();
+		// HWP: with none of my picks in the party's list (a fresh setup), the picks I had
+		// last time come back (architect.last on my record; the host merges them as a
+		// pick, synchronously on the host, by architect.sync on a client)
+		if (HWP::Architect::Enabled() && HWP::Architect::MyPicks().length() == 0)
+		{
+			auto last = HWP::Architect::Available(HWP::Architect::LastPicks(), plr, m_buffSet);
+			if (last.length() > 0)
+			{
+				HWP::Architect::SendPicks(last);
+				HWP::Log("architect", "restored " + last.length() + " remembered pick(s)");
+			}
+		}
 		m_buffs.removeRange(0, m_buffs.length());
 		m_payers.removeRange(0, m_payers.length());
 		for (uint i = 0; i < HWP::Architect::g_ids.length(); i++)
@@ -328,6 +341,7 @@ class SelectArchitectSelector : AWindowObject
 	array<uint> m_buffs;
 
 	bool m_changed;
+	Widget@ m_hwpPresets; // HWP: the preset row (gui/hwp_architect_presets.gui)
 
 	SelectArchitectSelector(SelectArchitectLoadout@ host)
 	{
@@ -341,12 +355,16 @@ class SelectArchitectSelector : AWindowObject
 		auto scroll = m_widget.GetWidgetById("scroll");
 
 		auto buffs = MissionBuff::GetMissionBuffs(host.m_player, m_host.m_buffSet);
+		bool challenges = HWP::Architect::Enabled(); // HWP: no challenges with the module off
+		int row = 0;
 		for (uint i = 0; i < buffs.length(); i++)
 		{
+			if (!challenges && HWP::Architect::ChallengeIndex(buffs[i].m_idHash) >= 0)
+				continue;
 			auto buffW = cast<AInteractableWidget>(templateW.Clone());
 			buffW.m_visible = true;
 			buffW.SetID(buffs[i].m_id);
-			buffW.m_navPos = ivec2(0, i);
+			buffW.m_navPos = ivec2(0, row++);
 			
 			auto text = cast<TextWidget>(buffW.GetWidgetById("text"));
 			text.SetText(Resources::GetString(buffs[i].m_name));
@@ -366,13 +384,110 @@ class SelectArchitectSelector : AWindowObject
 
 		for (uint i = 0; i < m_host.m_buffs.length(); i++)
 			m_buffs.insertLast(m_host.m_buffs[i]);
-		
+
+		if (HWP::Architect::Enabled())
+			HWPBuildPresets(); // HWP
+
 		RefreshCost();
 
 		if (m_host.m_buffs.length() > 0)
 			UpdateSelectedTooltip();
 
 		@m_input.m_menuAdditionalOnPressed = WindowInput::OnFunc(this.Apply);
+	}
+
+	// HWP: the preset row under the list. The list's frame (the rect around "scroll")
+	// gives up the row's height; the row is built from the module's own gui file and
+	// registered with the window's input, so its buttons take clicks and key navigation.
+	void HWPBuildPresets()
+	{
+		auto def = Resources::GetGUIDef("gui/hwp_architect_presets.gui");
+		if (def is null)
+		{
+			HWP::LogError("architect", "gui/hwp_architect_presets.gui not found; no preset row");
+			return;
+		}
+		auto row = cast<Widget>(m_builder.BuildGUI(def, this));
+		if (row is null)
+		{
+			HWP::LogError("architect", "gui/hwp_architect_presets.gui failed to build; no preset row");
+			return;
+		}
+		auto scroll = m_widget.GetWidgetById("scroll");
+		if (scroll is null || scroll.m_parent is null || scroll.m_parent.m_parent is null)
+			return;
+		auto frame = scroll.m_parent;
+		int shrink = row.m_height + 3;
+		frame.m_height -= shrink;
+		for (uint i = 0; i < frame.m_children.length(); i++)
+			frame.m_children[i].m_height -= shrink;
+		row.m_anchor = vec2(0.0f, 0.0f);
+		row.m_offset = vec2(frame.m_offset.x, frame.m_offset.y + float(frame.m_height) + 3.0f);
+		frame.m_parent.AddChild(row);
+		@m_hwpPresets = row;
+		HWPRefreshPresets();
+		RefreshInteractableWidgets(m_widget);
+		Invalidate();
+		HWP::Log("architect", "preset row added to the picker");
+	}
+
+	// HWP: the slot buttons show their preset's name
+	void HWPRefreshPresets()
+	{
+		if (m_hwpPresets is null)
+			return;
+		for (int slot = 1; slot <= HWP::Architect::PRESETS; slot++)
+		{
+			auto text = cast<TextWidget>(m_hwpPresets.GetWidgetById("hwp-preset-name-" + slot));
+			if (text is null)
+				continue;
+			string name = HWP::Architect::PresetName(slot);
+			if (name == "")
+				name = Resources::GetString(".hwp.architect.preset_empty");
+			text.SetText(name);
+		}
+	}
+
+	// HWP: "hwp-preset load <n>" / "hwp-preset save <n>" from the row's buttons,
+	// "hwp-preset-name <n>" back from the name dialog (sender is its text input)
+	void HWPPresetFunc(Widget@ sender, const string &in name)
+	{
+		auto parse = name.split(" ");
+		if (parse.length() < 2)
+			return;
+		int slot = int(parseInt(parse[parse.length() - 1]));
+		if (parse[0] == "hwp-preset-name")
+		{
+			auto textInput = cast<TextInputWidget>(sender);
+			string typed = "";
+			if (textInput !is null)
+				typed = textInput.m_text.plain();
+			// HWP: the dialog's text input locks the window manager's input while it has
+			// focus (TextInputWidget.Update); an Accept that skips its Submit event (the
+			// mouse on OK, a driven func) leaves the lock on and the next Back only clears it
+			auto gm = cast<BaseGameMode>(g_gameMode);
+			if (gm !is null && gm.m_windowManager !is null)
+				gm.m_windowManager.LockInput(false);
+			int ngp = -1;
+			if (m_host.m_menu !is null && m_host.m_menu.m_ngp)
+				ngp = int(g_ngp + 0.5f);
+			HWP::Architect::SavePreset(slot, typed, HWP::Architect::MyPicks(), ngp);
+			HWPRefreshPresets();
+			HWP::Commands::Reply(Resources::GetString(".hwp.architect.preset_saved", {{ "name", HWP::Architect::PresetName(slot) }}));
+		}
+		else if (parse[1] == "save")
+		{
+			string current = HWP::Architect::PresetName(slot);
+			g_gameMode.ShowInputDialog("hwp-preset-name " + slot, Resources::GetString(".hwp.architect.preset_prompt"), this, current);
+		}
+		else if (parse[1] == "load")
+		{
+			if (HWP::Architect::ApplyPreset(slot, m_host.m_player, m_host.m_buffSet))
+			{
+				m_changed = true;
+				HWP::Commands::Reply(Resources::GetString(".hwp.architect.preset_loaded", {{ "name", HWP::Architect::PresetName(slot) }}));
+			}
+		}
 	}
 
 	void RefreshKeybinds(ControlMap@ currMap) override
@@ -527,6 +642,11 @@ class SelectArchitectSelector : AWindowObject
 
 	void OnFunc(Widget@ sender, const string &in name) override
 	{
+		if (name.findFirst("hwp-preset") == 0) // HWP: the preset row and its name dialog
+		{
+			HWPPresetFunc(sender, name);
+			return;
+		}
 		if (name == "hover")
 		{
 			auto buff = MissionBuff::Get(sender.m_idHash);
@@ -565,6 +685,7 @@ class SelectArchitectSelector : AWindowObject
 				mine.insertLast(int(id));
 
 			HWP::Architect::SendPicks(mine);
+			HWP::Architect::RememberPicks(mine); // HWP: the last picks come back next time
 			m_changed = true;
 		}
 		else if (name == "exit yes")

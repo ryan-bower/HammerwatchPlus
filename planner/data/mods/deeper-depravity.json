@@ -14,13 +14,13 @@
     },
     {
       "q": "epic",
-      "text": "+30% chance of BOSS intact body"
+      "text": "Bosses always leave an intact body (100%)"
     }
   ],
   "name": "Deeper Depravity",
-  "notes": "In game (hwp_pri_coh_deeper_depravity, tested): +8/+15% on an elite's body roll, +30% on a boss's at epic. plan-forgemaster 20261022-102006.",
+  "notes": "In game (hwp_pri_coh_deeper_depravity, built): +8/+15% on an elite's body roll; at epic every boss leaves its body (dd-boss 1.0; was 30%, the user 2026-10-25: 'make that one orb 100% chance of boss being intact body'). plan-forgemaster 20261022-102006 for the elite ranks; fix-forgemaster-channels (orb_boss) for the 100%.",
   "order": null,
   "skill": "priest-spec4-passive",
-  "status": "tested",
-  "summary": "Increase chance of elite and boss intact bodies"
+  "status": "built",
+  "summary": "More elite intact bodies; at epic every boss leaves one"
 }

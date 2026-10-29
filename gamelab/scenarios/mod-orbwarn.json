@@ -1,9 +1,12 @@
 {
  "name": "mod-orbwarn",
- "about": "core OrbWarn: an orb pick that would close mutually exclusive orbs (blocked-by-skills) says so under its description in red, with their icons and names. A Firearms Specialist with Frag Grenade gets the demo's endless orb with fixed picks (gl spherepicks): Stun Grenade lists Incendiary and Gas, Shrapnel lists nothing; once Stun is owned, Shrapnel still lists nothing and Stun's own next level closes nothing more. Uses levelup and skillpoints cheats: not evidence of play.",
+ "about": "orbwarn (mods/orbwarn): an orb pick that would close mutually exclusive orbs (blocked-by-skills) says so under its description in red, with their icons and names. A Firearms Specialist with Frag Grenade gets the demo's endless orb with fixed picks (gl spherepicks): Stun Grenade lists Incendiary and Gas, Shrapnel lists nothing; once Stun is owned, Shrapnel still lists nothing and Stun's own next level closes nothing more. Uses levelup and skillpoints cheats: not evidence of play.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "orbwarn",
   "firearms"
  ],
  "timeout": 150,
@@ -53,8 +56,9 @@
     "1"
    ],
    "expect": {
-    "level": 1
-   }
+    "raised": 1
+   },
+   "name": "Frag raised once (Firearms actives start at rank 1: RANK1_SKILLS)"
   },
   {
    "do": "gl",

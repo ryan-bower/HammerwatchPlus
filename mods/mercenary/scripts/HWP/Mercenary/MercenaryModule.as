@@ -22,6 +22,10 @@
 //
 // PlayerKilledActor only fires on the killer's machine, so a boss kill goes
 // through the host to every mercenary in the party.
+//
+// mercenary.enabled (host, default on) off: no enlisting, no prestige, no rank
+// bonus, no falls, and a fallen mercenary can be played. The save data stays as
+// it is, so turning it back on finds every mercenary (and every fall) as it was.
 namespace HWP
 {
 	namespace Mercenary
@@ -40,11 +44,31 @@ namespace HWP
 		const int PICKER_DELAY_MS = 1500;
 
 		bool g_wasDead = false;
+		bool g_enabled = true;
 		int g_pickerMs = PICKER_DELAY_MS;
 		array<array<Modifiers::IModifier@>@> g_rankMods;  // index = rank
 		ModifierProvider@ g_provider;
 
 		void Reply(const string &in text) { HWP::Commands::Reply(text); }
+
+		void RefreshSettings()
+		{
+			g_enabled = HWP::Settings::GetBool("mercenary.enabled", true);
+		}
+
+		// on and off: the rank bonus comes and goes at once
+		void OnSettingChanged(const string &in key)
+		{
+			if (key != "mercenary.enabled")
+				return;
+			RefreshSettings();
+			auto rec = GetLocalPlayerRecord();
+			if (rec !is null)
+			{
+				g_wasDead = rec.IsDead();
+				rec.RefreshModifiers();
+			}
+		}
 
 		DataBag@ Bag(PlayerRecord@ rec) { return HWP::SaveData::Player(rec); }
 		bool IsMerc(PlayerRecord@ rec) { return rec !is null && Bag(rec).GetBool("merc.on"); }
@@ -175,7 +199,7 @@ namespace HWP
 
 		void OnKill(Player@ player, Actor@ killed)
 		{
-			if (player is null || killed is null || player.m_record is null || !player.m_record.local)
+			if (!g_enabled || player is null || killed is null || player.m_record is null || !player.m_record.local)
 				return;
 			if (!InMission() || !HasTag(killed, "boss") || !IsBossFloor())
 				return;
@@ -196,7 +220,7 @@ namespace HWP
 		void OnBoss(SValue@ data)
 		{
 			auto rec = GetLocalPlayerRecord();
-			if (!IsMerc(rec) || IsFallen(rec))
+			if (!g_enabled || !IsMerc(rec) || IsFallen(rec))
 				return;
 			string key = HWP::SV::Str(data, "k", "");
 			auto bag = Bag(rec);
@@ -461,6 +485,11 @@ namespace HWP
 
 			if (sub == "enlist")
 			{
+				if (!g_enabled)
+				{
+					Reply(Resources::GetString(".hwp.mercenary.off"));
+					return;
+				}
 				bool force = args.find("force") >= 0;
 				if (force && !HWP::Cheats::On())
 					return;
@@ -561,7 +590,7 @@ namespace HWPMercenary
 	[Hook]
 	void PlayerRecordRefreshModifiers(PlayerRecord@ record)
 	{
-		if (record is null || !record.local || !HWP::Mercenary::IsMerc(record) || HWP::Mercenary::IsFallen(record))
+		if (!HWP::Mercenary::g_enabled || record is null || !record.local || !HWP::Mercenary::IsMerc(record) || HWP::Mercenary::IsFallen(record))
 			return;
 		int rank = HWP::Mercenary::RankOf(HWP::Mercenary::Prestige(record));
 		if (HWP::Mercenary::g_provider is null)
@@ -583,10 +612,12 @@ namespace Modules
 			HWP::Net::OnRequest(HWP::Mercenary::BOSS, HWP::Net::RequestHandler(HWP::Mercenary::OnBossRequest));
 			HWP::Net::OnEvent(HWP::Mercenary::BOSS, HWP::Net::EventHandler(HWP::Mercenary::OnBoss));
 			HWP::Commands::Register("merc", " [enlist [confirm] | ledger] mercenary mode: permadeath, prestige ranks (cheats: prestige <n> | fall | revive)", HWP::Commands::Handler(HWP::Mercenary::CmdMerc));
+			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Mercenary::OnSettingChanged));
 		}
 
 		void Start(StartMode sMode)
 		{
+			HWP::Mercenary::RefreshSettings();
 			HWP::Mercenary::g_pickerMs = HWP::Mercenary::PICKER_DELAY_MS;
 			auto rec = GetLocalPlayerRecord();
 			HWP::Mercenary::g_wasDead = rec !is null && rec.IsDead();
@@ -594,6 +625,15 @@ namespace Modules
 				return;
 			// the bag loads after the record's own RefreshModifiers: the rank bonus needs another
 			rec.RefreshModifiers();
+			if (!HWP::Mercenary::g_enabled)
+			{
+				// off: this run's end state is not judged later either; a fall already
+				// written down still reaches the ledger
+				HWP::Mercenary::g_loadState = MissionManager::MissionState::None;
+				if (HWP::Mercenary::InTown())
+					HWP::Mercenary::FlushLedger(rec);
+				return;
+			}
 			if (HWP::Mercenary::InTown())
 			{
 				HWP::Mercenary::CheckFailedRun(rec);
@@ -606,8 +646,31 @@ namespace Modules
 			HWP::Mercenary::CheckRank(rec);
 		}
 
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardUpdateFrame;
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
 		{
+			if (m_guardUpdateFrame.Skip("mercenary", "HWPMercenaryModule.UpdateFrame"))
+				return;
+			if (m_guardUpdateFrame.Raw())
+			{
+				GuardedUpdateFrame(ms, gameInput, menuInput, paused);
+				m_guardUpdateFrame.Ok();
+				return;
+			}
+			try { GuardedUpdateFrame(ms, gameInput, menuInput, paused); m_guardUpdateFrame.Ok(); }
+			catch { m_guardUpdateFrame.Failed(); }
+		}
+
+		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
+		{
+			if (!HWP::Mercenary::g_enabled)
+			{
+				// off: no falls; a death now is not one when it is turned back on
+				auto rec = GetLocalPlayerRecord();
+				HWP::Mercenary::g_wasDead = rec !is null && rec.IsDead();
+				return;
+			}
 			HWP::Mercenary::WatchDeath();
 			HWP::Mercenary::EnforceFallen(ms);
 		}

@@ -45,7 +45,7 @@ def test_plain_clone_keeps_shared_skills_and_renames_own(tmp_path):
     assert "players/hwp/spec_ranger_test/skills/hwp_ranger_test_nature_entangle.sval" in cls
     t = skill(tmp_path)
     assert ">nature_entangle_heal<" not in t and ">hwp_ranger_test_nature_entangle_heal<" in t
-    assert json.loads((mod / "module.json").read_text())["requires"] == ["core"]
+    assert json.loads((mod / "module.json").read_text())["requires"] == ["hwplib", "hwplib-classui"]
     assert "Test Warden" in (mod / "res/language/english/hwp_spec_ranger_test.lang").read_text(encoding="utf-8")
 
 

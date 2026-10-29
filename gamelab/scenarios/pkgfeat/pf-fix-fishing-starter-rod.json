@@ -1,0 +1,54 @@
+{
+ "name": "pf-fix-fishing-starter-rod",
+ "about": "fix-fishing-starter-rod against the built packages keys, town instead of the mods' source folders (tools/make_package_scenarios.py). Every character starts with the Driftwood Rod and the higher rods cost more (2026-10-25, the user's item 4). A brand-new paladin: the `starts with the Driftwood Rod` log line, the status's rod and drawn slot, the character screen's rod tooltip; then the pirate's rod button (wcaption rod-btn: the pirate is not a ShopWindow, so the shop probe does not apply) names Sturdy 1000 g, Sea 5000 g, Captain's 25000 g in turn and each press takes that gold; then 'Finest rod already'.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "plan_fishing",
+   "kwargs": {
+    "sections": "starter_rod"
+   },
+   "name": "starter rod and prices",
+   "expect": {
+    "starter_rod_logged": true,
+    "starter_rod_status": true,
+    "starter_rod_tooltip": true,
+    "starter_pirate_open": true,
+    "rod_price_t2": true,
+    "rod_price_t3": true,
+    "rod_price_t4": true,
+    "rod_price_none_left": true,
+    "starter_rod_captains": true
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:fishing\\] a new character: starts with the Driftwood Rod",
+   "timeout": 5
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "keys",
+  "town"
+ ]
+}

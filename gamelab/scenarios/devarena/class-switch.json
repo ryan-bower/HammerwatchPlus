@@ -3,7 +3,7 @@
  "about": "Review 5: the live version follows a preset's class change (ran_trap is on every ranger class, each with its own defs).",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
   "devarena",
   "spec-ranger-test"
  ],

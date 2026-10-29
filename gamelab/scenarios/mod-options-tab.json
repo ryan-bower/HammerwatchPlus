@@ -3,7 +3,9 @@
  "about": "The player menu's Plus tab (core HWPOptionsTab, gui/hwp/options.gui): the hook adds it to the open PlayerMenu, the colors row cycles presets on click, and the weaponswap row rebinds the swap key to the next key pressed (posted R). The swap key does nothing while the Plus tab is up, and Esc during a capture closes only the capture window (the menu stays, the key is kept). The search field filters rows as you type (posted chars) and Esc clears it without closing the menu.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "colors",
   "weaponswap"
  ],

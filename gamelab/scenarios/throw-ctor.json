@@ -1,0 +1,17 @@
+{
+ "name": "throw-ctor",
+ "about": "Measures a module constructor that throws (gamelab-throwctor): Modules::MakeModules makes every module in one loop with no try. Does the level load, which modules are made, does hwplib's core module still run?",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "gamelab-throwctor"
+ ],
+ "timeout": 180,
+ "steps": [
+  {"do": "wait_phase", "phase": "town", "timeout": 60},
+  {"do": "log_has", "pattern": "constructor runs", "timeout": 5, "name": "the constructor ran"},
+  {"do": "log_has", "pattern": "modules made: ", "timeout": 30, "name": "the module list"},
+  {"do": "log_has", "pattern": "HWP:core\\] gameplay started", "timeout": 5, "name": "hwplib core still runs"},
+  {"do": "shot", "name": "town"}
+ ]
+}

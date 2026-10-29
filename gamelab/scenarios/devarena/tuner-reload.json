@@ -3,7 +3,7 @@
  "about": "Review 6: Reload floor keeps the tuner's versions, slots and the live version (they ride the town save, fingerprinted against the boot override file), so the next edit's override line still holds the earlier work.",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
   "devarena",
   "spec-ranger-test"
  ],

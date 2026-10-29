@@ -1,0 +1,488 @@
+<loader order="1">Item::TrinketSet::LoadMultiple</loader>
+<!-- The new trinket sets. Each tier lists every modifier it gives (the lower tiers' too):
+     merge-set-bonuses stays off, because the vanilla merge copies the already merged lists
+     (a set with three or more tiers would get its lower tiers twice). -->
+<array>
+	<dict>
+		<string name="id">hwp_charms_of_fortune</string>
+		<string name="name">.hwp.trinkets.set.charms_of_fortune.name</string>
+		<array name="items">
+			<s>hwp_lucky_hat</s>
+			<s>hwp_lucky_horseshoe</s>
+			<s>hwp_key_ring</s>
+			<s>hwp_fancy_plume</s>
+		</array>
+		<bool name="merge-set-bonuses">false</bool>
+		<dict name="2">
+			<string name="desc">.hwp.trinkets.set.charms_of_fortune.2</string>
+			<dict name="modifier">
+				<string name="class">Modifiers::CustomStat</string>
+				<string name="name">hwp-luck</string>
+				<float name="add">5</float>
+			</dict>
+		</dict>
+		<dict name="3">
+			<string name="desc">.hwp.trinkets.set.charms_of_fortune.3</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::CustomStat</string>
+					<string name="name">hwp-luck</string>
+					<float name="add">5</float>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::MaterialGain</string>
+					<float name="all-mul">1.5</float>
+				</dict>
+			</array>
+		</dict>
+		<dict name="4">
+			<string name="desc">.hwp.trinkets.set.charms_of_fortune.4</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::CustomStat</string>
+					<string name="name">hwp-luck</string>
+					<float name="add">20</float>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::MaterialGain</string>
+					<float name="all-mul">1.5</float>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<dict>
+		<string name="id">hwp_disarmament</string>
+		<string name="name">.hwp.trinkets.set.disarmament.name</string>
+		<array name="items">
+			<s>hwp_defenders_halberd</s>
+			<s>hwp_gladiators_net</s>
+			<s>hwp_frying_pan</s>
+			<s>hwp_pot_helm</s>
+		</array>
+		<bool name="merge-set-bonuses">false</bool>
+		<dict name="2">
+			<string name="desc">.hwp.trinkets.set.disarmament.2</string>
+			<dict name="modifier">
+				<string name="class">Modifiers::Damage</string>
+				<float name="mul">1.2</float>
+				<array name="conditional">
+					<s>buff</s>
+					<s>has tag</s>
+					<s>disarm</s>
+				</array>
+			</dict>
+		</dict>
+		<dict name="3">
+			<string name="desc">.hwp.trinkets.set.disarmament.3</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::Damage</string>
+					<float name="mul">1.2</float>
+					<array name="conditional">
+						<s>buff</s>
+						<s>has tag</s>
+						<s>disarm</s>
+					</array>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::Parry</string>
+					<float name="chance">0.15</float>
+				</dict>
+			</array>
+		</dict>
+		<dict name="4">
+			<string name="desc">.hwp.trinkets.set.disarmament.4</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::Damage</string>
+					<float name="mul">1.2</float>
+					<array name="conditional">
+						<s>buff</s>
+						<s>has tag</s>
+						<s>disarm</s>
+					</array>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::Parry</string>
+					<float name="chance">0.15</float>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::BlockProjectile</string>
+					<int name="arc">180</int>
+					<int name="offset">180</int>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<dict>
+		<string name="id">hwp_plague_doctor</string>
+		<string name="name">.hwp.trinkets.set.plague_doctor.name</string>
+		<array name="items">
+			<s>hwp_coated_arrow</s>
+			<s>hwp_blowgun</s>
+			<s>hwp_talisman_of_decay</s>
+			<s>hwp_spreading_corruption</s>
+		</array>
+		<bool name="merge-set-bonuses">false</bool>
+		<dict name="2">
+			<string name="desc">.hwp.trinkets.set.plague_doctor.2</string>
+			<dict name="modifier">
+				<string name="class">Modifiers::DamageMulAdd</string>
+				<float name="poison">0.15</float>
+			</dict>
+		</dict>
+		<dict name="3">
+			<string name="desc">.hwp.trinkets.set.plague_doctor.3</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::DamageMulAdd</string>
+					<float name="poison">0.15</float>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::Aura</string>
+					<string name="buff">tweak/buffs/status_effects.sval:slow_area_minor</string>
+					<int name="range">150</int>
+					<int name="freq">250</int>
+					<bool name="friendly">false</bool>
+					<array name="target-conditional">
+						<s>affliction</s>
+						<s>poison</s>
+						<s>gt</s>
+						<i>0</i>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<dict name="4">
+			<string name="desc">.hwp.trinkets.set.plague_doctor.4</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::DamageMulAdd</string>
+					<float name="poison">0.15</float>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::Aura</string>
+					<string name="buff">tweak/buffs/status_effects.sval:slow_area_minor</string>
+					<int name="range">150</int>
+					<int name="freq">250</int>
+					<bool name="friendly">false</bool>
+					<array name="target-conditional">
+						<s>affliction</s>
+						<s>poison</s>
+						<s>gt</s>
+						<i>0</i>
+					</array>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::Aura</string>
+					<string name="buff">tweak/buffs/status_effects.sval:vulnerability_area_minor</string>
+					<int name="range">150</int>
+					<int name="freq">250</int>
+					<bool name="friendly">false</bool>
+					<array name="target-conditional">
+						<s>affliction</s>
+						<s>poison</s>
+						<s>gt</s>
+						<i>0</i>
+					</array>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<dict>
+		<string name="id">hwp_pyromancer</string>
+		<string name="name">.hwp.trinkets.set.pyromancer.name</string>
+		<array name="items">
+			<s>hwp_talisman_of_conflagration</s>
+			<s>fire_salts</s>
+			<s>cauldron</s>
+			<s>searing_torch</s>
+		</array>
+		<bool name="merge-set-bonuses">false</bool>
+		<dict name="2">
+			<string name="desc">.hwp.trinkets.set.pyromancer.2</string>
+			<dict name="modifier">
+				<string name="class">Modifiers::ArmorAdd</string>
+				<int name="fire">20</int>
+			</dict>
+		</dict>
+		<dict name="3">
+			<string name="desc">.hwp.trinkets.set.pyromancer.3</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::ArmorAdd</string>
+					<int name="fire">20</int>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::Aura</string>
+					<string name="buff">tweak/buffs/status_effects.sval:vulnerability_area_minor</string>
+					<int name="range">150</int>
+					<int name="freq">250</int>
+					<bool name="friendly">false</bool>
+					<array name="target-conditional">
+						<s>affliction</s>
+						<s>fire</s>
+						<s>gt</s>
+						<i>0</i>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<dict name="4">
+			<string name="desc">.hwp.trinkets.set.pyromancer.4</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::ArmorAdd</string>
+					<int name="fire">20</int>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::Aura</string>
+					<string name="buff">tweak/buffs/status_effects.sval:vulnerability_area_minor</string>
+					<int name="range">150</int>
+					<int name="freq">250</int>
+					<bool name="friendly">false</bool>
+					<array name="target-conditional">
+						<s>affliction</s>
+						<s>fire</s>
+						<s>gt</s>
+						<i>0</i>
+					</array>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::ArmorPenetration</string>
+					<float name="fire-penetration">0.1</float>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<dict>
+		<string name="id">hwp_spheres_of_power</string>
+		<string name="name">.hwp.trinkets.set.spheres_of_power.name</string>
+		<array name="items">
+			<s>hwp_lesser_sphere_of_time</s>
+			<s>hwp_sphere_of_time</s>
+			<s>hwp_sphere_of_warriors</s>
+			<s>hwp_greater_sphere_of_regen</s>
+			<s>hwp_sphere_of_champions</s>
+			<s>hwp_amulet_of_vengeance</s>
+		</array>
+		<bool name="merge-set-bonuses">false</bool>
+		<dict name="2">
+			<string name="desc">.hwp.trinkets.set.spheres_of_power.2</string>
+			<dict name="modifier">
+				<string name="class">Modifiers::TriggerEffect</string>
+				<string name="trigger">combo</string>
+				<bool name="target-self">true</bool>
+				<array name="effects">
+					<dict>
+						<string name="class">Nova</string>
+						<string name="projectile">players/shared/projectiles/combo_nova.unit</string>
+						<int name="projectiles">8</int>
+						<float name="proj-dist">8</float>
+					</dict>
+				</array>
+			</dict>
+		</dict>
+		<dict name="3">
+			<string name="desc">.hwp.trinkets.set.spheres_of_power.3</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::TriggerEffect</string>
+					<string name="trigger">combo</string>
+					<bool name="target-self">true</bool>
+					<array name="effects">
+						<dict>
+							<string name="class">Nova</string>
+							<string name="projectile">players/shared/projectiles/combo_nova.unit</string>
+							<int name="projectiles">8</int>
+							<float name="proj-dist">8</float>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::Damage</string>
+					<float name="mul">1.25</float>
+					<array name="conditional">
+						<s>combo</s>
+						<b>true</b>
+					</array>
+					<bool name="cond-target-self">true</bool>
+				</dict>
+			</array>
+		</dict>
+		<dict name="4">
+			<string name="desc">.hwp.trinkets.set.spheres_of_power.4</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::TriggerEffect</string>
+					<string name="trigger">combo</string>
+					<bool name="target-self">true</bool>
+					<array name="effects">
+						<dict>
+							<string name="class">Nova</string>
+							<string name="projectile">players/shared/projectiles/combo_nova.unit</string>
+							<int name="projectiles">16</int>
+							<float name="proj-dist">8</float>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::Damage</string>
+					<float name="mul">1.25</float>
+					<array name="conditional">
+						<s>combo</s>
+						<b>true</b>
+					</array>
+					<bool name="cond-target-self">true</bool>
+				</dict>
+			</array>
+		</dict>
+		<dict name="5">
+			<string name="desc">.hwp.trinkets.set.spheres_of_power.5</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::TriggerEffect</string>
+					<string name="trigger">combo</string>
+					<bool name="target-self">true</bool>
+					<array name="effects">
+						<dict>
+							<string name="class">Nova</string>
+							<string name="projectile">players/shared/projectiles/combo_nova.unit</string>
+							<int name="projectiles">16</int>
+							<float name="proj-dist">8</float>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::Damage</string>
+					<float name="mul">1.25</float>
+					<array name="conditional">
+						<s>combo</s>
+						<b>true</b>
+					</array>
+					<bool name="cond-target-self">true</bool>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::Combo</string>
+					<int name="sustain-reset-timer">1000</int>
+				</dict>
+			</array>
+		</dict>
+		<dict name="6">
+			<string name="desc">.hwp.trinkets.set.spheres_of_power.6</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::TriggerEffect</string>
+					<string name="trigger">combo</string>
+					<bool name="target-self">true</bool>
+					<array name="effects">
+						<dict>
+							<string name="class">Nova</string>
+							<string name="projectile">players/shared/projectiles/combo_nova.unit</string>
+							<int name="projectiles">16</int>
+							<float name="proj-dist">8</float>
+						</dict>
+					</array>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::Damage</string>
+					<float name="mul">1.25</float>
+					<array name="conditional">
+						<s>combo</s>
+						<b>true</b>
+					</array>
+					<bool name="cond-target-self">true</bool>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::Combo</string>
+					<int name="sustain-reset-timer">1000</int>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::UnlethalDamage</string>
+					<array name="conditional">
+						<s>combo</s>
+						<b>true</b>
+					</array>
+					<bool name="cond-target-self">true</bool>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<dict>
+		<string name="id">hwp_seals_of_torment</string>
+		<string name="name">.hwp.trinkets.set.seals_of_torment.name</string>
+		<array name="items">
+			<s>hwp_seal_of_the_martyr</s>
+			<s>hwp_seal_of_souls</s>
+			<s>hwp_seal_of_rage</s>
+		</array>
+		<bool name="merge-set-bonuses">false</bool>
+		<dict name="3">
+			<string name="desc">.hwp.trinkets.set.seals_of_torment.3</string>
+			<dict name="modifier">
+				<string name="class">HWPTrinketMissingHealthSpeed</string>
+				<float name="cast">0.5</float>
+			</dict>
+		</dict>
+	</dict>
+	<dict>
+		<string name="id">hwp_arcanists_regalia</string>
+		<string name="name">.hwp.trinkets.set.arcanists_regalia.name</string>
+		<array name="items">
+			<s>hwp_circlet_of_willpower</s>
+			<s>hwp_ring_of_arcane_powers</s>
+			<s>hwp_wylmirs_wand</s>
+		</array>
+		<bool name="merge-set-bonuses">false</bool>
+		<dict name="2">
+			<string name="desc">.hwp.trinkets.set.arcanists_regalia.2</string>
+			<dict name="modifier">
+				<string name="class">Modifiers::SpellCost</string>
+				<float name="mana-mul">0.9</float>
+			</dict>
+		</dict>
+		<dict name="3">
+			<string name="desc">.hwp.trinkets.set.arcanists_regalia.3</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::SpellCost</string>
+					<float name="mana-mul">0.9</float>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::SpeedAdd</string>
+					<float name="cast-speed">0.15</float>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<dict>
+		<string name="id">hwp_conjurers_relics</string>
+		<string name="name">.hwp.trinkets.set.conjurers_relics.name</string>
+		<array name="items">
+			<s>hwp_golden_lamp</s>
+			<s>hwp_guardian_figurine</s>
+			<s>necromantic_focus</s>
+		</array>
+		<bool name="merge-set-bonuses">false</bool>
+		<dict name="2">
+			<string name="desc">.hwp.trinkets.set.conjurers_relics.2</string>
+			<dict name="modifier">
+				<string name="class">Modifiers::SummonStatMulAdd</string>
+				<float name="damage-mul">0.2</float>
+			</dict>
+		</dict>
+		<dict name="3">
+			<string name="desc">.hwp.trinkets.set.conjurers_relics.3</string>
+			<array name="modifiers">
+				<dict>
+					<string name="class">Modifiers::SummonStatMulAdd</string>
+					<float name="damage-mul">0.2</float>
+				</dict>
+				<dict>
+					<string name="class">Modifiers::ModifySummons</string>
+					<int name="add-max-num">1</int>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+</array>

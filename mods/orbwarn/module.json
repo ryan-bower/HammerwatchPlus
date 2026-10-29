@@ -1,0 +1,16 @@
+{
+  "id": "orbwarn",
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [],
+  "exclude": [],
+  "config": {
+    "title": "Orb warnings",
+    "about": "The orb picker shows which orbs a pick makes unavailable.",
+    "toggle": "orbwarn.enabled",
+    "scope": "local",
+    "applies": "now",
+    "settings": []
+  }
+}

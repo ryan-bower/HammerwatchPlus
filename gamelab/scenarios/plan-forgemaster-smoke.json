@@ -1,11 +1,11 @@
 {
  "name": "plan-forgemaster-smoke",
- "about": "The Devil Forgemaster (Priest 4th spec, mods/specs) compiles and sets up: the specs module registers 7 subclasses, a Priest takes hwp_priest_forgemaster, the binds and orbs take, Divine Favor comes free, bodies roll on the floor's deaths, a body glows, the real cast raises a bandit brute (plan_forgemaster bot, section forge).",
+ "about": "The Devil Forgemaster (Priest 4th spec, mods/specs) compiles and sets up: the specs module registers 8 subclasses, a Priest takes hwp_priest_forgemaster, the binds and orbs take, Divine Favor comes free, bodies roll on the floor's deaths, a body glows, the real cast raises a bandit brute (plan_forgemaster bot, section forge).",
  "fixture": "town-paladin",
- "mods": ["core", "classes", "specs"],
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs"],
  "timeout": 400,
  "steps": [
-  {"do": "log_has", "pattern": "\\[HWP:specs\\] 7 of 7 subclasses registered", "timeout": 30},
+  {"do": "log_has", "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered", "timeout": 30},
   {"do": "console", "line": "e_cheats 1"},
   {"do": "console", "line": "show_chat"},
   {"do": "sleep", "seconds": 1},

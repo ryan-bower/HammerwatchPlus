@@ -1,7 +1,7 @@
 """Writes mods/farming/doodads/hwp/wild/<seed>.unit: the in-run wild crop
 plots (one ripe plot per floor, HWP::Farming::SetupRun). Each is a soil patch
 with three of that crop's ready sprites (copied from doodads/hwp/crops/) and
-the crop icon of mods/core/gui/hwp/map_icons.png on the minimap.
+the crop icon of mods/hwplib/gui/hwp/map_icons.png on the minimap.
 
     python tools/make_wild_plots.py
 """

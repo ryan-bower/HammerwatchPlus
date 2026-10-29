@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">HammerwatchPlus Orb Warning</string>
+	<string name="author">Ryan Bower</string>
+	<string name="description">The orb picker says which orbs a pick would make unavailable (mutually exclusive orbs), with their icons and names. Part of HammerwatchPlus.</string>
+</dict>

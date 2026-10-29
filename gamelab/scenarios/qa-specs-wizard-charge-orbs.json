@@ -3,7 +3,9 @@
   "about": "Native1x real-input Wizard orb effects. Source-pinned damage-round controls, fresh native15k targets, bounded crit setup and explicit prerequisite cooldown resets. All fixed trials retained. Runtime untested until root gate.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "classes",
     "specs"
   ],

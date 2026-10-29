@@ -1,0 +1,102 @@
+{
+ "name": "pf-qa-specs-deadeye",
+ "about": "qa-specs-deadeye against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). All5 Lightning Arrow ranks measured through real native input and HP; all5 Gathering Winds ranks earn Tailwind from25 native1HP fixture kills, compare move/cast/weapon stats and natural expiry. Boomerang1/2 lone-return damage, Storm Arrow1..3 target count and radius boundaries with isolated secondary targets. Tailwind Catch separate; no Gale Force/Wind Ward claim.",
+ "fixture": "town-paladin",
+ "timeout": 1200,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_specs_deadeye",
+   "expect": {
+    "deadeyeqa_char": true,
+    "deadeyeqa_learned": true,
+    "deadeyeqa_input_own_button": true,
+    "deadeyeqa_crit_restored": true,
+    "arrow_rank_damage_progression": true,
+    "boom_lone_return_damage": true,
+    "deadeye_rank_1_levels": true,
+    "arrow_rank_1_setup": true,
+    "arrow_rank_1_returned": true,
+    "winds_rank_1_earned": true,
+    "winds_rank_1_speeds": true,
+    "winds_rank_1_expired": true,
+    "deadeye_rank_2_levels": true,
+    "arrow_rank_2_setup": true,
+    "arrow_rank_2_returned": true,
+    "winds_rank_2_earned": true,
+    "winds_rank_2_speeds": true,
+    "winds_rank_2_expired": true,
+    "deadeye_rank_3_levels": true,
+    "arrow_rank_3_setup": true,
+    "arrow_rank_3_returned": true,
+    "winds_rank_3_earned": true,
+    "winds_rank_3_speeds": true,
+    "winds_rank_3_expired": true,
+    "deadeye_rank_4_levels": true,
+    "arrow_rank_4_setup": true,
+    "arrow_rank_4_returned": true,
+    "winds_rank_4_earned": true,
+    "winds_rank_4_speeds": true,
+    "winds_rank_4_expired": true,
+    "deadeye_rank_5_levels": true,
+    "arrow_rank_5_setup": true,
+    "arrow_rank_5_returned": true,
+    "winds_rank_5_earned": true,
+    "winds_rank_5_speeds": true,
+    "winds_rank_5_expired": true,
+    "boom_rank_1_equipped": true,
+    "boom_rank_1_setup": true,
+    "boom_rank_1_returned": true,
+    "boom_rank_2_equipped": true,
+    "boom_rank_2_setup": true,
+    "boom_rank_2_returned": true,
+    "rod_rank_0_equipped": true,
+    "rod_rank_0_target_count": true,
+    "rod_rank_0_radius": true,
+    "rod_count_0_setup": true,
+    "rod_radius_0_setup": true,
+    "rod_count_0_returned": true,
+    "rod_radius_0_returned": true,
+    "rod_rank_1_equipped": true,
+    "rod_rank_1_target_count": true,
+    "rod_rank_1_radius": true,
+    "rod_count_1_setup": true,
+    "rod_radius_1_setup": true,
+    "rod_count_1_returned": true,
+    "rod_radius_1_returned": true,
+    "rod_rank_2_equipped": true,
+    "rod_rank_2_target_count": true,
+    "rod_rank_2_radius": true,
+    "rod_count_2_setup": true,
+    "rod_radius_2_setup": true,
+    "rod_count_2_returned": true,
+    "rod_radius_2_returned": true,
+    "rod_rank_3_equipped": true,
+    "rod_rank_3_target_count": true,
+    "rod_rank_3_radius": true,
+    "rod_count_3_setup": true,
+    "rod_radius_3_setup": true,
+    "rod_count_3_returned": true,
+    "rod_radius_3_returned": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

@@ -13,7 +13,7 @@ class FakeGame:
         self.commands = []
         self.state = {"phase": phase, "player": {"class": "hwp_firearms", "level": 20, "dead": False}}
         self.probe = {"clip": 12}
-        self.mods = [{"id": "core", "enabled": True}]
+        self.mods = [{"id": "hwplib", "enabled": True}]
         self.cvars = {"snd_volume": 0, "e_cheats": 1}
         self.saved_run = "qa-run"
 
@@ -52,7 +52,7 @@ class RestartTests(unittest.TestCase):
         self.runner.recipe = {
             "readback": {"phase": "town", "player.class": "hwp_firearms", "player.level": 20, "player.dead": False},
             "readback_probes": [{"verb": "magazine", "expect": {"clip": 12}}],
-            "binary_edits": {"enable_mods": ["core"]},
+            "binary_edits": {"enable_mods": ["hwplib"]},
         }
 
     def resume(self):

@@ -2,7 +2,7 @@
   "name": "qa-specs-banner-ranks",
   "about": "Every Standard rank: real incoming damage before/carried/planted/expired, native cooldown and mana, free plant during cooldown. Controlled native activation with cooldown reset only for raises; solo, not teammate proof.",
   "fixture": "town-paladin",
-  "mods": ["core", "classes", "specs"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs"],
   "timeout": 600,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},

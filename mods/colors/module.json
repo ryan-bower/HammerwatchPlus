@@ -1,7 +1,7 @@
 {
   "id": "colors",
   "requires": [
-    "core"
+    "hwplib"
   ],
   "overrides": [],
   "exclude": [],
@@ -9,5 +9,44 @@
     "NewProjectile": "HWPNewProjectile",
     "RayProjectile": "HWPRayProjectile",
     "BeamProjectile": "HWPBeamProjectile"
+  },
+  "config": {
+    "title": "Colors",
+    "about": "Projectiles tinted by team, and every player in their own color on the maps.",
+    "toggle": "colors.enabled",
+    "scope": "local",
+    "applies": "now",
+    "settings": [
+      {
+        "option": "colors",
+        "about": "Friend and foe projectile colors, with presets for color blindness."
+      },
+      {
+        "option": "playercolors",
+        "about": "The game's player colors on the maps, or a colorblind-safe set."
+      },
+      {
+        "key": "playercolors.names",
+        "type": "bool",
+        "default": true,
+        "title": "Names on maps",
+        "about": "Other players' names on the maps when they are far from you."
+      },
+      {
+        "key": "playercolors.distance",
+        "type": "int",
+        "default": 300,
+        "values": [
+          0,
+          150,
+          300,
+          600,
+          1000
+        ],
+        "suffix": " px",
+        "title": "Name distance",
+        "about": "Names show for players farther than this from you."
+      }
+    ]
   }
 }

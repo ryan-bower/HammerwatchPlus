@@ -1,6 +1,6 @@
 {
   "id": "devarena",
-  "requires": ["gamelab-probe", "gamelab-hands", "core"],
+  "requires": ["gamelab-probe", "gamelab-hands", "hwplib", "hwplib-classui"],
   "overrides": [],
   "exclude": [],
   "gamelab": true

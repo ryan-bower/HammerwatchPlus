@@ -3,7 +3,9 @@
   "about": "Every built elements passive rank with live effect/resource observations; fixed trials retain every outcome. Elements includes12 independent legal weight-orb rank distributions. Steady includes7 legal hand configurations and per-gun crit damage. Cleared fixture with godoff; not ordinary-run evidence.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

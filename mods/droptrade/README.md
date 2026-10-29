@@ -16,10 +16,27 @@ and no text input or chat has the keyboard. The item leaves the bag before it
 is dropped, so a stale hover can never spawn a copy. `hwp dropkey` shows it, `hwp dropkey 10 G`
 changes it (per machine).
 
-An item with a registered action (core `HWP::ItemActions`; today the fishing
+An item with a registered action (hwplib `HWP::ItemActions`; today the fishing
 mod's **Eat** on a fish: 100 health per star, town or run, the fish is used
 up) gets a fifth hint, **`[E] Eat`**, and the E key (SDL scancode 8, polled the
 same way) does it on the hovered item (`HWPAction()`).
+
+**Pickup first** (`scripts/HWP/DropTrade/PickupFirst.as`, `HWP::PickupFirst`): the use key
+picks up a dropped item before it talks to an NPC or opens a shop, chest or shrine
+underfoot. The local player's usables are re-sorted every frame, with items between -1
+(revives, exits) and 0 (vanilla puts items at 1, last); `[HWP:droptrade] pickup first`
+logs it.
+
+## Settings
+
+On the HammerwatchPlus tab of the player menu:
+
+- **Drop trade** on/off, `droptrade.enabled` (host, default on). Off: no Drop hint or
+  key and no pickup first; the item action (Eat) keeps working, its hint right after
+  Destroy.
+- **Drop item key** (option `dropkey`, each player's own): click, then press the key.
+  Stored as `droptrade.key` (SDL scancode, default 20 = Q), as `hwp dropkey` does.
+- **Pickup first**, `droptrade.pickup_first` (each player's own, default on).
 
 ## Overrides
 
@@ -46,3 +63,5 @@ not reach it.
    pick it up; the host drops, clients see it. Equipped items cannot be dropped
    (inventory only, as before).
 4. `hwp dropkey 10 G`: the hint reads [G] Drop and G drops.
+5. `python -m gamelab run mod-droptrade-pickup --mode lab`: with a Skill Trainer and a
+   dropped rifle underfoot, the item is the top usable and Use picks it up.

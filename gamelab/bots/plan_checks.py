@@ -7,7 +7,7 @@ Sections: gambler (reroll gold/tokens/refusals), sell (wares at the Gambler), me
 (bag slot), traps (pirate fish traps), full_bag (a catch with a full bag), mission (start
 Bandit Keep), bets (affordable bets, flips, reshuffle), farm (can, seed, plant, water, well),
 petshop / petbowl / petgold (HoH1 pets, XP and feeding, the Gold toggle in a run),
-goldpet / goldpet_run (the Gold Collector vendor and the cat in a run), floor_chests (the floor's own locked chests), chests (silver key loot, ace chest legendary and epic), swap (weapon sets
+floor_chests (the floor's own locked chests), chests (silver key loot, ace chest legendary and epic), swap (weapon sets
 with the X key), swap_sets (the other set's slots and HUD tip, a bow, R as the key, swapdrop)."""
 import json
 import math
@@ -68,10 +68,19 @@ class Checks:
         """The first open widget with this id (the widgets dump: type, visible, text for
         TextWidgets, enabled for buttons), or {}. A button's own caption is a BitmapString
         the dump can't read back."""
-        for root in self.gl("widgets", depth).get("roots", []):
+        r = self.gl("widgets", depth)
+        for root in r.get("roots", []):
             for n in root.get("nodes", []):
                 if n.get("id") == wid:
                     return n
+        if not r.get("truncated"):
+            return {}
+        # the whole dump was cut (its byte cap, each node with its screen position): each root alone
+        for name in [root.get("root") for root in r.get("roots", [])]:
+            for root in self.gl("widgets", depth, name).get("roots", []):
+                for n in root.get("nodes", []):
+                    if n.get("id") == wid:
+                        return n
         return {}
 
     def flag(self, name, ok, note=""):
@@ -786,9 +795,24 @@ class Checks:
         m = re.findall(ware + r"\D{0,4}(\d+)|(\d+)x? " + ware, self.hwp("wares", 0.4, until="Bet tokens"))
         return m[-1] if m else None
 
+    def train_menu(self):
+        """Open the pet progression menu (skills, feeding, toggles): at the Pet Shop keeper,
+        whose window asks Buy / Train once the player has a pet (the feeding bowl doodad is
+        optional now, pets.bowl). Returns the `use` reply."""
+        self.npc("npc_pets", "actors/npcs/town/npc_pets.unit")
+        u = self.gl("use", "npc_pets")
+        time.sleep(0.6)
+        if self.gl("wtext", "pet-state").get("missing"):
+            # no choice window: the keeper opened the plain shop (no pet out)
+            self.notes.append(f"train_menu: no Buy/Train choice ({u.get('window')})")
+            return u
+        self.gl("press", "train-btn")
+        time.sleep(0.6)
+        return u
+
     def petbowl(self):
-        """pets s3/s6: debug XP gives a level-up line and points at the bowl; feeding a
-        cabbage there uses it and adds XP."""
+        """pets s3/s6: debug XP gives a level-up line and points in the Train menu at the Pet
+        Shop keeper (the old bowl's menu); feeding a cabbage there uses it and adds XP."""
         self.hwp("set pets.debug true")
         r = self.hwp("pet xp 500", 0.8, until="reached level")
         line = re.findall(r"\[HWP\] (.*reached level.*)", r)
@@ -799,8 +823,7 @@ class Checks:
         self.gl("use", "wild/cabbage")
         time.sleep(0.8)
         n0 = self.wares_count("Cabbage")
-        u = self.gl("use", "pet_bowl")
-        time.sleep(0.6)
+        u = self.train_menu()
         pts = self.widget("points").get("text", "")
         xp0 = self.widget("xp").get("text", "")
         self.flag("bowl_points", u.get("ok") and re.search(r"Skill points: [1-9]", pts) is not None,
@@ -905,66 +928,6 @@ class Checks:
         near = self.gl("near", 800, "pets/").get("units") or []
         self.flag("pet_follows", walked > 60 and bool(near) and near[0]["dist"] < 90,
                   f"walked {walked:.0f} px; pet {near[0]['dist'] if near else None} px from the player after")
-
-    def goldpet(self):
-        """goldpet s1 (town half): the vendor in the Hunter's Lodge sells tier 1 for 10,000;
-        tier 2 needs Lodge tier 2."""
-        b = self.gl("build", "hunters_cabin")
-        self.gl("townrefresh")
-        time.sleep(3)
-        v = self.gl("near", 8000, "hwp_pet_vendor").get("units") or []
-        self.flag("vendor_spawned", bool(v), f"build {b.get('ok')}, vendor {v[:1]}")
-        self.set_gold(9000)
-        self.gl("use", "hwp_pet_vendor")
-        time.sleep(0.5)
-        req = self.widget("tier1-req").get("text", "")
-        g0 = self.gold()
-        self.gl("press", "buy-tier1")
-        time.sleep(0.5)
-        self.flag("goldpet_poor_refused", self.gold() == g0 and req != "", f"{req!r}, gold {g0} -> {self.gold()}")
-        self.g.key("escape")
-        time.sleep(0.3)
-        self.set_gold(10000)
-        self.gl("use", "hwp_pet_vendor")
-        time.sleep(0.5)
-        btn = self.widget("buy-tier1")
-        self.gl("press", "buy-tier1")
-        time.sleep(1.5)
-        g1 = self.gold()
-        if self.gl("state").get("window"):
-            self.g.key("escape")
-            time.sleep(0.3)
-        cat = self.gl("near", 300, "hwp_gold_collector_pet").get("units") or []
-        self.flag("goldpet_bought", g1 == 0 and bool(cat), f"button {btn}, gold 10000 -> {g1}, cat {cat[:1]}")
-        self.set_gold(60000)
-        self.gl("use", "hwp_pet_vendor")
-        time.sleep(0.5)
-        t2 = self.widget("buy-tier2")
-        req2 = self.widget("tier2-req").get("text", "")
-        g2 = self.gold()
-        self.gl("press", "buy-tier2")
-        time.sleep(0.5)
-        self.flag("goldpet_tier2_gated", self.gold() == g2 and "odge" in req2,
-                  f"{req2!r}, button {t2}, gold {g2} -> {self.gold()}")
-        self.g.key("escape")
-        time.sleep(0.3)
-
-    def goldpet_run(self):
-        """goldpet s1 (run half) and s3 (back after a floor change)."""
-        self.start_floor(0)
-        self.gl("cull")
-        time.sleep(2)
-        cat = self.gl("near", 400, "hwp_gold_collector_pet").get("units") or []
-        g0 = self.gold()
-        n = self.gold_drop(130)
-        left = self.gold_left(8)
-        g1 = self.gold()
-        self.flag("goldpet_in_run", bool(cat), str(cat[:1]))
-        self.flag("goldpet_picks_gold", n > 0 and left == 0 and g1 > g0, f"{n} -> {left} left, gold {g0} -> {g1}")
-        self.start_floor(1)
-        time.sleep(2)
-        cat = self.gl("near", 400, "hwp_gold_collector_pet").get("units") or []
-        self.flag("goldpet_after_floor_change", bool(cat), str(cat[:1]))
 
     def portal(self):
         """campaign s1 / hoh1floors s1: the town portal (a minimap sprite in its unit) offers

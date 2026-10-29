@@ -3,7 +3,9 @@
   "about": "All5Adrenaline ranks: separate fullHP/cappedHP control and bank0-preinjured player who naturally re-earns bank, then actual fullHP heal; exact native pre-cap return, stack consumption and actual native HP. Twofixed10s natural-shot trials perrank/path, no retry-until-success. Controlled hurt fixture, not ordinary-run proof.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

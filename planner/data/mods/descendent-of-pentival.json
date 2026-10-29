@@ -1,0 +1,18 @@
+{
+  "built": "hwp_pal_pb_descendent_of_pentival",
+  "cls": "paladin",
+  "exclusive": "",
+  "icon_art": "pal_pb_descendent_of_pentival",
+  "levels": [
+    {
+      "q": "rare",
+      "text": "Dragon trinkets and the Dragon Lord set bonuses +X% a stack (the passive's per-stack amount)"
+    }
+  ],
+  "name": "Descendent of Pentival",
+  "notes": "Decided 2026-10-27: one level, rare. Dragon trinkets and the Dragon Lord set bonuses scale by the passive's per-stack amount times the stacks, on top of the trinkets mod's NG+ scaling. Tested (Dragon Heart): plan-generosity 20261027-020522.",
+  "order": null,
+  "skill": "paladin-spec4-passive",
+  "status": "built",
+  "summary": "Each stack of Pelor's Blessing also increase the effects of Dragon trinkets by the same amount. This includes set bonuses."
+}

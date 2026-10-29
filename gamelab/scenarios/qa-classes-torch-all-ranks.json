@@ -3,7 +3,9 @@
   "about": "All5positive torch ranks through fixed normal held-main native benches, actual targetHP and native damage attribution. Proc ranks each30s fixed; PlannedAttack each10s plus exact independent native damageMul readback. PoisonedBlades rank0 negative control. No fitted exact proc probability, exact native HP-ratio/cadence, cooldown or ordinary/co-op claim. Independent actual native instantiated nominal chance/raw elemental payload at every tested rank; no fitted stochastic mean-damage assertion.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

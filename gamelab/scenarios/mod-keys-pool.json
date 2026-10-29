@@ -3,7 +3,9 @@
  "about": "Keys in a run: found keys go to the party pool, the host reports the floor's budget from its locked chests, a budget-capped drop pass (cull mine with keys.accept 1), a spawned bronze chest opened with the party key while own keys stay, and the bottom HUD key icons (shots hud, hud_after).",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "keys"
  ],
  "timeout": 300,

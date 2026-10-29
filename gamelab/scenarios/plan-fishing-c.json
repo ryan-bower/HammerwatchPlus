@@ -3,7 +3,9 @@
  "about": "Test plan through the plan_fishing bot: fishing s11 (rod 4, 30 casts a floor at a debug hole: the rolled tiers, read from each bite's zone width, on Bandit Keep floor 0 (first half), floor 3 (second half) and floor 5 (boss)).",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",
@@ -17,7 +19,6 @@
    "firearms",
    "fishing",
    "gambler",
-   "goldpet",
    "groupcombo",
    "keys",
    "laststats",

@@ -1,0 +1,15 @@
+<!-- HWP campaign trap prefab (tweak/hwp/campaign_prefabs.sval); units sit at cell centres; no editor origin unit (generation prefabs carry none) -->
+<dict>
+	<int name="version">1</int>
+	<dict name="units">
+		<array name="doodads/traps/floors/floor_fire.unit">
+			<array>
+				<vec2>8 8</vec2>
+				<int>1</int>
+				<dict>
+					<string name="start">off</string>
+				</dict>
+			</array>
+		</array>
+	</dict>
+</dict>

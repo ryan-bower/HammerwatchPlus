@@ -12,6 +12,13 @@ Item links in chat.
 - `hwp link [main|off|head|chest|feet|hands|back]` links an equipped item
   (default main hand) using the same two calls the inventory makes.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (Quality of Life > Chat item links), per player:
+
+- `chatlinks.enabled` (on): off, linked items get no chat line on your screen
+  (the vanilla loot-log flash stays) and `hwp link` says it is off. At once.
+
 Not done (morning decision): typing `[item]` tokens into the chat input and a
 hover tooltip on the chat line. The chat widget renders plain text; a tooltip
 needs a custom chat list widget (`GameChat.as` is not overridden yet).

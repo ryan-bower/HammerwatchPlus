@@ -1,0 +1,18 @@
+{
+  "id": "goldworth",
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [
+    "items/materials/gold.unit"
+  ],
+  "exclude": [],
+  "config": {
+    "title": "Gold worth",
+    "about": "Gold on the floor shows what it is worth: bronze, silver and gold coins and piles.",
+    "toggle": null,
+    "always_on": "Data only: it replaces the gold pickup's looks.",
+    "scope": "local",
+    "settings": []
+  }
+}

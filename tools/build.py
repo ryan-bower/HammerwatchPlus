@@ -1,38 +1,56 @@
 #!/usr/bin/env python3
 """
-build.py - package HammerwatchPlus modules into HoH2 mod .bin files.
+build.py - package HammerwatchPlus into HoH2 mod .bin files: the Steam Workshop packages.
 
-    build.py                 # every module -> dist/HWP-<id>.bin + dist/HammerwatchPlus-All.bin
-    build.py gambler core    # only these modules (no all-in-one)
+    build.py                 # every package (packages.json) -> dist/HWP-<id>.bin + dist/HammerwatchPlus-All.bin
+    build.py qol keys        # only these packages (no all-in-one)
+    build.py all             # only the all-in-one pack
     build.py --check         # compare our wholesale overrides against gamecode/sdk/hoh2/ (docs/modules.md, rule 1)
+                             # and check packages.json against the modules
     build.py --no-all        # skip the all-in-one package
     build.py --with-local    # also pack `local` content (your own install only)
-    build.py --beta          # fold every `beta_into` module into its host's .bin (a beta build, never published)
+    build.py --workshop      # the all-in-one pack as published: without `"workshop": false` packages
+    build.py --beta          # every `beta_into` module rides in the packages that carry its host (a beta
+                             # build, never published)
+
+A package (packages.json) is its mods plus every library part they require, transitively:
+the shared code is copied into each package at the same paths, so a package works alone and
+beside any other one (the game keeps one copy of a path, the first mod's; RE_NOTES
+"2026-10-26: one path, two mods"). Each package also carries the library stamp
+(scripts/HWP/Core/LibStamp.as, a hash of every library part) and its own check module, which
+logs an error when the stamp the game loaded is another build's. The all-in-one pack is every
+package together.
 
 Each module is `mods/<id>/` with an `info.xml` (author/name/description read
 from it) and an optional `module.json`:
 
     {
       "id": "gambler",                 # defaults to the folder name
-      "requires": ["core"],            # modules that must be enabled alongside
+      "library": false,                # true: a library part (hwplib, hwplib-luck, ...): never a package of
+                                       # its own, copied into every package whose mods require it
+      "shared": false,                 # true: a feature module listed in one package that mods of other
+                                       # packages may require too, and so carry (petrooms: QoL, and Pets)
+      "requires": ["hwplib"],          # modules this one builds on: libraries, shared modules, or mods of
+                                       # the same package
       "overrides": ["scripts/GUI/PlayerMenu/Character.as"],  # wholesale base-file overrides
       "class_swaps": {"Chest": "HWPChest"},  # base units using Chest are copied with HWPChest (tools/class_units.py)
+      "scene_art": "tweak/hwp/chest_art.sval",  # extra art scenes in those copies (tools/class_units.py)
       "exclude": ["notes.md"],         # files not to package
       "local": ["hoh1/"],              # generated from the player's own HoH1 install:
                                        # packed only with --with-local, never released
       "local_overlay": "hoh1art/",     # local too, but packed in place of the committed file
                                        # at the same path without the prefix (hoh1art/x.png -> x.png)
       "dev": false,                    # true: development harness, never packaged
-      "local_only": false,             # true: built only when named together with --with-local,
-                                       # never in the all-in-one package (a machine-local testing aid)
-      "beta_into": "core"              # with --beta, this (local_only) module's files are packed into
-                                       # HWP-core.bin instead of a .bin of its own, so beta testers
-                                       # enable nothing extra; a build without --beta never carries them
+      "local_only": false,             # true: in no package (a machine-local testing aid)
+      "beta_into": "hwplib"            # with --beta, this (local_only) module's files are packed into
+                                       # every package carrying hwplib, so beta testers enable nothing
+                                       # extra; a build without --beta never carries them
     }
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -44,6 +62,8 @@ import gamepaths as paths  # noqa: E402
 
 ALL_NAME = "HammerwatchPlus-All"
 PACKAGE_PREFIX = "HWP-"
+AUTHOR = "Ryan Bower"
+PACKAGES = paths.REPO / "packages.json"
 NEVER_PACK = {"module.json", "README.md", "_hwr_manifest.json", "info.xml"}  # info.xml becomes the archive meta
 # overrides compare these as text (line endings and a BOM do not matter to the engine); anything else byte-exact
 TEXT_EXTS = {".as", ".xml", ".sval", ".lang", ".gui", ".inc", ".net", ".unit", ".effect", ".txt", ".md", ".json", ".fnt"}
@@ -67,6 +87,8 @@ def load_module(mod_dir: Path) -> dict:
     if cfg["local_overlay"]:
         cfg["local_overlay"] = cfg["local_overlay"].rstrip("/") + "/"
         cfg["local"].append(cfg["local_overlay"])
+    cfg.setdefault("library", False)
+    cfg.setdefault("shared", False)
     cfg.setdefault("dev", False)
     cfg.setdefault("local_only", False)
     cfg.setdefault("beta_into", "")
@@ -185,59 +207,161 @@ def check_overrides(mods: list[dict]) -> int:
     return problems
 
 
+def load_packages(mods: list[dict]) -> tuple[list[dict], dict]:
+    """packages.json, checked against the modules: every content module in exactly one package
+    or on the bench, libraries in none, and each package's closure (its mods plus everything they
+    require, transitively) holding only its own mods, libraries and shared modules, so it works
+    alone."""
+    doc = json.loads(PACKAGES.read_text(encoding="utf-8"))
+    by_id = {m["id"]: m for m in mods}
+    owner: dict[str, str] = {}
+    bench = set(doc.get("bench", []))
+    pkgs = doc["packages"]
+    for p in pkgs:
+        if not p["id"].isalnum() or p["id"] != p["id"].lower():
+            sys.exit(f"packages.json: package id {p['id']!r} must be lowercase letters and digits")
+        for mid in p["mods"]:
+            if mid not in by_id:
+                sys.exit(f"packages.json: {p['id']} lists unknown module {mid!r}")
+            if mid in owner:
+                sys.exit(f"packages.json: {mid} is in both {owner[mid]} and {p['id']}")
+            m = by_id[mid]
+            if m["library"] or m["dev"] or m["local_only"] or mid in bench:
+                sys.exit(f"packages.json: {p['id']} lists {mid}, a library, dev, local-only or bench module")
+            owner[mid] = p["id"]
+    if len({p["id"] for p in pkgs}) != len(pkgs):
+        sys.exit("packages.json: two packages share an id")
+    for m in mods:
+        if m["id"] not in owner and not (m["library"] or m["dev"] or m["local_only"] or m["id"] in bench):
+            sys.exit(f"packages.json: module {m['id']} is in no package; add it to one, or to the bench")
+    for p in pkgs:
+        closure: list[str] = []
+        seen: set[str] = set()
+
+        # each module after what it requires, so a library part follows its base
+        def add(mid: str, via: str) -> None:
+            if mid in seen:
+                return
+            if mid not in by_id:
+                sys.exit(f"{via} requires unknown module {mid!r}")
+            m = by_id[mid]
+            if not (m["library"] or m["shared"]) and owner.get(mid) != p["id"]:
+                sys.exit(f"package {p['id']}: {via} requires {mid}, which is not in it; a package must work alone "
+                         f"(move the shared code into a library part, module.json `library: true`)")
+            seen.add(mid)
+            for r in m["requires"]:
+                add(r, mid)
+            closure.append(mid)
+        for mid in p["mods"]:
+            add(mid, mid)
+        # libraries first, each after the parts it builds on: the base before its parts
+        p["closure"] = [x for x in closure if by_id[x]["library"]] + [x for x in closure if not by_id[x]["library"]]
+    return pkgs, doc["all"]
+
+
+def library_stamp(mods: list[dict]) -> str:
+    """One hash over every library part's packed files, whichever parts a package carries: two
+    packages carry the same library build exactly when they carry the same stamp."""
+    h = hashlib.sha256()
+    for m in sorted((m for m in mods if m["library"]), key=lambda m: m["id"]):
+        for rel, fp in module_files(m):
+            h.update(f"{m['id']}/{rel}\0".encode())
+            h.update(_comparable(rel, fp.read_bytes()))
+            h.update(b"\0")
+    return h.hexdigest()[:12]
+
+
+STAMP_FILE = "scripts/HWP/Core/LibStamp.as"
+
+
+def stamp_entries(pkg_id: str, stamp: str, store: bool) -> list[hwr.Entry]:
+    """The library stamp (one path every package ships, byte-identical within a build) and the
+    package's own check: its module compares the stamp it was built with to the one the game
+    loaded (the first package's copy of a path wins), so an older or newer package beside it
+    shows in the log instead of as a puzzling failure."""
+    lib = ("// Generated by tools/build.py: the library build every HammerwatchPlus package of this\n"
+           "// build carries (a hash of all library parts). Never edit; never commit.\n"
+           "namespace HWP\n{\n"
+           f"\tconst string LIB_STAMP = \"{stamp}\";\n"
+           "}\n")
+    cls = f"HWPPackage_{pkg_id}"
+    check = (f"// Generated by tools/build.py for {PACKAGE_PREFIX}{pkg_id}.bin: the library build it was made with.\n"
+             "namespace Modules\n{\n"
+             f"\tclass {cls} : Module\n\t{{\n"
+             f"\t\t{cls}()\n\t\t{{\n"
+             f"\t\t\tsuper(\"hwp-package-{pkg_id}\");\n"
+             f"\t\t\tif (HWP::LIB_STAMP == \"{stamp}\")\n"
+             f"\t\t\t\tHWP::Log(\"core\", \"package {PACKAGE_PREFIX}{pkg_id}, library {stamp}\");\n"
+             "\t\t\telse\n\t\t\t{\n"
+             f"\t\t\t\tHWP::LogError(\"core\", \"package {PACKAGE_PREFIX}{pkg_id} was built with library {stamp} but library \"\n"
+             "\t\t\t\t\t+ HWP::LIB_STAMP + \" loaded: another HammerwatchPlus package is older or newer; update them all\");\n"
+             f"\t\t\t\tHWP::Packages::Mismatch(\"{PACKAGE_PREFIX}{pkg_id}\");\n"
+             "\t\t\t}\n"
+             "\t\t}\n\t}\n}\n")
+    return [hwr.make_entry(STAMP_FILE, lib.encode(), None, store),
+            hwr.make_entry(f"scripts/HWP/Packages/{pkg_id}.as", check.encode(), None, store)]
+
+
+def add_entries(into: dict[str, hwr.Entry], entries: list[hwr.Entry], where: str, source: str) -> None:
+    """Merge into a package by path: one path, one content (a library file every mod's closure
+    reaches is the same file), or the build stops."""
+    for e in entries:
+        have = into.get(e.path)
+        if have is not None and have.blob != e.blob:
+            sys.exit(f"{where}: {e.path} differs between {source} and another module")
+        into[e.path] = e
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("modules", nargs="*", help="module ids to build (default: all)")
+    ap.add_argument("packages", nargs="*", help="package ids to build (packages.json), or `all` for the all-in-one "
+                                                "pack (default: every package and the all-in-one pack)")
     ap.add_argument("--check", action="store_true", help="only run the override check")
     ap.add_argument("--no-all", action="store_true", help="skip the all-in-one package")
     ap.add_argument("--store", action="store_true", help="skip LZ4 compression")
+    ap.add_argument("--workshop", action="store_true",
+                    help="the all-in-one pack as the Workshop has it: packages.json `\"workshop\": false` "
+                         "packages are left out of it (tools/workshop.py)")
     ap.add_argument("--with-local", action="store_true",
                     help="also pack module.json `local` content (converted HoH1 levels); for your own "
                          "install only, never publish such a package")
     ap.add_argument("--beta", action="store_true",
-                    help="a beta build: every module.json `beta_into` module is packed into its host's .bin "
-                         "(holylocal into HWP-core.bin); never publish such a package")
+                    help="a beta build: every module.json `beta_into` module rides in each package that "
+                         "carries its host (holylocal: every package, through hwplib); never publish such a package")
     args = ap.parse_args(argv)
 
     mods = [load_module(d) for d in paths.module_dirs()]
     if args.check:
-        sys.exit(1 if check_overrides(mods) else 0)
-    # dev harnesses and GameLab tools (module.json "gamelab": true, e.g. devarena) are only ever linked
-    mods = [m for m in mods if not m["dev"] and not m.get("gamelab")]   # (deploy.py --env gamelab)
-    # --beta: the beta_into modules ride inside their hosts and are never built on their own
+        problems = check_overrides(mods)
+        load_packages(mods)
+        sys.exit(1 if problems else 0)
+    by_id = {m["id"]: m for m in mods}
+    pkgs, all_doc = load_packages(mods)
     beta = [m for m in mods if m["beta_into"]] if args.beta else []
     for m in beta:
-        if m["beta_into"] not in {x["id"] for x in mods}:
+        if m["beta_into"] not in by_id:
             sys.exit(f"{m['id']}: beta_into names an unknown module {m['beta_into']!r}")
-        if m["id"] in args.modules:
-            sys.exit(f"{m['id']} rides inside HWP-{m['beta_into']}.bin with --beta; do not name it as well")
-    mods = [m for m in mods if m not in beta]
-    if not args.modules:
-        mods = [m for m in mods if not m["local_only"]]   # local-only modules are built by name, with --with-local
-    elif not args.with_local:
-        for m in mods:
-            if m["local_only"] and m["id"] in args.modules:
-                sys.exit(f"{m['id']} is local_only: build it with --with-local (and never publish it)")
-    known = {m["id"] for m in mods}
-    for m in mods:
-        for req in m["requires"]:
-            if req not in known:
-                sys.exit(f"{m['id']} requires unknown module {req!r}")
-    if args.modules:
-        unknown = set(args.modules) - known
-        if unknown:
-            sys.exit(f"unknown module(s): {', '.join(sorted(unknown))}; known: {', '.join(sorted(known))}")
-        mods = [m for m in mods if m["id"] in args.modules]
-        for m in mods:
-            for req in m["requires"]:
-                if req not in args.modules:
-                    print(f"note: {m['id']} requires {req}; players need HWP-{req}.bin enabled as well")
+    known = {p["id"] for p in pkgs}
+    unknown = set(args.packages) - known - {"all"}
+    if unknown:
+        sys.exit(f"unknown package(s): {', '.join(sorted(unknown))}; known: {', '.join(sorted(known))}, all")
+    named = set(args.packages) - {"all"}
+    if args.no_all and args.packages and not named:
+        sys.exit("--no-all with only `all` named: nothing to build")
+    build_all = not args.no_all and (not args.packages or "all" in args.packages)
+    # the all-in-one pack is every package, so naming it builds them all; only the packages
+    # named (every one when none is) and the pack itself are written
+    wanted = pkgs if (build_all or not named) else [p for p in pkgs if p["id"] in named]
+
+    def written(p: dict) -> bool:
+        return not args.packages or p["id"] in named
+    used = {mid for p in wanted for mid in p["closure"]}
 
     if paths.BASE_HOH2.is_dir():
-        for m in mods:
-            if m["class_swaps"]:
-                print(f"class units: {m['id']} {len(class_units.generate(m))}")
-    if any(m["id"] == "pets" for m in mods) and paths.BASE_HOH2.exists():
+        for mid in sorted(used):
+            if by_id[mid]["class_swaps"]:
+                print(f"class units: {mid} {len(class_units.generate(by_id[mid]))}")
+    if "pets" in used and paths.BASE_HOH2.exists():
         import make_pet_dyes  # the two-section pet dye copies (gitignored, made from your installs)
         make_pet_dyes.main([])
 
@@ -246,42 +370,53 @@ def main(argv=None):
         print(f"warning: the HoH1 {what} import predates converter version {hwr.CONVERTER_VERSION}; "
               f"rerun tools/import_hoh1.py {what}")
 
-    print("building:")
+    stamp = library_stamp(mods)
+    print(f"building (library {stamp}):")
+    cache: dict[str, list[hwr.Entry]] = {}
+
+    def entries_of(m: dict, with_local: bool) -> list[hwr.Entry]:
+        key = f"{m['id']}:{with_local}"
+        if key not in cache:
+            cache[key] = module_entries(m, args.store, with_local)
+        return cache[key]
+
     all_entries: dict[str, hwr.Entry] = {}
     all_meta: dict = {}
-    for cfg in mods:
-        entries = module_entries(cfg, args.store, args.with_local)
-        if args.with_local and any(is_local(cfg, rel) for rel, _fp in module_files(cfg, True)):
-            print(f"  note: HWP-{cfg['id']}.bin contains locally generated content; do not publish it")
+    for p in wanted:
+        entries: dict[str, hwr.Entry] = {}
+        meta: dict = {}
+        local = False
+        for mid in p["closure"]:
+            m = by_id[mid]
+            add_entries(entries, entries_of(m, args.with_local), f"{PACKAGE_PREFIX}{p['id']}.bin", mid)
+            merge_meta(meta, m["meta"], mid)
+            local = local or (args.with_local and any(is_local(m, rel) for rel, _fp in module_files(m, True)))
         for rider in beta:
-            if rider["beta_into"] != cfg["id"]:
+            if rider["beta_into"] not in p["closure"]:
                 continue
             # the rider's `local` content is the point of it, so it packs as if --with-local
-            riding = module_entries(rider, args.store, True)
-            taken = {e.path for e in entries}
-            clash = sorted(e.path for e in riding if e.path in taken)
-            if clash:
-                sys.exit(f"--beta: {rider['id']} and {cfg['id']} both pack {clash[0]}")
-            entries += riding
-            print(f"  beta: HWP-{cfg['id']}.bin carries {rider['id']} ({len(riding)} files); do not publish it")
-        write_package(PACKAGE_PREFIX + cfg["id"], cfg["meta"], entries, args.store)
-        for e in entries:
-            if e.path in all_entries and all_entries[e.path].blob != e.blob:
-                sys.exit(f"all-in-one conflict: {e.path} differs between modules")
-            all_entries[e.path] = e
-        merge_meta(all_meta, cfg["meta"], cfg["id"])
-    if not args.no_all and not args.modules:
-        all_meta.update({
-            "author": "Ryan Bower & contributors",
-            "name": "HammerwatchPlus",
-            "description": "All HammerwatchPlus modules in one package: " + ", ".join(m["id"] for m in mods),
-        })
-        write_package(ALL_NAME, all_meta, list(all_entries.values()), args.store)
+            riding = entries_of(rider, True)
+            add_entries(entries, riding, f"{PACKAGE_PREFIX}{p['id']}.bin", rider["id"])
+            print(f"  beta: {PACKAGE_PREFIX}{p['id']}.bin carries {rider['id']} ({len(riding)} files); do not publish it")
+        add_entries(entries, stamp_entries(p["id"], stamp, args.store), f"{PACKAGE_PREFIX}{p['id']}.bin", "build.py")
+        if local:
+            print(f"  note: {PACKAGE_PREFIX}{p['id']}.bin contains locally generated content; do not publish it")
+        meta.update({"author": AUTHOR, "name": p["name"], "description": p["description"]})
+        if written(p):
+            write_package(PACKAGE_PREFIX + p["id"], meta, list(entries.values()), args.store)
+        if args.workshop and p.get("workshop") is False:
+            print(f"  workshop: {p['id']} is not in the all-in-one pack")
+            continue
+        add_entries(all_entries, list(entries.values()), ALL_NAME + ".bin", p["id"])
+        merge_meta(all_meta, meta, p["id"])
+    if build_all:
+        all_meta.update({"author": AUTHOR, "name": all_doc["name"], "description": all_doc["description"]})
+        write_package(all_doc.get("file", ALL_NAME), all_meta, list(all_entries.values()), args.store)
 
 
 def merge_meta(into: dict, meta: dict, mod_id: str) -> None:
     """Combine the non-descriptive info.xml keys (classmaps, scripts, ...) of every module
-    for the all-in-one package. Lists concatenate; anything else must agree."""
+    in a package. Lists concatenate; anything else must agree."""
     for k, v in meta.items():
         if k in ("author", "name", "description"):
             continue
@@ -290,7 +425,7 @@ def merge_meta(into: dict, meta: dict, mod_id: str) -> None:
         elif isinstance(v, list) and isinstance(into[k], list):
             into[k] += [x for x in v if x not in into[k]]
         elif into[k] != v:
-            sys.exit(f"all-in-one conflict: info.xml key {k!r} differs in {mod_id}")
+            sys.exit(f"package conflict: info.xml key {k!r} differs in {mod_id}")
 
 
 if __name__ == "__main__":

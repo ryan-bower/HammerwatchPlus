@@ -2,7 +2,7 @@
  "name": "tuner-dock",
  "about": "Tuner milestone (docs/devarena/SPEC.md build order 2), through the dock as a player uses it: F1 opens the Tune tab, a click picks Entangle, a typed cell edit (L5 area-dmg 60->99) makes v1 in slot B and goes live, the growth [+] stepper makes v2, Ctrl+Z / Ctrl+Y step the live slot, F2 swaps to A (vanilla) and back, a FEEL castpoint edit (150->100) moves the timeline's cast event with it, pin mode pins a cell, and each change logs the override JSON line. Buttons are aimed by id (gl da-dock), so the layout can move.",
  "fixture": "mission-ranger",
- "mods": ["core", "devarena"],
+ "mods": ["hwplib", "devarena"],
  "timeout": 500,
  "steps": [
   {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},

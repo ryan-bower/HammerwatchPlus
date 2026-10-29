@@ -1,0 +1,11 @@
+{
+  "id": "hwplib-classui",
+  "library": true,
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [
+    "scripts/GUI/CreateCharacter/CreateCharacterClass.as"
+  ],
+  "exclude": []
+}

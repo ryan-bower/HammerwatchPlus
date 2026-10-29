@@ -1,3 +1,4 @@
 <lang name="English" official="false">
 	<string name="hwp.valuables.status">Valuables pay %mult%x their vanilla gold (%count% valuables; %example%).</string>
+	<string name="hwp.valuables.off">Valuables are off: they pay their vanilla gold (%example%).</string>
 </lang>

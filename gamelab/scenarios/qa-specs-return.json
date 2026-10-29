@@ -2,7 +2,7 @@
   "name": "qa-specs-return",
   "about": "Bounded three-trial Lightning Arrow catch and return-damage regression. Normal flight measures target HP on both legs; accelerated close-wall flight stresses endpoint catch misses and premature outbound catches. Measurement-only: isolated character, god mode, teleport, timescale. Retains every trial; never retries until green.",
   "fixture": "town-paladin",
-  "mods": ["core", "classes", "specs"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs"],
   "timeout": 600,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},

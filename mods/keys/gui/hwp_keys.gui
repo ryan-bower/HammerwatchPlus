@@ -3,7 +3,7 @@
 		<sprite name="hwp-key-bronze" texture="items/special/base.png"><frame>0 0 16 16</frame></sprite>
 		<sprite name="hwp-key-silver" texture="items/special/base.png"><frame>16 0 16 16</frame></sprite>
 		<sprite name="hwp-key-gold" texture="items/special/base.png"><frame>32 0 16 16</frame></sprite>
-		<sprite name="hwp-key-ace" texture="items/special/base.png"><frame>112 16 16 16</frame></sprite>
+		<sprite name="hwp-key-ace" texture="items/hwp/keys/key_ace.png"><frame>0 0 16 16</frame></sprite>
 	</sprites>
 	<doc>
 		<!-- left of the bottom bar (player_info.gui: 248 wide with two skills, 279 with three);

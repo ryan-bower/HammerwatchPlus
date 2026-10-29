@@ -3,7 +3,9 @@
   "about": "Triple Barrel actual third-shell damage; both Dragon Breath ranks actual damage plus12 native ground-patch lifetimes after natural casts.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

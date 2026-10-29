@@ -1,4 +1,4 @@
-// The specs module: the self-check (the seven subclasses and their stacks are loaded), the
+// The specs module: the self-check (the eight subclasses and their stacks are loaded), the
 // `hwp specs` status command and the per-frame updates of the scripted skill parts.
 namespace HWP
 {
@@ -6,9 +6,58 @@ namespace HWP
 	{
 		const array<string> SUBCLASSES = { "hwp_ranger_stormbringer", "hwp_wizard_invocation",
 			"hwp_sorcerer_arcane", "hwp_rogue_winddancer", "hwp_warrior_bannerlord", "hwp_warlock_branding",
-			"hwp_priest_forgemaster" };
+			"hwp_priest_forgemaster", "hwp_paladin_generosity" };
 
 		bool g_checked = false;
+
+		// specs.enabled (the settings page's switch). Off: the Subclass Picker leaves the
+		// eight specs out (FilterPicker), so no character picks one anew. A character that
+		// has one keeps it and plays it, so the skill updates below keep running.
+		bool g_enabled = true;
+
+		void RefreshEnabled()
+		{
+			g_enabled = HWP::Settings::GetBool("specs.enabled", true);
+		}
+
+		void OnSettingChanged(const string &in key)
+		{
+			if (key == "specs.enabled")
+				RefreshEnabled();
+		}
+
+		// The vanilla picker (Town/SubclassPickShopContent.as) lists every class whose parent
+		// is the player's class when it opens. While off, the open picker's list loses the
+		// specs other than the one the player has; this runs after the window's Update and
+		// before it is drawn, every frame (a no-op once they are gone).
+		void FilterPicker()
+		{
+			if (g_enabled)
+				return;
+			auto w = HWP::SubclassPick::OpenPicker();
+			if (w is null || w.m_content is null || w.m_content.m_player is null)
+				return;
+			auto own = w.m_content.m_player.playerClass;
+			PlayerClass@ shown = null;
+			if (w.m_currPickedIndex >= 0 && w.m_currPickedIndex < int(w.m_classes.length()))
+				@shown = w.m_classes[w.m_currPickedIndex];
+			int removed = 0;
+			for (int i = int(w.m_classes.length()) - 1; i >= 0; i--)
+			{
+				auto cls = w.m_classes[i];
+				if (cls is null || cls is own || SUBCLASSES.find(cls.m_id) < 0)
+					continue;
+				w.m_classes.removeAt(uint(i));
+				removed++;
+			}
+			if (removed == 0 || w.m_classes.length() == 0)
+				return;
+			int idx = shown is null ? -1 : w.m_classes.findByRef(shown);
+			if (idx < 0 && own !is null)
+				idx = w.m_classes.findByRef(own);
+			w.SetCurrSubclass(idx); // -1: the last, as the vanilla window starts
+			Log("specs", "subclass picker: left out " + removed + " spec(s) (specs.enabled off)");
+		}
 
 		void SelfCheck()
 		{
@@ -31,7 +80,7 @@ namespace HWP
 			}
 			Log("specs", found + " of " + SUBCLASSES.length() + " subclasses registered");
 
-			array<string> stacks = { "provisions", "static_charge", "tailwind", HERESY };
+			array<string> stacks = { "provisions", "static_charge", "tailwind", HERESY, BLESSING };
 			for (uint i = 0; i < stacks.length(); i++)
 			{
 				if (Stack(stacks[i]) is null)
@@ -39,7 +88,7 @@ namespace HWP
 			}
 
 			// the buffs the scripts load by name (the svals' own are checked when they load)
-			array<string> buffs = { "standard_dr", "standard_dr_planted", "crusade_5", "gale_share_20_0", "gale_share_60_3", "conduit_1_1", "conduit_2_5", "tailwind_1_1", "tailwind_5_5", "wind_ward", "pyrebrand", "raising", "devouring" };
+			array<string> buffs = { "standard_dr", "standard_dr_planted", "crusade_5", "gale_share_20_0", "gale_share_60_3", "conduit_1_1", "conduit_2_5", "tailwind_1_1", "tailwind_5_5", "wind_ward", "pyrebrand", "raising", "penance_stance", "devouring", "pelors_fury", "pelors_channel" };
 			for (uint i = 0; i < buffs.length(); i++)
 			{
 				if (Buff(buffs[i]) is null)
@@ -50,7 +99,13 @@ namespace HWP
 		void CmdStatus(array<string>@ args)
 		{
 			auto plr = cast<PlayerBase>(GetLocalPlayer());
-			string ret = "specs: " + g_standards.length() + " standard(s)";
+			if (args.length() > 0 && args[0] == "arcane")
+			{
+				// the Living Mana pool, the one bar and the last Blink (Arcane.as)
+				HWP::Commands::Reply(ArcaneStatus(plr));
+				return;
+			}
+			string ret = (g_enabled ? "" : "specs.enabled off (not offered at the Subclass Picker); ") + "specs: " + g_standards.length() + " standard(s)";
 			for (uint i = 0; i < g_standards.length(); i++)
 			{
 				auto s = g_standards[i];
@@ -94,12 +149,12 @@ namespace HWP
 
 namespace Modules
 {
-	class HWPSpecsModule : Module, HWP::ModuleStart, IEventActorDestroyed
+	class HWPSpecsModule : Module, HWP::ModuleStart, IEventActorDestroyed, IEventPlayerDied
 	{
 		HWPSpecsModule()
 		{
 			super("hwp-specs");
-			HWP::Commands::Register("specs", "  4th specializations status (standards, stacks)", HWP::Commands::Handler(HWP::Specs::CmdStatus));
+			HWP::Commands::Register("specs", "  4th specializations status (standards, stacks) | arcane (the Living Mana pool and bar, Blink)", HWP::Commands::Handler(HWP::Specs::CmdStatus));
 			HWP::Specs::SelfCheck();
 			HWP::Net::OnRequest("specs.conduit", HWP::Net::RequestHandler(HWP::Specs::OnConduit));
 			HWP::Net::OnEvent("specs.conduit_mana", HWP::Net::EventHandler(HWP::Specs::OnConduitMana));
@@ -108,6 +163,11 @@ namespace Modules
 			HWP::Net::OnRequest("specs.body_gone", HWP::Net::RequestHandler(HWP::Specs::OnBodyGone));
 			HWP::Net::OnEvent("specs.raised", HWP::Net::EventHandler(HWP::Specs::OnRaised));
 			HWP::Net::OnEvent("specs.raise_denied", HWP::Net::EventHandler(HWP::Specs::OnRaiseDenied));
+			HWP::Commands::Register("gen", "  Paladin of Generosity: status | stacks <n> | fury [now] [dx dy] | cd | solo [on|off|auto]", HWP::Commands::Handler(HWP::Specs::CmdGen));
+			HWP::Net::OnRequest("specs.fury_fx", HWP::Net::RequestHandler(HWP::Specs::OnFuryFxRequest));
+			HWP::Net::OnEvent("specs.fury_play", HWP::Net::EventHandler(HWP::Specs::OnFuryPlay));
+			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Specs::OnSettingChanged));
+			HWP::Specs::RefreshEnabled();
 			GameEvents::Subscribe(this);
 		}
 
@@ -117,8 +177,15 @@ namespace Modules
 			HWP::Specs::OnActorDestroyed(destroyed);
 		}
 
+		// a party player died (every peer, players only): Pelor's Blessing resets
+		void OnEventPlayerDied(PlayerBase@ player)
+		{
+			HWP::Specs::OnPlayerDied(player);
+		}
+
 		void Start(StartMode sMode)
 		{
+			HWP::Specs::RefreshEnabled();
 			HWP::Specs::ClearStandards();
 			HWP::Specs::g_provisionsC = 0;
 			HWP::Specs::g_conduitC = 0;
@@ -132,10 +199,28 @@ namespace Modules
 			HWP::Specs::ClearBrands();
 			HWP::Specs::ClearArcane();
 			HWP::Specs::ClearForgemaster();
+			HWP::Specs::ClearGenerosity();
 		}
 
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardUpdateFrame;
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
 		{
+			if (m_guardUpdateFrame.Skip("specs", "HWPSpecsModule.UpdateFrame"))
+				return;
+			if (m_guardUpdateFrame.Raw())
+			{
+				GuardedUpdateFrame(ms, gameInput, menuInput, paused);
+				m_guardUpdateFrame.Ok();
+				return;
+			}
+			try { GuardedUpdateFrame(ms, gameInput, menuInput, paused); m_guardUpdateFrame.Ok(); }
+			catch { m_guardUpdateFrame.Failed(); }
+		}
+
+		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
+		{
+			HWP::Specs::FilterPicker(); // paused too: a shop window may pause the game
 			if (paused)
 				return;
 			HWP::Specs::UpdateStandards(ms);
@@ -144,7 +229,30 @@ namespace Modules
 			HWP::Specs::UpdateTailwind(ms);
 			HWP::Specs::UpdateBrands(ms);
 			HWP::Specs::UpdateArcane(ms);
-			HWP::Specs::UpdateForgemaster(ms);
+			HWP::Specs::UpdateForgemaster(ms, gameInput.Dash.Pressed);
+			HWP::Specs::UpdateGenerosity(ms);
+		}
+
+		// the Forgemaster's channel bar over the priest (the UI-scaled batch)
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardRenderFrame;
+		void RenderFrame(int idt, SpriteBatch& sb) override
+		{
+			if (m_guardRenderFrame.Skip("specs", "HWPSpecsModule.RenderFrame"))
+				return;
+			if (m_guardRenderFrame.Raw())
+			{
+				GuardedRenderFrame(idt, sb);
+				m_guardRenderFrame.Ok();
+				return;
+			}
+			try { GuardedRenderFrame(idt, sb); m_guardRenderFrame.Ok(); }
+			catch { m_guardRenderFrame.Failed(); }
+		}
+
+		void GuardedRenderFrame(int idt, SpriteBatch& sb)
+		{
+			HWP::Specs::RenderForgemaster(idt, sb);
 		}
 	}
 }

@@ -1,0 +1,98 @@
+<!-- The roulette wheel on a tavern table (mods/roulette, scripts/HWP/Roulette): the table
+     nearest the gambler, found when the town loads (RouletteModule.as). Interact =
+     HWPRouletteShop, the lobby's roulette table. roulette_wheel.png is drawn by
+     tools/make_roulette_art.py: 24 frames, one turn of the wheel. "idle" turns it
+     slowly, "spin" fast while the ball runs (HWP::Roulette::Wheels). The behaviour is core's
+     HWPLocalNPC: vanilla keeps one NPC of a unit type and removes the rest. -->
+<unit slot="doodad">
+	<behavior class="HWPLocalNPC">
+		<int name="hp">100000</int>
+		<bool name="targetable">false</bool>
+		<int name="experience-reward">0</int>
+		<int name="aggro-range">0</int>
+		<int name="max-range">0</int>
+		<bool name="no-buffs">true</bool>
+		<bool name="hide-health">true</bool>
+		<bool name="hide-damage-numbers">true</bool>
+		<bool name="hide-damage-flash">true</bool>
+		<bool name="impenetrable">true</bool>
+		<vec2 name="icon-offset">0 -30</vec2>
+		<vec3 name="dialog-offset">0 -26 0</vec3>
+		<array name="tags"></array>
+		<dict name="interact">
+			<string name="class">HWPRouletteShop</string>
+			<int name="break-distance">50</int>
+			<array name="icon"><s>gui/icons.png</s><i>100</i><vec4>97 215 18 21</vec4></array>
+		</dict>
+		<dict name="movement">
+			<string name="class">EmptyMovement</string>
+		</dict>
+		<array name="skills" />
+	</behavior>
+	<scenes default="idle">
+		<scene name="shared">
+			<!-- a sensor only, wider than the table under it: the interact range -->
+			<collision>
+				<rect sensor="true">-34 -30 68 52</rect>
+			</collision>
+		</scene>
+		<scene name="idle">
+			<scene src="shared" />
+			<sprite origin="16 22" looping="true" texture="./roulette_wheel.png" material="system/default.mats:default-noxray">
+				<frame time="300">0 0 32 22</frame>
+				<frame time="300">32 0 32 22</frame>
+				<frame time="300">64 0 32 22</frame>
+				<frame time="300">96 0 32 22</frame>
+				<frame time="300">128 0 32 22</frame>
+				<frame time="300">160 0 32 22</frame>
+				<frame time="300">192 0 32 22</frame>
+				<frame time="300">224 0 32 22</frame>
+				<frame time="300">0 32 32 22</frame>
+				<frame time="300">32 32 32 22</frame>
+				<frame time="300">64 32 32 22</frame>
+				<frame time="300">96 32 32 22</frame>
+				<frame time="300">128 32 32 22</frame>
+				<frame time="300">160 32 32 22</frame>
+				<frame time="300">192 32 32 22</frame>
+				<frame time="300">224 32 32 22</frame>
+				<frame time="300">0 64 32 22</frame>
+				<frame time="300">32 64 32 22</frame>
+				<frame time="300">64 64 32 22</frame>
+				<frame time="300">96 64 32 22</frame>
+				<frame time="300">128 64 32 22</frame>
+				<frame time="300">160 64 32 22</frame>
+				<frame time="300">192 64 32 22</frame>
+				<frame time="300">224 64 32 22</frame>
+			</sprite>
+		</scene>
+		<scene name="spin">
+			<scene src="shared" />
+			<sprite origin="16 22" looping="true" texture="./roulette_wheel.png" material="system/default.mats:default-noxray">
+				<frame time="40">0 0 32 22</frame>
+				<frame time="40">32 0 32 22</frame>
+				<frame time="40">64 0 32 22</frame>
+				<frame time="40">96 0 32 22</frame>
+				<frame time="40">128 0 32 22</frame>
+				<frame time="40">160 0 32 22</frame>
+				<frame time="40">192 0 32 22</frame>
+				<frame time="40">224 0 32 22</frame>
+				<frame time="40">0 32 32 22</frame>
+				<frame time="40">32 32 32 22</frame>
+				<frame time="40">64 32 32 22</frame>
+				<frame time="40">96 32 32 22</frame>
+				<frame time="40">128 32 32 22</frame>
+				<frame time="40">160 32 32 22</frame>
+				<frame time="40">192 32 32 22</frame>
+				<frame time="40">224 32 32 22</frame>
+				<frame time="40">0 64 32 22</frame>
+				<frame time="40">32 64 32 22</frame>
+				<frame time="40">64 64 32 22</frame>
+				<frame time="40">96 64 32 22</frame>
+				<frame time="40">128 64 32 22</frame>
+				<frame time="40">160 64 32 22</frame>
+				<frame time="40">192 64 32 22</frame>
+				<frame time="40">224 64 32 22</frame>
+			</sprite>
+		</scene>
+	</scenes>
+</unit>

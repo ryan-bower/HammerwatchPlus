@@ -16,5 +16,6 @@
 	<string name="hwp.mercenary.locked">Reach level %level% with another %class% first to enlist one as a mercenary.</string>
 	<string name="hwp.mercenary.confirm">A mercenary starts at level %level%, earns prestige and ranks for more gold and experience, and its death is permanent. Type hwp merc enlist confirm to enlist.</string>
 	<string name="hwp.mercenary.enlisted">%name% enlists as a mercenary: level %level%, rank %rank% (+%bonus%% gold and experience). Death is permanent.</string>
+	<string name="hwp.mercenary.off">Mercenary mode is off (HammerwatchPlus settings, or hwp set mercenary.enabled true).</string>
 	<string name="hwp.mercenary.not_merc">%name% is not a mercenary. A fresh level-1 character can enlist (hwp merc enlist) once another character of its class has reached level %level%.</string>
 </lang>

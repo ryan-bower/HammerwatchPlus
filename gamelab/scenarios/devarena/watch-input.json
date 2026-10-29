@@ -3,7 +3,7 @@
  "about": "Watch-mode e2e of the player's hands in the Dev Arena (user report 2026-10-21: the mouse did nothing). Same setup as devarena/arena, then the shim hand-off with focus kept (a player who clicked into the window), and every kbm binding of res/controls_default.cfg pressed with posted mouse messages and the shim's SDL keys: the aim follows the mouse in four directions, and each of mouse_left/right/4/5, 1/2/3, q/e/v and space casts its skill (skill1, ran_mark, is TargetAOE: the press shows the marker and a left click places it, as in the game), r drinks, f uses, WASD move (da-inputlog, mods/devarena/scripts/HWP/DevArena/InputLog.as). \"on reset\" is a test cheat (mana refilled, cooldowns zeroed every frame, so presses can run back to back); while it is on, a red all-caps banner says so at the top of the screen, and the warning goes to the log and the chat. Posted messages stand in for the hardware; the OS foreground is never taken. Run: python -m gamelab run devarena/watch-input --mode watch.",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
   "devarena",
   "spec-ranger-test"
  ],

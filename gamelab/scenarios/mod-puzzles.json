@@ -3,7 +3,9 @@
  "about": "mods/puzzles: HoH1's Constellation (tools/make_constellation.py). Fabricated in town, a random pattern is picked (7-12 stars); pressing the non-pattern stars fails it on the first one and locks every star. Fabricated again on a mission floor, pressing exactly the pattern stars solves it (remaining 0, solved ran once, stars locked). usews presses a star only while its correct/wrong link is enabled, so the static steps follow the random pattern. Then no script errors in our files.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "puzzles"
  ],
  "timeout": 240,

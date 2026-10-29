@@ -1,0 +1,25 @@
+<!-- The dart trap's burst: 8 trap arrows in a ring, the glyph_shadow_bomb pattern
+     (BombBehavior + ShootProjectileFan) with the trap arrow turret's projectile. -->
+<unit layer="0" netsync="position">
+	<behavior class="BombBehavior">
+		<string name="team">enemy</string>
+		<string name="explode-sound">event:/sfx/doodads/traps/arrows/arrow_shoot</string>
+		<int name="delay">200</int>
+
+		<array name="actions">
+			<dict>
+				<string name="class">ShootProjectileFan</string>
+				<string name="projectile">doodads/traps/projectiles/arrow.unit</string>
+				<int name="projectiles">8</int>
+				<float name="proj-dist">8</float>
+				<int name="spread">315</int>
+				<float name="jitter">0.3</float>
+			</dict>
+		</array>
+	</behavior>
+
+	<scenes>
+		<scene>
+		</scene>
+	</scenes>
+</unit>

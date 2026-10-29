@@ -1,0 +1,17 @@
+{
+  "id": "hwplib",
+  "library": true,
+  "requires": [],
+  "overrides": [
+    "gui/playermenu/character.gui",
+    "gui/playermenu/playermenu.gui",
+    "scripts/GUI/PlayerMenu/Modifications.as",
+    "system/messages.net",
+    "tweak/missions/themes_forest.sval",
+    "tweak/missions/themes_heaven.inc",
+    "tweak/missions/themes_heaven.sval",
+    "tweak/missions/themes_keep.sval",
+    "tweak/missions/themes_prison.sval"
+  ],
+  "exclude": []
+}

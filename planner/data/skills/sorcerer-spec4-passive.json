@@ -13,10 +13,10 @@
   ],
   "mana": "",
   "name": "Living Mana",
-  "notes": "Maximum-health bonuses from items and other sources grant maximum mana instead. Food, potions, health regeneration, life leech and other health restoration restore mana. Casting still requires enough mana to pay the normal spell cost; applying the cost leaves at least 1 mana. Damage can empty the pool and kill you.\nThe regen bonus scales linearly with missing mana: none at full, the full bonus at empty. With Living Mana, mana regeneration is your health regeneration, so this is a comeback mechanic.\n\nIn game (hwp_sor_living_mana, tested): max health adds to max mana; heals, potions and regeneration restore mana; damage drains it and an empty pool kills. Assumed: a buff's damage over time can kill a little before the pool is empty.",
+  "notes": "Maximum-health bonuses from items and other sources grant maximum mana instead. Food, potions, health regeneration, life leech and other health restoration restore mana. Casting still requires enough mana to pay the normal spell cost; applying the cost leaves at least 1 mana. Damage can empty the pool and kill you.\nThe regen bonus scales linearly with missing mana: none at full, the full bonus at empty. With Living Mana, mana regeneration is your health regeneration, so this is a comeback mechanic.\n\nIn game (hwp_sor_living_mana): max health adds to max mana; heals, potions and regeneration restore mana; damage drains it and an empty pool kills. One pool, one bar (2026-10-25, the user's call): the HUD shows the pool as one big blue bar with its numbers (cur/max mana) in place of the health and mana bars, for the local player while Living Mana is learned; everyone else keeps the vanilla bars. Health is kept at the pool's fraction each frame, so teammates' co-op bars and anything that reads health see the pool too (HWPSpecsPoolHUD, mods/specs/scripts/HWP/Specs/ArcaneHUD.as). Assumed: a buff's damage over time can kill a little before the pool is empty.\n\nThe bar is built, not yet run in the lab: scenario fix-specs-arcane (pool).",
   "order": 1,
   "role": "",
-  "status": "tested",
-  "summary": "Your entire health pool is converted into mana. Health bonuses and healing affect mana instead. Incoming damage drains mana, and reaching 0 mana kills you. Casting can only reduce you to 1 mana. Your regeneration increases the lower your mana is.",
+  "status": "built",
+  "summary": "Your entire health pool is converted into mana: one pool, shown as one blue bar. Health bonuses and healing affect mana instead. Incoming damage drains mana, and reaching 0 mana kills you. Casting can only reduce you to 1 mana. Your regeneration increases the lower your mana is.",
   "unlock": "free"
 }

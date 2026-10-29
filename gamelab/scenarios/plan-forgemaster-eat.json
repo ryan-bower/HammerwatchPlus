@@ -3,7 +3,9 @@
  "about": "The Devil Forgemaster's eating and Penance stances (plan_forgemaster penance + lunge sections only): the Heresy lunge dodges (the Dash skill) to 10 px under the body, faces up, bobs 1 px every 250 ms with blood out of the body every 300 ms, and the body goes when the devouring ends; a Penance channel dodges to the same spot, faces up and the body shines gold brighter as it runs (penance_light.effect every 150 ms), its 50 mana spent when the channel completes. Shots: eating, penance_light.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "classes",
   "specs"
  ],
@@ -11,7 +13,7 @@
  "steps": [
   {
    "do": "log_has",
-   "pattern": "\\[HWP:specs\\] 7 of 7 subclasses registered",
+   "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",
    "timeout": 30
   },
   {
@@ -60,6 +62,7 @@
     "lunge_learned": true,
     "lunge_jump": true,
     "lunge_devour": true,
+    "lunge_heal": true,
     "lunge_hit": true,
     "lunge_faces_up": true,
     "lunge_bobs": true,

@@ -2,7 +2,7 @@
   "name": "qa-specs-righteous-ranks",
   "about": "Righteous Crusade all5 ranks: native ApplyBuff duration scaling, actual Warcry movement effect, natural expiry and reversion. Controlled setup; ally aura remains blocked without a second client.",
   "fixture": "town-paladin",
-  "mods": ["core", "classes", "specs"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs"],
   "timeout": 300,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},

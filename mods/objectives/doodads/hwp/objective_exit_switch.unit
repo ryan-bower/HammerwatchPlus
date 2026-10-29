@@ -1,0 +1,32 @@
+<!-- HWP objectives: the switch that opens the way down (HWPObjectiveSwitch kind "exit", scripts/HWP/Objectives/Units.as).
+     The vanilla lever's art (doodads/buttons/button_lever.unit); "left" is unused (use prompt, map
+     icon), "right" is used. A sensor circle like a chest's adds it to the player's usables. -->
+<unit slot="doodad">
+	<behavior class="HWPObjectiveSwitch">
+		<string name="kind">exit</string>
+	</behavior>
+	<scenes default="left" left="left" right="right">
+		<scene name="shared">
+			<sprite origin="8 10" layer="-30" texture="doodads/buttons/buttons.png" material="system/default.mats:floor">
+				<frame time="50">101 0 17 18</frame>
+			</sprite>
+			<collision static="true">
+				<circle sensor="true" shoot-through="true" aim-through="true" offset="0 0" radius="18" />
+			</collision>
+		</scene>
+		<scene name="left" trigger-snd="event:/sfx/doodads/buttons/lever_off">
+			<scene src="shared" />
+			<scene src="special/minimap.unit:info_poi" />
+			<effect pos="-4 -6" ulayer="1" src="doodads/buttons/hint.effect?a=1"/>
+			<sprite origin="5 7" texture="doodads/buttons/buttons.png" material="system/default.mats:floor">
+				<frame time="50">118 0 8 7</frame>
+			</sprite>
+		</scene>
+		<scene name="right" trigger-snd="event:/sfx/doodads/buttons/lever_on">
+			<scene src="shared" />
+			<sprite origin="3 7" texture="doodads/buttons/buttons.png" material="system/default.mats:floor">
+				<frame time="50">118 7 8 7</frame>
+			</sprite>
+		</scene>
+	</scenes>
+</unit>

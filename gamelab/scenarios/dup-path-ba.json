@@ -1,0 +1,32 @@
+{
+ "name": "dup-path-ba",
+ "about": "Measures what the game does when two enabled mods ship the same file path: gamelab-dup-a and -b both ship scripts/HWPDup/Shared.as (a different WHO), scripts/HWPDup/Same.as (identical) and res/language/english/hwp_dup.lang (different text); each mod's own module logs which it sees. Order b, a.",
+ "fixture": "town-paladin",
+ "mods": [
+  "gamelab-dup-b",
+  "gamelab-dup-a"
+ ],
+ "timeout": 150,
+ "steps": [
+  {
+   "do": "wait_phase",
+   "phase": "town",
+   "timeout": 60
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[GL-dup\\] b sees WHO=\\w+ lang=\\S+ same=1",
+   "timeout": 20,
+   "name": "b module ran"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[GL-dup\\] a sees WHO=\\w+ lang=\\S+ same=1",
+   "timeout": 20,
+   "name": "a module ran"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

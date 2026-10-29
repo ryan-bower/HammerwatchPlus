@@ -3,7 +3,9 @@
   "about": "Cinders all5positive ranks plus rank0:208fixed real Ward hits through native spell activation, targetHP loss and armor_break proc/nonproc. Controlled nocd casts; no exact probability/cooldown/normal-input/armor mitigation credit.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

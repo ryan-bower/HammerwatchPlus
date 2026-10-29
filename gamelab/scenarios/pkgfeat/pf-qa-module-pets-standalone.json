@@ -1,0 +1,42 @@
+{
+ "name": "pf-qa-module-pets-standalone",
+ "about": "qa-module-pets-standalone against the built package pets instead of the mods' source folders (tools/make_package_scenarios.py). Standalone functional subset with only required modules. Actual pet shop purchase/import listing and native pet gold pickup toggles/following; no food/dye/skill claim. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_modules_checks",
+   "kwargs": {
+    "sections": "petshop,petgold",
+    "required_flags": [
+     "petshop_open",
+     "petshop_hoh1_listed",
+     "petshop_bought",
+     "pet_out",
+     "pet_picks_gold",
+     "pet_gold_off_ignores",
+     "pet_gold_on_picks",
+     "pet_follows"
+    ]
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "pets"
+ ]
+}

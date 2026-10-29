@@ -3,7 +3,9 @@
   "about": "Bank GL charge naturally, equip flamethrower rifle, verify missing GL hides its HUD charge count while preserving bank; re-equip GL and verify HUD count returns.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

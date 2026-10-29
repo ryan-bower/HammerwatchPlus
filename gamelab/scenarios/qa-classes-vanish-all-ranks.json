@@ -3,7 +3,9 @@
   "about": "Vanish all5positive ranks:120fixed godoff trueStrike Player.Damage hits per rank, actual Cloak birth/timer/HUD/nativeEvade/actual evasion, >=2procs and8000ms lockout plus natural expiry/reversion. Explicit survival HP refill fixture; no exact probability/movement coefficient/ordinary-play credit.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

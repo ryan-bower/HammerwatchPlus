@@ -1,0 +1,18 @@
+<!-- HWP objectives vault (tweak/hwp/objectives_prefabs.sval): a 9x8-cell room from the cells alone (ReserveWall ring, ReserveFloor inside), the doorway on the south edge at cells 3,7-4,7 with the door unit on the left doorway cell's corner, two chests inside at cell centres; param-less units in the flat vec2/int form -->
+<dict>
+	<int name="version">1</int>
+	<dict name="units">
+		<array name="doodads/hwp/objective_door.unit">
+			<vec2>48 112</vec2>
+			<int>1</int>
+		</array>
+		<array name="items/chests/chest_gold_equipment.unit">
+			<vec2>40 56</vec2>
+			<int>2</int>
+		</array>
+		<array name="items/chests/chest_silver_trinket.unit">
+			<vec2>104 56</vec2>
+			<int>3</int>
+		</array>
+	</dict>
+</dict>

@@ -2,7 +2,7 @@
  "name": "loadout-all",
  "about": "Loadouts (docs/devarena/SPEC.md build order 3): every preset tools/make_presets.py wrote is applied on a live floor and read back (class, level, skill and combo picks, stats, gear base id + quality + ilvl per slot, trinkets, stars and stat points not overspent). First one same-class apply (ranger_nature/mid) and one cross-class apply (paladin_divine/end, ChangeClass in place, no floor reload) with a shot each, then all of them in file order.",
  "fixture": "mission-ranger",
- "mods": ["core", "devarena"],
+ "mods": ["hwplib", "devarena"],
  "timeout": 500,
  "steps": [
   {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},

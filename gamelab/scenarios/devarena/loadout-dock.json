@@ -2,7 +2,7 @@
  "name": "loadout-dock",
  "about": "The Loadout tab as a player uses it (docs/devarena/SPEC.md, Loadout): F1, the Loadout tab (the dock widens to 45%), class and subclass chips, a click applies paladin_divine/early (a cross-class switch from the fixture's ranger), a star makes it a favorite, two compare ticks, a [+] on str is refused (no points), level [+] then str [+] are marked as a change from the preset, Save variant logs the build, Revert re-applies the preset, and the favorites row applies with one click. Buttons are aimed by id (gl da-dock).",
  "fixture": "mission-ranger",
- "mods": ["core", "devarena"],
+ "mods": ["hwplib", "devarena"],
  "timeout": 400,
  "steps": [
   {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},

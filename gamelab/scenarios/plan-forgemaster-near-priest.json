@@ -3,7 +3,9 @@
  "about": "Devil Forgemaster risen targeting with an enemy standing on the priest: a wolf, a cult brother and a fire tower are raised beside the god-mode priest while a bandit brute spawns on or near the priest; the risen trace (hwp forge trace) says which foes the target search sees and what the must-see aim ray hits (plan_forgemaster bot, section near_priest).",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "classes",
   "specs"
  ],
@@ -11,7 +13,7 @@
  "steps": [
   {
    "do": "log_has",
-   "pattern": "\\[HWP:specs\\] 7 of 7 subclasses registered",
+   "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",
    "timeout": 30
   },
   {

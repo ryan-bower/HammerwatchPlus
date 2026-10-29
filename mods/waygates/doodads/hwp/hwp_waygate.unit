@@ -1,0 +1,65 @@
+<!-- A town Way Gate (mods/waygates, scripts/HWP/WayGates): the vanilla teleport beacon's lit
+     pad (doodads/generic/generic.png, the "on" frame of doodads/doors/teleport_beacon.unit)
+     with a blue light. Interact = HWPWayGateShop, the list of the town's gates; the host
+     spawns one per built building and one in the town square (WayGatesModule.as). The
+     behaviour is core's HWPLocalNPC: vanilla keeps one NPC of a unit type and removes the rest. -->
+<unit slot="doodad" layer="-10">
+	<behavior class="HWPLocalNPC">
+		<int name="hp">100000</int>
+		<bool name="targetable">false</bool>
+		<int name="experience-reward">0</int>
+		<int name="aggro-range">0</int>
+		<int name="max-range">0</int>
+		<bool name="no-buffs">true</bool>
+		<bool name="hide-health">true</bool>
+		<bool name="hide-damage-numbers">true</bool>
+		<bool name="hide-damage-flash">true</bool>
+		<bool name="impenetrable">true</bool>
+		<vec2 name="icon-offset">0 -22</vec2>
+		<vec3 name="dialog-offset">0 -20 0</vec3>
+		<array name="tags"></array>
+		<dict name="interact">
+			<string name="class">HWPWayGateShop</string>
+			<int name="break-distance">50</int>
+			<array name="icon"><s>gui/icons.png</s><i>100</i><vec4>50 180 18 21</vec4></array>
+		</dict>
+		<dict name="movement">
+			<string name="class">EmptyMovement</string>
+		</dict>
+		<array name="skills" />
+	</behavior>
+	<scenes default="gate">
+		<scene name="gate">
+			<!-- a sensor only: the pad is walked on, the interact range is the sensor -->
+			<collision>
+				<rect sensor="true">-24 -20 48 40</rect>
+			</collision>
+			<minimap_sprite layer="15" origin="5 6" texture="gui/minimap.png" frame="90 82 10 11" />
+			<sprite origin="16 16" texture="doodads/generic/generic.png" material="system/default.mats:floor">
+				<frame>0 800 32 33</frame>
+			</sprite>
+			<light pos="0 0">
+				<sprite texture="effects/lights/light_L.png">
+					<frame>0 0 128 128</frame>
+				</sprite>
+				<length value="1200" />
+				<overbright value="3" />
+				<looping value="true" />
+				<overlay value="true" />
+				<cast-shadows value="false" />
+				<shadow-cast-pos value="0 0" />
+				<shadow-cast-pos-jitter value="0 0 0 0" />
+				<sizes>
+					<size value="64" />
+					<size value="80" />
+					<size value="64" />
+				</sizes>
+				<colors>
+					<color value="0 90 200 20" />
+					<color value="0 150 255 30" />
+					<color value="0 90 200 20" />
+				</colors>
+			</light>
+		</scene>
+	</scenes>
+</unit>

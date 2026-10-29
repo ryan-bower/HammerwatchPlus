@@ -1,0 +1,17 @@
+{
+  "built": "hwp_fs_snipe_recoil",
+  "cls": "hwp_firearms",
+  "exclusive": "",
+  "levels": [
+    {
+      "q": "rare",
+      "text": "Recoil Roll: the shot throws you back a dash (90 px), evading for 400 ms"
+    }
+  ],
+  "name": "Recoil Roll",
+  "notes": "One rare level. The shot's recoil is the player's own dash (Skills::Charge, 90 px at speed 14, no dash charge spent) backwards along the shot line, with the dash's roll animation, plus the snipe_recoil buff: 100% evade for 400 ms (the roll takes about 210 ms). Marksman.as HWPFirearmsSnipeRecoil; the orb swaps Snipe's class. The user's item of 2026-10-22.",
+  "order": null,
+  "skill": "snipe",
+  "status": "built",
+  "summary": "Firing the Sniper Shot pushes you backwards in a dodge roll, invulnerable while you roll."
+}

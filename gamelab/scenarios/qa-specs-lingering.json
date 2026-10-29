@@ -2,7 +2,7 @@
   "name": "qa-specs-lingering",
   "about": "Lingering Storm ranks1/2 and no-orb control: actual damage and natural projectile lifetime sampled every native gameplay frame at1x, with runtime15000maxHP readback and native crit setup/restoration. Does not claim other Wizard orbs.",
   "fixture": "town-paladin",
-  "mods": ["core", "classes", "specs"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs"],
   "timeout": 300,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},

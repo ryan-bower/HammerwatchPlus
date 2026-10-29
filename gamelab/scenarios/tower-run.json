@@ -1,0 +1,56 @@
+{
+ "name": "tower-run",
+ "needs_hoh1": true,
+ "about": "A playthrough of the HoH1 Forsaken Tower (bot tower_run): floor 1 loaded with `gl mission hwp_forsaken_tower_hoh1 0`, every later floor reached only through the floor's own exit (the stairs' area entered, its UseTrigger used). On each floor, god mode on: the enemies act, the area triggers, tripwires and trap shooters toured (the traps fire), every enemy killed by the player, the drops collected, chests, doors, levers and other UseTriggers, wells, shrines and imps used, a boss floor's fight started and its boss killed, a gambler's window (if the floor has one) bet and rolled, the end window's CONTINUE taken back to town, the log clean, the character's level and experience kept. Needs the HoH1 import. About an hour.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "campaign",
+  "gamelab-it-campaign"
+ ],
+ "timeout": 4200,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "tower_run",
+   "name": "the tower played from floor 1 to the end",
+   "save_as": "run",
+   "expect": {
+    "run_layouts": true,
+    "run_mission": true,
+    "run_started": true,
+    "run_all_floors": true,
+    "run_alive": true,
+    "run_clean_log": true,
+    "run_dealer": true,
+    "run_end": true,
+    "run_enemies": true,
+    "run_enemies_act": true,
+    "run_enemies_cleared": true,
+    "run_traps_fire": true,
+    "run_chests": true,
+    "run_uses": true,
+    "run_usables": true,
+    "run_bosses": true,
+    "run_character_kept": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

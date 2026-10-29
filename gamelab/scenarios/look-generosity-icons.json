@@ -1,0 +1,195 @@
+{
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "classes",
+  "specs"
+ ],
+ "timeout": 300,
+ "name": "look-generosity-icons",
+ "about": "Look only: the Paladin of Generosity's icons (art/specs/override, the user's round-4 picks and Holy Sacrifice from round 2) on the skill bar, the buff bar (Pelor's Blessing at 10 stacks) and the skills page, with Pelor's Fury, Pelor's Blessing and an orb on each. Not evidence of play.",
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",
+   "timeout": 30
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "gl",
+   "verb": "char",
+   "args": [
+    "paladin",
+    "Icons"
+   ]
+  },
+  {
+   "do": "wait_phase",
+   "phase": "town",
+   "timeout": 60
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "console",
+   "line": "hwp levelup 20"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1.5
+  },
+  {
+   "do": "gl",
+   "verb": "subclass",
+   "args": [
+    "hwp_paladin_generosity"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "console",
+   "line": "hwp skillpoints 40"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "gl",
+   "verb": "skill",
+   "args": [
+    "hwp_pal_pelors_fury",
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "gl",
+   "verb": "skill",
+   "args": [
+    "hwp_pal_pelors_blessing",
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "gl",
+   "verb": "skill",
+   "args": [
+    "pal_lay_on_hands",
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.7
+  },
+  {
+   "do": "gl",
+   "verb": "orb",
+   "args": [
+    "hwp_pal_pf_blinding_sun",
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "orb",
+   "args": [
+    "hwp_pal_pf_holy_sacrifice",
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "orb",
+   "args": [
+    "hwp_pal_pb_display_of_generosity",
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "orb",
+   "args": [
+    "hwp_pal_pb_descendent_of_pentival",
+    "1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "console",
+   "line": "hwp gen stacks 10"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1.5
+  },
+  {
+   "do": "shot",
+   "name": "hud"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "mods",
+    "skills-content"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "shot",
+   "name": "skills"
+  },
+  {
+   "do": "key",
+   "key": "escape"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

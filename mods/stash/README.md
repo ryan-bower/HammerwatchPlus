@@ -16,6 +16,14 @@ A **Sort** button on the town stash, next to the tab picker.
   (`HWPStashSortButton`, a `ScalableSpriteButtonWidget` that sorts on click:
   the stash window's own `OnFunc` would treat an unknown func as Refresh).
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (Quality of Life > Stash sort), per player:
+
+- `stash.enabled` (on): off hides the Sort button and gives the tab picker its
+  vanilla width back. The stash's own content is untouched. At once, also with
+  the stash open.
+
 ## Test checklist
 
 1. `python -m gamelab run mod-stash --mode lab`: 8 mixed items in tab 0, the

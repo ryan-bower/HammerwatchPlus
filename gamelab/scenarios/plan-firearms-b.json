@@ -3,7 +3,9 @@
  "about": "Test plan through the plan_firearms bot: the Demolitionist (the Rocket Launcher, its Fat Boy, Magic Missile and Quad orbs, Ordinance Hoarder's charges) and Assault, and the Engineer (Deploy Turret, its orbs, My Turret!).",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",
@@ -17,7 +19,6 @@
    "firearms",
    "fishing",
    "gambler",
-   "goldpet",
    "groupcombo",
    "keys",
    "laststats",

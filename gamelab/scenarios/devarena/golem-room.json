@@ -3,7 +3,7 @@
  "about": "The Golem tab as a player uses it (docs/devarena/SPEC.md, Golem room): F1, the Golem tab, F4 into the room (the golem spawns north of the player, the room walled with barracks wall pieces and its other enemies culled; walking south stops at the wall), the ranger's main attack held on it for 4 s, the pull ends 4 s after the last hit with a golem-pull line (dps, hits, per-skill breakdown), then profile / NG+ / pool / debuff chips respawn it as asked, and F4 back out. Buttons are aimed by id (gl da-dock).",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
   "devarena"
  ],
  "timeout": 400,

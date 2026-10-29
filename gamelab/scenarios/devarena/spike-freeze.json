@@ -3,7 +3,7 @@
  "about": "Spike 3 (docs/devarena/SPEC.md build order): freeze by stun. Spawn two melee footman elites and a ranged beetle next to the player, freeze them (CompositeActorBehavior.m_frozen + a code-built buff with lock-movement, speed-mul 0, disarm, silence, re-applied every second), and hold 10 s: no mob may move and the player may lose no hp. Then unfreeze and check the mobs do move, so the measurement can see movement at all.",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
   "devarena"
  ],
  "timeout": 400,

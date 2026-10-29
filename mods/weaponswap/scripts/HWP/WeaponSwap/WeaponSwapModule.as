@@ -35,11 +35,34 @@ namespace HWP
 		int g_channel = 0;   // ms left of the swap's channel; 0: none
 		int g_swaps = 0;     // channels finished / cancelled here, for `hwp swapkey`
 		int g_cancels = 0;
+		bool g_enabled = true; // weaponswap.enabled (the settings page's switch)
 
 		void Changed()
 		{
 			g_version++;
 			HWP::Gear::Changed();
+		}
+
+		// the other set's slots and labels in the character screen: there while the module is
+		// on. A slot without a provider hides; a hidden widget gets no Update, so after turning
+		// it back on the slots return when the character menu is opened again.
+		void ShowSlots(bool show)
+		{
+			if (show)
+			{
+				HWP::Gear::Register("hwp-alt-main", HWPAltWeaponSlot(true));
+				HWP::Gear::Register("hwp-alt-off", HWPAltWeaponSlot(false));
+				HWP::Gear::RegisterLabel("hwp-alt-caption", HWPAltWeaponLabel(false));
+				HWP::Gear::RegisterLabel("hwp-alt-hint", HWPAltWeaponLabel(true));
+			}
+			else
+			{
+				HWP::Gear::g_slots.delete("hwp-alt-main");
+				HWP::Gear::g_slots.delete("hwp-alt-off");
+				HWP::Gear::g_labels.delete("hwp-alt-caption");
+				HWP::Gear::g_labels.delete("hwp-alt-hint");
+			}
+			Changed();
 		}
 
 		void RefreshSettings()
@@ -50,6 +73,17 @@ namespace HWP
 			// a new key that is held right now (just pressed to bind it) must not swap
 			if (g_scancode != was)
 				g_wasDown = true;
+
+			// off: no swaps, no slots, no tip; the stored set stays in the save as it is
+			bool wasEnabled = g_enabled;
+			g_enabled = HWP::Settings::GetBool("weaponswap.enabled", true);
+			if (g_enabled != wasEnabled)
+			{
+				if (!g_enabled)
+					CancelChannel("off");
+				g_wasDown = true;
+				ShowSlots(g_enabled);
+			}
 		}
 
 		// the row in the player menu's Plus tab: click, then press the new key
@@ -421,6 +455,11 @@ namespace HWP
 		// 'hwp swap': as the key (start or cancel the channel); 'now' (cheat): at once
 		void CmdSwap(array<string>@ args)
 		{
+			if (!g_enabled)
+			{
+				HWP::Commands::Reply("weapon swap is off (weaponswap.enabled); hwp swapdrop still returns the other set");
+				return;
+			}
 			if (args.length() > 0 && args[0] == "now")
 			{
 				if (HWP::Cheats::On())
@@ -531,7 +570,7 @@ class HWPWeaponSwapHUD : HUDComponent
 			m_hasAlt = HWP::WeaponSwap::HasAlt();
 			m_text.SetText(Resources::GetString(".hwp.weaponswap.tip", { { "key", HWP::WeaponSwap::g_keyName } }));
 		}
-		bool show = m_hasAlt && record !is null && !record.IsDead() && HWP::WeaponSwap::EmptyHanded(record);
+		bool show = HWP::WeaponSwap::g_enabled && m_hasAlt && record !is null && !record.IsDead() && HWP::WeaponSwap::EmptyHanded(record);
 		if (show != m_visible)
 		{
 			m_visible = show;
@@ -576,10 +615,7 @@ namespace Modules
 		HWPWeaponSwapModule()
 		{
 			super("hwp-weaponswap");
-			HWP::Gear::Register("hwp-alt-main", HWPAltWeaponSlot(true));
-			HWP::Gear::Register("hwp-alt-off", HWPAltWeaponSlot(false));
-			HWP::Gear::RegisterLabel("hwp-alt-caption", HWPAltWeaponLabel(false));
-			HWP::Gear::RegisterLabel("hwp-alt-hint", HWPAltWeaponLabel(true));
+			HWP::WeaponSwap::ShowSlots(true); // Start hides them again when the module is off
 			HWP::Commands::Register("swap", "[now]  swap weapon sets (hotkey X): a 2 s channel, again to cancel; now (cheat) at once", HWP::Commands::Handler(HWP::WeaponSwap::CmdSwap));
 			HWP::Commands::Register("swapkey", "[scancode [name]]  show or set the swap hotkey", HWP::Commands::Handler(HWP::WeaponSwap::CmdSwapKey));
 			HWP::Commands::Register("swapdrop", " move the other weapon set back into your inventory", HWP::Commands::Handler(HWP::WeaponSwap::CmdSwapDrop));
@@ -590,19 +626,55 @@ namespace Modules
 		void Start(StartMode sMode)
 		{
 			HWP::WeaponSwap::RefreshSettings();
+			if (!HWP::WeaponSwap::g_enabled)
+				HWP::WeaponSwap::ShowSlots(false);
 			HWP::WeaponSwap::g_cooldown = 0;
 			HWP::WeaponSwap::g_channel = 0;
 			HWP::WeaponSwap::g_wasDown = false;
 			HWP::WeaponSwap::Changed();
 		}
 
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardUpdateFrame;
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
 		{
+			if (m_guardUpdateFrame.Skip("weaponswap", "HWPWeaponSwapModule.UpdateFrame"))
+				return;
+			if (m_guardUpdateFrame.Raw())
+			{
+				GuardedUpdateFrame(ms, gameInput, menuInput, paused);
+				m_guardUpdateFrame.Ok();
+				return;
+			}
+			try { GuardedUpdateFrame(ms, gameInput, menuInput, paused); m_guardUpdateFrame.Ok(); }
+			catch { m_guardUpdateFrame.Failed(); }
+		}
+
+		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
+		{
+			if (!HWP::WeaponSwap::g_enabled)
+				return;
 			HWP::WeaponSwap::Poll(ms, paused);
 			HWP::WeaponSwap::UpdateChannel(ms, paused, gameInput.Dash.Down || gameInput.Dash.Pressed);
 		}
 
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardRenderFrame;
 		void RenderFrame(int idt, SpriteBatch& sb) override
+		{
+			if (m_guardRenderFrame.Skip("weaponswap", "HWPWeaponSwapModule.RenderFrame"))
+				return;
+			if (m_guardRenderFrame.Raw())
+			{
+				GuardedRenderFrame(idt, sb);
+				m_guardRenderFrame.Ok();
+				return;
+			}
+			try { GuardedRenderFrame(idt, sb); m_guardRenderFrame.Ok(); }
+			catch { m_guardRenderFrame.Failed(); }
+		}
+
+		void GuardedRenderFrame(int idt, SpriteBatch& sb)
 		{
 			HWP::WeaponSwap::RenderChannel(idt, sb);
 		}

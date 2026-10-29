@@ -3,7 +3,9 @@
   "about": "All five adrenaline passive ranks with actual effects: Adrenaline caps earned by natural shots on read-back low-health dummy fixtures, then native hurt event verifies actual healing/consumption; MyTurret walks in/out of60px radius, measures repair net of decay and actual damage increase. Goddisabled, isolated cleared fixture; not ordinary-run evidence.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

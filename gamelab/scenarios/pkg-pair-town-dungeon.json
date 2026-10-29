@@ -1,0 +1,122 @@
+{
+ "name": "pkg-pair-town-dungeon",
+ "about": "Two packages side by side (town and dungeon): both carry the library at the same paths, the game keeps one copy of each and nothing conflicts; every stamp check passes. tools/make_package_scenarios.py.",
+ "fixture": "town-paladin",
+ "packages": [
+  "town",
+  "dungeon"
+ ],
+ "timeout": 240,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] module created, version \\S+",
+   "timeout": 30,
+   "name": "library: module created"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-town, library [0-9a-f]{12}",
+   "name": "HWP-town: stamp check passed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-dungeon, library [0-9a-f]{12}",
+   "name": "HWP-dungeon: stamp check passed"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] gameplay started; server=yes town=yes",
+   "timeout": 60,
+   "name": "gameplay started in town"
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "in town"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "was built with library",
+   "name": "no package of another library build"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:luck\\] self-check done",
+   "name": "the Luck part loaded"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character",
+    "-",
+    "hwp-luck-stat"
+   ],
+   "expect": {
+    "tab": "PlayerMenuCharacterTab"
+   },
+   "name": "character tab open"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character",
+    "-",
+    "hwp-luck-stat"
+   ],
+   "expect": {
+    "tab": "PlayerMenuCharacterTab",
+    "shown": true
+   },
+   "name": "the Luck cell shows"
+  },
+  {
+   "do": "shot",
+   "name": "character-tab"
+  },
+  {
+   "do": "key",
+   "key": "escape"
+  },
+  {
+   "do": "console",
+   "line": "hwp help"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] commands \\(\\d+\\):",
+   "timeout": 5,
+   "name": "hwp help answers"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP\\] hwp bag ",
+   "name": "no bag shop without keys"
+  },
+  {
+   "do": "console",
+   "line": "hwp help"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] hwp fishing ",
+   "timeout": 5,
+   "name": "hwp help: \\[HWP\\] hwp fishing "
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ]
+}

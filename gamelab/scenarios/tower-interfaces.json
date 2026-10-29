@@ -1,0 +1,52 @@
+{
+ "name": "tower-interfaces",
+ "needs_hoh1": true,
+ "about": "HoH1's two OpenInterface windows in the Forsaken Tower (bot tower_interfaces), on HoH1's own .gui files: the gambler room fabricated on floor 1 with trinkets given (the cursed one not listed), three bet and rolled (three gone, one new, shown as the final item), one gamble per gambler; then the dragon's floor, Thundersnow killed, HoH1's end window with its story, and its CONTINUE ending the mission as won (back in town). Needs the HoH1 import. About 4 min.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "campaign",
+  "gamelab-it-campaign"
+ ],
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "tower_interfaces",
+   "name": "HoH1's gambler and end windows",
+   "save_as": "interfaces",
+   "expect": {
+    "dealer_floor": true,
+    "dealer_spawned": true,
+    "dealer_opens": true,
+    "dealer_lists_trinkets": true,
+    "dealer_chances": true,
+    "dealer_gamble": true,
+    "dealer_once": true,
+    "dealer_clean_log": true,
+    "end_floor_found": true,
+    "end_dragon": true,
+    "end_opens": true,
+    "end_continue": true,
+    "end_clean_log": true
+   }
+  },
+  {
+   "do": "shot",
+   "name": "end"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

@@ -1,6 +1,16 @@
 {
   "id": "gambler",
-  "requires": ["core"],
+  "requires": [
+    "hwplib"
+  ],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Gambler",
+    "about": "The tavern's gambler and his bet tokens. Off keeps the tokens; fish sell for gold.",
+    "toggle": "gambler.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": []
+  }
 }

@@ -1,7 +1,16 @@
 // Arcane (Sorcerer): Blink and Living Mana.
-// - Blink (arcane/blink.sval, HWPSpecsBlink): a teleport of the dodge's distance (BLINK_DIST,
-//   + bl-far with Far Step) along the aim, then bl-dmg pure on every enemy within bl-radius of
-//   where the sorcerer lands (through the skill's weapon info: spell crit applies). With a
+// - Blink (arcane/blink.sval, HWPSpecsBlink): a teleport of BLINK_DIST px (112, + bl-far with
+//   Far Step) along the aim, then bl-dmg pure on every enemy within bl-radius of where the
+//   sorcerer lands (through the skill's weapon info: spell crit applies). The teleport is its
+//   own (BlinkPath), not the vanilla Teleport action: that one raycasts with RaycastType::Any,
+//   which a ledge's or stair's shoot-through rail stops, so Blink could not cross the stairs the
+//   dash can't either (the user, 2026-10-25). BlinkPath asks the ray the projectiles ask
+//   (RaycastType::Shot: shoot-through fixtures don't count), so walls still stop it short (x
+//   BLINK_WALL_MARGIN, like the vanilla one) and ledges and stairs are crossed; the landing is
+//   checked for room with the Any query (past a rail, over a floor tileset too) and nudged along
+//   the aim (then back) up to BLINK_NUDGE.
+//   Effects: blink_out at the start, blink_trail beads along the path, blink_in and the arcane
+//   explosion where it lands (players/hwp/specs/effects/). With a
 //   dash charge it spends one to replay the last elemental spell's timeline actions at the
 //   start point, whatever its cooldown; that spell's cost is paid down to 1 mana and its
 //   cooldown starts over. Void Barrier (bl-barrier ms): no lethal damage after a Blink.
@@ -25,7 +34,13 @@ namespace HWP
 		const uint LIVING_MANA = HashString("hwp_sor_living_mana");
 		const uint ELEMENTAL_ORB = HashString("elemental_orb");
 
-		const float BLINK_DIST = 90;            // the dodge's (players/attacks/dash.sval dist)
+		const float BLINK_DIST = 112;           // 2026-10-25: 90 (the dodge's) x 1.25, rounded (the user: "a little longer")
+		const int BLINK_RAY_N = 3;              // the vanilla Teleport's ray-amount / ray-width
+		const int BLINK_RAY_W = 9;
+		const float BLINK_WALL_MARGIN = 0.95f;  // the vanilla ray-distance-mul, only when a wall cuts the blink
+		const float BLINK_NUDGE = 24;           // the farthest a cramped landing is moved along the aim, then back
+		const float BLINK_NUDGE_STEP = 4;
+		const float BLINK_TRAIL_STEP = 16;      // a trail bead every this many px
 		// assumed numbers (not in the design)
 		const int FEEDBACK_TIME = 3000;         // the empowered spell's hits count this long
 		const float FEEDBACK_PER_MANA = 0.005f; // + 0.5% damage per banked mana
@@ -60,6 +75,12 @@ namespace HWP
 		int g_fbUsed = 0;
 		int g_conduitSent = 0;
 		int g_floored = 0;
+		int g_blinkLedges = 0;     // blinks that crossed what the vanilla Teleport's ray would have stopped at
+		int g_blinkWalls = 0;      // blinks a wall cut short
+		int g_blinkNudged = 0;     // landings moved for room
+		int g_lastBlinkWant = 0;   // the distance the last Blink asked for
+		int g_blinkFx = 0;         // effects the last Blink played
+		bool g_poolBar = false;    // the one blue bar is up (HWPSpecsPoolHUD, ArcaneHUD.as)
 
 		void ClearArcane()
 		{
@@ -76,7 +97,114 @@ namespace HWP
 			g_lmFeedback = 0;
 			g_lmConduit = g_lmRegen = 0;
 			g_blinks =g_blinkHits = g_lastBlink = g_recasts = g_drained = g_converted = g_barrierSaves = g_fbUsed = g_conduitSent = g_floored = 0;
+			g_blinkLedges = g_blinkWalls = g_blinkNudged = g_lastBlinkWant = g_blinkFx = 0;
 			g_lastRecast = "";
+		}
+
+		// Where a Blink from `from` toward `want` lands. The Shot ray (what NewProjectile moves
+		// by) stops at walls and impenetrable actors, never at a shoot-through fixture (a ledge's
+		// or stair's rail), so those are crossed; sensors, passable actors and damage takers are
+		// skipped as the vanilla Teleport skips them. Then the landing needs room for the body:
+		// the Any query (rails count, the sorcerer must not stand in one) with actors ignored,
+		// nudged on along the aim up to BLINK_NUDGE, then back toward the start. A landing past
+		// a rail (beyond where the Any ray stopped) must also be over a floor tileset: the Shot ray
+		// ignores every shoot-through fixture, so without that a rail on the level's edge could be
+		// crossed into the void. With no such spot the Blink stops where the vanilla Teleport would.
+		class BlinkPath
+		{
+			vec2 m_at;
+			bool m_ledge = false;   // the Any ray stopped earlier than the Shot ray: a rail was crossed
+			bool m_wall = false;    // a wall cut it short
+			bool m_nudged = false;
+
+			BlinkPath(vec2 from, vec2 want)
+			{
+				m_at = from;
+				vec2 dir = want - from;
+				float dist = length(dir);
+				if (dist < 0.01f)
+					return;
+				dir /= dist;
+				float shotFrac = RayFraction(from, want, RaycastType::Shot);
+				float anyFrac = RayFraction(from, want, RaycastType::Any);
+				m_wall = shotFrac < 1;
+				m_ledge = anyFrac < shotFrac - 0.01f;
+				float d = m_wall ? dist * shotFrac * BLINK_WALL_MARGIN : dist;
+				float railAt = m_ledge ? dist * anyFrac : dist + BLINK_NUDGE + 1;
+				vec2 at = from + dir * d;
+				if (!HasRoom(at, d > railAt))
+				{
+					bool found = false;
+					for (float n = BLINK_NUDGE_STEP; n <= BLINK_NUDGE && !found; n += BLINK_NUDGE_STEP)
+					{
+						if (!m_wall && HasRoom(from + dir * (d + n), d + n > railAt))
+						{
+							at = from + dir * (d + n);
+							found = true;
+						}
+						else if (d - n > 0 && HasRoom(from + dir * (d - n), d - n > railAt))
+						{
+							at = from + dir * (d - n);
+							found = true;
+						}
+					}
+					if (!found)
+						at = from + dir * (dist * min(shotFrac, anyFrac) * BLINK_WALL_MARGIN);
+					m_nudged = true;
+				}
+				m_at = at;
+			}
+
+			// the fraction of from -> to the first blocking hit stands at (1: nothing)
+			float RayFraction(vec2 from, vec2 to, RaycastType type)
+			{
+				auto ray = g_scene.RaycastWide(BLINK_RAY_N, BLINK_RAY_W, from, to, ~0, type);
+				for (uint i = 0; i < ray.length(); i++)
+				{
+					if (ray[i].fixture.IsSensor())
+						continue;
+					UnitPtr unit = ray[i].FetchUnit(g_scene);
+					auto actor = cast<Actor>(unit.GetScriptBehavior());
+					if (actor !is null && !actor.Impenetrable())
+						continue;
+					if (cast<IDamageTaker>(unit.GetScriptBehavior()) !is null)
+						continue;
+					return ray[i].fraction;
+				}
+				return 1.0f;
+			}
+
+			bool HasRoom(vec2 at, bool pastRail)
+			{
+				if (pastRail && g_scene.FetchTilesets(at).length() == 0)
+					return false;
+				auto hits = g_scene.QueryCircle(at, BLINK_RAY_W, ~0, RaycastType::Any, false);
+				for (uint i = 0; i < hits.length(); i++)
+				{
+					UnitPtr unit = hits[i];
+					if (cast<Actor>(unit.GetScriptBehavior()) !is null)
+						continue;
+					return false;
+				}
+				return true;
+			}
+		}
+
+		// `hwp specs arcane`: the pool, the bar and the last Blink
+		string ArcaneStatus(PlayerBase@ plr)
+		{
+			string ret = "specs arcane:";
+			if (plr !is null)
+			{
+				int maxMana = max(1, plr.m_record.MaxMana());
+				ret += " pool " + int(ManaPts(plr) + 0.5f) + "/" + maxMana
+					+ " hp " + int(float(plr.m_record.hp) * 1000 + 0.5f) + " mana " + int(float(plr.m_record.mana) * 1000 + 0.5f)
+					+ " living " + (Learned(plr, LIVING_MANA) ? 1 : 0) + " bar " + (g_poolBar ? "on" : "off")
+					+ " dist " + int(BLINK_DIST * (1.0f + BindF(plr, BLINK, "bl-far")) + 0.5f);
+			}
+			ret += "; blinks " + g_blinks + " last " + g_lastBlink + " want " + g_lastBlinkWant + " ledges " + g_blinkLedges
+				+ " walls " + g_blinkWalls + " nudged " + g_blinkNudged + " fx " + g_blinkFx;
+			return ret;
 		}
 
 		// a skill's timeline, for the classes that have one (Lightning Ball is DirectionalCharged,
@@ -375,12 +503,10 @@ namespace HWP
 class HWPSpecsBlink : IEffect
 {
 	EffectList@ m_hit;
-	Teleport@ m_tele;
 
 	HWPSpecsBlink(UnitPtr unit, SValue& params)
 	{
 		@m_hit = LoadEffects(unit, params, "hit-");
-		@m_tele = Teleport(unit, params);
 	}
 
 	CanEvade IsEvadable(Actor@ attacker) { return CanEvade::Neither; }
@@ -407,9 +533,24 @@ class HWPSpecsBlink : IEffect
 		}
 
 		float far = HWP::Specs::BindF(plr, HWP::Specs::BLINK, "bl-far");
-		m_tele.DoTeleport(plr, from + dir * HWP::Specs::BLINK_DIST * (1.0f + far));
+		float want = HWP::Specs::BLINK_DIST * (1.0f + far);
+		HWP::Specs::BlinkPath@ path = HWP::Specs::BlinkPath(from, from + dir * want);
+		vec3 was = plr.m_unit.GetPosition();
+		plr.m_unit.SetPosition(xyz(path.m_at, was.z));
 		vec2 at = xy(plr.m_unit.GetPosition());
 		float radius = HWP::Specs::BindF(plr, HWP::Specs::BLINK, "bl-radius", 20);
+		// the look (2026-10-25): the vanish, a bead trail along the skipped path, the arrival
+		int fx = 0;
+		PlayEffect(HWP::Specs::FX + "blink_out.effect", from);
+		fx++;
+		float gone = dist(from, at);
+		for (float d = HWP::Specs::BLINK_TRAIL_STEP; d < gone; d += HWP::Specs::BLINK_TRAIL_STEP)
+		{
+			PlayEffect(HWP::Specs::FX + "blink_trail.effect", from + dir * d);
+			fx++;
+		}
+		PlayEffect(HWP::Specs::FX + "blink_in.effect", at);
+		fx++;
 		// sounds picked in the audio picker (art/specs/AUDIO.md); the vanish at twice the volume, as asked
 		PlayEffect("effects/generic/other/arcane/magic_blink.effect", from);
 		auto vanish = Resources::GetSoundEvent("event:/sfx/actors/undead/shade/shade/shade_blink_out");
@@ -438,7 +579,26 @@ class HWPSpecsBlink : IEffect
 		HWP::Specs::g_blinks++;
 		HWP::Specs::g_blinkHits += enemies.length();
 		HWP::Specs::g_lastBlink = int(dist(from, at) + 0.5f);
-		HWP::Log("specs", "blink: " + HWP::Specs::g_lastBlink + " px, " + enemies.length() + " hit" + recast);
+		HWP::Specs::g_lastBlinkWant = int(want + 0.5f);
+		HWP::Specs::g_blinkFx = fx + 1;
+		string how = "";
+		if (path.m_ledge)
+		{
+			HWP::Specs::g_blinkLedges++;
+			how += ", over ledge";
+		}
+		if (path.m_wall)
+		{
+			HWP::Specs::g_blinkWalls++;
+			how += ", wall";
+		}
+		if (path.m_nudged)
+		{
+			HWP::Specs::g_blinkNudged++;
+			how += ", nudged";
+		}
+		HWP::Log("specs", "blink: " + HWP::Specs::g_lastBlink + " px of " + HWP::Specs::g_lastBlinkWant + ", " + enemies.length() + " hit" + recast + how
+			+ ", fx " + HWP::Specs::g_blinkFx);
 		return true;
 	}
 }

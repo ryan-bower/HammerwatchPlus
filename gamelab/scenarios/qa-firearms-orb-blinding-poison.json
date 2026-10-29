@@ -3,7 +3,9 @@
   "about": "Uncommon Blinding Poison: controlled caster CustomStat fixture makes native RollElement choose poison deterministically, then actual pistol projectiles/HP loss apply native1000ms additive blindness up to3000ms with actual.4MissChance and expiry; absent/removed-orb controls. Native acquisition/proc-frequency under unmodified stats remains separately measured.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

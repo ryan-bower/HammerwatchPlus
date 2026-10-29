@@ -400,7 +400,7 @@ def build(a) -> int:
         f"\t<string name=\"description\">{a.name}, a {parent} subclass cloned from {a.src} by the Dev Arena "
         "(tools/devarena/clone_spec.py). Part of HammerwatchPlus; requires HWP Core.</string>\n"
         "</dict>\n", encoding="utf-8", newline="\n")
-    (mod / "module.json").write_text(json.dumps({"id": mod_name, "requires": ["core"], "overrides": [], "exclude": []}, indent=2) + "\n",
+    (mod / "module.json").write_text(json.dumps({"id": mod_name, "requires": ["hwplib", "hwplib-classui"], "overrides": [], "exclude": []}, indent=2) + "\n",
                                      encoding="utf-8", newline="\n")
     lang_dir = mod / "res" / "language" / "english"
     lang_dir.mkdir(parents=True)

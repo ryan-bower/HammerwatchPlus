@@ -3,7 +3,9 @@
  "about": "The rifle's grenade launcher point-blank (rifle_gl_shell.unit, Launcher.as HWPFirearmsArm): a shell that hits an enemy before it has flown 40 px is a slug, half the blast's damage and a 0.5 s stun (stun_gl), with no blast; one that has armed explodes as before. gamelab/bots/gl_slug_check.py on target dummies at 30 and 100 px.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 600,

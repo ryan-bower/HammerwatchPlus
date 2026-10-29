@@ -1,0 +1,17 @@
+<gui>
+	<sprites>
+		%include "gui/panel_decoration.inc"
+	</sprites>
+
+	<doc>
+		<group id="root" anchor="0.5 0" offset="0 124" width="300" height="100">
+			<panel id="panel" anchor="0 0" width="300" height="100" style="standard">
+				<text id="title" text=".hwp.deathrecap.boss_title" color="#ffd27f" font="title" align="center" anchor="0.5 0" offset="0 5" width="280" />
+				<text id="close" text="[x]" color="#c0c0c0" font="text" align="right" anchor="1 0" offset="-8 6" width="20" />
+				<group id="rows" anchor="0 0" offset="10 24" width="280" height="12">
+				</group>
+				<text id="row-template" text="" color="#ffffff" font="text" anchor="0 0" offset="0 0" width="280" visible="false" />
+			</panel>
+		</group>
+	</doc>
+</gui>

@@ -1,10 +1,12 @@
 {
-  "blurb": "Placeholder: not designed yet.",
+  "blurb": "Follower of Pelor, God of sun and agriculture, stalwart of evil. Through acts of generosity and holy conviction, gain Pelor's blessing and unleash his wrath.",
   "cls": "paladin",
-  "name": "Palor's Disciple",
-  "notes": "",
+  "name": "Generosity",
+  "notes": "In game (hwp_paladin_generosity, tested): the subclass in mods/specs (Generosity.as). plan-generosity 20261027-020522, plan-generosity-bosses 20261027-022232, plan-generosity-farm 20261027-015840. Not balanced yet; icons await the user's picks.",
   "order": 4,
   "owner": "",
   "spec4": true,
-  "status": "idea"
+  "status": "tested",
+  "built": "hwp_paladin_generosity",
+  "icon_art": "pal_class"
 }

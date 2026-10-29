@@ -1,0 +1,19 @@
+{
+  "id": "tavern",
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [
+    "tweak/town/buildings/tavern.sval",
+    "scripts/Missions/MissionFoods.as"
+  ],
+  "exclude": [],
+  "config": {
+    "title": "Tavern",
+    "about": "More food and drink slots at levels 4 to 6. Off: vanilla slots, levels stay built.",
+    "toggle": "tavern.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": []
+  }
+}

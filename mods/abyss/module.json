@@ -1,6 +1,19 @@
 {
   "id": "abyss",
-  "requires": ["core"],
+  "requires": ["hwplib", "hwplib-luck"],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Abyss cracks",
+    "about": "Some floors get a crack that spills waves of enemies, then pays out loot.",
+    "toggle": "abyss.enabled",
+    "scope": "host",
+    "applies": "level",
+    "settings": [
+      {"key": "abyss.chance", "type": "int", "default": 30, "min": 0, "max": 100, "step": 10, "suffix": "%", "title": "Crack chance", "about": "The share of floors that get a crack."},
+      {"key": "abyss.waves", "type": "int", "default": 3, "values": [1, 2, 3, 4, 5, 6], "title": "Waves", "about": "How many waves a crack spills before it pays out."},
+      {"key": "abyss.wave_base", "type": "int", "default": 3, "values": [1, 2, 3, 4, 5, 6, 8], "title": "Wave size", "about": "Enemies in the first wave; each later wave adds one."},
+      {"key": "abyss.wave_per_player", "type": "int", "default": 1, "values": [0, 1, 2, 3], "title": "More per player", "about": "Extra enemies a wave gets for each player."}
+    ]
+  }
 }

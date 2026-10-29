@@ -3627,3 +3627,1919 @@ Those are hidden-desktop requirements, not watch-mode ones.
   (`input-btn skill3 down`) but nature_entangle stayed `input-skill-blocked`, so it didn't cast.
   The first press (`3`) did. Watch run 20261021-160710 also missed later presses while the user
   was interacting with the window; rerun it with nobody in the window.
+
+## The deploy list was missing three modules (2026-10-22, night)
+
+Reading the install's `mods/` back after `deploy.py modded-prod --beta` (29 bins identical to
+`dist/`, core 45 files with the Priest tables, firearms with the `off-hand` param) showed no
+`HWP-mercenary.bin`, `HWP-puzzles.bin` or `HWP-stash.bin`. The three modules landed on 2026-10-18
+(`bdeaec5`, `3139744`, `5450408`) but were never appended to the `modded-prod` list in
+`gamelab/env/environments.json`, which is what `deploy.py` builds and copies (and refuses a module
+not on it). `mod-all` loads all 31 modules, so the lab never noticed. The list now has all 31;
+`HWP-petwait.bin` in `dist/` is a stale 2026-10-16 artifact of a module that no longer exists.
+
+## The rifle arm pumped through a burst in the real game (2026-10-22, night)
+
+- **Report:** "the rifle flickers while shooting, looks like gun is going up and down during
+  burst fire" (the user, playing the deployed build). The real game's log shows the hold itself
+  working at its coarse level (`gun arm: held` / `lowered (1000 ms without a shot)` /
+  `lowered (reloading)` pairs around every burst), so the pumping is inside a held cycle.
+- **Mechanism (read from the decompiled source):** `PlayerSkillDirectional.Update` calls
+  `m_owner.SetUnitScene(m_animation, false)` on every frame of a cast (:103), after `:60`'s reset
+  at each cycle's start, and `SetUnitTimeScale(...)` with it. `PlayerBase.SetUnitScene` is
+  `PlayAnimation3D(..., layer 1, resetTime, m_looping)` at the default speed 1.0. So the game plays
+  the shot animation on at full speed every frame, and `AimHold`'s frozen first frame
+  (`PlayAnimation3D(..., Hold, 0.0001)`) only held while the module's `UpdateFrame` happened to run
+  after the actor update in a frame. `AimHold.Pin()` now reasserts the frozen frame right after
+  the base update in `HWPFirearmsGun.Update` (the gun's own class, so nothing native runs on
+  layer 1 after it in that update) and again from the module's `PreRenderFrame` (the last script
+  before the frame is drawn; `Modules::Module.PreRenderFrame(int idt)`, called from
+  `AGameplayGameMode.PreRenderFrame` after every update). The local player is the `Player`
+  (peers are `PlayerHusk`), so `cast<Player>(m_owner) !is null` is the local check.
+- **Not reproduced in the lab.** `plan-firearms-arm-burst` (new: hold the trigger through three
+  cycles at timescale 0.2 and take twelve frames) shows twelve identical raised poses with the
+  fix (`20261022-203557` PASS, a bullet crossing frame 8 the only change) and without it
+  (`20261022-203713`, INVALID: the user's own slot-7 saves changed during the run, they were
+  playing; the frames are the same). The lab renders at 60 fps on a slowed clock, where one
+  frame of full-speed play is a few milliseconds of the animation; the real game's frame
+  pacing differs. The fix is therefore reasoned, and the user's game is the test.
+- **Regression:** `plan-firearms-arm 20261022-203851` PASS (held, lowers after 1 s, on a dodge,
+  on a reload, rifle and pistol). `mod-all 20261022-203531` PASS compiled it.
+
+## Bug list 10.22.26: sixteen commits, each with a lab scenario (2026-10-25 to 2026-10-26)
+
+The user's list (`temp/bugs 10.22.26.txt`, kept out of git) was worked in priority order,
+bugs first, then the four big features (Battlements floors in HoH2 runs, floor objectives as
+their own module, Luck, the Arcane pooled bar), one agent at a time once the user asked for
+that. Every area got a `fix-*` scenario (`gamelab/scenarios`, bots in `gamelab/bots/fix_*.py`)
+that passes in lab mode; the commit messages (35ead89..bcd12bc) carry the run ids. The final
+gates: `mod-all` with all 32 content modules `20261026-084909` PASS; `fix-objectives`
+`20261026-084617` PASS; `plan-t9` (31 modules, the plan_checks bot) `20261026-084939` PASS;
+`mod-town-rebuild` `20261026-085151` PASS.
+
+### Engine and lab facts measured this session
+
+- **A .pfb unit entry with no params must be the flat form** `<array name="x.unit"><vec2>..</vec2><int>id</int></array>`.
+  The nested `<array><vec2/><int/></array>` form is only valid with a third `<dict>` of
+  params; without it the engine reads past the array and the game dies with exit
+  3221225477 (0xC0000005) at floor start, after "Executing scripts on start" /
+  "MissionGameMode::LoadDifficulty: true", with nothing in the log. Found by bisecting the
+  campaign's trap prefabs; generation prefabs carry no `special/_origin.unit` and need no
+  `tiles`.
+- **Textures must be power-of-two**: the engine refuses a 24x24 dead-core texture at boot;
+  the Forgemaster's body core is 32x32 (0aa229e).
+- **The keep's exit is a `LevelExitNext` world script fired by a `UseTrigger`**
+  (`prefabs/keep/level_exit_part_*.pfb`), picked by a PrefabPicker in `level_exit.pfb` that
+  fabricates after a module's `Start`; the cave and citadel exits are `LevelExitAreaNext`.
+  A disabled world script does not execute (vanilla `ToggleScripts` pattern), so
+  `SetEnabled(false)` seals both kinds. The objectives module retries its seal for 3 s and
+  logs "exits sealed after start" when the keep's part arrives late.
+- **The next floor preloads while the current one runs** and logs its own generation lines
+  tagged `[preload]`; a bot reading placement lines must skip them.
+- **The pathfinder ignores generator-carved corridors**: `gl pathfind` / `gl reachmap`
+  answer empty from every cell of the objectives vault's corridor (sealed or open, and
+  even 64 px into the floor it meets), while the prefab room's own cells path fine
+  (`20261026-084617`, notes in `bot-results.jsonl`). The player walks it. The puzzles
+  module's corridors are carved the same way. Doors are therefore tested by walking the
+  player into them (`fix_objectives.walk_in`): the locked door's static collision stops the
+  walk at the doorway, the open scene lets it through.
+- **`gl usables` never lists a static sensor after a teleport** (no overlap begin), but
+  `gl use <filter>` acts on the nearest match from anywhere; `gl hurt <fraction>` sets the
+  hp fraction (1.0 heals); `hwp god` needs `e_cheats 1`. A level-1 Paladin dies in about a
+  second on spikes or fire or among enemies: heal and god before measuring traps.
+- **The player menu's Map tab cannot open in the lab**: vanilla `MapWidget::NavigationBarText`
+  reads `GetInput().GetCurrentMap()`, null without a real input device
+  (`BaseGameMode::UsingMouseLook`). `fix-map-colors` shoots the minimap and the overlay map
+  instead; the tab is a hand check.
+- **Bash heredocs halve backslashes** on this machine: a JSON `\\d` written through a
+  heredoc arrives as `\d`. Regex patterns in scenarios and bots go through the Edit tool.
+
+### What landed, by area
+
+- Firearms (5167447, bbcc5e1): rounds from the gun to the cursor point, the reload bar in
+  the world, gun poses, Snipe aim time per rank (650..325 ms), armor penetration
+  30/35/45/50/60, the Recoil Roll orb (`HWPFirearmsSnipeRecoil` starts the player's own dash
+  backwards along the shot).
+- Specs (445bde7, f70c7fc, 0aa229e): Blink along a Shot-type ray at 112 px with effects,
+  Thunder Orb 2.0 speed / 3 px body, Living Mana as one blue bar; the Forgemaster's pyres
+  take Heresy, channel lock with beam and bar, boss bodies always orb; the risen run,
+  summon-green with an elite ring in the summon bar's orange (255,84,0), bodies grey and
+  shoot-through, a floor safety net in `summons`.
+- Town (baf4dea, 8a82745, 1ca404e, 0f39987): fishing keys and personal hole loot, the
+  starter rod; outdoor hotboxing, dual joints on left and right click, wild plots for
+  clients; pet training at the keeper and the pet level in the character tab; the run-start
+  screen's presets, NG+ row and non-host leave.
+- Runs (80d69f4, 7fa662f, 06d1a0c): puzzle room check and repair, summons held at the
+  door; Luck (`docs/design/luck.md`); the boss recap and the one-page last-run board.
+- Campaign (7bfa624): the portal offers the HoH1 version, Dark Citadel as two Dark Halls and
+  two Battlements floors, HoH1 traps and a teleporter per generated floor, Confusion.
+- Co-op map (bcd12bc): per-player map colours and names, the trapped-chest banner, and the
+  `objectives` module (locked vaults, a sealed way down). `docs/modules.md` has the rows.
+
+Open from the list: enemies and pets may not follow into a vault (the corridor is off the
+nav graph, above); co-op behaviour of the objectives sync, the map colours of other players
+and the trapped banner on clients need a two-machine lobby; the vault room has no light.
+
+## The bug-list branch's code review, applied (2026-10-26)
+
+A high-effort review of the 17 commits above found ten problems; all ten are fixed, and Luck
+got a place on the character sheet. Batch `review-fixes-003` re-ran every affected `fix-*`
+scenario: all nine PASS: `fix-fishing-personal-loot` 20261026-094048, `fix-core-luck` 20261026-094252 (and 20261026-095714 with the character-tab step), `fix-puzzles-room-integrity` 20261026-094344, `fix-puzzles-summon-hold` 20261026-094455, `fix-objectives` 20261026-094545, `fix-recaps` 20261026-094637, `fix-forgemaster-channels` 20261026-094735, `fix-specs-arcane` 20261026-095343, `fix-map-colors` 20261026-095602; `mod-all` 20261026-095829 PASS with the same engine errors as 20261026-084909.
+
+### Engine facts found by the review
+
+- **A brush's points of interest are stored at the top-left plus the def's `m_gridOffset`**
+  (`CellGrid` brush POIs), so a room's cell is `poi.m_pos - type.m_gridOffset`. The puzzle
+  room check read them raw and checked a cell offset from the room.
+- **Shared and quest loot drops only on the server, for the local looter**: vanilla
+  `LootItem.SpawnLoot` returns early unless `Network::IsServer() && looter.local`, and
+  `CanBeInstanced()` is `!m_shared`. A per-player roll that is "personal" must hand any
+  shared entry to the local record (`HWP::Luck::SpawnLootFor(..., personal = true)`), or a
+  client's fishing catch lost its shared entries.
+- **`ActorBuffList.Add` with a running def calls `ActorBuff.Refresh`**, which averages the two
+  intensities and keeps the longer duration (and sends it to peers). A weaker Luck buff
+  after a stronger one used to halve the difference; `GiveBuff` now passes
+  `2 * keep - running` so the average comes out at the stronger value.
+- **Affliction pools tick with no hook**: `CompositeActorBehavior.Damage` fires
+  `PlayerDamagedActor` only for non-DoT damage on the attacker's machine, and the pools
+  (`ActorBuffList.Update`) deal their ticks as DoT afterwards, recording only
+  `m_affectionAttacker`. The boss recap now polls the pool sum and books the drop as
+  "Afflictions" to the last attacker. Effects with `dot=true` (three vanilla files) are still
+  not counted.
+- **Equipped gear that fails its requirements adds no modifiers**:
+  `PlayerRecord.RefreshModifiers` skips any item `MayEquip` rejects, even when
+  `g_dbg_ignore_equipment_requirements` let it be equipped. `hwp luck item <tier>` generated
+  `chest_dex_t1a` on a paladin about half the time and the Luck never counted; it now
+  generates until the base passes `MayEquip`.
+- **`LootUnit.SpawnLoot` returns -1** (gold, pickups) and the item entries 1 or 0, so a sum of
+  the returns is no count of drops; the personal walk counts each rolled entry, as the old
+  fishing loop did (`review-fixes-002` caught a catch that dropped two units logged as 0).
+- **`RaycastType::Shot` passes over shoot-through rails into the void**: Blink checks
+  `g_scene.FetchTilesets(at)` past the rail and refuses a spot with no floor tiles.
+
+### The ten fixes
+
+1. Puzzles: rooms are recorded at `poi - m_gridOffset` (a `puzzle_room_e_20x18_a` was
+   208x256 px off), so the summon hold and `hwp puzzles check` use the room's real cells.
+2. Fishing: a client's catch keeps its shared entries (above).
+3. Luck buffs: a weaker source no longer lowers a stronger one (above).
+4. Map colours: `playercolors.names 0` hides only the far-player names, not the dots on the
+   minimap, the Tab overlay and the Map tab; the HUD labels follow `ui_hud_visible`.
+5. Forgemaster channel: `UnpinDash` gives back the dash cooldown the pin overrode, minus the
+   time it held, instead of zeroing any cooldown under `m_left + DASH_PIN_MS`.
+6. Pyre Heresy needs the Pyre Sacrifice orb (`ps-reduce > 0`); without it the pyre was spent
+   for nothing.
+7. Luck `RollPool`: the chance a pool pays anything stays vanilla (factor 2 had lowered a
+   chest pool's no-drop share from 85% to about 81%); only the pick among entries is weighted.
+8. Boss recap: affliction pool damage counted (above); reports keyed by peer id, not name.
+9. Arcane Blink: no landing past a rail where there is no floor (above).
+10. One copy of the room carving (`HWP::Carve`, `mods/core/scripts/HWP/Core/Carve.as`,
+    bounds-checked) for puzzles and objectives, the vault asking for its south door first;
+    fishing's hand-written pool walk is `HWP::Luck::SpawnLootFor`.
+
+### Luck on the character sheet
+
+The character tab's stat bar has a sixth cell after movement speed: the vanilla `icon-luck`
+sprite and a `hwp-luck-stat` widget (registered through `LoadWidgetProducers`) that reads
+the local Luck each frame and rewrites its button's tooltip with the factor and the party
+factor. The bar's padding and spacing went from 24 / 8 to 6 / 7 to fit. The Mods tab's Luck
+row uses the `icn-luck` glyph and the same tooltip (`.hwp.luck.stat.tip`). `fix-core-luck` opens
+the tab (`gl menu character - hwp-luck-stat`) and shoots it (`character-tab.png`).
+
+Still open: `dot=true` effects are not in the boss recap; a peer whose copy of a Luck buff is
+out of step can see the refresh overshoot until the next sync; Blink keeps vanilla Teleport
+rules where no floor tileset is found.
+
+## 2026-10-26: Luck in co-op and on generated floors
+
+Design and the site table: `docs/design/luck.md`.
+
+### Engine facts
+
+- **A vanilla loot roll is already shared.** `LootTablePool::SpawnLoot` picks one entry
+  per pool. A shared entry spawns once, and an instanced entry (gear, trinkets) spawns once
+  per player, generated per player at the picked tier. So "the same tier for everyone" was
+  already true; the change is only whose Luck the roll uses.
+- **Stats are per machine.** `PlayerRecord.RefreshModifiers` runs on the record's own
+  machine. The host's copy of a client's record need not carry the client's Luck (buffs,
+  the cheat), so each machine now reports its own (`hwp.luck.report`).
+- **The next floor is generated in another script context** (the "[preload]" one). It
+  constructs every module again with fresh globals (`g_cheat` is 0 there) and has no lobby
+  records worth reading. `MissionGameMode.Generate(save)` calls `LoadFlags(save, true)`,
+  which loads `g_scalars`, the float run scalars that `AGameplayGameMode.Save` writes. A
+  scalar is the channel into generation: the host keeps `hwp_luck_party` set to the
+  party's average. `ScalarBank.Set(name, 0)` deletes the scalar, which `IsSet` then
+  reports as unset.
+- **Timing on a new floor.** `RewardSpot::SpawnRewards` runs on the host in
+  `MissionGameMode.Start`, before the first `UpdateFrame`. The fishing module's
+  `SetupRun` runs about 1 s after the floor starts, and by then the per-frame scalar
+  refresh had already replaced the carried value with the new context's view (the cheat
+  lost, x1). The fix is a snapshot on the first frame (`SnapFloorLuck`), taken before the
+  refresh.
+- **Secret rooms.** Every theme has a `SpawnPrefabSet` whose set ends in `_secrets`
+  (`keep_secrets` min 1 max 1; barracks and cave max 2; crypt, courts and temple max 1).
+  `PlacePrefabs` places up to the max where the patterns match and removes overlapping
+  spots. On the first bandit keep floor at 75 % the extra room rolled (max 2) but one was
+  placed: the five matching spots were on one wall and overlapped. The keep's secret defs
+  have no max-num, so this is a real lack of space, not a limit.
+- **Floor rewards.** RewardSpot's `intensity` (0..1, from depth and the spot's Quality)
+  picks the tiers of exp scrolls, valuables, trinket and equipment chests, caches, health
+  food (apple, orange, fish, meat) and mana pickups. Each count is
+  `roll_round(lerp(min, max, randf()))`, and blueprints are `roll_round(0.25)` behind the
+  `blueprint_cooldown` scalar.
+- **Blueprints.** `BlueprintBehavior` is built per machine and picks a factory (Tavern food
+  and drink, EquipmentModifier enchantments, Trinket). Each factory picks with `randi`
+  among the candidates its buildings unlock. The lab town has none of those buildings
+  ("No blueprint factory able to produce blueprint! 3 factories"), so the quality pick is
+  sampled with `hwp luck roll quality` instead.
+- **Dyes** are chest and cache loot only. The pinned SDK references the dye bucket units
+  (`items/dyes/dye_bucket_*.unit`) in ten tables in `tweak/loot/chests.sval` (the
+  `chest_*` and `cache_*` ones) and nowhere else: not in a prefab, a level, a theme or a
+  script. `probe-dyes-floor` 20261026-104054 counted every dye bucket unit on two fresh
+  floors (`querycmp` levelType, nothing opened): 0 on the first bandit keep floor (5 chests
+  and caches) and 0 on the temple floor (3). Dyes seen lying on a floor are spilled from an
+  opened cache or chest. In the chest tables they are a pool of their own (bronze trinket
+  4 x 150, 60 % pays; silver and gold 40 %; equipment chests one bucket at 20-25 %), where
+  `RollPool`'s weighting does nothing (equal weights), so `DyePool` multiplies their pay
+  share instead (fix-core-luck 20261026-104254: none 1214 of 3000 at Luck 0, 0 at 500).
+- **The imp** is a per-theme `*_imp` SpawnPrefabSet with `exec-chance 0.1` (barracks,
+  cave_dark, courts, crypt, dark_halls, dungeon, forest, temple; not the keep), each prefab
+  with a `run-unique-flag`. `DungeonGenerator` rolls `randf() > m_execChance` before it
+  calls `Execute`, so a Luck chance has to be rolled inside `Execute` with the command's
+  own chance set to 1. The crypt mission's floor 0 is the temple theme (`temple_imp`).
+- **Clients and floor values.** Per-floor values reach a client only by message: a chest's
+  lock and ace roll is a hash every machine computes itself, so the host broadcasts its
+  floor Luck (`hwp.luck.floor`) and a client's `HWPChest` waits for it (10 s, like the
+  settings sync).
+
+### Built
+
+- Chests, caches and strongboxes roll at the opener's Luck (`OpenerFactor`, log suffix
+  `(opener <name>, Luck <n>)`), and so does a fish's loot. Abyss cracks and the key accept
+  roll use the party average.
+- `LuckFloors.as`, with these overrides: `WorldScript/RewardSpot.as` and `BlueprintBank.as`
+  (vanilla copies in `.orig`, changes marked `// HWP`); the fishing hole chance.
+- Keys: the floor's key budget share and its tier pick, and a gold chest's ace chance
+  (at most 50 %), at the floor factor. The imp's room at 10 % x the floor factor.
+- `hwp luck roll quality|secret|count <n> [luck]`.
+
+### Tests
+
+- Scenarios: `fix-core-luck` 20261026-102311 (quality picks: common 1533 and rare 718 at
+  Luck 0, common 465 and rare 1280 at Luck 500; extra secret rooms 0 and 2276 of 3000;
+  count means 494 and 855 per mille), `fix-luck-floors` 20261026-103349 (a gold chest
+  rolled ace at 50 %, the key budget at x6), `fix-luck-imp` 20261026-103414 (not rolled) and
+  20261026-103556 (rolled, placed 1); `mod-keys`, `mod-strongbox`, `mod-all`,
+  `mod-abyss`, `mod-fishing`, `mod-fishing-spots`, `fix-fishing-personal-loot` pass.
+- Not run on two machines: the client reports reaching the host.
+
+## 2026-10-26: the combo orb, and chest art for the alt-art chests
+
+### Engine facts
+
+- **Breakable loot.** `Breakable.DamageEffects` rolls `m_lootTable.SpawnLoot(attacker, pos)`
+  on the host only and never in town. The tables are `Item::GetLootTable(id)` objects shared
+  by every unit that names them (`loot` param), so a pool appended to one reaches every box,
+  vase or barrel using it. Boxes, crates and barrels use `barrel_wood_normal` and
+  `barrel_wood_poor`, sacks `sack`, big vases and urns `vase`, small vases `vase_small`
+  (`tweak/loot/containers.sval`); 53 other breakables (furniture and the like) have no table.
+  Tables are rebuilt per script context, so the module appends its pool again each time
+  ("(5 new)" on every load).
+- **A script loot entry.** `Item::LootEntry` subclasses work in a table:
+  `LootTablePool.SpawnLoot` rolls `randi(1000)` against the entries' `m_chance`, then calls
+  the picked entry once per player, or only for the local (host) record when
+  `CanBeInstanced()` is false, with the break position.
+- **A local pickup.** A `netsync="none"` unit with a `Pickup` works per machine: `Picked`
+  applies the effects for the local Player (not a husk), hides it and destroys it, with no
+  message. `player-only` (the default) takes only a `Player`, which pets and husks are not.
+  `MiniPet.IsPickupOkay` takes a plain `Pickup` only for the health, mana and experience
+  pickup triggers, so a pickup without `pickup-trigger` is never fetched by a pet (the pets
+  module calls the same check).
+- **Can it be picked up.** `CanApplyEffects` is true when any effect but `ShowFloatingText`
+  can apply, so a `PlaySound` effect would make anything pickable; the orb plays its sound
+  through the Pickup's own `sound`. `Player.GiveCombo` does nothing when
+  `currStats.ComboCountMax <= 0` (combo not unlocked) or combo is already on.
+- **Who broke it.** `Breakable.DamageEffects` passes its attacker to
+  `LootTable.SpawnLoot(Actor@)`, which hands every pool that player's record (null: the
+  local, host, record). A client's hit arrives on the host as `NetDamage` with the client's
+  husk as attacker, so the record is the client's.
+- **The orb art** is `items/misc/base.png` 0 96 16 16, the vanilla skill point pickup
+  (`items/misc/upgrade_skill.unit`), which no level or loot table places.
+
+### Built
+
+- `mods/groupcombo/scripts/HWP/GroupCombo/ComboOrb.as`: a `ComboOrbPool` (a
+  `LootTablePool` subclass; its `SpawnLoot` override is called) appended to the five
+  container tables. It rolls once per break at the breaker's own Luck:
+  `groupcombo.orb.permille` (default 1, 0.1 %) times `1 + Luck / 100`, at most
+  `groupcombo.orb.max_permille` (default 10, 1 %, at 900 Luck). The first version was a
+  one-entry `LootEntry` pool at 1 %; an entry cannot see the breaker, because
+  `LootTablePool.SpawnLoot` replaces `looter` with each player in turn (the local one for a
+  not-instanced entry), so the roll moved up to the pool, which still gets the breaker from
+  `LootTable.SpawnLootPlr`. The host broadcasts `groupcombo.orb` with the
+  position; every machine gives its own player a local `items/hwp/combo_orb.unit` there if
+  that player has combo unlocked. `HWPComboOrb` (global, the unit's effect) calls
+  `GiveCombo`; while combo is on the orb stays on the floor. `hwp comboorb [drop|break
+  [radius]]` (drop and break are host cheats; `break` is the game's `Breakable.Damage` on the
+  nearest breakable with loot).
+- The **Chest Art Picker** page (https://claude.ai/artifact/CVPvFos2M39nHRdkMWL6qH, source
+  `.screenshots/chest-art/chest-art-picker.html`, git-ignored): every chest in
+  `items/misc/base.png`, each with a chest type (bronze, silver, gold, ace, platinum) and
+  areas 1 to 8. Used (8): the equipment chests at 100 0/18/36/54 (16 x 18), the trinket
+  chests at 134 0/18/36 (12 x 18), the map reward chest at 171 0 (18 x 19,
+  `items/equipment_map_reward.unit`). Unused (17): the trinket chest at 134 54, and a 4 x 4
+  block at 32-84 x 0-72, rows bronze, silver, blue steel and gold (18 px each), columns at
+  x 32 and 44 (12 px, trinket size: plain, strapped) and 56 and 70 (14 px: rimmed, the gold
+  one with a red lid; large and ornate). The chests in the block touch, so the columns were
+  found from their bright 2 px side rims (32-33 ... 42-43, 44-45 ... 54-55, 56-57 ... 68-69,
+  70-71 ... 82-83; 76-77 is the large chest's middle strap, not an edge). The first cuts
+  took 56 and 68 as 12 and 16 px, which clipped the rimmed chests' right rim and gave the
+  large ones that rim on their left.
+  The picks are in its database (`picks/main`); the alt-art chests are built from them.
+  The frames at 116 0 and 84 0 in base.png are chest shadows, not chests.
+
+### Tests
+
+- `fix-combo-orb` 20261026-115538 (solo, bandit keep floor 0): the chance at 0, 500 and 2000
+  Luck reads 0.10, 0.60 and 1.00 %; with base 100 and max 1000 per mille a vase broken at
+  900 Luck logs `combo orb rolled for Pilot (Luck 900, chance 100.00 %)`. Then at chance
+  1000 (as 20261026-113813 did for the first version): the status line,
+  no orb while combo is locked ("none for us, combo is locked"), an orb at the broken vase
+  once `combo_kills` is learned with combo still off, combo on after stepping on it and the
+  orb gone, a second orb left alone while in combo, taken once combo lapsed.
+- `mod-groupcombo` 20261026-113919 and `mod-all` 20261026-113935 pass.
+- Not run on two machines: each player getting their own orb.
+
+## 2026-10-26: alt-art chests by area, and the red skull ace key
+
+### Engine facts
+
+- **Areas are acts.** `MissionLevel.m_actNameBase` is the level's `act-name`, from the level
+  dict or its theme (`tweak/missions/themes_*.sval`: `.location.act.forest`, ...); boss and
+  some story levels set their own, a few have none. The game shows it as the region banner
+  (`MissionGameMode`, `AddAnnounce(m_actName, m_levelName, "region_enter")`). Counting act
+  changes along `MissionDef.m_levels` gives Dark Citadel 9 areas (forest, dark caves, forest
+  again, temple, crypt, dungeon, barracks, courts, dark halls; the shortcut level after them
+  is a 10th), the story missions up to 8, Bandit Keep 1. The level being played is
+  `cast<MissionGameModeBase>(g_gameMode).m_missionLevel` on every machine (set from the
+  level's save data), and its `m_mission.m_levels` index matches the gamelab `mission`
+  verb's floor index.
+- **A unit can carry art variants as named scenes** and switch with
+  `UnitPtr.SetUnitScene(name, false)`; collision, lights and minimap sprite come with the
+  scene, so each variant is a full copy. `<scenes start="vanilla">` keeps the original as
+  the start scene (the attribute vanilla's `items/equipment_map_reward.unit` uses).
+- **The items material draws an occluded item as a magenta silhouette** (`items/items.mats`
+  `item`: `<xray value="255 0 255 255">`). A key dropped behind a wall top looks magenta;
+  that is not a missing texture.
+- **Gold pickups already scale their sprite by amount.** `Material::MaterialPickup.Initialize`
+  picks the scene from the unit's `sets` (`items/materials/gold.unit`: 1g, several (2-5
+  coins), 10g, 50g, 250g, the highest set at or below the amount) when the drop is made, so
+  the amount is known before anyone picks it up. Unused gold art in `items/misc/base.png`:
+  the pile at 80 112 (between the 10g and 50g piles) and four HoH1 coin-stack sprites at
+  0 0, 16 0, 0 16 and 16 16.
+
+### Built
+
+- `mods/keys/tweak/hwp/chest_art.sval`: the Chest Art Picker's picks (`picks/main`, read
+  2026-10-26) plus the user's notes: trinket chests plain (1-3), vanilla (4-5), strapped
+  (6-8); cursed chests blue steel rimmed (1-4) and large (5-8); ace trinket chests gold
+  rimmed (1-5) and gold large (6-8); ace equipment chests the map reward chest; equipment
+  and platinum chests unchanged; areas past 8 use 8. The picker's platinum trinket picks
+  (steel plain 1-2, the unused platinum trinket chest 3-4, steel strapped 5-8) have no chest
+  to go on: the game has no platinum trinket chest.
+- `tools/class_units.py`: module.json `scene_art` adds one scene per sprite to the generated
+  class-swap copies (the floor sprite swapped, kept bottom-centred); `tools/build.py`
+  documents the key.
+- `mods/keys/scripts/HWP/Keys/ChestArt.as` (area count, table, `hwp chestart [area <n>|off]`)
+  and `HWPChest.ApplyArt`: the area's scene on the first tick, the ace scene once a gold chest
+  rolls ace (the red tint only when there is no ace art).
+- The ace key is the vanilla skull key (`items/special/keys.unit:key_skull`, base.png 48 0)
+  multiplied by (1, 0.25, 0.2): `mods/keys/items/hwp/keys/key_ace.png`, used by
+  `key_ace.unit`, the HUD (`gui/hwp_keys.gui`) and the merchant (`KeyIconTexture`). The ace
+  key's default price is 20000 (was 50000).
+
+### Tests
+
+- `fix-chest-art` 20261026-124741 (and 20261026-124547, whose first two screenshots failed
+  to save: a colon in the shot name): area 1 on bandit keep floor 0, area 5 on Dark Citadel
+  index 7 (crypt_1), area 9 on index 19 (dark_halls_1), whose own floor chests logged the
+  area 8 art; spawned chests at override areas 1, 4, 6 and 9 took the expected scenes; ace
+  chests at 3 and 7 took gold rimmed / gold large and the map reward chest; the ace key
+  dropped as `items/hwp/keys/key_ace.unit` and shows red in the HUD.
+- `mod-keys` 20261026-124945 and `mod-all` 20261026-125000 pass.
+- Not checked in game: the merchant's ace key price and icon (data only), two machines
+  (each counts the area itself, nothing is sent).
+
+## 2026-10-26: gold pickups show their amount with 15 coin sprites
+
+Engine facts:
+
+- Gold gain is applied at pickup, not at the drop. `MaterialPickup` takes
+  `player.m_record.GetMaterialModifier(m_type)` when the gold is collected
+  (`Behaviors/Objects/MaterialPickup.as:262`). That is `(MaterialGainMul +
+  g_ngp * Tweak::NGPMaterialGain) * MaterialGainMulMul` (`PlayerRecord.as:2558`; trinkets
+  and gear add `gold-mul` 1.1-2). So the scene, picked in `Initialize` from the amount
+  passed to `DropMaterial`, shows the base amount. Our Luck does not change gold amounts
+  either: it changes which loot entries roll and how often, and a `LootMaterial` rolls
+  `randi(max - min) + min` (`Items/LootTable.as`).
+- A floor reward spot of gold (`WorldScript/RewardSpot.as:196-219`) is
+  `75 * lerp(0.5, 3, intensity) * (0.5 + randf())`, at most about 337. Up to three extra
+  piles drop at 25-66 % of that.
+- `UnitPtr.GetCurrentUnitScene().GetName()` gives a unit's current scene name (vanilla
+  `ShadowWall.as:18`).
+
+Built: core overrides `items/materials/gold.unit` (with a pristine `.orig`). The behavior
+and the `shared` scene are vanilla. The `sets` are 1/5/10/15/20 bronze coin and piles,
+25/50/75/100/150 silver, and 200/250/300/350/400 gold (frames bronze 32 96, 64-112 80;
+silver 48 96, 64-112 96; gold 48 112, 64-112 112). The biggest pile of each metal has
+vanilla 250g's two glints. Silver uses the white `material_reflection.effect` at 0.8 the
+alpha; the rest use `gold_reflection.effect`. The `several` scene set and vanilla scene
+names are gone; nothing in the scripts refers to them. The silver piles are the art of
+Avarice's fool's gold (`u_fools_gold_*`); the user is fine with that. The thresholds were
+lowered from the user's first idea (silver at 100, gold at 1000) because no single drop
+reaches 1000 (survey above and in the core README); the largest are 200-450.
+
+`gl near` now reports each unit's `scene` and a material pickup's `amount`.
+
+Tests: `fix-gold-sprites` 20261026-131823 passed. All 15 thresholds took their scene with
+the right amount. The amounts just under them (4, 9, 24, 49, 149, 199, 399) took the tier
+below, and 1000 and 5000 stayed on gold_5. Walking onto the 300 pile paid gold (0 to
+725 with neighbours). The screenshots show three rows: bronze, silver, gold. `mod-all`
+20261026-131915 passed; `build.py --check` and `list_verbs.py --check` are OK. Not seen:
+how it reads at full resolution (the lab renders 640x360).
+
+## 2026-10-26: the October work merged with main's Dev Arena (branch features-20261026)
+
+The 28 commits from 2026-10-22 to 10-26 sat on a base older than main's Dev Arena merge
+(PRs #10-#12), so origin/main was merged into the branch. Conflicts were in RE_NOTES (both
+sides appended sessions: main's 10-18 to 10-21 come first), `docs/modules.md` (the campaign
+row from here; devarena and vanilla-tuning from main), the mission-ranger fixture's `about`
+(main's Warden build plus the note on the dropped dash-charges probe) and the generated
+verb list (regenerated).
+
+Main's GameLab sends a scenario's `hwp <rest>` line as `setvar hwp_line <rest>` through the
+inbox (`gamelab/session.py` console_verb). That needs core's `hwp_line` cvar
+(`Commands.as` OnHwpLine, `cvar_flags::TriggerChanged`), which was only in the dev-arena
+WIP snapshot 6ee00a1 and never reached core on main: every `hwp` line failed with
+"setvar: no cvar hwp_line of a settable type (type 10)" (fix-chest-art 20261026-132440).
+It is ported unchanged from 6ee00a1; fix-chest-art and mod-core then passed (132631,
+132724).
+
+The merged tree's first batch passed 29 of 38 scenarios. The other nine came from main's
+GameLab changes meeting this branch's bots, not from the mods:
+- **sval `file:entry`.** Main's probe split the path at `.sval:` before the lookup, but a file
+  of named roots (`fishing_keys.sval`, `<svals><dict name="keys">`) resolves only as the
+  whole `file:entry` path. SvalDump now tries the whole path first and splits only when that
+  fails (fix-fishing-keys).
+- **The widgets dump truncates.** Main's dump carries every node's screen position and fills
+  its byte cap before the HUD's components. `plan_checks.widget()` now retries one root at a
+  time when the dump says `truncated` (fix-objectives).
+- **Cheat mirrors.** The inbox sends a CHEAT_FUNCS name as `cheat <fn>`, and gamelab-hands
+  needs a mirror for each one. Added cht_give_health, cht_damage, cht_give_mana,
+  cht_clear_trinkets, cht_give_specific_trinket, cht_spawn_specific_equipment,
+  cht_add_blueprint and cht_add_all_blueprints (fix-firearms-snipe).
+- **The inbox types into a focused field.** The inbox's text frames also reach a focused text
+  field: "!gl c33 state~" landed in the character-name field. fix_runstart clears the field
+  before typing.
+- **Inbox latency.** Round trips are slower, so three bots changed. fix-farming-hotbox waits
+  1.5 s after `gl wield`. fix-firearms-poses checks that the rifle is down on dodge without a
+  time limit (the elapsed time goes in the note). fix-puzzles-summon-hold leaves the room
+  with `gl teleport`, because the `_b` rooms have puzzle units by the door.
+- fix-combo-orb and fix-firearms-aim-diagonal failed once and passed on rerun.
+
+With these, all 38 pass on the merged tree (last reruns 20261026-135938 to -141120).
+
+## 2026-10-26: tavern levels 4-6, and trinkets that scale with NG+
+
+### Engine facts
+- **The loadout's tavern row needs a guild hall.** `tweak/town/loadouts.sval` gives the
+  `tavern` loadout the conditional `town building guild_hall ge 0`. Without it,
+  MissionLoadoutMenu skips the row and never calls `BuildGUI`. `gl func tavern open` still
+  reaches `MissionLoadout::Get("tavern")`, so a picker opens over a loadout with no row.
+  Its Apply then hits a null `m_groupW` in `UpdateIcons` (vanilla code; run
+  20261026-141417). A fresh lab town has no guild hall. The mod now returns early when
+  there is no row, and fix_tavern builds the guild hall first.
+- **A fresh town offers no Simple Broth.** The `tavern_simple_broth` checkbox is missing from
+  the picker; hearty, elemental breakfast, beasts and foragers' feast are there.
+- **Trinket modifiers can be rebuilt live.** `Item::Trinket.m_modifiers` and `m_modifiers2`
+  (the attuned set) are public arrays. `Modifiers::LoadIModifiers(u, dict, Role::Both,
+  "" / "attune-", SyncVerb::Trinket, m_idHash)` builds them again from any dict. Then
+  `PlayerRecord.RefreshModifiers()` and `RefreshStats()` apply them. Max health followed in
+  the same frame (190 to 205 at NG+ 3 with the Amulet of Health).
+- **An attuned trinket uses only `m_modifiers2`.** A trinket whose attuned set changes only a
+  cooldown still needs its numbers patched in both sets.
+- **`intensity-mul` in a trigger's effects.** A class-less dict in an effects array is an
+  EffectListMod (`LoadEffect`, IEffect.as:117-133). Its `intensity-mul` vec2 scales every
+  effect after it. TriggerEffect loads its list through `LoadEffects`, so one entry put first
+  scales proc damage that lives in a projectile or unit file.
+- **`Modifiers::Buff` hard-codes intensity 1** (`ActorBuff(player, m_buff, 1.0f, false)`).
+  Arctic Step's frost gets its intensity through a subclass.
+- `Resources::GetString` fills `%param%` from the `?a=1&b=2` query of the key, so a patched
+  `desc` string gives the scaled tooltip.
+
+### Built
+- `tavern`: the README row, and `docs/modules.md` rows for tavern and trinkets.
+- `trinkets` (new mod, no overrides): `HWP/Trinkets/NGScaling.as` has the spec table of 56
+  trinkets from the Trinket Map verdicts. It patches a copy of each trinket's sval dict per
+  NG+ level (`int(g_ngp + 0.5)`) and checks the level every frame, so the loadout's NG+
+  picker takes effect at once. It also has `HWPTrinketNGBuff`, the setting
+  `trinkets.ngp_scaling`, and `hwp trinkets [show <id> | ng <n>]`.
+- Assumptions: "+5 res" on the books is read as +5 attack or spell power. The Chicken Feet
+  amount is per 500 ms tick (+0.25), which shows as +0.5 mana per second. Apothecary's
+  Flask is 2 charges (4 attuned) from NG+ 4.
+
+### Tests
+- mod-tavern PASS (20261026-144247): slots per level, a full pick of 4 foods (the oldest
+  drops) and 6 drinks, the picks kept, and a run started with 3 foods and 5 drinks.
+- mod-trinkets PASS (20261026-143558): all 56 found. Amulet of Health at NG+ 3 shows +45
+  (attuned +90) and max health is 15 higher. Searing Torch 80 with its 2 s cooldown kept,
+  Chicken Feet 3.5, Arctic Step 60, Tincture 8 s, Flask +2/+4 at NG+ 4, and NG+ 0 restores
+  the originals.
+
+## 2026-10-26: Way Gates (teleporters across town)
+
+### Engine facts
+- **Every vanilla town building is plotless.** None of the 16 building svals names a plot.
+  `TownRecord.m_plots` is empty in the lab town. `gl build` adds the building with
+  `plotHash 0`. The base town segment (`tweak/town/prefabs_segments.sval`, set
+  `town_segment_base`) places each building prefab at a fixed cell. `PlaceTownPlacedPrefab`
+  matches the prefab to its BuildingDef (`GetBuildingDef`, any tier or the unbuilt
+  prefab). Nested prefabs (chapel, guild hall, magic shop) carry the apothecary, enchanter,
+  pyre and treasury. The cells are: tavern (-4,-11), guild hall (-53,4), blacksmith
+  (-30,28), general store (-40,28), magic shop (-64,28), chapel (40,0), library (36,22),
+  hunter's cabin (66,48), architect (9,67), tailor (-9,33), trading post (-96,16), training
+  grounds (-47,-35), apothecary (-66,48), enchanter (-55,34), pyre (61,-15), treasury
+  (-49,-18). Core's pyre lookup (`Town.as`) already walks the same table.
+- **Building variations carry no `grid-pos` or `grid-size`.** There is no footprint to aim
+  at, and the cell is the prefab's origin (inside the walk-in buildings).
+- **Vanilla keeps one NPC per unit type on the host.** `CompositeActorBehaviorNPC.
+  CheckForExistance` removes the others. With three gates, two died within a second and
+  were respawned every second. Core's `HWPLocalNPC` (an empty `CheckForExistance`) fixes
+  it.
+- **A cloned widget needs `m_idHash`.** `Widget.GetWidgetById` matches children by
+  `m_idHash` (`GetWidgetByIdImpl`), so setting only `m_id` on a `Clone()` leaves `gl press`
+  (and any lookup) unable to find it.
+- **`array.sort` with a callback throws "Index out of bounds" on an empty array.**
+- **The lab player drifts after any teleport,** at about 90 px/s. The direction differs
+  each time. There is no stick input and the Pilot is idle (`gl controller`,
+  `gl pilot status`); the cause is unknown. Read the position at once after a teleport.
+- `Scene.QueryRect(..., RaycastType::Any)` returns the walls of town buildings as
+  `:Physics_Rectangle` and `:Physics_Freeform` units, alongside furniture and actors.
+
+### Built
+- `waygates` (new mod, no overrides): `HWP/WayGates/WayGatesModule.as` (gate list, spawns,
+  the town-reload watch, `Go`) and `WayGateShop.as` (`HWPWayGateShop` and
+  `HWPWayGateMenu`, one cloned button per gate, the current one disabled).
+  `doodads/hwp/hwp_waygate.unit` uses the teleport beacon's lit pad sprite.
+  `gui/hwp_waygates.gui`, lang, settings `waygates.enabled` and `waygates.square_x/_y`,
+  and `hwp waygates [go <n>]`.
+- Where the gates go: the building's cell plus three cells south, then the nearest spot with
+  nothing solid in a 20x20 box. Actors are ignored, so the spots come out the same on
+  every machine and every reload. At every building's last tier, each gate lands within
+  about 150 px of the building's vendor.
+
+### Tests
+- mod-waygates PASS (20261026-150438). It builds a guild hall and a tavern in the fixture
+  town and reloads it. Then 3 gates are listed (square first), with a unit at each spot.
+  The square's gate opens HWPWayGateMenu with 3 buttons, the square's disabled. Pressing
+  the tavern's button puts the player on the tavern gate. After a guild hall upgrade
+  reloads the town, the gates are back.
+
+## 2026-10-26: the HoH1 trinkets, new trinket sets, and vanilla set changes
+
+### Engine facts
+- `Item::TrinketSet` with `merge-set-bonuses` true appends each lower tier's merged list to
+  the next. A set with 3 or more tiers therefore gets its lower tiers more than once (tier 3
+  gets tier 1 twice). New sets list every tier's modifiers by hand with the merge off.
+  `GetModifiers(num)` returns the highest tier with `m_num <= num`.
+- The bonus loop in `TrinketSet` only reads keys 1..`items.length()`, so a tier can't be
+  past the piece count. Patching a set at run time (`HoH1.as`): set `trinket.m_set`,
+  `set.m_totItems++`, then rebuild `m_bonuses` with `LoadIModifiers(..., SyncVerb::TrinketSet,
+  set.m_idHash)`. Netsync matches the modifier's index within one list, so cumulative tiers
+  keep the indices unique.
+- Modifier conditionals on functions that take a second `Actor@` (`DamageMul`,
+  `NonLethalDamage`) test `m_condTargetOther ? enemy : player`. Self conditions on those
+  (Pendant of Penance, the 6-piece Spheres) need `cond-target-self` true.
+  `CheckConditionals(null)` is false.
+- `HitscanRandomEnemy` and `ShootRandomEnemy` are `IEffect` only, not `IAction`, so a unit's
+  `CompositeActorSkill` can't use them. The Nimbus uses a `ChannelingBeamSkill` instead.
+  `Nova` is both.
+- `Player.Update` calls `RefreshStats()` every frame, so a stat modifier that reads missing
+  health stays current without a trigger.
+- The trinket shop is `TrinketShopShopContent` (`m_toBuy` 2, `priceRate` 1 + 0.2 x shop
+  level). A class swap can add picks in `GetItems` and rebuild the items at a new price
+  rate; save the "picked already" flag with the shop.
+
+### Built
+- `mods/trinkets`: 37 trinkets (`tweak/hwp/trinkets_hoh1.sval`), 10 buffs, the Nimbus unit,
+  8 sets, the Emblems of Hermes, Apothecary's Supplies and Trader's Coin changes, and 134
+  strings. `HoH1.as` holds the set patching, `HWPTrinketComboKills`,
+  `HWPTrinketMissingHealthSpeed`, `HWPTrinketShopContent`, `hwp trinkets hoh1` and
+  `hwp trinkets set <id>`. NG+ scaling covers Judgement and the Talisman of Conflagration
+  (58 trinkets).
+- `mods/keys` `HWPGiveKey.as`: the Key Ring's `hwp-key-ring` stat gives a chance of a second
+  key (tier 1/2/3 at 60/30/10).
+- Tuned from the plan: Spreading Corruption is +30% damage taken (+60% attuned), not x3.
+  Talisman of Decay's attuned aura is the vanilla greater vulnerability (x1.3). Charms of
+  Fortune's Luck uses the x5 HoH1 scale (+5, then +20 in all). Elven Ruby is a rare with no
+  set (its note), though its verdict says remove.
+
+### Tests
+- `mod-trinkets` (lab) PASS: `gamelab/results/20261026-163716-mod-trinkets-lab`. All 37
+  load. Apothecary's 4-piece tier holds 3 modifiers (no merge duplicate). Spheres of Power
+  has tiers 2-6. Lucky Hat + Lucky Horseshoe + the Charms 2-piece read Luck 35. Trader's
+  Coin, Fancy Plume and Key Ring read shop price x0.75, stock +2 and key ring 50%.
+  Judgement reads 12, then 14 at NG+ 2.
+- Not run in a dungeon yet: the procs in combat, the Nimbus, the guardian, the trinket
+  shop's extra stock and the key ring's extra key.
+
+### HoH1 trinket icons (local import)
+- HoH1 item icons are 12x12 cells of `items/items.png`, named in `items/<quality>.sval`
+  (`<array name="icon">` texture, frame count, rect). All 37 of ours are there under the
+  HoH1 id (`hwp_` dropped, `_` to `-`).
+- `tools/import_hoh1.py trinkets` puts each one in the middle of a 16x16 cell of
+  `mods/trinkets/gui/hwp/icons_trinkets_hoh1.png`. `hwp_trinkets_hoh1art.lang` lists the
+  ids in sheet order (`.hwp.trinkets.hoh1art`). Both are the module's `local` files and
+  gitignored. At load, `HoH1.as` checks `Resources::HasString` for that string and sets
+  `Item::Trinket.m_icon` to a `ScriptSprite` on the sheet. The inventory, shop and tooltip
+  read `GetIcon()` each time, so nothing else is needed. Without the import: placeholders.
+- `mod-trinkets` (lab) PASS: `20261026-165100-mod-trinkets-lab`, "HoH1 icons: 37 of 37",
+  bot flag `h1_icons`. `shots/trinket-inventory.png` shows the Lucky Hat, Horseshoe,
+  Fancy Plume and Key Ring with their HoH1 icons in the trinket inventory.
+
+## 2026-10-26: Roulette
+
+### Engine facts
+- **`HWP::Net::Broadcast` runs the host's own handler synchronously,** inside the call
+  (`Net.as` `DispatchEvent` after `SendToAll`). Host code that broadcasts its state and
+  also reacts to that event in the handler sees the change before the broadcast returns.
+  The roulette host keeps its round in separate `h_*` variables and every machine,
+  the host included, changes the shared `g_*` view only in `OnState`.
+- **A tavern table's food is its unit scene.** The `table_wood_*` units start in scenes
+  like `food1`, `food_less1` or `feast1`; `UnitPtr.SetUnitScene("default", true)` shows the
+  bare table. Each tier lays its tables out differently (tier 1 has six, tier 3 adds the
+  back room's feast tables at y -304 and -339). A table right behind the tavern's front
+  wall (tier 1's `table_wood_poor_v` at -82,-132) is mostly hidden by the wall.
+- `AInteractableWidget` has no `Update` of its own: a subclass that overrides `Update`
+  calls `Widget::Update(dt)`.
+- A 768x22 sprite sheet was refused at boot (power of two, as noted before). The wheel's
+  24 frames sit on a 256x128 grid.
+
+### Built
+- `roulette` (new mod, no overrides): `HWP/Roulette/RouletteTable.as` (the 157 bets, the
+  host's rounds, settlement, refunds, `hwp roulette`), `RouletteMenu.as`
+  (`HWPRouletteShop`, `HWPRouletteMenu`, the board widget with edge and corner hit-testing,
+  the scrolling number strip) and `RouletteModule.as` (the wheel on the table).
+  `doodads/hwp/hwp_roulette_wheel.unit` (`HWPLocalNPC`, scenes `idle` and `spin`),
+  `roulette_wheel.png` from `tools/make_roulette_art.py`, `gui/hwp_roulette.gui`, lang,
+  setting `roulette.max_stake`.
+- The payout is stake + stake x odds x (1 + Luck/100 + gold find), where gold find is the
+  record's `MaterialGainMul * MaterialGainMulMul` minus 1, without the NG+ material bonus.
+- The wheel goes on the main-hall table nearest (-165,-210) with y between -280 and -150:
+  tier 1 `table_wood_poor_round` (-168,-224), tier 2 `table_wood_common_round` (-167,-218),
+  tier 3 `table_wood_common_v` (-200,-152). It falls back to the table nearest the
+  gambler's spot.
+
+### Tests
+- mod-roulette PASS (20261026-172759). With Luck 20, 1000 each on s:17, c:13, odd and
+  red and a forced 17: gold 200000 -> 196000 -> 251800, paid 55800 (35000, 8000 and 1000
+  won, each x1.2, plus the stakes). The wheel shows `spin` while the ball runs and `idle`
+  after. Cleared chips come back in full; the eleventh 100K chip is refused. After
+  upgrades to tiers 2 and 3 the one wheel is back on a hall table.
+
+## 2026-10-26: Auto Aim
+
+### Engine facts
+- **An AOE skill's reticle comes from two helper methods.** `PlayerTargetingHelper.Update`
+  takes the TargetAOE target from `CalcGamepadTargetPos` (the stick: `m_gamepadRelTarget`,
+  moved by the stick each frame, starting 150 px out along the aim) or
+  `CalcMouseTargetPos(ToWorldspace(input.MousePos))`. It then activates on
+  `MainHandAttack.Pressed`, or on the skill button's release with `g_quickcast`. Both
+  methods are script methods, so a subclass can override them. A gamepad override should
+  also set `m_gamepadRelTarget`, or the next frame's stick input starts from the old spot.
+- `GameInput.UsingGamepad` is false in the lab (no pad). `gl mouse` pins only the UI
+  cursor (the game mode's), not `GameInput.MousePos`; `gl inputtarget` writes the world
+  cursor every frame.
+- The settings-search checks in plan-newa-a fail with or without this session's changes
+  (20261026-174622, core changes stashed): the GameLab command text ("!gl c14 menu
+  hwp_options -") lands in the focused search field. Their last pass was 20261018-132014.
+  Not fixed here.
+
+### Built
+- Core: `scripts/HWP/Core/Aim.as` (`HWP::Aim::OnAdjust`, `OnPreUpdate`, `FireTargeted`).
+  `HWPSkillKeysHelper` overrides `CalcGamepadTargetPos` and `CalcMouseTargetPos` to pass
+  the vanilla reticle through the adjusters, and runs the pre-update hooks before the
+  vanilla `Update`. The Plus tab gets four rows (`autoaim`, `aimcone`, `autofire`,
+  `autoskill`); all rows are now 22 px high so nine fit above the hint.
+- `autoaim` (new mod, no overrides), a remake of Workshop 3732392493.
+  - Target: the enemy nearest the vanilla reticle, among targetable, living
+    `FetchActorsWithOtherTeam` actors within range (`rangeMax` plus half the reticle,
+    the spot clamped to `rangeMax`). It must be inside the cone around the reticle's
+    direction and in plain sight (the ShootRandomEnemy Shot raycast).
+  - Auto fire: the snap recorded by the adjuster fires on the next frame's pre-update.
+  - Auto skill: the first ready TargetAOE spell, with mana at or over the share, at most
+    once every `autoaim.skill_buffer_ms`.
+  - Modes: 0 off, 1 controller (the default), 2 controller and mouse.
+
+### Tests
+- mod-autoaim PASS (20261026-174359): a town ranger and a target dummy 80 px south, mode 2.
+  - Holding Skill 1 fires Marked Shot at the dummy (auto fire).
+  - With auto fire off, the reticle snaps to the dummy's spot and nothing fires.
+  - A 90 degree cone does not pick the dummy with the cursor north, and does with it south.
+  - Unpressed, Marked Shot casts itself at the dummy (auto skill).
+  - Mode off does neither.
+  - The four Plus tab rows show next to colors and weaponswap, and the mode row cycles.
+- The gamepad path was not exercised; the lab has no pad.
+- mod-all PASS (20261026-174550).
+
+## 2026-10-26: Code review fixes (69ba108..e1f1fc7)
+
+A /code-review high over the commits since the last review (tavern levels 4 to 6, Way Gates,
+roulette, Auto Aim, trinket NG+ scaling, the trinket map, the HoH1 trinkets and the Luck rule
+of e1f1fc7). Ten findings, all fixed.
+
+### Engine facts
+- `CondTownBuilding` "my town building guild_hall ge N" compares the building's variation
+  (`GetVariationOnBuilding`): -1 unbuilt, 0 to 7 for guild hall levels 1 to 8. `ge 8` can
+  never hold; vanilla's highest condition is `ge 7`.
+- `PlayerRecord.GiveMaterial` / `GetMaterial` go to `g_myTownRecord` (the town's gold) only
+  while a `TownGameMode` is running. Out of town they use the record's own `materials`, the
+  run's gold. Gold taken in town has to be paid back with `g_myTownRecord.GiveMaterial`, or a
+  refund in a run lands in the run's gold.
+- Script globals reset with every level, before any module's `Start`, so state that has to
+  outlive a level change goes in a save bag (`HWP::SaveData`) or GlobalCache.
+
+### Findings and fixes
+1. Tavern level 6 needed `guild_hall ge 8`: never true. Now `ge 7`, the same top guild hall as
+   level 5 (`mods/tavern/tweak/town/buildings/tavern.sval`; the README table gives the
+   in-game guild hall levels).
+2. Roulette chips on the table were lost when a run started. `Owe()` keeps the local
+   player's stake in the town's save (`roulette.owed`) after every bet and clear;
+   `RefundOwed()` pays it back to `g_myTownRecord` on the next level's Start (or the first
+   frame with a town record) when no round holds the stake.
+3. A client's Way Gate list went stale after a building upgrade (only the host's watch
+   rebuilt it). The gate's menu now rebuilds the list when it opens.
+4. Auto Aim wrote `m_gamepadRelTarget`, so the pad's aim itself locked onto the nearest enemy.
+   Only the shown reticle moves now.
+5. Auto skill fired without `SetSkill`, skipping vanilla's StartCharge. It now calls
+   `helper.SetSkill(skill)` and then `HWP::Aim::FireTargeted`, which returns whether the skill
+   activated; returning true matches vanilla's own activation frame.
+6. `BlueprintBank.as` logged the picked blueprint before its null check (food and drink,
+   enchantments, trinkets), and the quality loops did not skip null entries.
+7. The trinket strings used `hwp.trinket.` beside `hwp.trinkets.`; all are `hwp.trinkets.` now
+   (lang, svals, `HoH1.as`, `tools/import_hoh1.py`).
+8. A roulette payout could overflow `int`. It is computed in `double` and capped at
+   2,000,000,000; `roulette.max_stake` is capped at 10,000,000.
+9. The auto skill scan ran every frame; it runs at most every 150 ms now.
+10. The custom stat lookup was copied in Luck, Keys, Trinkets and Firearms, each copying
+    `m_customStats`. One core helper, `HWP::CustomStat(rec, id)` (`HWP/Core/CustomStats.as`),
+    reads it in place.
+
+### Tests
+- mod-roulette PASS (20261026-181251) with a new `leave` section: 7000 on black, then
+  `gl mission bandit_keep` before the result. The log shows "7000 back (left on the table at a
+  level change)", the run's gold stays 0, and after `gl abort` the town's gold is back to the
+  gold before the bet. Its first try (20261026-181101) found the refund landing in the run's
+  gold (the GiveMaterial fact above).
+- mod-all PASS (20261026-181551) after the town-gold refund.
+- PASS before the leave check: mod-all (20261026-180630), mod-roulette (180646), mod-autoaim
+  (180728), mod-tavern (180808), mod-waygates (180907), mod-trinkets (180934).
+- Not covered: Auto Aim's gamepad path (the lab has no pad). plan-newa-a's settings-search
+  failure predates this work.
+
+## 2026-10-26: Skill 4-6 keys move to classes; doctor scene_art; valuables kept at 2x
+
+- **Who needs Skill 4-6.** Counting the active spells after `m_skills[0]` in every class
+  and spec the mods add: only the HoH1 thief's Assassin and Shadow (4), Trickster (5) and
+  the gladiator's Retiarius (4) have more than three. Firearms has 2 base actives plus 1
+  per spec (3). So `SkillKeys.as` and `SkillKeysHUD.as` moved from core to
+  `mods/classes/scripts/HWP/Classes/`, with the `hwp.skillkeys.option` string.
+- **Core keeps the helper.** Auto Aim still needs the swapped targeting helper, so core
+  has `HWPTargetingHelper` (`HWP/Core/TargetHelper.as`, replacing `HWPSkillKeysHelper`),
+  which does nothing itself. `HWP::TargetHelper::OnUpdate` callbacks run first in every
+  frame of player control, `OnSkillInput` callbacks rewrite the `ButtonState` vanilla
+  `GetSkillInput` returns (an engine value type; the funcdef takes and returns it by
+  value), and then the aim hooks run. gamelab-hands' `SpellButton` gives a 4th to 6th
+  spell its own key only while GlobalCache `hwp_skillkeys_on` is "1" (set by the classes
+  module's Start). Passing: mod-classes (20261026-212624), plan-classesb-a (212733:
+  slice and cloak on `hwp_skill4`), mod-autoaim (212922), mod-all (213022).
+- **Doctor false positive.** `class_units_problems` rebuilt each unit's expected text
+  without the keys module's `scene_art` scenes, so the five chests with area art always
+  read as stale, and `doctor --fix` ended "NOT ready" right after `class_units.py` wrote
+  them. Both now use `class_units.expected(cfg)`; doctor is green.
+- **Valuables and NG+.** Vanilla already adds `Tweak::NGPMaterialGain` (0.2) per NG+ level
+  to every material gain (`PlayerRecord.GetMaterialModifier`), valuables included; a vase
+  at NG+2 under a 1 + NG+ multiplier paid 150 x 3 x 1.4 = 630. Since vanilla already
+  scales it, the mod stays at a flat 2x (6a4836c reverted by 22fce28). mod-valuables can
+  flake when another valuable lies within 200 px of the drop (20261026-213539 picked up
+  250); its rerun passed (213621).
+- **Hero titles are vanilla** (`tweak/town/hero_titles.sval`, Guild Hall > Titles). The
+  class mods add one title file each; `legacy` only presents them (the crown buff and the
+  full list).
+
+## 2026-10-26: goldpet removed; goldworth and mmhmm split out of core
+
+- **goldpet removed.** Vanilla pets already collect gold, valuables and materials
+  (`petOptions`), so the mod, its four scenarios, the pets mod's external-pet API
+  (`RegisterExternal`) and the hunters' cabin vendor steps went; 173 scenarios dropped it
+  from their mods list (a minimal text edit: a json.dumps rewrite reformatted them).
+  Passing: mod-all (20261026-214721), mod-pets (214802), mod-town-rebuild (214816).
+- **goldworth.** core's `items/materials/gold.unit` override (15 coin and pile looks) is
+  its own module; fix-gold-sprites passes with it (215240).
+- **mmhmm.** MmHmm.as and its modifier left core. The non-crit moments have no vanilla
+  hook, so they are polled from what the game already counts:
+  - wells and secret rooms: the run stats `wells-used` (Well.as Use) and `secrets-found`
+    (SecretFound.as, on every peer), read with `statsRun.GetStatCurr(HashString(id))`;
+  - trinket sets: owned trinkets per `m_set` against `m_totItems`;
+  - the last orb: a `pickedTempSkills` entry reaching the tree's `m_levelParams` length,
+    skipped when the tree has one orb;
+  - Ace chests: vanilla's `chest-unlocked-ace` and keys' `hwp-chest-unlocked-*` stats are
+    not defined, so `Stats::Add` books nothing for them (the keys ones were a latent
+    no-op). keys now counts the opener's Ace chests in GlobalCache `hwp_keys_aces_opened`;
+  - revives: class swap `PlayerCorpse` -> `HWPMmHmmCorpse`, whose `NetRevive` runs on every
+    peer with both records. The swap needs `tools/class_units.py` to write the unit into
+    the mod (GameLab does not generate it).
+  A moment goes to the host (`mmhmm.say`), which drops the same key within 1.5 s and
+  broadcasts it. The first poll of a level only seeds the counts.
+- **Lab findings.** A Firearms gun aims at the mouse cursor (`Combat.as AimAtCursor`), so a
+  bench without `gl cursor` toward the dummy deals no damage. `gl near` fails while the
+  player is dead (no spawned local player); the corpse check reads its log line instead.
+  New gamelab-hands verb `statadd <stat> [n]` (`Stats::Add`). AngelScript rejects
+  `int &inout` parameters. A chest opened by the pilot's walk-up can lose to another
+  usable; `gl use <filter>` opens it in place.
+- Passing: mod-mmhmm (20261026-222000: single orb quiet, last orb, well, ace, secret,
+  trinket set, corpse swapped, self revive quiet, needs hat), mod-all (222221),
+  mod-keys (222237). A real two-player revive is untested.
+
+## 2026-10-26: the Forgemaster's eating heals 30% of max health a second
+
+- The devouring buff (Call of Heresy's lunge) gave `Modifiers::AttribAdd` health-regen 50.
+  No vanilla modifier adds regeneration as a share of max health, so the specs module has
+  `HWPSpecsMaxHealthRegen` (Forgemaster.as, pct 0.3): `stats.HealthRegen += stats.Health *
+  pct` at `ModifierOrdering::Post`, where `stats.Health` is the final maximum. Player.Update
+  regenerates `HealthRegen x HealthGain / Health` of the bar a second, so it is 30% a second
+  (90% over the 3 s eat) unless healing is reduced.
+- plan-forgemaster-eat's new `lunge_heal` (`gl hurt 0.05` once the eating starts, the bar
+  read over 1 s) measured 0.30 a second (20261026-223750, all flags). The check runs after
+  the lunge's pose reads: placed before them it delayed `lunge_lift` until the brute had
+  pushed the priest 3 px. The Penance section's last raise now gets 500 mana first (five
+  Penances left 35, under the raise's 70: 222826). `pen_faces_up` once read the priest
+  12 px beside the body (223301) and passed on the next run.
+
+## 2026-10-26: orb warnings, pickup-first and bet tokens leave core
+
+- **orbwarn** is a module of its own (`mods/orbwarn`, requires core): OrbWarn.as moved as it
+  was, with its `hwp.orbwarn.closes` line. **PickupFirst.as** moved to droptrade, whose
+  UpdateFrame calls it after its own poll; the log tag is `[HWP:droptrade] pickup first`.
+- **Bet tokens** moved to the gambler (`Tokens.as`, the same per-character `bet_tokens`
+  key, and the `hwp tokens` cheat). Core's market keeps a generic second currency:
+  `HWP::Market::Currency` (Held, Add, Amount, Status), which a module registers with
+  `SetCurrency`. A ware with a token price sells for gold when none is registered, so
+  fishing without the gambler sells fish for gold and says so (`*_gold` lang lines).
+  Modules compile into one script set, so the hook is how core reaches a module's code
+  without requiring it.
+- **Materials tab:** core's character.gui keeps two untitled sections, `hwp-materials-a`
+  (8 cells) and `hwp-materials-b` (16). A cell must exist when the menu collects its
+  interactables, so the cells are static and generic: `HWP::Materials::Register(section,
+  order, id, material)` fills them in order, and each cell takes its entry's id at refresh
+  (`Widget.SetID` sets the hash `GetWidgetById` matches). `Title(section, key)` names a
+  section (the first module wins); a section with no shown cell stays hidden. The gambler
+  and fishing title section a "Supplies", farming titles section b "Plants & Herbs" (its
+  Eat and Roll actions were already farming's).
+- Gear slots (`GearSlots.as`, the rod and can frames in core's gui) follow the same
+  pattern and stay in core for now.
+- mod-orbwarn's `gl skill` step expected level 1, but Firearms actives start at rank 1 since
+  23d8f08 (`RANK1_SKILLS`, so the raise gives 2); it expects `raised: 1`. mod-droptrade-pickup
+  walked off (200 ms) and back. That needs the step off to leave the trainer's use radius,
+  and 27 px does not (230213: back within 8 px, only the rifle usable); the walk back once
+  took 1 s of wall time for its 7 frames and overshot by 21 px (225001: no usables), and a
+  `gl teleport` back starts no collision from 58 px out (230300). The trainer and the rifle
+  now spawn 40 px ahead and the player walks onto them (300 ms), which starts both
+  collisions: 230401 passes, the rifle on top at 4 px, the trainer second.
+- plan-farming-a fails s2 (the walk onto the onion groove ends 40-100 px off, so the
+  cabbage goes on plot 16), s8 (it waters that groove) and s7's puff count (5/5 read
+  first, 1/5 last) on two runs (225133, 225726). The farming diff here only changes the
+  Materials registration, and the Plants & Herbs check passes; the last earlier run was
+  20261020, so they most likely came in between (unconfirmed: no run on the previous commit).
+- mod-all now lists orbwarn. Passing: mod-orbwarn (225637), mod-droptrade-pickup (230401),
+  mod-supplies-tokens (225023), plan-fishing-e (225039), mod-all with orbwarn (230506).
+
+## 2026-10-26: one path, two mods
+
+Measured to decide how packages share code (probe mods `gamelab-dup-a`, `gamelab-dup-b`;
+scenarios `dup-path-ab`, `dup-path-ba`, `dup-path-a`). Both mods ship
+`scripts/HWPDup/Shared.as` with a different `const string WHO`, an identical `Same.as`
+class, and `res/language/english/hwp_dup.lang` with different text.
+
+- **It loads, with one logged ERR per shared script path.** Two enabled mods with a file at
+  the same path compile and load in either order: the game keeps one file per path, scripts
+  and lang files alike, and an identical class in both is one class. The engine logs it,
+  though: unpacked, `[ERR] Resource name hash conflict between 'scripts/HWPDup/Same.as' and
+  'scripts/HWPDup/Same.as'!` once per shared `.as` (2 lines in 230644 and 230659, none for
+  the lang file, none with dup-a alone); packed, `[ERR] Resource name hash conflict in package
+  'mods/HWP-keys.bin' for file '<path>'` once per shared file of the later package, any kind
+  (37 for HWP-qol + HWP-keys, the hwplib files). Nothing shows on screen and no script error
+  follows.
+- **The first mod added wins.** For unpacked mods that is the folder order of the boot's
+  `Adding unpacked mod` lines (alphabetical), not the save's list order: a+b and b+a both
+  logged `WHO=a lang=lang-a same=1` (230644, 230659). dup-a alone works (230714).
+- So a library can be copied into every package at the same paths: with identical bytes it
+  does not matter whose copy wins. Packed mods load the same way.
+- **Packages measured** (built .bin files, `tools/make_package_scenarios.py`): every package
+  alone and the all-in-one pack pass (pkg-qol 233210; coop 233246, autoaim 233303, firearms
+  233320, specs 233337, classes 233355, keys 233412, campaign 233429, modes 233446, dungeon
+  233503, town 233520, pets 233540, all 233601): library booted, stamp check, the Luck cell
+  shown only with `hwplib-luck`, the bag command only with keys, each package's own command.
+  The pairs qol+keys, town+dungeon, all+qol and firearms+classes first failed only on the
+  conflict ERRs above (233621, 233638, 233700, 233719); with `log_clean` allowing the packed
+  conflict line, which the stamp check vouches for (one build ships one byte-identical copy
+  of every shared path), all four pass (233832, 233850, 233912, 233931).
+- So a player who enables two packages gets a few dozen of those ERR lines in the log per
+  extra package. That is the price of packages that stand alone; the alternative, a required
+  library mod, is the core mod this replaced.
+
+## 2026-10-27: the Paladin of Generosity
+
+Measured while building `Generosity.as` (scenarios `plan-generosity*`, bot
+`gamelab/bots/plan_generosity.py`).
+
+- **Finding a boss spirit:** the boss spirits (Arcane, Avarice, the Hunt, the Warrior,
+  Benevolence) have sensor, aim-through bodies, and `g_scene.QueryCircle(pos, r, ~0,
+  RaycastType::Any, true)` does not return them (plan-generosity-bosses 20261027-013518: four
+  spirits read "no target" under the reticle). `g_scene.FetchActorsWithOtherTeam(team, pos,
+  r)` does, so the Fury's pick merges both lists.
+- **The gl `near` verb is capped.** The Spider Queen's spiderlings pushed her out of the
+  list, so the bot hit a spiderling (one beam, a 30 s cooldown). The bot now passes the
+  unit's name as the filter.
+- **The vanilla stun does not stop every cast.** A `CompositeActorSkill` with neither
+  `m_restrictions.m_isAttack` nor `m_isSpell` keeps casting under it (Arista, the Spider
+  Queen, Dace Arden). The hold now cancels every casting skill whose type name has neither
+  "Triggered" nor "Aura" in it (`Reflect::GetTypeName`), each frame.
+- **A stunned unit with no body crashes its movement.** A boss spirit's dive runs a scene
+  with no collision (`GetPhysicsBody()` is null), and the Serpent tunnels with none.
+  `MeleeMovement::IdleUpdate`, which the stun's zero speed sends a unit to, then calls
+  `m_unit.GetPhysicsBody().SetLinearVelocity` on a null body (MeleeMovement.as:162, a null
+  pointer access: Benevolence in 015348, Arcane in 021003). `MeleeMovement::Update` (line 231)
+  and `RangedMovement::Update` return early when `!m_enabled`, so the hold sets `m_movement.m_enabled
+  = false` while the body is gone and back after (`MoveGuard`), and `CutCasting` skips a
+  bodiless unit. A Fury on a unit that has no body when cast is refused, "out of reach"
+  (a held tunnelling Serpent kept its skill in 021403). 021757 had no script exceptions.
+- **A real press below the cost never warned.** `PlayerTargetingHelper.CheckQueued` asks
+  `CanActivate(false)` while the input is buffered and `CanActivate(true)` only once
+  `SkillInputBufferFrames` (3) runs out, which a press refused on every frame never reached
+  (plan-generosity 20261027-015913: no refusal, no "cant" sound). The Fury now refuses on
+  the press frame too (`m_targetHelper.GetSkillInput(this).Pressed`), once per 300 ms.
+- **A TargetAOE skill aims at the real mouse.** Its reticle reads `input.MousePos`, not the
+  emulated aim, so a bot's button press casts wherever the real mouse is. The tests aim the
+  Fury through `hwp gen fury <dx> <dy>`, and the button test passes on a cast or a refusal.
+- **The farming trait** reads the party's classes (`g_players[i].peer != 255` and
+  `playerClass.m_id`), so it holds whichever player is the paladin; plan-generosity-farm
+  20261027-015840 doubles the wild chance (35% to 70%) and grows a cabbage two stages in one
+  run.
+- **Runs:** plan-generosity 20261027-020522, plan-generosity-farm 20261027-015840 and
+  plan-generosity-bosses 20261027-022232 (16 of 18 bosses held, the Serpent and the Shadow Face refused by design) pass. The boss spirits move off between the cast and its
+  castpoint, so the bot finds the boss again before each retry (021757 reused a stale aim).
+
+## 2026-10-27: Code review fixes (1c5335c..def346d)
+
+`/code-review high` over the core removal, the packages, the vanilla-tuning removal, the
+goldworth and Mm-hmm! split, the Forgemaster's eating and Generosity found ten problems.
+Fixed:
+
+- **The Dev Arena scenarios still listed `core`** (35 of them), so preflight refused every
+  one ("mods/core has no info.xml"). They list `hwplib` now; `env.expand_mods` adds the rest of
+  devarena's `requires`. That then showed a runner bug the core removal brought in: devarena
+  requires `gamelab-probe` and `gamelab-hands`, which the fixture already enables, so the
+  wanted list held them twice and "enabled mods are exactly the fixture's + the scenario's"
+  failed (spike-class 20261027-024616). The runner now drops the fixture's own mods from the
+  expanded list (spike-class 024802 passes). `tests/test_devarena_clone.py` still expected
+  `requires == ["core"]` for a cloned spec; it expects `hwplib, hwplib-classui`.
+- **`tools/devarena/export.py` baked vanilla paladin edits into Generosity's copies.**
+  `make_specs_classes.py` copies Lay on Hands and Conviction with their vanilla ids, so an
+  edit to `pal_lay_on_hands` found that file instead of being refused as vanilla, and the next
+  regenerate would have dropped it. `skill_files` now skips those generated copies (a test
+  covers it).
+- **Holy Sacrifice paid out on any end of the target**, a despawn or a boss swapping its unit
+  included. It now needs the target's `IsDead()` (CompositeActorBehavior reads `m_hp` and
+  `m_dead`, so it answers on a destroyed unit's behavior too); otherwise the hold just ends
+  ("the target is gone"). plan-generosity 024132 passes.
+- **`build.py all qol` wrote all twelve packages**, and `build.py --no-all all` built nothing
+  and exited 0. Only the packages named (every one when none is) and the pack are written
+  now, and `--no-all all` is an error. pkg-pair-all-qol 025050 passes, writing only
+  `HWP-qol.bin` and the pack.
+- **A package's closure listed a library part before its base** when the base was reached
+  only through the part. The walk now adds each module after what it requires.
+- **`env.link` in check mode** called a previous `pkg-*` scenario's package copy a problem
+  but let a previous scenario's mod junction pass; it tolerates both now, and hashes each
+  package once a side instead of up to four times.
+- **The specs texts said seven specs** (`packages.json`, `mods/specs/info.xml`, which also
+  still used the old Stormbringer and Invocation names); they say eight and name Generosity.
+- `make_package_scenarios.requires_closure` is `env.expand_mods` now, and `run.mod_id` is
+  `env.package_file(p).stem`.
+
+Not changed: a `pkg-*` preflight still rebuilds the packages each run. Skipping it when
+`dist/` looks current would need every input of a build tracked, and a stale package in a
+test is worse than a rebuild. export-boot was not rerun: its wrapper needs a tuner-dock run's
+log and none is kept in `gamelab/results/`.
+
+## 2026-10-27: Script errors and game updates
+
+The question: can a game update that breaks a script crash the game for players, and can
+the scripts protect themselves? Measured on Build 176 with four probe mods (each a GameLab
+mod, never deployed to play).
+
+**A compile error stops everything** (`compile-err` 20261027-025559, `gamelab-compile-err`
+calls a function that does not exist). The mod scripts and the base scripts compile as one
+module, so nothing runs:
+
+- The log has `ERR : <file>`, then `SE : No matching symbol`, then `[ERR] Please correct the
+  errors in the script and try again.`
+- The engine compiles twice, then sits on the main menu with an empty grey box.
+- The window ignores WM_CLOSE; the harness kills it after 30 s.
+
+The runner now treats a scenario with `"compile_error": true` as measuring this: it takes a
+shot, records the errors and passes.
+
+**`try`/`catch` works, and a caught exception is silent** (`throw` 20261027-030133,
+`gamelab-throw`). `getExceptionInfo()` is not registered ("No matching symbol", 030042), so a
+script cannot read what it caught. The engine logs an uncaught exception once with its stack
+trace, then `Last script exception repeated N times` up to 10, then nothing. The module
+exception that followed the hook's was never logged.
+
+**Hooks are isolated; modules are not.** A screen shake entry, which
+`AGameplayGameMode::UpdateFrame` ages after its module loop (lines 335-340), was read 120
+frames after it was added in each phase:
+
+| phase | ms aged in 120 frames |
+|---|---|
+| quiet | 4059 |
+| a `[Hook] GameModeUpdate` throwing every frame | 3960 |
+| a module's `UpdateFrame` throwing every frame | 0 |
+
+A throwing hook loses only its own call. A throwing module aborts the rest of
+`AGameplayGameMode::UpdateFrame` (line 333 onward) on every frame: the later modules, screen
+shake, `g_scene.Ping`, spectating and `HWR2GameMode`'s death check that opens the DeadMenu.
+Vanilla wraps only module `Save` in a try (line 706).
+
+**A throwing module constructor is contained** (`throw-ctor` 20261027-031426,
+`gamelab-throwctor`). `InstantiateClass` logs `Script exception: Null pointer access` with no
+stack, returns null, and `MakeModules` goes on with the next type: 21 modules were made, and
+hwplib's core ran. Only the module that threw is missing.
+
+`Modules::MakeModules` instantiates only direct subclasses of `Modules::Module`
+(`GetBaseType() !is modType`), so the guard cannot live in a shared base class. Instead each
+entry point is wrapped where it is declared.
+
+**`HWP::Guard`** (`mods/hwplib/scripts/HWP/Core/Guard.as`, applied to all 45 entry points by
+`tools/guard_modules.py`). `guard` 20261027-031629, with `gamelab-guard`'s body throwing every
+frame from frame 300:
+
+- The first failure is logged as `[HWP:guard] <Class>.<Entry> threw a script exception`.
+- The next call runs unguarded once, so the engine logs the stack trace, which names
+  `GuardedUpdateFrame` line 44.
+- 29 more failures in a row turn the entry point off (`turned off until the next level after
+  30 script exception(s), 30 in a row`), and the chat gets `hwp.guard.tripped`.
+- The body stopped at frame 330.
+- The shake aged 3993 ms both while the body failed and after the trip.
+- `hwp guard` listed `GameLabGuardModule.UpdateFrame: 30 error(s), turned off 1 time(s)`.
+
+The setting `guard.off` runs every body unguarded, for debugging.
+
+**`Network::GetBuildVersion()` returns 176** on Build 176, the number in the log's
+`Build 176:` line. hwplib logs it at boot beside `HWP::TESTED_BUILD`, and the first town tick
+on another build sends `hwp.guard.new_build` once per build (the setting `guard.told_build`).
+The guard scenario stands in a different tested build with the setting
+`guard.tested_build 175` and `hwp guard build`; the second check stays quiet.
+`tests/test_guard.py` keeps `TESTED_BUILD` equal to `gamelab/build_id.json`.
+
+There is no script preprocessor to fall back on: no `#if` anywhere in the base scripts. A
+compile error therefore cannot be guarded in script. `docs/GAME_UPDATES.md` is the checklist
+that catches one before players do, and the 33 wholesale overrides are the most exposed part.
+
+## 2026-10-27: Packages on their own, HoH1 stand-ins, mixed builds
+
+**Every feature scenario against the built packages.** `tools/make_package_scenarios.py`
+writes `gamelab/scenarios/pkgfeat/pf-<scenario>.json` for each feature scenario. The copy
+loads the packages that ship the scenario's mods (at most three) in place of the source
+folders, and keeps only the gamelab probe mods. Looks, benchmarks, probes and the
+`needs_hoh1` scenarios are skipped.
+
+The first suite (`suite-20261027-032903-pkgfeat`) passed 134 of 167. Each failure was rerun
+as a package, and the never-run ones also from source (`suite-20261027-073231-_triage`,
+`suite-20261027-081834-_triage`). None failed only as a package:
+
+| class | scenarios |
+|---|---|
+| passed on a rerun | abyss-tiers, droptrade-pickup, valuables, waygates, qa-module-pets-standalone, qa-classes-gladiator-actives, qa-specs-wizard-charge-orbs, qa-content-weapons-native-standalone (its first failure was `native_frame_continuity: false`, an observer gap) |
+| HoH1 content a release never has | fix-campaign-battlements, -portal-version, -traps, mod-trinkets, qa-module-campaign-portal-standalone (now `needs_hoh1`) |
+| a test fault, fixed | plan-forgemaster-units: `errors_since` counted the vanilla `[WRN] SValue param error: missing string 'description' (file: tweak/pets.sval)` because "error" was in its first 40 characters. mod-mercenary: `cht_damage 999999` sometimes does not kill (blocked or during invulnerability), and after it does, the next one fails with "no local player"; one `ply_kill` instead (083709). plan-runs-arch: the loadout list scrolls, so 3 of the 7 red challenge rows are listed, not 7 (083623). |
+| fails from source the same way, open | fix-specs-arcane (blink 92 of 112 px, "nudged"), mod-options-tab (the inbox transport's `!gl c17 ...` text lands in the focused search field), mod-puzzle-rooms-outdoor (no constellation found), plan-forgemaster and -bosses (failing since 20261022), and 12 qa-* scenarios from d9d96f8 with no run on this machine before: gladiator/thief/witchhunter integration (the bot dies on floor 0), vanish, chatlinks-native (`chat_empty_off_fixture`), laststats-native, summons (`no_summons_in_town`), specs arcane-ranks, branding-orbs, deadeye-ward, static and static-overlap (the static controls want 0 spell crit, and a level-20 wizard has 3%) |
+
+**The pets package carried HoH1 files.** `HWP-pets.bin` and the all-in-one pack held the 216
+pet units, sprites and the `pets_hoh1.sval` that `tools/import_hoh1.py` had cut from this
+machine's HoH1 install. They are gitignored but were not in the module's `local` list. The
+list now names them. `tests/test_release_files.py` asks `git check-ignore` about every file a
+release package carries and fails on any ignored one, except the generated blocks in the
+HoH2-base `.gitignore`s. Nothing had been uploaded.
+
+**HoH1 stand-ins** (`HWP::HoH1`, hwplib `HoH1.as`). Four modules report once they have looked:
+- campaign: the HoH1 mission def;
+- classes: the string `hwp.classes.hoh1art`, which `import_hoh1.py classes` now writes beside
+  the art it cuts;
+- pets: the HoH1 pets it imported;
+- trinkets: the art ids string.
+
+The core module waits for the town's 60th gameplay tick, after every self-check. Without HoH1
+(`hoh1-standins` 20261027-082947, packages campaign, classes, dungeon and pets) it logged
+`[HWP:hoh1] on stand-ins: campaign,classes,pets,trinkets` and sent one chat line naming what
+each keeps instead. The setting `hoh1.told` holds the reported set, so the line comes again
+only when the set changes. With this machine's import (`hoh1-installed` 082930) nothing was
+said, and `hwp hoh1` named each installed feature.
+
+**Mixed builds.** The check module `build.py` generates now also calls
+`HWP::Packages::Mismatch("HWP-<id>")`, and the player gets one chat line in town
+(`pkg-mismatch` 083609: the probe `gamelab-stampfake` carries a check made with stamp
+`000000000000` beside `HWP-qol`). An older package whose library copy wins makes a newer
+package's calls to newer library code fail to compile, so `Mismatch` and `LIB_STAMP` are
+frozen (`docs/modules.md`, Packages). The all-in-one pack with all twelve packages beside it
+(`pkg-all-every` 083528): 12 stamp checks passed, no mismatch, a clean log.
+
+**Small finds.**
+- The Witch Hunter's Pyre (`pyre.sval`) is a `Skills::SpawnUnit : ActiveSkill`, which reads
+  `blocking` as a bool (ActiveSkill.as 73). Its `ivec2` was ignored with a warning on every
+  load; it is now `false`, the value it had.
+- In `pf-qa-classes-witchhunter-integration` (both runs, pass 2) a vanilla
+  `players/ranger/units/wolf.unit` threw `Null pointer access` in
+  `PlayerOwnedActor::GetMaxHp` ten times as the town loaded: a Hound wolf with no owner yet.
+  Not seen from source; open.
+- `HWP::Guard` records are per level (script globals reset), so `hwp guard` now says
+  "on this level".
+
+## 2026-10-27, the Paladin of Generosity's icons are final
+
+Four picker rounds (`tools/icon_art/sp_pal.py`, `sp_pal3.py`, `sp_pal4.py`; the outputs in
+`tools/icon_art/out/` are gitignored). The final art is in `art/specs/override/`: the round-4 picks
+for `pal_class` (C), `hud_pelors_blessing` (C), `pal_pelors_fury` (B), `pal_pelors_blessing` (B),
+`pal_pf_blinding_sun` (C), `pal_pb_display_of_generosity` (B) and `pal_pb_descendent_of_pentival`
+(B), and `pal_pf_holy_sacrifice` from round 2 (C). `tools/make_specs_icons.py` packs 72 painted
+icons into `mods/specs/players/hwp/specs/icons.png`; the two left as placeholders are
+`wiz_class` and `sor_class`, which the user chose to keep.
+
+`look-generosity-icons` (20261027-101621, pass) shows them in game: a level-20 Paladin of
+Generosity with Fury, Blessing, Lay on Hands and the four orbs, 10 Blessing stacks on the buff
+bar, and the skills page. It is a look scenario, not evidence of play.
+
+The planner's icon sheet (`planner/web/icons.png`, `icons.json`, written by
+`tools/icon_art/planner_icons.py`) was stale. Regenerating it adds the `hwp_pal_*` and `hwp_pri_*`
+skills, the paladin 4th-spec icons, the three paladin orbs and `hwp_fs_snipe_recoil`.
+
+Things learned while painting:
+- `shade` multiplies, so a small factor turns a light strand black (Blessing B's beard at
+  k=0.18). Use a factor near 0.8 for a gentle darkening.
+- At 24 px a white sun core washes out the face's eyes, and the mouth is left as a lone dark
+  speck. Give the face a warm orange, not white.
+- A palm-out hand with dark finger gaps reads as a face when it is small. Outline it, lighten
+  the gaps, and make it the largest thing in the icon.
+
+## 2026-10-27, code review fixes (fe617b8..3a6e9f9)
+
+A review of the Guard, package, HoH1-notice, pkgfeat and icon commits found ten problems. All
+are fixed:
+
+1. **`TESTED_BUILD` moved from `Log.as` to `Guard.as`** (`HWP::Guards::TESTED_BUILD`). `Log.as`
+   ships in every package. Suppose an older package's copy of `Log.as` wins, and that copy has
+   no `TESTED_BUILD`. `Guard.as`, new in this build, would then fail to compile, and every mod
+   would stop. `tests/test_guard.py` now reads the value from `Guard.as`.
+2. **`compile_error` is scoped to the measured boot.** Only `enter_fixture`'s boot treats a
+   failed compile as the expected result. A fixture pass that fails to compile is a plain
+   failure. A `compile_error` scenario whose scripts compiled now fails instead of passing on
+   its empty step list (`compile-err` 20261027-103302, pass).
+3. **The guard's unguarded trace run happens once per game process, not once per level.** The
+   list of entry points already traced is in GlobalCache `hwp.guard.traced`, which outlives the
+   level. Two reasons for the change:
+   - An unguarded throw aborts the rest of that frame.
+   - The engine stops logging a repeated exception after about 10.
+
+   A throw in the trace run used to go uncounted. It is now counted on the next call. A
+   one-shot entry point (`Failed(true)`) gets no trace run. In `guard` (20261027-103129, pass):
+   - the engine's trace names `GuardedUpdateFrame`;
+   - the body stops after 299 good runs and 30 that threw (`ticks body 329`; it was 330 when
+     the trace run went uncounted);
+   - on the next level (`gl mission dark_citadel 0`) the entry point is turned off again with
+     no second trace run.
+4. **`errors_since` catches HWP's own SValue errors again.** The forgemaster and generosity
+   plans' `errors_since` now also counts `SValue param error` lines for `hwp/` files. These are
+   `[WRN]` lines with a lowercase path, the same kind as the old `pyre.sval` `blocking` bug.
+5. **`arch_challenge_discount` is tighter.** It still sees only the rows in view, because the
+   list scrolls. It now needs 3 to 7 red rows, and each must parse as one of the challenges'
+   own discounts (`ARCH_DISCOUNTS`, from `Challenges.as`). `plan-runs-arch` 20261027-103410:
+   3 rows, all real.
+6. **`hoh1.told` is cleared when nothing is on stand-ins.** The same set going back to
+   stand-ins later is told again (`hoh1-standins` 20261027-103355, pass).
+7. **Guard records match on both mod and label**, so two mods' classes with the same name
+   no longer share one record.
+8. **`HoH1::Missing` uses `sortAsc()`**, not a hand-written insertion sort.
+9. **`make_package_scenarios.py --check` no longer creates `gamelab/scenarios/pkgfeat/`.**
+10. **`needs_hoh1` is enforced.** `gamelab run` exits 7 (SKIPPED) before taking the lock when a
+    scenario's mods read a HoH1 import this machine lacks. The import names match the mods,
+    and a scenario whose mods have none needs every import. A suite skips those scenarios
+    (`tests/test_needs_hoh1.py`).
+
+Also seen: every run prints `summary failed: ModuleNotFoundError: No module named
+'run_summary'`. The launcher imports `tools/run_summary.py`, which exists only on the
+`dev-arena` branch. This is harmless (the summary never gates a run), but it is still open.
+
+## 2026-10-27, the settings page: every module's switch and settings on the Plus tab
+
+The player menu's Plus tab (hwplib `Options.as`) is now built from a config registry,
+`HWP::Config` (`mods/hwplib/scripts/HWP/Core/Config.as`).
+
+- **The source of the list.** Each module.json has a `config` block: the module's on/off
+  `toggle` key, its settings (bool, int or float; a list of values with labels, or a
+  min/max/step range; a suffix), and `{"option": "<id>"}` entries for registered Options
+  (key binds, presets). `tools/make_config.py` checks every block against the code. The
+  type and default must match the `HWP::Settings::Get*` call that reads the key. A toggle
+  must default to on. A module with no toggle must say why in `always_on`. An option must
+  be `Register`ed. The script writes `mods/hwplib/tweak/hwp/config.sval`, the lang files
+  and `docs/generated/settings.md` (`--check` fails when they are stale;
+  `tests/test_make_config.py`). The schema is in `docs/modules.md`, Settings.
+- **At run time.** `HWP::Config::Init` (the core module's ctor) reads the sval. It keeps a
+  module only when its lang is present (`.hwp.cfg.<mod>`, which ships with the module), so
+  the page lists the installed packages only. A module that two loaded packages both list
+  appears once. Host-scope keys are made host-synced through `HWP::Settings::Sync`. Log:
+  `[HWP:config] 12 package(s), 39 module(s) loaded` with every mod (mod-all
+  20261027-141028).
+- **The page.** At the top are the keys and accessibility options (packages.json
+  `settings_top`: swap, skill 4-6, drop, projectile colours, auto aim), plus any
+  registered option no config lists. Below them is one row per package. A package row
+  opens and closes its modules; packages start closed. Each module row is an On/Off
+  switch. Its settings follow, and a click moves each one to its next value. The search
+  field matches each word against a row's title (fuzzy: a substring, else the letters in
+  order, ranked), its value (substring) and its description (words of 3+ letters). It
+  shows the matching rows under their module and package headers. Esc clears it. The
+  hint line shows the selected row's description, plus "the host decides" or "next
+  level" where that applies. Row ids for GameLab: `hwp-pkg-<package>`,
+  `hwp-mod-<module>`, `hwp-cfg-<key>`, `hwp-opt-<option>` (a second row for the same
+  option gets `-2`). The funcs are `hwp-pkg`, `hwp-open`, `hwp-close`, `hwp-mod`,
+  `hwp-cfg` and `hwp-opt`.
+- **AngelScript: `dictionary::get(key, bool &out)` is not "false when missing".** An
+  `&out` argument is a temporary that is copied back after the call even when the key is
+  missing. `Open()` therefore read packages as open that nobody had opened: the first
+  click logged "package dungeon closed" (mod-settings-page 20261027-134819). The open
+  packages are now an `array<string>`.
+- **Every module got a switch.** The off behaviour of each is in its README. The ones the
+  game cannot fully undo:
+  - goldworth is data only (always on);
+  - turning `classes.enabled` off has no visible effect while the HoH1 classes are parked;
+  - the skill 4-6 keys stay bound;
+  - campaign's `Citadel::Fix` stays;
+  - a crack already on the floor stays, and `hwp abyss here` still opens one;
+  - the HoH1 blueprints are not switched;
+  - the farmer's unit override stays;
+  - the tavern levels stay;
+  - a Firearms Specialist already made still plays;
+  - deathrecap still records your share of a boss fight, so the party's recap stays whole.
+
+  Turning a module off takes it out of play, not out of the save: its data is kept, and
+  turning it on again restores it (valuables back to 3x after off and on;
+  fishing's 6 coast spots go and come back, mod-settings-page).
+- **New in the modules for this:**
+  - weaponswap `ShowSlots`;
+  - a `playercolors` option in colors;
+  - a `dropkey` KeyOption in droptrade;
+  - a `TavernModule`;
+  - keys prices and the objectives keys are now literal reads, so the check can see them;
+  - `HWP::ShowClass` (hwplib-classui), so firearms and classes no longer edit the
+    hidden-class list themselves.
+
+### GameLab: the command text no longer lands in a search field
+
+The inbox transport sends each line as text events (`!gl <id> <verb> ...~`). A
+`TextInputWidget` that is typing reads the same events, so a focused search field got the
+command text (`fish!gl c26 menu hwp_options - `). This is why plan-newa-a's
+settings-search checks had failed since 20261018 (noted above, "Not fixed here").
+
+The fix is in `mods/gamelab-probe/scripts/GameLab/Inbox.as`:
+
+- The probe keeps each line's characters as received. When the line ends, it cuts them
+  out of the typing textinput, before the line's verb runs. The widget reads the frame's
+  text before the probe does, so a `menu ... search` query used to see its own text.
+- A cut that fails is retried on the next frame.
+- After a cut, the field's `func-edit` is sent, so a search refilters.
+- The match runs from a `!` and skips the field's forbidden characters (`%` in
+  `%21click`). It must cover the whole line, or reach the end of the field when
+  `textlimit` stopped the line there.
+- A run that only begins alike is a different line. A resent line's copy once cut the
+  `!gl c1` of the next line and left `5 menu hwp_options - ` (plan-newa-a
+  20261027-140538).
+- A player menu tab's widgets are not under the menu's own widget, so the probe also walks
+  `m_tabSystem.m_tabs`.
+- The heartbeat now carries `inScrubbed`. A field left holding a `!` after a line's last
+  try logs `{"ev":"inbox_scrub_miss"}`.
+
+Results:
+
+| Scenario | Run | Result |
+|---|---|---|
+| mod-settings-page | 20261027-135931 | pass, `inScrubbed` 220 |
+| mod-options-tab | 20261027-140038 | pass |
+| plan-newa-a | 20261027-140900 | pass (failing since 20261018) |
+| mod-autoaim | 20261027-140759 | pass |
+| mod-all (every module, all switches compiled) | 20261027-141028 | pass |
+| `mod-<id>` smoke for each of the 35 modules touched, plus mod-settings-page | 20261027-141133 to 142500 | 36/36 pass |
+
+mod-autoaim's bot had read only `autoaim: mode` lines. The reply now starts
+`autoaim: on, mode ...`, so the bot matches `] autoaim: ` with `, mode `.
+
+The "(DoLayout -> DoLayout) WARNING: Potential infinite layout loop detected!" ERR comes
+before any HWP tab is built. It is in every run since at least 20261027-083709, so this
+change did not cause it.
+
+## 2026-10-27, every settings row clicked, every module off and on, the Workshop kit
+
+### mod-settings-sweep: every row of the settings page
+
+`gamelab/bots/settings_sweep.py` reads the rows from the same sources the page does
+(`packages.json` and each `module.json` config block). With every module loaded on
+town-paladin, it:
+
+- turns all 38 module switches off by their rows, then on again;
+- walks each of the 62 settings: a list through all its values, a range one step (then
+  `hwp set` back to the default), an on/off setting both ways;
+- cycles each of the 11 options back to its first value, and rebinds each key bind to K
+  and back;
+- checks `hwp settings` after the first round (every switch false, every setting moved) and
+  after the restore (every one at its default).
+
+Run 20261027-151446: pass, no script errors from HWP files.
+
+### mod-settings-off: each module's switch, checked in game
+
+`gamelab/bots/settings_offtests.py` turns each module off and on with `hwp set <key>`.
+That is the same settings write and `OnSettingChanged` event as the page's row. It checks
+something the module itself does, not the stored value:
+
+| Kind | Modules | Off | On |
+|---|---|---|---|
+| Town units (`gl near`) | campaign, farming, fishing, gambler, laststats, roulette, wavemode, waygates, mapicons | count 0, with the module's off log | the count from before, with its re-place log |
+| Status line | abyss, architect, autoaim, chatlinks, groupcombo, keys, maps, mercenary, mmhmm, pets, specs, strongbox, summons, valuables, weapons, weaponswap | the off text | the on text, or no off text |
+| Effect | colors, bufftips, legacy, stash, firearms, droptrade, trinkets, tavern | see below | see below |
+| Run (two Bandit Keep floors, chances at 100) | abyss, strongbox, keys, objectives, puzzles, deathrecap | no crack, strongbox or key chest art; objectives' and puzzles' "is off" lines; no recap line on the death | each placed; the recap line |
+| Orb picker (a Firearms character) | orbwarn | no warning lines | the warning lines |
+| Parked | classes | stored value only | stored value only |
+
+The effect checks:
+
+- **colors:** a trap arrow under the contrast preset is untinted (1, 1, 1) when off and
+  enemy red (1, 0.35, 0.35) when on.
+- **bufftips:** a hovered shrine buff shows no tip when off and a tip when on.
+- **legacy:** the Title Bonuses buff goes and comes back.
+- **stash:** the sort button hides and shows while the stash is open.
+- **firearms:** create-character hides the class when off.
+- **droptrade:** with a Skill Trainer and a rifle at the feet, the trainer is the top usable
+  when off and the item when on.
+- **trinkets:** the HoH1 trinkets leave the drops and come back.
+- **tavern:** a level 4 tavern has 3 drink slots when off and 4 when on.
+
+Changes made for it:
+
+- **bufftips** logs `[HWP:bufftips] tip: <name>` once per hovered buff, not once per
+  countdown second. Until now a tip could only be checked against a screenshot.
+- **campaign:** turning it off leaves the Forsaken Tower portal standing until the town is
+  rebuilt (`gl townrefresh`), as its README says. The other town-unit modules remove their
+  units at once.
+- **classes:** the switch has nothing to show while `PARKED` is true
+  (`ClassesModule.as`). The page still shows it, because it is the switch for when the
+  classes come back.
+
+Two failures in the first run (20261027-153743) were in the bot, not the mods:
+
+- `hasbuff` replies `on`, not `has`.
+- The `widget` reply keeps its fields under `widget`.
+
+The reply data already showed both modules working.
+
+| Scenario | Run | Result |
+|---|---|---|
+| mod-settings-sweep | 20261027-151446 | pass |
+| mod-settings-off | 20261027-154318 | pass, 236 s, every switch back on at the end |
+
+### The Workshop kit
+
+The upload itself is only possible through the game's `PACKAGER.exe`
+(Steam Workshop manager > Upload new: file, preview image under 1 MB, title, description,
+visibility). It also updates existing items. It needs the Steam login and has no command
+line. Sources: wiki.hammerwatch2.com/Modding and the Steam discussion
+https://steamcommunity.com/app/619820/discussions/0/604146344638072533.
+
+`tools/workshop.py` builds the packages and writes `dist/workshop/<item>/`:
+
+- the `.bin`;
+- a 640x360 `preview.png`;
+- `title.txt`;
+- `description.txt`, in BBCode from packages.json, the README module rows and the
+  `HWP::HoH1::Report` stand-in strings;
+- `changenote.txt`.
+
+It also writes `UPLOAD.txt` (NEW, UPDATE or HOLD per item, from `workshop.json`). The steps
+are in `docs/WORKSHOP.md`.
+
+- The All pack is `HammerwatchPlus-All` ("HammerwatchPlus: All").
+- `HWP-classes` is held: the HoH1 classes are parked, so it would only add the Skill 4-6 keys.
+- `--check` runs in the test suite (`tests/test_workshop.py`).
+
+## 2026-10-27, published to the Steam Workshop
+
+`tools/workshop_publish.py` publishes the kit as the Steam user who is logged in to the
+running client, with no password.
+
+**How it reaches Steam.** It loads the game's own `steam_api64.dll` with `SteamAppId=619820`
+in the environment, so it writes no `steam_appid.txt` into the install. It then makes the
+calls `PACKAGER.exe` makes. Its strings name `STEAMUGC_INTERFACE_VERSION015` and the
+`CreateItemResult_t` and `SubmitItemUpdateResult_t` call results. The DLL exports
+`SteamAPI_SteamUGC_v015` and the flat `SteamAPI_ISteamUGC_*` functions. The script waits on
+call results with `ISteamUtils::IsAPICallCompleted` and `GetAPICallResult`. It sizes the
+result structs at pack 8: 24 and 16 bytes.
+
+**What an item holds.** A subscribed item's folder holds only its `.bin`: `drop_me.bin` in
+`content/619820/3620435418`. The upload's content folder is the same, staged in
+`dist/workshop-content/<item>/`.
+
+**Tags.** The game's Workshop tags, from the browse page's facets, are: Addon, Gameplay,
+Player Class, Other, Language, Equipment, Mission, Graphics, Item Pack, Total Conversion.
+Each item's tags are in `workshop.json`.
+
+**The page texts.** README rows are written for this repo, so `workshop.py` drops the
+sentences that name repo paths or developer steps:
+
+- `tools/import_hoh1.py`;
+- `mods/firearms/README.md`;
+- "the user's picks (art/specs/)";
+- the gitignored risen generator.
+
+It also drops the Forsaken Tower's repeated title. A test keeps such text out.
+
+**No base-game art in HWP-specs.** `make_forgemaster_risen.py` had made the Devil Forgemaster's
+elite ring and dead core by recolouring `actors/shared/elite_marker.png` and the wisp's
+`wisp_base.png`. Both were packed into HWP-specs and the All pack. Both are now drawn by the
+script itself, in the same sheet layout (four 32 px frames, at the base sheet's ring radii):
+
+- the ring is an alpha mask in one exact `RING_COLOR`, which a box resample of RGBA had
+  shifted to 83;
+- the core is a grey orb.
+
+fix-specs-risen-look passes (20261027-172540).
+
+**Checks before publishing.** These pass on the built packages:
+
+- pkg-all (20261027-172708);
+- pkg-all-every (172730);
+- pkg-specs (172750);
+- pkg-qol (172808).
+
+**Published.** All items are public, from 34d91f0. Steam's public
+`GetPublishedFileDetails` reports each one at its `.bin`'s exact size, with its tags, not banned:
+
+| Item | Id |
+|---|---|
+| HammerwatchPlus: All | 3828529950 |
+| Quality of Life | 3828529629 |
+| Co-op Play | 3828529663 |
+| Auto Aim | 3828529696 |
+| Firearms Specialist | 3828529723 |
+| Fourth Specializations | 3828529765 |
+| Keys and Ace Chests | 3828529805 |
+| The Forsaken Tower | 3828529832 |
+| Challenge Modes | 3828529852 |
+| Dungeon Loot and Encounters | 3828529889 |
+| Town Life | 3828529916 |
+| Pets | 3828529416 |
+
+Steam did not ask for the Workshop legal agreement.
+
+**Held back: HWP-classes.** Its page would list the Thief, Gladiator and Witch Hunter, which
+are parked.
+
+**To update.** Run `tools/workshop.py`, then `tools/workshop_publish.py`. With the ids in
+`workshop.json`, every item is updated in place.
+
+## 2026-10-28: Workshop pages v2, cards from the game's art
+
+**Cards.** `tools/workshop_art.py` draws each item's picture at 480x270, then scales it 3x
+nearest neighbour to 1440x810, about 20-65 KB as PNG. The cards use:
+
+- the game's gold knotwork panel frame (`gui/panelstyles.png`, crop 72,40 47x47, 8 px border,
+  nine-sliced);
+- the octagon icon frame (`gui/gui.png` 411,97 32x32);
+- the game's pixel fonts at size 16, no smoothing, 1 px outline, as their `.fnt` files say;
+- a UnifrakturMaguntia wordmark (OFL).
+
+`gui/icons.png` is not a grid, so its symbols use pixel boxes. The chest bodies are
+`items/misc/base.png` x=100, 16x18, at y 0, 18, 36 and 54 for bronze, silver, gold and
+platinum.
+
+**Gallery pictures.** The additional pictures go through ISteamUGC v015:
+
+- `AddItemPreviewFile(handle, path, 0)` adds one (0 is the image type).
+- `RemoveItemPreview(handle, index)` removes one.
+- The count comes from a details query: `CreateQueryUGCDetailsRequest`,
+  `SetReturnAdditionalPreviews`, then `SendQueryUGCRequest`. Its callback is 3401,
+  `SteamUGCQueryCompleted_t` {u64 handle, int result, u32 returned, u32 total, bool cached,
+  char cursor[256]}, pack 8. `GetAPICallResult` accepts that size.
+- Then `GetQueryUGCNumAdditionalPreviews(q, 0)`.
+
+The All page now shows 11 gallery thumbnails.
+
+**A hidden item.** The Forsaken Tower (3828529832) refuses every update with EResult 15
+(AccessDenied). Changing only the description, or only the preview, gets the same answer. Its
+public page says "hidden or you do not have permission to view it", while the Web API's
+`GetPublishedFileDetails` still reports visibility 0 and banned 0. The other eleven updated in
+the same run. So Steam has hidden that item, and an owner who is logged in sees the reason on
+its page. Until it is cleared, the All page's link to it goes to an error page.
+
+**Asking Steam about the hidden item.** The Steam client was queried as the owner
+(`CreateQueryUGCDetailsRequest`, then `GetQueryUGCResult` into `SteamUGCDetails_t`, not
+cached). It reports The Forsaken Tower the same as Challenge Modes, which does update: result
+1, visibility 0 (public), banned false, accepted false, same owner. So the only signs of the
+hold are the refused updates and the public page's error. No Workshop API gives the reason.
+
+**Pets card.** The card now shows every pet the Pet Shop sells. Each one comes from
+`tweak/pets.sval`: its `icon` entry (`gui/pet_icons.png` plus an x y w h box), skipping the
+`none` entry, which has no unit. That is seven pets; the candle and the wisp are behind
+`dlc has holy`. Pets and the All pack were republished from bb33faa. Their libraries match the
+other items' builds, since nothing under `mods/` changed.
+
+
+## 2026-10-28: Workshop pages v3, the cards' real art, the Forsaken Tower removed
+
+**Multicolour unit sprites.** The town's exit guard (`actors/npcs/town/npc_misc_guard_exit.unit`)
+draws `players/shared/units/mercenary_pikeman.tif` with a `Colorize` block. The TIFF is
+512x64, uncompressed, 8 bits, interleaved, with 10 samples per pixel (ExtraSamples has 7
+entries; ImageDescription is `TinyTIFFWriter_version=1.1`). PIL can't open it. Samples 0-3 are
+RGBA, and samples 4-9 are one mask per colour channel, 0 or 255. In a masked pixel R=G=B is
+the shade. It is coloured from the channel's dark colour at 0, through mid at 128, to bright at
+255. Pixels with no mask keep their own colour (the pike's red wood, the blade's blue-grey).
+`tools/workshop_art.py` `multicolor()` does this with the unit's six Colorize colours: skin,
+helmet, shoulder, overshirt, undershirt, boots. The result looks the same as the guard in
+town. Frames are 48x48; the one at x 96 faces the camera.
+
+**The map drop's art.** `Item::MissionMap` (scripts/Items/MissionMap.as) has a commented-out
+icon (`items/icons_special.png` 72,0) and draws `items/quest/quests.unit:seachart`, which is
+`items/quest/base.png` 16,0 16x16 (an unrolled sea chart). The red scroll at
+`items/misc/base.png` 0,64 is another item. The watering can the farmer NPC shows as its icon
+is `mods/farming/doodads/hwp/farm.png` 64,0 (grey); the row under it holds the coloured cans.
+
+**Deleting a Workshop item.** `ISteamUGC::DeleteItem(id)` returns a SteamAPICall; its callback
+is `DeleteItemResult_t` (k_iSteamUGCCallbacks + 17 = 3417, `{EResult; PublishedFileId_t}`,
+pack 8). The Forsaken Tower (3828529832), which Steam had hidden, deleted with result 1. A
+details query for it right after returns result 9 (FileNotFound).
+
+**A gallery that drops pictures.** One `SubmitItemUpdate` that removed the All pack's old
+pictures and added eleven new ones succeeded, but `GetQueryUGCAdditionalPreview` then listed
+six of the eleven with an empty URL (each with its original file name), and the page showed
+only the five with one. `tools/workshop_publish.py` now removes the old pictures in one
+submit, adds each new one in its own submit, and then reads the gallery back with
+`SetAllowCachedResponse(0)`. If a picture has no URL, it redoes the gallery.
+
+## 2026-10-28: Pets out of trap rooms (petrooms), a shared module
+
+**A shared module.** `module.json` `"shared": true` lets a module be listed in one package
+(petrooms in qol) and required by mods of other packages, which then carry it too
+(`tools/build.py` closure check; `tools/make_config.py` gives each package a `carried` list
+and writes `<bool name="shared">` per module). In the settings page (hwplib `Config.as`) a
+package is listed only when one of its own non-shared modules is present, and a shared
+module goes under the first such package. With the same file at the same path in several
+packages, the first mod's copy wins (they are byte-identical).
+
+**Driving a vanilla pet.** `MiniPetWalking/Flying.Update` returns at once when `m_owner` is
+null. PetRooms.as parks a vanilla pet by nulling the local pet's `m_owner` between frames
+and restoring it at the start of the next tick, before any Watcher steps, so a throwing tick
+never leaves an owner null. Husk pets keep their owner: `PlayerHandler.NetSetTarget` calls
+`IsHusk`, which needs it. `m_leashRange` is set to 1000000 while the pet is held, so the
+350 px leash doesn't pull it out. A parked walking pet holds `m_stayPos`, so the Watcher
+writes the position it moved the pet to there.
+
+**Vanilla follow is lazy.** FindTarget gives a pet an idle target by its owner only when it is
+past `m_idleRange` (100 px), or now and then at random (randi(100) > 95), and walks there at
+idle speed. It hurries only past the 350 px leash, and teleports past 600 px (450 flying). A
+control walk with no room anywhere left a vanilla pet 133 px behind (20261028-131629). So
+"follows" means off its spot and within the leash for a vanilla pet, and off its spot and
+within 110 px for an HWP pet (which idles within 100 px).
+
+**Trap spots.** The campaign's glyph is two units (`hwp_glyph_bomb` and `_explode`) at one
+spot. With "two trap units" as the rule, one glyph 129 px from the floor start parked the pet
+there, and with it Smash, Mend and Morale (20261028-123720). Units within 12 px are now one
+spot, and three spots make a room.
+
+**Crossing.** If the owner crossed a trap room, the pet walking after them entered it, counted
+as in a room, walked back out and waited, again and again. After 10 s it was 237 px behind
+(20261028-132436, bot step). A pet rejoining after a wait may now cross rooms for 5 s, or
+until it is within 48 px of its owner.
+
+**The bandit keep's own spikes.** That floor has 9 to 21 `floor_spikes` around the start and
+in its corridors. They are trap rooms by petrooms' rule, so a test pet parked at the start
+and never used Smash or Mend (20261028-124554). Destroying them breaks the level's pathfinder:
+afterwards, 160 of 161 `gl pathfind` calls found no path (125819). The pet skill checks now
+run with `petwait.enabled` off. The room checks turn it on and keep their walks 150 px from
+the floor's traps, found with `gl unitsof` by unit file. `gl near`'s filter reads debug names,
+and a doodad's debug name is empty, so "near 1500 trap" found none (140312).
+
+**Debug.** `petwait.debug` (hidden) logs each change: owner in a room, owner out, pet in a
+room, left room. The bot reads "pet in a room" to confirm its spikes landed around the pet
+before it judges the walk-out.
+
+Runs: 20261028-122518, -122737, -123014, -123250, -123520 (vanilla pass), -123720, -124224,
+-124554, -125201, -125555, -125819, -130130, -130512, -130805 (pets-b pass), -131121 to
+-140621 (vanilla fixes), -132436 (crossing found), -134937, -135316 (pets-b pass), -140856
+(vanilla pass), -141113, -141504 (pets-b pass), -141825 (vanilla pass), -142113 (built
+package pass).
+
+
+## 2026-10-28: The Forsaken Tower from HoH1's own levels and generator
+
+`tools/import_hoh1.py campaign` builds mission `hwp_forsaken_tower_hoh1` from HoH1's
+`tweak/dungeons/base.sval`: 23 floors, the 9 hand-made levels as HoH1 ships them and the 14
+act floors generated by HoH1's own generator scripts, copied out of the player's install at
+import time (local, gitignored `HoH1Gen/`) behind the committed `HWPHoH1Generator`. What the
+two games disagree on, found on the way:
+
+**A float TIFF hangs the boot.** HoH2 picks a texture loader by extension. Its TIFF loader
+refuses HoH1's `actors/battlemage.tif` ("Non UINT tiff files not supported") and the boot
+hangs (20261028-144415). Every `.tif`/`.tga` is written as `.png`, and every reference follows.
+
+**OPT_FindAllPatterns.** HoH1's `PatternMatcher.FindAllPatterns` calls the engine's
+`OPT_FindAllPatterns`. HoH2 has a function of that name with another signature, grid layout
+and Cell numbering. HoH1 keeps its script version of the search commented out under the call,
+so the import uncomments that, adding the Cliff case the engine's version has.
+
+**"colorize".** HoH2's `CompositeActorBehavior` reads a param named `colorize` itself (a color
+set per channel). HoH1's Battlemage uses the same name for its pulse colors, so it goes under
+`hoh1-colorize`.
+
+**Lighting by name.** `DungeonBrush.DoLighting` builds `"effects/lighting/" + theme + "_" + level`
+at run time, so no file references it and the closure missed it. The theme lighting folders
+are import roots (`hoh1_tower.GEN_LIGHTING`). Void cells use HoH1's
+`doodads/special/color_<theme>_N.unit`, colored by `colors.mats`, so they match HoH1.
+
+**Keys.** HoH1 numbers its keys ("lock" 0-3); HoH2 names them (bronze, silver, gold, ace).
+`PlayerRecord.AddKeys` stores a temporary that the dictionary keeps by reference (see the
+keys notes above), so `HoH1AddKeys` sets a named local.
+
+**World-script params under other names.** Many HoH1 world scripts have a HoH2 script of the
+same name whose Editable params are named differently. HoH2's defaults then stand in, silently:
+
+| Script | HoH1 | HoH2 | What went wrong |
+|---|---|---|---|
+| ChangeVariables | Value | ModConstant (Use=Constant) | counters never changed: the armory's three Wraith deaths never reached SetBossKilled (tower-bosses 20261028-155113) |
+| RandomChance | ToExecute | OnTrue | 436 random rooms, traps and spawns never ran |
+| DestroyUnitCount | NumToDestroy | MinNumToDestroy, MaxNumToDestroy | 1 destroyed in place of 2 |
+| DamageUnits | Physical | Damage (default 1000) | a buff-only script (the Eye's cancel-skills, the dragon's immortality) also dealt 1000 |
+| AnnounceText | Time | TimeOverride | the style's own time |
+| CheckTimeOfDay | OnDay / OnNight | After, Before, OnTrue / OnFalse | HoH1 ships without `TIME_DAY`, so OnNight always runs: it now sets both branches |
+
+`hoh1_convert.SCRIPT_PARAMS` renames them in every level and prefab script row, keeping a fed
+param's `#`. `tools/import_hoh1.py`'s convert log counts them (`params:<script> N`). Left as
+they are: AnnounceText's AnchorY, FadeTime and Override; DangerArea's ArmorMul (only on the
+10000-damage bridge collapse); SpawnItem's ItemID (one secret room's Duke's signet ring:
+HoH1 item ids aren't HoH2's); PlayMusic's Channel; UnlockShortcut's Targets.
+
+**Speech bubbles.** HoH1's ShowSpeechBubble takes a style file (its spriteset, tail and
+colors), a title, the bubble's unit (Objects), one player (ForPlayer) and a time. HoH2's takes
+a style id, a text and speakers, and draws for everyone. HoH2's `SpeechBubbleStyleDef` is built
+from a SpriteRect sval that is the same format as HoH1's spriteset. So `HoH1ShowSpeechBubble`
+builds one from the HoH1 file (HoH1's default `white.sval` is imported too, since no level names
+it), with HoH1's `arial11_nooutline` font, which HoH2 still ships. The title is a line over the
+text: HoH2's bubble has one font. The old stand-in HideSpeechBubble hid the script's own unit.
+It now closes the bubble.
+
+**Exits keep their StartID.** battlements_1 has two exits, `StartID` left and right, and
+battlements_2 has only those two starts. HoH2's LevelExitNext has no StartID, so the next floor
+started at whatever `g_startId` was. `HoH1LevelExitNext` sets `g_startId` to its own value,
+"" for the default start, before `MissionManager::NextLevel`.
+
+**Magical damage.** HoH1's Damage effect has `magical` (no armor, cut by resistance). HoH2's
+Damage reads physical, fire, ice, lightning, poison and pure, each reduced by its own
+resistance, so 120 HoH1 `magical` values in 82 files did nothing. Each now goes to the element
+its source names (`hoh1_convert.MAGIC_ELEMENTS`, by file name, or by the buff in a buff file):
+33 fire, 9 ice, 7 poison and 71 lightning. Lightning includes arcane: wisps, ghosts, novas and
+curses. HoH1's `resistance-mul` has no per-effect HoH2 counterpart and is dropped.
+
+**The boss fights (tower-bosses).** Each boss floor is started as a player meets it, read from
+the level: the trigger's area entered, its UseTrigger used. Then the bosses spawn, fight 15 s,
+die to the player, and SetBossKilled logs "HoH1 boss N killed". The exit's UseTrigger opens,
+and using it from its area loads the next floor. Two things matter for that:
+- **Exit areas.** The exit's AllPlayersAreaTrigger enables LevelExitNext only while a player
+  stands in its area. Using the trigger from outside the area does nothing.
+- **The archives' Eye.** Boss_Stage1 needs everyone in the ring (AllPlayersAreaTrigger 4791)
+  before the book (UseTrigger 4670) works.
+
+**GameLab quirks.** `hwp god` toggles: it replies "god mode on/off", so a bot that calls it
+on every floor turns it off on every second floor (the dragon killed the player). `gl near`
+is capped at 64 units, which missed the dragon; `gl unitsof <file>` doesn't have the cap.
+`itc-use` takes `#<unit id>` to use one UseTrigger exactly.
+
+**HoH1's own texts.** The levels name HoH1 language keys (".meta.info.gatherparty", the
+ritual books' lines, ".dialogue.player.painting.2"), which HoH2 doesn't have, so the texts
+showed as raw keys. The import reads `res/language/english.lang` from the player's HoH1
+install and rewrites each key a copied file references to `.hoh1.<key>`. It writes those
+strings (175) to a local, gitignored `res/language/english/hwp_campaign_hoh1.lang` in the
+campaign module (module.json `local`). HoH2's lang files use the same `
+` escapes.
+
+**Boss bars.** HoH1's boss bar has no name; HoH2's has a name plate, which shows a
+placeholder label when the name is empty. Five of the six boss levels leave CreateBossBar's
+Name empty (the prison's says "Warden"). So the import also writes `hoh1.bosses.<unit>` from
+HoH1's bestiary (`bestiary.name.bosses.*`, with `_t2`.. trimmed), 32 names, and CreateBossBar
+uses it when Name is empty. Wrong placement of a helper between `[WorldScript]` and `class
+CreateBossBar` silently dropped the class: no log line, the levels just had no bar
+(20261028-162021). `gl bossbars` (new, read-only) now reads the HUD's bar, and tower-bosses
+checks the title on every boss: Stone Guardian, Warden, Councilor of War, Watcher, Vampire
+Lord, Thundersnow.
+
+**A speech bubble, checked.** `gl bubbles` (new, read-only) lists the open speech bubbles.
+tower-bosses uses the armory's painting (UseTrigger 1014) and reads HoH1's three-line
+"That's one depressing painting..." over the player, in HoH1's white style (20261028-163821).
+
+**GameLab: the save rotation file.** `hps.current_save` picked the rotation file with the
+highest header "counter", read as an f32. The 8 bytes at offset 8 are a u64: the time the
+file was written, in Unix ms (1793219300198 for a 16:28 save). The f32 read of its low word
+kept the right order only while bit 31 was clear. On 2026-10-28 it went negative, so a
+rebuilt fixture's oldest file won and the scenario's mods were enabled in a file the game
+doesn't load ("enabled mods are exactly the fixture's + the scenario's" failed,
+20261028-162659 and 162807). It is read as a u64 now (tests/test_hps_rotation.py).
+
+Runs: tower-floors 20261028-152952 and 163319 (23 floors pass), tower-bosses 20261028-155113
+(all but the armory's SetBossKilled), 161022 (all six pass), 162021 (pass, but no boss bars:
+the misplaced attribute), 162922 (pass with titled bars), 163821 (pass with the bubble, after
+a fixture rebuild).
+
+## 2026-10-28: HoH2 classes on HoH1's tower bosses (Generosity's stun, the Forgemaster's raise)
+
+**Pelor's Fury on HoH1 bosses** (plan-generosity-hoh1, the plan_generosity bot's `hoh1` section:
+each boss floor started the level's own way, the Fury on every boss unit). The golem, the Warden,
+the Watcher and Thundersnow were held at once. Three things in our HoH1 boss scripts
+(`mods/campaign/.../HoH1/Bosses.as`) didn't fit a stun:
+- **The Councilors' attack cast through the hold.** `HoH1BossLichRandomSkill` is a
+  `CompositeActorPeriodicTriggeredSkill`. HoH2 runs triggered skills through a disarm (phase
+  changes, death reactions), so it cast again the frame the hold cut it (20261028-164709). It
+  now waits while disarmed, as HoH1's disarm stops skills. HoH2's triggered skills also have
+  no `CancelSkill`, so the Fury's cut left the wind-up running (`IsCasting` is
+  `m_animTimeC > 0`) to its cast point (20261028-165541). It now has a `CancelSkill` that
+  zeroes both counters.
+- **Untargetable while held.** The Councilors and the Vampire Lord are untargetable while
+  their body isn't static, which is HoH1's rule: shots pass through them while they drift,
+  and they stand solid only while casting. The Fury refuses an untargetable unit
+  ("untargetable", like the burrowed Serpent), so all four were refused mid-drift
+  (20261028-165023). That refusal stays, by design. But once held, a cut cast made the body
+  drift again (velocity times MoveSpeedMul 0, but not static), so the stun was spent on a
+  unit nothing could hit. A held Councilor or Vampire (`MoveSpeedMul() <= 0`) now stands
+  solid, at zero velocity, and the Vampire comes out of bat form, as in a cast.
+- **Bot:** a refused Fury is retried for up to 20 s until a cast stands the boss solid. The
+  retry keys on the command's own reply ("cast refused ... untargetable"). The status line's
+  last refusal stays "untargetable" after a cast that started, and a retry then reset the
+  cooldown of the hold that had landed.
+
+Result (20261028-170027): all 8 boss units held, the attack cut (no non-passive skill
+casting), moved 0, cooldown 60 s, mana and stacks spent, armor 0, 4 to 6 beams, no script
+error.
+
+**The Devil Forgemaster's raise on HoH1 enemies** (plan-forgemaster-hoh1, 20261028-170645,
+pass). Section `hoh1`: all 23 HoH1 elites, minibosses and bosses in the imported
+`hoh1_risen.sval` (each one's base tier; the tier copies and the dragon left out) were raised
+in the arena. Each one stood up, attacked a brute and kept to the leash, with no script error.
+The HoH1 bosses follow as HoH2's risen do: the golem, the archer, the lich elite and the sentinel as RangedFollower, the
+rest as MeleeFollower, the battlement archer Passive (it never moves in HoH1 either). Section
+`hoh1_tower`: each tower boss floor loaded and its fight started the level's own way, then the
+priest (Deeper Depravity at epic) killed each boss. The golem, the Warden, the three Wraiths,
+the Watcher and the Vampire Lord each left a body on the floor that was raised there and still
+standing 3 s later. The dragon isn't raisable (tools/hoh1_risen.py EXCLUDE) and leaves no body,
+as intended. No code change was needed: the import's risen table and bodies were enough.
+
+## 2026-10-28: the Forsaken Tower played floor 1 to the end (tower-run), HoH1's gambler and end windows
+
+**The playthrough** (`tower-run`, bot `tower_run`). Floor 1 is loaded with `gl mission`. Every
+later floor is reached only through the floor's own exit: the player stands in the stairs'
+area (its AllPlayersAreaTrigger switches the UseTrigger on) and uses it. On each floor:
+- the enemies act;
+- area triggers, tripwires and trap shooters are toured;
+- every enemy is killed by the player and the drops are picked up;
+- chests, doors, levers, wells, shrines and imps are used;
+- a boss floor runs its fight.
+
+What the run found, besides the ports below:
+- **Area triggers stand away from their areas.** In HoH1's prefabs, an AreaTrigger's script
+  position is often not inside its collision area (195 of them in the tower's prefabs), so
+  standing on the script trips nothing. The tour now stands in the areas themselves: the level
+  file's shapes, or, on a generated floor, the shapes of the prefab instance the trigger came
+  from. Each instance is matched by the positions of four sibling scripts
+  (`tower_run.prefab_areas`).
+- **AddNotification.** HoH2's `AddNotification` is a stub that only logs "TODO: Add
+  notifications". HoH1 used it for the town unlocks a floor announces (the apothecary, the
+  anvil, the bestiary, combos). The campaign's `HoH1AddNotification` puts the text up through
+  HoH2's announcer, with the subtext under it. HoH2's HUD has no notification icons, so
+  `SubtextIcon` isn't shown.
+- **A shrine's buff opens a dialog and pauses the game** (Shrine.Use: ShowDialog "a", then
+  PauseGame). The bot answers it as a player does, before it moves on.
+- **Trap shots.** The `traps` probe's "rays" counted only RayProjectiles with no owner, but the
+  tower's trap shots are the campaign's HoH1Projectile, a ProjectileBase. It now counts any
+  projectile with no owner.
+- **Chest rooms and hidden-chest puzzles.** Many of the armory's and archives' shooters fire
+  only once the room's chest is opened or a puzzle lever is pulled: TimerTriggers that the
+  chest's or lever's ToggleScripts switch on. The bot now also samples trap shots after each
+  use.
+- **The vampire's crosses** (boss_chambers). A vampire cross picked up on the chambers floors
+  sets `vampire_cross1-4`. With any of them set, the boss room's CheckFlag chain leaves the
+  ActivateBoss area off and sets the GlobalVariable `crosses` instead. The vampire wakes once
+  the crosses are placed on the altars: each safe area's UseTrigger fires `cross_expended`,
+  which counts `crosses` down, and at 0 the boss activates (ScriptLink 615). The boss-floor
+  test loads the level fresh, with no crosses, so the area starts the fight. In the
+  playthrough, the bot uses the altars when the boss doesn't appear.
+- **The bridge's exit skipped the mission.** HoH1's bridge leaves through a plain
+  `LevelExit` to boss_dragon.lvl. HoH2's LevelExit is a bare `ChangeLevel`, which loads the
+  file but leaves the mission's floor index on the bridge. The importer now turns a LevelExit
+  to the tower's next floor into `HoH1LevelExitNext` (MissionManager::NextLevel), as the other
+  floors use (`tools/hoh1_convert.py` MISSION_EXITS). The Battlements' two exits run through a
+  SetFlag (`battlements_left`/`right`) before the exit, and the bot's exit finder now follows
+  that chain (`Level.exit_script`).
+- **Traps a player leaves silent.** Many shooters belong to chest rooms whose gold or silver
+  chest needs a key, or to archives hidden-chest puzzles that fire only on a wrong move. A
+  floor whose player doesn't set them off stays quiet, as in HoH1. `run_traps_fire` now asks
+  for trap fire in every act and lists the floors whose traps stayed silent.
+- **Levers that switch each other off.** On the prison floors, a lever pulled earlier can
+  turn another one off before its turn (HoH2's `UseTrigger.CanUse` is false while the script
+  is disabled). The bot reads the trigger's state again when a use is refused. A trigger the
+  floor's own scripts switched off is not a fault.
+- **Allies among the actors.** The dragon floor's iceblocks, the player's cover from the
+  breath, are actors on the player's team, so the bot read them as enemies left alive. The
+  `actors` verb now reports `ally` (`Team == g_team_player`) and the bot skips allies.
+- **Enemies that wait.** A ballista at rest neither moves nor casts, so a floor whose nearest
+  enemy was one read as inactive (battlements_2). The bot now stands beside the nearest enemy
+  of up to four kinds in turn and watches each.
+- **The bridge has no enemies.** HoH1's walk to the dragon has no spawners either, so a floor
+  with no enemies and no `SpawnEnemyGroup` counts as empty by design.
+- **The result** (20261028-190322, 985 s, every flag passing):
+  - all 23 floors, each reached through its own exit;
+  - 657 enemies killed and 90 drops picked up;
+  - 55 level triggers used. 10 of them had already been switched off by the floor's own
+    scripts.
+  - 21 chests found, 8 opened. The rest need keys the run didn't carry.
+  - all six bosses fought and killed: the Stone Guardian, the Warden, the Councilor of War,
+    the Watcher, the Vampire Lord (woken at the five altars) and Thundersnow;
+  - traps fired in all five acts, on 11 floors. Only archives_3 stayed silent (its puzzles).
+  - No generated floor this run had a gambler room. tower-interfaces covers the gambler.
+  - The end window opened, and CONTINUE took the player back to town.
+  - The character went from level 1 to 9.
+
+**HoH1's ItemDealer and EndOfGame** (`mods/campaign/.../HoH1/Interfaces.as`). The gambler room
+(prefabs/special/special_item_gambler.pfb) and Thundersnow's death run `OpenInterface` with
+the classes `ItemDealer` and `EndOfGame`. HoH2 has neither, and its OpenInterface hits a null
+pointer on a class it can't make (WorldScript/GUI/OpenInterface.as:76). Both are ported on
+HoH1's own .gui files, and the importer maps the class names (CLASS_MAP).
+- **The gambler bets HoH2 trinkets.** The tower's items are trinkets here (HoH1Item). Cursed,
+  quest and unique trinkets aren't listed (HoH1 had no cursed items). The points per quality
+  are HoH1's: common 1, uncommon 3, rare 7, epic 12, legendary 24. The quality odds come from
+  HoH1's tweak/itemdealer.sval, imported: the first row whose min-points the bet exceeds. The
+  roll is `Item::GetRandomTrinket` at the drawn quality, given with `GiveItem`. There is one
+  gamble per gambler: reopened, the window shows the item it gave, with the list and dice off.
+- **EndOfGame.** CONTINUE runs `MissionManager::AbortMission(Succeeded)`, which is what
+  NextLevel does past a mission's last level. The stats button runs `TogglePlayerMenu`. The
+  window can't be closed otherwise, as in HoH1.
+- **Tooltips.** HoH1 set `m_tooltipTitle`/`m_tooltipText` on the widget. HoH2 keeps them in a
+  `WidgetTooltip` object, and `CloneInto` shares the handle between a clone and its template,
+  so each widget gets a fresh one (`HoH1SetTooltip`).
+- **The scroll widgets.** HoH2 dropped the "scrollrect" producer, though ScrollableWidget is
+  still there. HoH2's "scrollbar" is a different widget, with its own sprite names and input,
+  and it null-pointers on HoH1's markup (ScrollbarWidget.as:157). Both are ported as
+  `hoh1-scrollrect` and `hoh1-scrollbar` (HoH1's GUI/Scrollbar.as, on HoH1's scrollbar
+  sprites), and the importer renames the tags in imported .gui files
+  (`tools/hoh1_convert.py` GUI_TAGS), so HoH2's own widgets are untouched.
+  - HoH1's mouse came through `Widget.OnMouseDown` and `m_hovering`, which HoH2's Widget no
+    longer has. The port reads hover from the mouse position and the click from
+    `GetMenuInput().Forward`.
+  - HoH2's SpriteBatch has no `DrawSprite(Texture2D, vec2, frame)` overload, so the port
+    draws into a rect instead.
+  - The 1-pixel trough middle is stretched rather than wrapped. It looks the same.
+- **Test** (`tower-interfaces`, `itc-host`):
+  - The gambler room is fabricated on floor 1 and the player is given 2 common, 2 uncommon, 1
+    rare and 1 cursed trinket. The window lists 5, with the dice off.
+  - With three ticked (5 points), the odds read 34% common and 67% uncommon. After the roll,
+    the three are gone, one new trinket is in, and it is shown as the final item. On reopen,
+    the same item shows, with everything off.
+  - Thundersnow is killed: "THE END" opens with HoH1's story, and CONTINUE goes back to town.
+  - The log is clean (20261028-182126).
+
+Runs:
+- tower-interfaces: 20261028-181346 (scrollbar null pointer), 182023 (DrawSprite compile
+  error), 182126 (pass).
+- tower-run: 20261028-173522, then 182249 (stopped at the chambers boss: the crosses), then
+  184122 (stopped at battlements_1: the exit through a SetFlag), 185918 (the last four
+  floors only, partial), 190322 (pass: 23 of 23 floors, every flag).
+
+## 2026-10-28: Workshop cards, a name that runs into the next column
+
+`tools/workshop_art.tiles_card` lays more than eight entries out in columns of a fixed
+width, with each entry's symbols side by side before its name. In a column of 146 px,
+"Improved behavior" (105 px) behind two symbols ran into the third column's hat icon. A
+tile now drops symbols from the end, keeping at least one, until the name (and the note
+under it) fits. Of the 13 cards, only Quality of Life renders differently. Republished:
+HWP-qol, HWP-pets and HammerwatchPlus-All (kit 5538d81).

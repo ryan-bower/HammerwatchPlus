@@ -3,7 +3,9 @@
  "about": "Test plan through the plan_newa bot: search s1-s8, the Plus tab's search field (posted chars) filters the rows by title or value, case-blind, Backspace refilters, Esc clears, Enter keeps, a reopened menu is unfiltered; stash s1-s4, two tabs filled by gl stashput in a scrambled order, Sort orders only the tab on screen by class (main requirement), type (two-handed, main hand, off hand, armour; weapons by family), then item level, the grid follows, a second press keeps it, a reopened stash has it; stash s5, after a restart (save to load) both tabs are still in the sorted order (each compared with the rule's order, not just with the order before the restart).",
  "fixture": "town-paladin",
  "mods": [
-   "core",
+   "hwplib",
+   "hwplib-luck",
+   "hwplib-classui",
    "abyss",
    "architect",
    "bufftips",
@@ -17,7 +19,6 @@
    "firearms",
    "fishing",
    "gambler",
-   "goldpet",
    "groupcombo",
    "keys",
    "laststats",

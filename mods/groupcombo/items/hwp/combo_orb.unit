@@ -1,0 +1,26 @@
+<unit netsync="none" slot="doodad">
+	<behavior class="Pickup">
+		<string name="sound">event:/sfx/items/item_crystal</string>
+		<bool name="player-only">true</bool>
+		<array name="effects">
+			<dict>
+				<string name="class">HWPComboOrb</string>
+			</dict>
+			<dict>
+				<string name="class">ShowFloatingText</string>
+				<string name="text">.hwp.groupcombo.orb.text</string>
+			</dict>
+		</array>
+	</behavior>
+	<scenes>
+		<scene>
+			<scene src="special/shadow.unit:8"/>
+			<collision static="true">
+				<circle sensor="true" offset="0 0" radius="6" />
+			</collision>
+			<sprite origin="8 14" looping="true" texture="items/misc/base.png" material="system/default.mats:bright">
+				<frame time="200">0 96 16 16</frame>
+			</sprite>
+		</scene>
+	</scenes>
+</unit>

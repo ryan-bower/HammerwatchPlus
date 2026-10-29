@@ -3,7 +3,9 @@
  "about": "mods/mercenary: enlisting is locked without a level-20 hero of the class (forced with cheats), asks for confirmation, levels to 10; prestige ranks (49 Private, 50 Corporal); the mercenary data reaches the mission and the floor counts; the rank's bonus on the gold gain and experience multipliers (GetMaterialModifier, currStats.ExperienceMul); dying on the floor is a fall, announced; back in town the picker is forced open and the ledger lists the fallen. Then no script errors in our files. The cheat hit is sent six times: a single one left the paladin alive in 3 of 5 runs (block or dodge).",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "mercenary"
  ],
  "timeout": 420,
@@ -133,47 +135,7 @@
   },
   {
    "do": "console",
-   "line": "cht_damage 999999"
-  },
-  {
-   "do": "sleep",
-   "seconds": 1
-  },
-  {
-   "do": "console",
-   "line": "cht_damage 999999"
-  },
-  {
-   "do": "sleep",
-   "seconds": 1
-  },
-  {
-   "do": "console",
-   "line": "cht_damage 999999"
-  },
-  {
-   "do": "sleep",
-   "seconds": 1
-  },
-  {
-   "do": "console",
-   "line": "cht_damage 999999"
-  },
-  {
-   "do": "sleep",
-   "seconds": 1
-  },
-  {
-   "do": "console",
-   "line": "cht_damage 999999"
-  },
-  {
-   "do": "sleep",
-   "seconds": 1
-  },
-  {
-   "do": "console",
-   "line": "cht_damage 999999"
+   "line": "ply_kill"
   },
   {
    "do": "sleep",

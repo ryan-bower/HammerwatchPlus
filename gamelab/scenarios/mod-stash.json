@@ -3,7 +3,9 @@
  "about": "mods/stash: the Sort button on the town stash (dbg_show_stash) orders tab 0 by class (main requirement), slot, weapon family, then item level (highest first); a second press logs already in order. Then no script errors in our files.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "stash"
  ],
  "timeout": 150,

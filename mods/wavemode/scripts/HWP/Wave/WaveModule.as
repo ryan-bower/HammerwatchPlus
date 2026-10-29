@@ -78,8 +78,18 @@ namespace HWP
 
 		void OnSettingChanged(const string &in key)
 		{
-			if (key.findFirst("wave.") == 0)
-				RefreshSettings();
+			if (key.findFirst("wave.") != 0)
+				return;
+			RefreshSettings();
+			// turned off in town: the statue goes at once (the host's unit, synced);
+			// turned on, the placeable's watch puts it back within a few seconds
+			if (key == "wave.enabled" && !g_enabled && Network::IsServer() && g_statue !is null
+				&& HWP::Town::Is(g_statue.m_unit, STATUE_UNIT))
+			{
+				g_statue.m_unit.Destroy();
+				g_statue.m_unit = UnitPtr();
+				HWP::Log("wave", "wave.enabled off: statue removed");
+			}
 		}
 
 		int Rank() { return g_rank; }
@@ -430,7 +440,23 @@ namespace Modules
 
 		// the town starts with a null save, so Load never runs there (docs/RE_NOTES.md,
 		// mod lifecycle): run the check on the first gameplay frame as well
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardUpdateFrame;
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
+		{
+			if (m_guardUpdateFrame.Skip("wavemode", "HWPWaveModule.UpdateFrame"))
+				return;
+			if (m_guardUpdateFrame.Raw())
+			{
+				GuardedUpdateFrame(ms, gameInput, menuInput, paused);
+				m_guardUpdateFrame.Ok();
+				return;
+			}
+			try { GuardedUpdateFrame(ms, gameInput, menuInput, paused); m_guardUpdateFrame.Ok(); }
+			catch { m_guardUpdateFrame.Failed(); }
+		}
+
+		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
 			HWP::Wave::SelfCheck();
 			HWP::Wave::g_statue.Update(ms, HWP::Wave::g_enabled);

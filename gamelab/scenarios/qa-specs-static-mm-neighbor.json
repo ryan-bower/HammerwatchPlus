@@ -3,7 +3,9 @@
   "about": "Three original-code actualMMfirstcrit thenactualnoncritTT andlateoldMMcritical attribution trials; native setup mustprove realinputs/ownedproducers/HP/crit/CD, no directdamage/event setters.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

@@ -1,0 +1,106 @@
+{
+ "name": "pf-fix-luck-floors",
+ "about": "fix-luck-floors against the built packages keys, town instead of the mods' source folders (tools/make_package_scenarios.py). Party Luck on generated floors (mods/hwplib-luck/scripts/HWP/Core/LuckFloors.as, docs/design/luck.md). In town `hwp luck 500` (factor 6); the host keeps the party's average in the run scalar hwp_luck_party, which the level's save carries into the floor's generation and start. On the first bandit_keep floor: the keep's secret room set rolls its extra-room chance at 75 % (the cap), the reward spots log a 100 % blueprint chance (25 % x 6, capped) and their luck-leaning counts, and the fishing hole's run chance is 100 % (30 % x 6, capped). With the keys module, each locked chest logs its lock at the floor factor (a gold one its ace chance, 15 % x 6 capped at 50 %), and `hwp keys` shows the key budget at floor Luck x6.",
+ "fixture": "mission-ranger",
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:luck\\] secret room sets on [1-9]\\d* floor generator\\(s\\)",
+   "timeout": 20,
+   "name": "the secret room sets were swapped for the Luck one"
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp luck 500"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:luck\\] Luck: 500 \\(factor 6",
+   "timeout": 10
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "bandit_keep",
+    0
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 150
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:luck\\] secrets keep_secrets on \\S+: party Luck 500, extra room chance 75%: (rolled, max 2|not rolled, max 1), placed \\d+",
+   "timeout": 10,
+   "name": "the keep's secret rooms rolled the extra room at 75 %"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:luck\\] floor rewards at party Luck x6: blueprint chance 100% -> 1, ",
+   "timeout": 10,
+   "name": "the reward spots rolled at the party's Luck: a blueprint for sure"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:fishing\\] run hole chance 100% \\(30% at party Luck x6\\): (rolled|boss room)",
+   "timeout": 10,
+   "name": "the fishing hole's chance multiplied"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:keys\\] luck x6 chest lock (bronze|silver|platinum|gold \\(ace chance 50%: (ace|gold)\\))",
+   "timeout": 10,
+   "name": "the floor's chests locked at the party's Luck"
+  },
+  {
+   "do": "console",
+   "line": "hwp keys"
+  },
+  {
+   "do": "log_has",
+   "pattern": "budget \\(left/total\\).*, floor Luck x6",
+   "timeout": 10,
+   "name": "the key budget counts the floor's Luck"
+  },
+  {
+   "do": "shot",
+   "name": "floor"
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "keys",
+  "town"
+ ]
+}

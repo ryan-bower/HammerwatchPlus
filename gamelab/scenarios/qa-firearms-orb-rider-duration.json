@@ -3,7 +3,9 @@
   "about": "Stunning Shock ranks1?2 natural solo-pistol elemental rounds: fixed3x10s no-rider control and each rank, precise target HP, actual lightning counts, native stun time-left and live250/500ms custom stats.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

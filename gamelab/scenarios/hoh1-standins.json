@@ -1,0 +1,27 @@
+{
+ "name": "hoh1-standins",
+ "about": "The four features with Heroes of Hammerwatch 1 content, packed as released (no --with-local, so no HoH1 content: the Forsaken Tower, the HoH1 classes' art, the HoH1 pets, the HoH1 trinkets' icons): each loads on its stand-in, hwplib tells the player once which ones (HWP::HoH1, the setting hoh1.told), hwp hoh1 lists them, and the log is clean.",
+ "fixture": "town-paladin",
+ "packages": [
+  "campaign",
+  "classes",
+  "dungeon",
+  "pets"
+ ],
+ "timeout": 240,
+ "steps": [
+  {"do": "log_has", "pattern": "\\[HWP:core\\] gameplay started; server=yes town=yes", "timeout": 60, "name": "gameplay started in town"},
+  {"do": "log_has", "pattern": "\\[HWP:campaign\\] self-check done: mission ok, .*HoH1 floors not imported", "timeout": 10, "name": "the campaign loads on HoH2 themes"},
+  {"do": "log_has", "pattern": "\\[HWP:trinkets\\] HoH1 icons not imported", "timeout": 10, "name": "the trinkets keep their placeholder icons"},
+  {"do": "log_has", "pattern": "\\[HWP:pets\\] no HoH1 pets imported", "timeout": 10, "name": "no HoH1 pets"},
+  {"do": "log_has", "pattern": "\\[HWP:hoh1\\] on stand-ins: campaign,classes,pets,trinkets", "timeout": 15, "name": "the four on stand-ins"},
+  {"do": "log_has", "pattern": "\\[HWP\\] Heroes of Hammerwatch 1 content is not installed, so these use stand-ins: the Forsaken Tower runs on HoH2 themes, not the HoH1 levels; the HoH1 classes and the Remastered specs show placeholder icons; the HoH1 pets are not in the Pet Shop; the HoH1 trinkets show placeholder icons\\.", "timeout": 5, "name": "the chat line names them"},
+  {"do": "mark", "name": "told"},
+  {"do": "console", "line": "hwp hoh1"},
+  {"do": "log_has", "pattern": "\\[HWP\\] pets: the HoH1 pets are not in the Pet Shop", "since": "told", "timeout": 10, "name": "hwp hoh1 lists them"},
+  {"do": "gl", "verb": "state", "expect": {"phase": "town"}, "name": "in town"},
+  {"do": "log_lacks", "pattern": "\\[HWP\\] Heroes of Hammerwatch 1 content is not installed", "since": "told", "settle": 1, "name": "told once"},
+  {"do": "shot", "name": "town"},
+  {"do": "log_clean", "allow": ["Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "]}
+ ]
+}

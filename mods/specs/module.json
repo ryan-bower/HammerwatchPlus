@@ -1,7 +1,15 @@
 {
   "id": "specs",
-  "requires": ["core"],
+  "requires": ["hwplib", "hwplib-classui"],
   "class_swaps": {"PyreUnitBehavior": "HWPSpecsPyre"},
-  "overrides": [],
-  "exclude": []
+  "overrides": ["scripts/WorldScript/Pyre.as"],
+  "exclude": [],
+  "config": {
+    "title": "4th specializations",
+    "about": "Eight new specs for the vanilla classes. Off: not offered at the picker; taken ones stay.",
+    "toggle": "specs.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": []
+  }
 }

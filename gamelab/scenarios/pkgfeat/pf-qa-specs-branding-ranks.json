@@ -1,0 +1,33 @@
+{
+ "name": "pf-qa-specs-branding-ranks",
+ "about": "qa-specs-branding-ranks against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). All5 Pyrebrand ranks: real native claw HP damage/radius/cooldown and stored fraction from a real rank5 Demon's Tail. Noncrit control, no orbs; controlled measurement.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_specs_branding_effects",
+   "kwargs": {
+    "section": "ranks"
+   },
+   "expect": {
+    "pyre_ranks_lane": true,
+    "pyre_all_ranks": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

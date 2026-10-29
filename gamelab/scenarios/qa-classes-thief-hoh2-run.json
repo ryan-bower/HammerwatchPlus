@@ -3,7 +3,9 @@
   "about": "All31 content modules enabled. Separately labeled matched legal level20/common class weapon, all native base skills at rank1, five ordinary1x god-off Bandit Keep floors, naturally spawned boss with HP/defeat flag, actual equipment reward, unlocked town portal, exact gear/ranks/flag save-load, and separately controlled lethal damage/town/save-load. No teleport/cull/direct kills/god/HP setters during ordinary phase. Armor fixture uses four legal rare seeded ilvl20 pieces (quality4/two mods each), an explicitly empty back slot, and57primary. Native back_2b at10 actually requiresVit11; it is excluded from this matched fixture instead of adding off-stats. Melee ports use native approach-and-attack at22px with28px travel fire; ranged WitchHunter keeps90px kite/160px fire.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">GameLab Throw</string>
+	<string name="author">HammerwatchPlus GameLab</string>
+	<string name="description">Test harness only: a module and a hook that throw script exceptions on a schedule, to measure what one mod's runtime exception does to other mods and to the game (the throw scenario). Never deployed to a play install.</string>
+</dict>

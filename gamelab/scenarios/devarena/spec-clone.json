@@ -2,7 +2,7 @@
  "name": "spec-clone",
  "about": "Build step 7 (docs/devarena/SPEC.md): mods/spec-ranger-test, written by tools/devarena/clone_spec.py from hp4-compose's v1 (Entangle composed into Thorn Volley: marked_arrow, fan + burst), boots with a cold game. The level-20 Warden takes the ranger_test mastery through the subclass picker's path (gl subclass: SubclassPickShopContent.SwitchClass -> ChangeClass), and the spec's own Entangle copy is the composed skill: castpoint 150, cooldown 3000, the arrow and burst binds. One cast fires it.",
  "fixture": "mission-ranger",
- "mods": ["core", "devarena", "spec-ranger-test"],
+ "mods": ["hwplib", "devarena", "spec-ranger-test"],
  "timeout": 300,
  "steps": [
   {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},

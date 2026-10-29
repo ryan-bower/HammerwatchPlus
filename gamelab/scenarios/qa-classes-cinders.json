@@ -2,7 +2,7 @@
   "name": "qa-classes-cinders",
   "about": "Cinders triggers on spellhit, without requiring critical hits. Fixed8 rank0 controls and40 each rank1/max5 actual Ward hits on fresh unarmored debuffable targets; exact HP proves hits and native armor_break tags prove procs. Every trial retained; no rerun-until-success.",
   "fixture": "town-paladin",
-  "mods": ["core", "classes"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes"],
   "timeout": 900,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},

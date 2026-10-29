@@ -1,0 +1,43 @@
+{
+ "name": "pf-qa-specs-banner-provisions",
+ "about": "qa-specs-banner-provisions against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). All3 SharedProvisions qualities: actual native positive HUD count and zero-delta stack read, nonHUD and HUD-debuff exclusion controls, real Warcry cooldowns; quality3 cap30 and natural expiry/reversion. No positive stacks injected.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_specs_banner_orbs",
+   "kwargs": {
+    "section": "provisions"
+   },
+   "expect": {
+    "provisions_god_off": true,
+    "provisions_lane": true,
+    "provisions_char": true,
+    "provisions_learned": true,
+    "provisions_warcry": true,
+    "provisions_empty_hud": true,
+    "provisions_control": true,
+    "provisions_r3_cap30": true,
+    "provisions_natural_expiry_reverts": true,
+    "provisions_r1_count_and_cooldown": true,
+    "provisions_r2_count_and_cooldown": true,
+    "provisions_r3_count_and_cooldown": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

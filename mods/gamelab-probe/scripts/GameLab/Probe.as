@@ -341,6 +341,11 @@ namespace GameLab
 		ref@ b = u.GetScriptBehavior();
 		e.Str("behavior", b is null ? "" : Reflect::GetTypeName(b));
 		e.Bool("usable", cast<IUsable>(b) !is null);
+		auto scene = u.GetCurrentUnitScene();
+		e.Str("scene", scene is null ? "" : scene.GetName());
+		auto mat = cast<Material::MaterialPickup>(b);
+		if (mat !is null)
+			e.Int("amount", mat.m_amount);
 		auto actor = cast<Actor>(b);
 		if (actor !is null)
 			e.Num("hp", actor.GetHealth()).Int("hpMax", actor.GetMaxHp())
@@ -354,6 +359,8 @@ namespace GameLab
 	// near [radius] [filter]: units within radius (default 200) of the player,
 	// nearest first, capped at NEAR_CAP; "truncated" reports how many were left out
 	// Actor hp stays a fraction; hpMax and hpExact report native maximum and current HP units.
+	// Each unit also reports its current scene (UnitPtr.GetCurrentUnitScene) and a material
+	// pickup its amount (Material::MaterialPickup.m_amount, fixed when it was dropped).
 	void VerbNear(const string &in id, array<string>@ args)
 	{
 		auto plr = GetLocalPlayer();
@@ -420,13 +427,76 @@ namespace GameLab
 			.Raw(name, RawArray(cut));
 	}
 
+	// bossbars: read-only. The HUD's boss bar: whether its frame shows, the name it shows
+	// (the boss-name text, after Resources::GetString) and each bar (its boss's unit, the
+	// name it was added with, defeated), first TRAPS_CAP bars with the truncation.
+	void VerbBossBars(const string &in id, array<string>@ args)
+	{
+		HUD@ hud = g_gameMode is null ? null : g_gameMode.GetHUD();
+		if (hud is null)
+		{
+			Fail(id, "no HUD");
+			return;
+		}
+		HUDBossBar@ bb = null;
+		for (uint i = 0; i < hud.m_components.length() && bb is null; i++)
+			@bb = cast<HUDBossBar>(hud.m_components[i]);
+		if (bb is null)
+		{
+			Fail(id, "no boss bar component");
+			return;
+		}
+		array<string> bars;
+		for (uint i = 0; i < bb.m_barList.m_children.length(); i++)
+		{
+			auto w = cast<BossBarWidget>(bb.m_barList.m_children[i]);
+			if (w is null || w.m_actor is null)
+				continue;
+			Json e;
+			e.Str("unit", w.m_actor.m_unit.IsValid() ? w.m_actor.m_unit.GetDebugName() : "")
+				.Str("name", w.m_name).Bool("defeated", w.IsDefeated());
+			bars.insertLast(e.Close());
+		}
+		Json@ r = Reply(id, true);
+		r.Bool("shown", bb.m_mainFrame.m_visible).Str("title", bb.m_bossName is null ? "" : bb.m_bossName.m_str);
+		TrapList(r, "bars", bars);
+		Emit(r);
+	}
+
+	// bubbles: read-only. The speech bubbles open now (BaseGameMode's user windows that are a
+	// SpeechBubbleContainer and visible): the text shown, the unit it hangs over, how long it
+	// has shown and its time (ms), first TRAPS_CAP with the truncation.
+	void VerbBubbles(const string &in id, array<string>@ args)
+	{
+		auto gm = cast<BaseGameMode>(g_gameMode);
+		if (gm is null)
+		{
+			Fail(id, "no BaseGameMode");
+			return;
+		}
+		array<string> open;
+		for (uint i = 0; i < gm.m_userWindows.length(); i++)
+		{
+			auto c = cast<SpeechBubbleContainer>(gm.m_userWindows[i]);
+			if (c is null || !c.m_visible || c.m_speechBubble is null)
+				continue;
+			Json e;
+			e.Str("text", c.m_speechBubble.m_text).Str("unit", c.m_unit.IsValid() ? c.m_unit.GetDebugName() : "")
+				.Int("shown", c.m_timerC).Int("timer", c.m_speechBubble.m_timer);
+			open.insertLast(e.Close());
+		}
+		Json@ r = Reply(id, true);
+		TrapList(r, "bubbles", open);
+		Emit(r);
+	}
+
 	// traps [radius]: read-only. The hazards within radius (default 800) of the player, by kind,
 	// nearest first, each list capped at TRAPS_CAP with its truncation. "shooters": every
 	// WorldScript::ProjectileShooter (position, Direction in degrees, Spread, enabled; the trigger
 	// that fires it is native and not readable). "areas": units whose behavior is a
 	// DangerAreaBehavior (sawblades, floor_fire/curse/spikes, ProximityTrap): debug name, freq,
 	// current scene names ("on"/"off" for toggled ones). "actors": trap-team actors (statues).
-	// "rays": live RayProjectiles with no owner (trap fire balls), with their direction.
+	// "rays": live projectiles with no owner (trap fire balls, the HoH1 tower's trap shots), with their direction.
 	void VerbTraps(const string &in id, array<string>@ args)
 	{
 		auto plr = GetLocalPlayer();
@@ -471,10 +541,12 @@ namespace GameLab
 				continue;
 			auto da = cast<DangerAreaBehavior>(b);
 			auto ac = cast<Actor>(b);
-			auto rp = cast<RayProjectile>(b);
+			// any projectile with no owner is a trap's shot: RayProjectiles and the HoH1 tower's
+			// own kinds (campaign's HoH1Projectile is a ProjectileBase)
+			auto rp = cast<IProjectile>(b);
 			// classified before the entry is built: building one per unit (~14k with a behavior on
 			// a floor) cost more than the traps themselves
-			if (da is null && (ac is null || ac.Team != g_team_trap) && (rp is null || rp.m_owner !is null))
+			if (da is null && (ac is null || ac.Team != g_team_trap) && (rp is null || rp.GetOwner() !is null))
 				continue;
 			vec2 p = xy(units[i].GetPosition());
 			float d = dist(center, p);
@@ -498,9 +570,10 @@ namespace GameLab
 				@list = actors;
 				@ds = td;
 			}
-			else if (rp !is null && rp.m_owner is null)
+			else if (rp !is null && rp.GetOwner() is null)
 			{
-				e.Num("dx", rp.m_dir.x).Num("dy", rp.m_dir.y);
+				vec2 dir = rp.GetDirection();
+				e.Num("dx", dir.x).Num("dy", dir.y);
 				@list = rays;
 				@ds = rd;
 			}
@@ -1342,6 +1415,8 @@ namespace GameLab
 		RegisterVerb("near", "[radius] [behaviorOrUnitName]", Verb(VerbNear));
 		RegisterVerb("fetchbench", "<radius> [reps] [all|foes|units]", Verb(VerbFetchBench));
 		RegisterVerb("traps", "[radius]", Verb(VerbTraps));
+		RegisterVerb("bossbars", "", Verb(VerbBossBars));
+		RegisterVerb("bubbles", "", Verb(VerbBubbles));
 		RegisterVerb("areatriggers", "[radius]", Verb(VerbAreaTriggers));
 		RegisterVerb("usables", "", Verb(VerbUsables));
 		RegisterVerb("run", "", Verb(VerbRun));
@@ -1398,7 +1473,7 @@ namespace Modules
 					.Str("window", GameLab::TopWindow()).Bool("paused", paused).Int("cmds", GameLab::g_commands)
 					.Int("exceptions", GameLab::g_exceptions).Str("place", GameLab::LevelPlace())
 					.Int("maxMs", m_maxMs).Int("beatFrames", m_beatFrames)
-					.Int("inLines", GameLab::g_inboxLines).Int("inDropped", GameLab::g_inboxDropped).Int("inDups", GameLab::g_inboxDups)
+					.Int("inLines", GameLab::g_inboxLines).Int("inDropped", GameLab::g_inboxDropped).Int("inDups", GameLab::g_inboxDups).Int("inScrubbed", GameLab::g_inboxScrubbed)
 					.Bool("textIn", GameLab::InboxExpecting());
 				m_maxMs = 0;
 				m_beatFrames = 0;

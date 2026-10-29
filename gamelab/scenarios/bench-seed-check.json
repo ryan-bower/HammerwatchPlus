@@ -3,7 +3,9 @@
  "about": "Check of the bench's seeded kit and NG+ level 25 (kit seed=, ngp verb): one short Firearms row at level 25; run it twice and compare the rows' stats. Not a balance measurement.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 900,

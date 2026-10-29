@@ -41,7 +41,10 @@ TRANSPORTS = ("inbox", "console")
 # console lines with a console-free form (Game.console_verb): the cheat functions, run by their
 # bodies (gamelab-hands ConsoleLines.as); "hwp <rest>" sets core's hwp_line; "<cvar> <value>" is setvar
 CHEAT_FUNCS = {"ply_kill": 0, "cht_revive": 0, "cht_set_flag": 3, "cht_give_material": 2, "cht_add_all_dyes": 0, "cht_unlock_town_flags": 0,
-               "mission_start": 1, "cht_finish_level": 0, "dbg_show_stash": 0, "show_chat": 0}
+               "mission_start": 1, "cht_finish_level": 0, "dbg_show_stash": 0, "show_chat": 0,
+               "cht_give_health": 1, "cht_damage": 1, "cht_give_mana": 1, "cht_clear_trinkets": 0,
+               "cht_give_specific_trinket": 1, "cht_spawn_specific_equipment": 1, "cht_add_blueprint": 1,
+               "cht_add_all_blueprints": 0}
 CVAR_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 LOG_TS = re.compile(r"^\[\w{3}\] \[(\d\d):(\d\d):(\d\d)\]")   # "[NFO] [22:29:08] ..."
 # Seconds between two consecutive log lines, once heartbeats run, that make a "stall": the

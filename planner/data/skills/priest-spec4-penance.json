@@ -16,10 +16,10 @@
   ],
   "mana": "50",
   "name": "Sacrificial Penance",
-  "notes": "In game (hwp_pri_necrotic_resurrection at max Divine Favor, tested): the same key; 3 s channel on an intact body, mana 50, removes 1/1/2/2/3 Heresy plus 1 for an elite's body and 2 for a boss's (rank 5 on a boss body: 5), spends all Divine Favor, starts no cooldown. Below max Favor the cast is a raise. The priest dodges to just under the body and faces it while a golden light grows out of the body as the channel runs; the mana is spent when it completes. plan-forgemaster-bosses 20261022-144616, plan-forgemaster-eat 20261022-154317. Assumed: the elite/boss bonus is added to the level's number (the user's call).",
+  "notes": "In game (hwp_pri_necrotic_resurrection at max Divine Favor, tested): the same key; 3 s channel on an intact body, mana 50, removes 1/1/2/2/3 Heresy plus 1 for an elite's body and 2 for a boss's (rank 5 on a boss body: 5), spends all Divine Favor, starts no cooldown. Below max Favor the cast is a raise. The priest dodges to just under the body and faces it while a golden light grows out of the body as the channel runs; the mana is spent when it completes. plan-forgemaster-bosses 20261022-144616, plan-forgemaster-eat 20261022-154317. Assumed: the elite/boss bonus is added to the level's number (the user's call). 2026-10-25 (built, fix-forgemaster-channels): after the dodge the priest is locked facing up (rotation locked, the Dash refused until the channel ends), a golden beam rises out of the body growing with the channel beside the light pulses, and a 'Penance' progress bar is drawn over the priest; the skill's icon swaps to the Penance icon at max Divine Favor (it never swapped before: the raise icon was captured before the game assigned it).",
   "order": 0.5,
   "role": "",
-  "status": "tested",
+  "status": "built",
   "summary": "Channel for 3 seconds on an intact body to sacrifice it and wash away Heresy. Consumes your Divine Favor.",
   "unlock": "bought"
 }

@@ -1,1 +1,16 @@
-{"id":"legacy","requires":["core"],"overrides":[],"exclude":[]}
+{
+  "id": "legacy",
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [],
+  "exclude": [],
+  "config": {
+    "title": "Title bonuses",
+    "about": "One buff icon lists your hero title bonuses; the Guild Hall lists every class.",
+    "toggle": "legacy.enabled",
+    "scope": "local",
+    "applies": "now",
+    "settings": []
+  }
+}

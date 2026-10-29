@@ -1,0 +1,21 @@
+<loader>HUDAnnounceStyle::LoadMultiple</loader>
+<array>
+	<!-- "The chest was trapped!!" (HWP::Keys::Trapped): large, mid-screen, 2 s -->
+	<dict>
+		<string name="id">hwp_trapped</string>
+		<string name="font">gui/fonts/arial24.fnt</string>
+		<string name="sound">event:/sfx/doodads/traps/trip_wire/trip_wire_alert</string>
+		<int name="time">2000</int>
+		<dict name="animation">
+			<string name="class">HUDAnnounceTextAnimationFade</string>
+			<int name="fade-in-time">150</int>
+			<int name="fade-out-time">400</int>
+		</dict>
+		<vec2 name="anchor">0.5 0.35</vec2>
+		<vec2 name="text-anchor">0.5 0.5</vec2>
+		<vec2 name="offset">0 0</vec2>
+		<vec4 name="text-color">1 0.25 0.2 1</vec4>
+		<string name="text-alignment">center</string>
+		<string name="behaviour">replace</string>
+	</dict>
+</array>

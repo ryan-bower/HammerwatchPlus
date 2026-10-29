@@ -3,7 +3,9 @@
  "about": "The rifle's off-hand slot on the skill bar shows the grenade launcher close-up of the rifle's tier (items/hwp/firearms_items.png row 1), unmirrored, instead of the rifle mirrored (LauncherHUD.as); the inventory keeps the rifle's own icon.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "firearms"
  ],
  "timeout": 120,

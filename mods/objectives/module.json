@@ -1,0 +1,17 @@
+{
+  "id": "objectives",
+  "requires": ["hwplib"],
+  "overrides": [],
+  "exclude": [],
+  "config": {
+    "title": "Floor objectives",
+    "about": "Floors get a locked vault with its switch, and an exit that opens from a switch.",
+    "toggle": "objectives.enabled",
+    "scope": "host",
+    "applies": "level",
+    "settings": [
+      {"key": "objectives.vaults", "type": "int", "default": 1, "values": [0, 1, 2], "title": "Vaults per floor", "about": "Locked loot vaults on each floor, each with its own switch."},
+      {"key": "objectives.exit", "type": "bool", "default": true, "title": "Exit switch", "about": "The way down stays sealed until you find and press its switch."}
+    ]
+  }
+}

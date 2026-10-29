@@ -1,0 +1,22 @@
+{
+ "name": "pf-mod-weaponswap",
+ "about": "mod-weaponswap against the built package qol instead of the mods' source folders (tools/make_package_scenarios.py). mods/weaponswap loads in town: the self-check lines from mods/weaponswap/README.md Testing step 1, no script errors in our files.",
+ "fixture": "town-paladin",
+ "timeout": 120,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "still in town"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "qol"
+ ]
+}

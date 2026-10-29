@@ -3,7 +3,7 @@
  "about": "The dock at 1920x1080 and 2560x1440 (SPEC 'Decided during build' 1a): ranger_nature/mid on a cleared floor, F1, then for each resolution (gl da-res, the options window's SetVar without saving the profile) every tab is opened by its button and shot at the full window size. The shots are the evidence, read by eye; the assertions only prove the window really was that size and every tab button was there.",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
   "devarena",
   "spec-ranger-test"
  ],

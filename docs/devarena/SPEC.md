@@ -194,6 +194,10 @@ boss/trigger tooling.
     Off unless enabled on a save; never enable it together with `devarena`.
     Verified by export-boot 20261020-230402 (ran_mark cooldown 1234, castpoint 77).
     Exporting a spec mod (`spec-<id>`) waits for the composer step.
+    **Superseded 2026-10-26 (user):** HammerwatchPlus does not rebalance vanilla classes, so
+    `vanilla-tuning` is gone. `tools/devarena/export.py` now bakes a version into the skill
+    files of the mods that own the tuned skills (the 4th specs, Firearms, the HoH1 classes),
+    with `clone_spec.patch_leaf` and the tooltip rewrite; it refuses vanilla skills.
 11. **Clicking a field selects its value.** The first typed character or Backspace replaces it,
     as in a spreadsheet cell.
 12. **Scenarios click dock buttons by id**, as `{"do":"click","dock":"<id>"}` in `gamelab/ui.py`,

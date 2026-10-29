@@ -1,7 +1,0 @@
-{
-  "id": "vanilla-tuning",
-  "requires": ["core"],
-  "overrides": [],
-  "exclude": [],
-  "local_only": true
-}

@@ -1,0 +1,41 @@
+{
+ "name": "pf-mod-campaign",
+ "about": "mod-campaign against the built package campaign instead of the mods' source folders (tools/make_package_scenarios.py). mods/campaign loads in town: the self-check lines from mods/campaign/README.md Testing step 1, the portal replaces the chapel campfire (step 2), no script errors in our files.",
+ "fixture": "town-paladin",
+ "timeout": 120,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:campaign\\] self-check done: mission ok, \\d+/\\d+ schemes",
+   "timeout": 20
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:campaign\\] portal spot: the chapel campfire at -?\\d+,-?\\d+",
+   "timeout": 20
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:campaign\\] doodads/hwp/forsaken_portal\\.unit spawned at",
+   "timeout": 10
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "still in town"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "(?i)missing (unit|item|loot)"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "campaign"
+ ]
+}

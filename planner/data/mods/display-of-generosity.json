@@ -1,0 +1,26 @@
+{
+  "built": "hwp_pal_pb_display_of_generosity",
+  "cls": "paladin",
+  "exclusive": "",
+  "icon_art": "pal_pb_display_of_generosity",
+  "levels": [
+    {
+      "q": "uncommon",
+      "text": "Up to 2 stacks per use"
+    },
+    {
+      "q": "uncommon",
+      "text": "Up to 3 stacks per use"
+    },
+    {
+      "q": "rare",
+      "text": "Up to 4 stacks per use"
+    }
+  ],
+  "name": "Display of Generosity",
+  "notes": "In game: Lay on Hands gives one stack per ally healed, up to 2/3/4 a cast (1 without the orb). Needs a party to see; the bind is checked by plan-generosity.",
+  "order": null,
+  "skill": "paladin-spec4-passive",
+  "status": "built",
+  "summary": "Lay on Hands can build multiple stacks of Pelor's Blessing for each ally healed."
+}

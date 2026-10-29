@@ -3,7 +3,9 @@
   "about": "Three fixed same-skill overlap stress trials. Two real Thunder Orb inputs; one explicitly reset cooldown and100px lab teleport. Geometry isolates first critical HP loss by each live orb; both require4 charges. Negative projectile IDs are not treated as identity. Full frame/phase retention bounded below15k print cap.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "classes",
     "specs"
   ],

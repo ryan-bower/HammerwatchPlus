@@ -1,0 +1,32 @@
+{
+ "name": "pf-qa-classes-vanish",
+ "about": "qa-classes-vanish against the built package classes instead of the mods' source folders (tools/make_package_scenarios.py). Vanish low/max hurt procs through fixed120 real god-off Player.Damage hits each. Explicit health-refill survival fixture and pure TrueStrike hits bypass cloak evade; native2500ms HUD buff, actual evade/move stats, >=8s proc spacing, expiry and stat reversion required. All outcomes retained, no rerun-until-success.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_class_vanish",
+   "expect": {
+    "vanish_god_off": true,
+    "vanish_r1_actual_hurt_cloak": true,
+    "vanish_r5_actual_hurt_cloak": true,
+    "vanish_observed": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "classes"
+ ]
+}

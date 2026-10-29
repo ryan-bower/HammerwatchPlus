@@ -1,5 +1,9 @@
 <!-- What an in-run fishing hole pays per catch tier (HWP::Fishing::OnCatch on
-     the host). Format as in tweak/loot/chests.sval. -->
+     the host). Format as in tweak/loot/chests.sval. Spawned by
+     HWP::Fishing::SpawnCatchLoot for the catcher alone (Item::LootTable.SpawnLoot
+     would drop the gear once per player in the lobby). Keys are not in here: key
+     pickups are not netsynced, which a "unit" entry needs, so OnCatch rolls them
+     from tweak/hwp/fishing_keys.sval. -->
 <loader>Item::LootTable::LoadMultiple</loader>
 <array>
 	<dict>

@@ -3,7 +3,7 @@
  "about": "Review D5: B (Entangle's area-dmg tuned to 900, an area that outlives a 5 s pull) must not keep hitting the golem in the next A pull. Same setup as bench-dock (A B A B A B, bot driver); each pull's reset clears player projectiles and owned non-actor units in the room (Bench.as ClearLingering), and A's dps is read from the CSV against its own first pull, which has no B before it.",
  "fixture": "mission-ranger",
  "mods": [
-  "core",
+  "hwplib",
   "devarena"
  ],
  "timeout": 600,

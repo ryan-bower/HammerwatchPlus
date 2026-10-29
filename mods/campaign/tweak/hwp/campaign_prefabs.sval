@@ -1,0 +1,84 @@
+<loader>MissionPrefabDef::LoadMultiple</loader>
+<array>
+	<!-- HWP campaign: HoH1 traps and teleporters for generated floors
+	     (scripts/HWP/Campaign/Traps.as adds an HWPTrapSpawn command to every indoor
+	     DungeonGenerator; it places the hwp_traps set, then one hwp_teleporters pad).
+	     Patterns are row-major bytes, one per cell (Pattern enum: 07 Walkable), the
+	     commands likewise (PatternCommand: 03 ReserveFloor keeps the cell as floor and
+	     consumed, 00 Ignore leaves it alone). A 3x3 walkable patch with the unit in the
+	     centre keeps single traps out of 1-wide corridors (they can be walked around, as
+	     HoH1's could); the spike row takes a 3x1 strip. grid-pos -1 -1 puts the prefab
+	     origin on the centre cell; every unit sits at 8,8 (the cell's centre). -->
+	<dict>
+		<string name="id">prefabs/hwp/traps/spikes_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">-1</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">000000000300000000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/spikes_row.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">4</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">3 1</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707</bytes>
+		<bytes name="grid-command">030303</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/fire_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">4</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">000000000300000000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/glyph_bomb_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">4</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">000000000300000000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/glyph_dart_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">4</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">000000000300000000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/glyph_confusion_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">3</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">000000000300000000</bytes>
+	</dict>
+
+	<!-- one teleporter pad per floor (Traps.as asks for 1) -->
+	<dict>
+		<string name="id">prefabs/hwp/traps/teleport_pad.pfb</string>
+		<string name="theme">hwp_teleporters</string>
+		<int name="max-num">1</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">000000000300000000</bytes>
+	</dict>
+</array>

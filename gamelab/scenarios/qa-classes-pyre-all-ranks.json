@@ -3,7 +3,9 @@
   "about": "All5positive Pyre ranks through actual gameplay-focus-gated bound button input; exact native ownership/HP200,300,400,500,600 and forward24px placement, repeated actual targetHP loss, natural8s expiry and postexpiry absence/HP stop. Existing native inputsequence protocol must be complete/untruncated and released. Controlled cleared floor/setup-only mana refill; not exact burn coefficient/cadence/radius, ordinary/save/co-op or acquisition. Two separated real500ms presses700ms apart must produce exactly one native Pyre while raw12s cooldown remains positive.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

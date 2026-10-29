@@ -1,0 +1,46 @@
+{
+ "name": "pf-plan-forgemaster-near-priest",
+ "about": "plan-forgemaster-near-priest against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Devil Forgemaster risen targeting with an enemy standing on the priest: a wolf, a cult brother and a fire tower are raised beside the god-mode priest while a bandit brute spawns on or near the priest; the risen trace (hwp forge trace) says which foes the target search sees and what the must-see aim ray hits (plan_forgemaster bot, section near_priest).",
+ "fixture": "town-paladin",
+ "timeout": 500,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",
+   "timeout": 30
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "plan_forgemaster",
+   "kwargs": {
+    "sections": "near_priest"
+   },
+   "name": "near_priest",
+   "expect": {
+    "near_priest_done": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

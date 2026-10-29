@@ -78,6 +78,41 @@ reuse rogue / paladin / ranger), whether the Gladiator should be two-handed,
 and which skills
 should be spells vs passives.
 
+## Extra skill keys (Skill 4-6)
+
+The game has three skill buttons and gives the 3rd and every later active spell Skill3,
+so they would all fire on one press. The Assassin and the Shadow have 4 actives, the
+Trickster 5 and the Retiarius 4 (every other class and spec, in this mod or another, has
+at most 3). `scripts/HWP/Classes/SkillKeys.as` gives the 4th, 5th and 6th active their own
+raw key: Plus tab rows `skill4`-`skill6`, settings `skillkeys.skill4`-`6`, default the 4, 5,
+6 keys (vanilla binds 1 2 3 Q E V).
+
+- It runs on hwplib's targeting helper (`mods/hwplib/scripts/HWP/Core/TargetHelper.as`):
+  `HWP::TargetHelper::OnUpdate` polls the keys, `OnSkillInput` gives each extra skill its
+  key's state. The vanilla targeting code then serves them like any skill button, and
+  Skill3 fires only the 3rd.
+- Keys are ignored while a text field or the chat has the keyboard, and on the Plus tab.
+- `SkillKeysHUD.as`: `HWPSkillKeysHUDPlayer` replaces the HUD's player bar, with more than
+  four skill slots and the extra key's name above each extra skill.
+- Keyboard only (no gamepad buttons are left). `hwp skillkeys` lists the keys and what
+  each casts.
+- GameLab: `gl input ... hwp_skill4` holds the key (GlobalCache `hwp_skillkeys_held`;
+  gamelab-hands uses it while GlobalCache `hwp_skillkeys_on` is "1").
+  `gamelab/bots/plan_classesb.py` checks `slice_own_button`, `cloak_own_button` and
+  `charge_own_button`.
+
+## Settings
+
+On the HammerwatchPlus tab of the player menu (`hwp set <key> <value>`; `module.json`
+`config`):
+
+- `classes.enabled` (on): the switch. Off leaves Thief, Gladiator and Witch Hunter out of
+  character creation. They are parked for now (`HWP::Classes::PARKED`), so they are left
+  out either way until that is lifted. Characters already made keep loading and playing,
+  and the Skill 4-6 keys stay on for them. `hwp classes` says whether they are offered.
+- `skill4`, `skill5`, `skill6`: the Skill 4-6 key binds (options, settings
+  `skillkeys.skill4`-`6`).
+
 ## Test checklist
 
 1. `python -m gamelab run mod-classes --mode lab`: `[HWP:classes] self-check done: 3/3 classes`, no "has N

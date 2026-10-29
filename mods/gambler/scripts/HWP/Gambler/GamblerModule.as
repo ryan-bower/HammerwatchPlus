@@ -1,7 +1,37 @@
 // Spawns the gambler NPC inside the tavern once the tavern is built. The NPC is
 // placed by code instead of editing the tavern prefabs, so no base file is
 // overridden. Only the server produces the unit (it is netsynced).
-// bet tokens (HWP::Market, per character) in the materials tab's Supplies
+//
+// gambler.enabled (default on) off: the host takes the gambler away (and places him
+// again when it comes back on), and the bet tokens stop being the market's currency
+// (fish sell for gold); the tokens stay in each character's save data.
+namespace HWP
+{
+	namespace Gambler
+	{
+		bool g_enabled = true;
+
+		void RefreshSettings()
+		{
+			bool was = g_enabled;
+			g_enabled = HWP::Settings::GetBool("gambler.enabled", true);
+			if (was == g_enabled)
+				return;
+			if (g_enabled)
+				HWP::Market::SetCurrency(BetTokens());
+			else
+				HWP::Market::SetCurrency(null);
+		}
+
+		void OnSettingChanged(const string &in key)
+		{
+			if (key.findFirst("gambler.") == 0)
+				RefreshSettings();
+		}
+	}
+}
+
+// bet tokens (Tokens.as, per character) in the materials tab's Supplies
 // section (core Materials.as); gui/hwp/token.png is a 13x13 chip
 class HWPTokenMaterial : HWP::Materials::Material
 {
@@ -12,7 +42,7 @@ class HWPTokenMaterial : HWP::Materials::Material
 
 	int Count() override
 	{
-		return HWP::Market::Tokens(GetLocalPlayerRecord());
+		return HWP::Gambler::Tokens(GetLocalPlayerRecord());
 	}
 
 	string Title() override
@@ -38,13 +68,52 @@ namespace Modules
 		HWPGamblerModule()
 		{
 			super("hwp-gambler");
-			HWP::Materials::Register("hwp-mat-bet-tokens", HWPTokenMaterial());
+			HWP::Settings::Sync("gambler.");
+			HWP::Gambler::InitTokens();
+			HWP::Gambler::g_enabled = true; // InitTokens set the currency; off takes it away
+			HWP::Gambler::RefreshSettings();
+			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Gambler::OnSettingChanged));
+			// off: no token cell (the tokens stay in the save data)
+			if (HWP::Gambler::g_enabled)
+			{
+				HWP::Materials::Title("a", ".hwp.gambler.supplies");
+				HWP::Materials::Register("a", 0, "hwp-mat-bet-tokens", HWPTokenMaterial());
+			}
 		}
 
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardUpdateFrame;
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
+		{
+			if (m_guardUpdateFrame.Skip("gambler", "HWPGamblerModule.UpdateFrame"))
+				return;
+			if (m_guardUpdateFrame.Raw())
+			{
+				GuardedUpdateFrame(ms, gameInput, menuInput, paused);
+				m_guardUpdateFrame.Ok();
+				return;
+			}
+			try { GuardedUpdateFrame(ms, gameInput, menuInput, paused); m_guardUpdateFrame.Ok(); }
+			catch { m_guardUpdateFrame.Failed(); }
+		}
+
+		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
 			if (paused)
 				return;
+			// gambler.enabled off: the host takes him away; Due places him again once it is back on
+			if (!HWP::Gambler::g_enabled)
+			{
+				if (Network::IsServer() && m_kept.m_unit.IsValid() && !m_kept.m_unit.IsDestroyed()
+					&& m_kept.m_unit.GetUnitProducer() is m_kept.m_prod)
+				{
+					m_kept.m_unit.Destroy();
+					HWP::Log("gambler", "turned off: took the gambler away");
+				}
+				m_kept.Reset();
+				m_done = true;
+				return;
+			}
 			// a building upgrade (or building the tavern) reloads the town without a new Start
 			if (m_done)
 			{

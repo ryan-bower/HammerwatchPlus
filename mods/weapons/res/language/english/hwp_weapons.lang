@@ -25,4 +25,6 @@
 	<string name="hwp.weapons.hwp_2h_tempest.desc">A storm on a stick. Spells crit more often.</string>
 	<string name="hwp.weapons.hwp_2h_twinfangs.desc">Paired daggers with venom grooves. Quick, and the poison lingers.</string>
 	<string name="hwp.weapons.count">%n% of %total% HammerwatchPlus weapons registered.</string>
+	<string name="hwp.weapons.drops">They drop at %weight%x the weight of a base weapon.</string>
+	<string name="hwp.weapons.off">Weapons are off: no new one drops; the ones you have keep working.</string>
 </lang>

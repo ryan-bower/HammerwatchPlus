@@ -1,0 +1,37 @@
+<effect looping="false">
+<!-- Arcane's Blink: one bead of the trail HWPSpecsBlink lays every BLINK_TRAIL_STEP px from
+     the start point to the landing (the path the sorcerer skipped): a blue glow that shrinks
+     and a few speckles. Hand-written; the vanilla magic_blink textures and particle units. -->
+	<param name="cR" default="0.45" />
+	<param name="cG" default="0.55" />
+	<param name="cB" default="1" />
+
+	<sprite origin="128 128" looping="false" texture="effects/lights/light2_L.png" material="effects/effects.mats:add"
+		scale-x="0.14*(1-t)+0.02"
+		scale-y="0.14*(1-t)+0.02"
+		pos-y="-8"
+		color-r="cR"
+		color-g="cG"
+		color-b="cB"
+		color-a="0.8*(1-t)"
+		>
+		<frame time="300">0 0 128 128</frame>
+	</sprite>
+	<particle_spawner
+		layer="1"
+		spawn-rate="60"
+		length="120"
+		looping="false"
+		ttl="rpick(200,450)"
+		pos="0;-8;0"
+		color-mul="cR*3;cG*3;cB*3;1"
+		force-damping="3"
+		>
+		<behaviors>
+			<spread_range radius="rpick(0,4)"/>
+			<force_dir dir="rpick(-0.6,0.6);rpick(-0.8,0.2);0"/>
+			<fade_to a="0"/>
+		</behaviors>
+		<particle src="effects/subeffects/particles_speckles.unit:single_white_add"/>
+	</particle_spawner>
+</effect>

@@ -31,7 +31,7 @@ namespace GameLab
 	}
 
 	// ws <type> [commentPrefix]: every world script of that type whose comment
-	// starts with the prefix: comment, enabled, trigger times, position, value (Variables)
+	// starts with the prefix: id (what itc-use #id takes), comment, enabled, trigger times, position, value (Variables)
 	void VerbWs(const string &in id, array<string>@ args)
 	{
 		if (args.length() < 1)
@@ -50,7 +50,7 @@ namespace GameLab
 				continue;
 			Json e;
 			vec3 pos = ws.GetUnit().GetPosition();
-			e.Str("c", c).Bool("e", ws.IsEnabled()).Int("t", ws.GetTriggerTimes()).Num("x", pos.x).Num("y", pos.y);
+			e.Int("id", ws.GetUnit().GetId()).Str("c", c).Bool("e", ws.IsEnabled()).Int("t", ws.GetTriggerTimes()).Num("x", pos.x).Num("y", pos.y);
 			auto var = cast<WorldScript::Variable>(ws.GetUnit().GetScriptBehavior());
 			if (var !is null)
 				e.Int("v", var.GetValue());

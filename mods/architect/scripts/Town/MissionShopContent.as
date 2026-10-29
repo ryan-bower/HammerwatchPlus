@@ -1,0 +1,105 @@
+// HWP override of scripts/Town/MissionShopContent.as (see mods/architect/README.md).
+// Every change is marked HWP; pristine copy: MissionShopContent.as.orig
+class MissionShopContent : AShopContent
+{
+	int m_numMissionsToShow;
+	bool m_showTestMissions;
+	uint m_rewardSeed;
+
+	uint m_missionSetHash;
+
+	string GetName() override { return "missions"; }
+
+	MissionShopContent() {}
+	MissionShopContent(UnitPtr u, SValue& params) 
+	{
+		super(u, params);
+
+		m_numMissionsToShow = GetParamInt(u, params, "num", false, 7);
+		m_showTestMissions = GetParamBool(u, params, "test", false, false);
+		
+		m_missionSetHash = HashString(GetParamString(u, params, "mission-set", false, ""));
+	}
+
+	bool Buy(const string &in func, uint hash, IShopItem@ item) override
+	{
+		if (func != "pick")
+			return false;
+
+		if (Network::IsServer())
+		{
+			auto shopItem = cast<MissionShopContentItem>(item);
+			MissionManager::SetMission(hash, shopItem.m_rewardSeed);
+			
+			auto gm = cast<BaseGameMode>(g_gameMode);
+			gm.m_windowManager.AddWindowObject(MissionLoadoutMenu(gm.m_guiBuilder));
+		}
+		else if (!HWP::Architect::RejoinLoadout()) // HWP: a client that left the host's run-start setup comes back through the board
+		{
+			print("Clients can't start missions, add some way of suggesting a mission to the host here maybe??");
+			HWP::Commands::Reply(Resources::GetString(".hwp.architect.client_pick"));
+		}
+
+		return true;
+	}
+
+	array<IShopItem@> GetItems() override
+	{
+		array<MissionDef@>@ missions;
+		if (m_missionSetHash != HashString(""))
+			@missions = MissionDef::FetchMissionsFromSet(m_player, m_missionSetHash, m_numMissionsToShow, m_showTestMissions);
+		else
+			@missions = MissionDef::FetchRandomMissions(m_player, m_numMissionsToShow, m_showTestMissions);
+		
+		missions.sort(function(a, b){
+			return a.GetLevelSpan().x < b.GetLevelSpan().x;
+		});
+		
+		if (m_rewardSeed == 0)
+			m_rewardSeed = randi();
+		
+		array<IShopItem@> ret;
+		for (uint i = 0; i < missions.length(); i++)
+			ret.insertLast(MissionShopContentItem(missions[i], m_player, m_rewardSeed + i));
+		
+		return ret;
+	}
+
+	AWindowObject@ MakeShopWindow(GUIBuilder@ guiBuilder) override 
+	{
+		@m_window = WindowMission(guiBuilder, this);
+		return m_window;
+	}
+}
+
+class MissionShopContentItem : IShopItem
+{
+	MissionDef@ m_mission;
+	uint m_rewardSeed;
+	string m_diffLevel;
+
+	MissionShopContentItem(MissionDef@ mission, PlayerRecord@ plr, uint rewardSeed)
+	{
+		@m_mission = mission;
+		m_rewardSeed = rewardSeed;
+		
+		m_diffLevel = m_mission.GetDifficultyLevel(plr);
+	}
+
+	string GetDifficultyLevel() { return m_diffLevel; }
+
+	string GetID() { return m_mission.m_id; }
+	uint GetIDHash() { return m_mission.m_idHash; }
+	string GetTitle() { return m_mission.m_name; }
+	string GetSubTitle() { return m_mission.GetLength(); }
+	string GetDescription() { return m_mission.m_description; }
+	ScriptSprite@ GetIcon() { return m_mission.m_markerSprite; }
+	Sprite@ GetBackground() { return null; }
+	ShopCost@ GetCost() { return null; }
+	bool AutoSpendCost() { return true; }
+	string OnFunc() { return "pick"; }
+	//bool IsAvailable(PlayerRecord@ player) { return CheckConditionals(m_mission.m_conditionals, player); }
+	bool IsAvailable(PlayerRecord@ player) { return true; } // Already checked
+	void ShowTooltip(WindowManager@ manager, bool compare) {}
+	Item::Item@ GetItem() { return null; }
+}

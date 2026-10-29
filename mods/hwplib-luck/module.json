@@ -1,0 +1,12 @@
+{
+  "id": "hwplib-luck",
+  "library": true,
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [
+    "scripts/BlueprintBank.as",
+    "scripts/WorldScript/RewardSpot.as"
+  ],
+  "exclude": []
+}

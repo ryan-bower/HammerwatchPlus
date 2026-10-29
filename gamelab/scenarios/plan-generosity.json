@@ -1,0 +1,28 @@
+{
+ "name": "plan-generosity",
+ "about": "The Paladin of Generosity (Paladin 4th spec, mods/specs), the plan_generosity bot: smoke (binds, status, button, tooltips), refusals (a Fury that cannot take hold spends no stacks, mana or cooldown), fury (the real cast on a brute: cost, stun, armor and resistances 0, damage taken, strike, end; solo free, party locked), stacks_section (Lay on Hands, Blessed Strike kills, Conviction, the shared 2 s cooldown, cap, multiplier, carry, death and town resets), orbs (binds, Blinding Sun, Holy Sacrifice, Descendent of Pentival). The bosses are plan-generosity-bosses.",
+ "fixture": "town-paladin",
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs"],
+ "timeout": 1500,
+ "steps": [
+  {"do": "log_has", "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered", "timeout": 30},
+  {"do": "console", "line": "e_cheats 1"},
+  {"do": "console", "line": "show_chat"},
+  {"do": "sleep", "seconds": 1},
+  {"do": "bot", "bot": "plan_generosity", "kwargs": {"sections": "smoke"}, "name": "smoke",
+   "expect": {"gen_char": true, "gen_learned": true, "gen_binds": true, "gen_status": true, "gen_fury_button": true, "gen_tooltips": true}},
+  {"do": "bot", "bot": "plan_generosity", "kwargs": {"sections": "refusals"}, "name": "refusals",
+   "expect": {"ref_char": true, "ref_learned": true, "ref_below_10": true, "ref_no_target": true, "ref_out_of_range": true,
+              "ref_dead": true, "ref_dummy_target": true, "ref_zero_stacks": true, "ref_button_cast": true, "ref_button_below_10": true}},
+  {"do": "bot", "bot": "plan_generosity", "kwargs": {"sections": "fury"}, "name": "fury",
+   "expect": {"fury_char": true, "fury_learned": true, "fury_cast": true, "fury_spent": true, "fury_debuff": true, "fury_buff_on": true,
+              "fury_stun": true, "fury_solo_free": true, "fury_strike": true, "fury_ends": true, "fury_buff_off": true,
+              "fury_cooldown_refuses": true, "fury_party_locked": true, "fury_party_unlocked": true, "fury_no_errors": true}},
+  {"do": "bot", "bot": "plan_generosity", "kwargs": {"sections": "stacks_section"}, "name": "stacks",
+   "expect": {"stk_char": true, "stk_learned": true, "stk_loh_self": true, "stk_shared_cd": true, "stk_bs_kill": true, "stk_mul": true,
+              "stk_bs_scaled": true, "stk_cap": true, "stk_conviction": true, "stk_carry": true, "stk_death_reset": true, "stk_town_reset": true}},
+  {"do": "bot", "bot": "plan_generosity", "kwargs": {"sections": "orbs"}, "name": "orbs",
+   "expect": {"orb_char": true, "orb_learned": true, "orb_binds": true, "orb_blinding_sun": true, "orb_holy_sacrifice": true, "orb_pentival": true}},
+  {"do": "log_clean"}
+ ]
+}

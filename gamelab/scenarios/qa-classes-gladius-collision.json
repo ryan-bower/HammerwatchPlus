@@ -3,7 +3,9 @@
   "about": "All5 Gladius ranks through normal boundinput after source-backed zero-payload repair. Actual native accepted101to100 contact/PlayerDamage coefficient/precisehand+SpellPower+nativefactors independently predict first isolatedHP within0.003. Preserve originalrank1/5 positiveHP/contact/trajectory guards and per-contactgrowth. No fitteddamage/helperhits/ordinarycredit.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

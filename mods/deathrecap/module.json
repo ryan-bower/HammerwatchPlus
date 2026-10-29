@@ -1,6 +1,51 @@
 {
   "id": "deathrecap",
-  "requires": ["core"],
+  "requires": ["hwplib"],
   "overrides": [],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Death recap",
+    "about": "When you die, a panel of what hit you; when a boss dies, the party's damage.",
+    "toggle": "deathrecap.enabled",
+    "scope": "local",
+    "applies": "now",
+    "settings": [
+      {
+        "key": "deathrecap.chat",
+        "type": "bool",
+        "default": true,
+        "title": "Chat summaries",
+        "about": "A chat line for every death and boss kill in the party."
+      },
+      {
+        "key": "deathrecap.boss",
+        "type": "bool",
+        "default": true,
+        "title": "Boss recap",
+        "about": "The party's damage panel and chat lines when a boss dies."
+      },
+      {
+        "key": "deathrecap.boss_seconds",
+        "type": "int",
+        "default": 15,
+        "values": [
+          5,
+          10,
+          15,
+          30,
+          60
+        ],
+        "suffix": " s",
+        "title": "Boss panel time",
+        "about": "How long the boss recap panel stays up."
+      },
+      {
+        "key": "deathrecap.collapsed",
+        "type": "bool",
+        "default": false,
+        "title": "Panel collapsed",
+        "about": "The death panel shows only its total line. Click its title to switch."
+      }
+    ]
+  }
 }

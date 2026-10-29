@@ -2,7 +2,7 @@
  "name": "hp1-feel",
  "about": "HP1 feel tweak (docs/devarena/SPEC.md happy paths; Decided 3: castpoint 150 -> 100): ranger_nature/mid, F1, Tune, the Entangle chip, the castpoint field typed to 100 and released with Enter (applied between casts: a typed field holds input focus, so no cast can run while typing; the mid-cast deferral is spike-deferred 20261020-222134). The live skill then reads castpoint 100 with the timeline's cast event moved; a cast fires at the new castpoint; F2 puts vanilla (150) live and F2 again brings 100 back. Buttons are aimed by id (gl da-dock).",
  "fixture": "mission-ranger",
- "mods": ["core", "devarena"],
+ "mods": ["hwplib", "devarena"],
  "timeout": 400,
  "steps": [
   {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},

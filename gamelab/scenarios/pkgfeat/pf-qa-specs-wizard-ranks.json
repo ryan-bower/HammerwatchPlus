@@ -1,0 +1,91 @@
+{
+ "name": "pf-qa-specs-wizard-ranks",
+ "about": "qa-specs-wizard-ranks against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Actual Thunder Orb/Static Charge damage at every skill rank and Lightning Rod target counts/radius at every orb rank. Source damage progression, earned release prerequisites, high-HP/maxHP readback, independent native crit controls and actual projectile geometry. Measurement-only, no co-op claims.",
+ "fixture": "town-paladin",
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_specs_wizard_ranks",
+   "expect": {
+    "wizranks_char": true,
+    "wizranks_learned": true,
+    "wizranks_start": true,
+    "wizranks_input_own_button": true,
+    "wizranks_target_readback": true,
+    "wizranks_crit_restored": true,
+    "wizranks_1_levels": true,
+    "tt_rank_1_setup": true,
+    "tt_rank_1_hits": true,
+    "sc_rank_1_setup": true,
+    "sc_rank_1_hits": true,
+    "sc_rank_1_released": true,
+    "wizranks_2_levels": true,
+    "tt_rank_2_setup": true,
+    "tt_rank_2_hits": true,
+    "sc_rank_2_setup": true,
+    "sc_rank_2_hits": true,
+    "sc_rank_2_released": true,
+    "wizranks_3_levels": true,
+    "tt_rank_3_setup": true,
+    "tt_rank_3_hits": true,
+    "sc_rank_3_setup": true,
+    "sc_rank_3_hits": true,
+    "sc_rank_3_released": true,
+    "wizranks_4_levels": true,
+    "tt_rank_4_setup": true,
+    "tt_rank_4_hits": true,
+    "sc_rank_4_setup": true,
+    "sc_rank_4_hits": true,
+    "sc_rank_4_released": true,
+    "wizranks_5_levels": true,
+    "tt_rank_5_setup": true,
+    "tt_rank_5_hits": true,
+    "sc_rank_5_setup": true,
+    "sc_rank_5_hits": true,
+    "sc_rank_5_released": true,
+    "tt_rank_damage_progression": true,
+    "sc_rank_damage_progression": true,
+    "rod_radius_0_setup": true,
+    "rod_radius_0_hits": true,
+    "rod_radius_0_geometry": true,
+    "rod_rank_1_equipped": true,
+    "rod_targets_1_setup": true,
+    "rod_targets_1_hits": true,
+    "rod_radius_1_setup": true,
+    "rod_radius_1_hits": true,
+    "rod_radius_1_geometry": true,
+    "rod_rank_2_equipped": true,
+    "rod_targets_2_setup": true,
+    "rod_targets_2_hits": true,
+    "rod_radius_2_setup": true,
+    "rod_radius_2_hits": true,
+    "rod_radius_2_geometry": true,
+    "rod_rank_3_equipped": true,
+    "rod_targets_3_setup": true,
+    "rod_targets_3_hits": true,
+    "rod_radius_3_setup": true,
+    "rod_radius_3_hits": true,
+    "rod_radius_3_geometry": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

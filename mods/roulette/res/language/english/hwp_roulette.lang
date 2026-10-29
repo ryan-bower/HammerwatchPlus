@@ -1,0 +1,55 @@
+<lang name="English" official="false">
+	<string name="hwp.roulette.title">Roulette</string>
+	<string name="hwp.roulette.phase.betting">Place your bets: %s% s</string>
+	<string name="hwp.roulette.phase.spinning">No more bets!</string>
+	<string name="hwp.roulette.phase.result">%num%, %colour%</string>
+	<string name="hwp.roulette.phase.closed">The table is closed.</string>
+	<string name="hwp.roulette.red">red</string>
+	<string name="hwp.roulette.black">black</string>
+	<string name="hwp.roulette.green">green</string>
+
+	<string name="hwp.roulette.bet.straight">Straight up %nums%</string>
+	<string name="hwp.roulette.bet.split">Split %nums%</string>
+	<string name="hwp.roulette.bet.street">Street %nums%</string>
+	<string name="hwp.roulette.bet.trio">Trio %nums%</string>
+	<string name="hwp.roulette.bet.corner">Corner %nums%</string>
+	<string name="hwp.roulette.bet.first_four">First four 0-1-2-3</string>
+	<string name="hwp.roulette.bet.six_line">Six line %nums%</string>
+	<string name="hwp.roulette.bet.dozen1">First dozen (1-12)</string>
+	<string name="hwp.roulette.bet.dozen2">Second dozen (13-24)</string>
+	<string name="hwp.roulette.bet.dozen3">Third dozen (25-36)</string>
+	<string name="hwp.roulette.bet.column1">Column 1-34</string>
+	<string name="hwp.roulette.bet.column2">Column 2-35</string>
+	<string name="hwp.roulette.bet.column3">Column 3-36</string>
+	<string name="hwp.roulette.bet.red">Red</string>
+	<string name="hwp.roulette.bet.black">Black</string>
+	<string name="hwp.roulette.bet.odd">Odd</string>
+	<string name="hwp.roulette.bet.even">Even</string>
+	<string name="hwp.roulette.bet.low">Low (1-18)</string>
+	<string name="hwp.roulette.bet.high">High (19-36)</string>
+
+	<string name="hwp.roulette.board.col">2:1</string>
+	<string name="hwp.roulette.board.d1">1st 12</string>
+	<string name="hwp.roulette.board.d2">2nd 12</string>
+	<string name="hwp.roulette.board.d3">3rd 12</string>
+	<string name="hwp.roulette.board.low">1-18</string>
+	<string name="hwp.roulette.board.even">EVEN</string>
+	<string name="hwp.roulette.board.odd">ODD</string>
+	<string name="hwp.roulette.board.high">19-36</string>
+
+	<string name="hwp.roulette.hover">%name%, %odds% to 1: a %chip% chip pays %pay%. Yours there: %mine%</string>
+	<string name="hwp.roulette.hover_none">Pick a chip, then click the board. Near a line or a corner bets on the numbers it touches.</string>
+	<string name="hwp.roulette.gold">Gold: %gold%</string>
+	<string name="hwp.roulette.mine">Your chips: %total% (limit %max%)</string>
+	<string name="hwp.roulette.bonus">Payout bonus +%total% (Luck +%luck%, gold find +%gold%)</string>
+	<string name="hwp.roulette.won">%num%! You won %won% on %staked% staked.</string>
+	<string name="hwp.roulette.lost">%num%. The house takes your %staked%.</string>
+	<string name="hwp.roulette.history">Last numbers: %list%</string>
+	<string name="hwp.roulette.lobby">At the table this round: %players% player(s), %staked% gold down</string>
+	<string name="hwp.roulette.clear">Clear</string>
+	<string name="hwp.roulette.spin">Spin now</string>
+	<string name="hwp.roulette.no_betting">The betting is closed until the next round.</string>
+	<string name="hwp.roulette.no_bet">That is not a bet on this table.</string>
+	<string name="hwp.roulette.no_gold">Not enough gold for that chip.</string>
+	<string name="hwp.roulette.no_max">That goes over the table limit for one round.</string>
+</lang>

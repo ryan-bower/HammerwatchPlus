@@ -1,0 +1,18 @@
+{
+ "name": "plan-generosity-bosses",
+ "about": "Pelor's Fury on every boss (plan_generosity bot, section bosses): each boss of BOSSES spawned live 110 px from a god-mode Paladin of Generosity, left to attack for 3 s, then the Fury through the skill's own Activate: held, or (a boss that cannot be targeted or buffed then, by design) refused with the stacks, mana and cooldown kept; while held no skill of the boss but a triggered or aura one is casting and it stays put; armor and resistances 0; the 60 s boss cooldown; 4 beams or more; no script error. kwargs only: a comma list of boss names to run alone.",
+ "fixture": "town-paladin",
+ "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs"],
+ "timeout": 1200,
+ "steps": [
+  {"do": "log_has", "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered", "timeout": 30},
+  {"do": "console", "line": "e_cheats 1"},
+  {"do": "console", "line": "show_chat"},
+  {"do": "sleep", "seconds": 1},
+  {"do": "bot", "bot": "plan_generosity", "kwargs": {"sections": "bosses"}, "name": "bosses",
+   "expect": {"boss_char": true, "boss_learned": true, "boss_spawned": true, "boss_held_most": true, "boss_refused_by_design": true, "boss_refusal_keeps": true,
+              "boss_attack_cut": true, "boss_stays": true, "boss_cooldown_60": true, "boss_spent": true, "boss_armor_0": true,
+              "boss_beams": true, "boss_no_errors": true}},
+  {"do": "log_clean"}
+ ]
+}

@@ -1,0 +1,62 @@
+<!-- HWP override of gui/mission_loadout.gui (mods/architect, "Run-start screen" in its README).
+     Pristine copy: mission_loadout.gui.orig. Change: the New Game+ row ("ngp") is a 22 px
+     line in the sub-header font, wide enough for "Starting on New Game+ N"; the
+     MissionLoadoutMenu.as override adds it under the loadout options, next to Start. -->
+<gui>
+	<sprites>
+		%include "gui/scalablebutton_sprites.inc"
+		%include "gui/panel_decoration.inc"
+
+		<!-- Buttons -->
+		<sprite name="button-left" texture="gui/gui.png"><frame>388 175 16 11</frame></sprite>
+		<sprite name="button-left-down" texture="gui/gui.png"><frame>388 186 16 11</frame></sprite>
+		<sprite name="button-right" texture="gui/gui.png"><frame>404 175 16 11</frame></sprite>
+		<sprite name="button-right-down" texture="gui/gui.png"><frame>404 186 16 11</frame></sprite>
+	</sprites>
+
+	<doc>
+		<group>
+		<!-- height="86" -->
+			<group id="window" width="298" height="84" anchor="0.5 0.5">
+				<panel width="100%" height="100%" anchor="0.5 0.5" style="standard" >
+					<panel anchor="0.5 0" width="100%" height="44" offset="0 0" style="character_pick_top">
+						<text id="title" anchor="0.5 0.5" offset="0 2" align="center" text="starting mission name" font="header" />
+						<text id="pot-warning" anchor="1 0.5" offset="-8 2" align="center" color="#ff0000ff" text=".menu.loadout.potion_warning" width="40" font="text" />
+					</panel>
+
+					<group id="content" offset="0 43" flow="vbox" spacing="2" >
+					</group>
+
+					<rect width="278" height="28" anchor="0.5 1" offset="0 -9" spriteset="gui/sprite_rect.sval:rounded">
+						<text id="waiting_for_text" visible="true" anchor="0 0" offset="6 0" text="waiting for 3 players" font="sub-header" />
+						<text id="ready_text" anchor="1 0" offset="-6 0" text="??/?? ready" font="sub-header" />
+						<text id="cost" anchor="0.5 1" offset="0 -3" text="1000 gold, 5 ore, 23 dust" font="text" />
+					</rect>
+				</panel>
+
+
+				%block MissionLoadoutDecorations
+
+				<tooltip-anchor tooltip-anchor="1 0" offset="-2 0" />
+			</group>
+
+			%// Adds 0 height
+			<panel id="template-bridge" anchor="0 0" width="298" height="12" offset="0 0" style="standard_bridge" visible="false" />
+
+			<group id="template-segment" anchor="0 0" offset="0 0" width="100%" height="0" visible="false">
+				<group id="container" height="100%" anchor="0.5 0">
+					<text id="name" font="sub-header" text="name" anchor="0 0.5" width="65" offset="12 0"/>
+				</group>
+			</group>
+
+			<!-- HWP: the New Game+ row, "Starting on New Game+ N" between the arrows -->
+			<group id="ngp" visible="false" width="278" height="22" anchor="0.5 0" >
+				<rect width="278" height="22" anchor="0.5 0.5" offset="0 0" spriteset="gui/sprite_rect.sval:square-roundedbot">
+					<spritebutton only-mouse="true" sprite="button-left" sprite-down="button-left-down" anchor="0 0.5" offset="4 0" func="ngminus" />
+					<text id="ngp-text" font="sub-header" text="hello" width="220" align="center" anchor="0.5 0.5" offset="0 1" color="#fbde2d" />
+					<spritebutton only-mouse="true" sprite="button-right" sprite-down="button-right-down" anchor="1 0.5" offset="-4 0" func="ngplus" />
+				</rect>
+			</group>
+		</group>
+	</doc>
+</gui>

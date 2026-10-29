@@ -1,0 +1,35 @@
+{
+  "name": "tower-bosses",
+  "needs_hoh1": true,
+  "about": "The HoH1 Forsaken Tower's six bosses (mods/campaign README, HoH1 tower): bot tower_bosses loads each boss floor (`gl mission hwp_forsaken_tower_hoh1 <i>`), starts the fight the way the level's own scripts do (its AreaTrigger's area, or its UseTrigger), lets the boss fight a god-mode player, kills it as the player until HoH1's SetBossKilled runs, then takes the exit it opens to the next floor. Clean log throughout. Needs the HoH1 import.",
+  "fixture": "town-paladin",
+  "mods": [
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
+    "campaign",
+    "gamelab-it-campaign"
+  ],
+  "timeout": 1500,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "bot",
+      "bot": "tower_bosses",
+      "kwargs": {
+        "floors": "all"
+      },
+      "expect": {
+        "ok": true
+      },
+      "save_as": "bosses",
+      "name": "the tower bosses fight and fall as in HoH1"
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

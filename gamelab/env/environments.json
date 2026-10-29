@@ -9,35 +9,8 @@
     "game_dir": "<install>",
     "user_data": "<install> (HWR2.exe.cfg, HWR2.exe.log) + <cloud>/saves",
     "mods_dir": "<install>/mods",
-    "mods": [
-      "core",
-      "gambler",
-      "droptrade",
-      "goldpet",
-      "laststats",
-      "deathrecap",
-      "bufftips",
-      "legacy",
-      "pets",
-      "architect",
-      "chatlinks",
-      "colors",
-      "groupcombo",
-      "weaponswap",
-      "keys",
-      "firearms",
-      "fishing",
-      "farming",
-      "weapons",
-      "strongbox",
-      "abyss",
-      "valuables",
-      "maps",
-      "summons",
-      "campaign",
-      "wavemode",
-      "classes",
-      "specs"
+    "packages": [
+      "all"
     ],
     "forbidden_mods": [
       "gamelab-*"

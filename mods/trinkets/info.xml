@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">HammerwatchPlus Trinkets</string>
+	<string name="author">Ryan Bower</string>
+	<string name="description">Flat trinket bonuses grow with the run's NG+ level: health, mana, armor, power, regen, resistances, thorns and proc damage gain a fixed amount per NG+ level (twice as much when attuning doubles the number). Tooltips show the scaled numbers. Also 37 trinkets from Heroes of Hammerwatch, eight new trinket sets and bigger Emblems of Hermes and Apothecary sets. Part of HammerwatchPlus.</string>
+</dict>

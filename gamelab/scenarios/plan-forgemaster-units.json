@@ -3,7 +3,9 @@
  "about": "Devil Forgemaster: the raise table on a handful of units (plan_forgemaster bot, section raise_all with the units kwarg): the ones a full run flagged, re-tested after a fix without the 75 minutes of all 141. Each is raised, follows and leash-teleports, then attacks a bandit brute.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "classes",
   "specs"
  ],
@@ -11,7 +13,7 @@
  "steps": [
   {
    "do": "log_has",
-   "pattern": "\\[HWP:specs\\] 7 of 7 subclasses registered",
+   "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",
    "timeout": 30
   },
   {

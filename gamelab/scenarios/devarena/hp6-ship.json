@@ -3,7 +3,7 @@
  "about": "HP6 (docs/devarena/SPEC.md, Decided during build 27): the ship check. mods/spec-ranger-test (tools/devarena/clone_spec.py from hp4-compose's v1, tooltips rewritten to the composed numbers) boots cold. The guild hall goes to tier 3, where the Subclass Picker stands (prefabs/town/buildings/guild_hall/guild_hall_tier_3.pfb and up; tweak/town/buildings/guild_hall.sval: tier_3 is the second upgrade); a level-10 ranger in town walks up to the real Subclass Picker NPC, presses Use, clicks the picker's next arrow until it shows Test Warden and takes it with the MenuContext key (gamelab/bots/devarena_pick_spec.py). da-ship reads the class as the game parsed it (every lang key resolved, its place among the ranger masteries, the window's texts) before and after. Then the composed Entangle fires once on a mission floor. tools/devarena/ship_check.py --run <this run> writes docs/devarena/ship/ranger_test.md.",
  "fixture": "town-ranger10",
  "mods": [
-  "core",
+  "hwplib",
   "devarena",
   "spec-ranger-test"
  ],

@@ -772,11 +772,11 @@ class Checks(Base):
         cost = (20, 20, 25, 25, 30)[max(1, min(5, self.lvl[bl])) - 1]
         self.gl("kill", 400, "tag:enemy")
 
-        # Blink: the dodge's distance (90, x 0.95 the teleport keeps off walls), pure where it lands
+        # Blink: 112 px (BLINK_DIST, 2026-10-25; the full distance when nothing is in the way), pure where it lands
         self.god(True)
         home()
         px, py = -fy, fx
-        self.gl("spawn", TARGET, round(86 * fx + 12 * px, 1), round(86 * fy + 12 * py, 1))
+        self.gl("spawn", TARGET, round(108 * fx + 12 * px, 1), round(108 * fy + 12 * py, 1))
         time.sleep(1.0)
         hp0 = self.dummy_hp("target_dummy")
         self.gl("mana", 200)
@@ -786,7 +786,7 @@ class Checks(Base):
         hp1 = self.dummy_hp("target_dummy")
         hit = [u for u, h in hp0.items() if hp1.get(u, 0.0) < h - 0.0001]
         self.g.shot("blink", settle=False)
-        self.flag("arc_blink", ok and 80 <= moved <= 92 and "blink: " in line, f"activated {ok}, moved {moved:.1f} px: {line[-80:]!r}")
+        self.flag("arc_blink", ok and 104 <= moved <= 118 and "blink: " in line, f"activated {ok}, moved {moved:.1f} px (112 wanted): {line[-80:]!r}")
         self.flag("arc_blink_damage", ", 1 hit" in line and len(hit) == 1, f"{line[-60:]!r}; dummy hp {hp0} -> {hp1}")
 
         # the recast: the last elemental spell (Static Discharge) again from the start point,
@@ -842,7 +842,7 @@ class Checks(Base):
         self.gl("mana", 200)
         ok, line, p0, p1 = self.blink(fx, fy)
         moved = ((p1[0] - p0[0]) ** 2 + (p1[1] - p0[1]) ** 2) ** 0.5
-        self.flag("arc_far_step", ok and 110 <= moved <= 124, f"moved {moved:.1f} px (90 x 1.35 x 0.95 = 115): {line[-60:]!r}")
+        self.flag("arc_far_step", ok and 143 <= moved <= 158, f"moved {moved:.1f} px (112 x 1.35 = 151): {line[-60:]!r}")
 
         # Arcane Feedback: mana lost to damage is banked, the next spell takes it
         self.god(False)

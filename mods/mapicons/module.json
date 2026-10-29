@@ -1,0 +1,24 @@
+{
+  "id": "mapicons",
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [],
+  "exclude": [],
+  "config": {
+    "title": "Map icons",
+    "about": "Marks things on the minimap the game does not, such as dye pots.",
+    "toggle": "mapicons.enabled",
+    "scope": "local",
+    "applies": "now",
+    "settings": [
+      {
+        "key": "mapicons.dyes",
+        "type": "bool",
+        "default": true,
+        "title": "Dye pots",
+        "about": "A dye-pot marker over every dye bucket of the floor."
+      }
+    ]
+  }
+}

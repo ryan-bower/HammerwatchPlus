@@ -2,7 +2,7 @@
  "name": "hp5-relaunch",
  "about": "HP5 relaunch (docs/devarena/SPEC.md happy paths; Decided 26): ranger_nature/mid on dark_citadel floor 13; the golem set to footman elite NG+1 4M; Entangle's REFS area-unit edited to the poison area through the Tune tab, so the footer shows needs relaunch and [Relaunch]; the player walks off the start and the Golem tab is left open. [Relaunch] saves and logs; the runner syncs the override file from the log, quits and boots the saved session (no fixture readback). The mod re-enters the same floor with the same seed by itself and puts the player back: the preset, the A/B slots (v1 in B), the area-unit, the golem settings, the position and the dock on the Golem tab all come back.",
  "fixture": "mission-ranger",
- "mods": ["core", "devarena"],
+ "mods": ["hwplib", "devarena"],
  "timeout": 600,
  "steps": [
   {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},

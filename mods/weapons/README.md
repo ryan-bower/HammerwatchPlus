@@ -24,6 +24,16 @@ graphics, models and attack skills; what is new is the modifier profile:
 Names: `res/language/english/hwp_weapons.lang` (`.equipment.hwp.<id>`).
 `hwp weapons` lists the registered ones with their blurbs.
 
+## Settings
+
+On the HammerwatchPlus tab of the player menu (host, host-synced; at once), or `hwp set`:
+
+- `weapons.enabled` (on): off stops new ones dropping (their `ilvlMax` is set
+  below every item level, so the drop roll skips them). Weapons already owned
+  keep working and load as before; `hwp weapons` says the module is off.
+- `weapons.weight` (1x; 0.25, 0.5, 1, 2, 4): scales their `spawnChance`, the
+  weight the drop roll gives each base item (the vanilla weight is 1).
+
 ## Test checklist
 
 1. `python -m gamelab run mod-weapons --mode lab`: `[HWP:weapons] self-check done: 12 weapons` and no
@@ -33,3 +43,5 @@ Names: `res/language/english/hwp_weapons.lang` (`.equipment.hwp.<id>`).
    Strength and Dexterity), spawn one with `hwp equip hwp_2h_warbow` and
    equip it: model, swing animation and attack skill match the base weapon
    of that type; the tooltip shows the extra crit / speed / parry line.
+4. `hwp set weapons.enabled 0`: `hwp weapons` says off, and `hwp equip
+   hwp_2h_warbow` still makes one that works; `1` puts them back in the drops.

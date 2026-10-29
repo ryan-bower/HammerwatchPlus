@@ -1,6 +1,19 @@
 {
   "id": "puzzles",
-  "requires": ["core"],
+  "requires": ["hwplib"],
   "overrides": ["scripts/WorldScript/Prefabs/PrefabPicker.as"],
-  "exclude": []
+  "exclude": [],
+  "config": {
+    "title": "Puzzle rooms",
+    "about": "Puzzle rooms return to the dungeons, with HoH1's Constellation among the puzzles.",
+    "toggle": "puzzles.enabled",
+    "scope": "host",
+    "applies": "level",
+    "settings": [
+      {"key": "puzzles.room_chance", "type": "int", "default": 60, "min": 0, "max": 100, "step": 10, "suffix": "%", "title": "Room chance", "about": "The share of floors that get a puzzle room."},
+      {"key": "puzzles.constellation", "type": "int", "default": 10, "values": [0, 5, 10, 20, 40], "title": "Constellation odds", "about": "The Constellation's weight; each vanilla puzzle has 10, 0 never picks it."},
+      {"key": "puzzles.summon_hold", "type": "bool", "default": true, "applies": "now", "title": "Summons wait outside", "about": "Your summons stay outside while you solve a puzzle."},
+      {"key": "puzzles.summon_hold_radius", "type": "int", "default": 120, "values": [80, 120, 160, 200, 300], "suffix": " px", "applies": "now", "title": "Hold distance", "about": "How near a puzzle's buttons counts as inside the puzzle."}
+    ]
+  }
 }

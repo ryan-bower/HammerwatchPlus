@@ -3,7 +3,9 @@
   "about": "Standalone functional subset with only required modules. Actual native fish-trap purchase prices, fourth refusal and inventory count; no catch/minigame claim. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "fishing"
   ],
   "timeout": 300,

@@ -2,7 +2,7 @@
  "name": "spike-text",
  "about": "SUPERSEDED by tuner-dock (fixed window px from before the dock layout and dock-id clicks; kept as the spike record, expected to fail now). Spike 5 (docs/devarena/SPEC.md build order): typed text into the dock without a window. A click on the dock's field arms text input the way the in-game chat does (ControlBindings.ExpectTextInput) and sets the window manager's input lock; the field reads the frame's TextInputControlEvents. Typed characters land in the field, and so do bound keys pressed while typing (a key press arrives as its text event too: d, m and i typed 'dmi'); GameLab's own inbox frames (gl probes sent mid-edit) do not; bound keys (d move, m map, i player menu) do nothing while typing; Backspace edits; Enter submits; Escape cancels the edit without opening the pause menu; afterwards the keys move the player again. The field is the row under the freeze button, ~px (528, 36) at 640x360.",
  "fixture": "mission-ranger",
- "mods": ["core", "devarena"],
+ "mods": ["hwplib", "devarena"],
  "timeout": 300,
  "steps": [
   {"do": "gl", "verb": "mission", "args": ["dark_citadel", 13, "seed=4242", "ngp=0"], "expect": {"ok": true}, "name": "setup: dark_citadel floor 13"},

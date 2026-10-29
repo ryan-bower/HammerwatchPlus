@@ -2,7 +2,7 @@
   "name": "qa-strongbox-timeout",
   "about": "Standalone strongbox dependency closure: real arming and living frozen pack, native three-minute timeout, actual box disappearance and no new loot. Controlled god/cull/timescale measurement only.",
   "fixture": "town-paladin",
-  "mods": ["core", "strongbox"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "strongbox"],
   "timeout": 300,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},

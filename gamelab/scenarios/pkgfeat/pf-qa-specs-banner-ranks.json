@@ -1,0 +1,35 @@
+{
+ "name": "pf-qa-specs-banner-ranks",
+ "about": "qa-specs-banner-ranks against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Every Standard rank: real incoming damage before/carried/planted/expired, native cooldown and mana, free plant during cooldown. Controlled native activation with cooldown reset only for raises; solo, not teammate proof.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_specs_banner_brand",
+   "kwargs": {
+    "section": "banner_ranks"
+   },
+   "expect": {
+    "standard_ranks_god_off": true,
+    "standard_lane": true,
+    "standard_damage_actor": true,
+    "standard_all_ranks": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

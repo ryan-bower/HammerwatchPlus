@@ -13,10 +13,10 @@
   ],
   "mana": "40/50/50/60/60",
   "name": "Thunder Orb",
-  "notes": "Proposed numbers: the orb travels at about 50 px/s and zaps enemies within 70.\n\nIn game (hwp_wiz_tempest_torrent, tested): a slow orb along the aim that passes through enemies, stops at a wall and zaps 3 times every 250 ms within 70, new targets first.",
+  "notes": "Numbers: the orb travels at about 60 px/s (2.0 px a tick since 2026-10-25; 1.6, about 48 px/s, before: +25% as the user asked) and zaps enemies within 70. Its collision body is a 3 px circle (6 before) so corners of the geometry snag it less; the look is bigger: the vanilla lightning ball at radius 5 (was 3) under the mod's orb sprite at 1.5x (torrent.unit, effects/orb.effect).\n\nIn game (hwp_wiz_tempest_torrent, tested): a slow orb along the aim that passes through enemies, stops at a wall and zaps 3 times every 250 ms within 70, new targets first.\n\nThe 2026-10-25 changes are built, not yet run in the lab: scenario fix-specs-arcane (orb); the orb logs \"thunder orb: speed 2.00 px/tick\" when shot.",
   "order": 0,
   "role": "weapon",
-  "status": "tested",
+  "status": "built",
   "summary": "You launch a slow-moving orb of lightning that passes through enemies. Every 0.25s it zaps up to 3 enemies in range, dealing Lightning damage. It prefers enemies it hasn't zapped yet. If it hits a wall, it stops there and keeps zapping until its duration (3s base at max lvl, 2s base at lowest lvl) runs out.\n\nHow the targeting works: every tick fires its 3 zaps no matter how many enemies are in range.\n- In a mob: zaps spread to new targets, so the orb sweeps damage through the pack as it travels.\n- Fewer than 3 enemies: the extra zaps go to enemies already in range.\n- Lone boss: all 3 zaps hit the boss every tick.",
   "unlock": "bought"
 }

@@ -3,7 +3,9 @@
   "about": "Actual native aborted and lethal-damage failed run: compare every visible native end-screen value with serialized LastStats, normal noticeboard interaction, one-player wrap, save/restart and two town rebuilds. Controlled1x walking/god fixture, no stat setters. No success/co-op/large-list/locales claim.",
   "fixture": "town-paladin",
   "mods": [
-    "core",
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
     "abyss",
     "architect",
     "bufftips",
@@ -17,7 +19,6 @@
     "firearms",
     "fishing",
     "gambler",
-    "goldpet",
     "groupcombo",
     "keys",
     "laststats",

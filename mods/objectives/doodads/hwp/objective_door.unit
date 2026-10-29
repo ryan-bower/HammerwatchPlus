@@ -1,0 +1,65 @@
+<!-- HWP objectives: a vault door (HWPObjectiveDoor, scripts/HWP/Objectives/Units.as). The 1a
+     wooden door's art from doodads/doors/_door_1_h.inc; starts "locked" (solid, nav-blocking, blocks
+     shots) and goes to "open" (the vanilla opening animation, no collision) when the vault's switch
+     is used. The unit sits on the top-left corner of the doorway's left cell: the collision rect
+     0 0 32 16 covers the two doorway cells. -->
+<unit slot="doodad">
+	<behavior class="HWPObjectiveDoor" />
+	<scenes default="locked" locked="locked" open="open">
+		<scene name="shared">
+			<sprite origin="-28 22" texture="doodads/doors/_door_1a.png" material="system/default.mats:proj-wall">
+				<frame time="100">252 0 4 34</frame>
+			</sprite>
+			<sprite origin="0 22" texture="doodads/doors/_door_1a.png" material="system/default.mats:proj-wall">
+				<frame time="100">248 0 4 34</frame>
+			</sprite>
+			<sprite origin="0 0" layer="-10" texture="doodads/doors/_door_baseplate.png" material="system/default.mats:floor">
+				<frame>0 0 32 16</frame>
+			</sprite>
+		</scene>
+		<scene name="locked" editor-bounds="0 -16 32 32">
+			<scene src="shared" />
+			<scene src="special/minimap.unit:info_poi" />
+			<sprite origin="-4 45" texture="doodads/doors/_door_1a.png" material="system/default.mats:proj-wall">
+				<frame time="50">0 0 24 56</frame>
+			</sprite>
+			<collision static="true" nav-block="true">
+				<rect>0 0 32 16</rect>
+			</collision>
+			<shadow>
+				<sprite origin="0 45" texture="doodads/doors/_door_1_shadow.png">
+					<frame>0 0 32 64</frame>
+				</sprite>
+			</shadow>
+		</scene>
+		<scene name="open" trigger-snd="event:/sfx/doodads/doors/door_wood_open">
+			<scene src="shared" />
+			<sprite origin="-4 45" looping="false" texture="doodads/doors/_door_1a.png" material="system/default.mats:proj-wall">
+				<frame time="50">0 0 24 56</frame>
+				<frame time="50">24 0 24 56</frame>
+				<frame time="50">48 0 24 56</frame>
+				<frame time="50">72 0 24 56</frame>
+				<frame time="50">96 0 24 56</frame>
+				<frame time="50">120 0 24 56</frame>
+				<frame time="50">144 0 24 56</frame>
+				<frame time="50">168 0 24 56</frame>
+				<frame time="50">192 0 24 56</frame>
+				<frame time="50">0 0 0 0</frame>
+			</sprite>
+			<shadow>
+				<sprite origin="0 45" looping="false" texture="doodads/doors/_door_1_shadow.png">
+					<frame time="50">0 0 32 64</frame>
+					<frame time="50">32 0 32 64</frame>
+					<frame time="50">64 0 32 64</frame>
+					<frame time="50">96 0 32 64</frame>
+					<frame time="50">128 0 32 64</frame>
+					<frame time="50">160 0 32 64</frame>
+					<frame time="50">192 0 32 64</frame>
+					<frame time="50">224 0 32 64</frame>
+					<frame time="50">288 0 32 64</frame>
+					<frame time="50">0 0 0 0</frame>
+				</sprite>
+			</shadow>
+		</scene>
+	</scenes>
+</unit>

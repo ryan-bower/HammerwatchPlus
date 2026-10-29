@@ -3,7 +3,9 @@
  "about": "mods/puzzles with mods/architect: a floor with Architect challenges picked (ChallengeSetup wraps a non-SpawnPrefabSet command, Challenges.as) still gets its puzzle room at puzzles.room_chance 100.",
  "fixture": "town-paladin",
  "mods": [
-  "core",
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
   "architect",
   "puzzles"
  ],

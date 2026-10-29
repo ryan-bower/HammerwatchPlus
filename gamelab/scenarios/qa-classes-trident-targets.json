@@ -2,7 +2,7 @@
   "name": "qa-classes-trident-targets",
   "about": "24 fixed live target-state observations: QA dummy vs stunned/immobilized brutes,16/26/36px ahead and0/+12 world-y offset, normal main input and26px direct native activation. Exact native Shot-ray intersections and actual HP/text distinguish geometry, state and attack path. Dummy controls required; brute misses remain diagnostic evidence, not an automatic content-bug verdict.",
   "fixture": "town-paladin",
-  "mods": ["core", "classes"],
+  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes"],
   "timeout": 600,
   "steps": [
     {"do": "console", "line": "e_cheats 1"},
