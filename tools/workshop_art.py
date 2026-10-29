@@ -684,7 +684,7 @@ SHORT = {
     "autoaim": ("Auto Aim", "aim assist"), "firearms": ("Firearms", "a new class"),
     "specs": ("4th Specs", "8 new specializations"),
     "keys": ("Keys & Chests", "locked loot, ace chests"), "campaign": ("Forsaken Tower", "18-floor campaign"),
-    "modes": ("Challenge Modes", "mercenary, wave arena"), "dungeon": ("Dungeon Loot", "8 run features"),
+    "modes": ("Challenge Modes", "mercenary, wave arena"), "dungeon": ("Dungeon Loot", "9 run features"),
     "town": ("Town Life", "fish, farm, gamble"), "pets": ("Pets", "levels, skills, dyes"),
 }
 
