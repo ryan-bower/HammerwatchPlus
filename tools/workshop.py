@@ -95,6 +95,7 @@ TERSE = {
     "weapons": "twelve new item level 35 weapons.",
     "trinkets": "trinket bonuses grow with NG+; 37 HoH1 trinkets and eight new trinket sets.",
     "valuables": "vases, gems and other valuables are worth twice the gold.",
+    "affixes": "Rare and Epic items can roll a second suffix, and Epic items a second prefix.",
     "fishing": "fishing spots in town and on run floors, a bait and rod shop; sell or eat the fish.",
     "farming": "farm plots in town: crops and Holy Herbs grow with every run; smoke a herb for a buff.",
     "gambler": "Higher or Lower for gold, and rerolls of your equipped gear.",

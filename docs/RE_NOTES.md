@@ -5998,3 +5998,42 @@ miss since the cursor aim came in (5167447, 2026-10-25), as 2026-10-26 noted for
 `qa-firearms-magazine-edges` and `-continuity` (actual damage 0 on the dummy) and bench-smoke's
 pierce check (0 at every distance, 20261029-010334). The gun damage itself is fine; those bots
 need a `cursor` on the target's body.
+
+## 2026-10-29: two suffixes, two prefixes (issue #17, `affixes`)
+
+Issue #17 asked for items with two prefixes and two suffixes; it has no body, so the shape is
+ours. How vanilla builds an item's mods (`scripts/Items/EquipmentGenerator.as`,
+`GenerateItemMods`):
+- `EquipmentModifiersPerQuality`: Common 0, Uncommon 1, Rare 2, Epic 3, Legendary 4, but
+  `Item.Finalize` clears a Legendary's mods, so it has none.
+- Mod n is drawn from the pool of quality `IndexToQuality(n + 2)`: n = 0 the common/uncommon
+  stat pool (28 mods, each with a prefix and a suffix name), n = 1 the rare pool (58, every one
+  suffix-only), n = 2 the epic pool (27, every one prefix-only).
+- So a Rare item is a stat mod and a suffix, an Epic one a stat mod, a suffix and a prefix. The
+  name takes one prefix and one suffix.
+- `GetAllPossibleItemModifiers(base, quality, ilvl, current, tags)` filters by item level, slot
+  tags and exclusive groups against `current`, but not exact duplicates.
+- `Item.Save` and `LoadItem` write and read any number of mods; `Item.IsValid()` is unused, so
+  an item with five mods loads and is never rejected.
+
+What `affixes` does: after a call that rolled a mod (the generator also runs on items that
+already have theirs), the rare tier and the epic tier each roll a second mod at
+`affixes.chance` (25)%, drawn from the same pool by the same rarity weights, minus mods the
+item has and minus skill mods when the item has a skill already. Names stay vanilla.
+
+`mod-affixes` (20261029-020409):
+- 400 Epic at ilvl 30: 107 second suffixes, 101 second prefixes; 400 Rare: 100 suffixes, 0
+  prefixes. No duplicate, no tier over two, no item with two skills.
+- At 100%, 175 Epic at ilvl 1 (some slots have no Epic base at level 1) all get both.
+- Off: 3 mods at most.
+- `give`: a Vengeful Leather Jerkin with 5 mods; the tooltip lists them. After `gl save` and a
+  restart it still has 2 suffixes and 2 prefixes.
+- The log is clean.
+
+**Seen on the way: mod-all had fallen behind.** `mod-all`, the gate that loads every content
+mod loose side by side, keeps its mod list by hand. It lacked `petrooms` (since 2026-10-28)
+and would have lacked `affixes`. Both are in now (20261029-020849), and
+`tests/test_mod_all.py` fails when a mod in packages.json is missing from it. `pkg-all` fails
+on main with 1203 resource hash conflicts and a HWP-campaign stamp from another build. That is
+the subscribed Workshop copy of All loading beside the local one, which PR #40 fixes;
+`pkg-dungeon`, which carries `affixes`, passes (20261029-020719).
