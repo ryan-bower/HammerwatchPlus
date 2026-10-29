@@ -30,19 +30,22 @@ namespace HWP
 		const int BOSS_GATHER_MS = 1000;  // host: wait this long for the clients' reports
 		const int BOSS_TOP = 5;           // sources per player on the panel
 		const int BOSS_MAX_PLAYERS = 8;
+		const int BOSS_LOG_UNITS = 12;    // "joins" / "down" log lines per fight (the Serpent's body
+		                                  // segments are boss units that expire every 4 s)
 
-		// one boss-tagged unit the local player hit in the fight
+		// one boss-tagged unit the local player hit in the fight, alive (dropped when it goes down)
 		class BossMember
 		{
 			UnitPtr unit;
-			string name;   // BossName when it joined (the unit may be gone at the end)
+			string name;   // BossName when it joined
 			int pool;      // its affliction pools as far as the fight has counted them
-			bool down;
 		}
 
 		class BossFight
 		{
 			array<BossMember@> members;
+			int unitsHit;  // members ever, down ones included
+			int unitsDown;
 			string boss;
 			bool barName;  // named after the HUD's boss bar
 			int dealt;
@@ -225,6 +228,8 @@ namespace HWP
 				f.boss = f.barName ? barName : BossName(actor);
 				f.dealt = 0;
 				f.taken = 0;
+				f.unitsHit = 0;
+				f.unitsDown = 0;
 				@g_fight = f;
 				HWP::Log("deathrecap", "boss fight started: " + f.boss + " (" + BossName(actor) + ", unit " + actor.m_unit.GetId() + ")");
 			}
@@ -236,12 +241,12 @@ namespace HWP
 				nm.name = BossName(actor);
 				auto b = cast<CompositeActorBehavior>(actor);
 				nm.pool = b is null ? 0 : PoolSum(b.m_buffs);
-				nm.down = false;
 				@m = nm;
 				g_fight.members.insertLast(nm);
-				if (g_fight.members.length() > 1)
+				g_fight.unitsHit++;
+				if (g_fight.unitsHit > 1 && g_fight.unitsHit <= BOSS_LOG_UNITS)
 					HWP::Log("deathrecap", "boss fight " + g_fight.boss + ": " + nm.name + " (unit " + actor.m_unit.GetId() + ") joins, "
-						+ g_fight.members.length() + " units hit");
+						+ g_fight.unitsHit + " units hit");
 			}
 
 			AddSource(g_fight, HitSource(player, dmg), dmg.Damage);
@@ -286,8 +291,7 @@ namespace HWP
 			SortSources(f.sources);
 			SValueBuilder b;
 			b.PushDictionary();
-			b.PushInteger("unit", f.members.length() > 0 ? int(f.members[0].unit.GetId()) : -1);
-			b.PushInteger("units", int(f.members.length()));
+			b.PushInteger("units", f.unitsHit);
 			b.PushString("boss", f.boss);
 			b.PushInteger("peer", rec.peer);
 			b.PushString("name", rec.GetName());
@@ -315,8 +319,7 @@ namespace HWP
 			if (f is null)
 				return;
 			auto rec = GetLocalPlayerRecord();
-			int alive = 0;
-			for (uint i = 0; i < f.members.length(); i++)
+			for (int i = int(f.members.length()) - 1; i >= 0; i--)
 			{
 				auto m = f.members[i];
 				if (m.unit.IsValid() && !m.unit.IsDestroyed())
@@ -326,16 +329,15 @@ namespace HWP
 						CountPoolTicks(f, m, boss, rec);
 				}
 				if (!MemberDown(m))
+					continue;
+				f.members.removeAt(i);
+				f.unitsDown++;
+				if (f.unitsDown <= BOSS_LOG_UNITS)
 				{
-					alive++;
-					continue;
+					string ignored;
+					HWP::Log("deathrecap", "boss fight " + f.boss + ": " + m.name + " (unit " + m.unit.GetId() + ") down, "
+						+ f.members.length() + " hit units alive, " + BarsUp(ignored) + " boss bars up");
 				}
-				if (m.down)
-					continue;
-				m.down = true;
-				string ignored;
-				HWP::Log("deathrecap", "boss fight " + f.boss + ": " + m.name + " (unit " + m.unit.GetId() + ") down, "
-					+ (int(f.members.length()) - CountDown(f)) + " hit units alive, " + BarsUp(ignored) + " boss bars up");
 			}
 			string barName;
 			int bars = BarsUp(barName);
@@ -345,22 +347,13 @@ namespace HWP
 				f.boss = barName;
 				f.barName = true;
 			}
-			if (alive > 0 || bars > 0)
+			if (f.members.length() > 0 || bars > 0)
 				return;
 			@g_fight = null;
 			if (rec is null)
 				return;
-			HWP::Log("deathrecap", "boss fight over: " + f.boss + ", " + f.members.length() + " units, " + rec.GetName() + " dealt " + f.dealt + " took " + f.taken);
+			HWP::Log("deathrecap", "boss fight over: " + f.boss + ", " + f.unitsHit + " units, " + rec.GetName() + " dealt " + f.dealt + " took " + f.taken);
 			HWP::Net::Request(BOSS_REPORT, PackReport(f, rec));
-		}
-
-		int CountDown(BossFight@ f)
-		{
-			int n = 0;
-			for (uint i = 0; i < f.members.length(); i++)
-				if (f.members[i].down)
-					n++;
-			return n;
 		}
 
 		// host: one player's share of a fight
@@ -528,7 +521,7 @@ namespace HWP
 			if (shown)
 				visibleLines = int(g_bossHud.m_rows.length());
 			HWP::Log("deathrecap", "boss panel " + (shown ? "shown: " + visibleLines + " lines" : "hidden") + ", open fights " + (g_fight is null ? 0 : 1)
-				+ (g_fight is null ? "" : " (" + g_fight.boss + ", " + g_fight.members.length() + " units hit)"));
+				+ (g_fight is null ? "" : " (" + g_fight.boss + ", " + g_fight.unitsHit + " units hit, " + g_fight.members.length() + " alive)"));
 			auto last = HWP::SaveData::Local().GetString(KEY_BOSS_LAST, "");
 			if (last.isEmpty())
 			{

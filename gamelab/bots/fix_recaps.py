@@ -187,13 +187,28 @@ class Checks(Base):
         self.flag("serpent_up", bool(live), f"{len(live)} targetable serpents")
         if not live:
             return
+        # the heads surface, spew and dive: stand 90 px from a surfaced one and shoot, again
+        # with a fresh list until a hit lands (fix-boss-recap-encounter 044715: three 8 s
+        # attacks from the arena's edge landed nothing)
         hit = None
-        for a in live[:3]:
-            res = self.p.attack(a["unit"], timeout=8)
-            self.notes.append(f"attack serpent {a['unit']}: {res.result} {res.reason}")
+        end = time.time() + 45
+        while time.time() < end and hit is None:
+            acts = self.gl("actors", 5000, "TransferDamageActor").get("actors", [])
+            live = [a for a in acts if not a.get("dead") and a.get("targetable")]
+            if not live:
+                time.sleep(1)
+                continue
+            a = live[0]
+            pl = self.gl("state").get("player", {})
+            px, py = pl.get("x", 0.0), pl.get("y", 0.0)
+            d = max(1.0, ((a["x"] - px) ** 2 + (a["y"] - py) ** 2) ** 0.5)
+            if d > 120:
+                self.gl("teleport", round(a["x"] - (a["x"] - px) / d * 90, 1), round(a["y"] - (a["y"] - py) / d * 90, 1))
+                time.sleep(0.3)
+            res = self.p.attack(a["unit"], timeout=4)
+            self.notes.append(f"attack serpent {a['unit']} from {round(d)} px: {res.result} {res.reason}")
             if "boss fight started" in self.log_since(mark):
                 hit = a
-                break
         # the serpent the shots hit first (not always the one aimed at)
         st = re.search(r"boss fight started: ([^\n(]+)\([^,\n]*, unit (\d+)\)", self.log_since(mark))
         self.flag("serpent_fight_started", hit is not None and st is not None and st.group(1).strip() == "Serpents of Demise",

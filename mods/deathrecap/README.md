@@ -62,7 +62,12 @@ the player record, `deathrecap.boss_last`) and logs `boss panel shown: N lines`
   per `bossbar` actor and clears them once all are down. So one of the four Serpents
   of Demise (boss-tagged `TransferDamageActor`s feeding one health unit with the
   bar), a Bandit Lord's mirror image or a spawned ghost going down logs `... down,
-  N hit units alive, B boss bars up` and nothing else. The fight is named after the
+  N hit units alive, B boss bars up` and nothing else. The Serpent's body is a trail
+  of boss-tagged `BossWormSegment` units that take hits (passed to the head) and
+  expire after 4 s; under the old per-unit fights every expiring segment you had
+  hit showed a recap, which is what made it "constant". A unit that goes down
+  leaves the list (the fight counts units hit); the joins / down lines stop after
+  12 per fight. The fight is named after the
   bar ("Serpents of Demise", "Bandit Lord"), else the first boss unit hit. A boss
   bar already up for a boss elsewhere on the floor also keeps the fight open (none
   of vanilla's boss floors does that).

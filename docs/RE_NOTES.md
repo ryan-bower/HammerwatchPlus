@@ -5561,8 +5561,12 @@ have the same shape:
 - Dace Arden's spawned `bell_ghost_shooter` ghosts;
 - the four totem poles (a bar each).
 
-The damage taken was also added to every open fight, so it was counted twice with two
-bosses up.
+Why "constantly": the Serpent's body is a trail of `bone_serpent_segment` units (behavior
+`BossWormSegment`, an `EnemyOwnedActor`), which are tagged `boss`, untargetable and `no-buffs`.
+Each has a `ttl` of 4000 ms and dies (`OnDeath`) when it runs out. Shots that hit the body hit a
+segment, which passes the damage to its head (`m_transferTarget` = owner). So every segment a
+player had hit started a fight and showed a recap 4 s later. The damage taken was also added to
+every open fight, so it was counted twice with two bosses up.
 
 Vanilla's own notion of the encounter is the HUD's boss bar:
 - `CompositeActorBehavior`'s constructor calls `HUD.AddBossBar` for a unit with a `bossbar`.
@@ -5580,6 +5584,8 @@ What changed (`deathrecap`, `BossRecap.as`):
 - **Name**: the HUD's boss name (`m_bossName.m_str`, so "Bandit Lord", not "Boss Bandit") when a
   bar is up, else `BossName` of the first unit hit. It is adopted later if a bar comes up after
   the first hit.
+- **Members that go down leave the list** (the fight counts `unitsHit` / `unitsDown`), so the
+  expiring segments don't pile up. The joins / down lines stop after `BOSS_LOG_UNITS` (12).
 - **Damage taken** goes to the one fight.
 - **Gathering**: the host gathers reports by fight name instead of unit id, because each machine
   may have hit different units while the bar's name is the same everywhere. The report adds `units`.
@@ -5603,3 +5609,8 @@ Tests:
   - Serpents of Demise: two serpents hit; each `down` comes with the bar up; one recap,
     "Serpents of Demise", after the health unit.
 - `fix-recaps` (044146, now expecting "Bandit Lord") and `mod-deathrecap` (044231) pass.
+- After the segment pruning: `fix-boss-recap-encounter` 044856 and 045003, pkgfeat 045207, `fix-recaps` 045120.
+  In 045003 the shots hit two heads and three body segments (`Bone Serpent Segment`, `... Dive 1/2`).
+  The segments joined and went down 4 s later with the bar still up, and there was one recap after
+  the health unit: the issue's "constantly", caught live. The bot now teleports 90 px from a
+  surfaced head and retries for up to 45 s (044715 landed no hit in three 8 s attacks from the edge).
