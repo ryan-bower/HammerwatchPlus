@@ -8,7 +8,7 @@
 //
 // Pets listed in PetDyeParts.as have two sections, like gear (body / eyes,
 // shell / legs, clothes / rucksack ...): tools/make_pet_dyes.py writes dye-ready
-// copies of their units (players/pets/hwp/dye/<petId>_<p|s|ps>.unit) whose
+// copies of their units (<VariantDir>/<petId>_<p|s|ps>.unit) whose
 // textures index the dyed section's pixels for the engine's multicolour shader
 // (channel 0 = primary, 1 = secondary). A dyed pet is swapped for the copy that
 // matches what is dyed, so undyed sections keep their own colours. Other pets
@@ -24,7 +24,10 @@ namespace HWP
 	{
 		const string KEY = "pets.dye.";
 		const string KEY2 = "pets.dye2.";
-		const string VARIANTS = "players/pets/hwp/dye/";
+		// tools/make_pet_dyes.py: the vanilla pets' copies ship with the package, the HoH1
+		// pets' (ids hwp_pet_*) sit beside the rest of the local HoH1 import
+		const string VARIANTS = "players/pets/hwp_dye/";
+		const string VARIANTS_HOH1 = "players/pets/hwp/dye/";
 		const string DYE = "pets.dye";
 		const string DYED = "pets.dyed";
 		const int PAGE = 10;
@@ -44,6 +47,11 @@ namespace HWP
 					return c.m_colors.length() >= 3 ? c : null;
 			}
 			return null;
+		}
+
+		string VariantDir(const string &in petId)
+		{
+			return petId.findFirst("hwp_pet_") == 0 ? VARIANTS_HOH1 : VARIANTS;
 		}
 
 		// the vanilla pet (a MiniPet our pet units make) the record has out, or ""
@@ -221,7 +229,7 @@ namespace HWP
 					@prod = owner.m_record.pet.m_unit;
 			}
 			else
-				@prod = Resources::GetUnitProducer(VARIANTS + petId + "_" + want + ".unit");
+				@prod = Resources::GetUnitProducer(VariantDir(petId) + petId + "_" + want + ".unit");
 			if (prod is null)
 				return false;
 			auto unit = prod.Produce(g_scene, pet.m_unit.GetPosition());

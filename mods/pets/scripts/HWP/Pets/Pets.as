@@ -26,10 +26,10 @@ namespace HWP
 		enum Skill { Hazard = 0, Smash, Stun, Mend, Fetch, Morale, Family }
 		array<string> SKILL_IDS = { "hazard", "smash", "stun", "mend", "fetch", "morale", "family" };
 
-		// pickup toggles (MiniPetOption bits; Mana is left out: the vanilla enum
-		// value 10 overlaps Valuable|HP)
-		array<string> OPTION_IDS = { "gold", "valuables", "materials", "health", "caches", "cursed", "elixirs", "xp" };
-		array<int> OPTION_BITS = { 1, 2, 4, 8, 32, 64, 128, 256 };
+		// pickup toggles (MiniPetOption bits; no health or mana: pets never take those,
+		// see NoHealthOrMana)
+		array<string> OPTION_IDS = { "gold", "valuables", "materials", "caches", "cursed", "elixirs", "xp" };
+		array<int> OPTION_BITS = { 1, 2, 4, 32, 64, 128, 256 };
 		const int DEFAULT_OPTIONS = 319; // what the base ResetPet passes
 
 		// ---- data -----------------------------------------------------------------
@@ -431,6 +431,17 @@ namespace HWP
 			if (!g_enabled || owner is null || owner.m_record is null)
 				return fallback;
 			return MiniPetOption(Options(owner.m_record));
+		}
+
+		// Pets never fetch health or mana pickups (the user, 2026-10-28): the HWP pet classes'
+		// IsPickupOkay, which the base uses both to pick a target and to take it, drops those
+		// kinds. Clearing option bits could not do it: vanilla's Mana (10) overlaps Valuable|HP,
+		// so any pet that fetches valuables also passes the mana test.
+		MiniPetOption NoHealthOrMana(MiniPetOption kind)
+		{
+			if (g_enabled && (kind == MiniPetOption::HP || kind == MiniPetOption::Mana))
+				return MiniPetOption::None;
+			return kind;
 		}
 
 		// Fetch (and the squire's Pack Mule) change the pet's base ranges.
@@ -1548,7 +1559,7 @@ namespace Modules
 			HWP::Net::OnEvent(HWP::Pets::PICKUP, HWP::Net::EventHandler(HWP::Pets::OnPickupEvent));
 			HWP::PetDye::Init();
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Pets::OnSettingChanged));
-			HWP::Commands::Register("pet", " pet status; 'skill <id>', 'feed <crop>', '<gold|valuables|materials|health|caches|cursed|elixirs|xp> on|off' (also at the Pet Shop keeper's Train menu), 'here' places the optional feeding bowl where you stand (host)", HWP::Commands::Handler(HWP::Pets::CmdPet));
+			HWP::Commands::Register("pet", " pet status; 'skill <id>', 'feed <crop>', '<gold|valuables|materials|caches|cursed|elixirs|xp> on|off' (also at the Pet Shop keeper's Train menu), 'here' places the optional feeding bowl where you stand (host)", HWP::Commands::Handler(HWP::Pets::CmdPet));
 			HWP::Pets::SelfCheck(false);
 		}
 

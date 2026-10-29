@@ -76,7 +76,7 @@ reports it and leaves it alone. Ask the user before moving it.
 - `--fix` also runs `tools/class_units.py` when its gitignored unit copies in
   `mods/keys/` and `mods/pets/` are missing or stale (made from `gamecode/sdk/hoh2/`).
 - `--fix` runs `tools/make_pet_dyes.py` (the dye-ready pet copies in
-  `mods/pets/players/pets/hwp/dye/`) after the HoH1 content steps, because it needs the
+  `mods/pets/players/pets/hwp_dye/`, and `players/pets/hwp/dye/` for the HoH1 pets) after the HoH1 content steps, because it needs the
   HoH1 pet import too. Its stamp (`.hwp-generated.json`) holds the generator's and every
   source's hash, so a new HoH1 import, an edited pet unit or a changed generator marks it
   stale and the next `--fix` remakes it (`python tools/make_pet_dyes.py --verify` checks).

@@ -120,10 +120,10 @@ class Checks(Base):
     @staticmethod
     def dyed(cur, unit):
         """The pet wears a dye: a two-section pet (the text names both sections) is swapped
-        for its dye-ready unit copy (players/pets/hwp/dye/); a one-section pet's text names
+        for its dye-ready unit copy (players/pets/hwp_dye/, HoH1 pets players/pets/hwp/dye/); a one-section pet's text names
         a dye instead of "no dye"."""
         if ", " in cur.split(": ", 1)[-1]:
-            return "/dye/" in unit
+            return "/dye/" in unit or "/hwp_dye/" in unit
         return bool(cur) and "no dye" not in cur
 
     def spot(self, dist, avoid=()):
@@ -171,8 +171,8 @@ class Checks(Base):
                   f"pet-options {po}, hwp keys {keys}")
 
     def legacy_run(self):
-        """pets s12: with the toggles never touched, the pet picks up gold, materials and a
-        health pickup (owner below 30 %) at once."""
+        """pets s12: with the toggles never touched, the pet picks up gold and materials at
+        once, and leaves a health and a mana pickup alone even with its owner below 30 % of both."""
         self.hwp("set pets.debug true", 0.4)
         self.start_floor(0)
         self.gl("cull")
@@ -194,21 +194,34 @@ class Checks(Base):
         ok = d.get("ok") and self.gone(d.get("unit"), "materials/", 8)
         w1 = (self.gl("inv").get("materials") or {}).get("wood", 0)
         self.flag("legacy_pet_materials", ok and w1 > w0, f"drop {d.get('name')}, wood {w0} -> {w1}")
-        # the floor's own heal pickups go first: the pet fetches the one nearest it, which was
-        # a floor apple, not ours. The player stands still, ours is past their reach.
+        # pets never take health or mana: with the owner low on both, an apple and a mana shard
+        # at the drop spot (past the player's reach; the player stands still) stay on the floor.
+        # The floor's own heal and mana pickups go first, so a fetch of one of those can't hide.
         cl = self.gl("unitdestroy", 1200, "pickups/health")
+        cm = self.gl("unitdestroy", 1200, "pickups/mana")
         self.set_hp(0.2)
+        mm = self.gl("mana", 1).get("max", 0)
+        self.gl("mana", int(mm * 0.1))
         h0, mx = self.hp()
+        m0 = self.gl("state").get("player", {}).get("mana", -1)
         p0 = self.player()
         a = self.gl("spawn", "items/pickups/health_apple.unit", *self.drop_at)
-        ok = a.get("ok") and self.gone(a.get("unit"), "health_apple", 8)
+        s = self.gl("spawn", "items/pickups/mana_shard.unit", *self.drop_at)
+        took_a = self.gone(a.get("unit"), "health_apple", 8)
+        took_s = self.gone(s.get("unit"), "mana_shard", 1)
         h1, _ = self.hp()
+        m1 = self.gl("state").get("player", {}).get("mana", -1)
         p1 = self.player()
         moved = math.hypot(p1.get("x", 0) - p0.get("x", 0), p1.get("y", 0) - p0.get("y", 0))
-        self.flag("legacy_pet_potion", ok and h1 > h0 and moved < 8,
-                  f"cleared {cl.get('count')} floor heal(s), {a.get('name')} at {self.drop_at} fetched {ok}, "
-                  f"player moved {moved:.0f}, hp {h0} -> {h1} / {mx}")
+        self.flag("legacy_pet_no_heal", a.get("ok") and s.get("ok") and not took_a and not took_s
+                  and h1 <= h0 and m1 <= m0 and moved < 8,
+                  f"cleared {cl.get('count')} floor heal(s), {cm.get('count')} floor mana; at {self.drop_at} "
+                  f"{a.get('name')} taken {took_a}, {s.get('name')} taken {took_s}, player moved {moved:.0f}, "
+                  f"hp {h0} -> {h1} / {mx}, mana {m0} -> {m1} / {mm}")
+        self.gl("unitdestroy", 1200, "health_apple")
+        self.gl("unitdestroy", 1200, "mana_shard")
         self.set_hp(1.0)
+        self.gl("mana", mm)
         keys = self.hwp_keys()
         self.flag("legacy_toggles_untouched", "pets.options_set" not in (keys or []), f"hwp keys {keys}")
 

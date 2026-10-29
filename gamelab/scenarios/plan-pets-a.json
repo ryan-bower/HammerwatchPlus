@@ -1,6 +1,6 @@
 {
  "name": "plan-pets-a",
- "about": "Test plan through the plan_pets bot, on the fixture's own GameLab character (made before HWP was enabled: no hwp pet toggles in its record). pets s9: the tailor without a pet opens the vanilla dyer; with a pet out it asks Dye gear / Dye pet and gear is the vanilla dyer. pets s10: Dye pet lists the town's unlocked dyes (gray, lemon, midnight added by blueprint) in their colours, each pick pays its quality's price (100 / 250 / 500) and re-makes the pet; the dye stays on after a floor change and a restart; removing it is free and gives the plain pet back. pets s12: the legacy character's pet picks up gold, wood and a health pickup without the toggles being touched.",
+ "about": "Test plan through the plan_pets bot, on the fixture's own GameLab character (made before HWP was enabled: no hwp pet toggles in its record). pets s9: the tailor without a pet opens the vanilla dyer; with a pet out it asks Dye gear / Dye pet and gear is the vanilla dyer. pets s10: Dye pet lists the town's unlocked dyes (gray, lemon, midnight added by blueprint) in their colours, each pick pays its quality's price (100 / 250 / 500) and re-makes the pet; the dye stays on after a floor change and a restart; removing it is free and gives the plain pet back. pets s12: the legacy character's pet picks up gold and wood without the toggles being touched, and leaves a health and a mana pickup alone with its owner below 30 % of both.",
  "fixture": "town-tavern",
  "mods": [
    "hwplib",
@@ -88,7 +88,7 @@
    "expect": {
     "legacy_pet_gold": true,
     "legacy_pet_materials": true,
-    "legacy_pet_potion": true,
+    "legacy_pet_no_heal": true,
     "legacy_toggles_untouched": true,
     "dye_kept_floor": true
    }

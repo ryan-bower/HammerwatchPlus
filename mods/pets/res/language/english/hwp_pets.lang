@@ -25,7 +25,6 @@
 	<string name="hwp.pets.opt.gold">Gold</string>
 	<string name="hwp.pets.opt.valuables">Valuables</string>
 	<string name="hwp.pets.opt.materials">Materials</string>
-	<string name="hwp.pets.opt.health">Health (below 30%)</string>
 	<string name="hwp.pets.opt.caches">Resource caches</string>
 	<string name="hwp.pets.opt.cursed">Cursed caches</string>
 	<string name="hwp.pets.opt.elixirs">Elixirs</string>
@@ -36,7 +35,7 @@
 	<string name="hwp.pets.disabled">Pet progression is off (pets.enabled, the HammerwatchPlus tab of the player menu).</string>
 	<string name="hwp.pets.levelup">%name% reached level %lvl%! Spend the point at the Pet Shop keeper (Train your pet).</string>
 	<string name="hwp.pets.status">%name%: level %lvl%, %xp%/%next% XP, %points% point(s).</string>
-	<string name="hwp.pets.cmd_hint">hwp pet skill &lt;id&gt; | feed &lt;crop&gt; | gold|valuables|materials|health|caches|cursed|elixirs|xp on|off | here</string>
+	<string name="hwp.pets.cmd_hint">hwp pet skill &lt;id&gt; | feed &lt;crop&gt; | gold|valuables|materials|caches|cursed|elixirs|xp on|off | here</string>
 	<string name="hwp.pets.host_only">Only the host can place the feeding bowl.</string>
 	<string name="hwp.pets.moved">Feeding bowl placed here (pets.bowl on).</string>
 	<string name="hwp.pets.scout">Your raven spots %n% chest(s) nearby.</string>

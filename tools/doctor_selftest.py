@@ -347,20 +347,21 @@ def pet_dye_cases(check) -> None:
     if not mpd.BASE.is_dir():
         check("pet dyes: gamecode/sdk/hoh2 present (run bootstrap.py first)", False)
         return
-    saved = {k: getattr(mpd, k) for k in ("PETS_DIR", "OUT", "STAMP", "PARTS_AS", "PETS")}
+    saved = {k: getattr(mpd, k) for k in ("PETS_DIR", "OUT", "OUT_BASE", "STAMP", "PARTS_AS", "PETS")}
     sb = Path(tempfile.mkdtemp(prefix="dyes-", dir=SCRATCH))
     real_parts = file_state(saved["PARTS_AS"])
     try:
         mpd.PETS_DIR = sb / "pets"
         mpd.OUT = mpd.PETS_DIR / "players/pets/hwp/dye"
-        mpd.STAMP = mpd.OUT / ".hwp-generated.json"
+        mpd.OUT_BASE = mpd.PETS_DIR / "players/pets/hwp_dye"
+        mpd.STAMP = mpd.OUT_BASE / ".hwp-generated.json"
         mpd.PARTS_AS = sb / "PetDyeParts.as"
         mpd.PETS = {k: saved["PETS"][k] for k in ("tiny_maltese", "pet_beetle")}
         check("pet dyes: nothing made -> missing", "missing" in " ".join(mpd.problems()), mpd.problems())
         mpd.main([])
         check("pet dyes: after main -> complete and current", mpd.problems() == [], mpd.problems())
         check("pet dyes: the stamp never packs (dotfile)", mpd.STAMP.name.startswith("."))
-        victim = sorted(mpd.OUT.glob("*.tif"))[0]
+        victim = sorted(mpd.OUT_BASE.glob("*.tif"))[0]
         victim.unlink()
         check("pet dyes: a copy deleted -> missing", "missing" in " ".join(mpd.problems()))
         mpd.main([])

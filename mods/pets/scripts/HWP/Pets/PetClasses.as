@@ -4,7 +4,7 @@
 //   - puzzle and trap room waiting (HWP::PetWait::Watcher, mods/petrooms; Owned, so
 //     petrooms' driver for vanilla pets leaves them be; also the candle's Secret Sense hover),
 //   - the owner's pickup toggles (PlayerRecord.petOptions instead of the
-//     hardcoded 319 the base ResetPet passes),
+//     hardcoded 319 the base ResetPet passes), and never health or mana,
 //   - the Fetch passives and the skill runner (HWP::Pets::SkillRunner),
 //   - pet XP for every pickup,
 //   - the owner's pet dyes from the tailor (HWP::PetDye; a dyed pet may swap
@@ -46,6 +46,12 @@ class HWPMiniPetWalking : MiniPetWalking, HWP::PetWait::Owned
 		MiniPetWalking::Update(dt);
 		if (m_unit.IsValid())
 			m_skills.Update(dt, m_owner, m_unit.GetPosition(), m_petId);
+	}
+
+	// pets leave health and mana pickups to the players (HWP::Pets::NoHealthOrMana)
+	MiniPetOption IsPickupOkay(UnitPtr pickup) override
+	{
+		return HWP::Pets::NoHealthOrMana(MiniPet::IsPickupOkay(pickup));
 	}
 
 	bool PickUp(UnitPtr pickup, vec2 pos, vec2 normal) override
@@ -99,6 +105,12 @@ class HWPMiniPetFlying : MiniPetFlying, HWP::PetWait::Owned
 		MiniPetFlying::Update(dt);
 		if (m_unit.IsValid())
 			m_skills.Update(dt, m_owner, m_unit.GetPosition(), m_petId);
+	}
+
+	// pets leave health and mana pickups to the players (HWP::Pets::NoHealthOrMana)
+	MiniPetOption IsPickupOkay(UnitPtr pickup) override
+	{
+		return HWP::Pets::NoHealthOrMana(MiniPet::IsPickupOkay(pickup));
 	}
 
 	bool PickUp(UnitPtr pickup, vec2 pos, vec2 normal) override

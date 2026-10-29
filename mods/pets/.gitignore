@@ -3,6 +3,9 @@ players/pets/hwp/
 gui/hwp/
 doodads/hwp/outlook_props.png
 tweak/hwp/pets_hoh1.sval
+# >>> tools/make_pet_dyes.py (generated from the HoH2 base; do not edit)
+/players/pets/hwp_dye/
+# <<< tools/make_pet_dyes.py
 # >>> tools/class_units.py (generated from the HoH2 base; do not edit)
 /actors/npcs/town/npc_dyer.unit
 /actors/npcs/town/npc_pets.unit

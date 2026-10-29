@@ -64,7 +64,8 @@ Watcher in their own Update.
   No skill fires in town or while the pet waits outside a puzzle or trap room.
 - **Pickup toggles** set `PlayerRecord.petOptions` (a vanilla field that is
   saved as `pet-options`); `ResetPet()` re-initialises the live pet. Bowl menu
-  rows or `hwp pet gold|valuables|materials|health|caches|cursed|elixirs|xp on|off`.
+  rows or `hwp pet gold|valuables|materials|caches|cursed|elixirs|xp on|off`.
+  Pets never pick up health or mana (`NoHealthOrMana`): those are left to the players.
 - **Pet dyes.** The tailor (class swap `EquipmentDyerShopContent` ->
   `HWPDyerShopContent`, `scripts/HWP/Pets/PetDye.as`) asks "Dye gear / Dye
   pet" when you have a pet out. The pet window lists every dye the town has
@@ -76,7 +77,7 @@ Watcher in their own Update.
   flames (the flaming dog and hound) and taco / fur (taco cat); a "Dyeing:"
   row switches the section. The dyes are per character and per pet
   (`pets.dye.<petId>`, `pets.dye2.<petId>`). `tools/make_pet_dyes.py` (run by
-  `build.py`) writes dye-ready copies of those pets (`players/pets/hwp/dye/`,
+  `build.py`) writes dye-ready copies of those pets (`players/pets/hwp_dye/` for the vanilla pets, which ship; `players/pets/hwp/dye/` for the HoH1 ones, local like the rest of the import;
   gitignored: made from your HoH2 base and HoH1 import) whose sprite pixels are
   indexed for the engine's multicolour shader (`.tif` sheets: the shader only
   recolours `.tif` textures, and only in their packed form, so dye colours show
