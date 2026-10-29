@@ -5543,3 +5543,50 @@ width, with each entry's symbols side by side before its name. In a column of 14
 tile now drops symbols from the end, keeping at least one, until the name (and the note
 under it) fits. Of the 13 cards, only Quality of Life renders differently. Republished:
 HWP-qol, HWP-pets and HammerwatchPlus-All (kit 5538d81).
+
+## 2026-10-29: Pelor's Fury on the Serpents of Demise, a body part stands for its boss (issue #34)
+
+The issue: "wasn't able to use the paladin pelors fury stun on teh snake boss"
+
+The existing boss test (`plan-generosity-bosses`) spawns `boss_serpent.unit` alone and aims at
+it, so it held. The real fight is different. Measured on the serpent floor with a new probe,
+`hwp gen pick dx dy` (what a cast aimed there would pick and say, no cast), every 1.5 s for 40 s
+(fix-fury-serpent 20261029-045710):
+- **Aimed at the body**: 23 of 24 picks were a `BossWormSegment`, refused "untargetable". The
+  body is a trail of segments: boss-tagged, `targetable false`, `no-buffs`, `ttl` 4000. The body
+  is most of what a player sees and aims at.
+- **Aimed at a head**: 33 held. 19 were refused "untargetable" because the head was `underground`,
+  `deep` or diving (by design: nothing to hold). In 5 of 38, a segment over or beside a surfaced
+  head took the pick, because the pick was simply the nearest actor.
+
+The larger issue: the pick treated every actor the same. A boss built of parts (segments that
+pass their damage on through `m_transferTarget`) could only be held by aiming at the one part
+that can be held, which is often under the body.
+
+What changed (`specs`, `Generosity.as`):
+- **`StandIn`**: an actor the Fury can't hold that passes its damage to another (`BossWormSegment`
+  or `TransferDamageActor` `m_transferTarget`) stands for that actor. A segment always stands for
+  its head, so the refusal is the head's own when it is underground. A serpent head passes to the
+  health unit, which is untargetable, so a head stays itself.
+- **`PickFuryTarget`**: picks the nearest candidate that holds (after `StandIn`), else the nearest
+  one, for the reason. `g_furyPickVia` names the part; the cast log adds `via <id> <unit>`, and
+  `hwp gen pick` says `via`.
+- The level also places static, ownerless dive segments. They stand for nothing and stay
+  refused (the cast test picks the newest segments).
+- **A cut channel is cut** (found by `plan-generosity-bosses` once the serpent could be held,
+  051024: `boss_attack_cut` failed, its casting count stuck at 1). `ChannelingBaseSkill.IsCasting()`
+  is `m_durationC > 0 || m_endC > 0`, and `CancelSkill` zeroes the duration and starts the stop
+  animation (`m_endC`). The hold cancelled every `IsCasting` skill each frame, so the Serpent's
+  `ChannelingSpewSkill` was cancelled again and again, restarting its stop animation, and
+  counted as casting for the whole hold. `Active()` now counts a channel only while it has
+  duration left, in the cut, the casting names and the status count.
+
+Tests:
+- `fix-fury-serpent` (20261029-053303; pkgfeat 20261029-053432; 053127, earlier passes 050432 and 050633):
+  - every body aim picks a serpent head (none a segment), many held through the segment;
+  - no surfaced head's pick is taken by a segment;
+  - a real cast aimed at a body segment held the head, with cd 59769/60000 and Blessing 0.
+  - the cast step looks at the pick again right before the cast: a head that dove between
+    the look and the cast was refused once (052347, a test race, not the mod).
+- Regressions: `plan-generosity-bosses` (20261029-051924, the serpent's attack cut included; failed 051024
+  before the channel fix) and `plan-generosity` (20261029-052645).

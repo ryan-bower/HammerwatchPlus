@@ -523,6 +523,141 @@ class Checks(Base, TowerBoss):
         self.flag(k + "_beams", all((r.get("beams") or 0) >= 4 for r in held), str([(r["boss"], r.get("beams")) for r in held]))
         self.flag(k + "_no_errors", not any(r.get("errors") for r in rows), str([(r["boss"], r["errors"]) for r in rows if r.get("errors")]))
 
+    # --- the Serpents of Demise on their own floor (issue #34)
+    def serpent_floor(self):
+        """dark_citadel floor 18 (levels/boss_bone_serpent.lvl) started by its own BossStart
+        script; returns the live serpent heads (TransferDamageActor) and body segments
+        (BossWormSegment) within 5000 px."""
+        r = self.gl("mission", "dark_citadel", 18)
+        ok = bool(r.get("ok")) and str(r.get("level", "")).endswith("boss_bone_serpent.lvl") and self.wait_phase("mission")
+        self.flag("srp_floor", ok, str(r))
+        if not ok:
+            return False
+        time.sleep(3)
+        if not self.gl("cvars", "cht_god").get("cvars", {}).get("cht_god"):
+            self.hwp("god", 0.4)
+        ws = self.gl("wsexec", "ScriptLink", "BossStart")
+        self.flag("srp_start", ws.get("ok") is True, str(ws))
+        return ws.get("ok") is True
+
+    def serpent_parts(self):
+        # filtered: `actors` lists at most 32, and the floor has more
+        heads = [a for a in self.gl("actors", 5000, "TransferDamageActor").get("actors", []) if not a.get("dead")]
+        segs = [a for a in self.gl("actors", 5000, "BossWormSegment").get("actors", []) if not a.get("dead")]
+        return heads, segs
+
+    def pick_at(self, a):
+        x, y = self.pos()
+        t = self.gen(f"pick {round(a['x'] - x)} {round(a['y'] - y)}")
+        m = re.search(r"gen: pick (none|(\d+) (\S+) (\S+)); (holds|refused: [^;\n]*)(?:; via (\d+))?", t)
+        if not m:
+            return {"raw": t[-120:]}
+        return {"aimed": a["unit"], "picked": int(m.group(2)) if m.group(2) else None,
+                "picked_name": (m.group(3) or "none").rsplit("/", 1)[-1], "picked_kind": m.group(4),
+                "verdict": m.group(5).strip(), "via": int(m.group(6)) if m.group(6) else None}
+
+    def serpent_probe(self, seconds=40, setup=True):
+        """What the Fury would pick and say, aimed at each serpent head and at body segments,
+        every ~1.5 s of the real fight."""
+        if setup:
+            self.setup_gen("srp")
+            if not self.serpent_floor():
+                return []
+        rows = []
+        end = time.time() + seconds
+        while time.time() < end:
+            heads, segs = self.serpent_parts()
+            for a in heads:
+                rows.append(dict(at="head", scene=a.get("scene"), targetable=a.get("targetable"), **self.pick_at(a)))
+            for a in segs[:2]:
+                rows.append(dict(at="segment", **self.pick_at(a)))
+            time.sleep(1.5)
+        self.out["srp_probe"] = rows
+        def tally(at):
+            t = {}
+            for r in rows:
+                if r.get("at") == at:
+                    k = f"{r.get('picked_kind')}: {r.get('verdict')}"
+                    t[k] = t.get(k, 0) + 1
+            return t
+        self.notes.append(f"serpent heads: {tally('head')}")
+        self.notes.append(f"serpent segments: {tally('segment')}")
+        return rows
+
+    def serpent_fury(self):
+        """Issue #34: Pelor's Fury on the real Serpents of Demise. Aimed at the body, a segment
+        stands for its serpent: the pick is the head (via the segment), held when the head can
+        be (surfaced), its own reason when not (underground); aimed at a surfaced head, a segment
+        over it no longer takes the pick. Then a real cast through the skill aimed at the body
+        holds the head (60 s boss cooldown, Blessing spent)."""
+        self.setup_gen("srp")
+        if not self.serpent_floor():
+            return
+        rows = self.serpent_probe(30, setup=False)
+        segs = [r for r in rows if r.get("at") == "segment" and r.get("picked") is not None]
+        heads = [r for r in rows if r.get("at") == "head" and r.get("picked") is not None]
+        seg_bad = [r for r in segs if r.get("picked_kind") == "BossWormSegment"]
+        self.flag("srp_body_is_serpent", len(segs) >= 6 and not seg_bad,
+                  f"{len(segs)} body aims; still a segment: {seg_bad[:4]}")
+        seg_held = [r for r in segs if r.get("verdict") == "holds" and r.get("picked_kind") == "TransferDamageActor"]
+        # via: the pick went through the segment (none when the head itself was nearest the aim)
+        self.flag("srp_body_holds", any(r.get("via") for r in seg_held),
+                  f"{len(seg_held)} of {len(segs)} body aims hold the head, "
+                  f"{sum(1 for r in seg_held if r.get('via'))} through the segment, e.g. {seg_held[:2]}")
+        stolen = [r for r in heads if r.get("targetable") and r.get("picked_kind") == "BossWormSegment"]
+        self.flag("srp_head_not_stolen", len(heads) >= 6 and not stolen, f"{len(heads)} head aims; a segment took {stolen[:3]}")
+        # the real cast, aimed at a body segment whose pick holds right now
+        mark = len(self.g.read_log())
+        held_head, tries, said, seen = None, 0, "", {}
+        # a head is up a few seconds at a time, so the pick is looked at again right before the
+        # cast (a head that dove in between was refused once, 20261029-052347)
+        end = time.time() + 90
+        self.ready(10)
+        while time.time() < end and held_head is None:
+            _, segs_now = self.serpent_parts()
+            # newest first: the trail a moving head leaves (the level also places static,
+            # ownerless dive segments that stand for nothing)
+            for a in sorted(segs_now, key=lambda v: -v["unit"])[:12]:
+                pk = self.pick_at(a)
+                k = f"{pk.get('picked_kind')}: {pk.get('verdict')}"
+                seen[k] = seen.get(k, 0) + 1
+                if pk.get("verdict") != "holds" or pk.get("picked_kind") != "TransferDamageActor":
+                    continue
+                x, y = self.pos()
+                d = ((a["x"] - x) ** 2 + (a["y"] - y) ** 2) ** 0.5
+                if d > 200:
+                    self.gl("teleport", round(a["x"] - (a["x"] - x) / d * 120, 1), round(a["y"] - (a["y"] - y) / d * 120, 1))
+                    time.sleep(0.2)
+                    x, y = self.pos()
+                    pk = self.pick_at(a)
+                    if pk.get("verdict") != "holds" or pk.get("picked_kind") != "TransferDamageActor":
+                        continue
+                tries += 1
+                said = self.gen(f"fury {round(a['x'] - x)} {round(a['y'] - y)}")
+                time.sleep(0.6)
+                s = self.st()
+                if s["holding"] is not None:
+                    held_head = (s, pk, a)
+                    break
+                self.ready(10)
+            if held_head is None:
+                time.sleep(0.5)
+        log = self.g.read_log()[mark:]
+        on = re.search(r"pelor's fury on (\d+) \((\S+)\) boss", log)
+        ok = held_head is not None and on is not None and on.group(2).endswith("boss_serpent.unit")
+        detail = f"{tries} cast(s); {said.strip()[-160:]!r}; log {on.group(0) if on else None}; body picks seen {seen}"
+        if held_head:
+            s, pk, a = held_head
+            detail += f"; holding {s['holding']} aimed at segment {a['unit']} (pick {pk})"
+        self.flag("srp_cast_holds_head", ok, detail)
+        if held_head:
+            s = held_head[0]
+            self.flag("srp_cast_boss_cd", (s.get("cdmax") or 0) >= 60000 and (s.get("stacks") or 0) == 0,
+                      f"cd {s.get('cd')}/{s.get('cdmax')}, blessing {s.get('stacks')}")
+            self.wait_hold_end(8)
+        self.flag("srp_no_errors", not self.errors_since(mark), str(self.errors_since(mark)[:3]))
+        self.g.shot("fury-serpent")
+
     # --- the HoH1 tower's bosses
     def hoh1(self, only=""):
         self.setup_gen("h1")

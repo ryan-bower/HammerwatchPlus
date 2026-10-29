@@ -169,6 +169,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-29, Pelor's Fury works on the Serpents of Demise (#34). A serpent is mostly body, and
+its body is a trail of untargetable boss parts. Aimed at the body, the Fury picked one of those
+parts and refused nearly every time. Now any part of a serpent counts as the serpent: the
+Fury holds its head when the head is above ground, and says why not when it is underground. A
+body part over a surfaced head no longer steals the pick either.
+
 2026-10-28, the Forsaken Tower from HoH1 itself (`campaign`, "HoH1 tower" in its README).
 With HoH1 installed, the import builds HoH1's tower from the player's own install: 23 floors,
 the nine hand-made levels as HoH1 ships them and fourteen act floors from HoH1's own generator

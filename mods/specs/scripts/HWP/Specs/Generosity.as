@@ -22,7 +22,7 @@
 //   specs.fury_play; every peer pulses pelors_strike.effect on the target every FX_PULSE_MS:
 //   one strike on a normal enemy, a ring of 4 to 10 around a boss, by its size.
 // - Descendent of Pentival (dp-on): HWPGenPentival / HWPGenPentivalLeech on the stack's buff.
-// - `hwp gen`: status | stacks <n> | fury [now] | cd | solo [on|off|auto].
+// - `hwp gen`: status | stacks <n> | fury [now] | pick [dx dy] | cd | solo [on|off|auto].
 namespace HWP
 {
 	namespace Specs
@@ -268,12 +268,46 @@ namespace HWP
 			return body is null ? 8.0f : body.GetEstimatedRadius();
 		}
 
-		// the actor nearest `aim` within FURY_PICK (and its own size) of it: enemies, targetable or
-		// not, so a refusal names the reason
+		// what a body part stands for: the actor it passes its damage to (m_transferTarget), when the
+		// part itself can't be held. The Serpents of Demise's bodies are trails of boss-tagged
+		// BossWormSegment units (untargetable, no-buffs, a 4 s ttl) passing their hits to the head
+		// (issue #34: aimed at the body, the Fury picked a segment and was refused "untargetable"
+		// 23 times of 24, fix-fury-serpent 20261029-045710). A serpent head (TransferDamageActor)
+		// passes to the fight's health unit, which is never held: the head stays itself.
+		Actor@ StandIn(PlayerBase@ plr, Actor@ a)
+		{
+			if (a is null || FuryRefusal(plr, a).isEmpty())
+				return a;
+			UnitPtr to;
+			auto seg = cast<BossWormSegment>(a);
+			if (seg !is null)
+				to = seg.m_transferTarget;
+			auto tr = cast<TransferDamageActor>(a);
+			if (tr !is null)
+				to = tr.m_transferTarget;
+			if (!to.IsValid() || to.IsDestroyed() || to == a.m_unit)
+				return a;
+			auto owner = cast<Actor>(to.GetScriptBehavior());
+			if (owner is null || owner.IsDead() || cast<CompositeActorBehavior>(owner) is null || (tr !is null && !owner.IsTargetable()))
+				return a;
+			// a segment is its serpent even when the head can't be held right now (underground):
+			// the refusal then names the head's reason
+			return owner;
+		}
+
+		string g_furyPickVia = "";   // the body part the last pick went through, "" for none
+
+		// the actor nearest `aim` within FURY_PICK (and its own size) of it, a body part standing
+		// for its owner (StandIn): the nearest one that can be held, else the nearest, so a
+		// refusal names the reason (a segment over a surfaced head took 5 of 38 picks aimed at
+		// the head, 045710)
 		Actor@ PickFuryTarget(PlayerBase@ plr, vec2 aim)
 		{
 			Actor@ best = null;
 			float bestD = 1e9f;
+			Actor@ held = null;
+			float heldD = 1e9f;
+			string bestVia = "", heldVia = "";
 			// the shape query, and the team's actor list: the boss spirits' bodies are aim-through
 			// sensors the shape query skips (plan-generosity-bosses 20261027-013518, four spirits at
 			// 8-97 px read "no target")
@@ -290,12 +324,25 @@ namespace HWP
 				if (a is null || a.IsDead() || a.Team == plr.Team || cast<CompositeActorBehavior>(a) is null)
 					continue;
 				float d = dist(xy(a.m_unit.GetPosition()), aim) - UnitRadius(a.m_unit);
-				if (d > FURY_PICK || d >= bestD)
+				if (d > FURY_PICK)
 					continue;
-				bestD = d;
-				@best = a;
+				auto s = StandIn(plr, a);
+				string via = s is a ? "" : a.m_unit.GetId() + " " + a.m_unit.GetDebugName();
+				if (d < bestD)
+				{
+					bestD = d;
+					@best = s;
+					bestVia = via;
+				}
+				if (d < heldD && FuryRefusal(plr, s).isEmpty())
+				{
+					heldD = d;
+					@held = s;
+					heldVia = via;
+				}
 			}
-			return best;
+			g_furyPickVia = held !is null ? heldVia : bestVia;
+			return held !is null ? held : best;
 		}
 
 		void Refuse(PlayerBase@ plr, const string &in why, bool warn = true)
@@ -335,6 +382,7 @@ namespace HWP
 			g_furyLast = "held " + a.m_unit.GetId() + (h.m_boss ? " boss" : "") + " " + stun + " ms +" + Rounded(dmg * 100) + "%"
 				+ (h.m_locked ? " locked" : " free");
 			Log("specs", "pelor's fury on " + a.m_unit.GetId() + " (" + a.m_unit.GetDebugName() + ")" + (h.m_boss ? " boss" : "")
+				+ (g_furyPickVia.isEmpty() ? "" : " via " + g_furyPickVia)
 				+ " stun " + stun + " ms dmg +" + Rounded(dmg * 100) + "% " + (h.m_locked ? "caster locked" : "solo, caster free"));
 
 			SValueBuilder b;
@@ -465,6 +513,18 @@ namespace HWP
 		// Queen's and Dace Arden's, plan-generosity-bosses 20261027-013518) or one past that check
 		// (a channel, a charge, a breath) runs on, so this runs at the start and every frame of the
 		// hold
+		// casting for real: a channel that was cancelled stays IsCasting through its stop animation
+		// (ChannelingBaseSkill: m_durationC 0, m_endC > 0) and does nothing more; cancelling it
+		// again every frame restarted that animation and kept it "casting" (the Serpent's
+		// ChannelingSpewSkill, plan-generosity-bosses 20261029-051024, issue #34)
+		bool Active(ACompositeActorSkill@ sk)
+		{
+			if (sk is null || !sk.IsCasting())
+				return false;
+			auto ch = cast<ChannelingBaseSkill>(sk);
+			return ch is null || ch.m_durationC > 0;
+		}
+
 		int CutCasting(CompositeActorBehavior@ ca)
 		{
 			// a unit with no body is mid-air in a scripted scene (the Benevolence spirit's dive
@@ -477,7 +537,7 @@ namespace HWP
 			for (uint i = 0; ca !is null && i < ca.m_skills.length(); i++)
 			{
 				auto sk = ca.m_skills[i];
-				if (sk !is null && sk.IsCasting() && !Passive(sk))
+				if (Active(sk) && !Passive(sk))
 				{
 					sk.CancelSkill();
 					n++;
@@ -494,7 +554,7 @@ namespace HWP
 			for (uint i = 0; ca !is null && i < ca.m_skills.length(); i++)
 			{
 				auto sk = ca.m_skills[i];
-				if (sk is null || !sk.IsCasting())
+				if (!Active(sk))
 					continue;
 				ret += (ret.isEmpty() ? "" : ",") + Reflect::GetTypeName(sk) + (sk.m_restrictions.m_isAttack ? "/a" : "")
 					+ (sk.m_restrictions.m_isSpell ? "/s" : "") + (Passive(sk) ? "/p" : "");
@@ -657,7 +717,7 @@ namespace HWP
 					int casting = 0;
 					for (uint i = 0; ca !is null && i < ca.m_skills.length(); i++)
 					{
-						if (ca.m_skills[i].IsCasting() && !Passive(ca.m_skills[i]))
+						if (Active(ca.m_skills[i]) && !Passive(ca.m_skills[i]))
 							casting++;
 					}
 					if (ca !is null)
@@ -709,6 +769,20 @@ namespace HWP
 				string v = args.length() > 1 ? args[1] : "auto";
 				g_soloForce = v == "on" ? 1 : (v == "off" ? 0 : -1);
 				HWP::Commands::Reply("gen: solo " + (Solo() ? "yes" : "no") + " (" + v + ")");
+				return;
+			}
+			if (sub == "pick")
+			{
+				// hwp gen pick [dx dy]: what a cast aimed at the player + (dx, dy) would pick and
+				// why it would be refused (no cast, no cost)
+				vec2 aim = xy(plr.m_unit.GetPosition());
+				if (args.length() >= 3)
+					aim += vec2(float(parseFloat(args[1])), float(parseFloat(args[2])));
+				auto a = PickFuryTarget(plr, aim);
+				string why = FuryRefusal(plr, a);
+				HWP::Commands::Reply("gen: pick " + (a is null ? "none" : a.m_unit.GetId() + " " + a.m_unit.GetDebugName()
+					+ " " + Reflect::GetTypeName(a)) + "; " + (why.isEmpty() ? "holds" : "refused: " + why)
+					+ (g_furyPickVia.isEmpty() ? "" : "; via " + g_furyPickVia));
 				return;
 			}
 			if (sub == "fury")
