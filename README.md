@@ -169,6 +169,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-29, Pyrebrand is a nuke (#35). The brand now charges as it burns, and the Hellfire
+Claw pays up to 100/150/250/350/500% of the damage that fed it (rank 1-5): all of it when the
+brand runs out, less on an early recast. Before, it paid 10-50% whenever it went off. At rank 5
+a full brand's claw took 7.4x the damage that fed it from a test dummy, where the old one would
+have taken about 0.9x.
+
 2026-10-28, the Forsaken Tower from HoH1 itself (`campaign`, "HoH1 tower" in its README).
 With HoH1 installed, the import builds HoH1's tower from the player's own install: 23 floors,
 the nine hand-made levels as HoH1 ships them and fourteen act floors from HoH1's own generator

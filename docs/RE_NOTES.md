@@ -5543,3 +5543,40 @@ width, with each entry's symbols side by side before its name. In a column of 14
 tile now drops symbols from the end, keeping at least one, until the name (and the note
 under it) fits. Of the 13 cards, only Quality of Life renders differently. Republished:
 HWP-qol, HWP-pets and HammerwatchPlus-All (kit 5538d81).
+
+## 2026-10-29: Pyrebrand charges as it burns (issue #35)
+
+The issue: "The scaling caps at 50% more dam when the duration expires. This is too small and
+needs increased by a lot. The damage that is charged should feel like a nuke when it goes off.
+So maybe caps out at 500% inc? Or like 50% per duration second."
+
+How it was (`Branding.as`): `HWPSpecsBrandFeed` stores `pb-pct` (10/15/25/35/50%) of every hit's
+damage on the brand. The claw is `Damage` fire 100 at intensity `(pb-base + stored) / 100`, so the
+warlock's spell multipliers (spell power, damage and fire multipliers, Essence Empowerment) and
+the vanilla fire pool (+33%, burning) apply on top. The brand's time did not enter the payoff.
+
+The larger issue: Pyrebrand is a charge-and-release skill (brand, feed it, set it off), but it
+did not charge. The payoff was a fixed cut of damage already dealt and less than that damage,
+so a recast at 0.5 s was as good per damage as waiting out the brand. It played as a small
+rider on the damage, not a payoff.
+
+What changed:
+- `pb-pct` is the payoff at full charge: 1/1.5/2.5/3.5/5 (the planner's numbers times ten; the
+  description param "Full Charge" 100-500%).
+- `Brand.m_full`, `Charge(b)` = 1 - left / full. The claw is `pb-base + stored x charge` (x the
+  Combustion multiplier as before). A brand passed on keeps `m_left` and `m_full`, so it keeps
+  its charge. A Proliferation spread is a fresh 3 s brand with the whole stored damage, so it
+  charges again.
+- The claw log adds `charge C of S stored` (4 and 2 decimals, so the QA bots can predict the
+  native damage exactly). `hwp specs` adds `brandcharge` and `clawcharge`.
+
+Measured (`fix-pyrebrand-charge`, rank 5, a 15000 HP QA dummy, two rank 5 Demon's Tails fed 280 HP,
+noncrit, spell power 16):
+- Ran out: stored 1400, claw 1440 at charge 1.0000, dummy -2068 HP (7.39x the feed).
+- Recast at ~3 s: charge 0.4950, claw 733, dummy -1053 HP (3.76x).
+- The old claw would have been 40 + 140 = 180, about 258 HP (0.92x).
+
+Tests: `fix-pyrebrand-charge` (20261029-054110; pkgfeat 20261029-054349); `qa-specs-branding-ranks` (20261029-054215, the
+pct table and the fed claw's expectation from its logged charge); `qa-specs-branding-native-combo`
+(20261029-054438), `qa-specs-branding-orbs` (20261029-054654: the claw checks pass; its Essence Empowerment multiplier-revert flags fail on main too, 055519) and `qa-specs-branding-pair-c3-e3` (20261029-055909): their claw
+regex reads the new line; `plan-specs` (20261029-054947): `brand_claw` is base + stored x charge.

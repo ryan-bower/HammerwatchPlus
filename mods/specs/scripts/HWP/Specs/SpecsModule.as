@@ -126,11 +126,14 @@ namespace HWP
 			}
 			ret += "; circuit returns " + g_circuitReturns + " back hits " + g_circuitBackHits + " catches " + g_circuitCatches
 				+ "; gale arrows " + g_galeArrows + "; tailwind kills " + g_twKills;
-			float stored = 0;
+			float stored = 0, charge = 0;
 			for (uint i = 0; i < g_brands.length(); i++)
+			{
 				stored += g_brands[i].m_stored;
-			ret += "; brands " + g_brands.length() + " stored " + int(stored + 0.5f) + "; claws " + g_claws + " hits " + g_clawHits
-				+ " last " + g_lastClaw + "; transfers " + g_transfers + "; essence hits " + g_essenceHits + " twice " + g_essenceTwice + " released " + g_released;
+				charge = max(charge, Charge(g_brands[i]));
+			}
+			ret += "; brands " + g_brands.length() + " stored " + int(stored + 0.5f) + " brandcharge " + int(charge * 100 + 0.5f)
+				+ "; claws " + g_claws + " hits " + g_clawHits + " last " + g_lastClaw + " clawcharge " + g_lastCharge + "; transfers " + g_transfers + "; essence hits " + g_essenceHits + " twice " + g_essenceTwice + " released " + g_released;
 			ret += "; blinks " + g_blinks + " hits " + g_blinkHits + " blink px " + g_lastBlink + "; recasts " + g_recasts + " " + g_lastRecast
 				+ "; last spell " + LastSpellName(plr) + "; drained " + g_drained + " converted " + g_converted + " barrier saves " + g_barrierSaves
 				+ "; feedback " + int(g_feedback + 0.5f) + " used " + g_fbUsed + " mul " + int(g_fbMul * 1000 + 0.5f) + "; conduit sent " + g_conduitSent + "; floored " + g_floored;

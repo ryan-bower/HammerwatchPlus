@@ -143,7 +143,7 @@ class Checks(Base):
                    and observed.get("end", 0) - hits[0]["now"]
                        >= max(p["ticks"] for p in predictions) * 250 + 67
                    and all(e.get("target_valid") and e.get("target_hpMax") == 500 for e in events))
-        claws = re.findall(r"claw \(recast\) (\d+) fire, radius (\d+), (\d+) hit, (\d+) essence spent", recast.get("log", ""))
+        claws = re.findall(r"claw \(recast\) (\d+) fire, charge [\d.]+ of [\d.]+ stored, radius (\d+), (\d+) hit, (\d+) essence spent", recast.get("log", ""))
         claws = [tuple(map(int, match)) for match in claws]
         expected_claws = [(round(40 * (1 + .04 * essence)), round(40 * (1 + .04 * essence)), 1, essence),
                           (40, 40, 1, 0)]
