@@ -5543,3 +5543,60 @@ width, with each entry's symbols side by side before its name. In a column of 14
 tile now drops symbols from the end, keeping at least one, until the name (and the note
 under it) fits. Of the 13 cards, only Quality of Life renders differently. Republished:
 HWP-qol, HWP-pets and HammerwatchPlus-All (kit 5538d81).
+
+## 2026-10-29: levers that did nothing (issue #27)
+
+The issue (from ryan-bower): "sometimes buttosn that dont work on floors, and there arent even
+anything to open". The lever takes the use, no vault opens and the way down stays as it was.
+
+The cause is the preload context, not the lever:
+- `MissionGameMode` generates the next floor ahead while the party is on the floor above
+  (`Generate` in the "mission-level-preload" context; every script log line from it is tagged
+  `[preload]`). Taking the exit loads that floor whole into the main context: its units come
+  along, its script globals don't.
+- `objectives` kept the vaults, their levers and the exit switch in globals filled during
+  generation (`HWPObjectiveSpawn`). On a preloaded floor the main context's records were the
+  ones `ClearFloor` left: no vault, no exit switch. `HostSwitchUsed` looks the lever up by
+  position, found nothing, and did nothing. And with no exit switch recorded, Start never
+  sealed the exits.
+- Only the first floor of a run is generated in the main context, so "sometimes" is "every
+  floor but the first".
+
+Evidence:
+- The user's co-op session (client side, `logs/HWR2.exe_2026-10-28_21-24-45.log` in the game
+  folder): 29 of the 30 `state from host` lines say `0 vault(s), 0 open, exit switch none`; one
+  says `1 vault(s), 0 open, exit switch sealed`.
+- Repro, lab run 20261029-032640 (before the fix): `[preload] ... placed 1 vault(s), exit
+  switch yes on keep_2`, then on keep_2 `start: 0 vault(s), exit switch none, 1 door unit(s),
+  2 switch unit(s)`. The units were there, the records weren't.
+
+What changed:
+- `g_generatedHere` is set by the generation command and cleared with the floor. At Start, a
+  host whose context didn't generate the floor runs `AdoptFromUnits`: each door unit becomes a
+  vault (the room's corner is the door minus `Gen::DOOR_IN_PFB`, the size from the vault
+  prefab def), each vault takes the farthest lever left (generation puts a lever as far from
+  its vault as it can), the exit-kind lever is the exit switch, and a used lever or open door
+  counts as opened. A floor loaded from a save takes the same path.
+- A client's exit seal retries for 3 s like the host's. The host's state can arrive before the
+  keep's exit part fabricates, and one client floor in the user's log logged `exits sealed: 0`.
+  Not measured in the lab (one machine).
+
+Tests:
+- `fix-objectives-preloaded` (20261029-032850, 20261029-033031; pkgfeat 20261029-033103):
+  keep_1, then `cht_finish_level` onto the preloaded keep_2. It logs `floor not generated here
+  (preloaded or from a save): 1 vault(s) and exit switch yes at 424,-568 taken from the units,
+  vault 0 door 416,-624 switch -424,568`, then `start: 1 vault(s), exit switch sealed` and
+  `exits sealed: 1`. The vault lever logs `vault 0 opened by Pilot` (both door units found)
+  and the exit lever `exits open: 1`.
+- `fix-objectives` (20261029-032954) still passes.
+
+The larger issue: any module that keeps state from a generation hook loses it on every
+preloaded floor. Checked the others:
+- `campaign` teleporters pick their pair when used, so they work on preloaded floors.
+- `luck` and `puzzles` only log during generation; nothing is read back at play time.
+A module that needs generation state at play time must put it in the units (or read it back
+from them), not in script globals.
+
+On the way:
+- `gamelab/fixtures/mission-ranger.json` no longer reads back `player.maxDashes 1` (the same
+  change as on issue #26's branch): a fixture rebuild can roll starting boots with a dash.

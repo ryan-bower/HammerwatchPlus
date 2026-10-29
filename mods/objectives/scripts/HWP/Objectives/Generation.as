@@ -213,6 +213,7 @@ namespace HWP
 			{
 				RefreshSettings();
 				ClearFloor();
+				g_generatedHere = true;
 				if (brush is null || placer is null)
 					return;
 				if (!g_enabled)

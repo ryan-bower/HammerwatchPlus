@@ -169,6 +169,13 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-29, the levers work past the first floor (#27). From the second floor of a run on,
+the vault and exit levers did nothing and the way down was never sealed. The game builds the
+next floor ahead of time, in a separate part of the game's scripting, and the mod's notes on
+where it put the vault and the levers stayed there. The mod now reads the vault and the
+levers off the floor itself when it starts, and a co-op client keeps trying to seal its exits
+for a few seconds, as the host does.
+
 2026-10-28, the Forsaken Tower from HoH1 itself (`campaign`, "HoH1 tower" in its README).
 With HoH1 installed, the import builds HoH1's tower from the player's own install: 23 floors,
 the nine hand-made levels as HoH1 ships them and fourteen act floors from HoH1's own generator

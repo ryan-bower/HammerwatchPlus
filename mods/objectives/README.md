@@ -49,9 +49,20 @@ skipped).
   execute), on the host at level start and on a client when the host's state
   says so. The keep's `level_exit.pfb` is a PrefabPicker whose part fabricates
   after the module's Start, so the host retries the seal for 3 s and logs
-  "exits sealed after start". A client sends `objectives.hello` at
-  start and gets `objectives.state` (every vault and the exit with their
-  opened flags), applied silently.
+  "exits sealed after start". A client retries its own seal for 3 s too
+  when the host's state arrives before the exit part. A client sends
+  `objectives.hello` at start and gets `objectives.state` (every vault and
+  the exit with their opened flags), applied silently.
+- **Preloaded floors** (issue #27). The game generates the next floor ahead,
+  in a separate script context, while the party is still on the floor above
+  (`[preload]` in the log). Taking the exit loads that floor whole, so the
+  generation's records (`g_vaults`, the exit switch) never reach the context
+  the floor is played in. The units do. So on a floor its own context didn't
+  generate (also a floor loaded from a save), the host rebuilds the records
+  from the units at Start (`AdoptFromUnits`): each door is a vault, each vault
+  gets the farthest lever left, and the exit lever is the exit switch. It logs
+  `floor not generated here (preloaded or from a save): N vault(s) and exit
+  switch yes ... taken from the units, vault 0 door x,y switch x,y`.
 - **HUD** (`gui/hwp_objectives.gui`, `HWPObjectivesHUD`): a line under the
   region banner, "Find the switch to open the way down" until the exit lever
   is used, then "The way down is open" for 6 s; a second line "Vaults: n/m".
@@ -114,3 +125,10 @@ Known limits (lab run `fix-objectives`, 2026-10-26, keep floor 1):
 6. Co-op: the client sees the same door closed and the same levers; either
    player's press opens for both; a client joining after a vault was opened
    sees it open and the exit sealed/open as on the host (`state from host`).
+   On the second floor and later (preloaded floors), `state from host` names
+   the vault and `exit switch sealed`, and the client's exits are sealed too.
+7. `python -m gamelab run fix-objectives-preloaded --mode lab` (passes): keep 1,
+   then down the exit to keep 2, which was generated in the preload context.
+   The host logs the floor taken from the units, seals the exits, and both
+   levers work (the vault opens, the exits enable); no lever line says it
+   matches no vault. Shot `keep2-after-levers`.
