@@ -5689,3 +5689,21 @@ shots found three bugs that no probe assertion could see:
 
 `gl menu hwp_options` on a closed player menu opens it on the Character tab, so the next
 `hwp-opt` press goes to the wrong tab. The shots scenario sends it twice.
+
+## 2026-10-29: Rebinds survive a restart (mod-keys-persist)
+
+`mod-keys-persist 20261029-004515` PASS checks that a rebind is still there after quitting.
+- **First boot.** The log reads `Loading control bindings from 'res/controls_default.cfg'`.
+- **Rebinding in town.** Skill 1 goes to U (named), dash to J and the weapon swap key to ScrL.
+  Each game-key bind logs `Saved control bindings to 'res/controls.cfg'`.
+- **Restart.** The run quits (WM_CLOSE) and boots a new process. That process loads
+  `controls_default.cfg`, then `res/controls.cfg` on top of it.
+- **After the restart:**
+  - the 37 kbm bindings match the ones from before (Skill1 = mouse_4 + u, Dash = j);
+  - the rows read U, J and ScrL, and "1 named" (the mod key and the learned name are kept
+    in the save);
+  - in a mission, U uses skill 1 and J dashes;
+  - the old 1 and Space do nothing.
+
+The file is the same one the vanilla Controls menu writes. `deploy.py` copies only into
+`<install>/mods/`, so a deploy cannot remove it.
