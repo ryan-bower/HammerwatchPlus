@@ -39,6 +39,7 @@ next level.
 | Orb warnings | On | `orbwarn.enabled` | on | on, off | local |
 | Map icons | On | `mapicons.enabled` | on | on, off | local |
 | Map icons | Dye pots | `mapicons.dyes` | on | on, off | local |
+| Attribute point clicks | On | `attrclick.enabled` | on | on, off | local |
 
 ## Co-op Play
 

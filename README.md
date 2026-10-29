@@ -13,7 +13,7 @@ all-in-one pack (`packages.json`; `docs/modules.md`, Packages):
 
 | Package | Modules |
 |---|---|
-| `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, petrooms, legacy, goldworth, mmhmm, orbwarn, mapicons |
+| `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, petrooms, legacy, goldworth, mmhmm, orbwarn, mapicons, attrclick |
 | `HWP-coop` Co-op Play | groupcombo, architect, droptrade |
 | `HWP-autoaim` Auto Aim | autoaim |
 | `HWP-firearms` Firearms Specialist | firearms |
@@ -101,6 +101,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | `groupcombo` | A party-wide combo bonus that grows with how many players are in combo, and brief invulnerability when everyone is. Boxes, barrels, sacks and vases also drop a rare **combo orb** (0.1 %, up to 1 % with the Luck of whoever breaks them): everyone with combo unlocked gets their own, and picking it up puts you in combo at once (pets leave it alone). |
 | `architect` | Any player can pick and pay for Architect alterations; the host's picks are split across the party. Seven HoH1 challenges discount them, down to free. The run-start screen keeps three named presets of picks and NG+ level per character, shows NG+ last with the start hint, and lets a non-host leave. |
 | `droptrade` | Drop equipment on the ground for friends: a Drop button (Q) next to Destroy in the inventory. The use key picks up a dropped item before it talks to an NPC or opens a shop, chest or shrine underfoot. |
+| `attrclick` | At the Attribute Trainer, Shift+Click places 20 attribute points and Ctrl+Click 5 (never more than you have); the costs show the amount while the key is held. |
 | `orbwarn` | The orb picker says which orbs a pick would make unavailable (mutually exclusive orbs such as the Firearms grenades), with their icons and names. |
 | `deathrecap` | Who killed you: the top damage sources of the last 10 s, on screen and in chat. After a boss falls, a boss-fight recap of everyone's damage by skill and damage taken. |
 | `bufftips` | Hover a buff icon to see what it does and how many seconds it has left. |
@@ -168,6 +169,11 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 
 ## Status
+
+2026-10-29, Shift+Click places 20 attribute points at the Attribute Trainer, Ctrl+Click 5
+(`attrclick`, #22). Vanilla places one a click, and every level and NG+ level adds more to
+place. The cost on each stat shows the amount while the key is held. A gamepad keeps the
+vanilla hold-to-repeat.
 
 2026-10-28, the Forsaken Tower from HoH1 itself (`campaign`, "HoH1 tower" in its README).
 With HoH1 installed, the import builds HoH1's tower from the player's own install: 23 floors,

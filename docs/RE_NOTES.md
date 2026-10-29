@@ -5543,3 +5543,34 @@ width, with each entry's symbols side by side before its name. In a column of 14
 tile now drops symbols from the end, keeping at least one, until the name (and the note
 under it) fits. Of the 13 cards, only Quality of Life renders differently. Republished:
 HWP-qol, HWP-pets and HammerwatchPlus-All (kit 5538d81).
+
+## 2026-10-29: Shift+Click and Ctrl+Click at the Attribute Trainer (issue #22, `attrclick`)
+
+Attribute points are placed at the Attribute Trainer only. The Character menu once had "add"
+buttons, but their `OnFunc` branch is commented out (`GUI/PlayerMenu/Character.as`). The trainer,
+`npc_attrib_trainer.unit`, is an `AttributeAssignerShopContent`
+(`Town/AttributeAssignerShopContent.as`):
+- A click on a stat button (widget id `strength`, `dexterity`, `intelligence`, `focus`,
+  `vitality`; func `buy`) runs `ShopWindow.OnFunc`, then `Buy("assign")`.
+- `Buy` adds 1 to `pickedStr`/`Dex`/`Int`/`Foc`/`Vit`, then calls `SyncStatPoints` and
+  `RefreshModifiers`.
+- `AttributeAssignerWindow.Update` repeats `Buy` while the button is held: first after 800 ms,
+  then each gap is 0.6x the last plus 15 ms.
+
+Scripts read keys with `Platform::IsKeyDown(ControllerType::Keyboard, 0, sc)`, using SDL
+scancodes: Left Ctrl 224, Left Shift 225, Right Ctrl 228, Right Shift 229. devarena's Ctrl+Z
+already works this way. `GetInput().UsingGamepad` tells a gamepad apart.
+
+`attrclick` swaps the class (`HWPAttributeAssignerShopContent`). Its `Buy` adds
+min(20 with Shift or 5 with Ctrl, the points left) at once, with one sync; a plain click goes to
+vanilla. Its window shows the amount as each stat's cost and appends "Shift 20, Ctrl 5" to the
+points line.
+
+`mod-attrclick` (20261029-021911):
+- With 50 points, a plain click placed 1, Shift 20, Ctrl 5, and Shift 20 again.
+- Shift with 4 left placed 4, and a click with none left placed nothing.
+- Off, Shift placed 1.
+- The shots show the costs at 20 and at 4.
+
+GameLab sends no real keys, so the test forces the modifier with `hwp attrclick force`. The real
+Shift and Ctrl reading needs a hands-on try.
