@@ -1,6 +1,6 @@
 {
  "name": "mod-keys-play",
- "about": "The Game keys rows rebind the game's own keyboard binds, and the new keys work in play. In a mission, the Plus tab rebinds, one press each, primary attack to K, off-hand to L, skill 1 to U, dash to J and move up to O. Then, with the Dev Arena input log: left and right click still attack (mouse buttons kept), K/L attack, U and mouse 4 use skill 1, J dashes, O moves up and S still moves down; the old keys 1, Q, Space and W do nothing. Keys are posted window messages (no shim), as Windows delivers them. controls.cfg is GameLab's own and is put back after the run (writes_controls). Run: python -m gamelab run mod-keys-play --mode lab.",
+ "about": "The Game keys rows rebind the game's own keyboard binds, and the new keys work in play. In a mission, the Plus tab rebinds, one press each, skill 1 to U, dash to J and move up to O. Then, with the Dev Arena input log: left and right click still attack (the weapon attacks are not Game keys rows: mouse buttons are set in the game's Options > Controls), U and mouse 4 use skill 1, J dashes, O moves up and S still moves down; the old keys 1, Q, Space and W do nothing. Keys are posted window messages (no shim), as Windows delivers them. controls.cfg is GameLab's own and is put back after the run (writes_controls). Run: python -m gamelab run mod-keys-play --mode lab.",
  "fixture": "town-paladin",
  "mods": [
   "hwplib",
@@ -79,132 +79,6 @@
    "do": "log_has",
    "pattern": "\\[HWP:options\\] package gamekeys opened",
    "timeout": 5
-  },
-  {
-   "do": "gl",
-   "verb": "menu",
-   "args": [
-    "hwp_options",
-    "-",
-    "hwp-opt-game-attack"
-   ],
-   "name": "primary attack, on the mouse alone, shows the left button (not Unbound)",
-   "expect": {
-    "shown": true,
-    "texts": {
-     "match": "^Primary weapon \\| \\\\\"inp-lmb\"$"
-    }
-   }
-  },
-  {
-   "do": "gl",
-   "verb": "menu",
-   "args": [
-    "hwp_options",
-    "-",
-    "hwp-opt-game-offhand"
-   ],
-   "name": "off-hand shows the right button",
-   "expect": {
-    "shown": true,
-    "texts": {
-     "match": "^Off-hand weapon \\| \\\\\"inp-rmb\"$"
-    }
-   }
-  },
-  {
-   "do": "shot",
-   "name": "mouse-rows"
-  },
-  {
-   "do": "gl",
-   "verb": "menu",
-   "args": [
-    "hwp_options",
-    "-",
-    "hwp-opt-game-attack",
-    "hwp-opt",
-    "game-attack"
-   ]
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.3
-  },
-  {
-   "do": "key",
-   "key": "k",
-   "hold": 0.2
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.4
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:gamekeys\\] MainHandAttack bound to 14 \\(K\\)",
-   "timeout": 5,
-   "name": "attack rebound to K"
-  },
-  {
-   "do": "gl",
-   "verb": "menu",
-   "args": [
-    "hwp_options",
-    "-",
-    "hwp-opt-game-attack"
-   ],
-   "expect": {
-    "shown": true,
-    "texts": {
-     "match": "\\| K / \\\\\"inp-lmb\"$"
-    }
-   }
-  },
-  {
-   "do": "gl",
-   "verb": "menu",
-   "args": [
-    "hwp_options",
-    "-",
-    "hwp-opt-game-offhand",
-    "hwp-opt",
-    "game-offhand"
-   ]
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.3
-  },
-  {
-   "do": "key",
-   "key": "l",
-   "hold": 0.2
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.4
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:gamekeys\\] OffHandAttack bound to 15 \\(L\\)",
-   "timeout": 5,
-   "name": "offhand rebound to L"
-  },
-  {
-   "do": "gl",
-   "verb": "menu",
-   "args": [
-    "hwp_options",
-    "-",
-    "hwp-opt-game-offhand"
-   ],
-   "expect": {
-    "shown": true,
-    "texts": {
-     "match": "\\| L / \\\\\"inp-rmb\"$"
-    }
-   }
   },
   {
    "do": "gl",
@@ -443,33 +317,6 @@
   },
   {
    "do": "mark",
-   "name": "key-k"
-  },
-  {
-   "do": "key",
-   "key": "k",
-   "hold": 0.3
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:devarena\\] input-btn main down",
-   "since": "key-k",
-   "timeout": 5,
-   "name": "K presses the primary attack"
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
-   "since": "key-k",
-   "timeout": 5,
-   "name": "K: the primary attack casts"
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.8
-  },
-  {
-   "do": "mark",
    "name": "right"
   },
   {
@@ -494,33 +341,6 @@
    "since": "right",
    "timeout": 5,
    "name": "right click: the off-hand attack casts"
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.8
-  },
-  {
-   "do": "mark",
-   "name": "key-l"
-  },
-  {
-   "do": "key",
-   "key": "l",
-   "hold": 0.3
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:devarena\\] input-btn off down",
-   "since": "key-l",
-   "timeout": 5,
-   "name": "L presses the off-hand attack"
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
-   "since": "key-l",
-   "timeout": 5,
-   "name": "L: the off-hand attack casts"
   },
   {
    "do": "sleep",

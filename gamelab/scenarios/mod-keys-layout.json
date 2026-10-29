@@ -1,6 +1,6 @@
 {
  "name": "mod-keys-layout",
- "about": "Issue #19: a key is rebound with one press (click the row, press the key, done; the next row at once) and keeps working by position on any keyboard layout. Keys are named as on a US keyboard, as the vanilla Controls window does: not localised, so the key at Q on AZERTY reads Q. Shim input sends the SDL key events another layout would (the key at Q typing 'a'). Happy paths: the AZERTY key at Q binds and reads Q at once, the drop key on it reads Q too; three rows rebound back to back; Shift+W binds W; F13 and Scroll Lock are named (ScrL short to fit); binding the default resets it; the Game keys group lists the game's binds (mouse-only actions show the mouse icon, not Unbound), rebinds Skill 1 (keyboard keys replaced, mouse 4 kept, saved to controls.cfg) and half of the move axis; search finds its rows. Error paths: a second press after the bind does nothing, Esc cancels a capture (mod and game key) and keeps the key, typing in the search binds nothing, a closed group hides its rows, no key is ever asked to be named. controls.cfg is GameLab's own and is put back after the run (writes_controls).",
+ "about": "Issue #19: a key is rebound with one press (click the row, press the key, done; the next row at once) and keeps working by position on any keyboard layout. Keys are named as on a US keyboard, as the vanilla Controls window does: not localised, so the key at Q on AZERTY reads Q. Shim input sends the SDL key events another layout would (the key at Q typing 'a'). Happy paths: the AZERTY key at Q binds and reads Q at once, the drop key on it reads Q too; three rows rebound back to back; Shift+W binds W; F13 and Scroll Lock are named (ScrL short to fit); binding the default resets it; the Game keys group lists the game's binds (no weapon attack rows: mouse binds are the game's Options > Controls), rebinds Skill 1 (keyboard keys replaced, mouse 4 kept, saved to controls.cfg) and half of the move axis; search finds its rows. Error paths: a second press after the bind does nothing, Esc cancels a capture (mod and game key) and keeps the key, typing in the search binds nothing, a closed group hides its rows, no key is ever asked to be named. controls.cfg is GameLab's own and is put back after the run (writes_controls).",
  "fixture": "town-paladin",
  "mods": [
   "hwplib",
@@ -704,7 +704,7 @@
    "name": "the Game keys group, closed",
    "expect": {
     "shown": true,
-    "texts": "+ Game keys | 27 keys"
+    "texts": "+ Game keys | 25 keys"
    }
   },
   {
@@ -757,7 +757,7 @@
     "hwp-pkg-gamekeys"
    ],
    "expect": {
-    "texts": "- Game keys | 27 keys"
+    "texts": "- Game keys | 25 keys"
    }
   },
   {
@@ -772,13 +772,13 @@
     "-",
     "hwp-opt-game-attack"
    ],
+   "name": "game-attack: no row (weapon attacks are mouse binds: the game's Options > Controls)",
    "expect": {
-    "shown": true,
-    "texts": {
-     "match": "^Primary weapon \\| \\\\\"inp-lmb\"$"
+    "ok": false,
+    "error": {
+     "match": "no widget"
     }
-   },
-   "name": "Primary weapon, on the mouse alone, shows the left button"
+   }
   },
   {
    "do": "sleep",
@@ -792,13 +792,13 @@
     "-",
     "hwp-opt-game-offhand"
    ],
+   "name": "game-offhand: no row (weapon attacks are mouse binds: the game's Options > Controls)",
    "expect": {
-    "shown": true,
-    "texts": {
-     "match": "^Off-hand weapon \\| \\\\\"inp-rmb\"$"
+    "ok": false,
+    "error": {
+     "match": "no widget"
     }
-   },
-   "name": "Off-hand weapon shows the right button"
+   }
   },
   {
    "do": "sleep",

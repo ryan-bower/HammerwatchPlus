@@ -29,3 +29,21 @@ def test_existing_file_is_put_back(tmp_path):
     restore_written(results)
     assert cfg.read_bytes() == b"before"
     assert restore_written(results) == []  # safe twice
+
+
+def test_the_users_controls_are_never_copied_in(tmp_path):
+    # the user's game saved its own binds to the install's res/controls.cfg: GameLab's res/
+    # must not pick them up (a run would start from the user's keys, not the defaults)
+    from gamelab.env import ensure_res
+    src, dst = tmp_path / "install-res", tmp_path / "lab-res"
+    src.mkdir()
+    (src / "controls_default.cfg").write_bytes(b"defaults")
+    (src / "controls.cfg").write_bytes(b"the user's binds")
+    problems = []
+    ensure_res(src, dst, problems, fix=True)
+    assert (dst / "controls_default.cfg").read_bytes() == b"defaults"
+    assert not (dst / "controls.cfg").exists()
+    (dst / "controls.cfg").write_bytes(b"GameLab's own")
+    ensure_res(src, dst, problems, fix=True)
+    assert (dst / "controls.cfg").read_bytes() == b"GameLab's own"
+    assert problems == []

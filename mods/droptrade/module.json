@@ -15,11 +15,11 @@
     "settings": [
       {
         "option": "dropkey",
-        "about": "The key that drops the hovered inventory item at your feet."
+        "about": "Drops the hovered item."
       },
       {
         "option": "actionkey",
-        "about": "The key that uses the hovered inventory item (Eat on a fish)."
+        "about": "Uses the hovered item (eats a fish)."
       },
       {
         "key": "droptrade.pickup_first",

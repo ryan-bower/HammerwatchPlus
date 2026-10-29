@@ -1,6 +1,6 @@
 {
  "name": "mod-keys-ui-shots",
- "about": "Screenshots, at 1920x1080, of every UI change in PR #25 (issue #19): the Plus tab key rows, the capture prompt and the one-press bind, US names on AZERTY, the shared-key hint, a long name shown short, search on the full name, the Dev Arena hotkey rows, the Game keys group and a rebound game key, the mouse buttons on mouse-only rows, the weapon swap HUD tip and other-set slots, droptrade's Drop and Eat hints, the Skill 4-5 HUD badges (a Trickster) and the Dev Arena dock's key labels. Evidence for the eye: few assertions; mod-keys-layout and mod-keys-play are the tests.",
+ "about": "Screenshots, at 1920x1080, of every UI change in PR #25 (issue #19): the Plus tab key rows, the capture prompt and the one-press bind, US names on AZERTY, the shared-key hint, a long name shown short, search on the full name, the Dev Arena hotkey rows, the Game keys group and a rebound game key, the weapon swap HUD tip and other-set slots, droptrade's Drop and Eat hints, the Skill 4-5 HUD badges (a Trickster) and the Dev Arena dock's key labels. Evidence for the eye: few assertions; mod-keys-layout and mod-keys-play are the tests.",
  "fixture": "town-paladin",
  "mods": [
   "hwplib",
@@ -359,7 +359,7 @@
    "args": [
     "hwp_options",
     "-",
-    "hwp-opt-game-attack"
+    "hwp-opt-game-move-up"
    ]
   },
   {
@@ -374,68 +374,6 @@
    "do": "shot",
    "name": "09_game_keys_open",
    "size": "1920x1080"
-  },
-  {
-   "do": "gl",
-   "verb": "menu",
-   "args": [
-    "hwp_options",
-    "-",
-    "search",
-    "!click"
-   ]
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.3
-  },
-  {
-   "do": "text",
-   "text": "weapon"
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.5
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.5
-  },
-  {
-   "do": "shot",
-   "name": "09b_mouse_buttons",
-   "size": "1920x1080"
-  },
-  {
-   "do": "key",
-   "key": "escape",
-   "hold": 0.1
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.6
-  },
-  {
-   "do": "gl",
-   "verb": "menu",
-   "args": [
-    "hwp_options"
-   ]
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.3
-  },
-  {
-   "do": "gl",
-   "verb": "menu",
-   "args": [
-    "hwp_options"
-   ]
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.3
   },
   {
    "do": "gl",

@@ -14,7 +14,12 @@
    "do": "log_has",
    "pattern": "Loading control bindings from 'res/controls_default\\.cfg'",
    "timeout": 5,
-   "name": "first boot: no controls.cfg yet, defaults loaded"
+   "name": "first boot: defaults loaded"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "Loading control bindings from 'res/controls\\.cfg'",
+   "name": "first boot: no controls.cfg (no stale binds from an earlier run)"
   },
   {
    "do": "gl",

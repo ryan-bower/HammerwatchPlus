@@ -769,12 +769,14 @@ class HWPOptionsTab : MenuTab
 		}
 		else if (r.setting !is null)
 		{
+			auto ko = cast<HWP::Options::KeyOption>(r.setting.Opt());
 			about = r.setting.About();
-			if (about.isEmpty())
+			if (ko !is null)
+				about += (about.isEmpty() ? "" : " ") + Resources::GetString(".hwp.options.rebind");
+			else if (about.isEmpty())
 				about = Resources::GetString(".hwp.options.hint");
 			level = r.setting.level && !r.setting.IsOption();
 			locked = r.setting.Locked();
-			auto ko = cast<HWP::Options::KeyOption>(r.setting.Opt());
 			string also = ko is null ? "" : HWP::Options::UsedBy(ko.Scancode(), r.setting.option);
 			if (!also.isEmpty())
 				about += " " + Resources::GetString(".hwp.options.shared", { { "key", HWP::Options::KeyName(ko.Scancode()) }, { "what", also } });

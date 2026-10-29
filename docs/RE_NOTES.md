@@ -5744,3 +5744,27 @@ GameLab runs after the change (lab, all PASS):
   - mod-weaponswap 20261029-164133, mod-droptrade 20261029-164145 and mod-classes 20261029-164156;
   - mod-keys-ui-shots 20261029-164500, which adds shot 09b (Primary and Off-hand weapon
     with their mouse icons) and drops the naming and Forget shots.
+
+## 2026-10-29: No weapon attack rows, short hover text, GameLab never copies the user's controls.cfg
+
+- **Primary and Off-hand weapon rows removed** (25 Game keys rows). Those are mouse binds, and
+  the capture window cannot take a mouse button, so the row could only add a keyboard key next
+  to the click. Mouse buttons stay in the game's own Options > Controls. The group's hover
+  text now says so: "The game's keys. Mouse buttons: Options > Controls." The other rows still
+  show their mouse buttons as icons (Skill 1: `1 / Q /` and mouse 4).
+- **Hover text is short.** Every key row, mod keys included, ends with "Click a binding and
+  press a new key to rebind." (`.hwp.options.rebind`, added in `HWP::Options`). The mod keys'
+  own abouts are cut to a few words ("Toggles the dock.", "Drops the hovered item."). The
+  "Also on <key>: ..." line for shared keys stays.
+- **GameLab copied the user's binds.** `env.ensure_res` copied every small file from the
+  install's `res/`, so `res/controls.cfg` was copied too. The user's game wrote that file
+  (their log: Primary weapon -> K at 16:51, Chat -> K at 16:52). Every lab run after that
+  started from their keys, which showed up as Chat missing from the "Also on T" hint.
+  `ensure_res` now skips `RES_OWN` (`controls.cfg` stays GameLab's own;
+  `tests/test_writes_controls.py`). mod-keys-persist now asserts a first boot loads no
+  controls.cfg, which catches the leak. The user's file was only read, never changed.
+
+Runs after the fix (lab, all PASS, GameLab's controls.cfg deleted first): mod-keys-persist
+20261029-171245 (first boot loads only the defaults), mod-keys-layout 20261029-171335,
+mod-keys-play 20261029-171421, mod-options-tab 20261029-171504 and mod-keys-ui-shots
+20261029-171530 (shot 11b: "Also on T: Item action key, Drop item key, Chat +1").

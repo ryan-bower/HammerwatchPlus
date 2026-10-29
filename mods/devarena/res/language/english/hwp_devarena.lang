@@ -6,11 +6,11 @@
 	<string name="hwp.devarena.key.reset">Dev Arena: arena reset</string>
 	<string name="hwp.devarena.key.golem">Dev Arena: golem room</string>
 	<string name="hwp.devarena.key.pause">Dev Arena: pause</string>
-	<string name="hwp.cfg.o.devarena-dock.about">Opens or closes the Dev Arena dock. Default F1.</string>
-	<string name="hwp.cfg.o.devarena-ab.about">Swaps the live slot between A and B. Default F2.</string>
-	<string name="hwp.cfg.o.devarena-undo.about">With Ctrl held: steps the live slot back a version. Default Ctrl+Z (US layout).</string>
-	<string name="hwp.cfg.o.devarena-redo.about">With Ctrl held: steps the live slot forward a version. Default Ctrl+Y (US layout).</string>
-	<string name="hwp.cfg.o.devarena-reset.about">Arena reset: kills what the brush placed, clears encounters, fresh golem. Default F3.</string>
-	<string name="hwp.cfg.o.devarena-golem.about">Into or out of the golem room. Default F4.</string>
-	<string name="hwp.cfg.o.devarena-pause.about">Pauses or resumes the game. Default F6.</string>
+	<string name="hwp.cfg.o.devarena-dock.about">Toggles the dock.</string>
+	<string name="hwp.cfg.o.devarena-ab.about">Swaps slot A/B.</string>
+	<string name="hwp.cfg.o.devarena-undo.about">Previous version.</string>
+	<string name="hwp.cfg.o.devarena-redo.about">Next version.</string>
+	<string name="hwp.cfg.o.devarena-reset.about">Resets the arena.</string>
+	<string name="hwp.cfg.o.devarena-golem.about">Golem room in/out.</string>
+	<string name="hwp.cfg.o.devarena-pause.about">Pause/resume.</string>
 </lang>

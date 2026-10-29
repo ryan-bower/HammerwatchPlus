@@ -32,11 +32,6 @@ namespace HWP
 
 			string Title() override { return Resources::GetString(".hwp.gamekeys." + m_id); }
 
-			string About() override
-			{
-				return Resources::GetString(".hwp.gamekeys.about", { { "what", Title() } });
-			}
-
 			bool Mine(ControlMapBinding@ b)
 			{
 				return b !is null && b.Action == m_action && (m_axis == 0 || int(b.SetAxis) == m_axis);
@@ -184,8 +179,6 @@ namespace HWP
 			Add("move-down", "move_y", 2);
 			Add("move-left", "move_x", 1);
 			Add("move-right", "move_x", 2);
-			Add("attack", "MainHandAttack");
-			Add("offhand", "OffHandAttack");
 			Add("skill1", "Skill1");
 			Add("skill2", "Skill2");
 			Add("skill3", "Skill3");
