@@ -53,7 +53,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | `specs` | A **4th specialization** for eight vanilla classes, one active and one passive each, with orbs: **Deadeye** Ranger (Lightning Arrow, Gathering Winds), **Aerotheurge** Wizard (Thunder Orb, Static Charge), **Arcane** Sorcerer (Blink, which crosses ledges and stairs; Living Mana, one pooled blue bar for health and mana), **Winddancer** Rogue (Protective Gale, Second Wind), **Bannerlord** Warrior (Battlefield Standard, Righteous Crusade), **Branding** Warlock (Pyrebrand, Essence Extraction) and the **Devil Forgemaster** Priest (Necrotic Resurrection, Call of Heresy: raise the enemies that fall with their body intact, bosses included, as summons that keep their own skills and run with you; the raise and Sacrificial Penance channels lock you in place with a beam; braziers and pyres burn off Heresy) and the **Generosity** Paladin (Pelor's Fury, Pelor's Blessing: Lay on Hands, Blessed Strike kills and Conviction build up to 10 stacks that strengthen all three; at 10 the Fury holds any one enemy, bosses included, in beams of light: stunned, its casts cut, armor and resistances 0, taking more damage; a Fury that can't take hold spends nothing; crops grow twice as fast and wild plots turn up twice as often while a Paladin of Generosity is in the party). Icons and sounds are the user's picks (`art/specs/`). The Forgemaster's risen and body units are generated from the base game by `tools/make_forgemaster_risen.py` (gitignored; `doctor --fix` makes them). |
 | `classes` | The HoH1 classes HoH2 lacks: **Thief**, **Gladiator** and **Witch Hunter**, three masteries each. The Thief's extra actives cast on core's Skill 4 key. The real HoH1 art comes from your own HoH1 install (`tools/import_hoh1.py classes`). |
 | `weapons` | Twelve new endgame weapons (ilvl 35, four per slot) with new modifier profiles on vanilla visuals and attacks. |
-| `weaponswap` | A second weapon set on a hotkey (default X): a 2 s channel standing still, cancelled by a dodge or a second press. |
+| `weaponswap` | A second weapon set on a hotkey (default X) or a controller button (default D-pad left): a 2 s channel standing still, cancelled by a dodge or a second press. |
 | `autoaim` | Auto aim for the skills you aim with a reticle (Marked Shot, Leap, Firewall): it snaps to a nearby enemy in your aim cone and can fire by itself, and ready AOE skills can cast themselves when your mana allows. On for controllers by default, an option for mouse play; settings on the character menu's Plus tab (a remake of kearneyTim's controller auto aim). |
 | `summons` | Summons come through a floor change with the HP they had. The game already carries the Priest's Crusaders; this tops up any that go missing, and the `summons.all` setting covers every summon (wolves, Warlock minions). |
 | `petrooms` | Pets keep out of puzzle and trap rooms: while you are in one, your pet walks back along the way you came to the last clear spot and waits there; a pet that ends up in one walks back out and waits until you move on; one following you after a wait may cross a room to reach you. A puzzle unit, or traps on three spots (a glyph and its blast are one), within the room distance (`petwait.radius`, 120 px) make a room. Works for vanilla pets and for the Pets package's; a shared module, carried by both Quality of Life and Pets. |
@@ -168,6 +168,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 
 ## Status
+
+2026-10-29, weapon swap on a controller (#14): D-pad left swaps, the one button vanilla's
+gamepad map leaves free in gameplay, and the Plus tab binds another (press it). The hints show
+the button while you play on a controller. Behind it, hwplib gains `HWP::Input`, so a mod's
+hotkey can read a controller button. Until now every HWP hotkey read the keyboard only. Skill
+4-6 and the bag item actions are still keyboard-only and can use it next.
 
 2026-10-28, the Forsaken Tower from HoH1 itself (`campaign`, "HoH1 tower" in its README).
 With HoH1 installed, the import builds HoH1's tower from the player's own install: 23 floors,
