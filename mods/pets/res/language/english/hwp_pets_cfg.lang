@@ -4,4 +4,9 @@
 	<string name="hwp.cfg.pets.about">Pet levels, skills, pickups and dyes. Off: vanilla pets; their progress stays saved.</string>
 	<string name="hwp.cfg.s.pets.bowl">Feeding bowl</string>
 	<string name="hwp.cfg.s.pets.bowl.about">A feeding bowl in town that opens the same pet menu as the Pet Shop keeper.</string>
+	<string name="hwp.cfg.s.pets.courier">Pet courier</string>
+	<string name="hwp.cfg.s.pets.courier.about">In a run, hand bag items to your pet (Send home in the bag) and it takes them to your town stash.</string>
+	<string name="hwp.cfg.s.pets.courier_secs">Courier trip</string>
+	<string name="hwp.cfg.s.pets.courier_secs.about">How long the pet is away on a courier trip, 10 % shorter per Fetch rank.</string>
+	<string name="hwp.cfg.o.courierkey.about">The key that hands the hovered bag item to your pet (each player's own).</string>
 </lang>

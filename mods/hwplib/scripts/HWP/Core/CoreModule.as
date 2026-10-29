@@ -91,11 +91,14 @@ namespace Modules
 
 		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
+			// the bag's item action keys (Drop, Eat, Send home) while the character tab is on top
+			HWP::ItemActions::Poll();
 			// after every mod's self-check has reported (HoH1.as, Packages.as)
 			if (g_inTown && ++m_townTicks == HWP::HoH1::TELL_TICK)
 			{
 				HWP::HoH1::Tell();
 				HWP::Packages::Tell();
+				HWP::ItemActions::CheckKeys();
 			}
 			if (m_announced)
 				return;

@@ -163,7 +163,7 @@ class PlayerMenuCharacterTab : MenuTab
 		@m_input.m_menuContextOnDown = WindowInput::OnFuncInt(this.MenuContextDown);
 
 		@m_input.m_menuAdditionalOnPressed = WindowInput::OnFunc(this.MenuAdditional);
-		@HWP::DropTrade::g_tab = this;   // HammerwatchPlus: the drop hotkey acts on this tab
+		@HWP::ItemActions::g_tab = this;   // HammerwatchPlus: the item action keys act on this tab
 	}
 
 	void Initialize() override
@@ -199,38 +199,84 @@ class PlayerMenuCharacterTab : MenuTab
 		m_contextC = 0;
 		m_menuContext = false;
 
-		// HammerwatchPlus: the Destroy and Drop hints (Back, Equip, Compare, Destroy, Drop) are clickable;
-		// with droptrade off there is no Drop hint and the item action's hint comes right after Destroy
+		// HammerwatchPlus: after vanilla Back, Equip, Compare, Destroy come the hovered item's
+		// actions (hwplib ItemActions: Drop, Eat, Send home), in the order EquipmentItemWidget
+		// lists them; Destroy and every action hint are clickable
 		auto host = cast<AWindowObject>(m_tabSystem is null ? null : m_tabSystem.m_host);
-		if (host is null || host.m_navigationBar is null || HWPHoveredItem() is null)
+		auto hovered = HWPHoveredItem();
+		if (host is null || host.m_navigationBar is null || hovered is null)
 			return;
-		uint texts = host.m_navigationBar.m_texts.length();
-		uint action = 4;
-		if (HWP::DropTrade::Enabled())
+		auto texts = host.m_navigationBar.m_texts;
+		if (texts.length() < 4)
+			return;
+		HWP::ItemActions::MakeButton(texts[3], WindowInput::OnFunc(this.MenuAdditional));
+		auto actions = HWP::ItemActions::AllFor(cast<Equipment::Equipment>(hovered.m_item));
+		m_hwpHints.resize(0);
+		for (uint i = 0; i < actions.length() && 4 + i < texts.length(); i++)
 		{
-			if (texts < 5)
-				return;
-			HWP::DropTrade::MakeButton(host.m_navigationBar.m_texts[3], WindowInput::OnFunc(this.MenuAdditional));
-			HWP::DropTrade::MakeButton(host.m_navigationBar.m_texts[4], WindowInput::OnFunc(this.HWPDrop));
-			action = 5;
+			m_hwpHints.insertLast(HWPHintClick(this, actions[i]));
+			HWP::ItemActions::MakeButton(texts[4 + i], WindowInput::OnFunc(m_hwpHints[i].Click));
 		}
-		if (texts > action)
-			HWP::DropTrade::MakeButton(host.m_navigationBar.m_texts[action], WindowInput::OnFunc(this.HWPAction));
 	}
 
-	// HammerwatchPlus: the hovered inventory item's registered action (core ItemActions: eat a fish)
-	void HWPAction()
+	// HammerwatchPlus: one clickable action hint
+	array<HWPHintClick@> m_hwpHints;
+
+	// HammerwatchPlus: run an item action on the hovered inventory item
+	void HWPDoAction(HWP::ItemActions::Action@ action)
 	{
 		auto equipment = HWPHoveredItem();
 		auto record = GetLocalPlayerRecord();
 		if (equipment is null || record is null)
 			return;
 		auto item = cast<Equipment::Equipment>(equipment.m_item);
-		if (!HWP::ItemActions::Do(record, item))
+		if (!HWP::ItemActions::DoAction(record, item, action))
 			return;
 		m_manager.CloseTooltip();
 		m_refreshTooltip = true;
 		OnInteractableIndexChanged();
+	}
+
+	// HammerwatchPlus: an action key was pressed (ItemActions::Poll): the hovered item's
+	// first action on that key
+	void HWPActionKey(int scancode)
+	{
+		auto equipment = HWPHoveredItem();
+		if (equipment is null)
+			return;
+		auto actions = HWP::ItemActions::AllFor(cast<Equipment::Equipment>(equipment.m_item));
+		for (uint i = 0; i < actions.length(); i++)
+		{
+			if (actions[i].Scancode() == scancode)
+			{
+				HWPDoAction(actions[i]);
+				return;
+			}
+		}
+	}
+
+	// HammerwatchPlus: the hovered item's action with this id ("drop"), if it has one
+	void HWPActionId(const string &in id)
+	{
+		auto equipment = HWPHoveredItem();
+		if (equipment is null)
+			return;
+		auto actions = HWP::ItemActions::AllFor(cast<Equipment::Equipment>(equipment.m_item));
+		for (uint i = 0; i < actions.length(); i++)
+			if (actions[i].Id() == id)
+			{
+				HWPDoAction(actions[i]);
+				return;
+			}
+	}
+
+	// HammerwatchPlus: the hovered item's first action (kept for droptrade packages from
+	// before 2026-10-28, whose key poll calls it)
+	void HWPAction()
+	{
+		auto equipment = HWPHoveredItem();
+		if (equipment !is null)
+			HWPDoAction(HWP::ItemActions::For(cast<Equipment::Equipment>(equipment.m_item)));
 	}
 
 	// HammerwatchPlus: the inventory item under the cursor / selection, or null
@@ -246,24 +292,11 @@ class PlayerMenuCharacterTab : MenuTab
 		return equipment;
 	}
 
-	// HammerwatchPlus: drop the hovered inventory item at your feet, no dialog.
-	// Clients send a DropItem request to the host, which spawns it for everyone.
+	// HammerwatchPlus: droptrade's Drop (an item action since 2026-10-28; kept for droptrade
+	// packages from before, whose key poll calls it)
 	void HWPDrop()
 	{
-		auto equipment = HWPHoveredItem();
-		auto record = GetLocalPlayerRecord();
-		if (!HWP::DropTrade::Enabled() || equipment is null || record is null || record.actor is null || !record.actor.m_unit.IsValid())
-			return;
-
-		// take it out of the bag first: a stale widget whose item already
-		// left the bag must not spawn a copy
-		auto item = equipment.m_item;
-		if (!record.equipInventory.Remove(cast<Equipment::Equipment>(item)))
-			return;
-		m_manager.CloseTooltip();
-		Item::DropItem(item, record.actor.m_unit.GetPosition(), 1, true, null);
-		HWP::Log("droptrade", "dropped " + item.GetName());
-		m_refreshTooltip = true;
+		HWPActionId("drop");
 	}
 
 	void MenuContextUp()
@@ -704,5 +737,23 @@ class PlayerMenuCharacterTab : MenuTab
 				m_refreshTooltip = true;
 			}
 		}
+	}
+}
+
+// HammerwatchPlus: a clickable item action hint in the navigation bar
+class HWPHintClick
+{
+	PlayerMenuCharacterTab@ m_tab;
+	HWP::ItemActions::Action@ m_action;
+
+	HWPHintClick(PlayerMenuCharacterTab@ tab, HWP::ItemActions::Action@ action)
+	{
+		@m_tab = tab;
+		@m_action = action;
+	}
+
+	void Click()
+	{
+		m_tab.HWPDoAction(m_action);
 	}
 }

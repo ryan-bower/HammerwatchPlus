@@ -66,7 +66,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | `keys` | HoH1-style keys: every chest but the cursed ones needs a key of its tier. Keys drop in runs (a party can share a key pool), and the exit guard's General Merchant sells keys, bag slots and six trinkets to take into your next run. Also ace chests (opened with the red skull ace key), seven red legendaries, and a banner for everyone when a chest turns out to be trapped. Trinket, cursed and ace chests look grander the deeper the run goes, with unused chest art from the game's own sprite sheet. |
 | `mercenary` | HoH1's mercenary mode: once a class has a level-20 hero, a fresh character of it can enlist (`hwp merc enlist`), climb the ranks from Private to General for more gold and experience, and die for good. |
 | `legacy` | HoH1-style class titles: your best hero of each class buffs every character. One "Title Bonuses" buff lists them, and Guild Hall > Titles shows every class. |
-| `pets` | Pets level up (from kills, pickups, and farm crops) and learn utility skills; the Pet Shop keeper trains them and the character tab shows the pet's level. Per-pet pickup toggles, pet dyes at the tailor, pets keep out of puzzle and trap rooms (`petrooms`, which the Pets package carries too), and every HoH1 pet is in the Pet Shop (imported from your own HoH1 install). |
+| `pets` | Pets level up (from kills, pickups, and farm crops) and learn utility skills; the Pet Shop keeper trains them and the character tab shows the pet's level. In a run your pet can carry bag items home to your town stash (**Send home**, H, in the inventory; one item per trip, more as it levels). Per-pet pickup toggles, pet dyes at the tailor, pets keep out of puzzle and trap rooms (`petrooms`, which the Pets package carries too), and every HoH1 pet is in the Pet Shop (imported from your own HoH1 install). |
 
 ### Runs and dungeons
 
@@ -85,7 +85,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 
 | Module | What it does |
 |---|---|
-| `fishing` | Six fishing spots on the town coast (a timing minigame), more in the water of run floors' potion wells (always one in a boss room), greyed on the map once fished out. A pirate sells bait, rods (priced per tier; new characters start with the wooden rod) and fish traps from the trading post's wreck, later its boat. Fish are swords, sell for the gambler's bet tokens (for gold without the gambler) and can be eaten (100 HP per star, plus Luck). Catches can hold keys and ace keys, and a hole's loot goes to whoever caught it. |
+| `fishing` | Six fishing spots on the town coast (a timing minigame), more in the water of run floors' potion wells (always one in a boss room), greyed on the map once fished out. A pirate sells bait, rods (priced per tier; new characters start with the wooden rod) and fish traps from the trading post's wreck, later its boat. Fish are swords, sell for the gambler's bet tokens (for gold without the gambler) and can be eaten from the bag (**Eat**, F; 100 HP per star, plus Luck). Catches can hold keys and ace keys, and a hole's loot goes to whoever caught it. |
 | `farming` | The town's field grooves become farm plots: food crops and four Holy Herb strains grow with each completed run, faster when watered (the farmer sells the can and seeds; the well refills it). Smoke a herb for a buff that lasts 10 floors (hotboxing works outdoors too), or roll it into a joint: an off-hand with 5 puffs that a friend can take from you, with smoke that fills the room; a second joint goes in the main hand, left and right click puffing each. |
 | `gambler` | A gambler in the tavern plays Higher/Lower for gold. He buys crops and herbs for gold and fish for bet tokens, and rerolls equipped gear for 2000 gold × item level, or 1 bet token per 5 item levels. Bet tokens are this module's: they show in the Materials tab, and without it fish sell for gold. |
 | `tavern` | Three more tavern levels (from guild hall levels 7 and 8, the top one): a run can start with up to 3 foods and 5 drinks. |
@@ -100,7 +100,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 |---|---|
 | `groupcombo` | A party-wide combo bonus that grows with how many players are in combo, and brief invulnerability when everyone is. Boxes, barrels, sacks and vases also drop a rare **combo orb** (0.1 %, up to 1 % with the Luck of whoever breaks them): everyone with combo unlocked gets their own, and picking it up puts you in combo at once (pets leave it alone). |
 | `architect` | Any player can pick and pay for Architect alterations; the host's picks are split across the party. Seven HoH1 challenges discount them, down to free. The run-start screen keeps three named presets of picks and NG+ level per character, shows NG+ last with the start hint, and lets a non-host leave. |
-| `droptrade` | Drop equipment on the ground for friends: a Drop button (Q) next to Destroy in the inventory. The use key picks up a dropped item before it talks to an NPC or opens a shop, chest or shrine underfoot. |
+| `droptrade` | Drop equipment on the ground for friends: a Drop button (Q) next to Destroy in the inventory (each player can rebind it on the Plus tab). The use key picks up a dropped item before it talks to an NPC or opens a shop, chest or shrine underfoot. |
 | `orbwarn` | The orb picker says which orbs a pick would make unavailable (mutually exclusive orbs such as the Firearms grenades), with their icons and names. |
 | `deathrecap` | Who killed you: the top damage sources of the last 10 s, on screen and in chat. After a boss falls, a boss-fight recap of everyone's damage by skill and damage taken. |
 | `bufftips` | Hover a buff icon to see what it does and how many seconds it has left. |
@@ -168,6 +168,18 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 
 ## Status
+
+2026-10-28, the pet courier (issue #13). In a run, hover a bag item and press H (or click
+**Send home**): your pet takes it to your town stash, in a tab called "Pet deliveries". The
+item is in the stash and saved the moment you hand it over, so dying or leaving on the way
+can't lose it. The pet leaves when you close the menu and comes back after the trip (60 s by
+default, shorter with Fetch ranks). It carries one item a trip, plus one every 5 pet levels.
+The bigger problem it turned up: bag item actions lived in droptrade, only the first one ever
+showed, and it was bound to a fixed E, which is also the menu's Destroy key, so eating a fish
+opened the destroy dialog too. hwplib now owns the inventory hints. Each action gets its own
+hint and key: Drop Q, Eat F, Send home H, each rebindable on the Plus tab, and the log flags
+an action key the menu also binds. `fix-item-actions-eat`, `fix-pets-courier`, their package
+variants, `plan-gear-b` (droptrade) and the package scenarios pass.
 
 2026-10-28, the Forsaken Tower from HoH1 itself (`campaign`, "HoH1 tower" in its README).
 With HoH1 installed, the import builds HoH1's tower from the player's own install: 23 floors,

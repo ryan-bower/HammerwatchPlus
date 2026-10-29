@@ -5543,3 +5543,45 @@ width, with each entry's symbols side by side before its name. In a column of 14
 tile now drops symbols from the end, keeping at least one, until the name (and the note
 under it) fits. Of the 13 cards, only Quality of Life renders differently. Republished:
 HWP-qol, HWP-pets and HammerwatchPlus-All (kit 5538d81).
+
+## 2026-10-28: bag item actions move to hwplib; the pet courier (issue #13)
+
+Issue #13 asked for a way to send items home from a run. The larger problem it ran into was
+the bag's item actions. droptrade owned the inventory overrides (`Character.as`,
+`EquipmentItemWidget.as`), so a package without droptrade had no action hints at all. Only
+the first registered action ever showed (`HWP::ItemActions::For`), and it was bound to a
+fixed E. E is also the player menu's own Destroy key, so one press ate the fish and opened
+the destroy confirm behind it.
+
+**What the menu binds** (`res/controls_default.cfg`, kbm map): `MenuAdditional` is E (the
+Destroy hint), `MenuContext` R (Compare), `MenuChatAll` T, `PlayerMenu` I and C.
+`GetActionBinding(action)` returns the bound key names separated by spaces ("i c").
+`FormatKeyName` returns markup (`\"k"E\"k"`), so it can't be compared with a key name.
+`ItemActions::CheckKeys` splits the `GetActionBinding` names instead. Free letters the menu
+doesn't bind: F, G, H, Q and others.
+
+**Keys.** The actions still read raw keys (`Platform::IsKeyDown(ControllerType::Keyboard, 0,
+scancode)`, SDL scancodes: E 8, F 9, H 11, Q 20). GameLab's posted keys reach it. One poll
+per distinct scancode per frame (`ItemActions::Poll`, from the core module), only while the
+character tab is the top window's current tab, and not while text input or chat has the
+keyboard. When a key option captures a new key, the key is held at that moment
+(`HeldNow`), so the press that binds it doesn't also act.
+
+**Town stash in a run.** `g_myTownRecord.m_townStash` is loaded in every gameplay mode, runs
+included, so `TownStashTab.Add(item)` works from a dungeon. The 10-tab limit is the stash
+window's, not the data's (`GUI/PlayerStashEditWindow.as:13` turns the new-tab button off at 10). `AGameplayGameMode.SavePlayerAndTown()`
+writes both records in one `SetCharacter`, so an item moved from the bag to the stash is
+saved in one step. A crash between the two writes can't copy it or lose it.
+
+**Pets.** `PlayerBase.m_pet` (`MiniPet`) is not netsynced: every machine makes its own copy
+from the owner's `SetPetType`. `PlayerBase.ResetPet()` sends `SetPetType` to everyone, and
+the others re-make their copy. Destroying `m_pet.m_unit` and nulling `m_pet` takes the pet
+down locally; the courier tells the others through the host (`pets.away` -> `pets.gone`).
+The smoke puff is `effects/generic/other/spawn_smoke_puff.effect` (`PlayEffect`).
+
+**Test** (`fix-item-actions-eat`, `fix-pets-courier`, bot `gamelab/bots/fix_courier.py`):
+the fish's hints end `[Q] Drop`, `[F] Eat` and nothing on E. F eats it with no dialog. In a
+run the mace's hints end `[Q] Drop`, `[H] Send home`. H moves it into the stash tab "Pet
+deliveries" and the hint goes (the satchel is full). The pet leaves when the menu closes and
+is back after `pets.courier_secs` (5 in the test). The CheckKeys log has drop Q (20), eat F
+(9) and courier H (11), with no clash.

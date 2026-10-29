@@ -1,0 +1,75 @@
+{
+ "name": "fix-item-actions-eat",
+ "about": "hwplib bag item actions (moved from droptrade, issue #13): each action has its own hint and key in Order; the fish's Eat is [F] after [Q] Drop, never E (the menu's Destroy key, MenuAdditional), F eats it with no destroy dialog, and a bag item in town has no Send home hint. The self-check logs every action's key and no clash with a menu key.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "pets",
+  "fishing",
+  "droptrade"
+ ],
+ "timeout": 420,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "still in town"
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] item action drop key Q \\(20\\)",
+   "timeout": 30
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] item action eat key F \\(9\\)",
+   "timeout": 5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] item action courier key H \\(11\\)",
+   "timeout": 5
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "CLASHES with the menu"
+  },
+  {
+   "do": "bot",
+   "bot": "fix_courier",
+   "kwargs": {
+    "check": "eat"
+   },
+   "expect": {
+    "ok": true,
+    "eat_setup": true,
+    "eat_hint_f": true,
+    "eat_hint_clickable": true,
+    "eat_f_eats": true,
+    "eat_no_destroy_dialog": true,
+    "town_no_courier": true
+   },
+   "name": "hwplib bag item actions (moved from droptrade, issue #13): e"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}
