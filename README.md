@@ -169,6 +169,14 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-29, bonus vaults look like the floor they're on (#26). The vaults behind levers had
+a bare floor and no walls of their own: their cells were reserved the way a prefab with its
+own art reserves them, so the game painted neither walls nor the floor's decoration there,
+and on the Bandit Keep the room sat in the dark of the wall block it was carved from. Now
+the game paints the vault like its own rooms, with the floor's tiles, walls and torches. The
+levers no longer show on the map; the new Architect alteration **Marked Switches** puts
+them back for a run.
+
 2026-10-28, the Forsaken Tower from HoH1 itself (`campaign`, "HoH1 tower" in its README).
 With HoH1 installed, the import builds HoH1's tower from the player's own install: 23 floors,
 the nine hand-made levels as HoH1 ships them and fourteen act floors from HoH1's own generator

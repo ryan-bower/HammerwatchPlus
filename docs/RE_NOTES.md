@@ -5543,3 +5543,64 @@ width, with each entry's symbols side by side before its name. In a column of 14
 tile now drops symbols from the end, keeping at least one, until the name (and the note
 under it) fits. Of the 13 cards, only Quality of Life renders differently. Republished:
 HWP-qol, HWP-pets and HammerwatchPlus-All (kit 5538d81).
+
+## 2026-10-29: objectives vault art and lever icons (issue #26)
+
+The issue (from ryan-bower): "Floors in bonus rooms that are locked by buttons have weird plain
+floor instead of using the floor art of that floor. also the buttons shouldnt have an icon on
+the map revealing them. but add a architect option for that".
+
+What the vault looked like (look run 20261029-030752, keep_1, the lights off): the room sat in
+the dark fill of the wall block it was carved from. It had no walls and no floor texture, only
+its chests and door. The cause is in how the cells were marked, not in the art:
+- `vault_s.pfb` carries units only (door, chests). Its cells were `ReserveWall` (02) for the
+  ring and `ReserveFloor` (03) inside. `ExecutePrefabCommands` makes those Wall and Floor and
+  **consumed**, and nothing frees them.
+- `DungeonInstanceBrush.Build` skips consumed cells. Its wall loop draws no wall units for them,
+  and `SpreadSpots`, `DrawWallTrim` and `SpreadUnits` skip them. Only `FillAll` reaches them,
+  hence a bare floor. On the keep even that didn't show. The room had no walls of its own, and
+  the dark `__color_*` blocks of the Nothing cells around it (each drawn up to 2.5 cells north
+  of its cell) are the likely cover; not measured cell by cell.
+- Vanilla uses Reserve* only for prefabs that bring their own tiles and walls. Rooms made from
+  the cells use `PlaceWall` (05) / `PlaceFloor` (06): consumed through the generation commands,
+  then `ConvertPlaceGrid` (from `LoadBaseBrushTiles`, the first thing `Build` does) turns them
+  into plain unconsumed Wall and Floor before anything paints. The puzzles module's forced
+  rooms are vanilla prefabs with their own art, so they never showed this.
+
+What changed:
+- The vault and both lever patches are `PlaceWall` / `PlaceFloor`, and the carved corridor
+  cells are `PlaceFloor`.
+- `HWPObjectivePainter` goes last on every indoor brush's painting list. It consumes the
+  floor cells again after the painters (the wall loop, the breakables and the enemy spots
+  come after it), so no enemy spot lands in a vault. It logs `painted: N floor cell(s) of M,
+  ring W wall cell(s) of 28, switches hidden|marked on <level>`.
+- The levers' idle scene has no `info_poi` icon, like vanilla's `button_lever.unit`. A
+  `marked` scene adds it, chosen on every machine when the run has the Architect alteration
+  `hwp_objectives_marked_switches` ("Marked Switches", 1000 gold and 5 wood,
+  `objectives_architect.sval`; vanilla's picker lists every MissionBuff of set `architect`).
+  The vault door keeps its icon.
+
+Tests:
+- `fix-objectives-vault-art` (20261029-031927) covers keep_1 and temple_1:
+  - 64 of 64 and 140 of 140 floor cells painted as Floor, and 28 of 28 ring cells as free
+    walls;
+  - `switch units: 2, on the map: 0`;
+  - shots show stone floor, the theme's walls and a torch inside the vault;
+  - with `hwp architect try hwp_objectives_marked_switches`, a keep floor says `switches
+    marked`, `on the map: 2`.
+- `fix-objectives` (20261029-032014) still passes. The sealed corridor (9 cells long this
+  time) now reaches 38 of 70 cells in `gl reachmap`, where it answered empty before. With the
+  door open it still answers empty (the README's known limit).
+
+On the way:
+- `gamelab/fixtures/mission-ranger.json` no longer reads back `player.maxDashes 1`. The rare
+  starting boots re-roll on a fixture rebuild, and one rebuild (cache 7d8b33f1) rolled a dash,
+  which failed fix-objectives on main before any change.
+
+Same pattern, not changed:
+- `puzzles` `puzzle_constellation.pfb` (forest and heaven floors) reserves a 10x14 patch with
+  `ReserveFloor`. `ForestBrush` paints only its painting list, which skips consumed cells, so
+  the Constellation likely stands on undecorated grass. `ForestBrush.Build` doesn't call
+  `ConvertPlaceGrid`, so the Place commands alone wouldn't help there. A painter first on the
+  list that frees the cells would.
+- The `campaign` traps reserve one cell each, or a row of three.

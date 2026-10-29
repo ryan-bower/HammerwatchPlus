@@ -17,12 +17,27 @@
 //   [HWP:objectives] vault 0 at cell X,Y of WxH, corridor N, world X,Y WxH, door X,Y, switch X,Y
 //   [HWP:objectives] exit switch at cell X,Y world X,Y (exit at cell X,Y)
 //   [HWP:objectives] placed N vault(s), exit switch yes|no on <level>
+//
+// The cells are PlaceFloor / PlaceWall (objectives_prefabs.sval) so the brush
+// paints them as the floor's own (issue #26). Its build frees them before the
+// painting list runs; HWPObjectivePainter, last on that list, takes the floor
+// cells back afterwards, so the enemy spots placed after the build stay out
+// of the vaults, as they did when the cells were reserved. It logs:
+//   [HWP:objectives] painted: N floor cell(s) of M, ring W wall cell(s) of R, switches hidden|marked on <level>
 class HWPObjectiveSpawn : DungeonGenerationCommands
 {
 	bool Execute(DungeonBrush@ brush, PrefabPlacement@ pfbPlacer) override
 	{
 		HWP::Objectives::Gen::Run(brush, pfbPlacer);
 		return true; // never fails a floor
+	}
+}
+
+class HWPObjectivePainter : DungeonBrush::IPainter
+{
+	void Paint(Scene@ scene, DungeonBrush@ brush)
+	{
+		HWP::Objectives::Gen::AfterPaint(brush);
 	}
 }
 
@@ -42,6 +57,53 @@ namespace HWP
 			// the vault's units, relative to the prefab origin (vault_s.pfb)
 			const vec2 DOOR_IN_PFB = vec2(48, 112);
 			const vec2 SWITCH_IN_PFB = vec2(24, 24);
+
+			// this generation's walkable cells (vault interiors, doorways, corridors and the
+			// switch patches), consumed again once the brush has painted them
+			array<ivec2> g_floorCells;
+			// the vaults' wall rings, for the painted line
+			array<ivec2> g_ringCells;
+
+			// a prefab's walkable cells at pos go on the list (its commands made them PlaceFloor)
+			void KeepFloor(MissionPrefabDef@ def, ivec2 pos, bool ring)
+			{
+				for (int y = 0; y < def.m_gridSz.y; y++)
+					for (int x = 0; x < def.m_gridSz.x; x++)
+					{
+						Pattern p = Pattern(def.m_gridPattern[y * def.m_gridSz.x + x]);
+						if (p == Pattern::Walkable)
+							g_floorCells.insertLast(pos + ivec2(x, y));
+						else if (ring && p == Pattern::Wall)
+							g_ringCells.insertLast(pos + ivec2(x, y));
+					}
+			}
+
+			// HWPObjectivePainter: the build has turned the Place cells into Floor and Wall
+			// and painted them; take the floor back so nothing after the build lands there
+			void AfterPaint(DungeonBrush@ brush)
+			{
+				if (g_floorCells.length() == 0 && g_ringCells.length() == 0)
+					return;
+				int floor = 0;
+				for (uint i = 0; i < g_floorCells.length(); i++)
+				{
+					ivec2 c = g_floorCells[i];
+					if (brush.GetCell(c.x, c.y) == Cell::Floor)
+						floor++;
+					brush.SetConsumed(c.x, c.y, true);
+				}
+				int walls = 0;
+				for (uint i = 0; i < g_ringCells.length(); i++)
+				{
+					ivec2 c = g_ringCells[i];
+					if (brush.GetCell(c.x, c.y) == Cell::Wall && !brush.IsConsumed(c.x, c.y))
+						walls++;
+				}
+				HWP::Log("objectives", "painted: " + floor + " floor cell(s) of " + g_floorCells.length() + ", ring "
+					+ walls + " wall cell(s) of " + g_ringCells.length() + ", switches " + (HWP::Objectives::SwitchesMarked() ? "marked" : "hidden") + OnLevel());
+				g_floorCells.removeRange(0, g_floorCells.length());
+				g_ringCells.removeRange(0, g_ringCells.length());
+			}
 
 			MissionPrefabDef@ FindDef(const string &in set)
 			{
@@ -134,24 +196,22 @@ namespace HWP
 				ivec2 pos = spot.m_pos;
 				HWP::Carve::Door@ door = spot.m_door;
 				def.UnpackGrid();
+				// the prefab's commands make the interior and doorway PlaceFloor and the ring
+				// PlaceWall, all consumed until the build; the corridor out is carved through
+				// the wall the same way, so no later command fills or furnishes it. Its side
+				// walls stay unconsumed walls, painted as the floor's own.
 				placer.PlacePrefabAt(def, pos);
-				// the pattern's walkable cells (the interior and the doorway) stay floor and
-				// consumed; the corridor out is carved through the wall and consumed too, so no
-				// later command fills or furnishes it. Its side walls stay unconsumed for their trim.
-				for (int y = 0; y < def.m_gridSz.y; y++)
-					for (int x = 0; x < def.m_gridSz.x; x++)
-						if (Pattern(def.m_gridPattern[y * def.m_gridSz.x + x]) == Pattern::Walkable)
-						{
-							grid.SetCellIfNotConsumed(pos.x + x, pos.y + y, Cell::Floor);
-							grid.SetConsumed(pos.x + x, pos.y + y, true);
-						}
+				KeepFloor(def, pos, true);
 				ivec2 base = pos + door.m_from;
 				for (int k = 1; k < spot.m_len; k++)
 					for (int w = 0; w < door.m_width; w++)
 					{
 						ivec2 c = base + door.m_out * k + door.m_along * w;
-						grid.SetCellIfNotConsumed(c.x, c.y, Cell::Floor);
+						if (grid.IsConsumed(c.x, c.y))
+							continue;
+						grid.SetCell(c.x, c.y, Cell::PlaceFloor);
 						grid.SetConsumed(c.x, c.y, true);
+						g_floorCells.insertLast(c);
 					}
 
 				Vault@ v = Vault();
@@ -169,6 +229,7 @@ namespace HWP
 				{
 					swDef.UnpackGrid();
 					placer.PlacePrefabAt(swDef, sw);
+					KeepFloor(swDef, sw, false);
 					v.m_switchCell = sw;
 					v.m_switch = World(brush, sw) + SWITCH_IN_PFB;
 					v.m_hasSwitch = true;
@@ -200,6 +261,7 @@ namespace HWP
 				}
 				def.UnpackGrid();
 				placer.PlacePrefabAt(def, sw);
+				KeepFloor(def, sw, false);
 				g_exitPresent = true;
 				g_exitOpen = false;
 				g_exitSwitch = World(brush, sw) + SWITCH_IN_PFB;
@@ -213,6 +275,8 @@ namespace HWP
 			{
 				RefreshSettings();
 				ClearFloor();
+				g_floorCells.removeRange(0, g_floorCells.length());
+				g_ringCells.removeRange(0, g_ringCells.length());
 				if (brush is null || placer is null)
 					return;
 				if (!g_enabled)
@@ -255,6 +319,7 @@ namespace HWP
 							continue;
 						if (cast<ForestBrush>(gen.m_brush) !is null)
 							continue;
+						AddPainter(gen.m_brush);
 						int at = -1;
 						bool present = false;
 						for (uint k = 0; k < gen.m_genCommands.length(); k++)
@@ -283,6 +348,17 @@ namespace HWP
 					}
 				}
 				return added;
+			}
+
+			// HWPObjectivePainter goes last on the brush's painting list, once
+			void AddPainter(DungeonBrush@ brush)
+			{
+				if (brush is null)
+					return;
+				for (uint k = 0; k < brush.m_painting.length(); k++)
+					if (cast<HWPObjectivePainter>(brush.m_painting[k]) !is null)
+						return;
+				brush.m_painting.insertLast(HWPObjectivePainter());
 			}
 
 			bool EndsWith(const string &in s, const string &in suffix)
