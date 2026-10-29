@@ -57,6 +57,10 @@
         "default": true,
         "title": "Keys from catches",
         "about": "Catches can bring up a key now and then."
+      },
+      {
+        "option": "eatkey",
+        "about": "Eats the hovered fish."
       }
     ]
   }

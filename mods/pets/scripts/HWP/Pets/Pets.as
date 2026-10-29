@@ -167,6 +167,7 @@ namespace HWP
 			g_bowl = HWP::Settings::GetBool("pets.bowl", false);
 			g_debug = HWP::Settings::GetBool("pets.debug", false);
 			g_secretChance = HWP::Settings::GetInt("pets.candle_chance", 0);
+			HWP::PetCourier::RefreshSettings();
 		}
 
 		bool g_bowlReady = false; // this town level placed its bowl
@@ -181,7 +182,10 @@ namespace HWP
 				return;
 			auto pb = cast<PlayerBase>(rec.actor);
 			if (pb !is null && pb.m_unit.IsValid())
+			{
 				pb.ResetPet();
+				HWP::PetCourier::g_awayMs = 0; // a pet on a courier trip is back now
+			}
 		}
 
 		void OnSettingChanged(const string &in key)
@@ -1085,6 +1089,22 @@ namespace HWP
 				HWP::Commands::Reply(Resources::GetString(".hwp.pets.moved"));
 				return;
 			}
+			// the courier (Courier.as): status, or hand the first bag item over as the
+			// bag's Send home hint does
+			if (a == "courier" || a == "send")
+			{
+				if (a == "send")
+				{
+					if (!HWP::PetCourier::CanHand(rec) || rec.equipInventory.m_items.length() == 0)
+					{
+						HWP::Commands::Reply(Resources::GetString(".hwp.pets.courier.cannot"));
+						return;
+					}
+					HWP::PetCourier::Hand(rec, cast<Equipment::Equipment>(rec.equipInventory.m_items[0]));
+				}
+				HWP::Commands::Reply(HWP::PetCourier::Status());
+				return;
+			}
 			if (a == "skill" && args.length() >= 2)
 			{
 				int s = SkillIndex(args[1]);
@@ -1558,6 +1578,7 @@ namespace Modules
 			HWP::Net::OnRequest(HWP::Pets::LEVEL, HWP::Net::RequestHandler(HWP::Pets::OnLevel));
 			HWP::Net::OnEvent(HWP::Pets::PICKUP, HWP::Net::EventHandler(HWP::Pets::OnPickupEvent));
 			HWP::PetDye::Init();
+			HWP::PetCourier::Init();
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Pets::OnSettingChanged));
 			HWP::Commands::Register("pet", " pet status; 'skill <id>', 'feed <crop>', '<gold|valuables|materials|caches|cursed|elixirs|xp> on|off' (also at the Pet Shop keeper's Train menu), 'here' places the optional feeding bowl where you stand (host)", HWP::Commands::Handler(HWP::Pets::CmdPet));
 			HWP::Pets::SelfCheck(false);
@@ -1574,6 +1595,7 @@ namespace Modules
 			HWP::PetDye::Start();
 			HWP::Pets::g_version++;
 			HWP::PetLevelTab::Reset();
+			HWP::PetCourier::Reset();
 			m_bowlSpawned = false;
 			m_bowl.m_hostOnly = false;
 			m_bowl.Reset();
@@ -1602,6 +1624,8 @@ namespace Modules
 		{
 			// the player menu pauses a solo game: the pet level line is kept up while paused
 			HWP::PetLevelTab::Tick();
+			// the pet leaves on its courier trip when the menu closes, which unpauses
+			HWP::PetCourier::Tick(ms, paused);
 			if (paused)
 				return;
 			m_delay += ms;
