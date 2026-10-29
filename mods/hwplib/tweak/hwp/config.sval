@@ -429,6 +429,16 @@
 						<dict><string name="key">valuables.gold_mult</string><string name="type">float</string><bool name="host">true</bool><bool name="level">false</bool><float name="default">2</float><array name="values"><f>1</f><f>1.5</f><f>2</f><f>3</f><f>5</f></array><int name="labels">0</int><string name="suffix">x</string></dict>
 					</array>
 				</dict>
+				<dict>
+					<string name="id">affixes</string>
+					<bool name="shared">false</bool>
+					<string name="toggle">affixes.enabled</string>
+					<bool name="host">true</bool>
+					<bool name="level">false</bool>
+					<array name="settings">
+						<dict><string name="key">affixes.chance</string><string name="type">int</string><bool name="host">true</bool><bool name="level">false</bool><int name="default">25</int><array name="values"><i>10</i><i>25</i><i>50</i><i>75</i><i>100</i></array><int name="labels">0</int><string name="suffix">%</string></dict>
+					</array>
+				</dict>
 			</array>
 		</dict>
 		<dict>

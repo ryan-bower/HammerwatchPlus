@@ -22,7 +22,7 @@ all-in-one pack (`packages.json`; `docs/modules.md`, Packages):
 | `HWP-keys` Keys and Ace Chests | keys |
 | `HWP-campaign` The Forsaken Tower | campaign |
 | `HWP-modes` Challenge Modes | mercenary, wavemode |
-| `HWP-dungeon` Dungeon Loot and Encounters | puzzles, objectives, strongbox, abyss, maps, weapons, trinkets, valuables |
+| `HWP-dungeon` Dungeon Loot and Encounters | puzzles, objectives, strongbox, abyss, maps, weapons, trinkets, valuables, affixes |
 | `HWP-town` Town Life | fishing, farming, gambler, roulette, tavern |
 | `HWP-pets` Pets | pets (and petrooms, shared with Quality of Life) |
 | `HammerwatchPlus-All` | every package |
@@ -77,6 +77,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | `strongbox` | Path of Exile-style strongboxes: open one, a pack of the floor's enemies spawns (elites possible), clear it for the box's loot. |
 | `abyss` | Abyss cracks: step close and waves crawl out, ending in elites (more in a bigger party). Clear them for a reward that grows the deeper the run goes. |
 | `maps` | Three new layouts for the equipment-map drops: Goblin Warrens, Sunken Dungeon, The High Court. |
+| `affixes` | Rare and Epic items can roll a second suffix, and Epic items a second prefix: 25% each, so a few items carry five modifiers instead of three. |
 | `valuables` | Valuables (vases, chalices, gems, furs, scales: the pickups that turn straight into gold) are worth twice their vanilla gold. |
 | `trinkets` | Trinkets keep up in NG+: flat bonuses (health, mana, armor, power, regen, resistances, thorns, proc damage) grow by a fixed amount per NG+ level, twice as much on an attuned trinket when attuning doubles the number. Tooltips show the scaled numbers. Also 37 trinkets from Heroes of Hammerwatch (Lucky Hat, the spheres, the seals, Golden Lamp, Judgement and more), eight new trinket sets (Spheres of Power, Charms of Fortune, Disarmament, Plague Doctor, Pyromancer, Seals of Torment, Arcanist's Regalia, Conjurer's Relics), Emblems of Hermes and Apothecary's Supplies with more pieces and tiers, and a Trader's Coin that also discounts the dungeon trinket shop. |
 | `wavemode` | **Wave Arena**: a survival arena started from a statue in town; every boss kill raises your arena rank, which is the arena's NG+ level next time. |
@@ -168,6 +169,11 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 
 ## Status
+
+2026-10-29, items with two suffixes or two prefixes (`affixes`, #17). Vanilla gives a Rare item
+one suffix and an Epic one a suffix and a prefix, each from its own pool. Now each of those
+tiers may roll a second mod, 25% each (`affixes.chance`), from the same pool and never the same
+mod twice. The extras show in the tooltip, save with the item and stay when the module is off.
 
 2026-10-28, the Forsaken Tower from HoH1 itself (`campaign`, "HoH1 tower" in its README).
 With HoH1 installed, the import builds HoH1's tower from the player's own install: 23 floors,
