@@ -32,14 +32,23 @@ Two weapon sets per character, toggled with a hotkey.
   slot (or press X) to swap; the tooltip shows the stored item or how to use it.
 - **HUD tip:** while you are empty-handed with weapons in the other set, an
   on-screen line says to press X.
+- **Controller:** **D-pad left** swaps (hwplib `HWP::Input`, setting `weaponswap.pad`,
+  default `gp_dl`; a DualShock 4 reads its own D-pad left). Vanilla's gamepad map leaves it
+  free in gameplay: there it is only `MenuLeft`. So the button swaps only with no window
+  open, and in the character menu it still moves left (click an alt slot there, or use X).
+  While a controller is in use (`GameInput.UsingGamepad`) the HUD tip, the alt-set label
+  and the slot tooltips show the button's glyph instead of the key.
 - **Rebinding:** player menu > **Plus** tab > "Swap weapons": click the
   button, then press the new key (Esc cancels); the key name is shown on the
-  button and in the HUD tip. The game's Controls list cannot take it: its
+  button, the alt slots' badge and in the HUD tip, as printed on a US keyboard
+  (not localised: the key keeps its position, so on AZERTY a key bound at Q still
+  reads Q). The game's Controls list cannot take it: its
   actions are a fixed table in the exe. A key you bind is ignored until you
   let go of it, so binding does not swap.
 - Commands: `hwp swap`, `hwp swapkey` (show), `hwp swapkey 21 R` (set
-  scancode + label), `hwp swapdrop` (other set back to the inventory if it
-  fits).
+  scancode + label), `hwp swappad` (show the button, its clash with a gameplay action,
+  whether a controller is in use), `hwp swappad gp_lth` / `none` / `default` (set it),
+  `hwp swapdrop` (other set back to the inventory if it fits).
 
 ## Settings
 
@@ -52,6 +61,9 @@ On the HammerwatchPlus tab of the player menu (Quality of Life > Wep. swap):
   it back on the alt slots return the next time the character menu opens.
 - **Swap weapons** (option `swapkey`): the hotkey, rebound as above (`weaponswap.key`,
   `weaponswap.keyname`; your own).
+- **Swap weapons (controller)** (option `swappad`): the button. Click it (or A), then press
+  the new button. B and Start are never taken (B cancels, like Esc). `weaponswap.pad`, your
+  own; a button that is also a gameplay action (A is Use) is logged and `hwp swappad` names it.
 
 ## Test checklist
 
@@ -68,3 +80,10 @@ On the HammerwatchPlus tab of the player menu (Quality of Life > Wep. swap):
    does not (`mod-options-tab` covers the rebind). `hwp swapkey 21 R` does the same. `hwp swapdrop`: items land in
    the inventory, the alt slots empty.
 7. Co-op: the other player sees your weapon change on swap.
+8. `python -m gamelab run fix-weaponswap-pad --mode lab` (issue #14): D-pad left swaps with
+   no window open and not in the character menu (X still does), the hints show the button
+   while a controller is in use, the Plus tab row binds the left stick click (B ignored, Esc
+   cancels), the old button stops, a clash with Use is named. GameLab presses emulated
+   buttons (gamelab-hands `pad hold`), so a real controller is still worth one try:
+   D-pad left in a run swaps, `hwp pad` lists the controller's map and shows `DOWN` on the
+   held button.

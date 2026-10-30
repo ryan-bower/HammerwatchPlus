@@ -228,7 +228,7 @@ namespace HWP
 		void MagazineShot(Actor@ actor, bool off)
 		{
 			auto plr = cast<PlayerBase>(actor);
-			if (plr is null || !IsFirearms(plr.m_record))
+			if (plr is null || !UsesGuns(plr.m_record))
 				return;
 			auto state = MagazineFor(plr);
 			if (state !is null)
@@ -244,7 +244,7 @@ namespace HWP
 		void UpdateMagazine()
 		{
 			auto plr = cast<PlayerBase>(GetLocalPlayer());
-			if (plr is null || !IsFirearms(plr.m_record))
+			if (plr is null || !UsesGuns(plr.m_record))
 				return;
 			auto state = MagazineFor(plr);
 			if (state !is null)

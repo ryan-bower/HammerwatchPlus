@@ -1,11 +1,12 @@
 <!-- HWP objectives: the switch that opens the way down (HWPObjectiveSwitch kind "exit", scripts/HWP/Objectives/Units.as).
-     The vanilla lever's art (doodads/buttons/button_lever.unit); "left" is unused (use prompt, map
-     icon), "right" is used. A sensor circle like a chest's adds it to the player's usables. -->
+     The vanilla lever's art (doodads/buttons/button_lever.unit); "left" is unused (use prompt),
+     "marked" is "left" with a map icon (the Architect's Marked Switches; like the vanilla lever,
+     no icon otherwise, issue #26), "right" is used. A sensor circle like a chest's adds it to the player's usables. -->
 <unit slot="doodad">
 	<behavior class="HWPObjectiveSwitch">
 		<string name="kind">exit</string>
 	</behavior>
-	<scenes default="left" left="left" right="right">
+	<scenes default="left" left="left" marked="marked" right="right">
 		<scene name="shared">
 			<sprite origin="8 10" layer="-30" texture="doodads/buttons/buttons.png" material="system/default.mats:floor">
 				<frame time="50">101 0 17 18</frame>
@@ -16,11 +17,14 @@
 		</scene>
 		<scene name="left" trigger-snd="event:/sfx/doodads/buttons/lever_off">
 			<scene src="shared" />
-			<scene src="special/minimap.unit:info_poi" />
 			<effect pos="-4 -6" ulayer="1" src="doodads/buttons/hint.effect?a=1"/>
 			<sprite origin="5 7" texture="doodads/buttons/buttons.png" material="system/default.mats:floor">
 				<frame time="50">118 0 8 7</frame>
 			</sprite>
+		</scene>
+		<scene name="marked" trigger-snd="event:/sfx/doodads/buttons/lever_off">
+			<scene src="left" />
+			<scene src="special/minimap.unit:info_poi" />
 		</scene>
 		<scene name="right" trigger-snd="event:/sfx/doodads/buttons/lever_on">
 			<scene src="shared" />
