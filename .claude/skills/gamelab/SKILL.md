@@ -356,6 +356,10 @@ do not rely on a fixed verb count in this skill.
 - Act through the game's own code path: `mission`, `build`, `equip`, `xp`, `material`,
   `upgrade`, `assign`, `charflag`, `spawn`, `save`, `pick`, `char`, `input`, `pointer`,
   `skillup`, `mastery`.
+- `menubutton <name> [pad]`: a press of a menu button in MenuInput, what windows read (a
+  gamepad's bumpers are `prevtab` / `nexttab`; `forward` is A). `pad` makes it a gamepad's press
+  (UsingGamepad), so a list acts on its selected entry rather than the one under the pointer.
+  `gl input` is GameInput only, which windows don't read for these.
   `spawn` of a material unit gives an amount-0 pickup; `drop <type> <amount> <dx> <dy>`
   makes a real one (Material::DropMaterial).
 - `areatriggers [radius]` (read-only): AreaTrigger / AllPlayersAreaTrigger scripts near the

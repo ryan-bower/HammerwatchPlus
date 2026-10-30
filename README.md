@@ -177,6 +177,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-29, the General Merchant's tabs work with a controller (`keys`, #23). The Keys & Bags
+and Trinkets tabs switched only with a mouse click. Now a gamepad's bumpers (and Tab on a
+keyboard) switch them, as in the player menu and the stash, and the bindings show beside the
+tab row. GameLab gained `menubutton`, which presses a menu button as a gamepad does, so
+controller paths in windows can be tested without a controller.
+
 2026-10-29, Shift+Click places 20 attribute points at the Attribute Trainer, Ctrl+Click 5
 (`attrclick`, #22). Vanilla places one a click, and every level and NG+ level adds more to
 place. The cost on each stat shows the amount while the key is held. A gamepad keeps the

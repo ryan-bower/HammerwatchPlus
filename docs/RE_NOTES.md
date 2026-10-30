@@ -6077,3 +6077,35 @@ now" when the amount changes, and the harness `key` step holds a key in the lab 
 
 So GameLab can't hold Shift, and Shift+Click needs a hands-on try. It reads scancodes 225 / 229
 through the same `HWP::Options::KeyDown` as Ctrl's 224 / 228.
+
+## 2026-10-29: the General Merchant's tabs on a controller (issue #23); GameLab `menubutton`
+
+The General Merchant (`keys`, `HWPMerchantWindow`) has a Keys & Bags / Trinkets tab row, a
+`menutabgroup` whose tabs call `hwp-tab keys|trinkets` on a click. Nothing read the gamepad, so
+a controller player could never reach the Trinkets tab. Vanilla windows with tabs read
+`menuInput.MenuPreviousTab` / `MenuNextTab` in `Update`: the player menu, the stash (and
+`MenuPreviousSubTab` / `MenuNextSubTab` for an inner row). They show the bindings with
+`binding-display` widgets, refreshed in `RefreshKeybinds`. The merchant now does the same. With
+two tabs, either binding goes to the other tab. On a keyboard MenuNextTab is Tab and
+MenuPreviousTab has no key, so only "TAB" shows, on the right.
+
+Of HammerwatchPlus's own windows, this was the only tab row without the bindings. The
+Modifications page, the character menu (droptrade), the class picker and the run-start screen
+already read the sub-tab bindings for their rows.
+
+**GameLab could not press a menu button.** `gl input` writes GameInput (move, aim, use,
+attacks, skills), and windows read MenuInput. The new verb `menubutton <name> [pad]` writes one
+into MenuInput from the hands module's UpdateFrame: down for one frame, let go the next,
+cleared the one after. Two findings on the way:
+- The engine does not clear a written `Pressed`. A press written once and left in place was read
+  every frame, so the tab flipped about 30 times a second (20261029-022658).
+- A shop list buys when Forward is let go (`ScrollbarWidget.Update`: `Released`). With the
+  mouse in use it buys the entry under the pointer, so a press only buys the selected entry when
+  `gameInput.UsingGamepad` is set. `pad` sets it for the press.
+
+`fix-merchant-controller-tabs` (20261029-023241):
+- next tab goes to Trinkets (6), next tab wraps to Keys (5), previous tab goes to Trinkets;
+- A buys the selected trinket (6 to 5);
+- the real Tab key goes to Keys and back;
+- a mouse click on Keys still works;
+- the log is clean.
