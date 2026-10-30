@@ -207,6 +207,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-30, no Sacrificial Penance without Heresy (#68). The Devil Forgemaster's Necrotic
+Resurrection only turns into Sacrificial Penance at max Divine Favor when there is at least 1
+Heresy to wash away. With none, the key stays a raise (its icon, its cost, +Heresy) and the
+Favor is kept, so the next cast after that raise is the Penance. Tested: `fix-penance-heresy`,
+`plan-forgemaster`.
+
 2026-10-30, Pelor's Fury on elites, and a death takes 5 Blessing stacks (#82). Pelor's Fury
 on an elite now needs and spends only 3 stacks of Pelor's Blessing and keeps the rest; on
 anything else, bosses included, it still takes all 10. A party member dying now takes 5 stacks

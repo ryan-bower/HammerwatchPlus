@@ -20,6 +20,6 @@
   "order": 0.5,
   "role": "",
   "status": "built",
-  "summary": "Channel for 3 seconds on an intact body to sacrifice it and wash away Heresy. Consumes your Divine Favor.",
+  "summary": "Channel for 3 seconds on an intact body to sacrifice it and wash away Heresy. Needs at least 1 Heresy. Consumes your Divine Favor.",
   "unlock": "bought"
 }
