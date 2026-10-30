@@ -333,8 +333,16 @@ class Run:
 
     # ---- fixtures ------------------------------------------------------------
 
-    def materialize(self, name: str) -> dict:
-        recipe = json.loads((FIXTURES / f"{name}.json").read_text(encoding="utf-8"))
+    def materialize(self, name: str | dict) -> dict:
+        # Inline recipes keep one-off play-builder requests under ignored results/;
+        # they use the same native creation, cache and readback gates as named fixtures.
+        if isinstance(name, dict):
+            recipe = name
+            name = recipe.get("name", "inline")
+            if not re.fullmatch(r"[a-z0-9-]+", name):
+                raise GameError("inline fixture name must contain only lowercase letters, digits and hyphens")
+        else:
+            recipe = json.loads((FIXTURES / f"{name}.json").read_text(encoding="utf-8"))
         build = pin_build.live()["build_id"]
         # a changed recipe, or a change to the GameLab mods whose verbs build it, is a
         # different fixture
@@ -368,16 +376,17 @@ class Run:
         hps.enable(save, mods)
         # pass 2: create the character with the game's own functions, let it reach town, quit
         game = self.boot(expect_mods=True)
-        ch = recipe["character"]
+        ch = recipe.get("character")
         # the character menu has to be up: `char` sent on the boot line, before the first
         # heartbeat, answered "no local player record" (fixture-ranger 20261017-163135)
         if game.wait_gl(lambda o: o.get("ev") == "hb" and o.get("phase") == "no_character", 60) is None:
             raise GameError("the character menu never came up (no 'no_character' heartbeat)")
-        reply = game.gl_cmd("char", ch["class"], ch["name"])
-        if not reply.get("ok"):
-            raise GameError(f"char failed: {reply}")
-        if game.wait_gl(lambda o: o.get("ev") == "hb" and o.get("phase") == "town", 60) is None:
-            raise GameError("new character never reached town")
+        if ch is not None:
+            reply = game.gl_cmd("char", ch["class"], ch["name"])
+            if not reply.get("ok"):
+                raise GameError(f"char failed: {reply}")
+            if game.wait_gl(lambda o: o.get("ev") == "hb" and o.get("phase") == "town", 60) is None:
+                raise GameError("new character never reached town")
         # recipe "setup": more fixture verbs (gamelab-hands; each mirrors a game path), then
         # the game's own save, so the next session loads this town and not a null one
         for v in recipe.get("setup", []):
@@ -412,7 +421,7 @@ class Run:
         if self.plan is not None:
             return self.enter_plan(game, recipe, extra_mods)
         selection = None
-        if hb and hb.get("phase") == "no_character":
+        if hb and hb.get("phase") == "no_character" and expected["phase"] != "no_character":
             reply = game.gl_cmd("pick", 0, *([choice] if choice is not None else []))
             selection = reply
             if not reply.get("ok"):
@@ -1104,6 +1113,17 @@ class Run:
                 self.finish(self.game)
             restore_written(self.results)
             write_plan([])
+        if self.scenario.get("export_profile") and "error" not in out and all(a["ok"] for a in self.assertions):
+            try:
+                if self.mode != "lab":
+                    raise GameError("profile export requires lab mode")
+                profile = hps.current_save(0, env.GAME / "saves")
+                if profile is None or not hps.trailer_ok(profile.read_bytes()):
+                    raise GameError("profile export requires a complete, checksummed native save")
+                shutil.copy2(profile, self.results / "profile.hps")
+                out["profile_export"] = "profile.hps"
+            except (OSError, GameError) as error:
+                out["error"] = str(error)
         self.flush(final=True)
         return json.loads((self.results / "inner.json").read_text(encoding="utf-8"))
 

@@ -1,51 +1,65 @@
 ---
 name: run
-description: Set up, build, deploy every HammerwatchPlus module into the user's real Heroes of Hammerwatch II install and start the game for them to play. Use when the user says /run, "run the game", "deploy the mods", "start the game with the mods", or "get all mods to load". Not for tests: a test boot is GameLab (`gamelab` skill).
+description: Set up, rebuild and deploy HammerwatchPlus, create a fresh local profile with every deployed mod enabled, make it the default, and launch the real Heroes of Hammerwatch II install through Steam for the user to play. Use for /run, running the game with the latest mods, or a fresh all-mods profile. Use GameLab instead for tests.
 ---
 
 # run
 
-One command does everything; the user never runs python steps by hand:
+From the repository root, make **one call**:
 
+```powershell
+.venv\Scripts\python.exe tools\run.py
 ```
-.venv\Scripts\python.exe tools\run.py          # or: run.cmd (double-click)
-```
 
-Flags: `--no-launch` (build and deploy only), `--no-setup` (skip the doctor step), `--dry-run`
-(plan only), `--packages town keys ...` (Workshop packages from `packages.json` instead of the
-all-in-one pack).
+If the project environment does not exist yet, use `uv run python tools\run.py`
+instead. `run.cmd` is the double-click entry point to the same script.
 
-It runs, in order, and prints one `run: <step>: ...` line per step:
+The default call opens a small desktop save builder. The user can add several named
+characters, choose classes and levels 1–20, configure **Starting gold** (default
+**1,000,000**, shared by the new profile), and click **Build save & launch**, or
+choose **No preset characters** while keeping the chosen gold. Set gold to 0 for
+an unfunded profile. Closing/cancelling makes no setup, deploy or profile changes.
+Let the user operate this UI; do not automate it or ask them to run commands.
 
-1. **setup**: `python -m gamelab doctor --fix --no-smoke` (uv sync, the save backup, the game
-   dumps, generated units, HoH1 imports when HoH1 is installed). No lab boot.
-2. **build**: `tools/build.py` for the modded-prod packages (the all-in-one pack). `deploy.py modded-prod` adds
-   `--with-local` whenever any HoH1 import is on disk (floors, pets, trinket icons, class art; `--no-local` for a
-   release build), so the user's own .bin files carry all of it.
-3. **deploy**: `tools/deploy.py modded-prod` copies `dist/HammerwatchPlus-All.bin` into `<install>/mods/` and removes the HWP .bin files it did not write (the old per-module ones).
-4. **launch**: opens `steam://rungameid/619820`. The user authorized launching their real
-   install this way (2026-10-23, memory `zero-friction-setup`); do not start `HWR2.exe` directly.
+`tools/run.py` owns the entire workflow: the builder, runtime guards, doctor/setup, current-source
+build with available HoH1 imports, deploy with Workshop collision handling, save/config
+backups, isolated native character preparation when requested, a new local profile with all deployed mods enabled, default selection, Steam
+launch, and waiting for the main menu with the deployed pack loaded. Do not run these
+steps separately or add a preliminary doctor/build/deploy call on a normal `/run`.
 
-## What to tell the user
+The request authorizes this real play workflow. Every invocation creates a fresh
+profile; existing profile files are preserved. "Latest" means the current checkout,
+without automatically pulling Git changes. Prepared characters have normal starting
+gear and their earned skill/attribute points unspent. The builder does not grant NG+.
 
-- Read every `run:` line. The exit code is the first failing step's: 2 setup/install problem
-  (the doctor rows above it say what; relay the row's hint), 3 the game is running (ask them
-  to close it, then run again), 1 the launch found no process (Steam not running/logged in).
-- The `run: enable:` line lists **new** packages (by default `HammerwatchPlus-All`). Mods are
-  enabled per save, in the game's **Resource Mods** menu, once; the game remembers them by id
-  (the .bin file name), so redeploys stay enabled. Tell the user exactly which entries to tick
-  and that a restart follows. The first deploy after the per-module builds removes the old
-  `HWP-<module>.bin` files, so a save that had those ticked needs `HammerwatchPlus-All` ticked once. Never edit
-  their save to do it (gamelab/hps.py refuses real saves by design).
-- When doctor says the HoH1 install is unknown (`ASK THE USER`), the build goes on without
-  HoH1 content. Ask the user where Heroes of Hammerwatch (1) is, or whether they own it, and
-  record the answer with `python -m gamelab doctor --hoh1 "<dir>"` / `--no-hoh1`, then run again.
-- Never run this while a GameLab scenario is running (the doctor step touches gamecode/
-  only when it is missing, but the deploy replaces the install's .bin files).
+Pass optional user preferences through to the same call:
 
-## Adding a module
+- `--profile-name "Name"`: name the new profile.
+- `--character sorc:15:TestSorc`: prepare a level-15 Sorcerer and bypass the UI;
+  repeat for multiple characters. Canonical class IDs also work. Names have no spaces.
+- `--no-ui`: bypass the builder without preset characters, unless `--character`
+  is supplied; the chosen starting gold still applies.
+- `--gold 2500000`: starting gold for the new profile; default 1,000,000.
+  Applies with or without preset characters; `--gold 0` starts unfunded.
+- `--packages town keys`: selected packages instead of all; never combine `all` with them.
+- `--no-launch`: prepare mods and the new default profile without starting the game.
+- `--dry-run`: show the plan without writes or a launch.
 
-A new module ships only when it is in a package's `mods` in `packages.json` (the all-in-one pack
-takes every package) and in `gamelab/scenarios/mod-all.json`; `tools/make_package_scenarios.py`
-then rewrites the `pkg-*` scenarios. Any new generated content (imports, generated units) must
-be made by `doctor --fix`, never by a documented manual command.
+Character preparation uses `python -m gamelab run <generated-request.json> --mode lab`
+internally and checks verdict, assertions, error, teardown, source fingerprints and
+the persisted roster and exact gold balance before importing the save into a new play slot. Native fixture
+creation and levelups generate the records; the lab-only save-write guard stays intact.
+This may take a few minutes. A failed preparation never selects a new real profile.
+
+Read the script's `run:` output. Report the selected profile, prepared characters, starting gold, enabled pack and menu
+readiness; no Resource Mods ticking or restart is needed. `run: backup:` identifies
+the config backup and receipt. Exit 1 means launch/compile/menu readiness failed,
+2 means setup/profile/lock refusal, and 3 means a game is already running. Other
+nonzero codes can propagate from a failed child step; report that step's cause.
+
+Only investigate separately when the script fails or requests missing information.
+Respect save/HoH1 decisions, runtime locks and dirty teardown; never reset another
+owner's run, weaken `gamelab/hps.py`'s write guard, re-pin builds as a routine fix,
+or launch the real executable directly. See the [quickstart](../../../gamelab/README.md)
+for recovery. For tests, use GameLab with `--mode lab`; a play launch is not a
+gameplay regression pass.

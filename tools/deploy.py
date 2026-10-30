@@ -89,7 +89,8 @@ def personal_default() -> bool:
     return bool(found)
 
 
-def deploy_prod(packages: list[str], dry_run: bool, beta: bool = False, with_local: bool | None = None) -> int:
+def deploy_prod(packages: list[str], dry_run: bool, beta: bool = False, with_local: bool | None = None,
+                avoid_workshop: bool = False) -> int:
     """with_local None: personal_default()."""
     decl = env.environments()["modded-prod"]
     forbidden = decl.get("forbidden_mods", [])
@@ -101,7 +102,8 @@ def deploy_prod(packages: list[str], dry_run: bool, beta: bool = False, with_loc
     if with_local is None:
         with_local = personal_default()
     target = Path(env.install()) / "mods"
-    plan = [(env.package_file(p), target / env.package_file(p).name) for p in wanted]
+    plan = [(env.package_file(p), target / (env.personal_package_name(p) if avoid_workshop
+                                          else env.package_file(p).name)) for p in wanted]
     stale = stale_packages(target, {dst.name for _, dst in plan})
     if dry_run:
         for src, dst in plan:
@@ -147,6 +149,8 @@ def main(argv=None) -> int:
                     help="gamelab: repo mods to link; modded-prod: packages.json ids or `all`")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--beta", action="store_true", help="modded-prod: build with build.py --beta (never publish those .bin files)")
+    ap.add_argument("--avoid-workshop", action="store_true",
+                    help="modded-prod: use a separate -local id if a Workshop copy has the package id")
     local = ap.add_mutually_exclusive_group()
     local.add_argument("--with-local", dest="with_local", action="store_true", default=None,
                        help="modded-prod: build with build.py --with-local, packing the content made from your "
@@ -159,7 +163,7 @@ def main(argv=None) -> int:
         return 2
     if a.env == "gamelab":
         return deploy_gamelab(a.names)
-    return deploy_prod(a.names, a.dry_run, a.beta, a.with_local)
+    return deploy_prod(a.names, a.dry_run, a.beta, a.with_local, a.avoid_workshop)
 
 
 if __name__ == "__main__":

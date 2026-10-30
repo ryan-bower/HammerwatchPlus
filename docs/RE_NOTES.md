@@ -6892,3 +6892,220 @@ combo_orb respawn-time 0. fix-combo-orb 20261029-223045 PASS, mod-farming 223145
 mod-fishing-spots 223158 INVALID (saves only) - each with a new log_lacks guard. plan-generosity-hoh1
 re-run 223645 FAIL again on a different armory wraith (staff, 237 px, hold cut at 30 s): a Generosity
 hold vs. the three-wraith boss, not hoh1.content (every HoH1 floor loaded).
+
+## 2026-10-29: one-call /run with a fresh default profile
+
+`tools/run.py` now owns setup, current-checkout build/deploy, save/config backups,
+a NEW local profile with the deployed mods already enabled, default selection and
+Steam launch. It waits for a fresh log to show the main menu and deployed pack,
+and rejects compilation failure. `/run` is a thin, one-call skill; do not repeat
+its doctor/build/deploy steps manually. `run.cmd` remains the double-click wrapper.
+Personal packages get a separate `-local` ID when a Workshop copy would shadow them.
+The lab-only `gamelab/hps.py` write guard is unchanged; `tools/play_profile.py`
+creates an unused slot exclusively and changes only the two default-slot config vars.
+
+Validation: 15 focused unittest cases passed (`tools.test_run`,
+`tools.test_play_profile`), skill validation passed, and dry-run completed without
+writes. The requested real play launch reached the menu in 22 s on pinned build
+25932569 / B176; the user confirmed it worked. Profile 0 was created/selected,
+`HammerwatchPlus-All` was enabled, and the log reported 12 packages / 42 modules.
+All 57 previously backed-up save files retained their hashes. This is real play
+startup evidence, not a GameLab regression run or proof of every module's gameplay.
+
+Local launch evidence/receipt: `saves-backup/play-profiles/20261029-200940-1793322580017255900/`.
+Source HEAD `d9034424cdcbfcda1b8b13fd378b461d0ba4dfd1` plus this working patch;
+before/after `mods+gamelab+tools-v2` fingerprint (2,143 files)
+`4ee2b3186bb93773a3bc1004a9538fe117185dfd26629e1290f81ad8dc00cd6a` unchanged.
+Installed archive SHA256 `4978a95b9e5487a825ed70bce9704e8bcd29130e35f47e0b5f9238da5b62f6fd`.
+The later campaign startup self-check reported 18 HoH1 mission levels versus
+23 expected; that remains uninvestigated. The existing QA sweep remains paused.
+
+## 2026-10-29: /run pre-launch character/save builder
+
+The one-call launcher now opens a small Tk desktop roster editor before any setup
+or deployment. Add named characters, choose a class and level 1?20, remove rows,
+then Build save & launch; Start empty retains the empty-profile path and Cancel
+changes no setup, deployment or profiles. Classes follow the selected packages.
+`--character sorc:15:TestSorc` (repeatable) bypasses the UI; `--no-ui` starts empty.
+Characters retain native starting gear and earned, unspent skill/attribute points.
+The builder does not grant NG+ or unrelated town progression.
+
+`tools/profile_seed.py` generates an immutable request under ignored results/ and
+calls GameLab with `--mode lab`. Inline fixture recipes use the existing native
+CreateCharacter / levelup / save path and cache/readback gates. A roster bot adds
+subsequent characters. The runner exports the native profile only after a clean
+finish; the caller requires outer PASS, successful assertions, no error, no partial
+result/build drift, clean teardown, unchanged source and an exact persisted roster.
+`tools/play_profile.py` keeps the compressed native body byte-identical while
+replacing its header with the selected play-mod IDs and profile name, then creates
+an unused real slot. The lab-only write guard is unchanged. The launcher releases
+its setup lock before GameLab takes ownership, then reacquires it before real writes.
+
+The initial trial `20261029-202027-play-builder-96e204f079a0-lab` FAILED setup:
+the saved level-15 Sorcerer remained locked in the new town, so the native picker
+refused it. Teardown was clean and real config/saves/res were unchanged. Source
+fingerprint `24439b2f86829255bb4fefd8db75221f706dae4e55191cf4661cef6df0e82555`.
+The correction reads only requested classes' unlock flags from the game's data,
+sets them through native TownRecord.SetTownFlag using the new `townflag` lab verb,
+and verifies the flags after reload. No broad town-unlock cheat is used.
+
+Pinned build 25932569 / B176, expected native creation and levels, observed:
+- `20261029-202403-play-builder-eadf2ccf4107-lab` PASS: TestSorc, Sorcerer 15,
+  reloaded through the native picker; TestRanger, Ranger 1; exported roster exact.
+- `20261029-202553-play-builder-eada2fbb0657-lab` PASS: cached Sorcerer 15 plus
+  a freshly created/levelled Ranger 10; exported roster exact.
+Both passed isolation assertions with no failed assertions/error/partial/drift and
+clean teardown; user config, saves and install res were unchanged. Source HEAD
+`d9034424cdcbfcda1b8b13fd378b461d0ba4dfd1` plus this working patch; both runs had
+unchanged before/after `mods+gamelab+tools-v2` fingerprint (2,147 files)
+`d4c0fb7e2eeca0ad0811477a0c03f65f6288718fa5ce7ac37a5d14cbbc3d196b`.
+Converting either artifact enabled only the HammerwatchPlus-All hash 2635339747.
+This proves scoped native save preparation, not ordinary progression or all gameplay.
+The optional run_summary module remains absent; its reported summary failure did
+not replace or invalidate the inspected outer verdicts.
+
+35 focused unittest checks passed (run/profile/builder/restart guards), skill
+validation and verb regeneration/check passed, and a two-character dry-run passed.
+The actual launcher opened the Save builder window for the user after validation;
+real profile import/Steam play proceeds when they accept that UI. Prior failed
+trial and successful artifacts remain under ignored gamelab/results/; no real save
+was imported by these validation runs. The broader QA sweep remains paused.
+
+The user then accepted the actual builder UI with `rogue1`, Rogue level 15.
+Its generated run `20261029-202759-play-builder-84724fff1262-lab` passed on the
+same build/source fingerprint above, with exact native persisted roster and clean
+isolation/teardown. The one-call launcher imported it into NEW local profile 2,
+selected it by default, enabled HammerwatchPlus-All, and reached the real Steam
+main menu in 11 s. Receipt/config backup:
+`saves-backup/play-profiles/20261029-202835-1793323715325973500/`.
+This also exercises the real desktop UI, new-slot import and Steam launch together;
+the record read from the new real save is exactly rogue1 / rogue / 15.
+
+## 2026-10-29: launcher edits falsely marked multiplayer builds different
+
+User reported multiplayer stutter and host/client labels d903442 versus d903442+.
+The installed pack after character-builder use was byte-identical to the earlier
+pre-builder pack: SHA256 4978a95b9e5487a825ed70bce9704e8bcd29130e35f47e0b5f9238da5b62f6fd.
+Both real logs already contained the same label mismatch and six missing native
+weapon-skill errors (IDs 3914267089 = attack_2h_staff_fire_epic, 169849922 =
+attack_2h_greataxe_secondary). This does not establish the builder as a stutter
+regression, or the warning as the cause of sustained stutter.
+
+Confirmed label bug: build.update_id used every tracked edit in the repo for its
+'+' marker, so launcher/docs/lab changes labelled unchanged gameplay as another
+update. It now examines changed, staged, deleted and untracked shipped mod inputs
+and package/module metadata. Dev/lab/local-only modules and nonpacked files are
+excluded. Runtime gameplay changes still produce '+'. The multiplayer comparison,
+report format and real mismatch warnings are unchanged; no compatibility check is
+bypassed and no game script was changed for this fix.
+
+Validation: seven focused Git-fixture unittest cases and three existing build
+stamp tests passed. Pinned build 25932569 / B176, native loopback notice regression
+`20261029-203537-fix-mod-version-notice-lab` PASS, no failed assertions/error/partial
+or drift, clean teardown and isolation. It observed update d903442, no warning for
+matching updates, warnings for older/newer/extra packages and silent peers. That
+run's before/after source fingerprint (2,148 files, mods+gamelab+tools-v2) was
+0836d725c6aa093ad6138a6c9da167014b94ad9babfe57f4e534616323b49c38 at HEAD
+d9034424cdcbfcda1b8b13fd378b461d0ba4dfd1 plus the working patch. The later
+non-prefixed gamelab:true module exclusion has separate focused unit coverage.
+
+Final rebuilt/deployed source fingerprint: d4ee13287d280aa4f0656283fa062b19df3db380d660fe4d200162828820059f.
+Installed archive SHA256: 705baa33f5c228db39b07344625381300eebb25b13ff437395d9c3db50fc682f.
+Decoded before/after archives differ ONLY in 12 generated package-check scripts:
+each d903442+ became d903442, with every gameplay payload byte unchanged. Evidence,
+old archive and old real log are retained under ignored
+`gamelab/results/join-stutter-investigation/`. Reopened through Steam, retaining
+existing profile 2 / rogue1; menu readiness passed in 12 s. No new profile was made.
+
+Real rejoin was then observed at 20:37:57?20:38:05 into a mission (server=no,
+town=no). The client still logged missing native weapon skills and the early
+hwp.luck.floor event (-415441014), arriving before SValue loaders/module handlers
+were initialized. This is separate from the corrected build-label difference;
+its cause/effect on sustained stutter is not established. Build reports run in
+town, so this mission join emitted no updates-match comparison. Raw post-fix log
+is retained as after-rejoin.HWR2.exe.log in the investigation directory.
+User feedback on movement/stutter remains pending. The local test is scoped
+version-report evidence, not a two-machine performance or gameplay regression
+pass. The broader QA sweep remains paused.
+
+## 2026-10-29: configurable starting gold in the save creator
+
+The creator now has a Starting gold field, default 1,000,000, shared once by the
+new profile regardless of character count. Commas are accepted; 0 is supported.
+`--gold AMOUNT` provides the same setting in one-call/non-UI launches. No preset
+characters retains the chosen balance; it creates no hidden temporary character.
+Only a new profile is funded; existing saves are not edited by this feature.
+
+Plan validates integer balances in the native signed-32-bit range. A lab-only
+`townmoney [amount]` verb queries/sets gold exactly through TownRecord.GiveMaterial,
+without modifying other materials. The inline fixture saves the selected amount,
+reads it back after reload, and the export verifier independently decodes the
+saved town balance. The play-profile converter preserves the native body bytes;
+the receipt and run: gold line report the persisted starting balance. Characterless
+fixtures skip native creation/picking but keep the existing state/mod/profile gates.
+
+Native preparation checks on pinned build 25932569 / B176, expected requested
+balances and exact rosters, observed:
+- `20261029-224205-play-builder-f75ad3605d8d-lab` PASS: Sorcerer 15 and Ranger 10,
+  shared balance exactly 1,000,000 after reload and export (not doubled per character).
+- `20261029-224251-play-builder-7fe267373e24-lab` PASS: no real characters, custom
+  balance exactly 2,500,000 after reload and export.
+- `20261029-224412-play-builder-c6f57ed348c9-lab` PASS: Paladin 1 with exactly 0
+  gold after reload/export, including the native null-town balance case.
+All three had no failed assertions/error/partial/build drift, clean teardown and
+unchanged real config/saves/install res. No real profiles were created by these
+validation runs. These are native forced-save preparation checks, not proof of
+ordinary acquisition, spending or multiplayer performance.
+
+HEAD d9034424cdcbfcda1b8b13fd378b461d0ba4dfd1 plus the working patch. Before/after
+mods+gamelab+tools-v2 fingerprints (2,148 files) were unchanged per run:
+first two 2d82b46cad56a918df2eb0b6f5299515bcd0fdb79251d00886b81a9588dcb9c1;
+zero-gold/current source a86076f81deac778863ef4e56550aad9ccd59deb7c1e075c150e6d5ef8cd833b
+(after CLI help/progress wording was clarified; the native preparation implementation
+was unchanged between these epochs). Raw runs, requests and source.json stay under
+ignored gamelab/results/. The optional run_summary module is still absent; outer
+verdicts and raw artifacts were inspected independently of its optional summary.
+
+47 focused unittest checks passed (run/profile/builder/restart/build identity),
+custom-gold dry-run passed, skill validation passed, and the verb reference was
+regenerated/checked at 205 verbs. Shipped gameplay inputs are unchanged, so the
+multiplayer update remains d903442. The previous stutter outcome and broader QA
+sweep remain unresolved/paused; this currency addition makes no claim about them.
+
+## 2026-10-29: save creator PR integration and runtime ownership
+
+The accumulated one-call launcher, fresh profile, character builder, starting gold
+and false dirty-build-label fix are on `codex/run-save-builder`, rebased onto main
+`7c8b649`. The integration preserves upstream's HoH1 content flag default of OFF,
+local town NPC targeting and combo-orb respawn fixes. Historical d903442 results
+above belong to their recorded source epochs; the PR has a new Git update label.
+
+Review added a GameLab acquire guard for a real HWR2.exe play session after its
+Steam launcher has returned. It refuses before wiping lab scratch saves, does not
+kill the player game, and releases only its newly acquired lock. Inaccessible
+process visibility also refuses. Three focused tests cover process identity,
+visibility refusal and preservation of saves/lock ownership. Pytest's cache is
+now ignored.
+
+Current merged-source validation on pinned build 25932569 / B176:
+
+- `20261029-225240-play-builder-2c8ee0ec80ad-lab` PASS: requested PRSorc / Sorcerer
+  15 and PRRanger / Ranger 10 persisted exactly, with shared gold exactly 1,000,000.
+- `20261029-225322-play-builder-97fcb9173ced-lab` PASS: no characters and custom
+  gold exactly 2,500,000 persisted after reload/export.
+
+Both outer run.json files have no failed assertions, error, partial result or
+build drift, and clean teardown. Real config/saves/install res stayed unchanged.
+Expected source was `c5ac0d7c02eb6f30089ecd51ec84db6d9f8ea459` plus the runtime
+guard patch; both before/after mods+gamelab+tools-v2 fingerprints were unchanged:
+`4cd700f58a6df6c2cb3faa8a5c093337c043965433b652a0f97386da3292e6d2`
+(2,152 files). Raw runs, exports and source.json remain ignored under
+gamelab/results/. The optional run_summary module is still absent; outer verdicts
+and raw evidence were inspected independently of its optional-summary warning.
+
+50 focused unittest checks and three build tests passed. Doctor --no-smoke,
+skill validation, verb-reference check (205 verbs) and patch whitespace checks
+passed. These native checks cover forced save preparation and reload/export,
+not ordinary acquisition/spending or two-machine multiplayer performance. No real
+profile was imported or play session launched for PR validation. The earlier
+stutter investigation remains unresolved and the broader QA sweep remains paused.

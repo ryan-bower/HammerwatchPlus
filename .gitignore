@@ -18,6 +18,7 @@ hoh1_import/
 dist/
 # Python
 __pycache__/
+.pytest_cache/
 *.pyc
 .venv/
 # Editor/OS

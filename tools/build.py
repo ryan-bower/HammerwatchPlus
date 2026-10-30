@@ -305,15 +305,46 @@ def library_stamp(mods: list[dict]) -> str:
 STAMP_FILE = "scripts/HWP/Core/LibStamp.as"
 
 
-def update_id() -> str:
-    """The HammerwatchPlus update this tree builds, as players see it (HWP::Builds): the last
-    commit's date and short hash, with "+" when tracked files have uncommitted changes (a local
-    build, never to publish). Every package of one build carries the same one."""
+def affects_release_update(path: str, mods: list[dict]) -> bool:
+    """Only shipped mod inputs can make a gameplay update locally modified.
+
+    Launcher, QA, documentation and dev-harness changes never reach the release
+    payload. Module/package declarations and info.xml do affect what ships.
+    Classify deleted/renamed paths too, rather than checking only existing files.
+    """
+    if path == "packages.json":
+        return True
+    parts = Path(path).parts
+    if len(parts) < 3 or parts[0] != "mods":
+        return False
+    module = next((m for m in mods if m["id"] == parts[1]), None)
+    if (module is None or module.get("dev") or module.get("gamelab")
+            or module.get("local_only") or parts[1].startswith("gamelab-")):
+        return False
+    relative = "/".join(parts[2:])
+    if relative in {"module.json", "info.xml"}:
+        return True
+    return (relative not in NEVER_PACK | set(module.get("exclude", []))
+            and relative != hwr.MANIFEST and not is_pristine_copy(relative)
+            and not any(part.startswith(".") for part in parts[2:]))
+
+
+def update_id(mods: list[dict] | None = None) -> str:
+    """Last commit date/hash, plus '+' only for changes to shipped mod inputs.
+
+    Keep the existing wire format and genuine gameplay mismatch warnings. Local
+    tooling/character-builder edits alone are the same gameplay update as HEAD.
+    """
+    mods = mods if mods is not None else [load_module(d) for d in paths.module_dirs()]
     try:
         head = subprocess.run(["git", "log", "-1", "--format=%cs %h"], cwd=paths.REPO, capture_output=True,
                               text=True, check=True).stdout.strip()
-        dirty = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], cwd=paths.REPO,
-                               capture_output=True, text=True, check=True).stdout.strip()
+        changed = subprocess.run(["git", "diff", "--name-only", "--no-renames", "-z", "HEAD", "--", "mods", "packages.json"],
+                                 cwd=paths.REPO, capture_output=True, check=True).stdout
+        added = subprocess.run(["git", "ls-files", "--others", "--exclude-standard", "-z", "--", "mods", "packages.json"],
+                               cwd=paths.REPO, capture_output=True, check=True).stdout
+        dirty = any(affects_release_update(path.decode("utf-8"), mods)
+                    for path in (changed + added).split(b"\0") if path)
     except (OSError, subprocess.CalledProcessError):
         return "unknown"
     return head + ("+" if dirty else "") if head else "unknown"
@@ -420,7 +451,7 @@ def main(argv=None):
               f"rerun tools/import_hoh1.py {what}")
 
     stamp = library_stamp(mods)
-    update = update_id()
+    update = update_id(mods)
     print(f"building (library {stamp}, update {update}):")
     cache: dict[str, list[hwr.Entry]] = {}
 
