@@ -8,6 +8,13 @@
 	<string name="hwp.cfg.s.fishing.run_chance.about">The chance a run gets a fishing hole on its first floor (Luck raises it).</string>
 	<string name="hwp.cfg.s.fishing.run_casts">Casts per hole</string>
 	<string name="hwp.cfg.s.fishing.run_casts.about">Catches each player gets at a run's fishing hole.</string>
+	<string name="hwp.cfg.s.fishing.reel_hits">Hits to land</string>
+	<string name="hwp.cfg.s.fishing.reel_hits.about">Hits in the green a bite takes. By fish: 2 for 1-star fish, 3 for 2-star, 4 for 3-star. 1 is one press, as before.</string>
+	<string name="hwp.cfg.s.fishing.reel_hits.v0">By fish (2-4)</string>
+	<string name="hwp.cfg.s.fishing.reel_hits.v1">1</string>
+	<string name="hwp.cfg.s.fishing.reel_hits.v2">2</string>
+	<string name="hwp.cfg.s.fishing.reel_hits.v3">3</string>
+	<string name="hwp.cfg.s.fishing.reel_hits.v4">4</string>
 	<string name="hwp.cfg.s.fishing.keys">Keys from catches</string>
 	<string name="hwp.cfg.s.fishing.keys.about">Catches can bring up a key now and then.</string>
 	<string name="hwp.cfg.o.eatkey.about">Eats the hovered fish.</string>
