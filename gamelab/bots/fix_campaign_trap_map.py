@@ -9,11 +9,15 @@ With traps, the log's `traps: kinds` line must show a mix: no kind over its max-
 (campaign_prefabs.sval) and, from 10 traps up, at least 3 kinds. Before the fix one
 PlacePrefabs call could fill a floor with spikes_1 alone."""
 import re
+from pathlib import Path
 
+DEFS = Path(__file__).resolve().parents[2] / "mods" / "campaign" / "tweak" / "hwp" / "campaign_prefabs.sval"
 GLYPHS = [f"doodads/hwp/traps/hwp_glyph_{g}.unit" for g in ("bomb", "dart", "confusion")]
-VANILLA = ["doodads/traps/floors/floor_spikes.unit", "doodads/traps/floors/floor_fire.unit"]
-# max-num of each hwp_traps prefab (campaign_prefabs.sval); spikes_1 has none
-CAPS = {"spikes_row": 4, "fire_1": 4, "glyph_bomb_1": 4, "glyph_dart_1": 4, "glyph_confusion_1": 3}
+VANILLA = ["doodads/hwp/traps/hwp_plate_spikes.unit", "doodads/traps/floors/floor_fire.unit"]
+# max-num of each hwp_traps prefab, read from campaign_prefabs.sval (-1: none)
+CAPS = {m.group(1): int(m.group(2)) for m in re.finditer(
+    r'<string name="id">prefabs/hwp/traps/(\w+)\.pfb</string>\s*<string name="theme">hwp_traps</string>\s*<int name="max-num">(-?\d+)</int>',
+    DEFS.read_text(encoding="utf-8"))}
 
 
 def run(p, traps=True, **_):
@@ -28,7 +32,7 @@ def run(p, traps=True, **_):
     for part in (lines[-1].strip().split(", ") if lines else []):
         name, _, n = part.rpartition(" ")
         kinds[name] = int(n)
-    over = {k: n for k, n in kinds.items() if n > CAPS.get(k, n)}
+    over = {k: n for k, n in kinds.items() if CAPS.get(k, -1) >= 0 and n > CAPS[k]}
     if traps:
         ok = int(last[0]) > 0 and sum(kinds.values()) == int(last[0]) and not over             and (int(last[0]) < 10 or len(kinds) >= 3)
     else:

@@ -1,0 +1,140 @@
+{
+  "name": "fix-hoh1-traps",
+  "about": "Issue #37 (add all the traps from hoh1), mods/campaign: every HWPTrap kind (spike, poison, drain, frost and confusion plates, pressure spikes, frost glyph, stalactite, falling bricks, bear trap, the four wall shooters, the arrow turret) spawned by the player on a Crypt floor does its job (health, mana or its buff), and the ones with a telegraph show their warn scene first, for most of a second (issue #38). Generated floors of a crypt-theme and a cave-theme mission (campaign.trap_map 4: every map) log their theme group, and every kind placed has a weight above 0 for it in Traps.as (stalactites only in caves, ...), none over its max-num; a placed wall shooter, if any, is visited for the screenshot. About 6 minutes.",
+  "fixture": "town-paladin",
+  "mods": [
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
+    "campaign"
+  ],
+  "timeout": 720,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "hwp set campaign.trap_map 4"
+    },
+    {
+      "do": "mark",
+      "name": "crypt"
+    },
+    {
+      "do": "retry",
+      "times": 3,
+      "timeout": 10,
+      "until": "\\[HWP:campaign\\] traps: placed [1-9]\\d*/\\d+ on a \\d+x\\d+ floor \\([^)]*mission crypt\\)",
+      "name": "a Crypt floor placed HoH1 traps",
+      "steps": [
+        {
+          "do": "gl",
+          "verb": "mission",
+          "args": ["crypt", 0],
+          "expect": {
+            "ok": true
+          }
+        },
+        {
+          "do": "wait_phase",
+          "phase": "mission",
+          "timeout": 150
+        },
+        {
+          "do": "sleep",
+          "seconds": 2
+        }
+      ]
+    },
+    {
+      "do": "log_has",
+      "pattern": "\\[HWP:campaign\\] traps: theme \\S+ \\((crypt|halls|dungeon|barracks|other)\\): ",
+      "since": "crypt",
+      "timeout": 5,
+      "name": "the Crypt floor logged its theme and the kinds it can roll"
+    },
+    {
+      "do": "bot",
+      "bot": "fix_hoh1_traps",
+      "kwargs": {
+        "sections": "floor"
+      },
+      "expect": {
+        "ok": true
+      },
+      "name": "crypt floor: the kinds placed fit its theme, none over max-num"
+    },
+    {
+      "do": "shot",
+      "name": "crypt-traps"
+    },
+    {
+      "do": "bot",
+      "bot": "fix_hoh1_traps",
+      "kwargs": {
+        "sections": "kinds"
+      },
+      "expect": {
+        "ok": true
+      },
+      "name": "every HWPTrap kind hits, the telegraphed ones after their warning"
+    },
+    {
+      "do": "mark",
+      "name": "caves"
+    },
+    {
+      "do": "retry",
+      "times": 3,
+      "timeout": 10,
+      "until": "\\[HWP:campaign\\] traps: placed [1-9]\\d*/\\d+ on a \\d+x\\d+ floor \\([^)]*mission spider_caves\\)",
+      "name": "a Spider Caves floor placed HoH1 traps",
+      "steps": [
+        {
+          "do": "gl",
+          "verb": "mission",
+          "args": ["spider_caves", 0],
+          "expect": {
+            "ok": true
+          }
+        },
+        {
+          "do": "wait_phase",
+          "phase": "mission",
+          "timeout": 150
+        },
+        {
+          "do": "sleep",
+          "seconds": 2
+        }
+      ]
+    },
+    {
+      "do": "log_has",
+      "pattern": "\\[HWP:campaign\\] traps: theme cave\\S* \\(cave\\): ",
+      "since": "caves",
+      "timeout": 5,
+      "name": "the cave floor is in the cave group"
+    },
+    {
+      "do": "bot",
+      "bot": "fix_hoh1_traps",
+      "kwargs": {
+        "sections": "floor"
+      },
+      "expect": {
+        "ok": true
+      },
+      "name": "cave floor: the kinds placed fit the cave group"
+    },
+    {
+      "do": "shot",
+      "name": "cave-traps"
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

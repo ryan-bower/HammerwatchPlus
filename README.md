@@ -62,7 +62,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 
 | Module | What it does |
 |---|---|
-| `campaign` | **The Forsaken Tower**: the HoH1 campaign (Mines to Battlements, 18 floors, 6 bosses), started from a portal in town. NG+ swaps in HoH1's NG+ bosses and enemies. With HoH1 installed, the portal offers HoH1's own tower instead (`tools/import_hoh1.py campaign`): all 23 floors as HoH1 has them, the act floors built by HoH1's own floor generator, HoH1's boss rooms, level scripts and texts, for HoH2's classes; the Dark Citadel gains two Dark Halls and the two Battlements floors. HoH1's traps (spike floors, flame jets, bomb, dart and confusion glyphs) and one teleporter pad per floor appear on generated floors, and the Dark Halls eyes confuse again. |
+| `campaign` | **The Forsaken Tower**: the HoH1 campaign (Mines to Battlements, 18 floors, 6 bosses), started from a portal in town. NG+ swaps in HoH1's NG+ bosses and enemies. With HoH1 installed, the portal offers HoH1's own tower instead (`tools/import_hoh1.py campaign`): all 23 floors as HoH1 has them, the act floors built by HoH1's own floor generator, HoH1's boss rooms, level scripts and texts, for HoH2's classes; the Dark Citadel gains two Dark Halls and the two Battlements floors. HoH1's traps (spike, pressure, poison, frost, drain and confusion plates, flame jets, five kinds of glyph, wall shooters, arrow turrets, flame gargoyles, stalactites, falling bricks and bear traps, each with a warning first and picked by the floor's theme) and one teleporter pad per floor appear on generated floors, and the Dark Halls eyes confuse again. |
 | `keys` | HoH1-style keys: every chest but the cursed ones needs a key of its tier. Keys drop in runs (a party can share a key pool), and the exit guard's General Merchant sells keys, bag slots and six trinkets to take into your next run. Also ace chests (opened with the red skull ace key), seven red legendaries, and a banner for everyone when a chest turns out to be trapped. Trinket, cursed and ace chests look grander the deeper the run goes, with unused chest art from the game's own sprite sheet. |
 | `mercenary` | HoH1's mercenary mode: once a class has a level-20 hero, a fresh character of it can enlist (`hwp merc enlist`), climb the ranks from Private to General for more gold and experience, and die for good. |
 | `legacy` | HoH1-style class titles: your best hero of each class buffs every character. One "Title Bonuses" buff lists them, and Guild Hall > Titles shows every class. |
@@ -176,6 +176,15 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 
 ## Status
+
+2026-10-29, all of HoH1's traps (#37). On top of spikes, flame jets and glyphs, generated
+floors now get HoH1's poison, frost, drain and confusion plates, pressure spikes, frost and
+curse glyphs, arrow, poison, fire and blade shooters in the walls, arrow turrets, flame
+gargoyles, falling stalactites and bricks, and bear traps, each on HoH2's art. Every one
+warns before it hurts (a red warning on a plate, a glyph lighting up, a stalactite's shadow).
+Which ones a floor gets follows its theme, as HoH1's acts did: stalactites only in caves,
+shooters and turrets in barracks and dungeons, drain plates and curse glyphs in crypts and
+halls.
 
 2026-10-29, projectile colours you can see (#36). The colour presets did tint every shot, but
 a tint can only darken a sprite, and the shots that matter are bright fire or dark bolts, so
