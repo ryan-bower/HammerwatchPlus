@@ -109,7 +109,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | `chatlinks` | Linked items stay in chat with their slot and item level; `hwp link` links an equipped item. |
 | `colors` | Colour-blind and high-contrast tints for enemy and friendly projectiles (player menu > Plus tab), and each player in their own colour on the minimap and the overlay map, with names for players far away. |
 | `goldworth` | Gold on the floor shows what it is worth: 15 coin and pile looks, from a bronze coin to a big pile of gold. |
-| `mmhmm` | **Mm-hmm!** A quarter of rare and epic hats carry the Mm-hmm! bonus: the Material Trader's "mm-hmm", for everyone, on every crit of the wearer, when the wearer revives someone or is revived, drinks from a pool, completes a trinket set, takes the last orb of an orb tree (trees with more than one orb), opens an Ace chest or opens a secret room. |
+| `mmhmm` | **Mm-hmm!** A quarter of rare and epic hats carry the Mm-hmm! bonus: the wearer says a village woman's "mm-hmm!", heard from where they stand and one at a time, on every crit, when the wearer revives someone or is revived, drinks from a pool, completes a trinket set, takes the last orb of an orb tree (trees with more than one orb), opens an Ace chest or opens a secret room. |
 | `mapicons` | A dye-pot marker on the minimap over every dye bucket of a floor (setting `mapicons.dyes`). |
 | `hwplib` | The library every package carries (not a mod of its own): settings (the Plus tab and the `hwp` console command), save data and networking, and the plumbing other modules fill: the targeting and aim hooks, a wares market, untitled Materials tab sections, gear slot frames and the bag size. |
 | `hwplib-luck` | The library part the packages that read Luck carry (Co-op, Keys, Dungeon, Town): **Luck**, a stat from gear affixes of Fortune, the Rabbit's Foot trinket and timed buffs from herbs and fish, which weights chest, strongbox, abyss and key drops towards the rarer results (a chest at its opener's Luck) and gives the party's average to generated floors (secret rooms, the imp, floor rewards, blueprints, fishing holes, keys and ace chests). Without it the Luck stat is hidden. |
@@ -176,6 +176,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 
 ## Status
+
+2026-10-29, Mm-hmm! from the wearer (#31). The hat's voice is now a village woman's "mm-hmm!"
+(the Equipment Buyer's, Enchanter's and Mystic's voice) in place of the Material Trader's.
+It comes from the wearer's body, so others hear it from where that player stands and
+fainter far away, instead of from nowhere at full volume. Each one plays to the end before
+the wearer says it again: a burst of crits no longer stacks it.
 
 2026-10-29, traps on one map (#30). The HoH1 traps were on every floor of every map, and
 mostly spike floors. Now they go on one map, the Crypt by default (a "Trap map" setting picks
