@@ -277,6 +277,7 @@ namespace HWP
 				ClearFloor();
 				g_floorCells.removeRange(0, g_floorCells.length());
 				g_ringCells.removeRange(0, g_ringCells.length());
+				g_generatedHere = true;
 				if (brush is null || placer is null)
 					return;
 				if (!g_enabled)

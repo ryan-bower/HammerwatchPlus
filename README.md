@@ -177,6 +177,13 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-29, the levers work past the first floor (#27). From the second floor of a run on,
+the vault and exit levers did nothing and the way down was never sealed. The game builds the
+next floor ahead of time, in a separate part of the game's scripting, and the mod's notes on
+where it put the vault and the levers stayed there. The mod now reads the vault and the
+levers off the floor itself when it starts, and a co-op client keeps trying to seal its exits
+for a few seconds, as the host does.
+
 2026-10-29, bonus vaults look like the floor they're on (#26). The vaults behind levers had
 a bare floor and no walls of their own: their cells were reserved the way a prefab with its
 own art reserves them, so the game painted neither walls nor the floor's decoration there,
