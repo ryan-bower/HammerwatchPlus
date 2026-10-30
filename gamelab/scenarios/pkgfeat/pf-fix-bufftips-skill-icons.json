@@ -1,0 +1,52 @@
+{
+ "name": "pf-fix-bufftips-skill-icons",
+ "about": "fix-bufftips-skill-icons against the built package qol instead of the mods' source folders (tools/make_package_scenarios.py). Issue #28, mods/bufftips: vanilla's class skill buffs with no \"hud\" icon (War Cry and 12 other families, SkillBuffs.as) get one, so they reach the buff bar and its tooltip. A fresh Warrior on Bandit Keep floor 0 learns and casts War Cry: the buff's def has an icon and the bar shows it as War Cry with its description; hovering it makes bufftips log the tip. bufftips.skill_icons off leaves the next cast off the bar, on puts it back. Each other family, given with gl givebuff, shows a named, described icon. Mods core + bufftips.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   }
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "fix_bufftips_skill_icons",
+   "name": "War Cry and the other class skill buffs on the buff bar",
+   "expect": {
+    "warrior_run": true,
+    "warcry_learned": true,
+    "warcry_buff_on": true,
+    "warcry_has_icon": true,
+    "warcry_on_bar": true,
+    "warcry_tip": true,
+    "setting_off": true,
+    "setting_on": true,
+    "others_on_bar": true
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:bufftips\\] skill buff icons on: 31 of 31 buff\\(s\\) given an icon, 0 with their own, 0 missing",
+   "timeout": 5,
+   "name": "every listed buff def found and given an icon"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:bufftips\\] skill buff icons: .* missing",
+   "name": "the icon sheet loaded"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "qol"
+ ]
+}

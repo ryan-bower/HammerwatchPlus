@@ -386,6 +386,7 @@ namespace Modules
 			GameLab::RegisterVerb("da-propose", "<note...>", GameLab::Verb(HWP::DevArena::VerbPropose));
 			GameLab::RegisterVerb("da-res", "[<w>x<h>]", GameLab::Verb(HWP::DevArena::VerbRes));
 			GameLab::RegisterVerb("da-inputlog", "<on [reset]|off>", GameLab::Verb(HWP::DevArena::VerbInputLog));
+			HWP::DevArena::RegisterHotkeys();
 		}
 
 		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game

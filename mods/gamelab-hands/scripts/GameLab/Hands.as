@@ -685,9 +685,11 @@ namespace Modules
 			GameLab::RegisterVerb("cull", "[mine]", GameLab::Verb(GameLab::VerbCull));
 			GameLab::RegisterVerb("teleport", "<x> <y>", GameLab::Verb(GameLab::VerbTeleport));
 			GameLab::RegisterVerb("controller", "", GameLab::Verb(GameLab::VerbController));
+			GameLab::RegisterVerb("menubutton", "<forward|up|down|left|right|accept|additional|context|prevtab|nexttab|prevsubtab|nextsubtab> [pad]", GameLab::Verb(GameLab::VerbMenuButton));
 			GameLab::RegisterVerb("setvar", "<name> <value...>", GameLab::Verb(GameLab::VerbSetVar));
 			GameLab::RegisterVerb("cheat", "<ply_kill|cht_revive|cht_set_flag|cht_give_material|mission_start> [args]", GameLab::Verb(GameLab::VerbCheat));
 			GameLab::RegisterVerb("input", "<ms> <mx> <my> [aimX aimY] [button,button]", GameLab::Verb(GameLab::VerbInput));
+			GameLab::RegisterVerb("pad", "[on|off|hold <gp id> <ms>|release]", GameLab::Verb(GameLab::VerbPad));
 		}
 
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
@@ -699,6 +701,8 @@ namespace Modules
 			}
 			GameLab::SeeInput(gameInput);
 			GameLab::UpdatePendingClick(ms);
+			GameLab::UpdatePad(ms);
+			GameLab::ApplyMenuButton(gameInput, menuInput);
 			if (!paused)
 				GameLab::ApplyHeld(ms, gameInput);
 		}

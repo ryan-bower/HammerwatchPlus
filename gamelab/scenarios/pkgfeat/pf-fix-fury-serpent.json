@@ -1,0 +1,55 @@
+{
+ "name": "pf-fix-fury-serpent",
+ "about": "fix-fury-serpent against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Issue #34, Pelor's Fury could not be used on the snake boss: on the Serpents of Demise's own floor (dark_citadel 18, levels/boss_bone_serpent.lvl, the level's BossStart script) a god-mode Paladin of Generosity probes the pick (`hwp gen pick dx dy`, no cast) aimed at every serpent head and at body segments for 30 s: a body segment (BossWormSegment, untargetable, no-buffs) stands for its serpent, so a body aim picks the head (held when it is surfaced, its own reason when it is underground) and a segment over a surfaced head no longer takes the pick. Then a real cast through the skill aimed at the body holds the head (the log names the segment it went through when the pick did), the 60 s boss cooldown and the Blessing spent. Shot fury-serpent.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",
+   "timeout": 30
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "plan_generosity",
+   "kwargs": {
+    "sections": "serpent_fury"
+   },
+   "name": "fury on the serpents",
+   "expect": {
+    "srp_char": true,
+    "srp_learned": true,
+    "srp_floor": true,
+    "srp_start": true,
+    "srp_body_is_serpent": true,
+    "srp_body_holds": true,
+    "srp_head_not_stolen": true,
+    "srp_cast_holds_head": true,
+    "srp_cast_boss_cd": true,
+    "srp_no_errors": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

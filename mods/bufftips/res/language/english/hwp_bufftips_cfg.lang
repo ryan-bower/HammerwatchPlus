@@ -2,4 +2,6 @@
 <lang name="English" official="false">
 	<string name="hwp.cfg.bufftips">Buff tooltips</string>
 	<string name="hwp.cfg.bufftips.about">Hover a buff icon to see its name, what it does and the time it has left.</string>
+	<string name="hwp.cfg.s.bufftips.skill_icons">Class buff icons</string>
+	<string name="hwp.cfg.s.bufftips.skill_icons.about">Class skill buffs the game shows no icon for, such as War Cry, get one on the buff bar.</string>
 </lang>

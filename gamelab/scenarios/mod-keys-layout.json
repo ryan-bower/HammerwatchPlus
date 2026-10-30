@@ -1,0 +1,1184 @@
+{
+ "name": "mod-keys-layout",
+ "about": "Issue #19: a key is rebound with one press (click the row, press the key, done; the next row at once) and keeps working by position on any keyboard layout. Keys are named as on a US keyboard, as the vanilla Controls window does: not localised, so the key at Q on AZERTY reads Q. Shim input sends the SDL key events another layout would (the key at Q typing 'a'). Happy paths: the AZERTY key at Q binds and reads Q at once, the drop key on it reads Q too; three rows rebound back to back; Shift+W binds W; F13 and Scroll Lock are named (ScrL short to fit); binding the default resets it; the Game keys group lists the game's binds (no weapon attack rows: mouse binds are the game's Options > Controls), rebinds Skill 1 (keyboard keys replaced, mouse 4 kept, saved to controls.cfg) and half of the move axis; search finds its rows. Error paths: a second press after the bind does nothing, Esc cancels a capture (mod and game key) and keeps the key, typing in the search binds nothing, a closed group hides its rows, no key is ever asked to be named. controls.cfg is GameLab's own and is put back after the run (writes_controls).",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "weaponswap",
+  "droptrade",
+  "fishing"
+ ],
+ "shim_input": true,
+ "writes_controls": true,
+ "timeout": 240,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "controls",
+   "args": [],
+   "save_as": "controls0",
+   "expect": {
+    "ok": true,
+    "map": "kbm",
+    "truncated": false
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Swap weapons | X",
+    "tab": "HWPOptionsTab"
+   },
+   "name": "default swap key"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-dropkey"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Drop item key | Q"
+   },
+   "name": "default drop key"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-eatkey"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Eat fish key | F"
+   },
+   "name": "default eat fish key"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "azerty"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey",
+    "hwp-opt",
+    "swapkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "q",
+   "hold": 0.2,
+   "typed": "a"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "(?m)\\[HWP:options\\] swapkey key set to 20 \\(Q\\)\\r?$",
+   "timeout": 5,
+   "name": "AZERTY: the key at Q binds by position, named Q (US names, not localised)"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Swap weapons | Q",
+    "tab": "HWPOptionsTab"
+   },
+   "name": "the row reads Q at once: no second press"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-dropkey"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Drop item key | Q"
+   },
+   "name": "the drop key on the same key reads Q too"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "shot",
+   "name": "one_press"
+  },
+  {
+   "do": "mark",
+   "name": "again"
+  },
+  {
+   "do": "key",
+   "key": "q",
+   "hold": 0.2,
+   "typed": "a"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "key set to",
+   "settle": 1,
+   "name": "a second press of the key binds nothing (the capture closed)",
+   "since": "again"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Swap weapons | Q",
+    "tab": "HWPOptionsTab"
+   },
+   "name": "and the menu stays open"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey",
+    "hwp-opt",
+    "swapkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "f5",
+   "hold": 0.2
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "(?m)\\[HWP:options\\] swapkey key set to 62 \\(F5\\)\\r?$",
+   "timeout": 5,
+   "name": "next row at once: swap on F5"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-eatkey",
+    "hwp-opt",
+    "eatkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "r",
+   "hold": 0.2,
+   "typed": "r"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "(?m)\\[HWP:options\\] eatkey key set to 21 \\(R\\)\\r?$",
+   "timeout": 5,
+   "name": "then the eat fish key on R"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-dropkey",
+    "hwp-opt",
+    "dropkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "g",
+   "hold": 0.2,
+   "typed": "g"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "(?m)\\[HWP:options\\] dropkey key set to 10 \\(G\\)\\r?$",
+   "timeout": 5,
+   "name": "then the drop key on G"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Swap weapons | F5"
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-eatkey"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Eat fish key | R"
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-dropkey"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Drop item key | G"
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "shot",
+   "name": "back_to_back"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey",
+    "hwp-opt",
+    "swapkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "shift+w",
+   "hold": 0.2,
+   "typed": "W"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "(?m)\\[HWP:options\\] swapkey key set to 26 \\(W\\)\\r?$",
+   "timeout": 5,
+   "name": "Shift+W binds W"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey",
+    "hwp-opt",
+    "swapkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:options\\] swapkey key capture cancelled",
+   "timeout": 5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Swap weapons | W",
+    "tab": "HWPOptionsTab"
+   },
+   "name": "Esc cancelled: the menu stays, the key is kept"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey",
+    "hwp-opt",
+    "swapkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "f13",
+   "hold": 0.2
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "(?m)\\[HWP:options\\] swapkey key set to 104 \\(F13\\)\\r?$",
+   "timeout": 5,
+   "name": "F13 (a custom keyboard's extra key) is named, not Key 104"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Swap weapons | F13"
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey",
+    "hwp-opt",
+    "swapkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "scrolllock",
+   "hold": 0.2
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "(?m)\\[HWP:options\\] swapkey key set to 71 \\(Scroll Lock\\)\\r?$",
+   "timeout": 5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Swap weapons | ScrL"
+   },
+   "name": "a name over 9 characters shows short in the value column"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "shot",
+   "name": "long_key_name"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey",
+    "hwp-opt",
+    "swapkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "x",
+   "hold": 0.2,
+   "typed": "x"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "(?m)\\[HWP:options\\] swapkey key set to 27 \\(X\\)\\r?$",
+   "timeout": 5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-dropkey",
+    "hwp-opt",
+    "dropkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "q",
+   "hold": 0.2,
+   "typed": "a"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "(?m)\\[HWP:options\\] dropkey key set to 20 \\(Q\\)\\r?$",
+   "timeout": 5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-eatkey",
+    "hwp-opt",
+    "eatkey"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "f",
+   "hold": 0.2,
+   "typed": "f"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "(?m)\\[HWP:options\\] eatkey key set to 9 \\(F\\)\\r?$",
+   "timeout": 5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Swap weapons | X"
+   },
+   "name": "back on the defaults"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-dropkey"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Drop item key | Q"
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-eatkey"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Eat fish key | F"
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "naming key|is labelled",
+   "settle": 1,
+   "name": "no key was ever asked to be named"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-pkg-gamekeys"
+   ],
+   "name": "the Game keys group, closed",
+   "expect": {
+    "shown": true,
+    "texts": "+ Game keys | 25 keys"
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-skill1"
+   ],
+   "name": "a closed group hides its rows",
+   "expect": {
+    "shown": false
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-pkg-gamekeys",
+    "hwp-open",
+    "gamekeys"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:options\\] package gamekeys opened",
+   "timeout": 5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-pkg-gamekeys"
+   ],
+   "expect": {
+    "texts": "- Game keys | 25 keys"
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-attack"
+   ],
+   "name": "game-attack: no row (weapon attacks are mouse binds: the game's Options > Controls)",
+   "expect": {
+    "ok": false,
+    "error": {
+     "match": "no widget"
+    }
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-offhand"
+   ],
+   "name": "game-offhand: no row (weapon attacks are mouse binds: the game's Options > Controls)",
+   "expect": {
+    "ok": false,
+    "error": {
+     "match": "no widget"
+    }
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-skill1"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": {
+     "match": "^Skill 1 \\| (1 / Q|Q / 1) / \\\\\"inp-4mb\"$"
+    }
+   },
+   "name": "Skill 1 shows its keyboard keys, then mouse 4"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-move-up"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": {
+     "match": "^Move up \\| "
+    }
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "shot",
+   "name": "game_keys"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-skill2",
+    "hwp-opt",
+    "game-skill2"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:options\\] game-skill2 key capture cancelled",
+   "timeout": 5
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:gamekeys\\] Skill2 bound",
+   "settle": 1,
+   "name": "Esc on a game key: nothing rebound"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-skill1",
+    "hwp-opt",
+    "game-skill1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "t",
+   "hold": 0.2,
+   "typed": "t"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:gamekeys\\] Skill1 bound to 23 \\(T\\), 2 keyboard key\\(s\\) replaced; now T / ",
+   "timeout": 5,
+   "name": "Skill 1's keyboard keys replaced by T, mouse 4 kept"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:options\\] game-skill1 key set to 23 \\(T\\)",
+   "timeout": 5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-skill1"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": {
+     "match": "^Skill 1 \\| T / \\\\\"inp-4mb\"$"
+    }
+   },
+   "name": "the row reads T at once"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "controls",
+   "args": [],
+   "save_as": "controls1",
+   "expect": {
+    "ok": true,
+    "map": "kbm"
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-move-up",
+    "hwp-opt",
+    "game-move-up"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "i",
+   "hold": 0.2,
+   "typed": "i"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "(?m)\\[HWP:options\\] game-move-up key set to 12 \\(I\\)\\r?$",
+   "timeout": 5,
+   "name": "next row at once: move up on I"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:gamekeys\\] move_y axis1 bound to 12 \\(I\\), \\d+ keyboard key\\(s\\) replaced; now I",
+   "timeout": 5,
+   "name": "half of an axis rebinds"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-move-down"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Move down | S"
+   },
+   "name": "the other half of the axis is untouched"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "search",
+    "!click"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "press the search field"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "text",
+   "text": "skill"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-skill2"
+   ],
+   "name": "search finds a game key",
+   "expect": {
+    "shown": true
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-swapkey"
+   ],
+   "name": "search hides the rest",
+   "expect": {
+    "shown": false
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "typing"
+  },
+  {
+   "do": "key",
+   "key": "d",
+   "hold": 0.2,
+   "typed": "y"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "key set to|\\[HWP:gamekeys\\] .* bound",
+   "settle": 1,
+   "name": "typing in the search binds nothing",
+   "since": "typing"
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-move-right"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Move right | D"
+   },
+   "name": "the game key keeps its key"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-pkg-gamekeys",
+    "hwp-close",
+    "gamekeys"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-skill1"
+   ],
+   "name": "closed again: rows hidden",
+   "expect": {
+    "shown": false
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-keynames"
+   ],
+   "name": "no Forget key names row any more",
+   "expect": {
+    "ok": false,
+    "error": {
+     "match": "no widget 'hwp-opt-keynames'"
+    }
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}
