@@ -217,6 +217,16 @@
 						<dict><string name="key">droptrade.pickup_first</string><string name="type">bool</string><bool name="host">false</bool><bool name="level">false</bool><bool name="default">true</bool></dict>
 					</array>
 				</dict>
+				<dict>
+					<string name="id">partyexit</string>
+					<bool name="shared">false</bool>
+					<string name="toggle">partyexit.enabled</string>
+					<bool name="host">true</bool>
+					<bool name="level">false</bool>
+					<array name="settings">
+						<dict><string name="key">partyexit.share</string><string name="type">int</string><bool name="host">true</bool><bool name="level">false</bool><int name="default">66</int><array name="values"><i>50</i><i>66</i><i>75</i></array><int name="labels">3</int><string name="suffix"></string></dict>
+					</array>
+				</dict>
 			</array>
 		</dict>
 		<dict>

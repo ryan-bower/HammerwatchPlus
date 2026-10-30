@@ -7110,6 +7110,58 @@ not ordinary acquisition/spending or two-machine multiplayer performance. No rea
 profile was imported or play session launched for PR validation. The earlier
 stutter investigation remains unresolved and the broader QA sweep remains paused.
 
+## 2026-10-30: floor exits with most of the party (issue #75, `partyexit`)
+
+A floor's exit is `WorldScript::LevelExitAreaNext` (`LevelExitAreaJump` inherits its `Use`).
+Vanilla `Use` refuses (".exit.notall") while any living, connected player is outside the
+exit's areas; with several areas it even wanted each player inside every one of them. `Use`
+runs on the presser's machine and again through `NetUse` on every other one, each counting
+from its own view. The new Co-op module `partyexit` overrides that file: `Use` asks
+`HWP::PartyExit::Refusal`, which counts living players inside any area (the presser always)
+and needs `partyexit.share` percent of them, rounded up (default 66: 3 of 4, 2 of 3, 2 of 2;
+host setting). The rest come along through `MissionManager::NextLevel`, as the dead do in
+vanilla. Lang parameters are `%name%`, not `{{name}}` (`.menu.loadout.waiting_plrs`): the
+first refusal announce showed the braces raw (shot in `20261030-095107`), fixed and asserted
+through the logged text.
+
+Solo test: `hwp partyexit phantom <outside> [inside]` adds living players to the count.
+`fix-party-exit` (dark_citadel floor 0; `exit_stand` bot teleports onto the exit's sensor,
+since the Pilot's walk timed out once and found no route once on random floors) PASS
+`20261030-095204`: 1 of 3 refused, 2 of 3 refused at 75 %, 2 of 3 opens at 66 % and the next
+floor boots. `pf-fix-party-exit` (the built packages) PASS `20261030-095326`, `mod-all` PASS
+`20261030-095248`. Not covered: a real two-machine lobby (players left outside being carried
+to the next floor is vanilla's path for the dead, not measured here).
+
+## 2026-10-30: v0.3 shipped without base-generated content (issue #76, no Forgemaster bodies)
+
+"Necrotic Resurrection isn't possible because there are no intact bodies at all." The
+published v0.3 `HammerwatchPlus-All.bin` (release asset, built from `d903442`) holds 0 of the
+141 `players/hwp/specs/forgemaster/bodies/` and 0 of the 141 `risen/` units. Those units are
+made from the player's own `gamecode/sdk/hoh2/` by `tools/make_forgemaster_risen.py` and
+gitignored, and `tools/build.py` never ran that tool. It also skipped the class-unit copies
+without a word when `gamecode/sdk/hoh2/` was missing, and the release has none of those either
+(colors 184, keys 13, attrclick, mmhmm and trinkets 1 to 3 each, pets 12 plus the dyes). Every
+`.gitignore` block marked "generated from the HoH2 base" was absent from the release.
+In game, every body roll on an enemy death fails in `SpawnBody` ("no body unit for ...") and
+the skill never finds a body.
+
+Fix: `build.py` `require_base` stops the build when a package carries a module whose
+`.gitignore` names a base generator and `gamecode/sdk/hoh2/` is missing. It also refuses a
+generator it doesn't run (`BASE_TOOLS`), and it runs `make_forgemaster_risen` itself when
+`specs` is packed (`tests/test_build_base.py`). The specs self-check probes three raisable
+units (first, middle, last) and logs `Forgemaster units present (141 raisable; 3 of 3 probed
+load)` or an error naming them. The first probe run found `RISEN_RELS` had 142 entries: the
+generated initializer list ended in a comma, which AngelScript turns into one more empty
+element (`ENEMY_UNITS` too). The generator no longer writes the trailing comma.
+
+Evidence: `plan-forgemaster-smoke` with the bodies/risen dirs moved aside reproduces the
+issue, FAIL `20261030-100042`: 77 rolls, 0 bodies, no cast, the self-check error. The dirs
+were regenerated afterwards and `--check` is clean. Then `plan-forgemaster-smoke` PASS
+`20261030-100139`, `pf-plan-forgemaster-smoke` (built packages, 141 bodies + 141 risen
+counted in `dist/HWP-specs.bin` and the All pack) PASS `20261030-095952`, `mod-all` PASS
+`20261030-100217`. A new release is needed for players to get the bodies; that build must run
+on a machine with `gamecode/` (doctor --fix).
+
 ## 2026-10-30: Pelor's Blessing on a death, Pelor's Fury on an elite (issue #82)
 
 Two Paladin of Generosity balance changes (`mods/specs/scripts/HWP/Specs/Generosity.as`).

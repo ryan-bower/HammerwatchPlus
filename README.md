@@ -14,7 +14,7 @@ all-in-one pack (`packages.json`; `docs/modules.md`, Packages):
 | Package | Modules |
 |---|---|
 | `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, petrooms, legacy, goldworth, mmhmm, orbwarn, mapicons, attrclick |
-| `HWP-coop` Co-op Play | groupcombo, architect, droptrade |
+| `HWP-coop` Co-op Play | groupcombo, architect, droptrade, partyexit |
 | `HWP-autoaim` Auto Aim | autoaim |
 | `HWP-firearms` Firearms Specialist | firearms |
 | `HWP-specs` Fourth Specializations | specs |
@@ -102,6 +102,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | `groupcombo` | A party-wide combo bonus that grows with how many players are in combo, and brief invulnerability when everyone is. Boxes, barrels, sacks and vases also drop a rare **combo orb** (0.1 %, up to 1 % with the Luck of whoever breaks them): everyone with combo unlocked gets their own, and picking it up puts you in combo at once (pets leave it alone). |
 | `architect` | Any player can pick and pay for Architect alterations; the host's picks are split across the party. Seven HoH1 challenges discount them, down to free. The run-start screen keeps three named presets of picks and NG+ level per character, shows NG+ last with the start hint, and lets a non-host leave. |
 | `droptrade` | Drop equipment on the ground for friends: a Drop button (Q) next to Destroy in the inventory (each player can rebind it on the Plus tab). The use key picks up a dropped item before it talks to an NPC or opens a shop, chest or shrine underfoot. |
+| `partyexit` | A floor's exit opens once two thirds of the living party stands at it (3 of 4, 2 of 3), not only when everyone does; whoever is left behind comes along. The host can set Half, Two thirds or Three quarters, or turn it off for the vanilla rule. |
 | `attrclick` | At the Attribute Trainer, Shift+Click places 20 attribute points and Ctrl+Click 5 (never more than you have); the costs show the amount while the key is held. |
 | `orbwarn` | The orb picker says which orbs a pick would make unavailable (mutually exclusive orbs such as the Firearms grenades), with their icons and names. |
 | `deathrecap` | Who killed you: the top damage sources of the last 10 s, on screen and in chat. After a boss fight, a recap of everyone's damage by skill and damage taken (one per fight, however many boss units it has). |
