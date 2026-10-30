@@ -10,7 +10,11 @@ how many of its skills are casting), `stacks <n>`, `cd` (cooldowns off), `solo o
 Sections:
 - smoke: the character, the skills, the binds of the level, the status line, the Fury's button.
 - refusals: a Fury that cannot take hold spends nothing (stacks, mana, cooldown): below 10
-  stacks, no enemy at the aim, out of range, a breakable doodad, through the real button too.
+  stacks, no enemy at the aim, out of range, a breakable doodad, through the real button too
+  (below 3 the button itself refuses).
+- elite (issue #82): a bandit brute elite reads as an elite needing 3; the real cast on it at 3
+  stacks spends 3, at 7 keeps 4; 5 stacks on a plain brute is refused (blessing 5/10) and 2 on
+  the elite too, nothing spent; the player's death takes 5 stacks (7 -> 2, 3 -> 0).
 - fury: on a bandit brute through the real cast: the stacks and the mana spent, the 30 s
   cooldown, the stun (the brute stays put and casts nothing), armor and resistances at 0, the
   damage-taken multiplier of the level, the strike, the end after the stun; solo free, party
@@ -24,8 +28,8 @@ Sections:
   (tower_bosses.TowerBoss), then the Fury on every boss unit of it in turn, checked as in
   bosses (flags hoh1_*). kwargs only: a comma list of level names (boss_mines...).
 - stacks: the sources (Lay on Hands on oneself alone, a Blessed Strike kill, Conviction mana),
-  the shared 2 s cooldown, the cap at 10, the multiplier, the carry to the next floor, the reset
-  on the player's death and in town.
+  the shared 2 s cooldown, the cap at 10, the multiplier, the carry to the next floor, 5 stacks
+  lost on the player's death (issue #82), the reset in town.
 - orbs: the orbs' binds, Blinding Sun's blindness after the stun, Holy Sacrifice (the target dies
   while held: half the cooldown and the stacks), Descendent of Pentival on a dragon trinket.
 """
@@ -43,6 +47,8 @@ CONV = "pal_conviction"
 SUB = "hwp_paladin_generosity"
 STACK = "players/hwp/specs/stacks_specs.sval:pelors_blessing"
 FURY_BUFF = "players/hwp/specs/buffs_specs.sval:pelors_fury"
+# an "elite"-tagged enemy (hwplib Spawner.ELITES: <stem>_elite.unit)
+ELITE = "actors/humans/bandits/bandit_brute_elite.unit"
 BOSSES = [
     "actors/bosses/boss_bandit/boss_bandit.unit",
     "actors/bosses/boss_arista/boss_arista.unit",
@@ -182,6 +188,15 @@ class Checks(Base, TowerBoss):
         self.gl("cheat", "cht_give_mana", 500)
         time.sleep(0.2)
 
+    def die_and_revive(self):
+        """The player dies (GameEvents::PlayerDied on every peer) and is revived, god mode back on."""
+        self.god(False)
+        self.gl("cheat", "ply_kill")
+        time.sleep(1.5)
+        self.gl("cheat", "cht_revive")
+        time.sleep(1.5)
+        self.god(True)
+
     def wait_hold_end(self, limit=8.0):
         end = time.time() + limit
         while time.time() < end:
@@ -265,8 +280,9 @@ class Checks(Base, TowerBoss):
         self.wait_hold_end(5)
         self.press("off", 0.3)
         self.clear()
-        # the real button below 10: no mana, no cooldown, the "cant" refusal logged
-        self.ready(5)
+        # the real button below 3 (the fewest any target needs, an elite's): no mana, no
+        # cooldown, the "cant" refusal logged
+        self.ready(2)
         self.unit_at(DUMMY, 80)
         b = self.st()
         mark = len(self.g.read_log())
@@ -275,7 +291,7 @@ class Checks(Base, TowerBoss):
         self.press("main", 0.8, aim=(1, 0))
         a = self.st()
         log = self.g.read_log()[mark:]
-        self.flag("ref_button_below_10", self.kept(b, a) and "pelor's fury refused" in log,
+        self.flag("ref_button_below_3", self.kept(b, a) and "pelor's fury refused" in log,
                   f"{button}: {self.spent(b, a)}; asks {b['asks']} -> {a['asks']}, refusal lines {log.count('fury refused')}")
         self.press("off", 0.3)
         self.clear()
@@ -355,6 +371,58 @@ class Checks(Base, TowerBoss):
         self.gen("solo auto")
         self.flag("fury_no_errors", not self.errors_since(mark), str(self.errors_since(mark)[:3]))
         self.clear()
+
+    # --- elites (issue #82): 3 stacks needed and spent, the death takes 5
+    def elite(self):
+        self.setup_gen("elite")
+        if not self.enter_floor("elite"):
+            return
+        lf = self.lvl.get(PF, 2)
+        self.clear()
+        self.ready(3)
+        u = self.unit_at(ELITE, 90)
+        # aimed where the brute stands now (it walks at the paladin)
+        x, y = self.pos()
+        now = self.unit(u["unit"]) if u else None
+        pick = self.gen(f"pick {now['x'] - x:.0f} {now['y'] - y:.0f}") if now else "no elite"
+        self.flag("elite_tagged", u is not None and " elite needs 3; holds" in pick, f"{u and u.get('unit')}: {pick}")
+        mark = len(self.g.read_log())
+        b, r, a = self.fury_on()
+        log = self.g.read_log()[mark:]
+        self.flag("elite_cast_3", a["holding"] is not None and a["stacks"] == 0 and b["mana"] - a["mana"] >= MANA[lf] * 0.8
+                  and re.search(r"pelor's fury on \d+ \(.*?\) elite", log) is not None,
+                  f"{r} | {self.spent(b, a)}; {a['last']}")
+        self.wait_hold_end(STUN[lf] / 1000 + 3)
+        # 7 stacks: 3 spent, 4 kept
+        self.ready(7)
+        b, r, a = self.fury_on()
+        self.flag("elite_keeps_rest", a["holding"] is not None and a["stacks"] == 4, f"{r} | {self.spent(b, a)}")
+        self.wait_hold_end(STUN[lf] / 1000 + 3)
+        # 2 on the elite: the button's gate refuses, nothing spent
+        self.ready(2)
+        b, r, a = self.fury_on()
+        self.flag("elite_below_3", self.kept(b, a) and a["casts"] == b["casts"] and "blessing 2/3" in a["last"],
+                  f"{r} | {self.spent(b, a)}; {a['last']}")
+        self.clear()
+        # a plain brute still needs all 10: 5 is refused through the pick, nothing spent
+        self.ready(5)
+        self.unit_at(DUMMY, 90)
+        b, r, a = self.fury_on()
+        self.flag("elite_plain_needs_10", self.kept(b, a) and a["casts"] == b["casts"] and "blessing 5/10" in a["last"],
+                  f"{r} | {self.spent(b, a)}; {a['last']}")
+        self.ready(10)
+        b, r, a = self.fury_on()
+        self.flag("elite_plain_spends_10", a["holding"] is not None and a["stacks"] == 0, f"{r} | {self.spent(b, a)}")
+        self.wait_hold_end(STUN[lf] / 1000 + 3)
+        self.clear()
+        # the player's death: 5 off, never below 0
+        got = []
+        for n in (7, 3):
+            self.stacks(n)
+            self.die_and_revive()
+            got.append((n, self.st()["stacks"]))
+        self.flag("elite_death_takes_5", got == [(7, 2), (3, 0)], f"before -> after a death: {got}")
+        self.flag("elite_no_errors", not self.errors_since(mark), str(self.errors_since(mark)[:3]))
 
     # --- every boss
     def one_boss(self, rel):
@@ -773,16 +841,11 @@ class Checks(Base, TowerBoss):
         self.gl("kill", 6000, "tag:enemy")
         time.sleep(0.5)
         self.flag("stk_carry", self.st()["stacks"] == 7, "7 before the exit")
-        # the player's death resets
+        # the player's death takes 5 (issue #82; it used to reset)
         r0 = self.st()["resets"] or 0
-        self.god(False)
-        self.gl("cheat", "ply_kill")
-        time.sleep(1.5)
-        self.gl("cheat", "cht_revive")
-        time.sleep(1.5)
-        self.god(True)
+        self.die_and_revive()
         s5 = self.st()
-        self.flag("stk_death_reset", s5["stacks"] == 0 and (s5["resets"] or 0) > r0, f"after the death: stacks {s5['stacks']}, resets {r0} -> {s5['resets']}")
+        self.flag("stk_death_loss", s5["stacks"] == 2 and (s5["resets"] or 0) > r0, f"7 before the death: stacks {s5['stacks']}, resets {r0} -> {s5['resets']}")
         # town resets
         self.stacks(6)
         self.gl("abort")
@@ -840,7 +903,7 @@ class Checks(Base, TowerBoss):
         self.flag("orb_pentival", (st10["pentival"] or 0) > p0 and bool(diff), f"runs {p0} -> {st10['pentival']}; {st10['raw'][-160:]}; stats changed {diff}")
 
 
-def run(p, sections="smoke,refusals,fury,stacks_section,orbs,bosses", only="", **_):
+def run(p, sections="smoke,refusals,fury,elite,stacks_section,orbs,bosses", only="", **_):
     c = Checks(p)
     for s in sections.split(","):
         try:
