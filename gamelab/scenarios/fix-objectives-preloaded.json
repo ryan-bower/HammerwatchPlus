@@ -1,0 +1,148 @@
+{
+ "name": "fix-objectives-preloaded",
+ "about": "Issue #27, mods/objectives: levers that did nothing. The game generates the next floor ahead, in its preload context, while the party is on the floor above; taking the exit loads that floor whole, so the host's vault and exit-switch records (made in the preload context) were missing and every lever matched nothing, with the exit never sealed. Enter keep_1, wait for the preloader to generate keep_2 (logged under [preload]), go down with cht_finish_level; on keep_2 the host rebuilds the records from the units (AdoptFromUnits), the exits are sealed, and the bot uses the vault lever (the vault opens) and the exit lever (the exits open). Mods core + objectives.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "objectives"
+ ],
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   }
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp set objectives.vaults 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp set objectives.exit 1"
+  },
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "bandit_keep",
+    0
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 150
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:objectives\\] start: 1 vault\\(s\\), exit switch sealed",
+   "timeout": 10,
+   "name": "keep_1, generated here, knows its vault and exit switch"
+  },
+  {
+   "do": "console",
+   "line": "hwp god"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[preload\\] \\[HWP:objectives\\] placed 1 vault\\(s\\), exit switch yes on keep_2",
+   "timeout": 90,
+   "name": "the preloader generated keep_2 with a vault and an exit switch"
+  },
+  {
+   "do": "mark",
+   "name": "down"
+  },
+  {
+   "do": "console",
+   "line": "cht_finish_level"
+  },
+  {
+   "do": "sleep",
+   "seconds": 4
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 150
+  },
+  {
+   "do": "log_has",
+   "pattern": "Loading level|keep_2",
+   "timeout": 10,
+   "since": "down",
+   "name": "a new level loaded"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:objectives\\] start: \\d+ vault\\(s\\), exit switch \\w+, \\d+ door unit\\(s\\), \\d+ switch unit\\(s\\)",
+   "timeout": 15,
+   "since": "down",
+   "name": "keep_2's start line"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:objectives\\] floor not generated here \\(preloaded or from a save\\): 1 vault\\(s\\) and exit switch yes at -?\\d+,-?\\d+ taken from the units, vault 0 door -?\\d+,-?\\d+ switch -?\\d+,-?\\d+",
+   "timeout": 5,
+   "since": "down",
+   "name": "keep_2 was not generated here: the host took its vault and exit switch from the units"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:objectives\\] start: 1 vault\\(s\\), exit switch sealed, [1-9]\\d* door unit\\(s\\), 2 switch unit\\(s\\)",
+   "timeout": 5,
+   "since": "down",
+   "name": "keep_2 (preloaded) knows its vault and its exit switch"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:objectives\\] exits sealed( after start)?: [1-9]",
+   "timeout": 10,
+   "since": "down",
+   "name": "keep_2's exits sealed"
+  },
+  {
+   "do": "console",
+   "line": "hwp god"
+  },
+  {
+   "do": "bot",
+   "bot": "fix_objectives_preloaded",
+   "expect": {
+    "adopted": true,
+    "exits_sealed": true,
+    "vault_switch_used": true,
+    "vault_opened": true,
+    "vault_doors_flipped": true,
+    "no_unmatched_lever": true,
+    "exit_switch_used": true,
+    "exits_opened": true,
+    "exits_enabled": true
+   }
+  },
+  {
+   "do": "shot",
+   "name": "keep2-after-levers"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:objectives\\] (vault switch used at|exit switch used at)",
+   "name": "no lever matched nothing"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

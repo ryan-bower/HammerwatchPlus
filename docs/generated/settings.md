@@ -10,6 +10,7 @@ next level.
 | Module | Setting | Key | Default | Choices | Scope |
 |---|---|---|---|---|---|
 | Buff tooltips | On | `bufftips.enabled` | on | on, off | local |
+| Buff tooltips | Class buff icons | `bufftips.skill_icons` | on | on, off | local |
 | Chat item links | On | `chatlinks.enabled` | on | on, off | local |
 | Stash sort | On | `stash.enabled` | on | on, off | local |
 | Death recap | On | `deathrecap.enabled` | on | on, off | local |
@@ -20,12 +21,14 @@ next level.
 | Last run stats | On | `laststats.enabled` | on | on, off | host |
 | Colors | On | `colors.enabled` | on | on, off | local |
 | Colors | (option `colors`) | | | | local |
+| Colors | Projectile markers | `colors.markers` | on | on, off | local |
 | Colors | (option `playercolors`) | | | | local |
 | Colors | Names on maps | `playercolors.names` | on | on, off | local |
 | Colors | Name distance | `playercolors.distance` | 300 px | 0 px, 150 px, 300 px, 600 px, 1000 px | local |
 | Way gates | On | `waygates.enabled` | on | on, off | host |
 | Wep. swap | On | `weaponswap.enabled` | on | on, off | host |
 | Wep. swap | (option `swapkey`) | | | | local |
+| Wep. swap | (option `swappad`) | | | | local |
 | Lasting summons | On | `summons.enabled` | on | on, off | host |
 | Lasting summons | Forgemaster risen | `summons.risen` | on | on, off | host |
 | Lasting summons | Every summon | `summons.all` | off | on, off | host |
@@ -39,6 +42,7 @@ next level.
 | Orb warnings | On | `orbwarn.enabled` | on | on, off | local |
 | Map icons | On | `mapicons.enabled` | on | on, off | local |
 | Map icons | Dye pots | `mapicons.dyes` | on | on, off | local |
+| Attribute point clicks | On | `attrclick.enabled` | on | on, off | local |
 
 ## Co-op Play
 
@@ -153,6 +157,8 @@ next level.
 | Trinkets | NG+ scaling | `trinkets.ngp_scaling` | on | on, off | host |
 | Valuables | On | `valuables.enabled` | on | on, off | host |
 | Valuables | Gold multiplier | `valuables.gold_mult` | 2x | 1x, 1.5x, 2x, 3x, 5x | host |
+| Extra affixes | On | `affixes.enabled` | on | on, off | host |
+| Extra affixes | Extra affix chance | `affixes.chance` | 25% | 10%, 25%, 50%, 75%, 100% | host |
 
 ## Town Life
 
@@ -162,7 +168,9 @@ next level.
 | Fishing | Coast and pirate | `fishing.coast` | on | on, off | host |
 | Fishing | Run hole chance | `fishing.run_chance` | 30% | 0%, 15%, 30%, 50%, 75%, 100% | host, level |
 | Fishing | Casts per hole | `fishing.run_casts` | 3 | 1, 2, 3, 5, 8 | host |
+| Fishing | Hits to land | `fishing.reel_hits` | 0 | By fish (2-4) (0), 1 (1), 2 (2), 3 (3), 4 (4) | host |
 | Fishing | Keys from catches | `fishing.keys` | on | on, off | host |
+| Fishing | (option `eatkey`) | | | | local |
 | Farming | On | `farm.enabled` | on | on, off | host |
 | Farming | Plant in town fields | `farm.fields` | on | on, off | host |
 | Farming | Wild plot chance | `farm.run_chance` | 35% | 0%, 15%, 35%, 50%, 75%, 100% | host, level |
@@ -177,3 +185,6 @@ next level.
 |---|---|---|---|---|---|
 | Pets | On | `pets.enabled` | on | on, off | host |
 | Pets | Feeding bowl | `pets.bowl` | off | on, off | host |
+| Pets | Pet courier | `pets.courier` | on | on, off | host |
+| Pets | Courier trip | `pets.courier_secs` | 60 s | 15 s, 30 s, 60 s, 90 s, 120 s | host |
+| Pets | (option `courierkey`) | | | | local |

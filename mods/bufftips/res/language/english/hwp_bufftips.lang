@@ -2,4 +2,18 @@
 	<string name="hwp.bufftips.unnamed">Effect</string>
 	<string name="hwp.bufftips.left">%secs%s left</string>
 	<string name="hwp.bufftips.stacks">%name% x%count%</string>
+	<!-- vanilla class skill buffs given an icon (SkillBuffs.as), when the buff has no description of its own -->
+	<string name="hwp.bufftips.skill.warcry.desc">Faster weapon and movement speed.</string>
+	<string name="hwp.bufftips.skill.fuel_the_flames.desc">More Fire damage.</string>
+	<string name="hwp.bufftips.skill.invigorating.desc">Faster Health and Mana regeneration.</string>
+	<string name="hwp.bufftips.skill.cleansing_touch.desc">Immune to debuffs.</string>
+	<string name="hwp.bufftips.skill.holy_flames.desc">An aura of fire burns nearby enemies.</string>
+	<string name="hwp.bufftips.skill.entangle_heal.desc">A wisp restores your Health over time.</string>
+	<string name="hwp.bufftips.skill.marked_pursuit.desc">Faster movement.</string>
+	<string name="hwp.bufftips.skill.sidestep_opening.desc">More Crit Chance.</string>
+	<string name="hwp.bufftips.skill.flamewalker.desc">An aura of fire burns nearby enemies.</string>
+	<string name="hwp.bufftips.skill.powersurge.desc">Faster weapon, cast and movement speed.</string>
+	<string name="hwp.bufftips.skill.combo_speed.desc">Faster movement.</string>
+	<string name="hwp.bufftips.skill.combo_damage.desc">More damage dealt.</string>
+	<string name="hwp.bufftips.skill.combo_protection.desc">Less damage taken.</string>
 </lang>

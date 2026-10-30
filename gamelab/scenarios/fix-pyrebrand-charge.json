@@ -1,0 +1,36 @@
+{
+ "name": "fix-pyrebrand-charge",
+ "about": "Issue #35, Pyrebrand's payoff too small: the brand now charges as it burns. A rank 5 Branding warlock brands a 15000 HP QA dummy and feeds it two rank 5 Demon's Tails; left to run out, the Hellfire Claw is pb-base 40 + 500% of the stored damage at charge 1.0000 and takes at least five times the Tails' HP from the dummy (fire pool included). A second brand recast at ~3 s claws at its charge then (0.3-0.7) for less. Noncrit control; the claw log line `claw (<why>) N fire, charge C of S stored`.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "classes",
+  "specs"
+ ],
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_specs_branding_effects",
+   "kwargs": {
+    "section": "charge"
+   },
+   "expect": {
+    "pyre_charge_lane": true,
+    "charge_pb_rank": true,
+    "charge_tail_rank": true,
+    "charge_full_nuke": true,
+    "charge_half_partial": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

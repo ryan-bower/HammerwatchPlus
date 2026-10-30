@@ -24,7 +24,7 @@
   },
   {
    "do": "log_has",
-   "pattern": "\\[HWP:farming\\] self-check done: 8 seeds, 3 herb buffs, 30 joint items",
+   "pattern": "\\[HWP:farming\\] self-check done: 9 seeds, 4 herb buffs, 40 joint items",
    "timeout": 20,
    "name": "the module loaded with every joint item (both hands)"
   },

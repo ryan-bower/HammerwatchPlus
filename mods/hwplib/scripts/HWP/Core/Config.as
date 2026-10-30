@@ -50,7 +50,10 @@ namespace HWP
 			string About()
 			{
 				string id = IsOption() ? ".hwp.cfg.o." + option + ".about" : ".hwp.cfg.s." + key + ".about";
-				return Resources::HasString(id) ? Resources::GetString(id) : "";
+				if (Resources::HasString(id))
+					return Resources::GetString(id);
+				auto o = IsOption() ? Opt() : null;
+				return o is null ? "" : o.About();
 			}
 
 			// a client sees the host's value and cannot change it

@@ -9,6 +9,14 @@
     "toggle": "bufftips.enabled",
     "scope": "local",
     "applies": "now",
-    "settings": []
+    "settings": [
+      {
+        "key": "bufftips.skill_icons",
+        "type": "bool",
+        "default": true,
+        "title": "Class buff icons",
+        "about": "Class skill buffs the game shows no icon for, such as War Cry, get one on the buff bar."
+      }
+    ]
   }
 }

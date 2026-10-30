@@ -1,0 +1,41 @@
+{
+ "name": "pf-fix-colors",
+ "about": "fix-colors against the built package qol instead of the mods' source folders (tools/make_package_scenarios.py). probe",
+ "fixture": "town-paladin",
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "fix_colors",
+   "kwargs": {
+    "sections": "tint"
+   },
+   "name": "colors",
+   "expect": {
+    "col_char": true,
+    "col_contrast_friendly_seen": true,
+    "col_contrast_enemy_seen": true,
+    "col_contrast_drawn": true,
+    "col_deuteranopia_friendly_seen": true,
+    "col_deuteranopia_enemy_seen": true,
+    "col_deuteranopia_drawn": true,
+    "col_default_friendly_seen": true,
+    "col_default_enemy_seen": true,
+    "col_default_drawn": true,
+    "col_contrast_rings": true,
+    "col_deuteranopia_rings": true,
+    "col_default_no_rings": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "qol"
+ ]
+}

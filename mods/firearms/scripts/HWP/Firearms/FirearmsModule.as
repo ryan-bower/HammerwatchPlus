@@ -56,6 +56,7 @@ namespace HWP
 		int g_fillWaited = 0;
 		PlayerBase@ g_filledFor;
 		string g_filledClass;
+		bool g_filledGuns = false; // UsesGuns when the clip was last filled for
 		int g_lastClip = 0;
 		bool g_levelStart = true;
 		const int FILL_TIMEOUT = 3000;
@@ -88,6 +89,24 @@ namespace HWP
 			if (rec is null || rec.playerClass is null)
 				return false;
 			return rec.playerClass.m_id == CLASS_ID || rec.playerClass.parent == HashString(CLASS_ID);
+		}
+
+		// a gun (tag hwp_firearm) in either hand
+		bool HoldsGun(PlayerRecord@ rec)
+		{
+			if (rec is null || rec.equipped is null)
+				return false;
+			return IsFirearmItem(rec.equipped.GetEquipment(EquippedItemsSlots::MainHand))
+				|| IsFirearmItem(rec.equipped.GetEquipment(EquippedItemsSlots::OffHand));
+		}
+
+		// The clip, its reloads and how a gun handles (aim hold, pose, magazine sounds) go with
+		// the gun, not the class: a Ranger with a pistol had an empty clip that nothing filled or
+		// reloaded, so the pistol never fired (issues #16, #29). The class's own things (its
+		// skills, ranks, the shops' gun stock) still ask IsFirearms.
+		bool UsesGuns(PlayerRecord@ rec)
+		{
+			return IsFirearms(rec) || HoldsGun(rec);
 		}
 
 		// Frag and the eight doctrine skills start at rank 1 since 2026-10-20 (499f1d7; rank 0
@@ -160,11 +179,14 @@ namespace HWP
 				return;
 			auto rec = GetLocalPlayerRecord();
 			string cls = (rec is null || rec.playerClass is null) ? "" : rec.playerClass.m_id;
-			if (plr !is g_filledFor || cls != g_filledClass)
+			// a gun taken up by another class counts as a change too (UsesGuns)
+			bool guns = UsesGuns(rec);
+			if (plr !is g_filledFor || cls != g_filledClass || guns != g_filledGuns)
 			{
 				@g_filledFor = plr;
 				g_filledClass = cls;
-				g_fillPending = IsFirearms(rec);
+				g_filledGuns = guns;
+				g_fillPending = guns;
 				g_fillFull = g_inTown || (g_levelStart && MissionManager::GetCurrentLevelNum() == 1);
 				g_levelStart = false;
 				g_fillWaited = 0;
@@ -204,7 +226,7 @@ namespace HWP
 			auto plr = GetLocalPlayer();
 			auto clip = ActorBuffStackDef::Get(CLIP);
 			auto reloading = ActorBuffStackDef::Get(RELOADING);
-			if (plr is null || clip is null || reloading is null || !IsFirearms(GetLocalPlayerRecord()))
+			if (plr is null || clip is null || reloading is null || !UsesGuns(GetLocalPlayerRecord()))
 				return;
 			if (ClipMax(plr, clip) <= 0 || plr.GetStacks(clip) > 0 || plr.GetStacks(reloading) > 0)
 				return;
@@ -505,6 +527,8 @@ namespace HWP
 				{ "cls", rec.playerClass.m_id }, { "rifle", rifle }, { "clip", clip }, { "clipmax", clipMax },
 				{ "mana", mana }, { "max", maxMana } }));
 			HWP::Commands::Reply("low clips clicked " + g_lowClicks);
+			// the clip and reloads run for the class, or for anyone holding a gun (UsesGuns)
+			HWP::Commands::Reply("guns: " + (IsFirearms(rec) ? "the class" : HoldsGun(rec) ? "held by a " + rec.playerClass.m_id : "none"));
 			if (!g_enabled)
 				HWP::Commands::Reply("firearms.enabled is off: new characters can't pick the class; this one plays as before");
 		}
