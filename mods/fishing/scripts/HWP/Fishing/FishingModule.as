@@ -1011,9 +1011,18 @@ namespace HWP
 			return healed;
 		}
 
-		// the bag's Eat hint (core ItemActions, shown by droptrade)
-		class EatAction : HWP::ItemActions::Action
+		// the bag's Eat hint (hwplib ItemActions), key F by default: the old fixed E is the
+		// menu's own Destroy key (MenuAdditional). Each player's own key (fishing.eat_key,
+		// LocalOnly under the host-synced fishing. prefix), rebound on the Plus tab (eatkey).
+		const int EAT_KEY_DEFAULT = 9; // SDL scancode for F
+
+		class EatAction : HWP::ItemActions::KeyedAction
 		{
+			EatAction() { super("fishing.eat_key", EAT_KEY_DEFAULT); }
+
+			string Id() override { return "eat"; }
+			int Order() override { return 20; }
+
 			string Label(Equipment::Equipment@ item) override
 			{
 				return !g_enabled || FishOfItem(item) is null ? "" : Resources::GetString(".hwp.fishing.eat");
@@ -2352,7 +2361,10 @@ namespace Modules
 				for (uint i = 0; i < HWP::Fishing::BAIT_IDS.length(); i++)
 					HWP::Materials::Register("a", 10 + i, "hwp-mat-bait-" + HWP::Fishing::BAIT_IDS[i], HWPBaitMaterial(i + 1));
 			}
-			HWP::ItemActions::Register(HWP::Fishing::EatAction());
+			HWP::Settings::LocalOnly("fishing.eat_key");
+			auto eat = HWP::Fishing::EatAction();
+			HWP::ItemActions::Register(eat);
+			HWP::Options::Register("eatkey", HWP::ItemActions::ActionKeyOption(eat, ".hwp.fishing.eat_key"));
 			HWP::Net::OnRequest(HWP::Fishing::CAST, HWP::Net::RequestHandler(HWP::Fishing::OnCastRequest));
 			HWP::Net::OnRequest(HWP::Fishing::CATCH, HWP::Net::RequestHandler(HWP::Fishing::OnCatch));
 			HWP::Net::OnRequest(HWP::Fishing::CAUGHT, HWP::Net::RequestHandler(HWP::Fishing::OnCaught));
