@@ -4,9 +4,12 @@
 //   enemy is stored on it (HWPSpecsBrandFeed, on QuantityTrigger::Damage, which runs on the
 //   warlock's own client: CompositeActorBehavior calls the local player's DamagedActor), and the
 //   skill stays ready (UpdateBrands holds its cooldown at 0). A recast, or the brand running out,
-//   sets off the Hellfire Claw: fire for pb-base + the stored damage on every enemy within
-//   CLAW_RADIUS of the branded one; then the full cooldown. A branded enemy that dies passes the
-//   brand, stored damage and time left, to the nearest enemy within TRANSFER_RADIUS.
+//   sets off the Hellfire Claw: fire for pb-base + the stored damage x the brand's charge (the
+//   part of its time it has burned, Charge) on every enemy within CLAW_RADIUS of the branded
+//   one; then the full cooldown. pb-pct is the payoff at full charge, 100-500% (issue #35: it
+//   was 10-50% whenever it went off, less than the damage that fed it, and the brand's time
+//   made no difference). A branded enemy that dies passes the brand, stored damage, time left
+//   and charge, to the nearest enemy within TRANSFER_RADIUS.
 //   Combustion (pb-combust): the claw spends every Essence stack for that much more damage and
 //   radius each. Proliferation (pb-spread): the brand lasts half as long and a dying brand goes
 //   to every enemy within pb-spread, each with the whole stored damage.
@@ -44,6 +47,7 @@ namespace HWP
 			vec2 m_pos;
 			float m_stored;
 			int m_left;
+			int m_full;   // the brand's whole time: the charge is the part of it gone by
 		}
 
 		array<Brand@> g_brands;
@@ -61,6 +65,7 @@ namespace HWP
 		int g_claws = 0;
 		int g_clawHits = 0;
 		int g_lastClaw = 0;
+		int g_lastCharge = 0;   // the last claw's charge, percent
 		int g_transfers = 0;
 		int g_essenceHits = 0;
 		int g_essenceTwice = 0;
@@ -78,7 +83,7 @@ namespace HWP
 			g_brandsUp = false;
 			g_clawVictims.removeRange(0, g_clawVictims.length());
 			g_clawVictimC = 0;
-			g_claws = g_clawHits = g_lastClaw = g_transfers = g_essenceHits = g_essenceTwice = g_released = 0;
+			g_claws = g_clawHits = g_lastClaw = g_lastCharge = g_transfers = g_essenceHits = g_essenceTwice = g_released = 0;
 		}
 
 		Brand@ BrandOn(Actor@ a)
@@ -91,7 +96,7 @@ namespace HWP
 			return null;
 		}
 
-		void AddBrand(PlayerBase@ plr, Actor@ a, float stored, int left)
+		void AddBrand(PlayerBase@ plr, Actor@ a, float stored, int left, int full)
 		{
 			if (a is null || g_brands.length() >= MAX_BRANDS || BrandOn(a) !is null)
 				return;
@@ -100,6 +105,7 @@ namespace HWP
 			b.m_pos = xy(a.m_unit.GetPosition());
 			b.m_stored = stored;
 			b.m_left = left;
+			b.m_full = max(1, full);
 			g_brands.insertLast(b);
 			Give(plr, a, Buff("pyrebrand"), 1, 400);
 		}
@@ -107,6 +113,12 @@ namespace HWP
 		int BrandTime(PlayerBase@ plr)
 		{
 			return BindF(plr, PYREBRAND, "pb-spread") > 0 ? BRAND_TIME / 2 : BRAND_TIME;
+		}
+
+		// how far the brand has burned, 0 when cast to 1 when it runs out
+		float Charge(Brand@ b)
+		{
+			return clamp(1.0f - float(b.m_left) / float(b.m_full), 0.0f, 1.0f);
 		}
 
 		void FeedBrand(PlayerBase@ plr, Actor@ enemy, int value)
@@ -143,7 +155,8 @@ namespace HWP
 			float combust = BindF(plr, PYREBRAND, "pb-combust");
 			float mul = 1.0f + (combust > 0 ? combust * n : 0.0f);
 			float radius = CLAW_RADIUS * mul;
-			float amount = (BindF(plr, PYREBRAND, "pb-base") + b.m_stored) * mul;
+			float charge = Charge(b);
+			float amount = (BindF(plr, PYREBRAND, "pb-base") + b.m_stored * charge) * mul;
 
 			PlayEffect("players/warlock/effects/demon_tail_impact.effect", at);
 			dictionary ps = { { "radius", radius } };
@@ -172,7 +185,9 @@ namespace HWP
 			}
 			g_claws++;
 			g_lastClaw = int(amount + 0.5f);
-			Log("specs", "pyrebrand: claw (" + why + ") " + g_lastClaw + " fire, radius " + int(radius)
+			g_lastCharge = int(charge * 100 + 0.5f);
+			Log("specs", "pyrebrand: claw (" + why + ") " + g_lastClaw + " fire, charge " + formatFloat(charge, "", 0, 4)
+				+ " of " + formatFloat(b.m_stored, "", 0, 2) + " stored, radius " + int(radius)
 				+ ", " + enemies.length() + " hit" + (combust > 0 ? ", " + n + " essence spent" : ""));
 			return enemies.length() > 0;
 		}
@@ -200,7 +215,7 @@ namespace HWP
 					continue;
 				if (spread > 0)
 				{
-					AddBrand(plr, enemies[i], b.m_stored, BrandTime(plr));
+					AddBrand(plr, enemies[i], b.m_stored, BrandTime(plr), BrandTime(plr));
 					passed++;
 					continue;
 				}
@@ -213,7 +228,7 @@ namespace HWP
 			}
 			if (best !is null)
 			{
-				AddBrand(plr, best, b.m_stored, b.m_left);
+				AddBrand(plr, best, b.m_stored, b.m_left, b.m_full);
 				passed++;
 			}
 			g_transfers += passed;
@@ -405,7 +420,7 @@ class HWPSpecsPyrebrand : IEffect
 			HWP::Log("specs", "pyrebrand: no target");
 			return false;
 		}
-		HWP::Specs::AddBrand(plr, a, 0, HWP::Specs::BrandTime(plr));
+		HWP::Specs::AddBrand(plr, a, 0, HWP::Specs::BrandTime(plr), HWP::Specs::BrandTime(plr));
 		PlayEffect("players/warlock/effects/demon_tail_impact.effect", xy(a.m_unit.GetPosition()));
 		HWP::Log("specs", "pyrebrand: branded " + (HWP::Specs::IsEliteOrBoss(a) ? "an elite" : "an enemy")
 			+ " for " + HWP::Specs::BrandTime(plr) + " ms");

@@ -255,3 +255,23 @@ Files: `scripts/HWP/Specs/Invocation.as` (Thunder Orb's zaps, Static Charge),
 
 Stormbringer (Ranger), Winddancer (Rogue), Bannerlord (Warrior), Branding (Warlock):
 `plan-specs*.json` scenarios, `hwp specs` status.
+
+### Pyrebrand charges (Branding, issue #35)
+
+The brand stores the damage the warlock deals to the branded enemy, and it charges as it burns.
+The Hellfire Claw deals `pb-base` + the stored damage x the charge: the part of the brand's time
+gone by, 0 when cast and 1 when it runs out. A recast goes off early for less, and a brand left
+to run out is the nuke. At full charge the brand pays 100/150/250/350/500% of the damage that
+fed it (rank 1-5, the planner's 10-50% times ten). A brand passed on by a dying victim keeps its
+charge. A Proliferation brand lasts 3 s and charges in 3 s, and a brand it spreads starts its
+charge again with the whole stored damage.
+
+Before, the claw was `pb-base` + 10-50% of the fed damage whenever it went off, so the brand's
+time made no difference and the claw was smaller than the damage that fed it.
+
+- The claw log reads `pyrebrand: claw (<recast|expired>) N fire, charge C of S stored, radius ...`.
+  `hwp specs` adds `brandcharge` (the brand furthest along, %) and `clawcharge` (the last claw).
+- `fix-pyrebrand-charge.json`: a rank 5 brand fed 280 HP by two Demon's Tails stored 1400. Left
+  to run out, it clawed for 1440 at charge 1, and the dummy lost 2068 HP (7.4x the feed). Spell
+  power and the fire pool are on top of the 500%. Recast at charge 0.495, it lost 1053 HP (3.8x).
+  The old 50% would have been about 0.9x.
