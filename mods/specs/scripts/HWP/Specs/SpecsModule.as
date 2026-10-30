@@ -163,7 +163,7 @@ namespace Modules
 			HWP::Net::OnRequest("specs.body_gone", HWP::Net::RequestHandler(HWP::Specs::OnBodyGone));
 			HWP::Net::OnEvent("specs.raised", HWP::Net::EventHandler(HWP::Specs::OnRaised));
 			HWP::Net::OnEvent("specs.raise_denied", HWP::Net::EventHandler(HWP::Specs::OnRaiseDenied));
-			HWP::Commands::Register("gen", "  Paladin of Generosity: status | stacks <n> | fury [now] [dx dy] | cd | solo [on|off|auto]", HWP::Commands::Handler(HWP::Specs::CmdGen));
+			HWP::Commands::Register("gen", "  Paladin of Generosity: status | stacks <n> | fury [now] [dx dy] | pick [dx dy] | cd | solo [on|off|auto]", HWP::Commands::Handler(HWP::Specs::CmdGen));
 			HWP::Net::OnRequest("specs.fury_fx", HWP::Net::RequestHandler(HWP::Specs::OnFuryFxRequest));
 			HWP::Net::OnEvent("specs.fury_play", HWP::Net::EventHandler(HWP::Specs::OnFuryPlay));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Specs::OnSettingChanged));

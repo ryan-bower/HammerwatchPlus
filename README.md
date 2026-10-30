@@ -177,6 +177,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-29, Pelor's Fury works on the Serpents of Demise (#34). A serpent is mostly body, and
+its body is a trail of untargetable boss parts. Aimed at the body, the Fury picked one of those
+parts and refused nearly every time. Now any part of a serpent counts as the serpent: the
+Fury holds its head when the head is above ground, and says why not when it is underground. A
+body part over a surfaced head no longer steals the pick either.
+
 2026-10-29, one boss recap per boss fight (#33). The Serpents of Demise showed a damage
 recap each time one of their serpents went down, because the recap followed each
 boss-tagged unit on its own. A fight is now the whole encounter: every boss unit you hit
