@@ -58,5 +58,24 @@ def compile_failed(text: str) -> bool:
     return COMPILE_FAILED in text
 
 
+RESOURCE_MOD = re.compile(r"\] Resource mod: (?P<file>[^:]+): .* \((?P<id>[^()]+)\)\s*$", re.M)
+WORKSHOP_ITEM = re.compile(r"\] Workshop: Item: (?P<item>[0-9a-f]+) - (?P<path>.+?)\s*$", re.M)
+
+
+def duplicate_mods(text: str) -> dict[str, int]:
+    """Mod ids the game found more than once ("Resource mod: <file>: <name> (<id>)", one line
+    per mod it found, the Workshop's subscriptions included): when such an id is enabled, both
+    copies load and the first copy of each path wins (gamelab/env.py SHADOW_SUFFIX)."""
+    seen: dict[str, int] = {}
+    for m in RESOURCE_MOD.finditer(text):
+        seen[m.group("id")] = seen.get(m.group("id"), 0) + 1
+    return {k: n for k, n in seen.items() if n > 1}
+
+
+def workshop_items(text: str) -> list[str]:
+    """The Workshop item folders the game loaded ("Workshop: Item: <hex> - <path>")."""
+    return [m.group("path") for m in WORKSHOP_ITEM.finditer(text)]
+
+
 def mods_added(text: str) -> list[str]:
     return list(dict.fromkeys(mid for _kind, mid in MOD_ADDED.findall(text)))
