@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">HammerwatchPlus Party Exit</string>
+	<string name="author">Ryan Bower</string>
+	<string name="description">A floor's exit opens once two thirds of the living party stands at it (3 of 4, 2 of 3), not only when everyone does; whoever is left behind comes along. The share is a host setting. Part of HammerwatchPlus.</string>
+</dict>

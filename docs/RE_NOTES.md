@@ -7110,6 +7110,28 @@ not ordinary acquisition/spending or two-machine multiplayer performance. No rea
 profile was imported or play session launched for PR validation. The earlier
 stutter investigation remains unresolved and the broader QA sweep remains paused.
 
+## 2026-10-30: floor exits with most of the party (issue #75, `partyexit`)
+
+A floor's exit is `WorldScript::LevelExitAreaNext` (`LevelExitAreaJump` inherits its `Use`).
+Vanilla `Use` refuses (".exit.notall") while any living, connected player is outside the
+exit's areas; with several areas it even wanted each player inside every one of them. `Use`
+runs on the presser's machine and again through `NetUse` on every other one, each counting
+from its own view. The new Co-op module `partyexit` overrides that file: `Use` asks
+`HWP::PartyExit::Refusal`, which counts living players inside any area (the presser always)
+and needs `partyexit.share` percent of them, rounded up (default 66: 3 of 4, 2 of 3, 2 of 2;
+host setting). The rest come along through `MissionManager::NextLevel`, as the dead do in
+vanilla. Lang parameters are `%name%`, not `{{name}}` (`.menu.loadout.waiting_plrs`): the
+first refusal announce showed the braces raw (shot in `20261030-095107`), fixed and asserted
+through the logged text.
+
+Solo test: `hwp partyexit phantom <outside> [inside]` adds living players to the count.
+`fix-party-exit` (dark_citadel floor 0; `exit_stand` bot teleports onto the exit's sensor,
+since the Pilot's walk timed out once and found no route once on random floors) PASS
+`20261030-095204`: 1 of 3 refused, 2 of 3 refused at 75 %, 2 of 3 opens at 66 % and the next
+floor boots. `pf-fix-party-exit` (the built packages) PASS `20261030-095326`, `mod-all` PASS
+`20261030-095248`. Not covered: a real two-machine lobby (players left outside being carried
+to the next floor is vanilla's path for the dead, not measured here).
+
 ## 2026-10-30: v0.3 shipped without base-generated content (issue #76, no Forgemaster bodies)
 
 "Necrotic Resurrection isn't possible because there are no intact bodies at all." The
