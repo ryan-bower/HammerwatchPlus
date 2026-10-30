@@ -1,0 +1,133 @@
+namespace WorldScript
+{
+	[WorldScript color="255 100 100" icon="system/icons.png;480;256;32;32"]
+	class LevelExitAreaNext : IUsable
+	{
+		UnitPtr Unit;
+		
+		[Editable]
+		array<CollisionArea@>@ Areas;
+		
+		bool m_used;
+		
+		
+		void Initialize()
+		{
+			for (uint i = 0; i < Areas.length(); i++)
+			{
+				Areas[i].AddOnEnter(this, "OnEnter");
+				Areas[i].AddOnExit(this, "OnExit");
+			}
+		}
+		
+		void Cleanup()
+		{
+			auto localPlayer = GetLocalPlayer();
+			if (localPlayer !is null)
+				localPlayer.RemoveUsable(this);
+			
+			if (Areas !is null)
+			{
+				for (uint i = 0; i < Areas.length(); i++)
+					Areas[i].ClearFuncs(this);
+			}
+		}
+		
+		Player@ GetPlayer(UnitPtr unit)
+		{
+			if (!unit.IsValid())
+				return null;
+			
+			ref@ behavior = unit.GetScriptBehavior();
+			
+			if (behavior is null)
+				return null;
+			
+			return cast<Player>(behavior);
+		}
+		
+		void OnEnter(UnitPtr unit, vec2 pos, vec2 normal)
+		{
+			Player@ plr = GetPlayer(unit);
+			if (plr !is null)
+				plr.AddUsable(this);
+		}
+
+		void OnExit(UnitPtr unit)
+		{
+			Player@ plr = GetPlayer(unit);
+			if (plr !is null)
+				plr.RemoveUsable(this);
+		}
+
+		SValue@ ServerExecute()
+		{
+			return null;
+		}
+
+		UnitPtr GetUseUnit()
+		{
+			return Unit;
+		}
+
+		bool CanUse(PlayerBase@ player)
+		{
+			auto ws = WorldScript::GetWorldScript(Unit);
+			if (!ws.IsEnabled())
+				return false;
+			if (!ws.CanExecuteNow())
+				return false;
+			return true;
+		}
+
+		void Use(PlayerBase@ player)
+		{
+			if (m_used)
+				return;
+			
+			// HWP partyexit: enough of the living party at the exit (partyexit.share), not all of it
+			string refused = HWP::PartyExit::Refusal(this, player);
+			if (!refused.isEmpty())
+			{
+				auto hud = GetHUD();
+				if (hud !is null)
+					hud.AddAnnounce(HUDAnnounceText(refused, "hint_announce", 0, 0));
+				
+				return;
+			}
+			
+			WorldScript::GetWorldScript(Unit).Execute();
+			TriggerLevelExit();
+			m_used = true;
+		}
+
+		void TriggerLevelExit()
+		{
+			MissionManager::NextLevel();
+		}
+
+		void NetUse(PlayerHusk@ player)
+		{
+			Use(player);
+		}
+
+		ITooltip@ GetTooltip() { return null; }
+		UsableIcon GetIcon(Player@ player)
+		{
+			if (!CanUse(player))
+				return UsableIcon::None;
+			return UsableIcon::Exit;
+		}
+
+		int UsePriority() { return -1; }
+		
+		bool IsInside(UnitPtr unit)
+		{
+			for (uint i = 0; i < Areas.length(); i++)
+				if (Areas[i].IsInside(unit))
+					return true;
+			return false;
+		}
+
+	}
+}
