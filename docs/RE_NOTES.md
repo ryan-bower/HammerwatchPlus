@@ -7071,3 +7071,41 @@ custom-gold dry-run passed, skill validation passed, and the verb reference was
 regenerated/checked at 205 verbs. Shipped gameplay inputs are unchanged, so the
 multiplayer update remains d903442. The previous stutter outcome and broader QA
 sweep remain unresolved/paused; this currency addition makes no claim about them.
+
+## 2026-10-29: save creator PR integration and runtime ownership
+
+The accumulated one-call launcher, fresh profile, character builder, starting gold
+and false dirty-build-label fix are on `codex/run-save-builder`, rebased onto main
+`7c8b649`. The integration preserves upstream's HoH1 content flag default of OFF,
+local town NPC targeting and combo-orb respawn fixes. Historical d903442 results
+above belong to their recorded source epochs; the PR has a new Git update label.
+
+Review added a GameLab acquire guard for a real HWR2.exe play session after its
+Steam launcher has returned. It refuses before wiping lab scratch saves, does not
+kill the player game, and releases only its newly acquired lock. Inaccessible
+process visibility also refuses. Three focused tests cover process identity,
+visibility refusal and preservation of saves/lock ownership. Pytest's cache is
+now ignored.
+
+Current merged-source validation on pinned build 25932569 / B176:
+
+- `20261029-225240-play-builder-2c8ee0ec80ad-lab` PASS: requested PRSorc / Sorcerer
+  15 and PRRanger / Ranger 10 persisted exactly, with shared gold exactly 1,000,000.
+- `20261029-225322-play-builder-97fcb9173ced-lab` PASS: no characters and custom
+  gold exactly 2,500,000 persisted after reload/export.
+
+Both outer run.json files have no failed assertions, error, partial result or
+build drift, and clean teardown. Real config/saves/install res stayed unchanged.
+Expected source was `c5ac0d7c02eb6f30089ecd51ec84db6d9f8ea459` plus the runtime
+guard patch; both before/after mods+gamelab+tools-v2 fingerprints were unchanged:
+`4cd700f58a6df6c2cb3faa8a5c093337c043965433b652a0f97386da3292e6d2`
+(2,152 files). Raw runs, exports and source.json remain ignored under
+gamelab/results/. The optional run_summary module is still absent; outer verdicts
+and raw evidence were inspected independently of its optional-summary warning.
+
+50 focused unittest checks and three build tests passed. Doctor --no-smoke,
+skill validation, verb-reference check (205 verbs) and patch whitespace checks
+passed. These native checks cover forced save preparation and reload/export,
+not ordinary acquisition/spending or two-machine multiplayer performance. No real
+profile was imported or play session launched for PR validation. The earlier
+stutter investigation remains unresolved and the broader QA sweep remains paused.

@@ -50,6 +50,25 @@ def lab_processes() -> list[int]:
     return pids
 
 
+def player_processes() -> list[int]:
+    """A real play session also owns the runtime, after the Steam launcher exits."""
+    result = subprocess.run(["tasklist", "/FI", "IMAGENAME eq HWR2.exe", "/FO", "CSV", "/NH"],
+                            capture_output=True, text=True)
+    if result.returncode:
+        raise Refused("cannot check running game processes: " + (result.stderr or result.stdout).strip())
+    lab_image = (env.GAME / "HWR2.exe").resolve()
+    players = []
+    for row in csv.reader(io.StringIO(result.stdout)):
+        if len(row) > 1 and row[0].lower() == "hwr2.exe" and row[1].isdigit():
+            pid = int(row[1])
+            image = process_image(pid)
+            if not image:
+                raise Refused(f"cannot inspect HWR2.exe PID {pid}; resolve process visibility before running")
+            if Path(image).resolve() != lab_image:
+                players.append(pid)
+    return players
+
+
 def kill(pids: list[int]) -> None:
     for pid in pids:
         subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], capture_output=True)
@@ -66,6 +85,13 @@ def acquire(scenario: str, mode: str) -> None:
     with os.fdopen(fd, "w", encoding="utf-8") as f:
         json.dump({"pid": os.getpid(), "scenario": scenario, "mode": mode,
                    "started": time.strftime("%Y-%m-%dT%H:%M:%S")}, f)
+    try:
+        players = player_processes()
+        if players:
+            raise Refused(f"a player game owns the runtime: HWR2.exe {players}; close the game before running GameLab")
+    except Refused:
+        LOCK.unlink()
+        raise
     last = json.loads(TEARDOWN.read_text(encoding="utf-8")) if TEARDOWN.is_file() else {"clean": True}
     leftover = lab_processes()
     if not last.get("clean") or leftover:

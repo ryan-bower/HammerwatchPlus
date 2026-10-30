@@ -165,6 +165,8 @@ Repeat `--character CLASS:LEVEL:NAME` for more characters; names have no spaces.
 `--gold AMOUNT` configures starting gold without the UI, including 0. `--no-ui`
 starts without preset characters, retaining the chosen gold (1,000,000 by default).
 Class choices follow the selected packages.
+The launcher and GameLab coordinate runtime ownership; an open play session blocks
+native lab runs until the game is closed.
 Launcher, lab and documentation edits leave the multiplayer build label unchanged;
 `+` marks changes to shipped mod inputs, including package/module metadata.
 
