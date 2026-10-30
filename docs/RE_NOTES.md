@@ -6753,3 +6753,44 @@ Tests:
   fallback is now a spike plate spawned under the player, the kind the check was written for.
   `fix-campaign-trap-map` (20261029-071430), `mod-campaign` (20261029-071459) and the
   package variant `pf-fix-hoh1-traps` (20261029-072748) pass.
+
+## 2026-10-29: the confusion trap's telegraph (issue #38)
+
+The issue: "The trap both triggers too fast and has no indicator to a player that a trap is
+spawning under them or on a tile. The duration most likely just needs increased to 1s or
+so."
+
+The confusion glyph was a vanilla `TripMine` (hidden until a player is within
+`dist-visible` 40 px, triggered at 20 px) whose death spawned a `BombBehavior` burst with a
+150 ms fuse, and a new glyph 6 s later. So it showed for at most the fraction of a second a
+walking player takes from 40 px to 20 px, then confused them 0.15 s later; a glyph put back
+under a player standing there appeared under their feet. The larger issue: the dart glyph
+was built the same way (0.2 s), and the HoH1 traps of issue #37 already have a telegraphed
+behaviour (`HWPTrap`), so both glyphs are now generated HWPTrap kinds
+(`tools/make_hwp_traps.py`): always shown (`glyph_idle`), a player within 20 px lights them
+(`glyph_active`, HoH2's red `area_warning_xray_1000` and a click) for 1 s, then the burst;
+they re-arm in place. The burst units are gone. The bomb glyph keeps its TripMine and HoH1's
+1125 ms fuse with the bomb's shadow, a telegraph already.
+
+Two more things the change turned up:
+- The dart glyph's ring of 8 arrows started at its middle, so a player standing on it
+  overlapped every arrow as it spawned and took all 8 (lab: 160 -> 22 health). The ring now
+  starts 12 px out with one arrow aimed at the nearest player, and a player on the glyph gets
+  one stab (an arrow's damage, 8 px): 36 health on the glyph, 69 at most at the stab's edge.
+- `campaign.confusion` ("Eyes and confusion glyphs turn your movement around", applies now)
+  only ever gated the eyes: nothing read it for the traps. Now, off, `ApplyWeights` gives the
+  confusion families weight 0 (no confusion traps on new floors), and a confusion glyph or
+  plate already placed stays dark: HWPTrap's new `setting` param names a bool setting that
+  must be on for the trap to go off, checked when it would (then again an off spell later).
+
+A near trap arms 2.5 s after it appears (its `off` time), so a fresh floor does not fire on
+a player who spawns beside one.
+
+Tests: `fix-hoh1-traps`: the confusion, dart and bomb glyphs in the kinds section
+(confusion warned 1018 ms before the buff, dart 1032 ms, the bomb's fuse 1.1 s), the dart's
+damage capped, and a step with `campaign.confusion 0`: a new Crypt floor's `traps: theme`
+line rolls no confusion family, and a confusion glyph and plate spawned under the player
+stay "off" for 7 s with no buff (20261029-074036; package variant 20261029-074312).
+`fix-campaign-traps` (its confusion glyph check now waits for the arming and the warning,
+20261029-074544), `fix-campaign-trap-map` (20261029-074606) and `mod-campaign`
+(20261029-074635) pass.

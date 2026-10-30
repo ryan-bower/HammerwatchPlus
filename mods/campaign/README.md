@@ -232,8 +232,8 @@ together as one plate).
 | Frost plate | `hwp_plate_frost.unit` | 6 ice + HoH2's `slow_area` every 0.25 s (HoH1's freezing_short) | caves |
 | Confusion plate | `hwp_plate_confusion.unit` | `hwp_trap_confusion` (1 s) every 0.5 s while it glows | halls, crypts |
 | Bomb glyph | `hwp_glyph_bomb.unit` (`TripMine`, shows at 48 px, triggers at 24, 1.1 s fuse, fire + lightning blast, re-arms after 8 s) | | all |
-| Dart glyph | `hwp_glyph_dart.unit` (fan of 8 vanilla arrows after 0.2 s, re-arms after 5 s) | | not caves |
-| Confusion glyph | `hwp_glyph_confusion.unit` (1 s Confused on everyone in 40 px) | | crypts, halls |
+| Dart glyph | `hwp_glyph_dart.unit` | within 20 px: lights up, 1 s warning, ring of 8 of HoH2's trap arrows from 12 px out, one at the nearest player, and one stab (an arrow's damage) for a player on it; 5 s re-arm | not caves |
+| Confusion glyph | `hwp_glyph_confusion.unit` | within 20 px: lights up, 1 s warning, burst 40 px: `hwp_trap_confusion` (1 s) on everyone; 6 s re-arm | crypts, halls |
 | Frost glyph | `hwp_glyph_frost.unit` | within 20 px: 1 s warning, burst 32 px: 20 ice + 10%, frozen 1 s; 6 s re-arm | caves, crypts, halls |
 | Curse glyph | vanilla `doodads/traps/mines/glyph_shadow.unit` | HoH2's | halls, crypts |
 | Arrow / poison arrow / fire ball / blade shooter | `hwp_shooter_{arrow,poison,fire,blade}_{s,e,w}.unit` (vanilla wall shooter art, on the wall) | with a player within 200 px: one of HoH2's trap projectiles every 1.5 / 2 / 2.5 / 2 s | barracks, dungeons, crypts |
@@ -271,7 +271,7 @@ on the host and prints every pad with its destination.
 | `campaign.traps` | true | HoH1 traps on the trap map's and the Forsaken Tower's indoor floors |
 | `campaign.trap_map` | 0 | the map with traps: 0 Crypt, 1 Bandit Keep, 2 Dark Citadel, 3 Spider Caves, 4 every map |
 | `campaign.trap_density` | 100 | % of one trap per 120 floor cells (0..400, 1..24 traps a floor) |
-| `campaign.confusion` | true | Confusion from eyes and glyphs |
+| `campaign.confusion` | true | Confusion from eyes, glyphs and plates (off: no confusion traps on new floors, and the ones placed stay dark) |
 | `campaign.confusion_eye_chance` | 35 | % chance an eye's hit confuses |
 | `campaign.teleporters` | true | one teleporter pad per indoor floor |
 

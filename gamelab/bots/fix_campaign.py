@@ -257,11 +257,12 @@ class Checks(Base):
         time.sleep(1.4)
         x3, _ = self.pos()
         self.flag("confusion_expires", not on2 and x3 > x2 + 8, f"buff on {on2}; held right: x {x2:.0f} -> {x3:.0f}")
-        # the trap buff from a confusion glyph under the player (TripMine, 20 px trigger)
+        # the trap buff from a confusion glyph under the player (HWPTrap since issue #38: armed
+        # 2.5 s after it appears, 20 px trigger, then 1 s of warning)
         mark = len(self.g.read_log())
         self.gl("spawn", "doodads/hwp/traps/hwp_glyph_confusion.unit", 0, 0)
         got = False
-        end = time.time() + 4
+        end = time.time() + 6
         while time.time() < end and not got:
             got, _ = self.has_buff(TRAP_BUFF)
             if not got:

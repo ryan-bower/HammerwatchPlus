@@ -15,6 +15,10 @@ Sections:
   (campaign_prefabs.sval). The nearest placed wall shooter, if any, is visited for a
   screenshot (the scenario's shot after the bot).
 
+- confusion_off (after `hwp set campaign.confusion 0` and a new floor; issue #38): the floor's
+  `traps: theme` line rolls no confusion family, and a confusion glyph and plate spawned
+  under the player stay dark (their `setting` param) and confuse no one in 7 s.
+
 kwargs: sections ("kinds,floor"), only (comma list of kind names for kinds)."""
 import re
 import time
@@ -40,6 +44,10 @@ KINDS = {
     "plate_frost": (U + "hwp_plate_frost.unit", 0, 0, STATUS + "slow_area", 1000, 8),
     "plate_confusion": (U + "hwp_plate_confusion.unit", 0, 0, BUFFS + "hwp_trap_confusion", 1000, 9),
     "glyph_frost": (U + "hwp_glyph_frost.unit", 0, 0, STATUS + "freeze_minor", 1000, 4),
+    # issue #38: the confusion and dart glyphs, HWPTraps now (they were TripMines that fired
+    # 0.15-0.2 s after a player came near)
+    "glyph_confusion": (U + "hwp_glyph_confusion.unit", 0, 0, BUFFS + "hwp_trap_confusion", 1000, 5),
+    "glyph_dart": (U + "hwp_glyph_dart.unit", 0, 0, "hp", 1000, 5),
     "dropper_stalactite": (U + "hwp_dropper_stalactite.unit", 0, 0, "hp", 900, 4),
     "crusher_bricks": (U + "hwp_crusher_bricks.unit", 0, 0, "hp", 1000, 4),
     "bear_trap": (U + "hwp_bear_trap.unit", 0, 0, STATUS + "immobilize_minor", 0, 3),
@@ -50,6 +58,12 @@ KINDS = {
     "turret_arrows": (U + "hwp_turret_arrows.unit", 64, 0, "hp", 500, 8),
     # north of the player, shooting south: its barrel is the one an arrow started inside
     "turret_arrows_south": (U + "hwp_turret_arrows.unit", 0, -64, "hp", 500, 8),
+    # the bomb glyph is still a TripMine (no scenes for gl traps; its telegraph is the 1.1 s
+    # fuse). Last: its OnDeath puts it back 8 s later, after the bot's clean-up, and it blew
+    # up during the next two kinds
+    "glyph_bomb": (U + "hwp_glyph_bomb.unit", 0, 0, "hp", 0, 5),
+    # off the dart glyph's middle: one arrow, not the whole ring
+    "glyph_dart_side": (U + "hwp_glyph_dart.unit", 16, 0, "hp", 1000, 5),
 }
 
 
@@ -168,12 +182,15 @@ class Checks(Base):
             self.gl("input", secs * 1000, 0, 0, -dx, -dy)
         t0 = time.time()
         first_warn = first_on = hit = None
+        hwptrap = False
         seen = []
         while time.time() - t0 < secs:
             now = int((time.time() - t0) * 1000)
             sc = self.trap_scenes(unit)
-            if sc is not None and (not seen or seen[-1] != sc):
-                seen.append(sc)
+            if sc is not None:
+                hwptrap = True
+                if not seen or seen[-1] != sc:
+                    seen.append(sc)
             names = (sc or "").split(",")
             if first_warn is None and any(n.startswith("warn") for n in names):
                 first_warn = now
@@ -183,7 +200,8 @@ class Checks(Base):
             if watch == "hp":
                 # only once the trap has gone off: a leftover burn the settle loop outlasted
                 # read as the arrow shooter's hit at 122 ms, before it had fired
-                got = (first_warn is not None or first_on is not None) and (p.get("hp", hp0) < hp0 or p.get("dead"))
+                fired = first_warn is not None or first_on is not None or not hwptrap
+                got = fired and (p.get("hp", hp0) < hp0 or p.get("dead"))
             elif watch == "mana":
                 got = p.get("mana", mana0) < mana0
             else:
@@ -192,6 +210,13 @@ class Checks(Base):
                 hit = now
                 break
             time.sleep(0.05)
+        if hit is not None and name.startswith("glyph_dart"):
+            # the whole ring has flown by in 0.6 s. One arrow or the stab is 20 + 20% of
+            # current health (36 from 160); a player at the stab's edge can get both (69),
+            # never the whole ring (138 before)
+            time.sleep(0.6)
+            lost = hp0 - self.player().get("hp", hp0)
+            self.flag(f"{name}_one_hit", lost <= 70, f"lost {lost} health to the glyph (an arrow and the stab at most: 69)")
         p1 = self.player()
         note = (f"{unit.split('/')[-1]} at {dx},{dy}; spawn ok {r.get('ok')}; scenes {seen[:6]}; warn at {first_warn} ms, on at {first_on} ms, "
                 f"{watch.split(':')[-1]} at {hit} ms; hp {hp0}->{p1.get('hp')} mana {mana0}->{p1.get('mana')}")
@@ -284,6 +309,29 @@ class Checks(Base):
             self.gl("teleport", u["x"] + dx, u["y"] + dy)
             time.sleep(1.5)
             self.notes.append(f"shooter for the screenshot: {k} at {u['x']:.0f},{u['y']:.0f}")
+
+
+    def sec_confusion_off(self, only=""):
+        themes = re.findall(r"traps: theme (\S+) \((\w+)\): (.*)", self.g.read_log())
+        line = themes[-1][2] if themes else ""
+        self.flag("confusion_off_not_rolled", bool(themes) and "confusion" not in line, f"rolls: {line}")
+        self.god(False)
+        x, y = self.open_spot()
+        self.gl("teleport", x, y)
+        for unit in ("hwp_glyph_confusion.unit", "hwp_plate_confusion.unit"):
+            self.reset()
+            self.gl("spawn", U + unit, 0, 0)
+            t0 = time.time()
+            got = False
+            scenes = set()
+            while time.time() - t0 < 7 and not got:
+                sc = self.trap_scenes(U + unit)
+                if sc is not None:
+                    scenes.add(sc)
+                got = self.buff_on(BUFFS + "hwp_trap_confusion")
+                time.sleep(0.2)
+            self.flag(f"confusion_off_{unit.split('_')[1]}_dark", not got and scenes == {"off"}, f"buff {got}; scenes {sorted(scenes)}")
+        self.reset()
 
 
 def run(p, sections="kinds,floor", only=""):

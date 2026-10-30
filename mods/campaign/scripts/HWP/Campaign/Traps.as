@@ -39,8 +39,7 @@ namespace HWP
 			const string DEFS = "tweak/hwp/campaign_prefabs.sval";
 			const array<string> UNITS = {
 				"doodads/hwp/traps/hwp_glyph_bomb.unit", "doodads/hwp/traps/hwp_glyph_bomb_explode.unit",
-				"doodads/hwp/traps/hwp_glyph_confusion.unit", "doodads/hwp/traps/hwp_glyph_confusion_explode.unit",
-				"doodads/hwp/traps/hwp_glyph_dart.unit", "doodads/hwp/traps/hwp_glyph_dart_burst.unit",
+				"doodads/hwp/traps/hwp_glyph_confusion.unit", "doodads/hwp/traps/hwp_glyph_dart.unit",
 				"doodads/traps/floors/floor_fire.unit", "doodads/traps/mines/glyph_shadow.unit",
 				"doodads/traps/statues/haunted_gargoyle/haunted_gargoyle_s.unit",
 				"doodads/hwp/traps/hwp_plate_spikes.unit", "doodads/hwp/traps/hwp_pressure_spikes.unit",
@@ -102,6 +101,7 @@ namespace HWP
 			int g_density = 100;
 			int g_map = 0;
 			int g_installed = 0;
+			bool g_confusion = true;
 
 			void RefreshSettings()
 			{
@@ -109,6 +109,9 @@ namespace HWP
 				g_enabled = HWP::Settings::GetBool("campaign.enabled", true) && HWP::Settings::GetBool("campaign.traps", true);
 				g_density = clamp(HWP::Settings::GetInt("campaign.trap_density", 100), 0, 400);
 				g_map = clamp(HWP::Settings::GetInt("campaign.trap_map", 0), 0, int(TRAP_MAPS.length()));
+				// campaign.confusion off: no confusion glyphs or plates on new floors (the
+				// ones placed stay dark through their `setting` param, TrapBehavior.as)
+				g_confusion = HWP::Settings::GetBool("campaign.confusion", true);
 			}
 
 			string MapSetting()
@@ -200,6 +203,8 @@ namespace HWP
 						continue;
 					string fam = Family(def.m_id);
 					int w = Weight(fam, g);
+					if (!g_confusion && fam.findFirst("confusion") >= 0)
+						w = 0;
 					def.CanGet();   // starts this generation's count for it (m_currGenNumId)
 					if (w <= 0)
 					{

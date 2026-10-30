@@ -11,7 +11,7 @@ hwp_traps prefab set (the generated block of tweak/hwp/campaign_prefabs.sval). W
 floor gets, and how often, is the theme table in scripts/HWP/Campaign/Traps.as.
 
 Every trap telegraphs before it hurts (issue #38): a plate shows HoH2's red area warning
-for a second, a glyph lights up, a dropper's shadow grows while it falls.
+for a second, a glyph lights up with it, a dropper's shadow grows while it falls.
 
     python tools/make_hwp_traps.py          # (re)write the units, prefabs and the set block
     python tools/make_hwp_traps.py --check  # exit 1 when a file is stale or missing
@@ -126,7 +126,7 @@ def kinds():
     k["hwp_plate_confusion"] = (
         "HoH1's confusion plate (trap_confusion): while the rune glows, 1 s of confusion "
         "(hwp_trap_confusion: movement and aim reversed), renewed every 0.5 s",
-        plate(3500, 1000, 1500),
+        {**plate(3500, 1000, 1500), "setting": "campaign.confusion"},
         [buff(f"{BUFFS}:hwp_trap_confusion")],
         {"off": [TILE, MINIMAP_OFF], "warn": [TILE, MINIMAP_OFF, warn14],
          "on": [TILE, MINIMAP_ON, fx("effects/generic/other/arcane/glyph_active.effect")]},
@@ -142,6 +142,39 @@ def kinds():
         {"off": [fx("effects/generic/other/arcane/glyph_idle.effect")],
          "warn": [fx("effects/generic/other/arcane/glyph_ice.effect"), fx(WARN.format(ms=1000, r=32))],
          "on": [fx("effects/generic/other/arcane/glyph_ice.effect")]},
+        0)
+    # issue #38: the confusion and dart glyphs were TripMines, hidden until a player was 40 px
+    # away and firing 0.15-0.2 s after one came within 20 px, too fast to step off; a TripMine
+    # put back under a player who stood on it never fired again (no overlap begins). Now they
+    # show all the time, light up with the red warning for a second, then fire, and re-arm in
+    # place
+    glyph_warn_snd = "event:/sfx/doodads/buttons/button_magic"
+    k["hwp_glyph_confusion"] = (
+        "HoH1's confusion glyph: a player within 20 px lights it, a second later it bursts and "
+        "everyone in 40 px is confused for 1 s (hwp_trap_confusion: movement and aim reversed); "
+        "back after 6 s",
+        {"trigger": "near", "sense": 20, "warn": 1000, "on": 300, "rearm": 6000, "once": True, "radius": 40,
+         "freq": 0, "actor-filter": 6, "warn-snd": glyph_warn_snd, "setting": "campaign.confusion",
+         "on-fx": "effects/generic/explosions/arcane_explosion_1.effect"},
+        [buff(f"{BUFFS}:hwp_trap_confusion")],
+        {"off": [fx("effects/generic/other/arcane/glyph_idle.effect")],
+         "warn": [fx("effects/generic/other/arcane/glyph_active.effect"), fx(WARN.format(ms=1000, r=40))],
+         "on": [fx("effects/generic/other/arcane/glyph_active.effect")]},
+        0)
+    # the ring starts 12 px out with one arrow aimed at the nearest player, and a player
+    # standing on the glyph gets one stab instead: from the middle, all 8 arrows overlapped a
+    # player on it and hit (160 -> 22 health in one go)
+    k["hwp_glyph_dart"] = (
+        "HoH1's dart trap: a player within 20 px lights the glyph, a second later a ring of 8 "
+        "trap arrows (HoH2's arrow.unit) flies out of it, one at the nearest player, and a "
+        "player on it is stabbed once (an arrow's 20 physical + 20% of current health); back after 5 s",
+        {"trigger": "near", "sense": 20, "warn": 1000, "on": 300, "rearm": 5000, "once": True, "freq": 0,
+         "radius": 8, "actor-filter": 6, "warn-snd": glyph_warn_snd,
+         "shoot": "doodads/traps/projectiles/arrow.unit", "shots": 8, "arc": 315, "aim": True, "muzzle": 12},
+        [dmg("physical", 20), hp("physical", 0.2)],
+        {"off": [fx("effects/generic/other/arcane/glyph_idle.effect")],
+         "warn": [fx("effects/generic/other/arcane/glyph_active.effect"), fx(WARN.format(ms=1000, r=24))],
+         "on": [fx("effects/generic/other/arcane/glyph_active.effect")]},
         0)
     k["hwp_dropper_stalactite"] = (
         "HoH1's stalactites: a player within 20 px shakes one loose; its shadow grows while it "

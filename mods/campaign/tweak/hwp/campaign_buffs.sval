@@ -3,7 +3,7 @@
      icon, but nothing in HoH2 applies it to the player. hwp_confusion is HoH1's gaze
      confusion (2500 ms), applied by the Dark Halls eyes' hits and by `hwp campaign
      confuse`; hwp_trap_confusion is HoH1's trap confusion (1000 ms), applied by the
-     confusion glyph (doodads/hwp/traps/hwp_glyph_confusion_explode.unit) and the confusion
+     confusion glyph (doodads/hwp/traps/hwp_glyph_confusion.unit) and the confusion
      plate (hwp_plate_confusion.unit). hwp_trap_poison and hwp_trap_darkness are the poison
      and drain plates' (issue #37): HoH1's poison_strong (4 s, 16 poison a second, 70% speed)
      and the drain plate's darkness (2.5 s). -->

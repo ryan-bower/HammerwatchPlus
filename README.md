@@ -177,6 +177,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-29, confusion traps you can dodge (#38). The confusion glyph went off 0.15 s after a
+player came near, out of sight until then. Now it, and the dart glyph that had the same
+problem, show on the floor all the time, light up with a red warning for a second, and only
+then go off. A dart glyph no longer hits a player standing on it with all eight arrows. The
+Confusion setting now also turns confusion glyphs and plates off, as its text always said.
+
 2026-10-29, all of HoH1's traps (#37). On top of spikes, flame jets and glyphs, generated
 floors now get HoH1's poison, frost, drain and confusion plates, pressure spikes, frost and
 curse glyphs, arrow, poison, fire and blade shooters in the walls, arrow turrets, flame
