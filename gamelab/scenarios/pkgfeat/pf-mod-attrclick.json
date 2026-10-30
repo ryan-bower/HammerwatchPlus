@@ -1,0 +1,295 @@
+{
+ "name": "pf-mod-attrclick",
+ "about": "mod-attrclick against the built package qol instead of the mods' source folders (tools/make_package_scenarios.py). Issue #22, mods/attrclick: at the Attribute Trainer (class swap AttributeAssignerShopContent -> HWPAttributeAssignerShopContent), Shift+Click places 20 attribute points and Ctrl+Click 5, never more than are left; a plain click places one; off is vanilla. Clicks with Shift and Ctrl are forced with `hwp attrclick force`; the real Left Ctrl, held in the lab window, is read too. A posted Shift is not: SDL lets go of a Shift key that Windows doesn't see held.",
+ "fixture": "town-paladin",
+ "timeout": 180,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:attrclick\\] self-check done: on, Shift 20, Ctrl 5",
+   "name": "module up: on, Shift 20, Ctrl 5",
+   "timeout": 20
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "console",
+   "line": "hwp statpoints 50"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "console",
+   "line": "hwp attrclick"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:attrclick\\] attribute clicks on, a click places 1 \\(keys\\); 50 point\\(s\\) to place, picked str 0, dex 0, int 0, foc 0, vit 0",
+   "name": "50 points to place, nothing picked, no key held: 1 a click",
+   "timeout": 10
+  },
+  {
+   "do": "gl",
+   "verb": "spawn",
+   "args": [
+    "actors/npcs/town/npc_attrib_trainer.unit",
+    "0",
+    "-40"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "use",
+   "args": [
+    "npc_attrib_trainer"
+   ],
+   "name": "open the Attribute Trainer"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1.5
+  },
+  {
+   "do": "gl",
+   "verb": "press",
+   "args": [
+    "strength"
+   ],
+   "expect": {
+    "window": "HWPAttributeAssignerWindow"
+   },
+   "name": "a plain click in the swapped trainer window"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "console",
+   "line": "hwp attrclick"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:attrclick\\] attribute clicks on, a click places 1 \\(keys\\); 49 point\\(s\\) to place, picked str 1, dex 0",
+   "name": "plain click: one point, as vanilla",
+   "timeout": 10
+  },
+  {
+   "do": "console",
+   "line": "hwp attrclick force shift"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "attrclick-shift"
+  },
+  {
+   "do": "gl",
+   "verb": "press",
+   "args": [
+    "strength"
+   ],
+   "expect": {
+    "window": "HWPAttributeAssignerWindow"
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:attrclick\\] placed 20 in strength, 29 left",
+   "name": "Shift+Click: 20 points into strength",
+   "timeout": 10
+  },
+  {
+   "do": "console",
+   "line": "hwp attrclick force ctrl"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "press",
+   "args": [
+    "dexterity"
+   ],
+   "expect": {
+    "window": "HWPAttributeAssignerWindow"
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:attrclick\\] placed 5 in dexterity, 24 left",
+   "name": "Ctrl+Click: 5 points into dexterity",
+   "timeout": 10
+  },
+  {
+   "do": "console",
+   "line": "hwp attrclick force shift"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "press",
+   "args": [
+    "vitality"
+   ],
+   "expect": {
+    "window": "HWPAttributeAssignerWindow"
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:attrclick\\] placed 20 in vitality, 4 left",
+   "name": "Shift+Click: 20 into vitality",
+   "timeout": 10
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "shot",
+   "name": "attrclick-four-left"
+  },
+  {
+   "do": "gl",
+   "verb": "press",
+   "args": [
+    "focus"
+   ],
+   "expect": {
+    "window": "HWPAttributeAssignerWindow"
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:attrclick\\] placed 4 in focus, 0 left",
+   "name": "Shift+Click with 4 left places the 4",
+   "timeout": 10
+  },
+  {
+   "do": "gl",
+   "verb": "press",
+   "args": [
+    "focus"
+   ],
+   "expect": {
+    "window": "HWPAttributeAssignerWindow"
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "console",
+   "line": "hwp attrclick"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:attrclick\\] attribute clicks on, a click places 20 \\(shift\\); 0 point\\(s\\) to place, picked str 21, dex 5, int 0, foc 4, vit 20",
+   "name": "none left: a click places nothing; picked str 21, dex 5, foc 4, vit 20",
+   "timeout": 10
+  },
+  {
+   "do": "console",
+   "line": "hwp set attrclick.enabled 0"
+  },
+  {
+   "do": "console",
+   "line": "hwp statpoints 10"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "press",
+   "args": [
+    "intelligence"
+   ],
+   "expect": {
+    "window": "HWPAttributeAssignerWindow"
+   }
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "console",
+   "line": "hwp attrclick"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:attrclick\\] attribute clicks off, a click places 1 \\(shift\\); 9 point\\(s\\) to place, picked str 21, dex 5, int 1,",
+   "name": "off: Shift held still places one",
+   "timeout": 10
+  },
+  {
+   "do": "console",
+   "line": "hwp set attrclick.enabled 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp attrclick force keys"
+  },
+  {
+   "do": "console",
+   "line": "hwp statpoints 30"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "mark",
+   "name": "before-real-ctrl"
+  },
+  {
+   "do": "key",
+   "key": "ctrl",
+   "hold": 1.0
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:attrclick\\] a click places 5 now \\(keys\\)",
+   "since": "before-real-ctrl",
+   "name": "the real Left Ctrl held: a click places 5",
+   "timeout": 5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:attrclick\\] a click places 5 now \\(keys\\)[\\s\\S]*\\[HWP:attrclick\\] a click places 1 now \\(keys\\)",
+   "since": "before-real-ctrl",
+   "name": "Ctrl let go: 1 again",
+   "timeout": 5
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "qol"
+ ]
+}

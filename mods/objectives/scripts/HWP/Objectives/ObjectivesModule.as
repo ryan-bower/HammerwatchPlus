@@ -54,13 +54,15 @@ namespace HWP
 			}
 		}
 
-		// this floor; the host fills it in generation, a client from objectives.state
+		// this floor; the host fills it in generation (or from the units, AdoptFromUnits),
+		// a client from objectives.state
 		array<Vault@> g_vaults;
+		bool g_generatedHere = false; // the host ran this floor's generation in this script context
 		bool g_exitPresent = false;
 		bool g_exitOpen = false;
 		vec2 g_exitSwitch;
 		bool g_sealed = false;
-		int g_sealRetryMs = 0;     // host: the exit prefab's parts may fabricate after Start; retry the seal this long
+		int g_sealRetryMs = 0;     // the exit prefab's parts may fabricate after Start; retry the seal this long
 		bool g_stateKnown = false; // a client: objectives.state arrived
 		int g_vaultCount = 1;
 		bool g_exitOn = true;
@@ -69,6 +71,16 @@ namespace HWP
 		HWPObjectivesHUD@ g_hud;
 		array<HWPObjectiveDoor@> g_doors;
 		array<HWPObjectiveSwitch@> g_switches;
+
+		// The Architect alteration "Marked Switches" (tweak/hwp/objectives_architect.sval):
+		// the levers show on the map. Without it they don't (issue #26); the vault door does.
+		const string MARKED = "hwp_objectives_marked_switches";
+
+		bool SwitchesMarked()
+		{
+			auto gm = cast<HWR2GameMode>(g_gameMode);
+			return gm !is null && gm.HasArchitectBuff(MARKED);
+		}
 
 		void RefreshSettings()
 		{
@@ -85,6 +97,92 @@ namespace HWP
 			g_sealed = false;
 			g_stateKnown = false;
 			g_exitOpenShown = 0;
+			g_generatedHere = false;
+		}
+
+		// The host, on a floor this script context didn't generate (issue #27). The game
+		// generates the next floor ahead, in its preload context, while the party is still
+		// on the floor above (MissionGameMode.Generate with mission-level-preload; log
+		// lines tagged [preload]). Taking the exit then loads that floor whole: its units
+		// are here, but the generation's records stayed in the preload context, so every
+		// lever matched nothing and the exit was never sealed. A floor brought back from a
+		// save is the same. So the records are rebuilt from the units: each door is a
+		// vault (vault_s.pfb puts it at Gen::DOOR_IN_PFB from the room's corner), each
+		// vault lever goes to the vault farthest from it of those left (generation puts a
+		// lever as far from its vault as the floor allows), and the exit lever is the exit
+		// switch. A used lever or an open door counts as opened.
+		void AdoptFromUnits()
+		{
+			ivec2 size = ivec2(9, 8);
+			auto def = Gen::FindDef(Gen::SET_VAULT);
+			if (def !is null)
+				size = def.m_gridSz;
+			for (uint i = 0; i < g_doors.length(); i++)
+			{
+				auto d = g_doors[i];
+				if (!d.m_unit.IsValid() || d.m_unit.IsDestroyed())
+					continue;
+				vec2 p = d.Pos();
+				bool known = false;
+				for (uint k = 0; k < g_vaults.length() && !known; k++)
+					known = dist(g_vaults[k].m_doors[0], p) <= MATCH;
+				if (known)
+					continue;
+				Vault@ v = Vault();
+				v.m_world = p - Gen::DOOR_IN_PFB;
+				v.m_size = size;
+				v.m_cell = ivec2(-1, -1);
+				v.m_corridor = -1;
+				v.m_doors.insertLast(p);
+				v.m_opened = d.m_open;
+				g_vaults.insertLast(v);
+			}
+			array<HWPObjectiveSwitch@> levers;
+			for (uint i = 0; i < g_switches.length(); i++)
+			{
+				auto sw = g_switches[i];
+				if (!sw.m_unit.IsValid() || sw.m_unit.IsDestroyed())
+					continue;
+				if (sw.m_kind == "exit")
+				{
+					g_exitPresent = true;
+					g_exitSwitch = sw.Pos();
+					g_exitOpen = sw.m_used;
+				}
+				else
+					levers.insertLast(sw);
+			}
+			for (uint k = 0; k < g_vaults.length() && levers.length() > 0; k++)
+			{
+				auto v = g_vaults[k];
+				vec2 centre = v.m_world + vec2(v.m_size.x * 8.0f, v.m_size.y * 8.0f);
+				int best = 0;
+				for (uint j = 1; j < levers.length(); j++)
+					if (distsq(levers[j].Pos(), centre) > distsq(levers[best].Pos(), centre))
+						best = int(j);
+				v.m_hasSwitch = true;
+				v.m_switch = levers[best].Pos();
+				v.m_switchCell = ivec2(-1, -1);
+				if (levers[best].m_used)
+					v.m_opened = true;
+				levers.removeAt(best);
+			}
+			// a vault without a lever left would stay shut: open it, as generation does
+			for (uint k = 0; k < g_vaults.length(); k++)
+				if (!g_vaults[k].m_hasSwitch)
+					g_vaults[k].m_opened = true;
+			if (g_vaults.length() > 0 || g_exitPresent || levers.length() > 0)
+			{
+				string vaults = "";
+				for (uint k = 0; k < g_vaults.length(); k++)
+					vaults += ", vault " + k + " door " + int(g_vaults[k].m_doors[0].x) + "," + int(g_vaults[k].m_doors[0].y)
+						+ " switch " + (g_vaults[k].m_hasSwitch ? ("" + int(g_vaults[k].m_switch.x) + "," + int(g_vaults[k].m_switch.y)) : "none")
+						+ (g_vaults[k].m_opened ? " open" : "");
+				HWP::Log("objectives", "floor not generated here (preloaded or from a save): " + g_vaults.length()
+					+ " vault(s) and exit switch " + (g_exitPresent ? ((g_exitOpen ? "pressed" : "yes") + " at " + int(g_exitSwitch.x) + "," + int(g_exitSwitch.y)) : "no")
+					+ " taken from the units" + vaults
+					+ (levers.length() > 0 ? (", " + levers.length() + " lever(s) with no door") : ""));
+			}
 		}
 
 		int OpenedVaults()
@@ -151,7 +249,7 @@ namespace HWP
 			g_sealed = true;
 			int n = SetExits(false);
 			HWP::Log("objectives", "exits sealed: " + n + " (switch at " + int(g_exitSwitch.x) + "," + int(g_exitSwitch.y) + ")");
-			g_sealRetryMs = (n == 0 && Network::IsServer()) ? 3000 : 0;
+			g_sealRetryMs = n == 0 ? 3000 : 0; // a client too: its seal comes with the host's state, maybe before the part
 			RefreshHUD();
 		}
 
@@ -439,6 +537,12 @@ namespace HWP
 			}
 			if (g_exitPresent)
 				HWP::Commands::Reply("exit switch: " + int(g_exitSwitch.x) + "," + int(g_exitSwitch.y) + (g_exitOpen ? ", pressed" : ", not yet"));
+			int icons = 0;
+			for (uint i = 0; i < g_switches.length(); i++)
+				if (g_switches[i].m_scene == "marked")
+					icons++;
+			HWP::Commands::Reply("switch units: " + g_switches.length() + ", on the map: " + icons
+				+ (SwitchesMarked() ? " (Marked Switches picked)" : " (Marked Switches not picked)"));
 			HWP::Log("objectives", "status: " + Status());
 		}
 
@@ -569,6 +673,8 @@ namespace Modules
 			HWP::Objectives::RefreshSettings();
 			if (Network::IsServer())
 			{
+				if (!HWP::Objectives::g_generatedHere)
+					HWP::Objectives::AdoptFromUnits();
 				if (HWP::Objectives::g_exitPresent && !HWP::Objectives::g_exitOpen)
 					HWP::Objectives::Seal();
 				HWP::Log("objectives", "start: " + HWP::Objectives::g_vaults.length() + " vault(s), exit switch "

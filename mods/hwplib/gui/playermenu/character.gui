@@ -401,60 +401,86 @@
 											</group>
 										</hwp-materials>
 
-										<!-- section b: 28x24 cells, 8 across, the vanilla box drawn compact (farming's seeds and harvest as
-										     Plants & Herbs). It moves under section a (Materials.as) -->
+										<!-- section b: 24x24 cells, 9 across, the vanilla box drawn compact (farming's seeds and harvest as
+										     Plants & Herbs: 9 seeds over their 9 harvests since Lightning Kush, issue #15; it was 28 px
+										     and 8 across). 24 cells; Materials.as logs an error once when a section has more
+										     providers than cells. It moves under section a (Materials.as) -->
 										<hwp-materials id="hwp-materials-b" offset="-6 120" width="217" height="37" >
 											<sprite src="material-header" offset="0 0" >
 												<text text="" id="title" anchor="0.5 0.5" offset="0 0" font="title" color="#ffffff" />
 											</sprite>
 
 											<group id="cells" offset="0 13" width="217" height="24" flow="hboxwrapped" spacing="-1" spacing-line="1" >
-												<hwp-material id="hwp-mat-b0" src="material-background-small" width="28" height="24" only-mouse="true" >
+												<hwp-material id="hwp-mat-b0" src="material-background-small" width="24" height="24" only-mouse="true" >
 													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
 												</hwp-material>
-												<hwp-material id="hwp-mat-b1" src="material-background-small" width="28" height="24" only-mouse="true" >
+												<hwp-material id="hwp-mat-b1" src="material-background-small" width="24" height="24" only-mouse="true" >
 													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
 												</hwp-material>
-												<hwp-material id="hwp-mat-b2" src="material-background-small" width="28" height="24" only-mouse="true" >
+												<hwp-material id="hwp-mat-b2" src="material-background-small" width="24" height="24" only-mouse="true" >
 													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
 												</hwp-material>
-												<hwp-material id="hwp-mat-b3" src="material-background-small" width="28" height="24" only-mouse="true" >
+												<hwp-material id="hwp-mat-b3" src="material-background-small" width="24" height="24" only-mouse="true" >
 													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
 												</hwp-material>
-												<hwp-material id="hwp-mat-b4" src="material-background-small" width="28" height="24" only-mouse="true" >
+												<hwp-material id="hwp-mat-b4" src="material-background-small" width="24" height="24" only-mouse="true" >
 													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
 												</hwp-material>
-												<hwp-material id="hwp-mat-b5" src="material-background-small" width="28" height="24" only-mouse="true" >
+												<hwp-material id="hwp-mat-b5" src="material-background-small" width="24" height="24" only-mouse="true" >
 													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
 												</hwp-material>
-												<hwp-material id="hwp-mat-b6" src="material-background-small" width="28" height="24" only-mouse="true" >
+												<hwp-material id="hwp-mat-b6" src="material-background-small" width="24" height="24" only-mouse="true" >
 													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
 												</hwp-material>
-												<hwp-material id="hwp-mat-b7" src="material-background-small" width="28" height="24" only-mouse="true" >
+												<hwp-material id="hwp-mat-b7" src="material-background-small" width="24" height="24" only-mouse="true" >
 													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
 												</hwp-material>
-												<hwp-material id="hwp-mat-b8" src="material-background-small" width="28" height="24" only-mouse="true" >
+												<hwp-material id="hwp-mat-b8" src="material-background-small" width="24" height="24" only-mouse="true" >
 													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
 												</hwp-material>
-												<hwp-material id="hwp-mat-b9" src="material-background-small" width="28" height="24" only-mouse="true" >
+												<hwp-material id="hwp-mat-b9" src="material-background-small" width="24" height="24" only-mouse="true" >
 													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
 												</hwp-material>
-												<hwp-material id="hwp-mat-b10" src="material-background-small" width="28" height="24" only-mouse="true" >
+												<hwp-material id="hwp-mat-b10" src="material-background-small" width="24" height="24" only-mouse="true" >
 													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
 												</hwp-material>
-												<hwp-material id="hwp-mat-b11" src="material-background-small" width="28" height="24" only-mouse="true" >
+												<hwp-material id="hwp-mat-b11" src="material-background-small" width="24" height="24" only-mouse="true" >
 													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
 												</hwp-material>
-												<hwp-material id="hwp-mat-b12" src="material-background-small" width="28" height="24" only-mouse="true" >
+												<hwp-material id="hwp-mat-b12" src="material-background-small" width="24" height="24" only-mouse="true" >
 													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
 												</hwp-material>
-												<hwp-material id="hwp-mat-b13" src="material-background-small" width="28" height="24" only-mouse="true" >
+												<hwp-material id="hwp-mat-b13" src="material-background-small" width="24" height="24" only-mouse="true" >
 													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
 												</hwp-material>
-												<hwp-material id="hwp-mat-b14" src="material-background-small" width="28" height="24" only-mouse="true" >
+												<hwp-material id="hwp-mat-b14" src="material-background-small" width="24" height="24" only-mouse="true" >
 													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
 												</hwp-material>
-												<hwp-material id="hwp-mat-b15" src="material-background-small" width="28" height="24" only-mouse="true" >
+												<hwp-material id="hwp-mat-b15" src="material-background-small" width="24" height="24" only-mouse="true" >
+													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
+												</hwp-material>
+												<hwp-material id="hwp-mat-b16" src="material-background-small" width="24" height="24" only-mouse="true" >
+													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
+												</hwp-material>
+												<hwp-material id="hwp-mat-b17" src="material-background-small" width="24" height="24" only-mouse="true" >
+													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
+												</hwp-material>
+												<hwp-material id="hwp-mat-b18" src="material-background-small" width="24" height="24" only-mouse="true" >
+													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
+												</hwp-material>
+												<hwp-material id="hwp-mat-b19" src="material-background-small" width="24" height="24" only-mouse="true" >
+													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
+												</hwp-material>
+												<hwp-material id="hwp-mat-b20" src="material-background-small" width="24" height="24" only-mouse="true" >
+													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
+												</hwp-material>
+												<hwp-material id="hwp-mat-b21" src="material-background-small" width="24" height="24" only-mouse="true" >
+													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
+												</hwp-material>
+												<hwp-material id="hwp-mat-b22" src="material-background-small" width="24" height="24" only-mouse="true" >
+													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
+												</hwp-material>
+												<hwp-material id="hwp-mat-b23" src="material-background-small" width="24" height="24" only-mouse="true" >
 													<text text="0" id="count" anchor="0.5 1" offset="0 -1" font="text" color="#ffffff" />
 												</hwp-material>
 											</group>

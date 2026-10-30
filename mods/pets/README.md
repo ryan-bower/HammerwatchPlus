@@ -36,7 +36,7 @@ Watcher in their own Update.
   skill point per level past 1. Numbers: `tweak/hwp/pet_skills.sval`.
 - **Pet level in the inventory** (2026-10-25, `scripts/HWP/Pets/PetLevelTab.as`):
   the character tab shows `pet lvl N (xx%)` just left of the character's own
-  `lvl N (xx%)`. No override of `GUI/PlayerMenu/Character.as` (droptrade owns it):
+  `lvl N (xx%)`. No override of `GUI/PlayerMenu/Character.as` (hwplib owns it):
   each frame the module finds the open `PlayerMenu` whose current tab is the
   character tab, clones its `player-level` text once as `hwp-pet-level` into the
   same row (its tooltip button hidden) and keeps text and offset current; hidden
@@ -98,6 +98,24 @@ Watcher in their own Update.
   it is off. Levels, points, options and dyes stay in the save data. The HoH1 pets
   stay in the Pet Shop (they are data, `tweak/hwp/pets_hoh1.sval`).
 
+- **Pet courier** (2026-10-28, issue #13, `scripts/HWP/Pets/Courier.as`): in a run, a bag
+  item's hints gain **`[H] Send home`** (hwplib item action, order 30) while your pet is
+  out and near you (300 px). H or a click hands the item over: it goes into your town
+  stash at once, in the tab **Pet deliveries** (made on the first delivery; with all 10
+  tabs taken, the last tab), and the player and town are saved together
+  (`SavePlayerAndTown`), so a death, an abort or a lost connection can't lose or copy
+  it. The satchel holds 1 item, +1 every 5 pet levels (5 at level 20). When the player
+  menu closes the pet leaves with the items (a puff of smoke) and comes back after the
+  trip: `pets.courier_secs` (host, default 60 s), 10 % shorter per Fetch rank; a new
+  floor brings it back early. Not in town (the stash is right there). Co-op: the owner
+  asks the host (`pets.away`), which tells everyone (`pets.gone`) to take down their
+  copy; the return is the owner's `ResetPet`, whose SetPetType re-makes it everywhere.
+  Settings: `pets.courier` (host, on), `pets.courier_secs`, and the key (**Send home
+  key**, option `courierkey`, `pets.courier_key`, each player's own, default 11 = H).
+  `hwp pet courier` shows the satchel or the time left, `hwp pet send` hands the first
+  bag item over. Controllers have no key for it yet (the hint is clickable; issues #14
+  and #23 are about controller binds).
+
 - The optional feeding bowl comes back after a building upgrade, which rebuilds
   the town and destroys it (`HWP::Town::Kept`, on every machine since the bowl is
   local; test: `mod-town-rebuild`, which turns it on with `hwp set pets.bowl 1`:
@@ -127,3 +145,7 @@ Watcher in their own Update.
    the character level and it moves with `hwp pet xp 500`
    (`fix-pets-inventory-level`: bot `fix_pets` check inventory, shot
    `character-tab`).
+10. Courier: `python -m gamelab run fix-pets-courier --mode lab` (bot `fix_courier`
+    check courier): in a run the mace's hints end `[Q] Drop`, `[H] Send home`; H moves
+    it into the stash tab Pet deliveries; the pet leaves when the menu closes and is
+    back after `pets.courier_secs`; `hwp pet courier` reads `Pet courier: 0/1`.

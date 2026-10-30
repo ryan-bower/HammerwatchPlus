@@ -14,7 +14,7 @@ dist/workshop/<file>/:
                        additional pictures
     title.txt          the item's title
     description.txt    the item's description, in Steam's BBCode
-    changenote.txt     version, commit and date, for an update's change note
+    changenote.txt     version, update (as the game shows it) and date, for an update's change note
 
 and dist/workshop/UPLOAD.txt, the list of what to upload new and what to update, from
 workshop.json (repo root), the ledger of published item ids. tools/workshop_publish.py
@@ -53,6 +53,7 @@ TERSE = {
     "goldworth": "gold on the floor looks like what it is worth.",
     "mmhmm": "some rare and epic hats say \"mm-hmm\" on crits, revives and more.",
     "orbwarn": "the orb picker shows which orbs a pick locks out.",
+    "attrclick": "Shift+Click places 20 attribute points at the Attribute Trainer, Ctrl+Click 5.",
     "mapicons": "dye pots marked on the minimap.",
     "groupcombo": "a party combo bonus, and rare combo orbs from boxes and vases.",
     "architect": "every player can pick and pay for Architect alterations; three saved presets.",
@@ -95,6 +96,7 @@ TERSE = {
     "weapons": "twelve new item level 35 weapons.",
     "trinkets": "trinket bonuses grow with NG+; 37 HoH1 trinkets and eight new trinket sets.",
     "valuables": "vases, gems and other valuables are worth twice the gold.",
+    "affixes": "Rare and Epic items can roll a second suffix, and Epic items a second prefix.",
     "fishing": "fishing spots in town and on run floors, a bait and rod shop; sell or eat the fish.",
     "farming": "farm plots in town: crops and Holy Herbs grow with every run; smoke a herb for a buff.",
     "gambler": "Higher or Lower for gold, and rerolls of your equipped gear.",
@@ -353,7 +355,16 @@ def main(argv=None) -> int:
         print(f"workshop: the cards are drawn from the game's art, and {e.filename} is missing "
               "(python -m gamelab doctor --fix makes gamecode/)", file=sys.stderr)
         return 1
-    stamp = f"HammerwatchPlus {version()} ({commit()}, {datetime.date.today().isoformat()})"
+    # the update as the game shows it (`hwp version`, the mismatch notices): HWP::Builds
+    sys.path.insert(0, str(REPO / "tools"))
+    import build
+    update = build.update_id()
+    if update.endswith("+"):
+        print("workshop: the tree has uncommitted changes (update " + update + "); commit before publishing",
+              file=sys.stderr)
+    day, _, sha = update.partition(" ")
+    stamp = (f"HammerwatchPlus {version()}, update {day} ({sha or commit()}), "
+             f"built {datetime.date.today().isoformat()}")
     plan = []
     for file, p, inside in items(packages, allp):
         src = DIST / f"{file}.bin"

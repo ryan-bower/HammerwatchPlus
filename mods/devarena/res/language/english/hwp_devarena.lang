@@ -1,0 +1,16 @@
+<lang name="English" official="false">
+	<string name="hwp.devarena.key.dock">Dev Arena: dock</string>
+	<string name="hwp.devarena.key.ab">Dev Arena: swap A/B</string>
+	<string name="hwp.devarena.key.undo">Dev Arena: previous version</string>
+	<string name="hwp.devarena.key.redo">Dev Arena: next version</string>
+	<string name="hwp.devarena.key.reset">Dev Arena: arena reset</string>
+	<string name="hwp.devarena.key.golem">Dev Arena: golem room</string>
+	<string name="hwp.devarena.key.pause">Dev Arena: pause</string>
+	<string name="hwp.cfg.o.devarena-dock.about">Toggles the dock.</string>
+	<string name="hwp.cfg.o.devarena-ab.about">Swaps slot A/B.</string>
+	<string name="hwp.cfg.o.devarena-undo.about">Previous version.</string>
+	<string name="hwp.cfg.o.devarena-redo.about">Next version.</string>
+	<string name="hwp.cfg.o.devarena-reset.about">Resets the arena.</string>
+	<string name="hwp.cfg.o.devarena-golem.about">Golem room in/out.</string>
+	<string name="hwp.cfg.o.devarena-pause.about">Pause/resume.</string>
+</lang>

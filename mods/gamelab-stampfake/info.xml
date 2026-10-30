@@ -1,5 +1,5 @@
 <dict>
 	<string name="name">GameLab Stamp Fake</string>
 	<string name="author">HammerwatchPlus GameLab</string>
-	<string name="description">Test harness only: a package check module made with a library stamp no build has, as a HammerwatchPlus package of another build would carry (the pkg-mismatch scenario). Never deployed to a play install.</string>
+	<string name="description">Test harness only: two package check modules made with library stamps no build has, as HammerwatchPlus packages of other builds would carry, one from before update stamps and one stamped with an older update (the pkg-mismatch scenario). Never deployed to a play install.</string>
 </dict>
