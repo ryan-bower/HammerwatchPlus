@@ -12,6 +12,7 @@ next level.
 | Buff tooltips | On | `bufftips.enabled` | on | on, off | local |
 | Buff tooltips | Class buff icons | `bufftips.skill_icons` | on | on, off | local |
 | Chat item links | On | `chatlinks.enabled` | on | on, off | local |
+| Chat item links | (option `linkkey`) | | | | local |
 | Stash sort | On | `stash.enabled` | on | on, off | local |
 | Death recap | On | `deathrecap.enabled` | on | on, off | local |
 | Death recap | Chat summaries | `deathrecap.chat` | on | on, off | local |
