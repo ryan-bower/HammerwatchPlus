@@ -1,0 +1,57 @@
+{
+ "name": "pf-fix-fury-elite",
+ "about": "fix-fury-elite against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Issue #82: the Paladin of Generosity's Pelor's Fury on an elite (a bandit brute elite) needs and spends 3 Blessing stacks, a plain brute still all 10, and a party player's death takes 5 stacks instead of all of them (plan_generosity bot, section elite).",
+ "fixture": "town-paladin",
+ "timeout": 400,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",
+   "timeout": 30
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "plan_generosity",
+   "kwargs": {
+    "sections": "elite"
+   },
+   "name": "elite",
+   "expect": {
+    "elite_tagged": true,
+    "elite_cast_3": true,
+    "elite_keeps_rest": true,
+    "elite_below_3": true,
+    "elite_plain_needs_10": true,
+    "elite_plain_spends_10": true,
+    "elite_death_takes_5": true,
+    "elite_no_errors": true
+   }
+  },
+  {
+   "do": "shot",
+   "name": "elite-fury"
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)(-gamelab)?\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

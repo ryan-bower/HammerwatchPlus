@@ -7109,3 +7109,45 @@ passed. These native checks cover forced save preparation and reload/export,
 not ordinary acquisition/spending or two-machine multiplayer performance. No real
 profile was imported or play session launched for PR validation. The earlier
 stutter investigation remains unresolved and the broader QA sweep remains paused.
+
+## 2026-10-30: Pelor's Blessing on a death, Pelor's Fury on an elite (issue #82)
+
+Two Paladin of Generosity balance changes (`mods/specs/scripts/HWP/Specs/Generosity.as`).
+
+1. **A party player's death takes 5 stacks.** It used to take all of them.
+   - `OnPlayerDied` now calls `LoseBlessing(plr, DEATH_LOSS)`.
+   - The larger catch: when the paladin dies themselves, the game clears the stack's
+     buff on the death or the revive. The log of fix-fury-elite 20261030-100926 showed
+     `blessing 7 -> 2 (party player died)` and then 0 after the revive, so their own death
+     still cost everything.
+   - `OnPlayerDied` now remembers the count left when the dead player is the local
+     paladin. `RestoreAfterDeath` puts it back once they are alive, re-trying for 1 s in case
+     the revive clears the buff after the first frame. Town and a Fury cancel it.
+2. **Pelor's Fury on an elite needs and spends 3 stacks.** Normal enemies and bosses still
+   need all 10 and spend every stack.
+   - An elite is an actor with the `elite` tag. That is the tag the vanilla thorns and
+     elite-damage masks read, and the `_elite` units carry it; the Forgemaster already uses
+     it. A unit tagged `boss` stays a boss.
+   - Before the cast, the target isn't known yet, so `CanActivate` only gates below 3, the
+     fewest any target needs.
+   - Activate checks the picked target's own need through `BlessingShort`, which gives
+     reasons like `blessing 5/10` and `blessing 2/3 elite`. Deactivate checks it again,
+     since a death during the cast can drop the stacks below the need.
+   - StartFury spends `FuryNeed(a)`.
+   - `hwp gen pick` now names `boss`/`elite` and `needs N`, and the cast log line adds
+     `elite`.
+
+Tests:
+
+- New scenario `fix-fury-elite` (section `elite` of plan_generosity): PASS 20261030-101113,
+  and against the built packages pf-fix-fury-elite PASS 20261030-102037.
+  - A bandit_brute_elite picks as `elite needs 3`.
+  - The real cast at 3 stacks spends 3; at 7 it keeps 4.
+  - 2 stacks on the elite and 5 on a plain brute are refused, with nothing spent.
+  - 10 on the plain brute spends all 10.
+  - The paladin's own death goes 7 -> 2 and 3 -> 0.
+- In plan-generosity, `ref_button_below_10` became `ref_button_below_3` (the press-frame
+  gate now sits at 3), `stk_death_reset` became `stk_death_loss` (7 -> 2), and the elite
+  section was added.
+- plan-generosity PASS 20261030-101332 (every section), mod-all PASS 20261030-102014,
+  pytest 241 passed.
