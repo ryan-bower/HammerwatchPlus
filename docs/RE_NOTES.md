@@ -6109,3 +6109,75 @@ cleared the one after. Two findings on the way:
 - the real Tab key goes to Keys and back;
 - a mouse click on Keys still works;
 - the log is clean.
+
+## 2026-10-29: mod version mismatch notices (issue #24)
+
+The issue (from NoahFrank) has a title and no body: "Detailed notice when there are Mod Version
+Mismatches". Two notices could be meant, and both said too little:
+- **The join dialog.** `CanJoinLobby` (`GUI/WindowMainMenu.as`) refuses a lobby whose
+  `mods-hash` differs from `Resources::GetModHash()`, and lists the mods missing on either side
+  by id. With the same ids and different contents, both lists are empty and the dialog says only
+  "Join failed becxause of mismatched mods." (the typo is the game's). That dialog runs in the
+  menu script, which loads base scripts and resources only, so no mod can change it (the
+  2026-10-16 menu notes). `GetModHash()` reads 0 from mod code, at boot and in town, in the lab.
+- **Players getting in anyway.** The user's log of 2026-10-28 20:47 settles which case happens.
+  The user joined a host, and the game let them in. Then four HWP events arrived with no handler:
+  `[HWP:net] no handler for event id -415441014 (module version mismatch between players?)`.
+  Hashed against the repo's event names, they are `hwp.luck.floor`, `roulette.state`,
+  `objectives.opened` and `keys.trapped`. Those were added on 2026-10-26 (b03360e, bcd12bc). The
+  user's install had per-module `HWP-*` packages from before that, and the host had a newer build
+  with the same mod ids. So the join check doesn't compare contents (or not these), and the only
+  sign of the mismatch was an error in the log.
+
+What changed:
+- `tools/build.py` `update_id()` is the last commit's date and short hash, with `+` for
+  uncommitted tracked changes. Every package's generated check module now calls
+  `HWP::Builds::Package(name, update, stamp, HWP::LIB_STAMP)` and logs
+  `package HWP-<id>, library <stamp>, update <update>`.
+- `HWP::Builds::Tell` replaces `Packages::Tell` in town. It names each odd package's update and
+  whether it is older than the running library's, and folds in packages from before stamps
+  (`Packages::g_mismatched`).
+- A client's first gameplay tick in town sends `builds.report` (its packages, one
+  `name=update` per line). The host compares them and answers `builds.answer` with its own, and
+  each side gets a chat line: `<who> runs another HammerwatchPlus update than you ...: HWP-qol:
+  yours 2026-10-28 (3b40f37), theirs 2026-10-01 (0000000). Theirs are older: <who> should
+  update ...`. Matching packages are grouped. A package only one side has reads "not enabled".
+- A side silent for 45 s in town is named as older (`hwp.builds.silent`). That covers a host
+  that never answers, or a client in `g_players` that never reports. It is the case for anyone
+  on an update from before this one.
+- `hwp version` ends with each update and its packages, the running library's first. The
+  Workshop `changenote.txt` shows the same update, and warns when the tree has uncommitted
+  changes.
+
+Mixing with older packages. The game keeps the first copy of each path, so a newer package can
+run on an older library. `Builds.as` is a path the older packages don't have, so it always
+comes from a newer one, and the new check modules can call it. It calls only what the published
+library already has. Measured in pkg-all (20261029-025844), where the published Workshop All
+(library 19c76653f770) shadows the local build:
+- everything compiled;
+- the old `CoreModule.as` won and showed the old one-line notice;
+- the local campaign check, which calls `HWP::Builds::Package`, ran.
+
+pkg-all still fails there, for the known shadowing reason (PR #40).
+
+Tests:
+- `fix-mod-version-notice` (20261029-030319). One lab game stands in for two: a host's request
+  runs locally, and `hwp builds fake` reads every report and answer as if the other side ran
+  that. It covers the same updates (no notice), an older and a newer other side, a package only
+  they have, and a silent host and client (`fake silent` waits 3 s).
+- `pkg-mismatch` (20261029-030004) now carries a stamped older package (`HWP-stampnew`,
+  `gamelab-stampfake/CheckNew.as`) beside the unstamped one. The town line reads: "The library
+  running is from 2026-10-28 (3b40f37+); HWP-stampnew 2026-10-01 (0000000), older;
+  HWP-stampfake an update from before update stamps, older."
+- `tests/test_builds.py` locks the `Package` and `Mismatch` signatures.
+
+Not tested: two real machines. The lab can't run a second game. The real path differs from the
+loopback only in going through `HWPRequest` / `HWPEvent` like every other `HWP::Net` call, and
+in the host's `g_players` loop.
+
+**Seen on the way.** The same client log has hundreds of
+`(PlayerActiveSkillDeactivate -> GetPlayerSkill) Couldn't find active skill with ID 2135001574
+for peer 2` errors, and `Clients are not allowed to destroy netsynced unit` errors for
+caltrops, frosted ground, glyphs and guard patrols. They may come from the same mismatch (a
+skill one side has and the other doesn't). If they show again between matching updates, they
+are a co-op bug of their own.

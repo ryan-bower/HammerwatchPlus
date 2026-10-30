@@ -177,6 +177,15 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-29, notices name the HammerwatchPlus updates (#24). The game's join check compares mod
+ids, not their contents, so friends with different updates got into one lobby and things
+quietly broke: on 2026-10-28 a client on per-module packages from before 2026-10-26 joined a
+newer host, and only the log said `no handler for event` for four of the host's events. Every
+package now carries its update (the commit's date and hash). In town, a client and the host
+compare theirs, and both are told which packages differ, which side is older and who should
+update. Packages of different updates in one game are named with their updates too, and `hwp
+version` lists them. The Workshop change note shows the same update.
+
 2026-10-29, the General Merchant's tabs work with a controller (`keys`, #23). The Keys & Bags
 and Trinkets tabs switched only with a mouse click. Now a gamepad's bumpers (and Tab on a
 keyboard) switch them, as in the player menu and the stash, and the bindings show beside the

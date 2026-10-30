@@ -67,5 +67,20 @@ Luck never changes the chance of a skill, item or trinket effect.</string>
 	<string name="hwp.hoh1.missing">Heroes of Hammerwatch 1 content is not installed, so these use stand-ins: %list%. Everything else works. To add it, own HoH1 and install HammerwatchPlus with run.cmd from its project page (hwp hoh1 lists them).</string>
 	<string name="hwp.hoh1.none">No enabled HammerwatchPlus mod uses Heroes of Hammerwatch 1 content.</string>
 	<string name="hwp.hoh1.present">Heroes of Hammerwatch 1 content installed</string>
+	<string name="hwp.builds.mixed">HammerwatchPlus packages from different updates are enabled together, so some mods may misbehave. The library running is from %library%; %list%. Update them all in the Steam Workshop, or enable only HammerwatchPlus-All.</string>
+	<string name="hwp.builds.peer">%who% runs another HammerwatchPlus update than you, so some mods may misbehave together: %list%. %advice%</string>
+	<string name="hwp.builds.differ">%list%: yours %mine%, theirs %theirs%</string>
+	<string name="hwp.builds.silent">%who% runs a HammerwatchPlus update from before update checks, older than yours (%mine%), so some mods may misbehave together. %who% should update every HammerwatchPlus mod in the Steam Workshop and restart the game.</string>
+	<string name="hwp.builds.advice.you">Yours are older: update every HammerwatchPlus mod in the Steam Workshop and restart the game.</string>
+	<string name="hwp.builds.advice.them">Theirs are older: %who% should update every HammerwatchPlus mod in the Steam Workshop and restart the game.</string>
+	<string name="hwp.builds.advice.both">Both of you should update every HammerwatchPlus mod in the Steam Workshop and restart the game.</string>
+	<string name="hwp.builds.summary">update %update%: %list%</string>
+	<string name="hwp.builds.unstamped">an update from before update stamps</string>
+	<string name="hwp.builds.unpacked">unpacked (no update stamp)</string>
+	<string name="hwp.builds.absent">not enabled</string>
+	<string name="hwp.builds.older">older</string>
+	<string name="hwp.builds.newer">newer</string>
+	<string name="hwp.builds.sameday">another update of that day</string>
+	<string name="hwp.builds.thehost">The host</string>
 	<string name="hwp.packages.mismatch">HammerwatchPlus packages from different updates are enabled together (%list% differ from the rest), so some mods may misbehave. Update them all in the Steam Workshop, or enable only HammerwatchPlus-All.</string>
 </lang>
