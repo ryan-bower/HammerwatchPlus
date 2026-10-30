@@ -13,7 +13,7 @@ all-in-one pack (`packages.json`; `docs/modules.md`, Packages):
 
 | Package | Modules |
 |---|---|
-| `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, petrooms, legacy, goldworth, mmhmm, orbwarn, mapicons, attrclick |
+| `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, petrooms, legacy, goldworth, mmhmm, orbwarn, mapicons, attrclick, freeskills |
 | `HWP-coop` Co-op Play | groupcombo, architect, droptrade, partyexit |
 | `HWP-autoaim` Auto Aim | autoaim |
 | `HWP-firearms` Firearms Specialist | firearms |
@@ -104,6 +104,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | `droptrade` | Drop equipment on the ground for friends: a Drop button (Q) next to Destroy in the inventory (each player can rebind it on the Plus tab). The use key picks up a dropped item before it talks to an NPC or opens a shop, chest or shrine underfoot. |
 | `partyexit` | A floor's exit opens once two thirds of the living party stands at it (3 of 4, 2 of 3), not only when everyone does; whoever is left behind comes along. The host can set Half, Two thirds or Three quarters, or turn it off for the vanilla rule. |
 | `attrclick` | At the Attribute Trainer, Shift+Click places 20 attribute points and Ctrl+Click 5 (never more than you have); the costs show the amount while the key is held. |
+| `freeskills` | A respec at the Skill Trainer unlearns the skills your class starts with too (the first skill and passive, a specialization's two), so you can put those points elsewhere; the trainer teaches them again for no skill points. |
 | `orbwarn` | The orb picker says which orbs a pick would make unavailable (mutually exclusive orbs such as the Firearms grenades), with their icons and names. |
 | `deathrecap` | Who killed you: the top damage sources of the last 10 s, on screen and in chat. After a boss fight, a recap of everyone's damage by skill and damage taken (one per fight, however many boss units it has). |
 | `bufftips` | Hover a buff icon to see what it does and how many seconds it has left. Class buffs the game leaves off the buff bar, like War Cry, get an icon. |
@@ -206,6 +207,14 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 
 ## Status
+
+2026-10-30, free skills after a respec (`freeskills`, #78). A class starts with some skills
+learned, such as the first skill and passive or a specialization's two. A respec at the Skill
+Trainer gave back every point but left these skills learned, so their slots couldn't go to
+anything else. Now the respec unlearns them too. The trainer shows them at 0 and teaches them
+again for no skill points, even with none left. They stay unlearned through a save. The
+respec also tells the other players in a lobby now; vanilla's never did. Tested:
+`mod-freeskills`, `pf-mod-freeskills`.
 
 2026-10-30, Pelor's Fury on elites, and a death takes 5 Blessing stacks (#82). Pelor's Fury
 on an elite now needs and spends only 3 stacks of Pelor's Blessing and keeps the rest; on
