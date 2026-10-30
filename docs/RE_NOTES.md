@@ -6879,3 +6879,11 @@ Tests:
 - Not tested: multiplayer, because GameLab is a single client. That a lobby no longer hangs
   is inferred from no hoh1/ level ever loading.
 - Not gated: the classes hoh1art overlay and Forgemaster's HoH1 risen.
+
+Follow-up runs (hoh1.content flag on unless noted): tower-run 20261029-221315 (23-floor bot climb,
+every gameplay check passed, INVALID only because the user's live game wrote saves);
+qa-module-campaign-portal-standalone 20261029-222941 PASS (flag off: the portal offers the HoH2
+tower, 18 floors; the locked-portal check now polls the log instead of reading it once after 0.8 s).
+plan-generosity-hoh1 20261029-221001: one hold (boss_armory:wraith_scythe moved 223 px) failed;
+not investigated. Unfixed game-night noise: HWPLocalNPC UnitTarget spam, combo_orb respawn
+warning, vanilla trinket-proc desync.

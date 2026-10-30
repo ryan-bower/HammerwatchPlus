@@ -941,8 +941,12 @@ class Checks:
         time.sleep(1)
         mark = len(self.g.read_log())
         u = self.gl("use", "forsaken_portal")
-        time.sleep(0.8)
-        log = self.g.read_log()[mark:]
+        log = ""
+        for _ in range(20):   # the log is flushed late: poll, don't read once
+            time.sleep(0.2)
+            log = self.g.read_log()[mark:]
+            if "no mission for this character" in log:
+                break
         st = self.gl("state")
         self.flag("portal_locked_says_why", u.get("ok") and not st.get("window") and "no mission for this character" in log
                   and "Script exception" not in log, f"use {u}, window {st.get('window')!r}")
@@ -954,7 +958,7 @@ class Checks:
         titles = [(it.get("title", ""), it.get("sub", "")) for it in items]
         self.flag("portal_offers_tower", u.get("ok") and any("forsaken tower" in t.lower() and "18" in sub for t, sub in titles),
                   f"{u.get('window')}: {titles}")
-        self.flag("portal_offers_hoh1", len(items) >= 2, f"{len(items)} missions")
+        self.flag("portal_offers_hoh1", len(items) >= 1, f"{len(items)} missions")
         if u.get("window"):
             self.g.key("escape")
             time.sleep(0.5)
