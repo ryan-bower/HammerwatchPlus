@@ -6348,3 +6348,53 @@ Same gap, not changed:
   runtime.
 - Status debuffs on the player (stun, slow and so on) have no `hud` in vanilla either. The game
   shows those over the head, and `plan-ui-a` checks that they stay off the bar.
+
+## 2026-10-29: traps on one map (issue #30)
+
+The issue: "There are a bunch of spike traps added around the map, but on every level.
+restrict it to just one map that makes thematic sense".
+
+Two causes:
+- `Traps::Install` adds the `HWPTrapSpawn` command to every indoor `DungeonGenerator`, so
+  every map got traps.
+- The spikes: `Run` placed all of a floor's traps in one `PrefabPlacement.PlacePrefabs(set,
+  want, 1.0, 100)` call. `PlacePrefabs` (Generators/PrefabPlacement.as:10) rolls one type
+  (`MissionPrefabDef::RollIndex`), places up to `max(typeMinLimit, numFound / max(2,
+  remaining) / 3.5 * boost)` of it, and only then rolls another. With a limit of 100 the first
+  type takes as many as it can. `spikes_1` has no `max-num`, so when it came up first it took
+  the whole floor; the other types stop at their `max-num` (4, Confusion 3) through
+  `CanGet()`. A lab Crypt floor before the change: 20 of 20 `spikes_1`.
+
+What changed (`campaign`, `Traps.as`):
+- `campaign.trap_map` (0 Crypt, 1 Bandit Keep, 2 Dark Citadel, 3 Spider Caves, 4 every map;
+  default Crypt). The mission comes from `cast<MissionGameModeBase>(g_gameMode).m_missionLevel
+  .m_mission.m_id`, which is set during generation, the preload context included. The
+  Forsaken Tower (`hwp_forsaken_tower`, `hwp_forsaken_tower_hoh1`) always gets traps. The
+  teleporter is still placed on every floor. The `traps: placed` line names the mission and,
+  off the map, `not a trap map`.
+- One `PlacePrefabs(set, 1, 1.0, 1)` per trap, stopping when a call places none. Each roll
+  is among the types `CanGet()` still allows; the per-type counts are per generation
+  (`g_genNumId`), so they hold across calls. A rolled type with no fit is dropped and the
+  next one rolled inside the call, so 0 means nothing fits. Vanilla's spacing between prefabs
+  of one type (the `found` pruning) is per call, so two traps of a type can now be closer;
+  the grid commands still keep them from overlapping.
+- `traps: kinds ...` logs how many of each prefab (from the points of interest added).
+
+Larger issue: vanilla's own `DungeonGenerationCommands` place sets the same way (type-min-limit
+defaults to 100), which suits sets of rooms, not a set meant as a mix. Any set where
+one type has no `max-num` floods the same way. The HoH1 generator ports (`HoH1Gen`) use their
+own placer.
+
+Tests:
+- `fix-campaign-trap-map` (20261029-035951; pkgfeat 20261029-040022): Bandit Keep floor 0
+  places 0/0 (`not a trap map: campaign.trap_map is crypt`) and no glyph, while its
+  teleporter is placed; Crypt floor 0 places 19/19, `kinds fire_1 2, spikes_row 4,
+  glyph_confusion_1 3, spikes_1 3, glyph_dart_1 4, glyph_bomb_1 3`; the Forsaken Tower floor 0
+  19/19 with all six kinds; `hwp set campaign.trap_map 4` and the Bandit Keep gets 15/15.
+  The bot fails on fewer than 3 kinds (from 10 traps) or a kind over its max-num.
+- `fix-campaign-traps` (20261029-040156) and `mod-campaign` (20261029-040228) pass.
+  `fix-campaign-traps` failed once (20261029-040051) and once before this change (pkgfeat,
+  20261027-033114) on "the same spot on a second use": the game logged both uses landing
+  on the same destination, but the player stood 13 and 16 px off a second later (enemies
+  at the spot). The bot now checks the logged destination of both uses and that the player
+  stands within 48 px of it.

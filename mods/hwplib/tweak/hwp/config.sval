@@ -316,6 +316,7 @@
 					<array name="settings">
 						<dict><string name="key">campaign.portal_both</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">false</bool><bool name="default">false</bool></dict>
 						<dict><string name="key">campaign.traps</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">true</bool><bool name="default">true</bool></dict>
+						<dict><string name="key">campaign.trap_map</string><string name="type">int</string><bool name="host">true</bool><bool name="level">true</bool><int name="default">0</int><array name="values"><i>0</i><i>1</i><i>2</i><i>3</i><i>4</i></array><int name="labels">5</int><string name="suffix"></string></dict>
 						<dict><string name="key">campaign.trap_density</string><string name="type">int</string><bool name="host">true</bool><bool name="level">true</bool><int name="default">100</int><array name="values"><i>25</i><i>50</i><i>100</i><i>200</i><i>400</i></array><int name="labels">0</int><string name="suffix">%</string></dict>
 						<dict><string name="key">campaign.teleporters</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">true</bool><bool name="default">true</bool></dict>
 						<dict><string name="key">campaign.confusion</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">false</bool><bool name="default">true</bool></dict>

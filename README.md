@@ -177,6 +177,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-29, traps on one map (#30). The HoH1 traps were on every floor of every map, and
+mostly spike floors. Now they go on one map, the Crypt by default (a "Trap map" setting picks
+another, or every map), and always in the Forsaken Tower, HoH1's own trap tower. Each trap is
+rolled on its own, so a floor gets a mix of spikes, flame jets and the three glyphs instead
+of a floor full of spikes. The teleporter pad is still on every floor.
+
 2026-10-29, War Cry shows on the buff bar (#28). The game gives almost none of the class
 skills' buffs an icon, so War Cry, Power Surge, Hot Pursuit and others worked but never
 showed. The buff tooltips mod (`bufftips`) now gives 13 of them an icon cut from the skill's

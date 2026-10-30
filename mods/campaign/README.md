@@ -184,7 +184,20 @@ indoor `DungeonGenerator` (outdoor `ForestBrush` floors are skipped) and the com
 places prefab set `hwp_traps` (`tweak/hwp/campaign_prefabs.sval`,
 `prefabs/hwp/traps/*.pfb`, 3x3 walkable-floor patterns) then one `hwp_teleporters`
 pad, host side like every prefab. The log says `traps: placed N/M on a WxH floor
-(C floor cells, density D%)`.
+(C floor cells, density D%, mission X)` and then `traps: kinds spikes_1 3, fire_1 4, ...`.
+
+The traps go on one map, not everywhere (issue #30): the floors of the HoH2 mission set
+by `campaign.trap_map` (the Crypt by default: its crypt and temple floors suit them),
+plus the Forsaken Tower's floors, HoH1's own trap tower, always. `campaign.trap_map` 4
+("Every map") puts them on every indoor floor as before. On other maps the log line ends
+`not a trap map: campaign.trap_map is crypt`. The teleporter pad still goes on every
+indoor floor.
+
+Each trap is rolled on its own (`PlacePrefabs(set, 1, 1.0, 1)` once per trap): one
+call for all of them let vanilla's `PrefabPlacement` fill the floor with whichever type
+it rolled first, up to its type-min-limit, and `spikes_1` has no `max-num`, so a floor
+was often nothing but spike floors. Now a floor gets a mix, each type within its
+`max-num` (4 each, Confusion 3, spike floors unlimited).
 
 | Trap | Unit | HoH1 feel |
 |---|---|---|
@@ -214,7 +227,8 @@ on the host and prints every pad with its destination.
 | Setting | Default | What |
 |---|---|---|
 | `campaign.portal_both` | false | the portal lists both tower versions |
-| `campaign.traps` | true | HoH1 traps on generated indoor floors |
+| `campaign.traps` | true | HoH1 traps on the trap map's and the Forsaken Tower's indoor floors |
+| `campaign.trap_map` | 0 | the map with traps: 0 Crypt, 1 Bandit Keep, 2 Dark Citadel, 3 Spider Caves, 4 every map |
 | `campaign.trap_density` | 100 | % of one trap per 120 floor cells (0..400, 1..24 traps a floor) |
 | `campaign.confusion` | true | Confusion from eyes and glyphs |
 | `campaign.confusion_eye_chance` | 35 | % chance an eye's hit confuses |
@@ -278,7 +292,7 @@ On the HammerwatchPlus tab of the player menu (`hwp set <key> <value>`; `module.
   generated floors get no traps or teleporter (next level), pads already placed do nothing
   and nothing confuses. A tower run already under way plays on, and the Dark Citadel keeps
   its extra floors (`Citadel::Fix`): changing them under a run would move its floors.
-- `campaign.portal_both`, `campaign.traps`, `campaign.trap_density`, `campaign.teleporters`,
+- `campaign.portal_both`, `campaign.traps`, `campaign.trap_map`, `campaign.trap_density`, `campaign.teleporters`,
   `campaign.confusion`, `campaign.confusion_eye_chance` (the table above). Not on the page:
   `campaign.portal_x/y` (`hwp campaign here`).
 
@@ -318,7 +332,13 @@ On the HammerwatchPlus tab of the player menu (`hwp set <key> <value>`; `module.
    the generator's teleporter pad moves the player to the logged destination and to the
    same spot on a second use; screenshot `traps-floor`. Without the import the same
    scenario still passes (traps and pads need no HoH1 file; the HoH1 teleport effect
-   falls back to the vanilla smoke puff).
+   falls back to the vanilla smoke puff). It sets `campaign.trap_map` 2 (Dark Citadel)
+   first. The second use is checked by the logged destination: the player can be
+   pushed a few px in the second after landing.
+10. `python -m gamelab run fix-campaign-trap-map` (about 30 s): Bandit Keep floor 0 has
+   no traps (`not a trap map`) but a teleporter; Crypt floor 0 and Forsaken Tower floor 0
+   have traps, a mix (`traps: kinds`, at least 3 kinds, none over its max-num);
+   `hwp set campaign.trap_map 4` and the Bandit Keep has them too.
 7. Play each HoH1 boss once, solo and in co-op: the Stone Guardian's ground
    spikes, the Warden's whirlwind and bombs, the councilors teleporting
    between nodes (client sees the same node), the Watcher's wisps circling
