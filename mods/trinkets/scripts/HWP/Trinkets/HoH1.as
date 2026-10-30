@@ -17,7 +17,8 @@
 // - ApplyArt (once, at the level start): the HoH1 icons. `tools/import_hoh1.py trinkets` cuts them
 //   from the player's own HoH1 install into gui/hwp/icons_trinkets_hoh1.png (16x16 cells,
 //   ART_COLS a row) and lists the ids in sheet order in the string .hwp.trinkets.hoh1art.
-//   Without the import the trinkets keep their placeholder icons from the sval.
+//   Without the import, or with hoh1.content off, the trinkets keep their placeholder icons
+//   from the sval.
 // - Switch (trinkets.enabled, at every Start and when the setting changes): off reverts
 //   what ApplyVanilla changed (RevertVanilla, from what it kept), takes the vanilla trinkets
 //   out of the HoH1 sets again and gives the HoH1 trinkets a drop condition that never holds
@@ -324,6 +325,11 @@ namespace HWP
 			if (!Resources::HasString(ART_IDS))
 			{
 				HWP::Log("trinkets", "HoH1 icons not imported (tools/import_hoh1.py trinkets): placeholder icons");
+				return;
+			}
+			if (!HWP::HoH1::Enabled())
+			{
+				HWP::Log("trinkets", "hoh1.content off: placeholder icons");
 				return;
 			}
 			auto tex = Resources::GetTexture2D(ART_SHEET);

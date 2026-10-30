@@ -6828,3 +6828,54 @@ Workshop's .bin and a release build hold none; `build.py all --with-local` then
 
 Players on the Workshop build (no HoH1 import) still see the borrowed vanilla icons, so a
 HoH1 trinket looks like the vanilla trinket whose cell it borrows.
+
+## 2026-10-29: hoh1.content, HoH1 content off by default (game night lobby hang)
+
+Game night 10.28.26: the host's lobby hung on `WaitedForAll: 'wait_loaded_level'`. The host
+had loaded `hoh1/levels/battlements_1.lvl` (Dark Citadel floor 21, `hwp_battlements_1`), and
+the friends never sent loaded because their packs lack that file. The host's
+`HammerwatchPlus-All.bin` held the HoH1 import because `deploy.py modded-prod` now adds
+`--with-local` (the entry above). Any HoH1 floor (the Battlements, the HoH1 Forsaken Tower)
+hangs a lobby whose players lack the same import.
+
+New host setting `hoh1.content` (Plus menu, first item, "HoH1 content"; default **off**,
+saved with the town as `hwp` key `settings.hoh1.content`). While it is off and the import is
+packed:
+- Dark Citadel `hwp_battlements_1`/`_2` become generated `theme_dark_halls` floors that keep
+  their ids, places, next floor and difficulty (22) (`Citadel::Fix`). So a save already at
+  floor 21 plays on.
+- The HoH1 tower is hidden from the portal, which offers the HoH2 tower. Each of its 23
+  floors is copied from the HoH2 floor with the same id, or else from that act's last
+  generated floor (`StandIns::Tower`).
+- HoH1 pets are left out of the Pet Shop, and an equipped one is put away. The trinkets keep
+  their placeholder icons. The chat notice says "off (Plus menu: HoH1 content)", not "missing".
+- The campaign self-check raises a LogError if any mission floor still references `hoh1/`.
+
+Timing: module constructors run before AGameplayGameMode loads `g_myTownRecord`, so
+`Settings::GetBool` reads the default (off) there. Every level therefore boots swapped. The
+swapped floors are kept, and `StandIns::Restore` puts them back by id on the `TownRecordLoad`
+hook, which reads the setting straight from the save data because its order against hwplib's
+own hook is not fixed. It also runs on a live switch-on (`OnSettingChanged`). My first version
+read the flag in the constructor only, and every flag-on scenario failed with `HoH1 mission
+floors not from the import` (20261029-213544, -213624, -213716).
+
+Tests:
+- `fix-hoh1-off` (new, `bots/fix_hoh1.py`) proves the off state and the live on/off toggles,
+  that the Citadel reaches boss_avatar on generated floors, that tower floors 0 and 22 load
+  HoH2 files, and that no `StartLoadServer hoh1/` happens (20261029-214109 PASS).
+- The 12 HoH1 scenarios now `hwp set hoh1.content true` and then `restart`:
+  `fix-campaign-battlements` 20261029-214029 PASS (on: 25 floors back, floor 21 loads
+  `hoh1/levels/battlements_1.lvl`), and `fix-campaign-portal-version` 20261029-214218 passed
+  every check. Its INVALID is `local/0_6.hps`, which the user's own running game wrote
+  (install log 21:42:59), not the lab.
+- An HoH1 theme puts `hoh1/actors` and `hoh1/doodads` on a `levels/generated.lvl` floor (seen
+  on HoH1 tower floors with the flag on), so the level path alone is not enough. The bot now also
+  asserts that no `hoh1/` unit is within 4000 of the player on each floor it loads with the flag
+  off: 0 on both Battlements floors and on tower floors 0 and 22 (20261029-215041; its INVALID is
+  the user's game writing 0_3/0_8).
+- Also with the flag on: `fix-campaign-traps` 214404, `mod-trinkets` 214445 (37 HoH1 icons),
+  `tower-interfaces` 214906, `hoh1-installed` 214303 PASS; `tower-floors` 214528 passed every
+  check (INVALID: user saves). The import-absent case, `hoh1-standins` 214341, PASS.
+- Not tested: multiplayer, because GameLab is a single client. That a lobby no longer hangs
+  is inferred from no hoh1/ level ever loading.
+- Not gated: the classes hoh1art overlay and Forgemaster's HoH1 risen.

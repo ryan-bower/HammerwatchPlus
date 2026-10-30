@@ -7,7 +7,8 @@
 // the second Dark Halls floor is added here at runtime from the loaded MissionDef,
 // and the Battlements floors are leveled to the floors around them. Without the
 // import (no hwp_battlements_1 in the mission) the vanilla floors stay, and the log
-// says which.
+// says which. With hoh1.content off (StandIns.as) the Battlements entries keep their ids
+// and places but become generated Dark Halls floors, so no HoH1 level loads.
 namespace HWP
 {
 	namespace Campaign
@@ -89,6 +90,22 @@ namespace HWP
 					g_summary = "vanilla Dark Citadel floors (HoH1 import absent): " + FloorList(def, halls1);
 					HWP::Log("campaign", g_summary);
 					return g_summary;
+				}
+				if (!StandIns::On())
+				{
+					auto halls = def.m_levels[halls1];
+					for (int i = bat1; i <= bat2; i++)
+					{
+						auto lvl = def.m_levels[i];
+						if (lvl.m_level.findFirst("hoh1/") != 0)
+							continue;
+						// leveled here too: the leveling below reaches only the stand-in
+						lvl.m_diffLevel = max(lvl.m_diffLevel, BATTLEMENTS_DIFF);
+						lvl.m_diffLevelNgp = max(lvl.m_diffLevelNgp, BATTLEMENTS_DIFF);
+						StandIns::Swap(def, i, StandIns::Generated(def, lvl.m_id, "theme_dark_halls",
+							max(lvl.m_diffLevel, BATTLEMENTS_DIFF), max(lvl.m_diffLevelNgp, BATTLEMENTS_DIFF), lvl.m_idNext, halls.m_actNameBase));
+					}
+					HWP::Log("campaign", "hoh1.content off: Dark Citadel " + BATTLEMENTS_1 + ", " + BATTLEMENTS_2 + " are generated Dark Halls floors");
 				}
 				if (IndexOf(def, HALLS_2) < 0)
 				{

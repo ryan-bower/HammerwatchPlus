@@ -24,6 +24,13 @@
     "applies": "level",
     "settings": [
       {
+        "key": "hoh1.content",
+        "type": "bool",
+        "default": false,
+        "title": "HoH1 content",
+        "about": "Use the imported HoH1 levels, pets and art. Off: HoH2 stand-ins everywhere, safe with players who lack the import."
+      },
+      {
         "key": "campaign.portal_both",
         "type": "bool",
         "default": false,

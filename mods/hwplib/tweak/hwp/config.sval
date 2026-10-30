@@ -2,6 +2,7 @@
      (docs/modules.md, Settings). HWP::Config (scripts/HWP/Core/Config.as) reads it; do not edit. -->
 <dict>
 	<array name="top">
+		<s>hoh1.content</s>
 		<s>option:swapkey</s>
 		<s>option:skill4</s>
 		<s>option:skill5</s>
@@ -315,6 +316,7 @@
 					<bool name="host">true</bool>
 					<bool name="level">true</bool>
 					<array name="settings">
+						<dict><string name="key">hoh1.content</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">true</bool><bool name="default">false</bool></dict>
 						<dict><string name="key">campaign.portal_both</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">false</bool><bool name="default">false</bool></dict>
 						<dict><string name="key">campaign.traps</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">true</bool><bool name="default">true</bool></dict>
 						<dict><string name="key">campaign.trap_map</string><string name="type">int</string><bool name="host">true</bool><bool name="level">true</bool><int name="default">0</int><array name="values"><i>0</i><i>1</i><i>2</i><i>3</i><i>4</i></array><int name="labels">5</int><string name="suffix"></string></dict>

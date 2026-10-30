@@ -75,6 +75,10 @@ class Checks(Base):
         floors, _ = self.citadel_floors()
         return any(fid == "hwp_battlements_1" for _, fid in floors)
 
+    def hoh1_on(self):
+        """hoh1.content (`hwp hoh1` replies it first): off, the import is packed but unused."""
+        return "hoh1.content: on" in self.hwp("hoh1", 0.6, until="hoh1.content")
+
     # --- sections
     def sec_portal(self):
         p = self.gl("near", 8000, "forsaken_portal").get("units") or []
@@ -95,7 +99,10 @@ class Checks(Base):
         offering = re.findall(r"portal: offering ([^\r\n]*)", log)
         self.flag("portal_opens", u.get("ok") and bool(items), f"{u.get('window')}: {titles}")
         self.flag("portal_logs_version", bool(offering), f"{offering[-1:]}")
-        if imported:
+        if imported and not self.hoh1_on():
+            self.flag("portal_offers_hoh2_with_hoh1_off", len(items) == 1 and offering and HOH1 not in offering[-1]
+                      and "HoH2 themes" in offering[-1], f"{titles}; {offering[-1:]}")
+        elif imported:
             self.flag("portal_offers_hoh1_only", len(items) == 1 and any("hoh1" in t.lower() for t, _ in titles)
                       and offering and HOH1 in offering[-1] and "HoH1 levels" in offering[-1],
                       f"{titles}; {offering[-1:]}")

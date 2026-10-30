@@ -4,8 +4,17 @@
  "about": "Pelor's Fury on the HoH1 tower's bosses (plan_generosity bot, section hoh1): each boss floor of hwp_forsaken_tower_hoh1 loaded and its fight started the way the HoH1 level does, then a god-mode Paladin of Generosity's Fury through the skill's own Activate on every boss unit: held, or (a boss that cannot be targeted or buffed then, by design) refused with the stacks, mana and cooldown kept; while held no skill of the boss but a triggered or aura one is casting and it stays put; armor and resistances 0; the 60 s boss cooldown; 4 beams or more; no script error. Needs the HoH1 import. kwargs only: a comma list of boss levels (boss_mines, ...).",
  "fixture": "town-paladin",
  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs", "campaign", "gamelab-it-campaign"],
- "timeout": 1500,
+ "timeout": 1620,
  "steps": [
+  {
+   "do": "console",
+   "line": "hwp set hoh1.content true",
+   "expect": "hoh1\\.content = true",
+   "name": "hoh1.content on (off by default; saved with the town)"
+  },
+  {
+   "do": "restart"
+  },
   {"do": "log_has", "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered", "timeout": 30},
   {"do": "console", "line": "e_cheats 1"},
   {"do": "console", "line": "show_chat"},

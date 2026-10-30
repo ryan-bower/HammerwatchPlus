@@ -98,6 +98,18 @@ namespace HWP
 		{
 			if (key.findFirst("campaign.") == 0)
 				RefreshSettings();
+			// hoh1.content in town: swap now, a mission started before the next level load
+			// reads its first floor's file from these defs
+			if (key.findFirst("hoh1.") == 0)
+			{
+				if (StandIns::On())
+					StandIns::Restore();
+				else
+				{
+					Citadel::Fix();
+					StandIns::Tower();
+				}
+			}
 			// moved away ('here') or back ('reset'): show or hide the campfire
 			if (key == "campaign.portal_y" && g_inTown && g_portal !is null && g_portal.m_spawnDone)
 			{
@@ -143,7 +155,7 @@ namespace HWP
 			HWP::HoH1::Report("campaign", hoh1 !is null, ".hwp.campaign.hoh1");
 			if (hoh1 !is null && int(hoh1.m_levels.length()) != HOH1_FLOORS)
 				HWP::LogError("campaign", "HoH1 mission has " + hoh1.m_levels.length() + " levels, expected " + HOH1_FLOORS);
-			if (hoh1 !is null)
+			if (hoh1 !is null && StandIns::On())
 			{
 				// every floor's level file must be the import's (hoh1/levels/...) or a generated one
 				string bad;
@@ -159,7 +171,10 @@ namespace HWP
 			int trapDefs = int(MissionPrefabDef::GetPossiblePrefabs(HashString(Traps::SET)).length());
 			if (trapDefs == 0)
 				HWP::LogError("campaign", "no prefab in set " + Traps::SET + " (" + Traps::DEFS + " not loaded?)");
-			HWP::Log("campaign", "self-check done: mission " + (def is null ? "missing" : "ok") + ", " + schemes + "/" + SCHEMES.length() + " schemes, HoH1 floors " + (hoh1 is null ? "not imported" : "installed") + ", " + trapDefs + " trap prefabs, traps on " + Traps::g_installed + " floors; " + Citadel::g_summary);
+			string left = StandIns::On() ? "" : StandIns::Leftovers();
+			if (!left.isEmpty())
+				HWP::LogError("campaign", "hoh1.content off but floors still load HoH1 files: " + left);
+			HWP::Log("campaign", "self-check done: mission " + (def is null ? "missing" : "ok") + ", " + schemes + "/" + SCHEMES.length() + " schemes, HoH1 floors " + (hoh1 is null ? "not imported" : StandIns::On() ? "installed" : "installed, off (hoh1.content)") + ", " + trapDefs + " trap prefabs, traps on " + Traps::g_installed + " floors; " + Citadel::g_summary);
 		}
 
 		void CmdCampaign(array<string>@ args)
@@ -227,6 +242,7 @@ namespace Modules
 			HWP::Settings::Sync("campaign.");
 			HWP::Campaign::RefreshSettings();
 			HWP::Campaign::Citadel::Fix();      // before Traps::Install: the new floor gets the command too
+			HWP::Campaign::StandIns::Tower();   // hoh1.content off: no HoH1 floor in any mission
 			HWP::Campaign::Traps::Install();
 			@HWP::Campaign::g_portal = HWP::Town::Placeable("campaign", "campaign.portal", HWP::Campaign::PORTAL_UNIT, -1700, 250);
 			@HWP::Campaign::g_portal.m_locate = HWP::Town::PlaceableLocate(HWP::Campaign::LocatePortal);
