@@ -107,6 +107,40 @@ def load_module(mod_dir: Path) -> dict:
     return cfg
 
 
+# a module .gitignore block of files a tool remakes from gamecode/sdk/hoh2/ (the base game's own
+# files, so never committed): `# >>> tools/<tool>.py (generated from the HoH2 base; do not edit)`
+BASE_BLOCK = "(generated from the HoH2 base"
+# the tools build() runs before it packs, for every package that carries their output
+BASE_TOOLS = ("tools/class_units.py", "tools/make_pet_dyes.py", "tools/make_forgemaster_risen.py")
+
+
+def base_generators(cfg: dict) -> list[str]:
+    """The tools that make this module's gitignored content from the HoH2 base, from its .gitignore."""
+    gi = Path(cfg["dir"]) / ".gitignore"
+    if not gi.is_file():
+        return []
+    return [line[len("# >>> "):].split(" ")[0] for line in gi.read_text(encoding="utf-8").splitlines()
+            if line.startswith("# >>> ") and BASE_BLOCK in line]
+
+
+def require_base(used: list[str], by_id: dict) -> None:
+    """Stop when a package would carry content made from the HoH2 base and that base is not here
+    (gamecode/sdk/hoh2/, tools/bootstrap.py). Without it build() packed none of it and said
+    nothing: v0.3 shipped no Forgemaster bodies or risen (issue #76), no Keys chests, no colour
+    projectiles, no pet dyes."""
+    needs = {mid: base_generators(by_id[mid]) for mid in sorted(used)}
+    needs = {mid: tools for mid, tools in needs.items() if tools}
+    unknown = sorted({t for tools in needs.values() for t in tools} - set(BASE_TOOLS))
+    if unknown:
+        sys.exit(f"build.py does not run {', '.join(unknown)}, which a module's .gitignore names as "
+                 f"generated from the HoH2 base: add it to BASE_TOOLS and to build()")
+    if needs and not paths.BASE_HOH2.is_dir():
+        sys.exit(f"{paths.BASE_HOH2} is missing, and these modules carry content made from it: "
+                 + "; ".join(f"{mid} ({', '.join(t)})" for mid, t in needs.items())
+                 + ". The packages would ship without it. Run `python -m gamelab doctor --fix` "
+                   "(or tools/bootstrap.py) first.")
+
+
 def is_pristine_copy(rel: str) -> bool:
     """`<override>.orig` files are the untouched base copies that --check compares against."""
     return rel.endswith(".orig")
@@ -437,13 +471,16 @@ def main(argv=None):
         return not args.packages or p["id"] in named
     used = {mid for p in wanted for mid in p["closure"]}
 
-    if paths.BASE_HOH2.is_dir():
-        for mid in sorted(used):
-            if by_id[mid]["class_swaps"]:
-                print(f"class units: {mid} {len(class_units.generate(by_id[mid]))}")
-    if "pets" in used and paths.BASE_HOH2.exists():
+    require_base(sorted(used), by_id)
+    for mid in sorted(used):
+        if by_id[mid]["class_swaps"]:
+            print(f"class units: {mid} {len(class_units.generate(by_id[mid]))}")
+    if "pets" in used:
         import make_pet_dyes  # the two-section pet dye copies (gitignored, made from your installs)
         make_pet_dyes.main([])
+    if "specs" in used:
+        import make_forgemaster_risen  # the Forgemaster's risen and intact bodies (gitignored)
+        make_forgemaster_risen.main([])
 
     import import_hoh1
     for what in import_hoh1.stale_imports():

@@ -202,7 +202,7 @@ namespace HWP
 			"actors/undead/horde/projectiles/crypt_grasp.unit",
 			"actors/undead/shades/shade.unit",
 			"actors/undead/shades/shade_lesser.unit",
-			"actors/undead/shades/spawner_shades.unit",
+			"actors/undead/shades/spawner_shades.unit"
 		};
 
 		const array<string> RISEN_RELS = {
@@ -346,7 +346,7 @@ namespace HWP
 			"undead/horde/horde_warrior.unit",
 			"undead/horde/horde_warrior_elite.unit",
 			"undead/shades/shade.unit",
-			"undead/shades/shade_lesser.unit",
+			"undead/shades/shade_lesser.unit"
 		};
 	}
 }
