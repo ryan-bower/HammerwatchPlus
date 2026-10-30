@@ -5,13 +5,20 @@
 	<string name="hwp.cfg.s.campaign.portal_both">Both tower versions</string>
 	<string name="hwp.cfg.s.campaign.portal_both.about">With the HoH1 import, the portal also lists the HoH2-theme tower.</string>
 	<string name="hwp.cfg.s.campaign.traps">HoH1 traps</string>
-	<string name="hwp.cfg.s.campaign.traps.about">Spikes, flame jets and glyphs on generated indoor floors.</string>
+	<string name="hwp.cfg.s.campaign.traps.about">HoH1's traps (spike, poison, frost and drain plates, glyphs, wall shooters, turrets, stalactites, falling bricks, bear traps), each with a warning, picked by the floor's theme, on the trap map's floors and in the Forsaken Tower.</string>
+	<string name="hwp.cfg.s.campaign.trap_map">Trap map</string>
+	<string name="hwp.cfg.s.campaign.trap_map.about">The one map whose floors get HoH1 traps. The Forsaken Tower always has them.</string>
+	<string name="hwp.cfg.s.campaign.trap_map.v0">Crypt</string>
+	<string name="hwp.cfg.s.campaign.trap_map.v1">Bandit Keep</string>
+	<string name="hwp.cfg.s.campaign.trap_map.v2">Dark Citadel</string>
+	<string name="hwp.cfg.s.campaign.trap_map.v3">Spider Caves</string>
+	<string name="hwp.cfg.s.campaign.trap_map.v4">Every map</string>
 	<string name="hwp.cfg.s.campaign.trap_density">Trap density</string>
 	<string name="hwp.cfg.s.campaign.trap_density.about">How many traps a floor gets, against the usual count.</string>
 	<string name="hwp.cfg.s.campaign.teleporters">Teleporters</string>
 	<string name="hwp.cfg.s.campaign.teleporters.about">One teleporter pad on each generated indoor floor.</string>
 	<string name="hwp.cfg.s.campaign.confusion">Confusion</string>
-	<string name="hwp.cfg.s.campaign.confusion.about">Eyes and confusion glyphs turn your movement around.</string>
+	<string name="hwp.cfg.s.campaign.confusion.about">Eyes, confusion glyphs and confusion plates turn your movement around.</string>
 	<string name="hwp.cfg.s.campaign.confusion_eye_chance">Eye confusion</string>
 	<string name="hwp.cfg.s.campaign.confusion_eye_chance.about">The chance an eye's hit confuses you.</string>
 </lang>

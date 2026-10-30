@@ -1,7 +1,7 @@
 {
   "name": "fix-campaign-traps",
   "needs_hoh1": true,
-  "about": "bugs 10.22.26 line 29 and the HoH1 teleporters: a generated indoor Dark Citadel floor (index 2, cave_dark_1; another floor on a retry) places the hwp_traps set (`traps: placed N/M`, N > 0), the trap units are in the scene, standing on a spike floor (or a bomb glyph's blast) costs health, and the teleporter pad the generator placed (or a cheat pad) moves the player to its logged destination on use, the same spot on a second use. A screenshot of the floor at the end. About 4 minutes.",
+  "about": "bugs 10.22.26 line 29 and the HoH1 teleporters: with campaign.trap_map 2 (Dark Citadel, issue #30), a generated indoor Dark Citadel floor (index 2, cave_dark_1; another floor on a retry) places the hwp_traps set (`traps: placed N/M`, N > 0), the trap units are in the scene, standing on a spike floor (or a bomb glyph's blast) costs health, and the teleporter pad the generator placed (or a cheat pad) moves the player to its logged destination on use, the same spot on a second use. A screenshot of the floor at the end. About 4 minutes.",
   "fixture": "town-paladin",
   "mods": [
     "hwplib",
@@ -14,6 +14,10 @@
     {
       "do": "console",
       "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "hwp set campaign.trap_map 2"
     },
     {
       "do": "retry",

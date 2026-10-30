@@ -182,17 +182,71 @@ HoH2 runs and the campaign floors get three HoH1 mechanics, built from HoH2 unit
 generator: `Traps::Install` appends one `HWPTrapSpawn` generation command to every
 indoor `DungeonGenerator` (outdoor `ForestBrush` floors are skipped) and the command
 places prefab set `hwp_traps` (`tweak/hwp/campaign_prefabs.sval`,
-`prefabs/hwp/traps/*.pfb`, 3x3 walkable-floor patterns) then one `hwp_teleporters`
-pad, host side like every prefab. The log says `traps: placed N/M on a WxH floor
-(C floor cells, density D%)`.
+`prefabs/hwp/traps/*.pfb`: 3x3 walkable-floor patterns, a wall cell and three floor
+cells for the wall shooters) then one `hwp_teleporters` pad, host side like every
+prefab. The log says `traps: theme T (group): family weight, ...` (the kinds this floor
+can roll), `traps: placed N/M on a WxH floor (C floor cells, density D%, mission X)` and
+then `traps: kinds plate_spikes_1 3, shooter_arrow_s 1, ...`.
 
-| Trap | Unit | HoH1 feel |
-|---|---|---|
-| Spike floor, spike row | vanilla `doodads/traps/floors/floor_spikes.unit` (on) | the always-on spikes of the Mines |
-| Flame jet | vanilla `doodads/traps/floors/floor_fire.unit` (proximity) | Armory floor burners |
-| Bomb glyph | `doodads/hwp/traps/hwp_glyph_bomb.unit` (`TripMine`, shows at 48 px, triggers at 24, 1.1 s fuse, fire + lightning blast, re-arms after 8 s) | the Archives' exploding glyphs |
-| Dart glyph | `hwp_glyph_dart.unit` (fan of 8 vanilla arrows after 0.2 s, re-arms after 5 s) | dart traps |
-| Confusion glyph | `hwp_glyph_confusion.unit` (1 s Confused on everyone in 40 px) | the Chambers' confusion glyphs |
+The traps go on one map, not everywhere (issue #30): the floors of the HoH2 mission set
+by `campaign.trap_map` (the Crypt by default: its crypt and temple floors suit them),
+plus the Forsaken Tower's floors, HoH1's own trap tower, always. `campaign.trap_map` 4
+("Every map") puts them on every indoor floor as before. On other maps the log line ends
+`not a trap map: campaign.trap_map is crypt`. The teleporter pad still goes on every
+indoor floor.
+
+Each trap is rolled on its own (`PlacePrefabs(set, 1, 1.0, 1)` once per trap): one
+call for all of them let vanilla's `PrefabPlacement` fill the floor with whichever type
+it rolled first, up to its type-min-limit, and `spikes_1` had no `max-num`, so a floor
+was often nothing but spike floors. Now a floor gets a mix, each type within its
+`max-num` (2 to 6).
+
+**All of HoH1's traps (issue #37).** HoH1's traps are a few families of unit that its
+level scripts switch on and off; HoH2's generated floors have no level scripts, so one
+behaviour, `HWPTrap` (`scripts/HWP/Campaign/TrapBehavior.as`, a `DangerAreaBehavior`),
+is the script: off, then (on a timer, or when a player comes within `sense` px) a
+**warn** scene, then on (its effects every `freq` ms in `radius` px, or once; projectiles
+from `shoot`), then off again, re-armed, or spent. Every kind telegraphs before it hurts
+(issue #38): HoH2's red area warning on a plate for a second, a glyph lighting up, a
+stalactite's growing shadow while it falls. Every machine runs every trap by itself, as
+vanilla floor traps do (an effect only sticks to a player on that player's machine and to
+an enemy on the host; the projectiles are local units), so nothing goes over the network.
+The kinds are unit files on HoH2 art written by `tools/make_hwp_traps.py` (`--check` in
+the tests), with HoH2's own trap numbers where HoH2 has the trap and HoH1's otherwise.
+
+Which kinds a floor gets is the kind table in `Traps.as` (`WEIGHTS`): each family's
+weight per theme group, from the floor's `DungeonBrush` theme: cave (`cave_*`), crypt
+(crypt, temple), barracks (barracks, keep), halls (courts, dark halls), dungeon (dungeon,
+prison), other. 0 means never on that theme (stalactites only in caves, no shooters in
+caves, drain plates and curse glyphs in crypts and halls), as HoH1's acts had them. A
+family's weight is shared by its prefabs (the three facings of a shooter come up as often
+together as one plate).
+
+| Trap | Unit | Numbers | Themes |
+|---|---|---|---|
+| Spike plate, plate row | `hwp_plate_spikes.unit` (vanilla spike art) | 2.5 s down, 1 s warning, 1.5 s up; 25 physical + 10% current health every 0.5 s | all, few in caves |
+| Pressure spikes | `hwp_pressure_spikes.unit` (vanilla pressure plate) | stepped on: click, 0.5 s warning, 1.2 s up, 20% current health a tick | all |
+| Flame jet | vanilla `doodads/traps/floors/floor_fire.unit` (proximity) | HoH2's | not caves |
+| Poison plate | `hwp_plate_poison.unit` | 3 s off, 1 s warning, 2 s on: 8 poison a tick + `hwp_trap_poison` (4 s, 16 poison/s, 70% speed: HoH1's poison_strong) | caves, dungeons |
+| Drain plate | `hwp_plate_drain.unit` (vanilla curse floor) | 5% of max mana a tick + `hwp_trap_darkness` (2.5 s) | crypts, halls |
+| Frost plate | `hwp_plate_frost.unit` | 6 ice + HoH2's `slow_area` every 0.25 s (HoH1's freezing_short) | caves |
+| Confusion plate | `hwp_plate_confusion.unit` | `hwp_trap_confusion` (1 s) every 0.5 s while it glows | halls, crypts |
+| Bomb glyph | `hwp_glyph_bomb.unit` (`TripMine`, shows at 48 px, triggers at 24, 1.1 s fuse, fire + lightning blast, re-arms after 8 s) | | all |
+| Dart glyph | `hwp_glyph_dart.unit` | within 20 px: lights up, 1 s warning, ring of 8 of HoH2's trap arrows from 12 px out, one at the nearest player, and one stab (an arrow's damage) for a player on it; 5 s re-arm | not caves |
+| Confusion glyph | `hwp_glyph_confusion.unit` | within 20 px: lights up, 1 s warning, burst 40 px: `hwp_trap_confusion` (1 s) on everyone; 6 s re-arm | crypts, halls |
+| Frost glyph | `hwp_glyph_frost.unit` | within 20 px: 1 s warning, burst 32 px: 20 ice + 10%, frozen 1 s; 6 s re-arm | caves, crypts, halls |
+| Curse glyph | vanilla `doodads/traps/mines/glyph_shadow.unit` | HoH2's | halls, crypts |
+| Arrow / poison arrow / fire ball / blade shooter | `hwp_shooter_{arrow,poison,fire,blade}_{s,e,w}.unit` (vanilla wall shooter art, on the wall) | with a player within 200 px: one of HoH2's trap projectiles every 1.5 / 2 / 2.5 / 2 s | barracks, dungeons, crypts |
+| Arrow turret | `hwp_turret_arrows.unit` (vanilla turret art) | sees a player within 220 px: 0.5 s, turns, fan of 3 arrows (30 degrees), every 2.5 s | barracks, dungeons |
+| Flame gargoyle | vanilla `haunted_gargoyle_s.unit` | HoH2's | crypts, halls |
+| Stalactite | `hwp_dropper_stalactite.unit` | within 20 px: falls 0.9 s with a growing shadow, 20 physical + 20% in 18 px; regrows in 5 s | caves only |
+| Falling bricks | `hwp_crusher_bricks.unit` | within 40 px: dust and warning 1 s, 30 physical + 20% in 16 px; 3 s | not caves |
+| Bear trap | `hwp_bear_trap.unit` (the ranger's trap art) | snaps within 10 px: 30 physical, immobilized 2 s; stays sprung | caves, dungeons, barracks |
+
+Left out, with reasons: HoH1's rolling boulders and beam nodes need a track or a pair of
+nodes laid out by hand (a generated floor has no such layout), the pillar spikes are the
+pressure spikes' art in HoH1's tileset, and the explosive barrels are breakables, not
+traps (HoH2 has its own).
 
 **Confusion** (`tweak/hwp/campaign_buffs.sval:hwp_confusion`, 2.5 s, engine `confuse`
 flag: movement input inverted, with an icon and a purple pulsing screen tint while it
@@ -214,9 +268,10 @@ on the host and prints every pad with its destination.
 | Setting | Default | What |
 |---|---|---|
 | `campaign.portal_both` | false | the portal lists both tower versions |
-| `campaign.traps` | true | HoH1 traps on generated indoor floors |
+| `campaign.traps` | true | HoH1 traps on the trap map's and the Forsaken Tower's indoor floors |
+| `campaign.trap_map` | 0 | the map with traps: 0 Crypt, 1 Bandit Keep, 2 Dark Citadel, 3 Spider Caves, 4 every map |
 | `campaign.trap_density` | 100 | % of one trap per 120 floor cells (0..400, 1..24 traps a floor) |
-| `campaign.confusion` | true | Confusion from eyes and glyphs |
+| `campaign.confusion` | true | Confusion from eyes, glyphs and plates (off: no confusion traps on new floors, and the ones placed stay dark) |
 | `campaign.confusion_eye_chance` | 35 | % chance an eye's hit confuses |
 | `campaign.teleporters` | true | one teleporter pad per indoor floor |
 
@@ -278,7 +333,7 @@ On the HammerwatchPlus tab of the player menu (`hwp set <key> <value>`; `module.
   generated floors get no traps or teleporter (next level), pads already placed do nothing
   and nothing confuses. A tower run already under way plays on, and the Dark Citadel keeps
   its extra floors (`Citadel::Fix`): changing them under a run would move its floors.
-- `campaign.portal_both`, `campaign.traps`, `campaign.trap_density`, `campaign.teleporters`,
+- `campaign.portal_both`, `campaign.traps`, `campaign.trap_map`, `campaign.trap_density`, `campaign.teleporters`,
   `campaign.confusion`, `campaign.confusion_eye_chance` (the table above). Not on the page:
   `campaign.portal_x/y` (`hwp campaign here`).
 
@@ -318,7 +373,13 @@ On the HammerwatchPlus tab of the player menu (`hwp set <key> <value>`; `module.
    the generator's teleporter pad moves the player to the logged destination and to the
    same spot on a second use; screenshot `traps-floor`. Without the import the same
    scenario still passes (traps and pads need no HoH1 file; the HoH1 teleport effect
-   falls back to the vanilla smoke puff).
+   falls back to the vanilla smoke puff). It sets `campaign.trap_map` 2 (Dark Citadel)
+   first. The second use is checked by the logged destination: the player can be
+   pushed a few px in the second after landing.
+10. `python -m gamelab run fix-campaign-trap-map` (about 30 s): Bandit Keep floor 0 has
+   no traps (`not a trap map`) but a teleporter; Crypt floor 0 and Forsaken Tower floor 0
+   have traps, a mix (`traps: kinds`, at least 3 kinds, none over its max-num);
+   `hwp set campaign.trap_map 4` and the Bandit Keep has them too.
 7. Play each HoH1 boss once, solo and in co-op: the Stone Guardian's ground
    spikes, the Warden's whirlwind and bombs, the councilors teleporting
    between nodes (client sees the same node), the Watcher's wisps circling

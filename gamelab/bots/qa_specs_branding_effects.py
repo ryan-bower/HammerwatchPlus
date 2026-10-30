@@ -5,6 +5,7 @@ ordinary play. Native Damage rounds its input, so HP ratios allow two damage
 points for independent native rounding; large real Tail hits separate all ranks.
 """
 import math
+import re
 import time
 
 from gamelab.bots.qa_specs_banner_brand import Checks as Base
@@ -14,6 +15,16 @@ from gamelab.bots.qa_observe import collect
 from gamelab.bots.qa_specs_navigation import walk_trident_lane
 
 PB = "hwp_wlk_pyrebrand"
+CLAW_LINE = r"pyrebrand: claw \((\w+)\) (\d+) fire, charge ([\d.]+) of ([\d.]+) stored"
+
+
+def claw_line(log):
+    """The last claw's (why, rounded amount, charge 0-1, stored) from the pyrebrand log lines."""
+    m = re.findall(CLAW_LINE, log or "")
+    if not m:
+        return None
+    why, amount, charge, stored = m[-1]
+    return {"why": why, "amount": int(amount), "charge": float(charge), "stored": float(stored)}
 EE = "hwp_wlk_essence_extraction"
 ESSENCE = "players/warlock/stacks_warlock.sval:essence"
 COMBUST = "hwp_wlk_pb_combustion"
@@ -135,7 +146,8 @@ class Checks(Base):
         return max(1, int(value + .5)) if value > 0 else 0
 
     def measured_claw(self, tag, uid, source_amount):
-        """Native recast, source-predicted full Fire HP, and an actual settling trace."""
+        """Native recast, source-predicted full Fire HP, and an actual settling trace.
+        source_amount may be a function of the claw's log lines (the charge is known then)."""
         caster = self.g.gl_multi([["benchstats"], ["critprobe", 0, 300, "target_dummy", PB], ["dmgmuls"]])
         self.gl("mana", 250)
         dx, dy = self.direction
@@ -157,6 +169,9 @@ class Checks(Base):
                   and all(abs(row.get("damageMul", -1) - buff_mul) < .0001 for row in events))
         expected = None
         direct = pool = ticks = None
+        if callable(source_amount):
+            source_amount = source_amount(log)
+            fields = fields and source_amount is not None
         if fields:
             multiplier = (buff_mul * stats["damageMul"] * (200 + stats["spellPower"]) / 200
                           * probe["skillDmgMul"] * probe["damageMul"][1] * elements["fire"])
@@ -188,7 +203,7 @@ class Checks(Base):
             return
         self.rank("demons_tail", 5, "feed_tail")
         rows, passed, first = [], True, None
-        for rank, (base, pct) in enumerate(zip((20, 25, 30, 35, 40), (.10, .15, .25, .35, .50)), 1):
+        for rank, (base, pct) in enumerate(zip((20, 25, 30, 35, 40), (1.0, 1.5, 2.5, 3.5, 5.0)), 1):
             tag = f"pyre_r{rank}"
             if not self.rank(PB, rank, tag) or not self.noncrit(tag):
                 passed = False
@@ -223,15 +238,22 @@ class Checks(Base):
             hp1 = self.hps()
             fed = self.loss(hp0, hp1, targets[0])
             stored = self.status_num("stored")
-            measured_feed = self.measured_claw(tag + "-fed", targets[0], base + (fed or 0) * pct)
+            # the recast comes early in the brand: the stored part at its charge (issue #35)
+            seen = {}
+
+            def source(log):
+                seen.update(claw_line(log) or {})
+                return base + seen["stored"] * seen["charge"] if seen else None
+            measured_feed = self.measured_claw(tag + "-fed", targets[0], source)
             recast, log = measured_feed["activated"], measured_feed["log"]
             hp2 = self.hps()
             actual = self.loss(hp1, hp2, targets[0])
             expected = measured_feed["expected_hp_loss"]
             feed_ok = (branded and recast and fed is not None and fed >= 50 and stored is not None
-                       and abs(stored - fed * pct) <= 1.1 and actual is not None and expected is not None
+                       and abs(stored - fed * pct) <= 1.1 * pct and seen and abs(seen["stored"] - stored) <= 1
+                       and 0 < seen["charge"] < 1 and actual is not None and expected is not None
                        and measured_feed["valid"] and abs(actual - expected) <= .02 and self.close(self.loss(hp1, hp2, targets[2]), 0))
-            self.flag(tag + "_stored_damage", bool(feed_ok), str({"feed_hp": fed, "stored": stored,
+            self.flag(tag + "_stored_damage", bool(feed_ok), str({"feed_hp": fed, "stored": stored, "claw": seen,
                       "expected_damage": expected, "actual_damage": actual, "log": log}))
             rows.append({"rank": rank, "base": base, "pct": pct, "baseline_loss": base_loss,
                          "base_before": before, "base_after": after, "feed_before": hp0,
@@ -241,6 +263,63 @@ class Checks(Base):
             passed &= bool(base_ok and feed_ok)
         self.out["pyre_rank_trials"] = rows
         self.flag("pyre_all_ranks", passed and len(rows) == 5)
+        self.gl("skillcrit", PB, "restore")
+        self.to_town()
+
+    def charge(self):
+        """Issue #35: the brand charges as it burns. Rank 5, two rank 5 Demon's Tails feed a
+        branded dummy; left to run out, the claw is pb-base + 500% of the damage that fed it
+        (charge 1), and its HP on the dummy at least five times what the Tails took. Recast
+        halfway, it pays at the charge then (about half). Before: pb-base + 50%, whenever."""
+        if not self.prepare("pyre_charge"):
+            return
+        base, pct = 40, 5.0
+        if not (self.rank("demons_tail", 5, "charge_tail") and self.rank(PB, 5, "charge_pb")
+                and self.noncrit("charge")):
+            return
+        rows = {}
+        for case, wait in (("expired", None), ("half", 3.0)):
+            targets = self.fresh(36, 55, homogeneous=True)
+            if not targets:
+                return
+            t0 = time.time()
+            branded, _ = self.brand_cast(PB, *self.direction)
+            hp0 = self.hps()
+            self.tails(2, *self.direction)
+            time.sleep(.4)
+            hp1 = self.hps()
+            fed = self.loss(hp0, hp1, targets[0])
+            stored = self.status_num("stored")
+            mark = len(self.g.read_log())
+            if wait is None:
+                time.sleep(max(0.0, t0 + 6.0 - time.time()) + 0.5)   # it runs out on its own
+                recast = None
+            else:
+                time.sleep(max(0.0, t0 + wait - time.time()))
+                recast, _ = self.detonate()
+            time.sleep(3.0)   # the claw's fire pool burns out
+            hp2 = self.hps()
+            log = "\n".join(l for l in self.g.read_log()[mark:].splitlines() if "pyrebrand" in l)
+            claw = claw_line(log) or {}
+            dealt = self.loss(hp1, hp2, targets[0])
+            rows[case] = {"branded": branded, "recast": recast, "fed": fed, "stored": stored, "claw": claw,
+                          "claw_hp": dealt, "ratio": round(dealt / fed, 3) if dealt and fed else None, "log": log}
+        full, half = rows["expired"], rows["half"]
+        fc, hc = full["claw"], half["claw"]
+        full_ok = (full["branded"] and (full["fed"] or 0) >= 50 and fc.get("why") == "expired"
+                   and fc.get("charge") == 1.0 and abs(fc.get("stored", -99) - full["fed"] * pct) <= 1.1 * pct
+                   and abs(fc.get("amount", -99) - (base + fc["stored"])) <= 1
+                   and (full["ratio"] or 0) >= pct)
+        self.flag("charge_full_nuke", bool(full_ok), str(full))
+        half_ok = (half["branded"] and half["recast"] and (half["fed"] or 0) >= 50 and hc.get("why") == "recast"
+                   and .3 <= hc.get("charge", 0) <= .7
+                   and abs(hc.get("amount", -99) - (base + hc["stored"] * hc["charge"])) <= 1
+                   and full["ratio"] and half["ratio"] and half["ratio"] < full["ratio"])
+        self.flag("charge_half_partial", bool(half_ok), str(half))
+        # the old claw, base + 50% of the fed damage, through the same multipliers as this one
+        old = (full["claw_hp"] or 0) * (base + .5 * (full["fed"] or 0)) / max(1, fc.get("amount") or 1) / max(1, full["fed"] or 1)
+        self.notes.append(f"rank 5 claw HP / Tail HP fed: ran out {full['ratio']} (charge {fc.get('charge')}), "
+                          f"recast at {hc.get('charge')} charge {half['ratio']}; the old 50% would be ~{old:.2f}")
         self.gl("skillcrit", PB, "restore")
         self.to_town()
 
@@ -471,7 +550,7 @@ class Checks(Base):
 
 def run(pilot, section, **_):
     c = Checks(pilot)
-    {"ranks": c.ranks, "orbs": c.orbs, "essence_rates": c.essence_rates}[section]()
+    {"ranks": c.ranks, "charge": c.charge, "orbs": c.orbs, "essence_rates": c.essence_rates}[section]()
     return {**c.out, "notes": c.notes, "measurement_only": True,
             "expected_source": ["mods/specs/scripts/HWP/Specs/Branding.as",
                                 "mods/specs/players/hwp/specs/branding/pyrebrand.sval",

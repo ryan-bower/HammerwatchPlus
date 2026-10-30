@@ -2,33 +2,16 @@
 <array>
 	<!-- HWP campaign: HoH1 traps and teleporters for generated floors
 	     (scripts/HWP/Campaign/Traps.as adds an HWPTrapSpawn command to every indoor
-	     DungeonGenerator; it places the hwp_traps set, then one hwp_teleporters pad).
+	     DungeonGenerator; it places the hwp_traps set, weighted by the floor's theme, then
+	     one hwp_teleporters pad). The HWPTrap kinds (issue #37) are the generated block at
+	     the end of the hwp_traps entries (tools/make_hwp_traps.py); the entries above it are
+	     HoH2's flame jet and the TripMine glyphs.
 	     Patterns are row-major bytes, one per cell (Pattern enum: 07 Walkable), the
 	     commands likewise (PatternCommand: 03 ReserveFloor keeps the cell as floor and
 	     consumed, 00 Ignore leaves it alone). A 3x3 walkable patch with the unit in the
 	     centre keeps single traps out of 1-wide corridors (they can be walked around, as
-	     HoH1's could); the spike row takes a 3x1 strip. grid-pos -1 -1 puts the prefab
+	     HoH1's could). grid-pos -1 -1 puts the prefab
 	     origin on the centre cell; every unit sits at 8,8 (the cell's centre). -->
-	<dict>
-		<string name="id">prefabs/hwp/traps/spikes_1.pfb</string>
-		<string name="theme">hwp_traps</string>
-		<int name="max-num">-1</int>
-		<ivec2 name="grid-pos">-1 -1</ivec2>
-		<ivec2 name="grid-size">3 3</ivec2>
-		<array name="junctions"><a></a><a></a><a></a><a></a></array>
-		<bytes name="grid-pattern">070707070707070707</bytes>
-		<bytes name="grid-command">000000000300000000</bytes>
-	</dict>
-	<dict>
-		<string name="id">prefabs/hwp/traps/spikes_row.pfb</string>
-		<string name="theme">hwp_traps</string>
-		<int name="max-num">4</int>
-		<ivec2 name="grid-pos">0 0</ivec2>
-		<ivec2 name="grid-size">3 1</ivec2>
-		<array name="junctions"><a></a><a></a><a></a><a></a></array>
-		<bytes name="grid-pattern">070707</bytes>
-		<bytes name="grid-command">030303</bytes>
-	</dict>
 	<dict>
 		<string name="id">prefabs/hwp/traps/fire_1.pfb</string>
 		<string name="theme">hwp_traps</string>
@@ -81,4 +64,266 @@
 		<bytes name="grid-pattern">070707070707070707</bytes>
 		<bytes name="grid-command">000000000300000000</bytes>
 	</dict>
+	<!-- BEGIN make_hwp_traps.py: generated, do not edit by hand -->
+	<dict>
+		<string name="id">prefabs/hwp/traps/plate_spikes_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">6</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">000000000300000000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/plate_spikes_row.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">2</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">5 1</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">0707070707</bytes>
+		<bytes name="grid-command">0303030303</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/pressure_spikes_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">4</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">000000000300000000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/plate_poison_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">4</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">000000000300000000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/plate_drain_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">3</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">000000000300000000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/plate_frost_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">4</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">000000000300000000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/plate_confusion_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">3</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">000000000300000000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/glyph_frost_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">3</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">000000000300000000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/glyph_curse_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">3</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">000000000300000000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/dropper_stalactite_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">6</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">000000000300000000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/crusher_bricks_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">3</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">000000000300000000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/bear_trap_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">4</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">000000000300000000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/turret_arrows_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">2</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">030303030303030303</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/gargoyle_flame_1.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">2</int>
+		<ivec2 name="grid-pos">-1 -1</ivec2>
+		<ivec2 name="grid-size">3 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707070707070707</bytes>
+		<bytes name="grid-command">030303030303030303</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/shooter_arrow_s.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">2</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">1 4</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">05070707</bytes>
+		<bytes name="grid-command">00030000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/shooter_arrow_e.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">2</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">4 1</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">05070707</bytes>
+		<bytes name="grid-command">00030000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/shooter_arrow_w.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">2</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">4 1</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">07070705</bytes>
+		<bytes name="grid-command">00000300</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/shooter_poison_s.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">2</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">1 4</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">05070707</bytes>
+		<bytes name="grid-command">00030000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/shooter_poison_e.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">2</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">4 1</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">05070707</bytes>
+		<bytes name="grid-command">00030000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/shooter_poison_w.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">2</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">4 1</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">07070705</bytes>
+		<bytes name="grid-command">00000300</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/shooter_fire_s.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">2</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">1 4</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">05070707</bytes>
+		<bytes name="grid-command">00030000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/shooter_fire_e.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">2</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">4 1</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">05070707</bytes>
+		<bytes name="grid-command">00030000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/shooter_fire_w.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">2</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">4 1</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">07070705</bytes>
+		<bytes name="grid-command">00000300</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/shooter_blade_s.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">2</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">1 4</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">05070707</bytes>
+		<bytes name="grid-command">00030000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/shooter_blade_e.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">2</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">4 1</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">05070707</bytes>
+		<bytes name="grid-command">00030000</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/traps/shooter_blade_w.pfb</string>
+		<string name="theme">hwp_traps</string>
+		<int name="max-num">2</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">4 1</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">07070705</bytes>
+		<bytes name="grid-command">00000300</bytes>
+	</dict>
+	<!-- END make_hwp_traps.py -->
 </array>

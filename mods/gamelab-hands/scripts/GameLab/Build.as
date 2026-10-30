@@ -403,7 +403,7 @@ namespace GameLab
 
 	// kill <radius> <filter> [hp]: Actor.Kill(null, 0) on every live actor within radius whose
 	// .unit path or behavior type contains filter (as `near`), or with "tag:<tag>" that has
-	// the actor tag (tag:elite, tag:boss), never the local player.
+	// the actor tag (tag:elite, tag:boss), or with "id:<unitId>" that one unit, never the local player.
 	// A real death: the unit's own death handling runs (summons leave the owner's list).
 	// With hp (0-1) the actors are set to that health fraction instead of killed. With "me"
 	// the local player is the killer (kill hooks and drops run; friendly actors are skipped).
@@ -438,7 +438,12 @@ namespace GameLab
 			auto actor = cast<Actor>(units[i].GetScriptBehavior());
 			if (actor is null || actor.IsDead())
 				continue;
-			if (args[1].findFirst("tag:") == 0)
+			if (args[1].findFirst("id:") == 0)
+			{
+				if (int(units[i].GetId()) != int(parseInt(args[1].substr(3))))
+					continue;
+			}
+			else if (args[1].findFirst("tag:") == 0)
 			{
 				// an actor tag (elite, boss, ...): the bitmask the game's own checks test
 				if ((actor.Tags & ApplyTag(0, g_actorTags.GetTag(args[1].substr(4)))) == 0)

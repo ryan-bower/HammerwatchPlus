@@ -36,7 +36,28 @@
         "type": "bool",
         "default": true,
         "title": "HoH1 traps",
-        "about": "Spikes, flame jets and glyphs on generated indoor floors."
+        "about": "HoH1's traps (spike, poison, frost and drain plates, glyphs, wall shooters, turrets, stalactites, falling bricks, bear traps), each with a warning, picked by the floor's theme, on the trap map's floors and in the Forsaken Tower."
+      },
+      {
+        "key": "campaign.trap_map",
+        "type": "int",
+        "default": 0,
+        "values": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "labels": [
+          "Crypt",
+          "Bandit Keep",
+          "Dark Citadel",
+          "Spider Caves",
+          "Every map"
+        ],
+        "title": "Trap map",
+        "about": "The one map whose floors get HoH1 traps. The Forsaken Tower always has them."
       },
       {
         "key": "campaign.trap_density",
@@ -65,7 +86,7 @@
         "type": "bool",
         "default": true,
         "title": "Confusion",
-        "about": "Eyes and confusion glyphs turn your movement around.",
+        "about": "Eyes, confusion glyphs and confusion plates turn your movement around.",
         "applies": "now"
       },
       {

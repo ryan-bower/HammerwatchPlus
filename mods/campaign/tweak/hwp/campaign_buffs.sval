@@ -3,7 +3,10 @@
      icon, but nothing in HoH2 applies it to the player. hwp_confusion is HoH1's gaze
      confusion (2500 ms), applied by the Dark Halls eyes' hits and by `hwp campaign
      confuse`; hwp_trap_confusion is HoH1's trap confusion (1000 ms), applied by the
-     confusion glyph (doodads/hwp/traps/hwp_glyph_confusion_explode.unit). -->
+     confusion glyph (doodads/hwp/traps/hwp_glyph_confusion.unit) and the confusion
+     plate (hwp_plate_confusion.unit). hwp_trap_poison and hwp_trap_darkness are the poison
+     and drain plates' (issue #37): HoH1's poison_strong (4 s, 16 poison a second, 70% speed)
+     and the drain plate's darkness (2.5 s). -->
 <svals>
 	<dict name="hwp_confusion">
 		<string name="name">.hwp.campaign.confusion.name</string>
@@ -22,5 +25,32 @@
 		<bool name="debuff">true</bool>
 		<int name="duration">1000</int>
 		<bool name="confuse">true</bool>
+	</dict>
+	<dict name="hwp_trap_poison">
+		<string name="name">.hwp.campaign.trap_poison.name</string>
+		<string name="description">.hwp.campaign.trap_poison.desc</string>
+		<string name="icon">special/icons/poison.unit</string>
+		<array name="tags"><string>debuff</string><string>poison</string></array>
+		<bool name="debuff">true</bool>
+		<int name="duration">4000</int>
+		<float name="speed-mul">0.7</float>
+		<dict name="tick">
+			<int name="freq">1000</int>
+			<array name="effects">
+				<dict>
+					<string name="class">Damage</string>
+					<int name="poison">16</int>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<dict name="hwp_trap_darkness">
+		<string name="name">.hwp.campaign.trap_darkness.name</string>
+		<string name="description">.hwp.campaign.trap_darkness.desc</string>
+		<string name="icon">special/icons/manadrain.unit</string>
+		<array name="tags"><string>debuff</string><string>darkness</string></array>
+		<bool name="debuff">true</bool>
+		<int name="duration">2500</int>
+		<bool name="darkness">true</bool>
 	</dict>
 </svals>

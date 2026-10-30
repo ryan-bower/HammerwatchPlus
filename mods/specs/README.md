@@ -120,7 +120,8 @@ Files: `scripts/HWP/Specs/Generosity.as` (the stacks, the Fury, the hold and its
 `players/hwp/specs/generosity/*.sval`, `players/hwp/specs/effects/pelors_strike.effect` (the
 strike, a scaled-up take on the priest's quick light strike on vanilla textures), the
 `pelors_blessing` stack in `stacks_specs.sval` and the buffs in `buffs_specs.sval`. Debug
-command: `hwp gen` (status line) with `stacks <n>`, `fury [now]`, `cd` and `solo [on|off|auto]`.
+command: `hwp gen` (status line) with `stacks <n>`, `fury [now]`, `pick [dx dy]` (what a cast
+aimed there would pick and why it would be refused, no cast), `cd` and `solo [on|off|auto]`.
 The crop trait lives in the farming module (`PelorFollowed` in `FarmingModule.as`), so it
 needs nothing from specs.
 
@@ -132,10 +133,19 @@ Spec (the numbers are the planner's, `planner/data/skills/paladin-spec4-*.json`)
   Hands healing, Blessed Strike damage and Conviction mana. Reset by a party player's death,
   by casting the Fury and in town; kept between floors.
 - **Pelor's Fury** (80-120 mana, 10 stacks): picks the enemy nearest the reticle (40 px) within
-  range and holds it in beams of light for 3-5 s: stunned, its casts cut, armor and
+  range, the nearest one that can be held first, and holds it in beams of light for 3-5 s: stunned, its casts cut, armor and
   resistances 0, damage taken +20-60%. One strike on a normal enemy, a ring of 4 to 10 around a
   boss by its size. Cooldown 30 s, 60 s on a boss. In a party the caster is held for the
   channel (`pelors_channel`, the dash pinned); solo they move freely.
+- **A body part stands for its boss** (issue #34). The Serpents of Demise are mostly body: a
+  trail of boss-tagged `BossWormSegment` units (untargetable, buff-immune, 4 s each) that pass
+  their hits to the head. Aimed at the body, the Fury used to pick a segment and refuse
+  ("untargetable") nearly every time, and a segment over a surfaced head could take the pick
+  aimed at the head. Now a part that can't be held stands for the actor it passes its damage
+  to (`StandIn`, `m_transferTarget`), so aiming anywhere on a serpent picks its head: held when
+  it is surfaced, refused with the head's own reason when it is underground. A serpent head
+  passes its damage to the fight's health unit, which is never picked. The cast log adds
+  `via <segment>` when the pick went through one.
 - **Nothing is spent on a Fury that can't hold.** Activate refuses with a reason line and spends
   nothing below 10 stacks, with no target, on an untargetable, invulnerable or buff-immune
   enemy, or on one with no physics body ("out of reach": a boss spirit mid-dive, the Serpent
@@ -145,7 +155,9 @@ Spec (the numbers are the planner's, `planner/data/skills/paladin-spec4-*.json`)
   targeting helper would only warn after its input buffer runs out).
 - **Cutting casts**: the host cancels every casting skill on the held unit except the passive
   ones (`Triggered*`, `Aura*`), each frame of the hold, since the vanilla stun leaves skills
-  with no attack or spell flag running (Arista, the Spider Queen, Dace Arden). A unit with no
+  with no attack or spell flag running (Arista, the Spider Queen, Dace Arden). A channel that
+  was cut is left to play its stop animation (it still reads as casting until that ends;
+  cutting it again restarted it, the Serpent's spew, issue #34). A unit with no
   body is skipped, and its movement is switched off while it has none (`MoveGuard`: a stunned
   bodiless unit null-derefs in `MeleeMovement::IdleUpdate`).
 - **Orbs**: Blinding Sun (Minor/Greater Blindness 4/6 s when the hold ends), Holy Sacrifice
@@ -164,6 +176,11 @@ Test checklist (`gamelab/scenarios/`, bot `gamelab/bots/plan_generosity.py`):
 - `plan-generosity-bosses.json`: every boss, mid-attack: held, its casts cut, stacks spent,
   the boss cooldown; the by-design refusals (untargetable, immune, out of reach) keep the
   stacks.
+- `fix-fury-serpent.json` (issue #34): the Serpents of Demise on their own floor (dark_citadel
+  18, the level's `BossStart`). For 30 s `hwp gen pick` is aimed at every head and at body
+  segments: a body aim is always the serpent (held through the segment when the head is up),
+  and a segment never takes a surfaced head's pick. Then a real cast aimed at the body holds
+  a head, with the 60 s boss cooldown and the Blessing spent.
 - `plan-generosity-farm.json`: the wild chance doubled and a crop grown two stages in a run.
 - `plan-generosity-smoke.json`: compiles and sets up: 8 subclasses, the binds, the status
   line, the Fury on its own button, the tooltips filled.
@@ -238,3 +255,23 @@ Files: `scripts/HWP/Specs/Invocation.as` (Thunder Orb's zaps, Static Charge),
 
 Stormbringer (Ranger), Winddancer (Rogue), Bannerlord (Warrior), Branding (Warlock):
 `plan-specs*.json` scenarios, `hwp specs` status.
+
+### Pyrebrand charges (Branding, issue #35)
+
+The brand stores the damage the warlock deals to the branded enemy, and it charges as it burns.
+The Hellfire Claw deals `pb-base` + the stored damage x the charge: the part of the brand's time
+gone by, 0 when cast and 1 when it runs out. A recast goes off early for less, and a brand left
+to run out is the nuke. At full charge the brand pays 100/150/250/350/500% of the damage that
+fed it (rank 1-5, the planner's 10-50% times ten). A brand passed on by a dying victim keeps its
+charge. A Proliferation brand lasts 3 s and charges in 3 s, and a brand it spreads starts its
+charge again with the whole stored damage.
+
+Before, the claw was `pb-base` + 10-50% of the fed damage whenever it went off, so the brand's
+time made no difference and the claw was smaller than the damage that fed it.
+
+- The claw log reads `pyrebrand: claw (<recast|expired>) N fire, charge C of S stored, radius ...`.
+  `hwp specs` adds `brandcharge` (the brand furthest along, %) and `clawcharge` (the last claw).
+- `fix-pyrebrand-charge.json`: a rank 5 brand fed 280 HP by two Demon's Tails stored 1400. Left
+  to run out, it clawed for 1440 at charge 1, and the dummy lost 2068 HP (7.4x the feed). Spell
+  power and the fire pool are on top of the 500%. Recast at charge 0.495, it lost 1053 HP (3.8x).
+  The old 50% would have been about 0.9x.

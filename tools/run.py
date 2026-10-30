@@ -22,6 +22,9 @@ The steps, in order (each prints a `run:` line; the exit code is the first faili
 3. deploy    tools/deploy.py modded-prod: copies dist/HammerwatchPlus-All.bin (or
              HWP-<package>.bin) into <install>/mods/ and removes the HWP .bin files it did
              not write. Refuses while the game is running (Windows keeps the .bin files open).
+             Warns (`run: workshop:`) when the Steam account is subscribed to a Workshop
+             item with a deployed package's id: the game would load both and keep the
+             Workshop's files.
 4. launch    the game through Steam (steam://rungameid/619820), so the overlay, cloud
              saves and achievements work as usual. The user asked for this (2026-10-23);
              GameLab's hidden-desktop rules are for test runs, not for playing.
@@ -176,6 +179,15 @@ def main(argv=None) -> int:
     code = build_and_deploy(packages, a.dry_run)
     if code:
         return code
+    # a Workshop subscription with a deployed package's id: the game loads both copies and keeps
+    # the Workshop's file of every path they share (gamelab/env.py SHADOW_SUFFIX), so the game
+    # would run a mix of the published build and this one, or fail to compile
+    shadowed = env.workshop_ids()
+    mixed = sorted(i for i in {mod_id(p) for p in packages} if i in shadowed)
+    if mixed:
+        say("workshop", "you are subscribed to " + ", ".join(f"{i} ({shadowed[i].parent.name})" for i in mixed)
+            + " on the Steam Workshop: the game loads that copy as well and its files win over the ones "
+            "just deployed. Unsubscribe in Steam while you play your own build")
     new = sorted({mod_id(p) for p in packages} - before)
     if new:
         say("enable", "NEW packages to tick once in the game's Resource Mods, then restart: " + ", ".join(new))

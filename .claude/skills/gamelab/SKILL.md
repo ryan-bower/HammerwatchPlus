@@ -237,6 +237,9 @@ its baseline/pins after a commit, rebase, or other source change before applying
 - `forget_edges: [[from, to], ...]`: this run treats those edges as unknown, so an `explore`
   scenario re-proves learning every run; the fresh crossing replaces the stored entry.
 - `expect` is `{dotted.path: value}` against the reply, or `{"between": [lo, hi]}`.
+- `"writes_controls": true`: the run rebinds game keys, which the game saves to GameLab's own
+  `res/controls.cfg` (kept across runs). It is journalled and put back when the run ends
+  (`mod-keys-layout`).
 - `save_as` names a reply for `assert_more`, `assert_dist`, `loot_check` and `boundaries`.
 - Templates: `mod-fishing.json` (mod smoke test), `pilot-floor.json` (bot, shots, `shot_changed`).
 
@@ -262,7 +265,8 @@ its baseline/pins after a commit, rebase, or other source change before applying
 | `same_process` | `mark` / `since` | assert no restart in between |
 | `retry` | `times`, `until`, `timeout`, `steps` | rerun `steps` until `until` (regex) shows in new log lines, up to `times`; fails after the last try. For a random level feature (a room that may not roll), not to hide a bug |
 | `sval` | `file`, `dest` | export a datatable as the game parsed it |
-| `key`, `console`, `sleep`, `minimize` | | posted key, raw console line, wait, minimize |
+| `key`, `console`, `sleep`, `minimize` | `key` (`"shift+w"`), `hold`, `typed` | posted key, raw console line, wait, minimize. `typed` is the text the key types on another layout (`"key": "q", "typed": "a"` is AZERTY's A): SDL gets the key's position and that character. It needs the scenario's `"shim_input": true` (keys through the shim's mailslot, also in lab mode); without it the step fails |
+| `text` | `text`, `gap` | one SDL text event per character (shim input), or posted WM_CHARs |
 | `type` | `text`, `gap` | posted WM_CHARs into whatever has the keyboard (a textinput pressed with `gl menu <tab> - <widget> !click`). Each `gl` command opens the console, whose key char (`) reaches a focused field unless the field forbids it; identical consecutive chars arrive once ("qqq" -> "q") |
 | `console` + `expect` / `lacks` | `line`, `expect`, `lacks`, `timeout`, `settle`, `save_as` | a console line (`hwp ...`) whose reply is matched in the log written **after** it (typed-line echoes left out) |
 | `click` / `hover` | `widget` (+`n`, `root`, `any_window`) or `x`,`y`; `verify`, `after`, `click_anyway` | a human click / pointer move with the emulated mouse (`gl pointer`, `gamelab/ui.py`) at the widget's centre; by default fails unless the game kept the position, the window hovers the widget and took the press and release |
@@ -352,6 +356,10 @@ do not rely on a fixed verb count in this skill.
 - Act through the game's own code path: `mission`, `build`, `equip`, `xp`, `material`,
   `upgrade`, `assign`, `charflag`, `spawn`, `save`, `pick`, `char`, `input`, `pointer`,
   `skillup`, `mastery`.
+- `menubutton <name> [pad]`: a press of a menu button in MenuInput, what windows read (a
+  gamepad's bumpers are `prevtab` / `nexttab`; `forward` is A). `pad` makes it a gamepad's press
+  (UsingGamepad), so a list acts on its selected entry rather than the one under the pointer.
+  `gl input` is GameInput only, which windows don't read for these.
   `spawn` of a material unit gives an amount-0 pickup; `drop <type> <amount> <dx> <dy>`
   makes a real one (Material::DropMaterial).
 - `areatriggers [radius]` (read-only): AreaTrigger / AllPlayersAreaTrigger scripts near the

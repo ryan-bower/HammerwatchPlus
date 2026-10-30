@@ -17,7 +17,9 @@ Sections, in this order:
   fix-farming-hotbox: hotbox (a puff outdoors in town leaves four haze banks);
   fix-farming-dual-joints: dual_joints (a joint in each hand, right/left click, both buffs);
   fix-farming-wild-pickup: wild_pick (the harvest goes through the host: request, grant, yield,
-  hidden for the picker only)."""
+  hidden for the picker only);
+  fix-farming-lightning-kush: lightning_kush (issue #15: the fourth strain's joint, buff, +0.2
+  lightning damage, its Plants & Herbs cells and wild plot)."""
 import json
 import re
 import time
@@ -31,11 +33,12 @@ FARMER = "npc_misc_farmer_man"
 BUILDINGS = ["guild_hall", "tavern", "chapel", "blacksmith", "general_store", "magic_shop", "training_grounds",
              "apothecary", "trading_post", "library", "tailor", "hunters_cabin", "enchanter", "architect", "pyre"]
 # the seeds (FarmingModule.as DefineSeeds); a wild plot yields its WILD_PLANTS (3)
-YIELD = {k: (3, 3) for k in ("cabbage", "carrot", "onion", "potato", "wheat", "lucky_leaf", "ember_kush", "saints_sage")}
+YIELD = {k: (3, 3) for k in ("cabbage", "carrot", "onion", "potato", "wheat", "lucky_leaf", "ember_kush", "saints_sage", "lightning_kush")}
 HERB_SLOT = hash_string("hwp_herb")          # the off-hand joint's buff slot
 HERB_SLOT2 = hash_string("hwp_herb2")        # the main-hand joint's
 LUCKY_BUFF = hash_string("hwp_herb_lucky_leaf")
 EMBER_BUFF = hash_string("hwp_herb_ember_kush")
+LIGHTNING_BUFF = hash_string("hwp_herb_lightning_kush")
 REPO = Path(__file__).resolve().parents[2]
 # the wild plot units' minimap sprite (tools/make_wild_plots.py): the crop icon of core's map icons
 WILD_ICON = 'texture="gui/hwp/map_icons.png" frame="24 0 9 11"'
@@ -668,6 +671,67 @@ class Checks(Base):
         self.flag("dual_twin_back_in_bag", f3["main"] == "saints_sage 5/5" and "hwp_joint_ember_kush_4" in bag
                   and not any((i or "").startswith("hwp_joint_mh_") for i in bag),
                   f"main {f3['main']}; bag {bag}")
+
+    # --- fix-farming-lightning-kush
+    def lightning_kush(self):
+        """Issue #15: Lightning Kush, the fourth Holy Herb strain, one row of tools/make_herbs.py's
+        table. Its joint rolls, wields and puffs like the others; the buff (hwp_herb_lightning_kush
+        in the off hand's hwp_herb slot) adds 0.2 to the lightning damage multiplier and nothing
+        to fire. Plants & Herbs shows every seed and harvest (section b had 16 cells: the 17th
+        and 18th never showed), and a wild Lightning Kush plot spawns. Leaves the materials tab
+        open for the shot lightning-kush-herbs (the wild plot's shot is taken here)."""
+        self.close_windows()
+
+        def muls():
+            m = self.gl("dmgmuls")
+            return float(m.get("lightning", 0)), float(m.get("fire", 0))
+
+        l0, fire0 = muls()
+        rolled = self.give_joint("lightning_kush")
+        w = plain(self.hwp("joint wield off", 0.6, until="wielding"))
+        time.sleep(1.5)  # the puff skill comes with the next stats refresh (hotbox)
+        f0 = self.joint_fields()
+        bag = [it.get("id") for it in self.gl("bagitems").get("bag", [])]
+        self.flag("lk_rolled_wielded", f0["held"] == "lightning_kush 5/5" and "hwp_joint_lightning_kush_5" not in bag,
+                  f"{rolled[-80:]!r}; {w[-80:]!r}; held {f0['held']}")
+        mark = len(self.g.read_log())
+        self.gl("input", 300, 0, 0, 1, 0, "off")
+        time.sleep(2.4)
+        f1 = self.joint_fields()
+        log = self.g.read_log()[mark:]
+        slots = self.herb_slots()
+        self.flag("lk_puff_buff", f1["held"] == "lightning_kush 4/5" and slots.get(HERB_SLOT) == LIGHTNING_BUFF
+                  and "puffed a lightning_kush joint (5 -> 4 puffs) in the off hand" in log,
+                  f"held {f1['held']}; slots {slots}; {f1['herb']!r}")
+        l1, fire1 = l0, fire0
+        for _ in range(8):
+            l1, fire1 = muls()
+            if abs(l1 - l0 - 0.2) < 1e-3:
+                break
+            time.sleep(0.5)
+        self.flag("lk_lightning_mul", abs(l1 - l0 - 0.2) < 1e-3 and abs(fire1 - fire0) < 1e-6,
+                  f"lightning {l0} -> {l1}, fire {fire0} -> {fire1}")
+
+        # the wild plot (the debug command places one beside you on any floor)
+        out = plain(self.hwp("farm wild lightning_kush", 0.8, until="plot"))
+        time.sleep(0.6)
+        wild, _ = self.units("wild/lightning_kush", 300)
+        self.flag("lk_wild_plot", "wild lightning_kush plot placed" in out and len(wild) == 1, f"{out!r}; {len(wild)} unit(s)")
+        self.g.shot("lightning-kush-wild")
+
+        # Plants & Herbs: every seed and every harvest has its cell, 24 px wide (9 across)
+        self.hwp("farm herb lightning_kush 2", 0.4, until="ware(s)")
+        self.gl("menu", "character", "material-inventory")  # opens the tab (a widget query right away finds none)
+        time.sleep(0.6)
+        cells = {}
+        for seed in YIELD:
+            for kind in ("seed", "crop"):
+                c = self.gl("menu", "character", "material-inventory", f"hwp-mat-{kind}-{seed}")
+                cells[f"{kind}-{seed}"] = (c.get("shown"), c.get("w"), c.get("count"))
+        missing = {k: v for k, v in cells.items() if v[0] is not True or v[1] != 24}
+        self.flag("lk_material_cells", len(cells) == 18 and not missing and cells["crop-lightning_kush"][2] == "2",
+                  f"missing/odd {missing}; lightning crop {cells.get('crop-lightning_kush')}")
+        self.flag("lk_no_cell_overflow", "materials section" not in self.g.read_log()[mark:], "")
 
     def wild_pick(self):
         """Fix: a client's use of a wild plot was refused on the host (HWPWildPlot.CanInteract

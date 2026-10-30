@@ -8,6 +8,11 @@
 // picked in the player menu's Plus tab (core HWP::Options) or with hwp colors.
 // Setting colors.enabled (per machine): off, no projectile tint and no player
 // colours on the maps (PlayerColors.as); the chosen colours stay stored.
+// The tint alone barely shows (issue #36): it multiplies the sprite, so it can
+// only darken, and the projectiles that matter are bright (fire, glows) or dark
+// (bolts, shadow). A multiply can't make an orange fireball blue. So every tinted
+// projectile also gets a marker, a ring in its team's colour drawn around it
+// from the module's RenderFrame (colors.markers, on by default).
 namespace HWP
 {
 	namespace Colors
@@ -25,6 +30,18 @@ namespace HWP
 		vec4 g_friendly = vec4(1, 1, 1, 1);
 		bool g_active = false;
 		bool g_loggedTint = false;
+		bool g_markers = true;
+		const string KEY_MARKERS = "colors.markers";
+
+		// the projectiles with a marker: their unit and colour
+		class Marked
+		{
+			UnitPtr unit;
+			vec4 color;
+		}
+		array<Marked@> g_marked;
+		const uint MAX_MARKED = 256;
+		int g_markersDrawn = 0;   // the most drawn in one frame this level, for hwp colors and the tests
 		string g_presetName = "default";
 		const string KEY_PRESET = "colors.preset";
 
@@ -117,6 +134,9 @@ namespace HWP
 				g_friendly = c;
 
 			g_active = HWP::Settings::GetBool("colors.enabled", true) && !(IsWhite(g_enemy) && IsWhite(g_friendly));
+			g_markers = HWP::Settings::GetBool("colors.markers", true);
+			if (!g_active || !g_markers)
+				g_marked.removeRange(0, g_marked.length());
 		}
 
 		int PresetIndex(const string &in name)
@@ -212,6 +232,13 @@ namespace HWP
 			if (IsWhite(c))
 				return;
 			unit.SetMultiplyColor(c);
+			if (g_markers && g_marked.length() < MAX_MARKED)
+			{
+				Marked m;
+				m.unit = unit;
+				m.color = c;
+				g_marked.insertLast(m);
+			}
 			// once per level, so a test (and a bug report) can see the swap reached real shots
 			if (!g_loggedTint)
 			{
@@ -220,10 +247,37 @@ namespace HWP
 			}
 		}
 
+		// a ring in the team's colour around each marked projectile, over a dark one so it
+		// reads on light ground too. Called from RenderFrame, in the space the game draws the
+		// other players' names in (AGameplayGameMode: ToScreenspace / m_wndScale, under the UI
+		// scale).
+		void DrawMarkers(int idt, SpriteBatch& sb)
+		{
+			auto gm = cast<AGameplayGameMode>(g_gameMode);
+			int drawn = 0;
+			for (int i = int(g_marked.length()) - 1; i >= 0; i--)
+			{
+				auto m = g_marked[i];
+				if (!m.unit.IsValid() || m.unit.IsDestroyed())
+				{
+					g_marked.removeAt(i);
+					continue;
+				}
+				if (gm is null || !g_active || !g_markers)
+					continue;
+				vec2 p = ToScreenspace(m.unit.GetInterpolatedPosition(idt)) / gm.m_wndScale;
+				sb.DrawCircle(p, 6, vec4(0, 0, 0, 0.55f), 12, 3);
+				sb.DrawCircle(p, 6, vec4(m.color.x, m.color.y, m.color.z, 0.95f), 12, 1);
+				drawn++;
+			}
+			g_markersDrawn = max(g_markersDrawn, drawn);
+		}
+
 		void ReplyCurrent()
 		{
 			HWP::Commands::Reply(Resources::GetString(".hwp.colors.current", {
-				{ "preset", g_presetName }, { "enemy", ToHex(g_enemy) }, { "friendly", ToHex(g_friendly) } }));
+				{ "preset", g_presetName }, { "enemy", ToHex(g_enemy) }, { "friendly", ToHex(g_friendly) },
+				{ "markers", g_markers ? "on" : "off" }, { "drawn", "" + g_markersDrawn } }));
 		}
 
 		void CmdColors(array<string>@ args)
@@ -239,6 +293,11 @@ namespace HWP
 			auto what = args[0].toLower();
 			if (what == "off")
 				SetPreset("default");
+			else if (what == "markers" && args.length() >= 2)
+			{
+				auto v = args[1].toLower();
+				HWP::Settings::SetBool(KEY_MARKERS, v == "on" || v == "1" || v == "true");
+			}
 			else if ((what == "enemy" || what == "friendly") && args.length() >= 2)
 			{
 				vec4 c;
@@ -303,7 +362,7 @@ namespace Modules
 		{
 			super("hwp-colors");
 			HWP::Colors::InitPresets();
-			HWP::Commands::Register("colors", "[preset|enemy RRGGBB|friendly RRGGBB|off]  projectile colours", HWP::Commands::Handler(HWP::Colors::CmdColors));
+			HWP::Commands::Register("colors", "[preset|enemy RRGGBB|friendly RRGGBB|markers on|off|off]  projectile colours", HWP::Commands::Handler(HWP::Colors::CmdColors));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Colors::OnSettingChanged));
 			HWP::Options::Register("colors", HWP::Colors::PresetOption());
 			HWP::Options::Register("playercolors", HWP::PlayerColors::PaletteOption());
@@ -315,6 +374,8 @@ namespace Modules
 			HWP::Colors::Refresh();
 			HWP::PlayerColors::Refresh();
 			HWP::PlayerColors::g_loggedTint = false;
+			HWP::Colors::g_marked.removeRange(0, HWP::Colors::g_marked.length());
+			HWP::Colors::g_markersDrawn = 0;
 			HWP::Log("colors", "player colours: " + HWP::PlayerColors::Status());
 			HWP::Log("colors", "preset " + HWP::Colors::g_presetName + (HWP::Colors::g_active ? "" : " (no tint)"));
 			if (HWP::Colors::g_active)
@@ -363,6 +424,28 @@ namespace Modules
 		void GuardedRenderWidgets(PlayerRecord@ player, int idt, SpriteBatch& sb)
 		{
 			HWP::PlayerColors::DrawMapTab(sb);
+		}
+
+		// over the world, where the game draws the other players' names: the projectile markers
+		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game
+		HWP::Guard m_guardRenderFrame;
+		void RenderFrame(int idt, SpriteBatch& sb) override
+		{
+			if (m_guardRenderFrame.Skip("colors", "HWPColorsModule.RenderFrame"))
+				return;
+			if (m_guardRenderFrame.Raw())
+			{
+				GuardedRenderFrame(idt, sb);
+				m_guardRenderFrame.Ok();
+				return;
+			}
+			try { GuardedRenderFrame(idt, sb); m_guardRenderFrame.Ok(); }
+			catch { m_guardRenderFrame.Failed(); }
+		}
+
+		void GuardedRenderFrame(int idt, SpriteBatch& sb)
+		{
+			HWP::Colors::DrawMarkers(idt, sb);
 		}
 	}
 }

@@ -185,7 +185,7 @@ namespace HWP
 			{
 				Traps::RefreshSettings();
 				Teleporters::RefreshSettings();
-				HWP::Commands::Reply("traps " + (Traps::g_enabled ? "on" : "off") + ", density " + Traps::g_density + "%, " + MissionPrefabDef::GetPossiblePrefabs(HashString(Traps::SET)).length() + " prefabs, generator command on " + Traps::g_installed + " indoor floors; teleporters " + (Teleporters::g_enabled ? "on" : "off") + ", " + Teleporters::g_links.length() + " link(s) this floor; confusion " + (Confusion::g_enabled ? "on" : "off") + ", eye chance " + Confusion::g_eyeChance + "%");
+				HWP::Commands::Reply("traps " + (Traps::g_enabled ? "on" : "off") + " on " + Traps::MapSetting() + " and the Forsaken Tower, density " + Traps::g_density + "%, " + MissionPrefabDef::GetPossiblePrefabs(HashString(Traps::SET)).length() + " prefabs, generator command on " + Traps::g_installed + " indoor floors; teleporters " + (Teleporters::g_enabled ? "on" : "off") + ", " + Teleporters::g_links.length() + " link(s) this floor; confusion " + (Confusion::g_enabled ? "on" : "off") + ", eye chance " + Confusion::g_eyeChance + "%");
 				return;
 			}
 			if (args.length() >= 1 && args[0] == "confuse")

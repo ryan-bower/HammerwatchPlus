@@ -30,7 +30,7 @@ HOH1 = "hwp_forsaken_tower_hoh1"
 BUFF = "tweak/hwp/campaign_buffs.sval:hwp_confusion"
 TRAP_BUFF = "tweak/hwp/campaign_buffs.sval:hwp_trap_confusion"
 TRAP_UNITS = [
-    "doodads/traps/floors/floor_spikes.unit",
+    "doodads/hwp/traps/hwp_plate_spikes.unit",
     "doodads/traps/floors/floor_fire.unit",
     "doodads/hwp/traps/hwp_glyph_bomb.unit",
     "doodads/hwp/traps/hwp_glyph_dart.unit",
@@ -152,7 +152,10 @@ class Checks(Base):
         counts = {u.split("/")[-1]: (r.get(u) or {}).get("count", 0) for u in TRAP_UNITS}
         total = sum(counts.values())
         self.flag("traps_present", total > 0, f"{counts}")
-        # a spike floor (always on) or a flame jet (activates when stood on), else a bomb glyph
+        # a spike plate (up 1.5 s of every 5, after a 1 s warning) or a flame jet (activates
+        # when stood on), else a spike plate spawned under the player: a cave floor has few
+        # plates and no jets since the kinds follow the theme (issue #37), and the bomb glyph
+        # this spawned before did no damage in 6 s once (20261029-071403)
         spikes = (r.get(TRAP_UNITS[0]) or {}).get("units") or []
         fires = (r.get(TRAP_UNITS[1]) or {}).get("units") or []
         before = self.player()
@@ -162,13 +165,14 @@ class Checks(Base):
             self.gl("teleport", t["x"], t["y"])
             how = "spikes" if spikes else "fire"
         else:
-            self.gl("spawn", "doodads/hwp/traps/hwp_glyph_bomb.unit", 0, 0)
-            how = "bomb glyph"
+            self.gl("spawn", TRAP_UNITS[0], 0, 0)
+            how = "spawned spike plate"
         # traps kill a level-1 paladin in about a second (spikes tick fast, the jet burns):
-        # poll and leave at the first lost hit point, at most 4 s
+        # poll and leave at the first lost hit point, at most 6 s (a spike plate can be 3.5 s
+        # from coming up)
         after = self.player()
         hp1 = after.get("hp", 0)
-        for _ in range(16):
+        for _ in range(24):
             if hp1 < hp0 or after.get("dead"):
                 break
             time.sleep(0.25)
@@ -227,9 +231,15 @@ class Checks(Base):
         self.gl("use", "teleport_pad")
         time.sleep(1.0)
         x2, y2 = self.pos()
-        d2 = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
-        self.flag("teleporter_same_spot", d1 < 48 and d2 < 8, f"second landing {x2:.0f},{y2:.0f}, {d2:.1f} px from the first")
-        self.flag("teleporter_logged", "teleporter: " in self.g.read_log()[len(log):], "")
+        d2 = ((x2 - dx) ** 2 + (y2 - dy) ** 2) ** 0.5
+        # the pad's fixed spot is the logged "-> x,y" of each use; where the player stands a
+        # second later can differ by a few px (enemies at the spot push them; 13 and 16 px
+        # in two runs), so the positions are only checked against the 48 px landing radius
+        uses = re.findall(r"teleporter: \S+ -?\d+,-?\d+ -> (-?\d+),(-?\d+) \(use", self.g.read_log()[len(log):])
+        same = len(uses) >= 2 and uses[-1] == uses[-2] == (str(dx), str(dy))
+        self.flag("teleporter_same_spot", d1 < 48 and d2 < 48 and same,
+                  f"second landing {x2:.0f},{y2:.0f}, {((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5:.1f} px from the first, {d2:.0f} from {dx},{dy}; logged uses {uses[-2:]}")
+        self.flag("teleporter_logged", bool(uses), "")
 
     def sec_confusion(self):
         self.hwp("campaign confuse 4000", 0.8, until="confused")
@@ -247,11 +257,12 @@ class Checks(Base):
         time.sleep(1.4)
         x3, _ = self.pos()
         self.flag("confusion_expires", not on2 and x3 > x2 + 8, f"buff on {on2}; held right: x {x2:.0f} -> {x3:.0f}")
-        # the trap buff from a confusion glyph under the player (TripMine, 20 px trigger)
+        # the trap buff from a confusion glyph under the player (HWPTrap since issue #38: armed
+        # 2.5 s after it appears, 20 px trigger, then 1 s of warning)
         mark = len(self.g.read_log())
         self.gl("spawn", "doodads/hwp/traps/hwp_glyph_confusion.unit", 0, 0)
         got = False
-        end = time.time() + 4
+        end = time.time() + 6
         while time.time() < end and not got:
             got, _ = self.has_buff(TRAP_BUFF)
             if not got:

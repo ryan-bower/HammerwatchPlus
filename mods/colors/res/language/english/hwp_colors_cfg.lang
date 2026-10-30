@@ -3,6 +3,8 @@
 	<string name="hwp.cfg.colors">Colors</string>
 	<string name="hwp.cfg.colors.about">Projectiles tinted by team, and every player in their own color on the maps.</string>
 	<string name="hwp.cfg.o.colors.about">Friend and foe projectile colors, with presets for color blindness.</string>
+	<string name="hwp.cfg.s.colors.markers">Projectile markers</string>
+	<string name="hwp.cfg.s.colors.markers.about">A ring in the team's color around every projectile, so friend and foe read at a glance.</string>
 	<string name="hwp.cfg.o.playercolors.about">The game's player colors on the maps, or a colorblind-safe set.</string>
 	<string name="hwp.cfg.s.playercolors.names">Names on maps</string>
 	<string name="hwp.cfg.s.playercolors.names.about">Other players' names on the maps when they are far from you.</string>
