@@ -59,17 +59,28 @@ watered.
   goes next to the pet feeding bowl. `hwp farm well` moves it to you (saved as
   `farm.well_x/y`, which then wins; `hwp farm well reset` clears it). It refills the can.
 - **Seeds and growth.** Food crops (cabbage, carrot, onion, potato, wheat)
-  need 2 growth, Holy Herb strains (Lucky Leaf, Ember Kush, Saint's Sage) 4.
+  need 2 growth, Holy Herb strains (Lucky Leaf, Ember Kush, Saint's Sage, Lightning Kush) 4.
   (Gambler's Gold is gone: its seeds and herbs in an older save become Lucky
   Leaf when the character loads, `MigrateGone`.) A completed run (succeeded or failed: the host's mission state
   as the town loads its character, in the `PlayerRecordLoad` hook) adds 1 growth, 2
   if the plot was watered since the last run: food takes 2 runs (1 watered), herbs 4 (2 watered).
   Your seeds and what you harvested show in the materials tab's **Plants &
-  Herbs** section (hwplib `HWP::Materials` section b, which this module titles; 8 cells
-  across, seeds first, then the harvest): a cell per seed
+  Herbs** section (hwplib `HWP::Materials` section b, which this module titles; 9 cells
+  across, the seeds over their harvest): a cell per seed
   (`gui/hwp_seeds.png`, tooltip: growth time and yield) and a cell per
   harvested crop or herb (`gui/hwp_harvest.png`, `HWPHarvestMaterial`).
   The herb plants and buff icons are drawn as cannabis in each strain's colour.
+- **The strains.** Lucky Leaf: gold find +5 % and the Gambler's redraw. Ember Kush: +20 %
+  fire damage. Saint's Sage: +1.0 health and +0.5 mana regeneration. Lightning Kush
+  (violet): +20 % lightning damage. One table makes them all: `tools/make_herbs.py`
+  `STRAINS` writes each strain's mission buff (`buffs_herbs.sval`), its 10 joint items
+  (the `%block` lines of `equipment_joints.sval`), its names and buff text
+  (`hwp_farming_herbs.lang`), its seed line (`Herbs.as` `DefineHerbs`, which `DefineSeeds`
+  calls after the food crops), its crop and wild plot units, and its art, recoloured from
+  Lucky Leaf's (`farm.png`, `gui/hwp_seeds.png`, `gui/hwp_harvest.png`, indexed by
+  `DefineSeeds` order). A new strain is one row there: `python tools/make_herbs.py`, and
+  `--check` (or `tests/test_make_herbs.py`) catches a file that is out of date. `farm.png`
+  has room for four strains, and the generator stops at a fifth.
   A harvest yields one per plant drawn on the plot (`CropSpots`: what you see
   is what you get) as wares (`HWP::Market`, sold at the Gambler or with
   `hwp sell`), plus a 25 % chance of a seed back (5 % of the time two).
@@ -170,7 +181,7 @@ minimap). Turning it back on in town lays the farm out again.
 
 ## Test checklist
 
-1. `python -m gamelab run mod-farming --mode lab`: `[HWP:farming] self-check done: 8 seeds, 3 herb buffs, 30 joint items`, no
+1. `python -m gamelab run mod-farming --mode lab`: `[HWP:farming] self-check done: 9 seeds, 4 herb buffs, 40 joint items`, no
    script issues.
 2. Town: the onion, wheat, cabbage and potato crops are gone, the log says
    `fields: 8 onion grooves, 9 wheat grooves, 8 cabbage grooves, 8 potato
@@ -225,3 +236,9 @@ minimap). Turning it back on in town lays the farm out again.
     same player does nothing (the host logs `refused ... already harvested`).
     `fix-farming-wild-pickup` drives the same request path single-player on
     the host.
+11. Lightning Kush (issue #15): `python -m gamelab run fix-farming-lightning-kush --mode lab`.
+    A Lightning Kush joint wields and puffs, its buff takes the `hwp_herb` slot, and the
+    lightning damage multiplier goes 1.0 -> 1.2 while fire stays at 1.0 (gamelab-hands
+    `dmgmuls`). A wild Lightning Kush plot spawns with violet plants (shot
+    `lightning-kush-wild`). Plants & Herbs shows all 9 seeds over their 9 harvests
+    (shot `lightning-kush-herbs`).

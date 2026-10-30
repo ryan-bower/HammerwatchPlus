@@ -28,13 +28,13 @@ The party sees a one-line summary in chat.
 
 ## Boss-fight recap (`BossRecap.as`, 2026-10-25)
 
-When a boss dies, a second panel (top middle, below the death recap's spot)
-lists every player's damage to it, most first: a header line in the player's
+When a boss fight ends, a second panel (top middle, below the death recap's spot)
+lists every player's damage in it, most first: a header line in the player's
 colour ("Name  12,345 dealt (45%)  -  1,234 taken") and up to five source
 lines (skill name, amount, share). It stays `deathrecap.boss_seconds` (15)
 seconds or until the title row is clicked; `deathrecap.boss false` turns the
 panel and the chat lines off. Every machine also prints one chat line per
-player ("Name dealt 12,345 to Boss Bandit (45%): Skill 40%, Skill 30% - took
+player ("Name dealt 12,345 to Bandit Lord (45%): Skill 40%, Skill 30% - took
 1,234") and logs `[HWP:deathrecap] boss recap <boss>: <name> dealt N (P%) took
 T: <source> <amount>, ...`. `hwp bossrecap` reprints the last fight (kept in
 the player record, `deathrecap.boss_last`) and logs `boss panel shown: N lines`
@@ -46,21 +46,36 @@ the player record, `deathrecap.boss_last`) and logs `boss panel shown: N lines`
   so a client records its hits on boss-tagged actors (`Tags` has the `boss`
   actor tag, as `gl kill tag:boss` tests) by skill (`PlayerBase.GetSkill(di.Weapon)`,
   "Other" without one) and the damage it took while a hit boss was alive
-  (`PlayerDamageTaken`).
+  (`PlayerDamageTaken`), counted once however many boss units are up.
 - Burn, poison and bleed skip `DamagedActor`: they are the boss's affliction
   pools, filled by hits on the machine that dealt them (`AddAffliction`, right
   after the hook) and ticked as DoT with no hook. Each fight keeps the pools'
   total as it has counted it: a hit adds what `AddAffliction` will add (the
   same arithmetic), and each frame the drop since the last look is counted as
   "Afflictions" (times `AfflictionDamageTakenMul`) when the local player filled
-  the pools last (`m_affectionAttacker`). Effects marked `dot` (three vanilla
+  the pools last (`m_affectionAttacker`). The pools are tracked per boss unit. Effects marked `dot` (three vanilla
   files) are still not counted.
-- The fight ends when the hit boss is dead or gone (polled each frame: `IsDead`
-  is set everywhere by `UnitKilled`). The machine sends `bossrecap.report` to
-  the host, which gathers the party's reports for 1 s per boss unit and
-  broadcasts `bossrecap.show`; everyone shows / prints / logs the same list.
+- A fight is the whole encounter, not one boss unit (issue #33). Every
+  boss-tagged actor the player hits joins the open fight (log `... joins, N units
+  hit`), and the fight lasts while any of them is alive or the HUD still shows an
+  undefeated boss bar. That is vanilla's own encounter: `HUDBossBar` stacks one bar
+  per `bossbar` actor and clears them once all are down. So one of the four Serpents
+  of Demise (boss-tagged `TransferDamageActor`s feeding one health unit with the
+  bar), a Bandit Lord's mirror image or a spawned ghost going down logs `... down,
+  N hit units alive, B boss bars up` and nothing else. The Serpent's body is a trail
+  of boss-tagged `BossWormSegment` units that take hits (passed to the head) and
+  expire after 4 s; under the old per-unit fights every expiring segment you had
+  hit showed a recap, which is what made it "constant". A unit that goes down
+  leaves the list (the fight counts units hit); the joins / down lines stop after
+  12 per fight. The fight is named after the
+  bar ("Serpents of Demise", "Bandit Lord"), else the first boss unit hit. A boss
+  bar already up for a boss elsewhere on the floor also keeps the fight open (none
+  of vanilla's boss floors does that).
+- When it ends (polled each frame: `IsDead` is set everywhere by `UnitKilled`)
+  the machine sends `bossrecap.report` to the host, which gathers the party's
+  reports for 1 s per fight name (the bar's name is the same on every machine)
+  and broadcasts `bossrecap.show`; everyone shows / prints / logs the same list.
   The host keeps one report per peer (two players may share a display name).
-  Two bosses alive at once are two fights (keyed by unit).
 - A player who never hit the boss is not listed.
 
 ## Settings
@@ -89,7 +104,14 @@ On the HammerwatchPlus tab of the player menu (Quality of Life > Death recap), p
 6. `python -m gamelab run fix-recaps --mode lab` (section `boss` of
    `gamelab/bots/fix_recaps.py`): Bandit Keep floor 0, the Bandit boss spawned
    beside the ranger, shot for a few seconds, then `kill tag:boss me`: the log
-   line `boss recap Boss Bandit: Pilot dealt N (100%) took T: ...` with N > 0
+   line `boss recap Bandit Lord: Pilot dealt N (100%) took T: ...` with N > 0
    and a named source, `hwp bossrecap` -> `boss panel shown: N lines`, shot
    `boss-recap` (the panel, by eye). Co-op (manual): both players appear on
    both machines, in their colours, with their own skills.
+7. Several boss units, one fight (`fix-boss-recap-encounter`, issue #33): the
+   Bandit Lord and its mirror image both hit are one fight; the mirror's death
+   logs `down` and no recap; the Lord's gives one recap of 2 units. Then the
+   Serpents of Demise on their own floor (dark_citadel 18, the level's
+   `BossStart` script): a serpent killed logs `down` with the bar still up and no
+   recap; the rest and the health unit give one recap. By hand: the real
+   serpent fight shows one recap, at the end.

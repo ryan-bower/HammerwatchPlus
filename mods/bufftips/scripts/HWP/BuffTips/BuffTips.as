@@ -5,7 +5,9 @@
 // frame and draws a vanilla ToolTip (CreateTitledTooltip, header = time left) on top
 // of the HUD. Buffs without a "hud" icon never reach the buff bar, so they
 // have no tooltip either; their text still shows in the character menu's
-// Effects tab. Setting: bufftips.enabled.
+// Effects tab. Vanilla's class skill buffs that have no icon (War Cry and
+// others, SkillBuffs.as) get one here (ApplySkillIcons). Settings:
+// bufftips.enabled, bufftips.skill_icons.
 namespace HWP
 {
 	namespace BuffTips
@@ -48,6 +50,73 @@ namespace HWP
 			if (skill !is null)
 				return Text(skill.m_name);
 			return "";
+		}
+
+		// Vanilla's class skill buffs that have no "hud" icon (issue #28: War Cry) never reach
+		// the buff bar, since HUD.ShowBuffIcon skips a buff whose def has no m_hud. The buffs in
+		// SkillBuffs.as get one: the def every skill loads (LoadActorBuff caches one per path)
+		// is patched in place, with an icon cut from the skill's own icon. A def with an icon of
+		// its own keeps it, and a name or description is only filled in when the def has none.
+		// With bufftips.skill_icons off the icons given here are taken back (the names stay).
+		// Each machine patches its own defs; nothing is synced.
+		array<ActorBuffDef@> g_iconed;
+		string g_iconLog;
+
+		void ApplySkillIcons()
+		{
+			bool on = HWP::Settings::GetBool("bufftips.skill_icons", true);
+			Texture2D@ tex = on ? Resources::GetTexture2D(SKILL_ICONS) : null;
+			if (on && tex is null)
+			{
+				HWP::Log("bufftips", "skill buff icons: " + SKILL_ICONS + " missing");
+				return;
+			}
+			uint given = 0, own = 0, missing = 0;
+			for (uint i = 0; i < SKILL_BUFFS.length(); i++)
+			{
+				auto def = LoadActorBuff(SKILL_BUFFS[i]);
+				if (def is null)
+				{
+					missing++;
+					continue;
+				}
+				int ours = g_iconed.findByRef(def);
+				if (!on)
+				{
+					if (ours >= 0)
+					{
+						@def.m_hud = null;
+						g_iconed.removeAt(ours);
+					}
+					continue;
+				}
+				if (ours < 0 && def.m_hud !is null)
+				{
+					own++;
+					continue;
+				}
+				if (ours < 0)
+				{
+					@def.m_hud = ScriptSprite(tex, vec4(SKILL_BUFF_ICON_X[i], 0, 14, 14));
+					g_iconed.insertLast(def);
+				}
+				if (def.m_name.isEmpty())
+					def.m_name = SKILL_BUFF_NAMES[i];
+				if (def.m_description.isEmpty())
+					def.m_description = SKILL_BUFF_DESCS[i];
+				given++;
+			}
+			string line = "skill buff icons " + (on ? "on" : "off") + ": " + given + " of " + SKILL_BUFFS.length()
+				+ " buff(s) given an icon, " + own + " with their own, " + missing + " missing";
+			if (line != g_iconLog)
+				HWP::Log("bufftips", line);
+			g_iconLog = line;
+		}
+
+		void OnSettingChanged(const string &in key)
+		{
+			if (key == "bufftips.skill_icons")
+				ApplySkillIcons();
 		}
 	}
 }
@@ -191,6 +260,8 @@ namespace Modules
 		{
 			super("hwp-bufftips");
 			HWP::Log("bufftips", "ready");
+			HWP::BuffTips::ApplySkillIcons();
+			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::BuffTips::OnSettingChanged));
 		}
 	}
 }

@@ -49,6 +49,7 @@ class HWPObjectiveSwitch : IUsable
 {
 	UnitPtr m_unit;
 	string m_kind; // "vault" or "exit"
+	string m_scene; // the scene last set: left, marked (map icon) or right
 	bool m_used = false;
 	bool m_init = false;
 
@@ -64,8 +65,12 @@ class HWPObjectiveSwitch : IUsable
 		if (m_init)
 			return;
 		m_init = true;
+		// "marked" is "left" with the map icon (the Marked Switches alteration)
 		if (!m_used && m_unit.IsValid())
-			m_unit.SetUnitScene("left", true);
+		{
+			m_scene = HWP::Objectives::SwitchesMarked() ? "marked" : "left";
+			m_unit.SetUnitScene(m_scene, true);
+		}
 	}
 
 	vec2 Pos() { return m_unit.IsValid() ? xy(m_unit.GetPosition()) : vec2(); }
@@ -78,7 +83,10 @@ class HWPObjectiveSwitch : IUsable
 		m_used = true;
 		m_init = true;
 		if (m_unit.IsValid() && !m_unit.IsDestroyed())
-			m_unit.SetUnitScene("right", true);
+		{
+			m_scene = "right";
+			m_unit.SetUnitScene(m_scene, true);
+		}
 	}
 
 	void Collide(UnitPtr unit, vec2 pos, vec2 normal, Fixture@ fxSelf, Fixture@ fxOther)

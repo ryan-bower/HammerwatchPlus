@@ -1,0 +1,16 @@
+<!-- HWP objectives: an Architect alteration (vanilla's own picker lists every MissionBuff of
+     set "architect"). The levers that open the vaults and the way down have no map icon, like
+     vanilla's levers (issue #26); with this picked they show on the map from the start, as
+     the vault doors do. HWP::Objectives::SwitchesMarked (ObjectivesModule.as) reads it. -->
+<loader>MissionBuff::LoadMultiple</loader>
+<array>
+	<dict>
+		<string name="id">hwp_objectives_marked_switches</string>
+		<string name="name">.hwp.objectives.marked.name</string>
+		<string name="description">.hwp.objectives.marked.desc</string>
+		<string name="set">architect</string>
+		<int name="cost-gold">1000</int>
+		<int name="cost-wood">5</int>
+		<bool name="blueprint">false</bool>
+	</dict>
+</array>

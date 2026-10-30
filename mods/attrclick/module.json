@@ -1,0 +1,19 @@
+{
+  "id": "attrclick",
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [],
+  "exclude": [],
+  "class_swaps": {
+    "AttributeAssignerShopContent": "HWPAttributeAssignerShopContent"
+  },
+  "config": {
+    "title": "Attribute point clicks",
+    "about": "At the Attribute Trainer, Shift+Click places 20 points and Ctrl+Click 5.",
+    "toggle": "attrclick.enabled",
+    "scope": "local",
+    "applies": "now",
+    "settings": []
+  }
+}

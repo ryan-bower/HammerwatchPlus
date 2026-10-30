@@ -87,7 +87,20 @@ namespace HWP
 		const int STATE_RESULT = 3;
 		const array<int> ZONE_WIDTH = { 40, 26, 16, 10 };          // per fish tier, px of a 240 px bar
 		const array<float> MARKER_SPEED = { 0.18f, 0.23f, 0.28f, 0.34f }; // px per ms
-		const int MARKER_WIDTH = 3;             // px; any overlap with the zone is a catch
+		const int MARKER_WIDTH = 3;             // px; any overlap with the zone is a hit
+		// A bite takes this many hits in the green, by fish tier, to land (issue #32: one
+		// timed press was too easy). After each hit but the last the fish fights: the zone
+		// jumps away from the marker, the marker gets HIT_SPEEDUP faster and the bite window
+		// starts again. A miss at any hit loses the fish. fishing.reel_hits 1-4 sets one count
+		// for every fish (1: the old single press).
+		const array<int> REEL_HITS = { 2, 2, 3, 4 };
+		const float HIT_SPEEDUP = 1.15f;
+		const int HIT_ZONE_GAP = 24;            // px: the new zone starts at least this far from the marker
+		// Reel reads the marker where the last game tick (~33 ms) left it, so a marker that moves
+		// more than the zone (plus its own width) in one tick can step over the zone and miss
+		// it on every pass. The speed-up stops at 90 % of that; a fish already faster (the
+		// 3-star's 0.34 px/ms past a 10 px zone, 11 px a tick) keeps its own speed.
+		const float HIT_TICK_MS = 33.0f;
 		const array<int> FISH_ILVL = { 1, 5, 10, 15 }; // town catches (coast, traps) per tier
 		const array<int> STAR_TOKENS = { 1, 3, 5 };     // bet tokens per 1 / 2 / 3-star fish
 		const int TOWN_MAX_TIER = 2;                    // the town has 1-star fish only
@@ -203,6 +216,15 @@ namespace HWP
 		bool g_keys = true;      // fishing.keys: keys can come up with a catch
 		int g_keyChanceSet = -1; // fishing.key_chance: -1 = the table; 0-1000 per mille for every catch (tests)
 		int g_keyTierSet = 0;    // fishing.key_tier: 0 = roll; 1-4 forces the key's tier (tests)
+		int g_reelHits = 0;      // fishing.reel_hits: 0 = by fish tier (REEL_HITS); 1-4 for every fish
+
+		// hits in the green that land a fish of this tier
+		int HitsNeeded(int tier)
+		{
+			if (g_reelHits > 0)
+				return g_reelHits;
+			return REEL_HITS[clamp(tier, 1, 4) - 1];
+		}
 
 		void RefreshSettings()
 		{
@@ -216,6 +238,7 @@ namespace HWP
 			g_keys = HWP::Settings::GetBool("fishing.keys", true);
 			g_keyChanceSet = clamp(HWP::Settings::GetInt("fishing.key_chance", -1), -1, 1000);
 			g_keyTierSet = clamp(HWP::Settings::GetInt("fishing.key_tier", 0), 0, 4);
+			g_reelHits = clamp(HWP::Settings::GetInt("fishing.reel_hits", 0), 0, 4);
 			if (g_biteMin < 100) g_biteMin = 100;
 			if (g_biteMax < g_biteMin) g_biteMax = g_biteMin;
 		}
@@ -1011,9 +1034,18 @@ namespace HWP
 			return healed;
 		}
 
-		// the bag's Eat hint (core ItemActions, shown by droptrade)
-		class EatAction : HWP::ItemActions::Action
+		// the bag's Eat hint (hwplib ItemActions), key F by default: the old fixed E is the
+		// menu's own Destroy key (MenuAdditional). Each player's own key (fishing.eat_key,
+		// LocalOnly under the host-synced fishing. prefix), rebound on the Plus tab (eatkey).
+		const int EAT_KEY_DEFAULT = 9; // SDL scancode for F
+
+		class EatAction : HWP::ItemActions::KeyedAction
 		{
+			EatAction() { super("fishing.eat_key", EAT_KEY_DEFAULT); }
+
+			string Id() override { return "eat"; }
+			int Order() override { return 20; }
+
 			string Label(Equipment::Equipment@ item) override
 			{
 				return !g_enabled || FishOfItem(item) is null ? "" : Resources::GetString(".hwp.fishing.eat");
@@ -1790,6 +1822,9 @@ class HWPFishingMenu : AWindowObject
 	int m_markerDir = 1;
 	int m_zoneX = 0;
 	int m_zoneW = 60;
+	int m_hits = 0;          // hits in the green on this bite
+	int m_hitsNeeded = 1;    // hits that land it (HWP::Fishing::HitsNeeded)
+	float m_speedMul = 1.0f; // HIT_SPEEDUP per hit so far
 	int m_tickMs = 33;       // the last game tick's ms
 	int m_drawsThisTick = 0; // frames drawn since that tick
 	int m_drawsLastTick = 0; // frames the tick before it got
@@ -1888,15 +1923,19 @@ class HWPFishingMenu : AWindowObject
 			m_zoneX = randi(HWP::Fishing::BAR_WIDTH - m_zoneW + 1);
 			m_markerPos = 0;
 			m_markerDir = 1;
+			m_hits = 0;
+			m_hitsNeeded = HWP::Fishing::HitsNeeded(m_tier);
+			m_speedMul = 1.0f;
 			m_timer = HWP::Fishing::BITE_WINDOW;
 			m_zone.m_width = m_zoneW;
 			Place(m_zone, float(m_zoneX));
 			m_zone.m_visible = true;
 			// the marker is drawn by Draw between game ticks (smooth); the widget
-			// stands in only if the bar group is missing
+			// stands in only if the bar group is missing. Its offset follows the marker
+			// either way (gl sweepclick reads it).
 			Place(m_marker, 0);
 			m_marker.m_visible = m_barGroup is null;
-			m_status.SetText(Resources::GetString(".hwp.fishing.bite"));
+			m_status.SetText(Resources::GetString(m_hitsNeeded > 1 ? ".hwp.fishing.bite_hits" : ".hwp.fishing.bite", { { "n", m_hitsNeeded } }));
 			m_castButton.SetText(Resources::GetString(".hwp.fishing.reel"));
 		}
 		else if (state == HWP::Fishing::STATE_RESULT)
@@ -1911,11 +1950,17 @@ class HWPFishingMenu : AWindowObject
 	void Reel()
 	{
 		bool hit = m_markerPos + float(HWP::Fishing::MARKER_WIDTH) >= float(m_zoneX) && m_markerPos <= float(m_zoneX + m_zoneW);
+		if (hit && m_hits + 1 < m_hitsNeeded)
+		{
+			Fight();
+			return;
+		}
 		m_marker.m_visible = false;
 		m_zone.m_visible = false;
+		HWP::Log("fishing", "reel: " + (hit ? "landed" : "missed") + " at hit " + (m_hits + 1) + " of " + m_hitsNeeded + " (tier " + m_tier + ")");
 		if (!hit)
 		{
-			m_log.SetText(Resources::GetString(".hwp.fishing.escaped"));
+			m_log.SetText(Resources::GetString(m_hits > 0 ? ".hwp.fishing.escaped_fight" : ".hwp.fishing.escaped"));
 			SetState(HWP::Fishing::STATE_RESULT);
 			return;
 		}
@@ -1938,9 +1983,41 @@ class HWPFishingMenu : AWindowObject
 		RefreshInfo();
 	}
 
-	float MarkerSpeed()
+	// a hit that does not land it yet: the fish fights. The zone jumps to a new spot at
+	// least HIT_ZONE_GAP px clear of the marker (no free hit on the next frame), the marker
+	// speeds up and the bite window starts again.
+	void Fight()
+	{
+		m_hits++;
+		m_speedMul *= HWP::Fishing::HIT_SPEEDUP;
+		int maxX = HWP::Fishing::BAR_WIDTH - m_zoneW;
+		array<int> spots;
+		for (int x = 0; x <= maxX; x++)
+		{
+			if (float(x) > m_markerPos + float(HWP::Fishing::MARKER_WIDTH + HWP::Fishing::HIT_ZONE_GAP)
+				|| float(x + m_zoneW + HWP::Fishing::HIT_ZONE_GAP) < m_markerPos)
+				spots.insertLast(x);
+		}
+		m_zoneX = spots.length() > 0 ? spots[randi(spots.length())] : randi(maxX + 1);
+		Place(m_zone, float(m_zoneX));
+		m_timer = HWP::Fishing::BITE_WINDOW;
+		m_status.SetText(Resources::GetString(".hwp.fishing.fighting", { { "hit", m_hits }, { "n", m_hitsNeeded } }));
+		HWP::Log("fishing", "reel: hit " + m_hits + " of " + m_hitsNeeded + " (tier " + m_tier + "), zone to " + m_zoneX + ", marker x" + formatFloat(MarkerSpeed() / BaseSpeed(), "", 0, 2));
+		m_widget.Invalidate();
+	}
+
+	float BaseSpeed()
 	{
 		return HWP::Fishing::MARKER_SPEED[m_tier - 1] * HWP::Fishing::SpeedScale(m_rod);
+	}
+
+	// the base speed, sped up per hit (HIT_SPEEDUP) as far as one tick's step stays inside
+	// what the zone can catch
+	float MarkerSpeed()
+	{
+		float base = BaseSpeed();
+		float cap = 0.9f * float(m_zoneW + HWP::Fishing::MARKER_WIDTH) / HWP::Fishing::HIT_TICK_MS;
+		return max(base, min(base * m_speedMul, cap));
 	}
 
 	// where the marker is idt ms after the last update (it bounces off the ends)
@@ -2030,14 +2107,16 @@ class HWPFishingMenu : AWindowObject
 				m_markerDir = 1;
 			}
 			m_markerPos = clamp(m_markerPos, 0.0f, maxX);
-			if (m_marker.m_visible)
-				Place(m_marker, m_markerPos);
+			Place(m_marker, m_markerPos);
 			m_timer -= ms;
 			if (menuInput.Forward.Pressed)
 				Reel();
 			else if (m_timer <= 0)
 			{
-				m_log.SetText(Resources::GetString(".hwp.fishing.escaped"));
+				HWP::Log("fishing", "reel: too slow at hit " + (m_hits + 1) + " of " + m_hitsNeeded + " (tier " + m_tier + ")");
+				m_log.SetText(Resources::GetString(m_hits > 0 ? ".hwp.fishing.escaped_fight" : ".hwp.fishing.escaped"));
+				m_marker.m_visible = false;
+				m_zone.m_visible = false;
 				SetState(HWP::Fishing::STATE_RESULT);
 			}
 		}
@@ -2352,7 +2431,10 @@ namespace Modules
 				for (uint i = 0; i < HWP::Fishing::BAIT_IDS.length(); i++)
 					HWP::Materials::Register("a", 10 + i, "hwp-mat-bait-" + HWP::Fishing::BAIT_IDS[i], HWPBaitMaterial(i + 1));
 			}
-			HWP::ItemActions::Register(HWP::Fishing::EatAction());
+			HWP::Settings::LocalOnly("fishing.eat_key");
+			auto eat = HWP::Fishing::EatAction();
+			HWP::ItemActions::Register(eat);
+			HWP::Options::Register("eatkey", HWP::ItemActions::ActionKeyOption(eat, ".hwp.fishing.eat_key"));
 			HWP::Net::OnRequest(HWP::Fishing::CAST, HWP::Net::RequestHandler(HWP::Fishing::OnCastRequest));
 			HWP::Net::OnRequest(HWP::Fishing::CATCH, HWP::Net::RequestHandler(HWP::Fishing::OnCatch));
 			HWP::Net::OnRequest(HWP::Fishing::CAUGHT, HWP::Net::RequestHandler(HWP::Fishing::OnCaught));
