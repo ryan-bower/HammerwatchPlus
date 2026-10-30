@@ -1,6 +1,6 @@
 <lang name="English" official="false">
-	<string name="hwp.colors.current">Projectile colours: preset %preset%, enemy #%enemy%, friendly #%friendly%</string>
-	<string name="hwp.colors.usage">hwp colors [default|contrast|deuteranopia|protanopia|tritanopia] | enemy RRGGBB | friendly RRGGBB | off</string>
+	<string name="hwp.colors.current">Projectile colours: preset %preset%, enemy #%enemy%, friendly #%friendly%, markers %markers% (%drawn% at once at most this level)</string>
+	<string name="hwp.colors.usage">hwp colors [default|contrast|deuteranopia|protanopia|tritanopia] | enemy RRGGBB | friendly RRGGBB | markers on|off | off</string>
 	<string name="hwp.colors.preset.default">Default</string>
 	<string name="hwp.colors.preset.contrast">High contrast</string>
 	<string name="hwp.colors.preset.deuteranopia">Deuteranopia</string>

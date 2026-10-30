@@ -1,0 +1,187 @@
+{
+ "name": "pf-mod-affixes",
+ "about": "mod-affixes against the built package dungeon instead of the mods' source folders (tools/make_package_scenarios.py). Issue #17, mods/affixes: Rare and Epic items may roll a second suffix (the rare tier) and Epic items a second prefix (the epic tier), affixes.chance (25) percent each. Rolls 400 Epic and 400 Rare items through the generator (rates, no duplicate mod, no tier over two, one skill), 100% and off, gives an Epic chest piece with both extras (tooltip shot), saves, restarts and finds it unchanged.",
+ "fixture": "town-paladin",
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:affixes\\] self-check done: on, 25% per tier",
+   "name": "module up: on, 25% per tier",
+   "timeout": 20
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "console",
+   "line": "hwp affixes roll 400 epic 30"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:affixes\\] roll: 400 epic at ilvl 30 \\(chance 25%\\): second suffix (?:6\\d|7\\d|8\\d|9\\d|1[0-3]\\d|140), second prefix (?:6\\d|7\\d|8\\d|9\\d|1[0-3]\\d|140), max mods 5, over two 0, duplicates 0, two skills 0",
+   "name": "400 Epic: about a quarter get a second suffix, a quarter a second prefix; none doubled, no tier over two, one skill at most",
+   "timeout": 10
+  },
+  {
+   "do": "console",
+   "line": "hwp affixes roll 400 rare 30"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:affixes\\] roll: 400 rare at ilvl 30 \\(chance 25%\\): second suffix (?:6\\d|7\\d|8\\d|9\\d|1[0-3]\\d|140), second prefix 0, max mods 3, over two 0, duplicates 0, two skills 0",
+   "name": "400 Rare: about a quarter get a second suffix, never a prefix",
+   "timeout": 10
+  },
+  {
+   "do": "console",
+   "line": "hwp set affixes.chance 100"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "console",
+   "line": "hwp affixes roll 200 epic 1"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:affixes\\] roll: (\\d+) epic at ilvl 1 \\(chance 100%\\): second suffix \\1, second prefix \\1, max mods 5, over two 0, duplicates 0, two skills 0",
+   "name": "at 100% every Epic gets both, even at item level 1",
+   "timeout": 10
+  },
+  {
+   "do": "console",
+   "line": "hwp set affixes.enabled 0"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "console",
+   "line": "hwp affixes roll 200 epic 30"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:affixes\\] roll: 200 epic at ilvl 30 \\(chance off\\): second suffix 0, second prefix 0, max mods 3, over two 0, duplicates 0, two skills 0",
+   "name": "off: vanilla items",
+   "timeout": 10
+  },
+  {
+   "do": "console",
+   "line": "hwp set affixes.enabled 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp set affixes.chance 25"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "console",
+   "line": "hwp affixes give"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:affixes\\] gave \\w+ epic \\([^)]*\\): 5 mods, suffixes 2, prefixes 2",
+   "name": "give: an Epic chest piece with both extras",
+   "timeout": 10
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character",
+    "equipment-inventory"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "gl",
+   "verb": "hover",
+   "args": [
+    "equipment-inventory",
+    "0"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "affixes-tooltip"
+  },
+  {
+   "do": "gl",
+   "verb": "menu"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "save"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "restart"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:affixes\\] self-check done",
+   "name": "module up after the restart",
+   "timeout": 30
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "console",
+   "line": "hwp affixes bag"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:affixes\\] bag \\w+ epic \\([^)]*\\): 5 mods, suffixes 2, prefixes 2",
+   "name": "after save and restart the item keeps its two suffixes and two prefixes",
+   "timeout": 10
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:affixes\\] bag: 1 item\\(s\\) with an extra affix",
+   "name": "one item with extras in the bag",
+   "timeout": 10
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "dungeon"
+ ]
+}

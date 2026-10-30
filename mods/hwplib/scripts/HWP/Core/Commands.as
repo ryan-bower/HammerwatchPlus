@@ -250,7 +250,7 @@ namespace HWP
 
 		void CmdVersion(array<string>@ args)
 		{
-			Reply("HammerwatchPlus " + HWP::VERSION + (Network::IsServer() ? " (host)" : " (client)"));
+			Reply("HammerwatchPlus " + HWP::VERSION + (Network::IsServer() ? " (host)" : " (client)") + ", " + HWP::Builds::Summary());
 		}
 
 		// Modules that cache a setting register here to be told when hwp set changes it.
@@ -279,6 +279,7 @@ namespace HWP
 				"HammerwatchPlus commands: hwp help");
 			AddVar("hwp_line", "", OnHwpLine, cvar_flags::TriggerChanged);
 			Register("version", " show the mod version", Handler(CmdVersion));
+			Register("builds", "[report | fake <package>=<update> | fake silent | fake clear]  which update each package is", Handler(HWP::Builds::Cmd));
 			Register("settings", " list changed settings", Handler(CmdSettings));
 			Register("get", "<setting>  show one setting", Handler(CmdGet));
 			Register("set", "<setting> <value>  change a setting", Handler(CmdSet));

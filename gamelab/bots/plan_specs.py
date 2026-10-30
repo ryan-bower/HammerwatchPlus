@@ -488,8 +488,12 @@ class Checks(Base):
         cd = self.skill_cd(pb)
         st = self.specs()
         last = num(st, "last")
-        self.flag("brand_claw", ok and "claw (recast)" in line and last is not None and last >= base + (stored or 0) - 1,
-                  f"recast activated {ok}: {line[-120:]!r}; last claw {last} fire (base {base} + stored {stored}, at least)")
+        # the stored part at the brand's charge, the part of its time gone by (issue #35)
+        cl = re.findall(r"claw \(recast\) (\d+) fire, charge ([\d.]+) of ([\d.]+) stored", line)
+        ch, sto = (float(cl[-1][1]), float(cl[-1][2])) if cl else (None, None)
+        self.flag("brand_claw", ok and bool(cl) and last is not None and 0 < ch < 1 and abs(sto - (stored or 0)) <= 1
+                  and abs(last - (base + sto * ch)) <= 1,
+                  f"recast activated {ok}: {line[-160:]!r}; last claw {last} fire (base {base} + stored {sto} x charge {ch})")
         self.flag("brand_refund", m1 >= m0 - 3 and (cd or 0) > 5000,
                   f"mana {m0} -> {m1} (the recast is free), cooldown after the claw {cd}")
 

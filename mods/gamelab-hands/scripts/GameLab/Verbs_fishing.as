@@ -324,6 +324,10 @@ namespace GameLab
 	float g_sweepSpeed = 0;
 	int g_sweepMs = 0;
 	int g_sweepFrames = 0;
+	string g_sweepMarker;   // the marker widget: read its offset instead of integrating
+	int g_sweepMissAt = 0;  // with a marker: the click (1-based) made outside the zone
+	int g_sweepClicks = 0;
+	bool g_sweepSkip = false; // the frame right after a click (the window moves the zone)
 
 	float FishSpeedFor(int width)
 	{
@@ -355,7 +359,7 @@ namespace GameLab
 		Json j;
 		Emit(j.Str("ev", "sweepclick").Str("id", g_sweepId).Str("result", result).Int("zx", zx).Int("zw", zw)
 			.Num("p", g_sweepPos).Num("speed", g_sweepSpeed).Int("ms", g_sweepMs).Int("frames", g_sweepFrames)
-			.Raw("texts", texts.Close()));
+			.Int("clicks", g_sweepClicks).Raw("texts", texts.Close()));
 	}
 
 	// every frame, paused ones too (the fishing window pauses the game): from the frame the
@@ -381,9 +385,14 @@ namespace GameLab
 		if (!zone.m_visible)
 		{
 			if (g_sweepSeen)
-				FishSweepDone("gone", wnd, zx, zw);
+				FishSweepDone(g_sweepClicks > 0 ? "clicked" : "gone", wnd, zx, zw);
 			else if (g_sweepMsLeft <= 0)
 				FishSweepDone("timeout", wnd, zx, zw);
+			return;
+		}
+		if (!g_sweepMarker.isEmpty())
+		{
+			FishTickSweepMarker(ms, wnd, zx, zw);
 			return;
 		}
 		if (!g_sweepSeen)
@@ -432,13 +441,64 @@ namespace GameLab
 		}
 	}
 
-	// sweepclick <buttonId> <zoneId> <barW> <markerW> <width:speed[,width:speed...]> [timeoutMs] [windowMs] [reportId,reportId...]:
+	// with a marker widget (the fishing window keeps its offset on the marker): clicks every
+	// time the marker lies inside the zone, as long as the zone stays up (a bite takes several
+	// hits, the zone moving after each), the click numbered missAt outside it; done when the
+	// zone goes ("clicked" after any click), or "late" when a hit's window runs out
+	void FishTickSweepMarker(int ms, AWindowObject@ wnd, int zx, int zw)
+	{
+		Widget@ marker = wnd.m_widget.GetWidgetById(g_sweepMarker);
+		if (marker is null)
+		{
+			FishSweepDone("nomarker", wnd, zx, zw);
+			return;
+		}
+		if (!g_sweepSeen)
+		{
+			g_sweepSeen = true;
+			g_sweepMs = 0;
+		}
+		else
+			g_sweepMs += ms;
+		g_sweepPos = marker.m_offset.x;
+		if (g_sweepSkip)
+		{
+			g_sweepSkip = false;
+			return;
+		}
+		if (g_sweepMs >= g_sweepWindow - 50)
+		{
+			FishSweepDone("late", wnd, zx, zw);
+			return;
+		}
+		float margin = min(2.0f, float(zw) / 4.0f);
+		bool inside = g_sweepPos + float(g_sweepMarkerW) >= float(zx) + margin && g_sweepPos <= float(zx + zw) - margin;
+		bool outside = g_sweepPos + float(g_sweepMarkerW) < float(zx) - 4.0f || g_sweepPos > float(zx + zw) + 4.0f;
+		bool miss = g_sweepClicks + 1 == g_sweepMissAt;
+		if (miss ? !outside : !inside)
+			return;
+		auto btn = cast<AInteractableWidget>(wnd.m_widget.GetWidgetById(g_sweepButton));
+		if (btn is null)
+		{
+			FishSweepDone("nobutton", wnd, zx, zw);
+			return;
+		}
+		g_sweepClicks++;
+		g_sweepMs = 0;
+		g_sweepSkip = true;
+		btn.ClickDown(false, vec2());
+		btn.ClickUp(false, vec2());
+	}
+
+	// sweepclick <buttonId> <zoneId> <barW> <markerW> <width:speed[,width:speed...]> [timeoutMs] [windowMs] [reportId,reportId...] [markerId] [missAt]:
 	// clicks buttonId now (the fishing window's Cast), then watches zoneId (the catch zone:
 	// its width and m_offset.x) and clicks buttonId again while the moving marker is inside it
 	// (Reel). The speed (px per ms) is the table entry nearest the zone's width (the zone's
 	// width gives the fish tier). The reply comes at once; the outcome arrives as
 	// {"ev":"sweepclick","id":<this id>,"result":"clicked"|"timeout"|"gone"|"late"|"closed",
-	// "zx","zw","p","speed","ms","frames","texts":{reportId: caption}}, texts read right after.
+	// "zx","zw","p","speed","ms","frames","clicks","texts":{reportId: caption}}, texts read right after.
+	// With markerId the marker's position is that widget's offset and every hit is clicked
+	// until the zone goes (FishTickSweepMarker); missAt (1-based) makes that click a miss.
 	void VerbFishSweepClick(const string &in id, array<string>@ args)
 	{
 		if (args.length() < 5)
@@ -484,8 +544,17 @@ namespace GameLab
 		g_sweepMsLeft = args.length() > 5 ? int(parseInt(args[5])) : 8000;
 		g_sweepWindow = args.length() > 6 ? int(parseInt(args[6])) : 2500;
 		g_sweepReport.removeRange(0, g_sweepReport.length());
-		if (args.length() > 7)
+		if (args.length() > 7 && args[7] != "-")
 			g_sweepReport = args[7].split(",");
+		g_sweepMarker = args.length() > 8 && args[8] != "-" ? args[8] : "";
+		if (!g_sweepMarker.isEmpty() && wnd.m_widget.GetWidgetById(g_sweepMarker) is null)
+		{
+			Fail(id, "no widget '" + g_sweepMarker + "' in the top window");
+			return;
+		}
+		g_sweepMissAt = args.length() > 9 ? int(parseInt(args[9])) : 0;
+		g_sweepClicks = 0;
+		g_sweepSkip = false;
 		g_sweepSeen = false;
 		g_sweepPos = 0;
 		g_sweepDir = 1;
@@ -506,7 +575,7 @@ namespace GameLab
 		RegisterVerb("wcaption", "<widgetId...>", Verb(VerbFishCaption));
 		RegisterVerb("wchildren", "<widgetId> [depth]", Verb(VerbFishChildren));
 		RegisterVerb("pressin", "<parentId> <childId>", Verb(VerbFishPressIn));
-		RegisterVerb("sweepclick", "<buttonId> <zoneId> <barW> <markerW> <width:speed,...> [timeoutMs] [windowMs] [reportIds]", Verb(VerbFishSweepClick));
+		RegisterVerb("sweepclick", "<buttonId> <zoneId> <barW> <markerW> <width:speed,...> [timeoutMs] [windowMs] [reportIds] [markerId] [missAt]", Verb(VerbFishSweepClick));
 	}
 }
 

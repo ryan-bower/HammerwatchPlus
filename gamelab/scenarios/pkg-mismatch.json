@@ -1,6 +1,6 @@
 {
  "name": "pkg-mismatch",
- "about": "A package of another build beside the current ones: gamelab-stampfake carries a package check module exactly as tools/build.py generates it, made with a library stamp no build has. The check logs the mismatch, calls HWP::Packages::Mismatch, and the player gets the chat line in town; the real packages still pass their own checks.",
+ "about": "Packages of other updates beside the current ones (issue #24): gamelab-stampfake carries two package check modules exactly as tools/build.py generates them. HWP-stampfake is one from before update stamps (it only calls HWP::Packages::Mismatch); HWP-stampnew is a stamped one of an older update (library 000000000001, update 2026-10-01). The checks log the mismatch, and in town the player is told each odd package's update next to the running library's; the real package still passes its own check and logs its update.",
  "fixture": "town-paladin",
  "packages": [
   "qol"
@@ -10,11 +10,63 @@
  ],
  "timeout": 240,
  "steps": [
-  {"do": "log_has", "pattern": "\\[HWP:core\\] package HWP-qol, library [0-9a-f]{12}", "timeout": 30, "name": "the real package matches"},
-  {"do": "log_has", "pattern": "\\[HWP:core\\] package HWP-stampfake was built with library 000000000000 but library [0-9a-f]{12} loaded", "timeout": 10, "name": "the other build is logged"},
-  {"do": "log_has", "pattern": "\\[HWP:core\\] gameplay started; server=yes town=yes", "timeout": 60, "name": "gameplay started in town"},
-  {"do": "log_has", "pattern": "\\[HWP\\] HammerwatchPlus packages from different updates are enabled together \\(HWP-stampfake differ from the rest\\)", "timeout": 15, "name": "the player is told"},
-  {"do": "gl", "verb": "state", "expect": {"phase": "town"}, "name": "in town"},
-  {"do": "shot", "name": "town"}
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-qol, library [0-9a-f]{12}, update \\d{4}-\\d\\d-\\d\\d [0-9a-f]{7,}",
+   "timeout": 30,
+   "name": "the real package matches, with its update"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-stampfake was built with library 000000000000 but library [0-9a-f]{12} loaded",
+   "timeout": 10,
+   "name": "the unstamped other build is logged"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-stampnew was built with library 000000000001 but library [0-9a-f]{12} loaded",
+   "timeout": 10,
+   "name": "the stamped other build is logged"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] gameplay started; server=yes town=yes",
+   "timeout": 60,
+   "name": "gameplay started in town"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] update: update \\d{4}-\\d\\d-\\d\\d \\([0-9a-f]{7,}\\+?\\): HWP-qol; update 2026-10-01 \\(0000000\\): HWP-stampnew",
+   "timeout": 10,
+   "name": "the updates are logged"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] HammerwatchPlus packages from different updates are enabled together, so some mods may misbehave\\. The library running is from \\d{4}-\\d\\d-\\d\\d \\([0-9a-f]{7,}\\+?\\); HWP-stampnew 2026-10-01 \\(0000000\\), older; HWP-stampfake an update from before update stamps, older\\. Update them all",
+   "timeout": 15,
+   "name": "the player is told each package's update"
+  },
+  {
+   "do": "console",
+   "line": "hwp version"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] HammerwatchPlus \\S+ \\(host\\), update \\d{4}-\\d\\d-\\d\\d \\([0-9a-f]{7,}\\+?\\): HWP-qol; update 2026-10-01 \\(0000000\\): HWP-stampnew",
+   "timeout": 10,
+   "name": "hwp version names each update"
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   },
+   "name": "in town"
+  },
+  {
+   "do": "shot",
+   "name": "town"
+  }
  ]
 }

@@ -37,6 +37,16 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
   keeps the rifle's icon). Dex-gated, crossbow anim set, tag `hwp_firearm`. The t1
   rifle sits in the armory pool. A new character starts with one Service
   Pistol (`hwp_glock_mh_01`) in the main hand. Every weapon type is allowed.
+- **Guns on any class** (issues #16, #29): a gun from the armory or a drop works in anyone's
+  hands. The clip, its fill, the reload on an empty trigger, the magazine and the gun's feel
+  (aim hold, pose, reload sounds) go with the gun: `UsesGuns` is the class or a gun (tag
+  `hwp_firearm`) in either hand (`HoldsGun`). Before, they asked the class only, so a
+  Ranger's pistol had an empty clip that nothing filled and never fired. A Ranger with a
+  pistol and a hand crossbow now shoots both, the clip shows in the buff bar, and an empty
+  clip reloads on the next trigger pull (1.6 s). Without the class there's no Reload skill and
+  none of the doctrine skills. What stays with the class: its skills and ranks, and the shops
+  offering guns. `hwp firearms` says `guns: the class`, `held by a <class>` or `none`.
+  `fix-firearms-ranger-offhand`.
 - **Shops** (`scripts/HWP/Firearms/Shops.as`; overrides of the town equipment
   seller `Town/EquipmentSeller.as` and the wagon's "Buy new equipment"
   `ShopContent/EquipmentShopShopContent.as`, the added lines marked HWP): both

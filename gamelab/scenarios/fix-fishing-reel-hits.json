@@ -1,0 +1,53 @@
+{
+ "name": "fix-fishing-reel-hits",
+ "about": "Issue #32, fishing needs to be harder: a bite takes several hits in the green to land, 2 / 2 / 3 / 4 by fish tier (fishing.reel_hits 0). At the coast with forced tiers (`hwp fishing tier N`, squid bait) the window's own bar is reeled by gl sweepclick reading the marker widget: a 3-star (tier 4) fish takes 4 clicks, tier 1 takes 2 and tier 3 takes 3, each hit logged with the zone's new spot and the marker's speed-up (rising for tier 3; capped for the 3-star fish so a tick's step can't skip its 10 px zone). A miss at the 2nd of 3 hits loses the fish (\"fought free\"). fishing.reel_hits 1 brings back the single press.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "fishing",
+  "keys"
+ ],
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "plan_fishing",
+   "kwargs": {
+    "sections": "reel_hits"
+   },
+   "name": "several hits to land",
+   "expect": {
+    "reel_window": true,
+    "reel_tier4_4_hits": true,
+    "reel_tier1_2_hits": true,
+    "reel_tier3_3_hits": true,
+    "reel_fights_back": true,
+    "reel_fast_fish_catchable": true,
+    "reel_miss_loses_it": true,
+    "reel_setting_one_press": true
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:fishing\\] reel: landed at hit 4 of 4 \\(tier 4\\)",
+   "timeout": 5
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

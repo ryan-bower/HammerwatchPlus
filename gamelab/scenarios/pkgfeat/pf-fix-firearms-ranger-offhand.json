@@ -1,0 +1,44 @@
+{
+ "name": "pf-fix-firearms-ranger-offhand",
+ "about": "fix-firearms-ranger-offhand against the built package firearms instead of the mods' source folders (tools/make_package_scenarios.py). Issue #16: a Ranger with a Service Pistol in the main hand and a hand crossbow in the off hand. The pistol never fired for another class: the clip was filled and reloaded only for the Firearms Specialist (IsFirearms), so it stayed empty. Now the clip goes with the gun (UsesGuns). Checks: no clip without a gun; the clip fills in town and is full on floor 1; the pistol hurts a breakable target dummy and spends rounds, the crossbow hurts it and spends none; an emptied clip reloads on the next trigger pull. Shot: ranger-guns.",
+ "fixture": "town-ranger",
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "fix_ranger_offhand",
+   "name": "a Ranger's pistol and hand crossbow",
+   "expect": {
+    "no_gun_no_clip": true,
+    "town_clip_filled": true,
+    "floor_clip_full": true,
+    "pistol_fires": true,
+    "crossbow_fires": true,
+    "empty_trigger_reloads": true,
+    "no_fill_timeout": true
+   }
+  },
+  {
+   "do": "shot",
+   "name": "ranger-guns"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "firearms"
+ ]
+}

@@ -13,6 +13,17 @@ Accessibility colours for projectiles.
   else is enemy. The tint is `UnitPtr.SetMultiplyColor`, so it multiplies the
   sprite: dark sprites get darker, white/pale ones take the colour best. The
   first tinted shot of a level is logged (`[HWP:colors] tinted <unit> enemy #...`).
+- The tint alone barely shows (issue #36). Most projectiles that matter are
+  bright (fire, glows: the wizard's orange fireball only goes a dimmer yellow)
+  or dark (bolts, shadow: they just get darker), and their lights and
+  particles are not tinted. So every tinted projectile also gets a **marker**:
+  a ring in its team's colour (radius 6 px, 1 px over a 3 px dark outline)
+  drawn from the module's `RenderFrame` at the projectile's ground point, the
+  way the game draws player names. The sprite flies a few px above it, like
+  its shadow. Setting `colors.markers` (on by default); `hwp colors markers
+  on|off`. `hwp colors` also says how many were drawn at once at most this
+  level. Up to 256 projectiles are tracked; ray projectiles (crossbow bolts,
+  darts) live too briefly to show one.
 - Presets: `default` (no tint), `contrast` (red vs light blue),
   `deuteranopia` (orange vs blue), `protanopia` (yellow vs blue),
   `tritanopia` (red vs teal). Per-team overrides as hex.
@@ -63,6 +74,7 @@ On the HammerwatchPlus tab of the player menu (Quality of Life > Colors), per pl
 |---|---|---|
 | `colors.enabled` | on | off: no projectile tint, the minimap markers go back to white, no dots or names on the maps. The chosen colours stay stored. At once (shots already flying keep their tint) |
 | Projectile colors (option `colors`) | Default | the preset, as above (`colors.preset`) |
+| `colors.markers` | on | a ring in the team's colour around every tinted projectile (no rings with the default preset, which tints nothing) |
 | Player map colors (option `playercolors`) | Default | `playercolors.palette`: the game's colours or the colour-blind-safe set |
 | `playercolors.names` | on | names on the maps |
 | `playercolors.distance` | 300 | names show beyond this many px (0, 150, 300, 600, 1000) |
@@ -78,6 +90,12 @@ The custom hex colours (`colors.enemy`, `colors.friendly`) stay command-only.
    ranged enemies' projectiles are red-ish. Beams (wizard) and ray projectiles
    also tint.
 3. `hwp colors enemy 00ff00`: enemy shots go green; `hwp colors off` restores.
+4. `python -m gamelab run fix-colors --mode lab` (issue #36): a ranger fires at a
+   fire magic tower in each preset. Both sides' shots in flight carry the
+   preset's colour (`gl projs`), and a held friendly fireball and enemy shadow
+   bolt each have a ring of their team's colour on screen (pixels against a
+   markers-off shot of the same scene). With `default`, there are no rings.
+5. By eye: `hwp colors contrast` in a fight; every shot has a red or blue ring.
 4. Player menu > Plus: "Projectile colors" shows the preset; clicking it
    steps through them, tints change right away, and `hwp colors` shows the new preset.
 5. Leave and re-enter town: the choice persists (`[HWP:colors] preset ...` in the log).
