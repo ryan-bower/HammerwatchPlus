@@ -2,7 +2,8 @@
 <!--
 	Pelor's Fury (Generosity active), the planner's paladin-spec4-active. Needs 10 stacks of
 	Pelor's Blessing (stacks_specs.sval:pelors_blessing) and the mana. Cast on an enemy: the one
-	nearest the reticle within the range (HWPGenFury, scripts/HWP/Specs/Generosity.as), refused
+	nearest the reticle within the range (HWPGenFury, scripts/HWP/Specs/Generosity.as; one that can be
+	held first, a body part such as the Serpent's segments standing for its head), refused
 	with no cost when there is none or it can't be held (dead, immortal, untargetable, a boss in an
 	invulnerable or scripted phase, immune to buffs). The target gets the pelors_fury buff for
 	pf-stun ms: stunned (rooted, disarmed, silenced: a boss's attack is cancelled), armor and

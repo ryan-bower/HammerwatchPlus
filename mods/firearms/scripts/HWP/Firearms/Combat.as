@@ -822,7 +822,7 @@ namespace HWP
 		void UpdateCombat(int ms)
 		{
 			auto plr = cast<PlayerBase>(GetLocalPlayer());
-			if (plr is null || !IsFirearms(GetLocalPlayerRecord()))
+			if (plr is null || !UsesGuns(GetLocalPlayerRecord()))
 				return;
 			UpdateEpipenSound(plr, ms);
 			if (g_headshotEnd)
@@ -846,7 +846,7 @@ namespace HWP
 		void PreRenderCombat()
 		{
 			auto plr = cast<PlayerBase>(GetLocalPlayer());
-			if (plr !is null && IsFirearms(GetLocalPlayerRecord()))
+			if (plr !is null && UsesGuns(GetLocalPlayerRecord()))
 				g_aimHold.Pin(plr);
 		}
 

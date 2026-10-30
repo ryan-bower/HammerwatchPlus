@@ -21,7 +21,7 @@
 	<string name="hwp.specs.param.extra_zaps">Extra Zaps per Tick:</string>
 	<string name="hwp.specs.param.extra_arrows">Extra Arrows:</string>
 	<string name="hwp.specs.param.dr_per_stack">Damage Reduction per Stack:</string>
-	<string name="hwp.specs.param.brand_stored">Damage Stored:</string>
+	<string name="hwp.specs.param.brand_stored">Full Charge:</string>
 	<string name="hwp.specs.param.claw_base">Base Claw Damage:</string>
 	<string name="hwp.specs.param.per_essence">Per Essence Stack:</string>
 	<string name="hwp.specs.param.essence_stacks">Essence Stacks:</string>
@@ -99,7 +99,7 @@
 	<string name="hwp.specs.stack.static_charge.desc">At 5, your next spell releases lightning strikes. Each new stack resets the 10 second timer.</string>
 	<!-- Branding -->
 	<string name="hwp.specs.pyrebrand.name">Pyrebrand</string>
-	<string name="hwp.specs.pyrebrand.desc">Brand the enemy you aim at with a demonic sigil for 6 seconds. %pct% of the damage you deal to it feeds the brand. Use Pyrebrand again, for free, or let the brand run out, and a Hellfire Claw tears up through the victim, dealing %base% Fire damage plus the stored damage to it and the enemies beside it. If the victim dies first, the brand passes to the nearest enemy with its stored damage.</string>
+	<string name="hwp.specs.pyrebrand.desc">Brand the enemy you aim at with a demonic sigil for 6 seconds. The damage you deal to it feeds the brand, and the brand charges as it burns. Use Pyrebrand again, for free, or let the brand run out, and a Hellfire Claw tears up through the victim, dealing %base% Fire damage to it and the enemies beside it, plus up to %pct% of the damage that fed it: the longer the brand has burned, the more, all of it when it runs out. If the victim dies first, the brand passes to the nearest enemy with its stored damage and charge.</string>
 	<string name="hwp.specs.combustion.name">Combustion</string>
 	<string name="hwp.specs.combustion.desc">Hellfire Claw consumes all of your Essence, dealing %per-stack% more damage in a %per-stack% larger area for each stack.</string>
 	<string name="hwp.specs.proliferation.name">Proliferation</string>

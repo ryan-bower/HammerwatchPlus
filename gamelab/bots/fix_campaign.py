@@ -227,9 +227,15 @@ class Checks(Base):
         self.gl("use", "teleport_pad")
         time.sleep(1.0)
         x2, y2 = self.pos()
-        d2 = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
-        self.flag("teleporter_same_spot", d1 < 48 and d2 < 8, f"second landing {x2:.0f},{y2:.0f}, {d2:.1f} px from the first")
-        self.flag("teleporter_logged", "teleporter: " in self.g.read_log()[len(log):], "")
+        d2 = ((x2 - dx) ** 2 + (y2 - dy) ** 2) ** 0.5
+        # the pad's fixed spot is the logged "-> x,y" of each use; where the player stands a
+        # second later can differ by a few px (enemies at the spot push them; 13 and 16 px
+        # in two runs), so the positions are only checked against the 48 px landing radius
+        uses = re.findall(r"teleporter: \S+ -?\d+,-?\d+ -> (-?\d+),(-?\d+) \(use", self.g.read_log()[len(log):])
+        same = len(uses) >= 2 and uses[-1] == uses[-2] == (str(dx), str(dy))
+        self.flag("teleporter_same_spot", d1 < 48 and d2 < 48 and same,
+                  f"second landing {x2:.0f},{y2:.0f}, {((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5:.1f} px from the first, {d2:.0f} from {dx},{dy}; logged uses {uses[-2:]}")
+        self.flag("teleporter_logged", bool(uses), "")
 
     def sec_confusion(self):
         self.hwp("campaign confuse 4000", 0.8, until="confused")

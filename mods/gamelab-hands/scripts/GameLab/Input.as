@@ -206,6 +206,80 @@ namespace GameLab
 		Emit(Reply(id, true).Int("ms", ms).Num("mx", move.x).Num("my", move.y).Int("buttons", buttons.length()));
 	}
 
+	const array<string> MENU_BUTTONS = { "forward", "up", "down", "left", "right", "accept", "additional",
+		"context", "prevtab", "nexttab", "prevsubtab", "nextsubtab" };
+	string g_menuPending = "";
+	string g_menuPendingId = "";
+	string g_menuHeld = "";
+	bool g_menuPad = false;
+
+	// menubutton <name>: a press of a menu button (MenuInput, what windows read: a gamepad's
+	// bumpers are MenuPreviousTab/MenuNextTab), written into MenuInput by the hands module's
+	// UpdateFrame: down for one frame, let go (Released, what a list's buy waits for) the next,
+	// cleared the one after. The engine does not clear a written Pressed itself: a press left in
+	// place was read every frame (fix-merchant-controller-tabs 20261029-022658: the tab flipped
+	// each frame). "menubutton_done" (same id) once it is cleared. With "pad" the GameInput says
+	// UsingGamepad for those frames, as a gamepad's press does: a list then acts on its selected
+	// entry, where with the mouse it wants one under the pointer (ScrollbarWidget.Update).
+	void VerbMenuButton(const string &in id, array<string>@ args)
+	{
+		if (args.length() < 1 || MENU_BUTTONS.find(args[0]) < 0 || (args.length() > 1 && args[1] != "pad"))
+		{
+			Fail(id, "usage: menubutton <" + join(MENU_BUTTONS, "|") + "> [pad]");
+			return;
+		}
+		g_menuPending = args[0];
+		g_menuPendingId = id;
+		g_menuPad = args.length() > 1;
+		Emit(Reply(id, true).Str("button", args[0]).Bool("pad", g_menuPad));
+	}
+
+	// phase 1: down and pressed; 2: let go (released, which a list's buy waits for: ScrollbarWidget.Update);
+	// 3: nothing
+	void SetMenuButton(MenuInput& mi, const string &in name, int phase)
+	{
+		bool down = phase == 1;
+		bool released = phase == 2;
+		if (name == "forward") { mi.Forward.Down = down; mi.Forward.Pressed = down; mi.Forward.Released = released; }
+		else if (name == "up") { mi.Up.Down = down; mi.Up.Pressed = down; mi.Up.Released = released; }
+		else if (name == "down") { mi.Down.Down = down; mi.Down.Pressed = down; mi.Down.Released = released; }
+		else if (name == "left") { mi.Left.Down = down; mi.Left.Pressed = down; mi.Left.Released = released; }
+		else if (name == "right") { mi.Right.Down = down; mi.Right.Pressed = down; mi.Right.Released = released; }
+		else if (name == "accept") { mi.Accept.Down = down; mi.Accept.Pressed = down; mi.Accept.Released = released; }
+		else if (name == "additional") { mi.Additional.Down = down; mi.Additional.Pressed = down; mi.Additional.Released = released; }
+		else if (name == "context") { mi.ContextMenu.Down = down; mi.ContextMenu.Pressed = down; mi.ContextMenu.Released = released; }
+		else if (name == "prevtab") { mi.MenuPreviousTab.Down = down; mi.MenuPreviousTab.Pressed = down; mi.MenuPreviousTab.Released = released; }
+		else if (name == "nexttab") { mi.MenuNextTab.Down = down; mi.MenuNextTab.Pressed = down; mi.MenuNextTab.Released = released; }
+		else if (name == "prevsubtab") { mi.MenuPreviousSubTab.Down = down; mi.MenuPreviousSubTab.Pressed = down; mi.MenuPreviousSubTab.Released = released; }
+		else if (name == "nextsubtab") { mi.MenuNextSubTab.Down = down; mi.MenuNextSubTab.Pressed = down; mi.MenuNextSubTab.Released = released; }
+	}
+
+	int g_menuPhase = 0;
+
+	void ApplyMenuButton(GameInput& gi, MenuInput& mi)
+	{
+		if (g_menuPad && (g_menuHeld != "" || g_menuPending != ""))
+			gi.UsingGamepad = true;
+		if (g_menuHeld != "")
+		{
+			g_menuPhase++;
+			SetMenuButton(mi, g_menuHeld, g_menuPhase);
+			if (g_menuPhase >= 3)
+			{
+				Json j;
+				Emit(j.Str("ev", "menubutton_done").Str("id", g_menuPendingId).Str("button", g_menuHeld));
+				g_menuHeld = "";
+			}
+			return;
+		}
+		if (g_menuPending == "")
+			return;
+		g_menuPhase = 1;
+		SetMenuButton(mi, g_menuPending, g_menuPhase);
+		g_menuHeld = g_menuPending;
+		g_menuPending = "";
+	}
+
 	// controller: the live GameInput the player reads (g_gameMode.m_currInput), read-only
 	void VerbController(const string &in id, array<string>@ args)
 	{

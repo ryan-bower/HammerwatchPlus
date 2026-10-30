@@ -6,12 +6,20 @@
 // machine that dealt them and ticked as DoT damage with no hook, so each fight
 // follows the pools (BossFight.pool) and counts what ticked off them while the
 // local player filled them last ("Afflictions"). It also records the damage it took
-// while such a fight was on (PlayerDamageTaken). When the boss dies (polled:
-// IsDead / destroyed, set on every machine by UnitKilled) the machine reports
-// its share to the host (bossrecap.report); the host gathers the party's reports
-// for a second and broadcasts the fight (bossrecap.show). Every machine then
-// shows the panel (a HUD component), prints a chat line per player and logs
-// "[HWP:deathrecap] boss recap <boss>: <name> dealt ...".
+// while such a fight was on (PlayerDamageTaken).
+//
+// A fight is the whole encounter, not one boss unit (issue #33: the Serpents of
+// Demise are four boss-tagged serpents feeding one health bar, so every serpent
+// that went down showed a recap). Every boss-tagged actor the local player hits
+// joins the open fight, and the fight lasts while one of them is alive or the
+// HUD still has an undefeated boss bar: vanilla's own notion of an encounter
+// (HUDBossBar stacks a bar per boss and clears them once all are down). It takes
+// its name from that bar ("Serpents of Demise") when one is up. When it ends
+// (polled: IsDead / destroyed, set on every machine by UnitKilled) the machine
+// reports its share to the host (bossrecap.report); the host gathers the party's
+// reports per fight name for a second and broadcasts the fight
+// (bossrecap.show). Every machine then shows the panel (a HUD component), prints
+// a chat line per player and logs "[HWP:deathrecap] boss recap <boss>: <name> dealt ...".
 namespace HWP
 {
 	namespace DeathRecap
@@ -22,24 +30,35 @@ namespace HWP
 		const int BOSS_GATHER_MS = 1000;  // host: wait this long for the clients' reports
 		const int BOSS_TOP = 5;           // sources per player on the panel
 		const int BOSS_MAX_PLAYERS = 8;
+		const int BOSS_LOG_UNITS = 12;    // "joins" / "down" log lines per fight (the Serpent's body
+		                                  // segments are boss units that expire every 4 s)
+
+		// one boss-tagged unit the local player hit in the fight, alive (dropped when it goes down)
+		class BossMember
+		{
+			UnitPtr unit;
+			string name;   // BossName when it joined
+			int pool;      // its affliction pools as far as the fight has counted them
+		}
 
 		class BossFight
 		{
-			UnitPtr unit;
+			array<BossMember@> members;
+			int unitsHit;  // members ever, down ones included
+			int unitsDown;
 			string boss;
+			bool barName;  // named after the HUD's boss bar
 			int dealt;
 			int taken;
-			int pool;      // the boss's affliction pools as far as this fight has counted them
 			array<Source@> sources;
 		}
 
-		array<BossFight@> g_fights;      // the bosses the local player has hit, alive
+		BossFight@ g_fight;              // the encounter the local player is in, or null
 		HWPBossRecapHUD@ g_bossHud;
 
-		// host: reports per boss unit id, until the gather timer runs out
+		// host: reports per fight (its name), until the gather timer runs out
 		class BossGather
 		{
-			int unitId;
 			string boss;
 			int left;
 			array<SValue@> reports;
@@ -81,14 +100,58 @@ namespace HWP
 			return Resources::GetString(".hwp.deathrecap.boss_other");
 		}
 
-		BossFight@ FightOf(Actor@ actor)
+		BossMember@ MemberOf(BossFight@ fight, Actor@ actor)
 		{
-			for (uint i = 0; i < g_fights.length(); i++)
+			for (uint i = 0; i < fight.members.length(); i++)
 			{
-				if (g_fights[i].unit == actor.m_unit)
-					return g_fights[i];
+				if (fight.members[i].unit == actor.m_unit)
+					return fight.members[i];
 			}
 			return null;
+		}
+
+		// the HUD's boss bars: one per actor with a "bossbar" (CompositeActorBehavior adds it
+		// when the unit is made), stacked until all are defeated, then cleared
+		HUDBossBar@ BossBars()
+		{
+			HUD@ hud = null;
+			if (g_gameMode !is null)
+				@hud = g_gameMode.GetHUD();
+			for (uint i = 0; hud !is null && i < hud.m_components.length(); i++)
+			{
+				auto bars = cast<HUDBossBar>(hud.m_components[i]);
+				if (bars !is null)
+					return bars;
+			}
+			return null;
+		}
+
+		// undefeated boss bars up right now, and the name the HUD shows over them
+		int BarsUp(string &out barName)
+		{
+			barName = "";
+			auto bars = BossBars();
+			if (bars is null || bars.m_barList is null || bars.m_mainFrame is null || !bars.m_mainFrame.m_visible)
+				return 0;
+			int up = 0;
+			for (uint i = 0; i < bars.m_barList.m_children.length(); i++)
+			{
+				auto bar = cast<BossBarWidget>(bars.m_barList.m_children[i]);
+				if (bar is null || bar.m_actor is null || bar.IsDefeated())
+					continue;
+				up++;
+			}
+			if (up > 0 && bars.m_bossName !is null)
+				barName = bars.m_bossName.m_str;
+			return up;
+		}
+
+		bool MemberDown(BossMember@ m)
+		{
+			if (!m.unit.IsValid() || m.unit.IsDestroyed())
+				return true;
+			auto actor = cast<Actor>(m.unit.GetScriptBehavior());
+			return actor is null || actor.IsDead();
 		}
 
 		void AddSource(BossFight@ fight, const string &in src, int amount)
@@ -136,11 +199,11 @@ namespace HWP
 		// the pools' ticks since the last look: counted when the local player filled them
 		// last (m_affectionAttacker; another machine's hits fill that machine's copy of
 		// the boss, not this one)
-		void CountPoolTicks(BossFight@ fight, CompositeActorBehavior@ boss, PlayerRecord@ rec)
+		void CountPoolTicks(BossFight@ fight, BossMember@ m, CompositeActorBehavior@ boss, PlayerRecord@ rec)
 		{
 			int now = PoolSum(boss.m_buffs);
-			int ticked = fight.pool - now;
-			fight.pool = now;
+			int ticked = m.pool - now;
+			m.pool = now;
 			if (ticked <= 0 || rec is null || rec.actor is null || boss.m_buffs.m_affectionAttacker !is rec.actor)
 				return;
 			int amount = damage_round(ticked * boss.m_buffs.AfflictionDamageTakenMul());
@@ -156,27 +219,42 @@ namespace HWP
 			if (dmg.Damage <= 0 || !IsBoss(actor) || actor.IsDead())
 				return;
 
-			auto fight = FightOf(actor);
-			if (fight is null)
+			if (g_fight is null)
 			{
 				BossFight f;
-				f.unit = actor.m_unit;
-				f.boss = BossName(actor);
+				string barName;
+				BarsUp(barName);
+				f.barName = !barName.isEmpty();
+				f.boss = f.barName ? barName : BossName(actor);
 				f.dealt = 0;
 				f.taken = 0;
+				f.unitsHit = 0;
+				f.unitsDown = 0;
+				@g_fight = f;
+				HWP::Log("deathrecap", "boss fight started: " + f.boss + " (" + BossName(actor) + ", unit " + actor.m_unit.GetId() + ")");
+			}
+			auto m = MemberOf(g_fight, actor);
+			if (m is null)
+			{
+				BossMember nm;
+				nm.unit = actor.m_unit;
+				nm.name = BossName(actor);
 				auto b = cast<CompositeActorBehavior>(actor);
-				f.pool = b is null ? 0 : PoolSum(b.m_buffs);
-				@fight = f;
-				g_fights.insertLast(f);
-				HWP::Log("deathrecap", "boss fight started: " + f.boss + " (unit " + actor.m_unit.GetId() + ")");
+				nm.pool = b is null ? 0 : PoolSum(b.m_buffs);
+				@m = nm;
+				g_fight.members.insertLast(nm);
+				g_fight.unitsHit++;
+				if (g_fight.unitsHit > 1 && g_fight.unitsHit <= BOSS_LOG_UNITS)
+					HWP::Log("deathrecap", "boss fight " + g_fight.boss + ": " + nm.name + " (unit " + actor.m_unit.GetId() + ") joins, "
+						+ g_fight.unitsHit + " units hit");
 			}
 
-			AddSource(fight, HitSource(player, dmg), dmg.Damage);
+			AddSource(g_fight, HitSource(player, dmg), dmg.Damage);
 			auto boss = cast<CompositeActorBehavior>(actor);
 			if (boss !is null)
 			{
-				CountPoolTicks(fight, boss, player.m_record);
-				fight.pool += AfflictionAdded(boss, dmg);
+				CountPoolTicks(g_fight, m, boss, player.m_record);
+				m.pool += AfflictionAdded(boss, dmg);
 			}
 		}
 
@@ -186,10 +264,9 @@ namespace HWP
 			if (player is null || dmg is null || player.m_record is null || !player.m_record.local)
 				return;
 			int amount = dmg.DamageDealt > 0 ? dmg.DamageDealt : dmg.Damage;
-			if (amount <= 0)
+			if (amount <= 0 || g_fight is null)
 				return;
-			for (uint i = 0; i < g_fights.length(); i++)
-				g_fights[i].taken += amount;
+			g_fight.taken += amount;
 		}
 
 		void SortSources(array<Source@>& list)
@@ -214,7 +291,7 @@ namespace HWP
 			SortSources(f.sources);
 			SValueBuilder b;
 			b.PushDictionary();
-			b.PushInteger("unit", f.unit.GetId());
+			b.PushInteger("units", f.unitsHit);
 			b.PushString("boss", f.boss);
 			b.PushInteger("peer", rec.peer);
 			b.PushString("name", rec.GetName());
@@ -233,37 +310,50 @@ namespace HWP
 			return b.Build();
 		}
 
-		bool FightOver(BossFight@ f)
-		{
-			if (!f.unit.IsValid() || f.unit.IsDestroyed())
-				return true;
-			auto actor = cast<Actor>(f.unit.GetScriptBehavior());
-			return actor is null || actor.IsDead();
-		}
-
-		// every machine, each frame: a hit boss that died ends its fight
+		// every machine, each frame: the fight ends once every unit hit in it is down and no
+		// undefeated boss bar is left (one serpent of several, a Bandit Lord's mirror image,
+		// a spawned ghost going down is not the end)
 		void PollFights()
 		{
-			if (g_fights.length() == 0)
+			auto f = g_fight;
+			if (f is null)
 				return;
 			auto rec = GetLocalPlayerRecord();
-			for (int i = int(g_fights.length()) - 1; i >= 0; i--)
+			for (int i = int(f.members.length()) - 1; i >= 0; i--)
 			{
-				auto f = g_fights[i];
-				if (f.unit.IsValid() && !f.unit.IsDestroyed())
+				auto m = f.members[i];
+				if (m.unit.IsValid() && !m.unit.IsDestroyed())
 				{
-					auto boss = cast<CompositeActorBehavior>(f.unit.GetScriptBehavior());
+					auto boss = cast<CompositeActorBehavior>(m.unit.GetScriptBehavior());
 					if (boss !is null)
-						CountPoolTicks(f, boss, rec);
+						CountPoolTicks(f, m, boss, rec);
 				}
-				if (!FightOver(f))
+				if (!MemberDown(m))
 					continue;
-				g_fights.removeAt(i);
-				if (rec is null)
-					continue;
-				HWP::Log("deathrecap", "boss fight over: " + f.boss + ", " + rec.GetName() + " dealt " + f.dealt + " took " + f.taken);
-				HWP::Net::Request(BOSS_REPORT, PackReport(f, rec));
+				f.members.removeAt(i);
+				f.unitsDown++;
+				if (f.unitsDown <= BOSS_LOG_UNITS)
+				{
+					string ignored;
+					HWP::Log("deathrecap", "boss fight " + f.boss + ": " + m.name + " (unit " + m.unit.GetId() + ") down, "
+						+ f.members.length() + " hit units alive, " + BarsUp(ignored) + " boss bars up");
+				}
 			}
+			string barName;
+			int bars = BarsUp(barName);
+			if (!f.barName && !barName.isEmpty())
+			{
+				HWP::Log("deathrecap", "boss fight " + f.boss + " is " + barName + " (the boss bar)");
+				f.boss = barName;
+				f.barName = true;
+			}
+			if (f.members.length() > 0 || bars > 0)
+				return;
+			@g_fight = null;
+			if (rec is null)
+				return;
+			HWP::Log("deathrecap", "boss fight over: " + f.boss + ", " + f.unitsHit + " units, " + rec.GetName() + " dealt " + f.dealt + " took " + f.taken);
+			HWP::Net::Request(BOSS_REPORT, PackReport(f, rec));
 		}
 
 		// host: one player's share of a fight
@@ -271,18 +361,19 @@ namespace HWP
 		{
 			if (data is null)
 				return;
-			int unitId = HWP::SV::Int(data, "unit", -1);
+			// one gather per fight name: the bar's name is the same on every machine (the
+			// units each player hit are not)
+			string boss = HWP::SV::Str(data, "boss");
 			BossGather@ g;
 			for (uint i = 0; i < g_gathers.length(); i++)
 			{
-				if (g_gathers[i].unitId == unitId)
+				if (g_gathers[i].boss == boss)
 					@g = g_gathers[i];
 			}
 			if (g is null)
 			{
 				BossGather ng;
-				ng.unitId = unitId;
-				ng.boss = HWP::SV::Str(data, "boss");
+				ng.boss = boss;
 				ng.left = BOSS_GATHER_MS;
 				@g = ng;
 				g_gathers.insertLast(ng);
@@ -429,7 +520,8 @@ namespace HWP
 			bool shown = g_bossHud !is null && g_bossHud.m_visible;
 			if (shown)
 				visibleLines = int(g_bossHud.m_rows.length());
-			HWP::Log("deathrecap", "boss panel " + (shown ? "shown: " + visibleLines + " lines" : "hidden") + ", open fights " + g_fights.length());
+			HWP::Log("deathrecap", "boss panel " + (shown ? "shown: " + visibleLines + " lines" : "hidden") + ", open fights " + (g_fight is null ? 0 : 1)
+				+ (g_fight is null ? "" : " (" + g_fight.boss + ", " + g_fight.unitsHit + " units hit, " + g_fight.members.length() + " alive)"));
 			auto last = HWP::SaveData::Local().GetString(KEY_BOSS_LAST, "");
 			if (last.isEmpty())
 			{
@@ -564,7 +656,7 @@ namespace Modules
 
 		void Start(StartMode sMode)
 		{
-			HWP::DeathRecap::g_fights.removeRange(0, HWP::DeathRecap::g_fights.length());
+			@HWP::DeathRecap::g_fight = null;
 			for (uint i = 0; i < HWP::DeathRecap::g_gathers.length(); i++)
 			{
 				auto g = HWP::DeathRecap::g_gathers[i];

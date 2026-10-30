@@ -94,6 +94,7 @@ class Game:
         self.console_typed = 0
         self.paused_fallbacks: set[str] = set()   # ids typed while paused (Run.check_console exempts them)
         self.inbox_resends = 0
+        self.want_shim = False                # the scenario's "shim_input": the mailslot in lab mode too
 
     # ---- lifecycle --------------------------------------------------------
 
@@ -113,6 +114,8 @@ class Game:
             # keyboard focus (posted Enters lost while the user works elsewhere: chest-watch
             # 20261018-163015, -165101). GAMELAB_SHIM_INPUT=1 in the runner's environment
             # opts a lab run in too, to measure it.
+            child_env["GAMELAB_SHIM_INPUT"] = "1"
+        if self.want_shim:
             child_env["GAMELAB_SHIM_INPUT"] = "1"
         self.shim_input = child_env.get("GAMELAB_SHIM_INPUT") == "1"
         self.proc = subprocess.Popen([str(self.game_dir / "HWR2.exe")], cwd=str(self.game_dir),
@@ -301,10 +304,11 @@ class Game:
             time.sleep(0.2)
         raise GameError("no SDL_app window")
 
-    def key(self, name: str, hold: float = 0.05) -> None:
+    def key(self, name: str, hold: float = 0.05, typed: str | None = None) -> None:
+        """typed: the text the press types, as another keyboard layout would (shim input only)."""
         *mods, last = name.split("+") if len(name) > 1 else [name]   # "ctrl+z": modifiers first
-        winproc.key(self.window(), winproc.VK[last], hold, mods=tuple(winproc.VK[m] for m in mods))
-        self.note("key", key=name, hold=hold)
+        winproc.key(self.window(), winproc.VK[last], hold, mods=tuple(winproc.VK[m] for m in mods), typed=typed)
+        self.note("key", key=name, hold=hold, **({"typed": typed} if typed is not None else {}))
 
     def type_text(self, s: str, gap: float = 0.03) -> None:
         """Posted WM_CHARs, as typing produces (the console's path): text for a focused

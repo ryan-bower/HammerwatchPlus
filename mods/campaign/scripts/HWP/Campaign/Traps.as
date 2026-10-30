@@ -7,9 +7,13 @@
 // way the puzzles module adds its rooms. It places small prefabs of the hwp_traps set
 // (prefabs/hwp/traps/*.pfb, defined in tweak/hwp/campaign_prefabs.sval) on walkable
 // cells - HoH2 units with HoH1 numbers for the new glyphs - and then one teleporter pad
-// (Teleporters.as) with a destination picked from the floor. Settings: campaign.traps
-// (default on), campaign.trap_density (percent of the default count, 100), and the
-// teleporter's campaign.teleporters. Everything runs on the host, inside generation.
+// (Teleporters.as) with a destination picked from the floor. The traps go only on the
+// floors of one HoH2 mission whose floors suit them, the Crypt (crypt and temple floors) by
+// default, and on the Forsaken Tower's, HoH1's own tower (issue #30: spikes on every level of
+// every map felt random); the teleporter pad still goes on every floor. Settings:
+// campaign.traps (default on), campaign.trap_map (which mission), campaign.trap_density
+// (percent of the default count, 100), and the teleporter's campaign.teleporters.
+// Everything runs on the host, inside generation.
 class HWPTrapSpawn : DungeonGenerationCommands
 {
 	bool Execute(DungeonBrush@ brush, PrefabPlacement@ pfbPlacer) override
@@ -37,9 +41,15 @@ namespace HWP
 			const array<string> ROOM_WORDS = { "trap", "puzzle", "secret", "treasure", "chest", "vault", "loot" };
 			const int CELLS_PER_TRAP = 120;
 			const int MAX_TRAPS = 24;
+			// campaign.trap_map: the HoH2 mission whose floors get traps, by index; one past
+			// the end is every mission
+			const array<string> TRAP_MAPS = { "crypt", "bandit_keep", "dark_citadel", "spider_caves" };
+			// HoH1's own tower always has them (with campaign.traps on)
+			const array<string> TOWER = { "hwp_forsaken_tower", "hwp_forsaken_tower_hoh1" };
 
 			bool g_enabled = true;
 			int g_density = 100;
+			int g_map = 0;
 			int g_installed = 0;
 
 			void RefreshSettings()
@@ -47,6 +57,28 @@ namespace HWP
 				// campaign.enabled off (the settings page's switch) turns them off with the rest
 				g_enabled = HWP::Settings::GetBool("campaign.enabled", true) && HWP::Settings::GetBool("campaign.traps", true);
 				g_density = clamp(HWP::Settings::GetInt("campaign.trap_density", 100), 0, 400);
+				g_map = clamp(HWP::Settings::GetInt("campaign.trap_map", 0), 0, int(TRAP_MAPS.length()));
+			}
+
+			string MapSetting()
+			{
+				return g_map < int(TRAP_MAPS.length()) ? TRAP_MAPS[g_map] : "every map";
+			}
+
+			// the mission of the floor being generated ("" outside a mission)
+			string MissionId()
+			{
+				auto gm = cast<MissionGameModeBase>(g_gameMode);
+				if (gm is null || gm.m_missionLevel is null || gm.m_missionLevel.m_mission is null)
+					return "";
+				return gm.m_missionLevel.m_mission.m_id;
+			}
+
+			bool TrapsOn(const string &in mission)
+			{
+				if (g_map >= int(TRAP_MAPS.length()) || TOWER.find(mission) >= 0)
+					return true;
+				return mission == TRAP_MAPS[g_map];
 			}
 
 			bool Walkable(CellGrid@ grid, int x, int y)
@@ -164,17 +196,36 @@ namespace HWP
 				int cells = FloorCells(grid);
 				int want = 0;
 				int placed = 0;
-				if (g_enabled && g_density > 0)
+				string mission = MissionId();
+				bool here = TrapsOn(mission);
+				uint firstPoi = grid.m_pointsOfInterest.length();
+				if (g_enabled && g_density > 0 && here)
 				{
 					want = clamp(cells * g_density / 100 / CELLS_PER_TRAP, 1, MAX_TRAPS);
-					placed = placer.PlacePrefabs(HashString(SET), want, 1.0f, 100);
-					if (placed < 0)
+					// One roll per trap. PlacePrefabs places up to typeMinLimit of the type it
+					// rolls before it rolls another, and spikes_1 has no max-num, so a single
+					// call (limit 100) filled a whole floor with spike floors whenever spikes_1
+					// came up first (issue #30). With one trap per call each trap is rolled
+					// among the types that still can be placed (CanGet: max-num).
+					for (int k = 0; k < want; k++)
 					{
-						HWP::LogError("campaign", "traps: no prefab of set " + SET + " fits or none is defined (" + DEFS + ")");
-						placed = 0;
+						int n = placer.PlacePrefabs(HashString(SET), 1, 1.0f, 1);
+						if (n < 0)
+						{
+							if (placed == 0)
+								HWP::LogError("campaign", "traps: no prefab of set " + SET + " fits or none is defined (" + DEFS + ")");
+							break;
+						}
+						if (n == 0)
+							break;
+						placed += n;
 					}
 				}
-				HWP::Log("campaign", "traps: placed " + placed + "/" + want + " on a " + grid.m_width + "x" + grid.m_height + " floor (" + cells + " floor cells, density " + g_density + "%" + (g_enabled ? "" : ", traps off") + ")");
+				HWP::Log("campaign", "traps: placed " + placed + "/" + want + " on a " + grid.m_width + "x" + grid.m_height + " floor (" + cells + " floor cells, density " + g_density + "%"
+					+ (g_enabled ? "" : ", traps off") + ", mission " + (mission.isEmpty() ? "none" : mission)
+					+ (here ? "" : ", not a trap map: campaign.trap_map is " + MapSetting()) + ")");
+				if (placed > 0)
+					HWP::Log("campaign", "traps: kinds " + Kinds(grid, firstPoi));
 
 				if (!Teleporters::g_enabled)
 				{
@@ -209,6 +260,38 @@ namespace HWP
 					Teleporters::Add(padW, destW, why);
 					HWP::Log("campaign", "teleporter placed at " + int(padW.x) + "," + int(padW.y) + " (cell " + padCell.x + "," + padCell.y + ") -> " + int(destW.x) + "," + int(destW.y) + " (cell " + destCell.x + "," + destCell.y + ", " + why + ")");
 				}
+			}
+
+			// how many of each trap prefab generation placed: "spikes_1 6, fire_1 4, ..."
+			string Kinds(CellGrid@ grid, uint from)
+			{
+				uint trapSet = HashString(SET);
+				array<string> ids;
+				array<int> counts;
+				for (uint i = from; i < grid.m_pointsOfInterest.length(); i++)
+				{
+					auto type = grid.m_pointsOfInterest[i].m_type;
+					if (type is null || type.m_set != trapSet)
+						continue;
+					string id = type.m_id;
+					int slash = id.findLast("/");
+					if (slash >= 0)
+						id = id.substr(slash + 1);
+					if (id.findLast(".pfb") == int(id.length()) - 4)
+						id = id.substr(0, id.length() - 4);
+					int k = ids.find(id);
+					if (k < 0)
+					{
+						ids.insertLast(id);
+						counts.insertLast(1);
+					}
+					else
+						counts[k]++;
+				}
+				string s = "";
+				for (uint i = 0; i < ids.length(); i++)
+					s += (i > 0 ? ", " : "") + ids[i] + " " + counts[i];
+				return s;
 			}
 
 			SValue@ EmptyParams()

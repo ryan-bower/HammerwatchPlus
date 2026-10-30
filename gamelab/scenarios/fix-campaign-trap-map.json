@@ -1,0 +1,233 @@
+{
+ "name": "fix-campaign-trap-map",
+ "about": "Issue #30, mods/campaign: the HoH1 traps (spikes, flame jets, glyphs) only on one map's floors, the Crypt by default (campaign.trap_map), and on the Forsaken Tower's. A Bandit Keep floor logs placed 0/0 'not a trap map' and has no HWP trap glyph, and still gets its teleporter pad. A Crypt floor (temple_1) and the Forsaken Tower's first floor place traps. With campaign.trap_map 4 (every map) the keep floor places them again. Mods core + campaign.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "campaign"
+ ],
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   }
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "mark",
+   "name": "keep"
+  },
+  {
+   "do": "retry",
+   "times": 3,
+   "timeout": 10,
+   "until": "\\[HWP:campaign\\] traps: placed 0/0 on a \\d+x\\d+ floor \\([^)]*mission bandit_keep, not a trap map: campaign.trap_map is crypt\\)",
+   "name": "bandit_keep floor 0: no traps (not the trap map)",
+   "steps": [
+    {
+     "do": "gl",
+     "verb": "mission",
+     "args": [
+      "bandit_keep",
+      0
+     ],
+     "expect": {
+      "ok": true
+     }
+    },
+    {
+     "do": "wait_phase",
+     "phase": "mission",
+     "timeout": 150
+    },
+    {
+     "do": "sleep",
+     "seconds": 2
+    }
+   ]
+  },
+  {
+   "do": "bot",
+   "bot": "fix_campaign_trap_map",
+   "kwargs": {
+    "traps": false
+   },
+   "expect": {
+    "ok": true
+   },
+   "name": "bandit_keep: no HWP trap glyph on the floor"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:campaign\\] teleporter (placed at|at cell|: no spot)",
+   "since": "keep",
+   "timeout": 5,
+   "name": "the keep floor still gets its teleporter pad"
+  },
+  {
+   "do": "mark",
+   "name": "crypt"
+  },
+  {
+   "do": "retry",
+   "times": 3,
+   "timeout": 10,
+   "until": "\\[HWP:campaign\\] traps: placed [1-9]\\d*/\\d+ on a \\d+x\\d+ floor \\([^)]*mission crypt\\)",
+   "name": "crypt floor 0: traps placed",
+   "steps": [
+    {
+     "do": "gl",
+     "verb": "mission",
+     "args": [
+      "crypt",
+      0
+     ],
+     "expect": {
+      "ok": true
+     }
+    },
+    {
+     "do": "wait_phase",
+     "phase": "mission",
+     "timeout": 150
+    },
+    {
+     "do": "sleep",
+     "seconds": 2
+    }
+   ]
+  },
+  {
+   "do": "bot",
+   "bot": "fix_campaign_trap_map",
+   "kwargs": {
+    "traps": true
+   },
+   "expect": {
+    "ok": true
+   },
+   "name": "crypt: trap units on the floor"
+  },
+  {
+   "do": "shot",
+   "name": "crypt-traps"
+  },
+  {
+   "do": "mark",
+   "name": "tower"
+  },
+  {
+   "do": "retry",
+   "times": 3,
+   "timeout": 10,
+   "until": "\\[HWP:campaign\\] traps: placed [1-9]\\d*/\\d+ on a \\d+x\\d+ floor \\([^)]*mission hwp_forsaken_tower\\)",
+   "name": "hwp_forsaken_tower floor 0: traps placed",
+   "steps": [
+    {
+     "do": "gl",
+     "verb": "mission",
+     "args": [
+      "hwp_forsaken_tower",
+      0
+     ],
+     "expect": {
+      "ok": true
+     }
+    },
+    {
+     "do": "wait_phase",
+     "phase": "mission",
+     "timeout": 150
+    },
+    {
+     "do": "sleep",
+     "seconds": 2
+    }
+   ]
+  },
+  {
+   "do": "bot",
+   "bot": "fix_campaign_trap_map",
+   "kwargs": {
+    "traps": true
+   },
+   "expect": {
+    "ok": true
+   },
+   "name": "hwp_forsaken_tower: trap units on the floor"
+  },
+  {
+   "do": "console",
+   "line": "hwp set campaign.trap_map 4"
+  },
+  {
+   "do": "console",
+   "line": "hwp campaign traps"
+  },
+  {
+   "do": "log_has",
+   "pattern": "traps on on every map and the Forsaken Tower",
+   "timeout": 5,
+   "name": "hwp campaign traps names the setting"
+  },
+  {
+   "do": "mark",
+   "name": "keep-every"
+  },
+  {
+   "do": "retry",
+   "times": 3,
+   "timeout": 10,
+   "until": "\\[HWP:campaign\\] traps: placed [1-9]\\d*/\\d+ on a \\d+x\\d+ floor \\([^)]*mission bandit_keep\\)",
+   "name": "bandit_keep floor 0: traps placed",
+   "steps": [
+    {
+     "do": "gl",
+     "verb": "mission",
+     "args": [
+      "bandit_keep",
+      0
+     ],
+     "expect": {
+      "ok": true
+     }
+    },
+    {
+     "do": "wait_phase",
+     "phase": "mission",
+     "timeout": 150
+    },
+    {
+     "do": "sleep",
+     "seconds": 2
+    }
+   ]
+  },
+  {
+   "do": "bot",
+   "bot": "fix_campaign_trap_map",
+   "kwargs": {
+    "traps": true
+   },
+   "expect": {
+    "ok": true
+   },
+   "name": "bandit_keep: trap units on the floor"
+  },
+  {
+   "do": "console",
+   "line": "hwp set campaign.trap_map 0"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}
