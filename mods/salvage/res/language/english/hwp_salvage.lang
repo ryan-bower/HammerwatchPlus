@@ -1,0 +1,8 @@
+<lang name="English" official="false">
+	<string name="hwp.salvage.label">Salvage</string>
+	<string name="hwp.salvage.confirm">Salvage '%name%' into %yield%? The item is gone for good.</string>
+	<string name="hwp.salvage.crystals">%n% Crystals</string>
+	<string name="hwp.salvage.crystal">1 Crystal</string>
+	<string name="hwp.salvage.dust">%n% Dust</string>
+	<string name="hwp.salvage.gained">+%yield%</string>
+</lang>

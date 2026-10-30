@@ -83,6 +83,49 @@ namespace HWP
 			g_actions.insertLast(action);
 		}
 
+		// --- what Destroy does (added 2026-10-30, issue #66) -----------------------------------
+		// A mod may take over the vanilla Destroy of an item: the bag's (hwplib's Character
+		// tab) and the town stash's, for worn, bag and stashed items (hwplib's PlayerStashWindow
+		// and StashItemWidget). It names the hint and the confirm, and acts once the item is
+		// gone (salvage gives materials). One handler, registered in a module ctor; none is
+		// the vanilla Destroy.
+		class DestroyHandler
+		{
+			// the hint's verb ("Salvage"), "" for the vanilla Destroy
+			string Label(Item::Item@ item) { return ""; }
+			// the confirm dialog's text, "" for the vanilla one
+			string Confirm(Item::Item@ item) { return ""; }
+			// the item has left the local player's gear (bag, worn or stash)
+			void Destroyed(PlayerRecord@ record, Item::Item@ item) {}
+		}
+
+		DestroyHandler@ g_destroy;
+
+		void SetDestroyHandler(DestroyHandler@ handler)
+		{
+			@g_destroy = handler;
+		}
+
+		string DestroyLabel(Item::Item@ item)
+		{
+			string label = g_destroy is null || item is null ? "" : g_destroy.Label(item);
+			return label != "" ? label : Resources::GetString(".menu.nav.destroy");
+		}
+
+		string DestroyConfirm(Item::Item@ item)
+		{
+			string text = g_destroy is null || item is null ? "" : g_destroy.Confirm(item);
+			if (text != "")
+				return text;
+			return Resources::GetString(".menu.player.char.equipment.destroy_confirm", {{"name", "\\c" + Item::QualityColorString(item.GetQuality()) + item.GetName() + "\\d"}});
+		}
+
+		void Destroyed(PlayerRecord@ record, Item::Item@ item)
+		{
+			if (g_destroy !is null && record !is null && item !is null)
+				g_destroy.Destroyed(record, item);
+		}
+
 		// every action for this item, in hint order (stable for equal orders)
 		array<Action@>@ AllFor(Equipment::Equipment@ item)
 		{

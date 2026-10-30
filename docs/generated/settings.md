@@ -43,6 +43,8 @@ next level.
 | Map icons | On | `mapicons.enabled` | on | on, off | local |
 | Map icons | Dye pots | `mapicons.dyes` | on | on, off | local |
 | Attribute point clicks | On | `attrclick.enabled` | on | on, off | local |
+| Salvage | On | `salvage.enabled` | on | on, off | host |
+| Salvage | Salvage yield | `salvage.yield` | 100% | 50%, 75%, 100%, 150%, 200% | host |
 
 ## Co-op Play
 
