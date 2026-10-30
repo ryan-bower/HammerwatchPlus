@@ -242,6 +242,12 @@ def workshop_ids() -> dict[str, Path]:
 SHADOW_SUFFIX = "-gamelab"
 
 
+def personal_package_name(pkg: str) -> str:
+    """Keep a player's freshly built copy independent of a subscribed Workshop id."""
+    file = package_file(pkg)
+    return file.stem + ("-local" if file.stem in workshop_ids() else "") + ".bin"
+
+
 def lab_package_name(pkg: str, shadowed: dict[str, Path] | None = None) -> str:
     """The file name a built package gets in the lab mods dir (its stem is the id enabled)."""
     stem = package_file(pkg).stem

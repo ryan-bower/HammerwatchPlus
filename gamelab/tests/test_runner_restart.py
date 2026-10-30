@@ -69,6 +69,13 @@ class RestartTests(unittest.TestCase):
         self.assertIn(("pick", 0), self.game.commands)
         self.assertTrue(all(a["ok"] for a in self.runner.assertions))
 
+    def test_characterless_fixture_checks_state_without_picking_a_character(self):
+        self.game.phase = self.game.state["phase"] = "no_character"
+        self.runner.recipe["readback"] = {"phase": "no_character"}
+        self.assertIs(self.runner.enter_fixture(self.runner.recipe, []), self.game)
+        self.assertNotIn(("pick", 0), self.game.commands)
+        self.assertTrue(all(a["ok"] for a in self.runner.assertions))
+
     def test_resume_uses_native_choice_and_records_readback(self):
         self.assertIs(self.resume(), self.game)
         self.assertIn(("pick", 0, "resume"), self.game.commands)

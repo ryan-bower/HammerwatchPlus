@@ -30,6 +30,48 @@ namespace GameLab
 		Emit(Reply(id, true).Int("returned", ret).Int("level", rec.level).Int("xp", rec.experience));
 	}
 
+	// townflag <name> [on|off]: read a persistent town flag, or set it through
+	// TownRecord.SetTownFlag (the same method class unlock rewards use). The play
+	// builder enables only the class unlock flags required by its requested roster.
+	void VerbTownFlag(const string &in id, array<string>@ args)
+	{
+		if (g_myTownRecord is null || args.length() < 1 || args.length() > 2
+			|| (args.length() == 2 && args[1] != "on" && args[1] != "off"))
+		{
+			Fail(id, "usage: townflag <name> [on|off]; requires a town record");
+			return;
+		}
+		uint hash = HashString(args[0]);
+		if (args.length() == 2)
+			g_myTownRecord.SetTownFlag(hash, args[1] == "on", false);
+		Emit(Reply(id, true).Str("flag", args[0]).Bool("value", g_myTownRecord.HasTownFlag(hash)));
+	}
+
+	// townmoney [amount]: query or set the profile's shared town gold through
+	// TownRecord.GiveMaterial. Setting is exact (not additive), works before a
+	// character exists, and does not change any other material balance.
+	void VerbTownMoney(const string &in id, array<string>@ args)
+	{
+		if (g_myTownRecord is null || args.length() > 1)
+		{
+			Fail(id, "usage: townmoney [0..2147483647]; requires a town record");
+			return;
+		}
+		if (args.length() == 1)
+		{
+			uint used = 0;
+			int64 amount = parseInt(args[0], 10, used);
+			if (used != args[0].length() || args[0].isEmpty() || amount < 0 || amount > 2147483647)
+			{
+				Fail(id, "gold must be an integer from 0 to 2147483647");
+				return;
+			}
+			int before = g_myTownRecord.GetMaterial(MaterialType::Gold);
+			g_myTownRecord.GiveMaterial(MaterialType::Gold, int(amount) - before);
+		}
+		Emit(Reply(id, true).Int("gold", g_myTownRecord.GetMaterial(MaterialType::Gold)));
+	}
+
 	// material <gold|wood|stone|iron|crystals|dust|ore|all> <n>: PlayerRecord.GiveMaterial with skipGainMod, like cht_give_material: the amount lands as given (a pickup applies the gain modifiers: GetMaterialModifier). "all" gives n of each.
 	void VerbMaterial(const string &in id, array<string>@ args)
 	{

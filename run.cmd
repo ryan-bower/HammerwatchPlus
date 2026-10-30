@@ -1,5 +1,5 @@
 @echo off
-rem Double-click to set up, build, deploy the mods into your Steam install and start the game
+rem Build/deploy, create a fresh default profile with all mods enabled, and start through Steam
 rem (same as: python tools/run.py). See tools/run.py for the steps and flags.
 cd /d "%~dp0"
 if exist ".venv\Scripts\python.exe" (
