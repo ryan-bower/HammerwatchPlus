@@ -6299,3 +6299,52 @@ from them), not in script globals.
 On the way:
 - `gamelab/fixtures/mission-ranger.json` no longer reads back `player.maxDashes 1` (the same
   change as on issue #26's branch): a fixture rebuild can roll starting boots with a dash.
+
+## 2026-10-29: class skill buffs missing from the buff bar (issue #28)
+
+The issue: "Warcry does not show on buff bar when effect by it".
+
+Why: `HUD.ShowBuffIcon` (GUI/HUD/HUD.as:471) returns before making a widget when
+`buff.GetBuffIcon()` is null, and an `ActorBuff`'s icon is its def's `m_hud`, read from a `hud`
+sprite array (ActorBuffDef.as:211). War Cry's `warcry_1`..`warcry_5`
+(players/warrior/buffs_warrior.sval) have no `hud`, and only the commented-out `icon` line.
+
+The larger issue: of the buff files in `players/*/buffs_*.sval`, only `buffs_shared.sval`
+has `hud` arrays (3 of them), and none of the class buff files has any. Even `fuel_the_flames`, which has a
+name and description, has no icon. A survey of every buff path a skill references (vanilla
+and HWP), keeping the timed, non-debuff buffs of skills in the current class trees, found 13
+families that a player would want to see. (`pal_zealous_onslaught`, a Paladin skill in no class
+tree, is left out.)
+
+What changed (`bufftips`):
+- `ApplySkillIcons` runs when the module is made (every level) and on a `bufftips.skill_icons`
+  change. For each path in `SkillBuffs.as` it takes the cached def (`LoadActorBuff`, one per
+  path hash, which the skills share) and sets `m_hud` to a `ScriptSprite(texture, vec4)` cut
+  from `gui/hwp/bufftips/icons.png`. It fills `m_name` and `m_description` only when they are
+  empty. A def that already has `m_hud` keeps it, so a game update that adds icons wins. Off
+  takes back only the icons it gave.
+- The icons are the middle 14x14 of each skill's own 24x24 icon, cut rather than scaled
+  (`tools/make_bufftips_icons.py`). Cleansing Touch shares Lay on Hands' icon with
+  Invigorating Touch and gets a pale tint.
+- Each machine patches its own defs. A War Cry from another player applies the same def, so
+  the ally's bar shows it. Co-op is not tried in the lab (one machine).
+
+Tests:
+- `fix-bufftips-skill-icons` (20261029-034642; pkgfeat 20261029-034800): a fresh Warrior
+  learns and casts War Cry (`gl castat`). `gl buffs`: the 8000 ms buff has `hud` and a shown
+  widget. `gl buffbar`: "War Cry", "Faster weapon and movement speed.". Hovering logs `tip: War
+  Cry`, and the shot shows "7s left / War Cry". `bufftips.skill_icons 0` logs `off: 0 of 31`,
+  and the next cast has no icon; `1` brings it back. The other 12 families, given with `gl
+  givebuff`, show 13 named, described icons in vanilla's round frames (shot
+  `skill-buffs-bar`).
+- `mod-bufftips` (20261029-034848) and `plan-ui-a` (20261029-034903, the tooltip sections,
+  including "vanilla debuffs have no icon") still pass.
+
+Same gap, not changed:
+- The `trinkets` HoH1 buffs (`buffs_trinkets_hoh1.sval`: Cape of Withdrawal, Greaves, Mortar
+  and Pestle, Apothecary's Tonic, Elven Ruby) have names and descriptions but no `hud`. Their
+  item art is imported from the player's own HoH1 install (16x16 cells,
+  `icons_trinkets_hoh1.png`, not shipped), so an icon would have to be cut from that sheet at
+  runtime.
+- Status debuffs on the player (stun, slow and so on) have no `hud` in vanilla either. The game
+  shows those over the head, and `plan-ui-a` checks that they stay off the bar.

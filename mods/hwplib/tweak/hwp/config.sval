@@ -23,6 +23,7 @@
 					<bool name="host">false</bool>
 					<bool name="level">false</bool>
 					<array name="settings">
+						<dict><string name="key">bufftips.skill_icons</string><string name="type">bool</string><bool name="host">false</bool><bool name="level">false</bool><bool name="default">true</bool></dict>
 					</array>
 				</dict>
 				<dict>
