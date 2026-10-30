@@ -1,0 +1,331 @@
+{
+ "name": "fix-objectives-vault-art",
+ "about": "Issue #26, mods/objectives: a vault is drawn as the floor's own room, and its levers stay off the map unless the Architect's Marked Switches is picked. The vault's cells were ReserveFloor/ReserveWall, which stay consumed through the brush's build, so it painted no walls and none of the floor's spots or trim there. Now PlaceFloor/PlaceWall, freed before the painting and the floor cells taken back after it. On a keep floor (keep_1) and a temple floor (crypt index 0, temple_1): the painted line counts every vault floor cell as Floor and all 28 ring cells as free Wall, `hwp objectives` says neither lever is on the map, and shots from the door, inside, and inside unlit. Then with `hwp architect try hwp_objectives_marked_switches` a keep floor puts both levers on the map. Mods core + architect + objectives.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "architect",
+  "objectives"
+ ],
+ "timeout": 900,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town"
+   }
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:objectives\\] generator command on [1-9]\\d* indoor floor\\(s\\)",
+   "timeout": 20,
+   "name": "the module hooked the indoor dungeon generators"
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp set objectives.vaults 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp set objectives.exit 1"
+  },
+  {
+   "do": "mark",
+   "name": "keep"
+  },
+  {
+   "do": "retry",
+   "times": 3,
+   "timeout": 10,
+   "until": "\\[HWP:objectives\\] vault 0 at cell \\d+,\\d+ of \\d+x\\d+, corridor \\d+, world -?\\d+,-?\\d+ \\d+x\\d+, door -?\\d+,-?\\d+, switch -?\\d+,-?\\d+ on keep_1",
+   "name": "a generated keep_1 floor placed a vault with its switch",
+   "steps": [
+    {
+     "do": "gl",
+     "verb": "mission",
+     "args": [
+      "bandit_keep",
+      0
+     ],
+     "expect": {
+      "ok": true
+     }
+    },
+    {
+     "do": "wait_phase",
+     "phase": "mission",
+     "timeout": 150
+    },
+    {
+     "do": "sleep",
+     "seconds": 2
+    }
+   ]
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:objectives\\] painted: (\\d+) floor cell\\(s\\) of \\1, ring 28 wall cell\\(s\\) of 28, switches hidden on keep_1",
+   "timeout": 5,
+   "since": "keep",
+   "name": "keep_1: the build painted the vault's floor and freed its ring as walls (switches hidden)"
+  },
+  {
+   "do": "console",
+   "line": "hwp god"
+  },
+  {
+   "do": "console",
+   "line": "hwp objectives"
+  },
+  {
+   "do": "log_has",
+   "pattern": "switch units: 2, on the map: 0 \\(Marked Switches not picked\\)",
+   "timeout": 5,
+   "since": "keep",
+   "name": "keep_1: the levers' map icons (hidden)"
+  },
+  {
+   "do": "console",
+   "line": "hwp objectives open"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "look_objectives_vault",
+   "kwargs": {
+    "at": "door",
+    "level": "keep_1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "shot",
+   "name": "keep-vault-from-door"
+  },
+  {
+   "do": "bot",
+   "bot": "look_objectives_vault",
+   "kwargs": {
+    "at": "centre",
+    "level": "keep_1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "shot",
+   "name": "keep-vault-inside"
+  },
+  {
+   "do": "console",
+   "line": "r_draw_lights 0"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "keep-vault-inside-unlit"
+  },
+  {
+   "do": "console",
+   "line": "r_draw_lights 1"
+  },
+  {
+   "do": "mark",
+   "name": "temple"
+  },
+  {
+   "do": "retry",
+   "times": 3,
+   "timeout": 10,
+   "until": "\\[HWP:objectives\\] vault 0 at cell \\d+,\\d+ of \\d+x\\d+, corridor \\d+, world -?\\d+,-?\\d+ \\d+x\\d+, door -?\\d+,-?\\d+, switch -?\\d+,-?\\d+ on temple_1",
+   "name": "a generated temple_1 floor placed a vault with its switch",
+   "steps": [
+    {
+     "do": "gl",
+     "verb": "mission",
+     "args": [
+      "crypt",
+      0
+     ],
+     "expect": {
+      "ok": true
+     }
+    },
+    {
+     "do": "wait_phase",
+     "phase": "mission",
+     "timeout": 150
+    },
+    {
+     "do": "sleep",
+     "seconds": 2
+    }
+   ]
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:objectives\\] painted: (\\d+) floor cell\\(s\\) of \\1, ring 28 wall cell\\(s\\) of 28, switches hidden on temple_1",
+   "timeout": 5,
+   "since": "temple",
+   "name": "temple_1: the build painted the vault's floor and freed its ring as walls (switches hidden)"
+  },
+  {
+   "do": "console",
+   "line": "hwp god"
+  },
+  {
+   "do": "console",
+   "line": "hwp objectives"
+  },
+  {
+   "do": "log_has",
+   "pattern": "switch units: 2, on the map: 0 \\(Marked Switches not picked\\)",
+   "timeout": 5,
+   "since": "temple",
+   "name": "temple_1: the levers' map icons (hidden)"
+  },
+  {
+   "do": "console",
+   "line": "hwp objectives open"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "look_objectives_vault",
+   "kwargs": {
+    "at": "door",
+    "level": "temple_1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "shot",
+   "name": "temple-vault-from-door"
+  },
+  {
+   "do": "bot",
+   "bot": "look_objectives_vault",
+   "kwargs": {
+    "at": "centre",
+    "level": "temple_1"
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "shot",
+   "name": "temple-vault-inside"
+  },
+  {
+   "do": "console",
+   "line": "r_draw_lights 0"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "temple-vault-inside-unlit"
+  },
+  {
+   "do": "console",
+   "line": "r_draw_lights 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp architect try hwp_objectives_marked_switches"
+  },
+  {
+   "do": "log_has",
+   "pattern": "architect buffs for the next level: 1",
+   "timeout": 5,
+   "name": "the Marked Switches alteration picked"
+  },
+  {
+   "do": "mark",
+   "name": "keep-marked"
+  },
+  {
+   "do": "retry",
+   "times": 3,
+   "timeout": 10,
+   "until": "\\[HWP:objectives\\] vault 0 at cell \\d+,\\d+ of \\d+x\\d+, corridor \\d+, world -?\\d+,-?\\d+ \\d+x\\d+, door -?\\d+,-?\\d+, switch -?\\d+,-?\\d+ on keep_1",
+   "name": "a generated keep_1 floor placed a vault with its switch",
+   "steps": [
+    {
+     "do": "gl",
+     "verb": "mission",
+     "args": [
+      "bandit_keep",
+      0
+     ],
+     "expect": {
+      "ok": true
+     }
+    },
+    {
+     "do": "wait_phase",
+     "phase": "mission",
+     "timeout": 150
+    },
+    {
+     "do": "sleep",
+     "seconds": 2
+    }
+   ]
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:objectives\\] painted: (\\d+) floor cell\\(s\\) of \\1, ring 28 wall cell\\(s\\) of 28, switches marked on keep_1",
+   "timeout": 5,
+   "since": "keep-marked",
+   "name": "keep_1: the build painted the vault's floor and freed its ring as walls (switches marked)"
+  },
+  {
+   "do": "console",
+   "line": "hwp god"
+  },
+  {
+   "do": "console",
+   "line": "hwp objectives"
+  },
+  {
+   "do": "log_has",
+   "pattern": "switch units: 2, on the map: 2 \\(Marked Switches picked\\)",
+   "timeout": 5,
+   "since": "keep-marked",
+   "name": "keep_1: the levers' map icons (marked)"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:objectives\\] (prefab defs missing|vault \\d+: no 3x3 floor block)",
+   "name": "no objectives error lines"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

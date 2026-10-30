@@ -177,6 +177,14 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-29, bonus vaults look like the floor they're on (#26). The vaults behind levers had
+a bare floor and no walls of their own: their cells were reserved the way a prefab with its
+own art reserves them, so the game painted neither walls nor the floor's decoration there,
+and on the Bandit Keep the room sat in the dark of the wall block it was carved from. Now
+the game paints the vault like its own rooms, with the floor's tiles, walls and torches. The
+levers no longer show on the map; the new Architect alteration **Marked Switches** puts
+them back for a run.
+
 2026-10-29, notices name the HammerwatchPlus updates (#24). The game's join check compares mod
 ids, not their contents, so friends with different updates got into one lobby and things
 quietly broke: on 2026-10-28 a client on per-module packages from before 2026-10-26 joined a
