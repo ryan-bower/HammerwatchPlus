@@ -6794,3 +6794,37 @@ stay "off" for 7 s with no buff (20261029-074036; package variant 20261029-07431
 `fix-campaign-traps` (its confusion glyph check now waits for the arming and the warning,
 20261029-074544), `fix-campaign-trap-map` (20261029-074606) and `mod-campaign`
 (20261029-074635) pass.
+
+## 2026-10-29: the HoH1 trinket icons never reached the real install
+
+The user saw the Frying Pan with the wrong icon. Every HoH1 trinket in their game had its
+placeholder icon, another vanilla trinket's cell: the Frying Pan showed Symbol of
+Deflection's gold star, both Spheres of Time the Hourglass, the Key Ring the Bountiful
+Bracelet. The real install's log said `HoH1 icons not imported` at every level start, and
+`no HoH1 pets imported` and `HoH1 floors not imported` beside it. The import was fine
+(`mods/trinkets/gui/hwp/icons_trinkets_hoh1.png`, 37 icons, all right on a contact sheet);
+the `<install>/mods/HammerwatchPlus-All.bin` (2026-10-28 21:24, 741 files) was a release
+build without any `local` content. `tools/deploy.py modded-prod` packed local content only
+with `--with-local`, and only `tools/run.py` passed that, only when the campaign import's
+marker existed, so a deploy by any other route left out every HoH1 import, and an import of
+pets, trinkets or class art without the campaign never went in.
+
+The Workshop copy (item 3828529950, which wins every path the two share: PR #40) can never
+carry them, but it does not need to: the sheet and its `.lang` are paths only the local
+build has, so they load from it. Measured in the lab, where the Workshop item loads beside
+the junctioned mods: `mod-trinkets` 20261029-084819 PASS, `HoH1 icons: 37 of 37`, the
+trinket bag shows the HoH1 art.
+
+Now `deploy.py modded-prod` adds `--with-local` whenever any module's `local` files are on
+disk (`build.personal_content`, not the `local_only` beta riders; `--no-local` makes a release
+build in the install), and says what it packs (`packing 4585 file(s) made from your own HoH1
+install (campaign, classes, pets, trinkets)`). Since that leaves a personal
+`dist/HammerwatchPlus-All.bin` behind, `tools/workshop.py` refuses any `dist/` .bin holding a
+file only a `--with-local` or `--beta` build packs (`build.local_entries`: by content, so a
+`local_overlay` stand-in at a committed path counts too). Checked: the install's and the
+Workshop's .bin and a release build hold none; `build.py all --with-local` then
+`workshop.py --no-build` refuses with `4585 file(s) made from your own installs`.
+`tests/test_personal_build.py`.
+
+Players on the Workshop build (no HoH1 import) still see the borrowed vanilla icons, so a
+HoH1 trinket looks like the vanilla trinket whose cell it borrows.

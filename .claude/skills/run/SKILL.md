@@ -19,8 +19,9 @@ It runs, in order, and prints one `run: <step>: ...` line per step:
 
 1. **setup**: `python -m gamelab doctor --fix --no-smoke` (uv sync, the save backup, the game
    dumps, generated units, HoH1 imports when HoH1 is installed). No lab boot.
-2. **build**: `tools/build.py` for the modded-prod packages (the all-in-one pack), with `--with-local` when the HoH1
-   campaign import exists, so the user's own .bin files carry the real HoH1 levels.
+2. **build**: `tools/build.py` for the modded-prod packages (the all-in-one pack). `deploy.py modded-prod` adds
+   `--with-local` whenever any HoH1 import is on disk (floors, pets, trinket icons, class art; `--no-local` for a
+   release build), so the user's own .bin files carry all of it.
 3. **deploy**: `tools/deploy.py modded-prod` copies `dist/HammerwatchPlus-All.bin` into `<install>/mods/` and removes the HWP .bin files it did not write (the old per-module ones).
 4. **launch**: opens `steam://rungameid/619820`. The user authorized launching their real
    install this way (2026-10-23, memory `zero-friction-setup`); do not start `HWR2.exe` directly.

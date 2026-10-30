@@ -16,9 +16,9 @@ The steps, in order (each prints a `run:` line; the exit code is the first faili
              (`python -m gamelab doctor --hoh1 "<dir>"` or `--no-hoh1`).
 2. build     tools/build.py for the modded-prod packages (gamelab/env/environments.json:
              `all`, the all-in-one pack),
-             with --with-local whenever the HoH1 campaign import is present, so your own
-             .bin files carry the real HoH1 levels (never publish those: `build.py` without
-             --with-local makes the shareable ones).
+             with everything you imported from HoH1 (the HoH1 floors, pets, trinket icons, class
+             art: deploy.py packs it whenever it is there), so your own .bin files carry it
+             (never publish those: `build.py` without --with-local makes the shareable ones).
 3. deploy    tools/deploy.py modded-prod: copies dist/HammerwatchPlus-All.bin (or
              HWP-<package>.bin) into <install>/mods/ and removes the HWP .bin files it did
              not write. Refuses while the game is running (Windows keeps the .bin files open).
@@ -51,7 +51,6 @@ from gamelab import env  # noqa: E402
 
 HOH2_STEAM_URL = f"steam://rungameid/{gamepaths.HOH2_APPID}"
 ENVIRONMENTS = gamepaths.GAMELAB / "env" / "environments.json"
-CAMPAIGN_MARKER = gamepaths.MODS / "campaign" / "hoh1" / ".hwp-generated"
 LAUNCH_WAIT_S = 45
 
 
@@ -119,12 +118,9 @@ def setup(dry_run: bool) -> tuple[int, bool]:
 
 
 def build_and_deploy(packages: list[str], dry_run: bool) -> int:
-    with_local = CAMPAIGN_MARKER.is_file()
-    say("build", ", ".join(mod_id(p) for p in packages)
-        + (" with your HoH1 content (--with-local)" if with_local else " (no HoH1 import: the HoH2-tiles campaign)"))
+    # deploy.py packs your HoH1 imports whenever there are some, and says so
+    say("build", ", ".join(mod_id(p) for p in packages))
     cmd = [python(), str(gamepaths.TOOLS / "deploy.py"), "modded-prod"] + packages
-    if with_local:
-        cmd.append("--with-local")
     if dry_run:
         cmd.append("--dry-run")
     c = subprocess.run(cmd, cwd=gamepaths.REPO)

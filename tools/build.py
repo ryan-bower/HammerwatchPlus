@@ -127,6 +127,36 @@ def module_files(cfg: dict, with_local: bool = False):
     return hwr.packable_files(cfg["dir"], NEVER_PACK | set(cfg["exclude"]), _skipper(cfg, with_local))
 
 
+def personal_content(mods: list[dict]) -> list[str]:
+    """The module.json `local` files on disk (<module>/<path>) that --with-local packs: what the
+    player made from their own HoH1 install (tools/import_hoh1.py). Not the local_only modules'
+    (a beta rider rides only with --beta). deploy.py modded-prod packs these by default."""
+    return [f"{m['id']}/{rel}" for m in mods if not m["local_only"]
+            for rel, _fp in module_files(m, True) if is_local(m, rel)]
+
+
+def local_entries(mods: list[dict]) -> dict[str, bytes]:
+    """Packed path -> content of every file only a --with-local or --beta build carries: `local`
+    content, `local_overlay` stand-ins (same path, other content) and beta riders. A .bin holding
+    one of them is a personal build and is never published (tools/workshop.py checks)."""
+    out: dict[str, bytes] = {}
+    for m in mods:
+        if not m["local"]:
+            continue
+        plain = {e.path: e.data() for e in module_entries(m, True, False)}
+        for e in module_entries(m, True, True):
+            data = e.data()
+            if plain.get(e.path) != data:
+                out[e.path] = data
+    return out
+
+
+def personal_files(package: Path, local: dict[str, bytes]) -> list[str]:
+    """The paths in a built .bin that are personal content (local_entries)."""
+    return sorted(e.path for e in hwr.Archive.read(package).entries
+                  if e.path in local and e.data() == local[e.path])
+
+
 def module_entries(cfg: dict, store: bool, with_local: bool = False) -> list[hwr.Entry]:
     manifest = None
     mpath = cfg["dir"] / hwr.MANIFEST

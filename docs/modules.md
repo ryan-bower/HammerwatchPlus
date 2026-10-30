@@ -76,7 +76,9 @@ passes (`pkg-all-every`).
 **Heroes of Hammerwatch 1 content** is the player's own: `tools/import_hoh1.py` cuts it into
 paths a module lists under `local` (or `local_overlay`), and only `build.py --with-local`
 packs them, never a release build (`tests/test_release_files.py` fails on any ignored file
-that a release package would carry). No package needs HoH1. A module with HoH1 features
+that a release package would carry). `deploy.py modded-prod` (the player's own install) adds
+`--with-local` whenever any of it is on disk (`--no-local`: a release build there), and
+`tools/workshop.py` refuses a `dist/` .bin that holds any of it (`build.local_entries`). No package needs HoH1. A module with HoH1 features
 calls `HWP::HoH1::Report(mod, present, ".lang.key")` after it has looked, where the key
 names what the player gets instead. hwplib tells the player once per save and set
 (`hwp.hoh1.missing`, the setting `hoh1.told`), and `hwp hoh1` lists the features
