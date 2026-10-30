@@ -8,8 +8,17 @@
   "pets",
   "trinkets"
  ],
- "timeout": 240,
+ "timeout": 360,
  "steps": [
+  {
+   "do": "console",
+   "line": "hwp set hoh1.content true",
+   "expect": "hoh1\\.content = true",
+   "name": "hoh1.content on (off by default; saved with the town)"
+  },
+  {
+   "do": "restart"
+  },
   {"do": "log_has", "pattern": "\\[HWP:core\\] gameplay started; server=yes town=yes", "timeout": 60, "name": "gameplay started in town"},
   {"do": "log_has", "pattern": "\\[HWP:campaign\\] self-check done: .*HoH1 floors installed", "timeout": 10, "name": "the HoH1 campaign floors"},
   {"do": "log_has", "pattern": "\\[HWP:pets\\] \\d+ HoH1 pet\\(s\\) in the Pet Shop", "timeout": 10, "name": "the HoH1 pets"},

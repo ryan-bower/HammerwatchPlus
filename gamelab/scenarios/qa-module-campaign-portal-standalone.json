@@ -1,7 +1,7 @@
 {
   "name": "qa-module-campaign-portal-standalone",
   "needs_hoh1": true,
-  "about": "Standalone functional subset with only required modules. Native portal presence, locked refusal and actual mission picker entries; no imported boss/floor completion claim. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
+  "about": "Standalone functional subset with only required modules. Native portal presence, locked refusal and actual mission picker entries; no imported boss/floor completion claim. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged. With hoh1.content off (the default) the portal offers the HoH2 tower alone; the HoH1 version is fix-campaign-portal-version's (flag on). portal_offers_hoh1 (two missions) is no longer required: PreferHoH1 lists one.",
   "fixture": "town-paladin",
   "mods": [
     "hwplib",
@@ -27,8 +27,7 @@
         "required_flags": [
           "portal_in_town",
           "portal_locked_says_why",
-          "portal_offers_tower",
-          "portal_offers_hoh1"
+          "portal_offers_tower"
         ]
       },
       "expect": {

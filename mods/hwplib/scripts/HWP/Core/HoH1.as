@@ -10,6 +10,11 @@
 // town's TELL_TICK-th gameplay tick, after every mod's self-check: one chat line per save
 // for each set of features on stand-ins (the setting hoh1.told). hwp hoh1 lists them all.
 // Script globals reset with every level, so the mods report again on each one.
+//
+// The host setting hoh1.content (campaign's config, off by default) gates all of it: off,
+// every feature runs on its stand-in even with the import packed, so a lobby whose players
+// lack the import never loads an HoH1 file (game night 10.28.26: the host's Battlements
+// floor hung every client on wait_loaded_level). Report folds it in.
 namespace HWP
 {
 	namespace HoH1
@@ -20,18 +25,24 @@ namespace HWP
 		{
 			string mod;
 			bool present;
+			bool imported;   // present before hoh1.content: off only because of the setting
 			string key;
 		}
 
 		array<Feature@> g_features;
 
+		bool Enabled() { return HWP::Settings::GetBool("hoh1.content", false); }
+
 		void Report(const string &in mod, bool present, const string &in key)
 		{
+			bool imported = present;
+			present = present && Enabled();
 			for (uint i = 0; i < g_features.length(); i++)
 			{
 				if (g_features[i].mod == mod)
 				{
 					g_features[i].present = present;
+					g_features[i].imported = imported;
 					g_features[i].key = key;
 					return;
 				}
@@ -39,6 +50,7 @@ namespace HWP
 			Feature@ f = Feature();
 			f.mod = mod;
 			f.present = present;
+			f.imported = imported;
 			f.key = key;
 			g_features.insertLast(f);
 		}
@@ -75,14 +87,21 @@ namespace HWP
 			if (ids.length() == 0)
 				return;
 			array<string> phrases;
+			bool off = true;   // every one imported, off by the setting: say how to turn it on
 			for (uint i = 0; i < ids.length(); i++)
+			{
 				phrases.insertLast(Phrase(ids[i]));
+				for (uint j = 0; j < g_features.length(); j++)
+					if (g_features[j].mod == ids[i] && !g_features[j].imported)
+						off = false;
+			}
 			HWP::Log("hoh1", "on stand-ins: " + told);
-			HWP::Commands::Reply(Resources::GetString(".hwp.hoh1.missing", { { "list", join(phrases, "; ") } }));
+			HWP::Commands::Reply(Resources::GetString(off ? ".hwp.hoh1.off" : ".hwp.hoh1.missing", { { "list", join(phrases, "; ") } }));
 		}
 
 		void CmdHoH1(array<string>@ args)
 		{
+			HWP::Commands::Reply("hoh1.content: " + (Enabled() ? "on" : "off"));
 			if (g_features.length() == 0)
 			{
 				HWP::Commands::Reply(Resources::GetString(".hwp.hoh1.none"));

@@ -10,8 +10,17 @@
   "campaign",
   "gamelab-it-campaign"
  ],
- "timeout": 4200,
+ "timeout": 4320,
  "steps": [
+  {
+   "do": "console",
+   "line": "hwp set hoh1.content true",
+   "expect": "hoh1\\.content = true",
+   "name": "hoh1.content on (off by default; saved with the town)"
+  },
+  {
+   "do": "restart"
+  },
   {
    "do": "console",
    "line": "e_cheats 1"

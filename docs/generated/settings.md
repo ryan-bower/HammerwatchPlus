@@ -110,6 +110,7 @@ next level.
 | Module | Setting | Key | Default | Choices | Scope |
 |---|---|---|---|---|---|
 | The Forsaken Tower | On | `campaign.enabled` | on | on, off | host, level |
+| The Forsaken Tower | HoH1 content | `hoh1.content` | off | on, off | host, level |
 | The Forsaken Tower | Both tower versions | `campaign.portal_both` | off | on, off | host |
 | The Forsaken Tower | HoH1 traps | `campaign.traps` | on | on, off | host, level |
 | The Forsaken Tower | Trap map | `campaign.trap_map` | 0 | Crypt (0), Bandit Keep (1), Dark Citadel (2), Spider Caves (3), Every map (4) | host, level |

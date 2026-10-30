@@ -12,8 +12,17 @@
   "campaign",
   "gamelab-it-campaign"
  ],
- "timeout": 3000,
+ "timeout": 3120,
  "steps": [
+  {
+   "do": "console",
+   "line": "hwp set hoh1.content true",
+   "expect": "hoh1\\.content = true",
+   "name": "hoh1.content on (off by default; saved with the town)"
+  },
+  {
+   "do": "restart"
+  },
   {
    "do": "log_has",
    "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",

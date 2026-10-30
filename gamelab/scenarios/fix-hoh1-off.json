@@ -1,0 +1,111 @@
+{
+  "name": "fix-hoh1-off",
+  "needs_hoh1": true,
+  "about": "Game night 10.28.26 (a lobby hung on 'wait_loaded_level': the host loaded hoh1/levels/battlements_1.lvl, which the friends' packs lack): with the HoH1 import packed and hoh1.content off (its default), no floor loads an HoH1 file. In town the campaign, pets and trinkets log their stand-ins, `hwp hoh1` says off and the portal offers the HoH2 tower; the Pet Shop lists no HoH1 pet, and toggling the flag live lists them, puts a bought one away and brings it back, and swaps the campaign floors at once; the Dark Citadel's hwp_battlements_1 and _2 load generated floors and `cht_finish_level` reaches the Avatar; the HoH1 tower's first and last floors load HoH2 files. No StartLoadServer hoh1/ anywhere. About 6 minutes.",
+  "fixture": "town-paladin",
+  "mods": [
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
+    "campaign",
+    "pets",
+    "trinkets"
+  ],
+  "timeout": 900,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "log_has",
+      "pattern": "\\[HWP:campaign\\] self-check done: mission ok, \\d+/\\d+ schemes, HoH1 floors installed, off \\(hoh1\\.content\\), ",
+      "timeout": 30,
+      "name": "campaign self-check: the import is packed, the flag is off"
+    },
+    {
+      "do": "log_has",
+      "pattern": "\\[HWP:campaign\\] hoh1\\.content off: hwp_forsaken_tower_hoh1: (\\d+)/\\1 floors on HoH2 stand-ins",
+      "timeout": 5,
+      "name": "every HoH1 tower floor has an HoH2 stand-in"
+    },
+    {
+      "do": "log_has",
+      "pattern": "\\[HWP:campaign\\] hoh1\\.content off: Dark Citadel hwp_battlements_1, hwp_battlements_2 are generated Dark Halls floors",
+      "timeout": 5,
+      "name": "the Dark Citadel's Battlements floors are generated"
+    },
+    {
+      "do": "log_has",
+      "pattern": "\\[HWP:pets\\] hoh1\\.content off: [1-9]\\d* HoH1 pet\\(s\\) out of the Pet Shop",
+      "timeout": 10,
+      "name": "the HoH1 pets are out of the shop"
+    },
+    {
+      "do": "log_has",
+      "pattern": "\\[HWP:trinkets\\] hoh1\\.content off: placeholder icons",
+      "timeout": 10,
+      "name": "the trinkets keep their placeholder icons"
+    },
+    {
+      "do": "log_has",
+      "pattern": "\\[HWP\\] HoH1 content is off \\(Plus menu: HoH1 content\\), so these use stand-ins: ",
+      "timeout": 15,
+      "name": "the chat says it is off and how to turn it on, not that it is missing"
+    },
+    {
+      "do": "log_lacks",
+      "pattern": "floors still load HoH1 files",
+      "name": "no mission floor left on an HoH1 file"
+    },
+    {
+      "do": "bot",
+      "bot": "fix_hoh1",
+      "kwargs": {
+        "sections": "town,pets"
+      },
+      "expect": {
+        "ok": true
+      },
+      "name": "town: off reported, HoH2 portal; Pet Shop: none listed off, the pet put away and back live"
+    },
+    {
+      "do": "bot",
+      "bot": "fix_hoh1",
+      "kwargs": {
+        "sections": "citadel"
+      },
+      "expect": {
+        "ok": true
+      },
+      "name": "Dark Citadel: hwp_battlements_1 and _2 generated, cht_finish_level reaches the boss"
+    },
+    {
+      "do": "shot",
+      "name": "citadel-boss"
+    },
+    {
+      "do": "bot",
+      "bot": "fix_hoh1",
+      "kwargs": {
+        "sections": "tower"
+      },
+      "expect": {
+        "ok": true
+      },
+      "name": "HoH1 tower floors 0 and 22 load HoH2 files"
+    },
+    {
+      "do": "log_lacks",
+      "pattern": "StartLoadServer hoh1/",
+      "name": "no level loaded from hoh1/ during the run"
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

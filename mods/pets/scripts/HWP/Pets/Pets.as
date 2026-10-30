@@ -195,6 +195,9 @@ namespace HWP
 				RefreshSettings();
 			if (wasOn != g_enabled)
 				RemakeMyPet();
+			// hoh1.content set live, or a client got the host's value: the HoH1 pet now
+			if (key.findFirst("hoh1.") == 0)
+				SwapHoH1Pet(GetLocalPlayerRecord());
 			// a client got the host's values ("pets."), or pets.bowl / pets.enabled changed
 			// live (`hwp set pets.bowl 1`): the bowl goes where the host has it, or away
 			if ((key == "pets." || key == "pets.bowl" || key == "pets.enabled") && g_inTown && g_bowlReady)
@@ -1220,6 +1223,40 @@ namespace HWP
 			HWP::Commands::Reply(Resources::GetString(".hwp.pets.cmd_hint"));
 		}
 
+		// hoh1.content off (HWP::HoH1::Enabled): the HoH1 pets (ids hwp_pet_*) are out of the
+		// Pet Shop and an equipped one is put away, its id kept in the save (pets.hoh1_pet), so
+		// no other machine is asked to spawn a unit only the importer has. On again, it is back.
+		const string HOH1_PET_KEY = "pets.hoh1_pet";
+
+		bool IsHoH1Pet(PetDef@ d) { return d !is null && d.m_id.findFirst("hwp_pet_") == 0; }
+
+		void SwapHoH1Pet(PlayerRecord@ rec)
+		{
+			if (rec is null)
+				return;
+			auto pb = cast<PlayerBase>(rec.actor);
+			if (pb is null)
+				return;
+			auto bag = HWP::SaveData::Player(rec);
+			if (!HWP::HoH1::Enabled() && IsHoH1Pet(rec.pet))
+			{
+				bag.SetString(HOH1_PET_KEY, rec.pet.m_id);
+				HWP::Log("pets", "hoh1.content off: put away the HoH1 pet " + rec.pet.m_id);
+				@rec.pet = null;
+				pb.ResetPet();
+			}
+			else if (HWP::HoH1::Enabled() && rec.pet is null && bag.Has(HOH1_PET_KEY))
+			{
+				auto d = PetDef::Get(HashString(bag.GetString(HOH1_PET_KEY)));
+				bag.Remove(HOH1_PET_KEY);
+				if (d is null || !rec.HasPetUnlocked(d))
+					return;
+				HWP::Log("pets", "hoh1.content on: the HoH1 pet " + d.m_id + " is back");
+				@rec.pet = d;
+				pb.ResetPet();
+			}
+		}
+
 		// Boot-time checks: units now, PetDefs (loaded after modules) on the first gameplay load.
 		bool g_checkedDefs = false;
 
@@ -1249,6 +1286,8 @@ namespace HWP
 			HWP::HoH1::Report("pets", imported > 0, ".hwp.pets.hoh1");
 			if (imported == 0)
 				HWP::Log("pets", "no HoH1 pets imported (run: python tools/import_hoh1.py pets)");
+			else if (!HWP::HoH1::Enabled())
+				HWP::Log("pets", "hoh1.content off: " + imported + " HoH1 pet(s) out of the Pet Shop");
 			else
 				HWP::Log("pets", imported + " HoH1 pet(s) in the Pet Shop" + (missingUnit > 0 ? ", " + missingUnit + " with a missing unit" : ""));
 		}
@@ -1284,6 +1323,21 @@ class HWPPetShopContent : PetsShopContent
 			return PetsShopContent::MakeShopWindow(guiBuilder);
 		@m_window = HWPPetShopChoice(guiBuilder, this);
 		return m_window;
+	}
+
+	array<IShopItem@> GetItems() override
+	{
+		auto items = PetsShopContent::GetItems();
+		if (HWP::HoH1::Enabled())
+			return items;
+		array<IShopItem@> ret;
+		for (uint i = 0; i < items.length(); i++)
+		{
+			auto pet = cast<PetShopContentItem>(items[i]);
+			if (pet is null || !HWP::Pets::IsHoH1Pet(pet.m_pet))
+				ret.insertLast(items[i]);
+		}
+		return ret;
 	}
 }
 
@@ -1656,6 +1710,7 @@ namespace Modules
 				if (rec !is null && rec.actor !is null)
 				{
 					m_levelSent = true;
+					HWP::Pets::SwapHoH1Pet(rec);
 					HWP::Pets::SendLevel(rec);
 				}
 				else if (m_delay > 10000)
