@@ -21,6 +21,7 @@ next level.
 | Last run stats | On | `laststats.enabled` | on | on, off | host |
 | Colors | On | `colors.enabled` | on | on, off | local |
 | Colors | (option `colors`) | | | | local |
+| Colors | Projectile markers | `colors.markers` | on | on, off | local |
 | Colors | (option `playercolors`) | | | | local |
 | Colors | Names on maps | `playercolors.names` | on | on, off | local |
 | Colors | Name distance | `playercolors.distance` | 300 px | 0 px, 150 px, 300 px, 600 px, 1000 px | local |
