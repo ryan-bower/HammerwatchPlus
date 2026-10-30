@@ -1,6 +1,6 @@
 {
  "name": "pf-plan-forgemaster-smoke",
- "about": "plan-forgemaster-smoke against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). The Devil Forgemaster (Priest 4th spec, mods/specs) compiles and sets up: the specs module registers 8 subclasses, a Priest takes hwp_priest_forgemaster, the binds and orbs take, Divine Favor comes free, bodies roll on the floor's deaths, a body glows, the real cast raises a bandit brute (plan_forgemaster bot, section forge).",
+ "about": "plan-forgemaster-smoke against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). The Devil Forgemaster (Priest 4th spec, mods/specs) compiles and sets up: the build carries its risen and body units (issue #76: v0.3 had none), the specs module registers 8 subclasses, a Priest takes hwp_priest_forgemaster, the binds and orbs take, Divine Favor comes free, bodies roll on the floor's deaths, a body glows, the real cast raises a bandit brute (plan_forgemaster bot, section forge).",
  "fixture": "town-paladin",
  "timeout": 400,
  "steps": [
@@ -8,6 +8,12 @@
    "do": "log_has",
    "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",
    "timeout": 30
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] Forgemaster units present \\(\\d+ raisable; 3 of 3 probed load\\)",
+   "timeout": 5,
+   "name": "the build carries the Forgemaster's risen and body units (issue #76)"
   },
   {
    "do": "console",

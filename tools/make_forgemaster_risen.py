@@ -368,9 +368,11 @@ def units_as(enemies, rels):
              "// and a body unit in players/hwp/specs/forgemaster/.",
              "namespace HWP", "{", "\tnamespace Specs", "\t{",
              "\t\tconst array<string> ENEMY_UNITS = {"]
-    lines += [f'\t\t\t"actors/{rel}",' for rel, _ in enemies]
+    # no comma after the last entry: AngelScript makes a trailing comma one more, empty, element
+    # (RISEN_RELS had 142 entries for 141 enemies, the last "")
+    lines += [",\n".join(f'\t\t\t"actors/{rel}"' for rel, _ in enemies)]
     lines += ["\t\t};", "", "\t\tconst array<string> RISEN_RELS = {"]
-    lines += [f'\t\t\t"{rel}",' for rel in rels]
+    lines += [",\n".join(f'\t\t\t"{rel}"' for rel in rels)]
     lines += ["\t\t};", "\t}", "}", ""]
     return "\n".join(lines)
 

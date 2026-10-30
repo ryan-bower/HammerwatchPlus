@@ -7131,3 +7131,33 @@ since the Pilot's walk timed out once and found no route once on random floors) 
 floor boots. `pf-fix-party-exit` (the built packages) PASS `20261030-095326`, `mod-all` PASS
 `20261030-095248`. Not covered: a real two-machine lobby (players left outside being carried
 to the next floor is vanilla's path for the dead, not measured here).
+
+## 2026-10-30: v0.3 shipped without base-generated content (issue #76, no Forgemaster bodies)
+
+"Necrotic Resurrection isn't possible because there are no intact bodies at all." The
+published v0.3 `HammerwatchPlus-All.bin` (release asset, built from `d903442`) holds 0 of the
+141 `players/hwp/specs/forgemaster/bodies/` and 0 of the 141 `risen/` units. Those units are
+made from the player's own `gamecode/sdk/hoh2/` by `tools/make_forgemaster_risen.py` and
+gitignored, and `tools/build.py` never ran that tool. It also skipped the class-unit copies
+without a word when `gamecode/sdk/hoh2/` was missing, and the release has none of those either
+(colors 184, keys 13, attrclick, mmhmm and trinkets 1 to 3 each, pets 12 plus the dyes). Every
+`.gitignore` block marked "generated from the HoH2 base" was absent from the release.
+In game, every body roll on an enemy death fails in `SpawnBody` ("no body unit for ...") and
+the skill never finds a body.
+
+Fix: `build.py` `require_base` stops the build when a package carries a module whose
+`.gitignore` names a base generator and `gamecode/sdk/hoh2/` is missing. It also refuses a
+generator it doesn't run (`BASE_TOOLS`), and it runs `make_forgemaster_risen` itself when
+`specs` is packed (`tests/test_build_base.py`). The specs self-check probes three raisable
+units (first, middle, last) and logs `Forgemaster units present (141 raisable; 3 of 3 probed
+load)` or an error naming them. The first probe run found `RISEN_RELS` had 142 entries: the
+generated initializer list ended in a comma, which AngelScript turns into one more empty
+element (`ENEMY_UNITS` too). The generator no longer writes the trailing comma.
+
+Evidence: `plan-forgemaster-smoke` with the bodies/risen dirs moved aside reproduces the
+issue, FAIL `20261030-100042`: 77 rolls, 0 bodies, no cast, the self-check error. The dirs
+were regenerated afterwards and `--check` is clean. Then `plan-forgemaster-smoke` PASS
+`20261030-100139`, `pf-plan-forgemaster-smoke` (built packages, 141 bodies + 141 risen
+counted in `dist/HWP-specs.bin` and the All pack) PASS `20261030-095952`, `mod-all` PASS
+`20261030-100217`. A new release is needed for players to get the bodies; that build must run
+on a machine with `gamecode/` (doctor --fix).
