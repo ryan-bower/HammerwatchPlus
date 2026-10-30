@@ -7203,3 +7203,48 @@ Tests:
   section was added.
 - plan-generosity PASS 20261030-101332 (every section), mod-all PASS 20261030-102014,
   pytest 241 passed.
+
+## 2026-10-30: Sacrificial Penance needs Heresy (issue #68)
+
+At max Divine Favor, Necrotic Resurrection became Sacrificial Penance even with 0 Heresy. That
+cast spent the Favor and 50 mana and removed nothing.
+
+- Everything that decides "is this a Penance" goes through one function,
+  `HWP::Specs::PenanceReady` (`mods/specs/scripts/HWP/Specs/Forgemaster.as`):
+  - the HUD icon (`RefreshIcon` each frame in `UpdateForgemaster`),
+  - the cost (`GetCost`: 50 mana instead of the raise's),
+  - the cast's kind (`NetActivate` latches `m_penanceCast`, then `StartChannel(..., penance)`),
+  - the Heresy-5 block in `CanActivate`,
+  - `hwp forge`'s `penance 0/1`.
+  So the fix is one condition: `PenanceReady` also needs `Heresy(plr) > 0`. Every place
+  above follows it.
+- With max Favor and no Heresy the key is a plain raise: the raise icon, the raise channel
+  and cost, and +Heresy from the host's answer. The Favor isn't touched, so the cast after
+  that raise is a Penance. The Heresy-5 block is unchanged, because at 5 Heresy there is
+  always Heresy to remove.
+- Heresy is read on the caster's own client, which holds the authority over a player's
+  buff list. `NetActivate` latches the kind at the press, so a Heresy change mid-channel
+  (a pyre) doesn't flip it.
+- Tooltip and planner text now say "with at least 1 Heresy" (the
+  `hwp.specs.necrotic_resurrection.desc` string, and the `priest-spec4-active` and
+  `priest-spec4-penance` summaries).
+
+Tests:
+
+- New bot section `penance_heresy` (plan_forgemaster) and scenario `fix-penance-heresy`,
+  PASS 20261030-121805.
+  - At Favor 5 and Heresy 0: `penance 0` and the raise icon.
+  - At Heresy 1: `penance 1` and the Penance icon. Back to 0: the raise icon again.
+  - The cast at Favor 5 and Heresy 0 is a raise channel: Heresy 0 -> 1, one risen, the
+    Favor kept.
+  - With Heresy 1, once the shared cooldown is over, the cast is a Penance: Heresy 1 -> 0,
+    the Favor spent.
+- The `penance_icon` section now sets Heresy 1 first, since its max-Favor step expects the
+  Penance icon. It runs in fix-penance-heresy and in fix-forgemaster-channels.
+- pf-fix-penance-heresy PASS 20261030-132142, mod-all PASS 20261030-132406, pytest 245
+  passed, `build.py --check` OK.
+- plan-forgemaster 20261030-122035: every `pen_*` flag passes, including
+  `pen_needs_max_favor`. Two checks that don't touch Penance failed:
+  - `raise_all` `all_attack` is flaky; it already failed in 2 of the 4 earlier runs.
+  - `lunge` `lunge_lift` measured a 3 px bob. Rerun alone, the lunge section passes
+    (20261030-131908).

@@ -18,6 +18,6 @@
   "order": 0,
   "role": "",
   "status": "built",
-  "summary": "Reanimate an intact body left by Call of Heresy as a loyal summon that fights for you. Their health decays slowly over time. Each summon adds Heresy: 1 for a normal enemy, 2 for an elite, 3 for a boss; at 5 Heresy you can no longer raise the dead. At max Divine Favor the skill becomes Sacrificial Penance: channel for 3 seconds to sacrifice an intact body and remove Heresy.",
+  "summary": "Reanimate an intact body left by Call of Heresy as a loyal summon that fights for you. Their health decays slowly over time. Each summon adds Heresy: 1 for a normal enemy, 2 for an elite, 3 for a boss; at 5 Heresy you can no longer raise the dead. At max Divine Favor, with at least 1 Heresy, the skill becomes Sacrificial Penance: channel for 3 seconds to sacrifice an intact body and remove Heresy.",
   "unlock": "bought"
 }

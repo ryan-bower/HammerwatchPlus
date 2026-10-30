@@ -1,6 +1,6 @@
 {
  "name": "fix-forgemaster-channels",
- "about": "The Devil Forgemaster fixes of 2026-10-25 (plan_forgemaster channel_lock, penance_icon, pyre_heresy, orb_boss sections): a Necrotic Resurrection or Sacrificial Penance channel locks the priest onto the body (the facing holds against a turned aim, a dash press is refused and logged, nothing moves), runs a beam and pulses that grow with the channel and draws a progress bar over the priest; the skill's icon swaps to the Penance icon at max Divine Favor; a pyre is usable with Heresy and no curse and removes Pyre Sacrifice's Heresy, the large WorldScript pyre included; Deeper Depravity's epic rank gives every boss an intact body.",
+ "about": "The Devil Forgemaster fixes of 2026-10-25 (plan_forgemaster channel_lock, penance_icon, pyre_heresy, orb_boss sections): a Necrotic Resurrection or Sacrificial Penance channel locks the priest onto the body (the facing holds against a turned aim, a dash press is refused and logged, nothing moves), runs a beam and pulses that grow with the channel and draws a progress bar over the priest; the skill's icon swaps to the Penance icon at max Divine Favor (with Heresy, issue #68); a pyre is usable with Heresy and no curse and removes Pyre Sacrifice's Heresy, the large WorldScript pyre included; Deeper Depravity's epic rank gives every boss an intact body.",
  "fixture": "town-paladin",
  "mods": [
   "hwplib",
