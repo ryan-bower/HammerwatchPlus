@@ -364,4 +364,23 @@ class HWPLocalNPC : CompositeActorBehaviorNPC
 	HWPLocalNPC(UnitPtr unit, SValue& params) { super(unit, params); }
 
 	void CheckForExistance() override {}
+
+	// vanilla sends UnitTarget for a target change, and a unit that is not netsynced
+	// cannot be named in a message ("not netsynced" spam on game night 10.28.26): each
+	// machine targets for its own copy, locally
+	void SetTarget(Actor@ newTarget, float aggro, bool makeAggro = false, int spreadTargetCount = 4) override
+	{
+		if (m_unit.IsDestroyed() || !m_props.m_targeting)
+			return;
+		if (newTarget !is null && (newTarget.Team == Team || !newTarget.IsTargetable()))
+			return;
+		if (newTarget is m_target)
+			m_targetAggro = max(m_targetAggro, aggro);
+		else
+		{
+			@m_target = newTarget;
+			m_targetAggro = m_target is null ? 0 : max(0.1f, aggro);
+			m_targetSearchCd = int((750 + randi(500)) * m_props.m_targetFindCdMul);
+		}
+	}
 }

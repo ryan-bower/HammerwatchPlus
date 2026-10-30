@@ -2,6 +2,7 @@
 	<behavior class="Pickup">
 		<string name="sound">event:/sfx/items/item_crystal</string>
 		<bool name="player-only">true</bool>
+		<float name="respawn-time">0</float>
 		<array name="effects">
 			<dict>
 				<string name="class">HWPComboOrb</string>

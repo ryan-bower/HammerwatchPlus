@@ -6887,3 +6887,8 @@ tower, 18 floors; the locked-portal check now polls the log instead of reading i
 plan-generosity-hoh1 20261029-221001: one hold (boss_armory:wraith_scythe moved 223 px) failed;
 not investigated. Unfixed game-night noise: HWPLocalNPC UnitTarget spam, combo_orb respawn
 warning, vanilla trinket-proc desync.
+Game-night fixes: HWPLocalNPC.SetTarget targets locally (no UnitTarget for a netsync-none unit);
+combo_orb respawn-time 0. fix-combo-orb 20261029-223045 PASS, mod-farming 223145 PASS,
+mod-fishing-spots 223158 INVALID (saves only) - each with a new log_lacks guard. plan-generosity-hoh1
+re-run 223645 FAIL again on a different armory wraith (staff, 237 px, hold cut at 30 s): a Generosity
+hold vs. the three-wraith boss, not hoh1.content (every HoH1 floor loaded).
