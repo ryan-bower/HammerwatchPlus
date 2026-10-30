@@ -1,0 +1,178 @@
+{
+ "name": "fix-mod-version-notice",
+ "about": "Issue #24: players with different HammerwatchPlus updates get into one lobby (the game's mod check compares mod ids, not their contents), and only the log said so. Now each package carries its update (tools/build.py), a client in town reports its packages to the host, the host answers with its own, and both are told which packages differ and whose are older; a side that never reports is an update from before these reports. One lab game stands in for two: a host's request runs locally, and `hwp builds fake` reads every report and answer as if the other side ran that.",
+ "fixture": "town-paladin",
+ "packages": [
+  "qol"
+ ],
+ "timeout": 240,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-qol, library [0-9a-f]{12}, update \\d{4}-\\d\\d-\\d\\d [0-9a-f]{7,}",
+   "timeout": 30,
+   "name": "the package carries its update"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] update: update \\d{4}-\\d\\d-\\d\\d \\([0-9a-f]{7,}\\+?\\): HWP-qol(?![,;])",
+   "timeout": 60,
+   "name": "the update is logged in town"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] HammerwatchPlus update \\d{4}-\\d\\d-\\d\\d \\([0-9a-f]{7,}\\+?\\): HWP-qol",
+   "timeout": 10,
+   "name": "hwp builds"
+  },
+  {
+   "do": "mark",
+   "name": "same"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds report"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] updates match .+",
+   "since": "same",
+   "timeout": 10,
+   "name": "the same updates: no notice"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "runs another HammerwatchPlus update",
+   "since": "same",
+   "name": "nobody is told"
+  },
+  {
+   "do": "mark",
+   "name": "older"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds fake HWP-qol=2026-10-01 0000000"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds report"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] .+ runs another HammerwatchPlus update than you, so some mods may misbehave together: HWP-qol: yours \\d{4}-\\d\\d-\\d\\d \\([0-9a-f]{7,}\\+?\\), theirs 2026-10-01 \\(0000000\\)\\. Theirs are older: .+ should update every HammerwatchPlus mod",
+   "since": "older",
+   "timeout": 10,
+   "name": "the other side is older: they are told to update"
+  },
+  {
+   "do": "log_has",
+   "pattern": "(?s)updates differ from .+?: HWP-qol: .+?updates differ from .+?: HWP-qol: ",
+   "since": "older",
+   "timeout": 10,
+   "name": "the host's answer is compared too"
+  },
+  {
+   "do": "shot",
+   "name": "older"
+  },
+  {
+   "do": "mark",
+   "name": "newer"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds fake clear"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds fake HWP-qol=2099-01-01 fffffff"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds report"
+  },
+  {
+   "do": "log_has",
+   "pattern": "theirs 2099-01-01 \\(fffffff\\)\\. Yours are older: update every HammerwatchPlus mod in the Steam Workshop",
+   "since": "newer",
+   "timeout": 10,
+   "name": "this side is older: told to update"
+  },
+  {
+   "do": "mark",
+   "name": "extra"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds fake clear"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds fake HWP-keys=2099-01-01 fffffff"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds report"
+  },
+  {
+   "do": "log_has",
+   "pattern": "HWP-keys: yours not enabled, theirs 2099-01-01 \\(fffffff\\)",
+   "since": "extra",
+   "timeout": 10,
+   "name": "a package only they have"
+  },
+  {
+   "do": "mark",
+   "name": "silent"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds fake clear"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds fake silent"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds report"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] no update report from The host in 3 s",
+   "since": "silent",
+   "timeout": 15,
+   "name": "a host that never answers"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:core\\] no update report from (?!The host).+ in 3 s",
+   "since": "silent",
+   "timeout": 15,
+   "name": "a client that never reports"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] The host runs a HammerwatchPlus update from before update checks, older than yours \\(\\d{4}-\\d\\d-\\d\\d \\([0-9a-f]{7,}\\+?\\)\\)",
+   "since": "silent",
+   "timeout": 5,
+   "name": "the older side is named"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds fake clear"
+  },
+  {
+   "do": "shot",
+   "name": "silent"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

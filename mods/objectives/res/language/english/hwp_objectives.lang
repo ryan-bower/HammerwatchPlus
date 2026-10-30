@@ -9,4 +9,6 @@
 	<string name="hwp.objectives.exit_opened">pressed, the way down is open</string>
 	<string name="hwp.objectives.usage">hwp objectives [open]  (settings: objectives.vaults 0-2, objectives.exit on/off)</string>
 	<string name="hwp.objectives.opened_all">Opened every objective on this floor (host)</string>
+	<string name="hwp.objectives.marked.name">Marked Switches</string>
+	<string name="hwp.objectives.marked.desc">The levers that open vaults and the way down show on the map.</string>
 </lang>
