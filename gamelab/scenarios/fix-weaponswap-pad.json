@@ -1,0 +1,39 @@
+{
+ "name": "fix-weaponswap-pad",
+ "about": "Weapon swap on a controller (issue #14, hwplib HWP::Input): D-pad left by default swaps in gameplay, not with the character menu open (MenuLeft there; X still swaps there), the hints show the button while a controller is in use, the Plus tab row captures a button (B ignored, Esc cancels), the old button stops and the new one swaps, a clash with Use is named. GameLab presses emulated buttons (gamelab-hands pad verb). hwp pad lists the button codes.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "weaponswap"
+ ],
+ "timeout": 300,
+ "steps": [
+  {"do": "gl", "verb": "state", "expect": {"phase": "town"}, "name": "still in town"},
+  {"do": "console", "line": "e_cheats 1"},
+  {"do": "console", "line": "hwp pad"},
+  {"do": "log_has", "pattern": "\\[HWP\\] pad: gp_dl = 4:13, ds4_dpad_left = 10:3", "timeout": 20,
+   "name": "pad buttons resolve (gp: SDL controller buttons; ds4: joystick buttons, the D-pad a hat)"},
+  {"do": "bot", "bot": "fix_swap_pad",
+   "expect": {
+    "ok": true,
+    "default_dpad_left": true,
+    "hint_key_without_pad": true,
+    "hint_button_with_pad": true,
+    "button_swaps": true,
+    "button_not_in_menu": true,
+    "key_still_in_menu": true,
+    "capture_opens": true,
+    "capture_skips_b": true,
+    "capture_binds_stick": true,
+    "row_shows_button": true,
+    "capture_esc_cancels": true,
+    "new_button_swaps": true,
+    "clash_named": true,
+    "default_restored": true
+   },
+   "name": "weapon swap on a controller"},
+  {"do": "log_clean"}
+ ]
+}

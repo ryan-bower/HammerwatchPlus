@@ -1,0 +1,596 @@
+namespace Equipment
+{
+	class Generator
+	{
+		Slot m_slots;
+		Item::Quality m_qualities;
+		int m_ilvl;
+		bool m_forcePrimary;
+		
+		Item::Quality RollQuality()
+		{
+			array<Item::Quality> qualities;
+			float qualTot = 0.f;
+			
+			if (uint(m_qualities) & uint(Item::Quality::Common) != 0)
+			{
+				qualities.insertLast(Item::Quality::Common);
+				qualTot += 1.f / int(Item::Quality::Common);
+			}
+			
+			if (uint(m_qualities) & uint(Item::Quality::Uncommon) != 0)
+			{
+				qualities.insertLast(Item::Quality::Uncommon);
+				qualTot += 1.f / int(Item::Quality::Uncommon);
+			}
+			
+			if (uint(m_qualities) & uint(Item::Quality::Rare) != 0)
+			{
+				qualities.insertLast(Item::Quality::Rare);
+				qualTot += 1.f / int(Item::Quality::Rare);
+			}
+			
+			if (uint(m_qualities) & uint(Item::Quality::Epic) != 0)
+			{
+				qualities.insertLast(Item::Quality::Epic);
+				qualTot += 1.f / int(Item::Quality::Epic);
+			}
+			
+			if (uint(m_qualities) & uint(Item::Quality::Legendary) != 0)
+			{
+				qualities.insertLast(Item::Quality::Legendary);
+				qualTot += 1.f / int(Item::Quality::Legendary);
+			}
+			
+			if (qualities.length() <= 0)
+				return Item::Quality::Common;
+			
+			auto qual = qualities[randi(qualities.length())];
+			float r = randf() * qualTot;
+			for (uint i = 0; i < qualities.length(); i++)
+			{
+				r -= 1.f / int(qualities[i]);
+				if (r <= 0)
+				{
+					qual = qualities[i];
+					break;
+				}
+			}
+			
+			//if (qual == Item::Quality::Epic && m_ilvl < 20)
+			//	qual = Item::Quality::Rare;
+			if (qual == Item::Quality::Rare && m_ilvl < 10)
+				qual = Item::Quality::Uncommon;
+			
+			return qual;
+		}
+		
+		array<Slot>@ UnpackSlots()
+		{
+			array<Slot> slots;
+			
+			if (m_slots == Slot::None || (uint(m_slots) & uint(Slot::MainHand) != 0))
+				slots.insertLast(Slot::MainHand);
+			if (m_slots == Slot::None || (uint(m_slots) & uint(Slot::OffHand) != 0))
+				slots.insertLast(Slot::OffHand);
+			if (m_slots == Slot::None || (uint(m_slots) & uint(Slot::TwoHanded) != 0))
+				slots.insertLast(Slot::TwoHanded);
+			if (m_slots == Slot::None || (uint(m_slots) & uint(Slot::Head) != 0))
+				slots.insertLast(Slot::Head);
+			if (m_slots == Slot::None || (uint(m_slots) & uint(Slot::Chest) != 0))
+				slots.insertLast(Slot::Chest);
+			if (m_slots == Slot::None || (uint(m_slots) & uint(Slot::Feet) != 0))
+				slots.insertLast(Slot::Feet);
+			if (m_slots == Slot::None || (uint(m_slots) & uint(Slot::Hands) != 0))
+				slots.insertLast(Slot::Hands);
+			if (m_slots == Slot::None || (uint(m_slots) & uint(Slot::Back) != 0))
+				slots.insertLast(Slot::Back);
+				
+			return slots;
+		}
+		
+		
+		UniqueEquipment@ GenerateUnique(array<uint>@ tags)
+		{
+			int numTags = int(tags.length());
+			int totChance = 0;
+			array<int> lootEntriesChance;
+			array<UniqueEquipment@> lootEntries;
+			for (uint i = 0; i < Equipment::UniqueEquipment::Instances.length(); i++)
+			{
+				auto uItem = Equipment::UniqueEquipment::Instances[i];
+				
+				//print("Checking " + uItem.m_name);
+				if (uItem.m_dropChance <= 0)
+				{
+					//print("No chance");
+					continue;
+				}
+				
+				if (uint(m_slots) & uint(uItem.GetSlot()) == 0)
+				{
+					//print("Wrong slot");
+					continue;
+				}
+				/*
+				if (uItem.m_req.m_classHash != classHash && classHash != 0 && uItem.m_req.m_classHash != 0)
+				{
+					//print("Wrong class hash");
+					continue;
+				}
+				*/
+				if (Equipment::CountTags(tags, uItem.m_tags) < numTags)
+				{
+					//print("Wrong tags");
+					continue;
+				}
+				
+				lootEntries.insertLast(uItem);
+				lootEntriesChance.insertLast(uItem.m_dropChance);
+				totChance += uItem.m_dropChance;
+			}
+			
+			int r = randi(totChance);
+			for (uint i = 0; i < lootEntries.length(); i++)
+			{
+				r -= lootEntriesChance[i];
+				if (r < 0)
+					return lootEntries[i];
+			}
+			
+			return null;
+		}
+		
+		
+		Item@ GenerateKindItem(PlayerRecord@ player, array<uint>@ tags = null, array<uint>@ modTags = null)
+		{
+			if (player is null || player.playerClass is null)
+				return GenerateItem(tags, modTags);
+			
+			auto slots = UnpackSlots();
+			array<Item@> items;
+			
+			for (uint i = 0; i < slots.length(); i++)
+			{
+				Item@ item = GenerateItem(slots[i], RollQuality(), m_ilvl, tags, modTags, player);
+				if (item !is null)
+					items.insertLast(item);
+			}
+			
+			if (items.length() > 0)
+				return items[randi(items.length())];
+			
+			return null; 
+		}
+	
+		Item@ GenerateItem(array<uint>@ tags = null, array<uint>@ modTags = null)
+		{
+			auto slots = UnpackSlots();
+			array<Item@> items;
+			
+			for (uint i = 0; i < slots.length(); i++)
+			{
+				Item@ item = GenerateItem(slots[i], RollQuality(), m_ilvl, tags, modTags);
+				if (item !is null)
+					items.insertLast(item);
+			}
+			
+			if (items.length() > 0)
+				return items[randi(items.length())];
+			
+			return null; 
+		}
+		
+		
+
+		BaseItem@ GenerateBaseItem(Modifiers::ConvertableStat primStat, Slot slot, Item::Quality quality, int ilvl, array<uint>@ tags = null)
+		{
+			array<BaseItemRarity@> baseItems;
+			float spawnChanceSum = 0;
+			
+			for (uint i = 0; i < BaseItem::Instances.length(); i++)
+			{
+				auto baseItem = BaseItem::Instances[i];
+				if (quality != Item::Quality::None && baseItem.quality > quality)
+					continue;
+				
+				if (ilvl < baseItem.ilvl || ilvl > baseItem.ilvlMax)
+					continue;
+				
+				if (slot != Slot::None && baseItem.slot != slot)
+					continue;
+				
+				if (primStat != baseItem.primaryStat)
+					continue;
+				
+				if (tags !is null && tags.length() > 0 && !MatchTags(tags, baseItem.supportedTags))
+					continue;
+				
+				if (!VerifyItem(baseItem, quality))
+					continue;
+				
+				spawnChanceSum += baseItem.spawnChance;
+				baseItems.insertLast(BaseItemRarity(baseItem, baseItem.spawnChance));
+			}
+			
+			if (baseItems.length() <= 0)
+				return null;
+			
+			float r = randf() * spawnChanceSum;
+			for (uint i = 0; i < baseItems.length(); i++)
+			{
+				r -= baseItems[i].rarity;
+				if (r <= 0)
+					return baseItems[i].baseItem;
+			}
+			
+			return baseItems[randi(baseItems.length())].baseItem;
+		}
+		
+		BaseItem@ GenerateBaseItem(Slot slot, Item::Quality quality, int ilvl, array<uint>@ tags = null, PlayerRecord@ player = null)
+		{
+			array<BaseItemRarity@> baseItems;
+			float spawnChanceSum = 0;
+			
+			auto primStat = Modifiers::ConvertableStat::Num;
+			if (player !is null && player.playerClass !is null)
+			{
+				auto playerClass = player.playerClass;
+				int pLvl = player.level - 1;
+				
+				int pStr = playerClass.base_str + pLvl * playerClass.level_str + player.pickedStr + 10 * playerClass.str_spellpwr;
+				int pDex = playerClass.base_dex + pLvl * playerClass.level_dex + player.pickedDex + 10 * playerClass.dex_spellpwr;
+				int pInt = playerClass.base_int + pLvl * playerClass.level_int + player.pickedInt + 10 * playerClass.int_spellpwr;
+				int pVit = playerClass.base_vit + pLvl * playerClass.level_vit + player.pickedVit + 10 * playerClass.vit_spellpwr;
+				int pFoc = playerClass.base_foc + pLvl * playerClass.level_foc + player.pickedFoc + 10 * playerClass.foc_spellpwr;
+				
+                if(slot == Slot::Back) 
+                {
+                        pVit = pVit*0.4 + pDex*0.6;
+                        pFoc = pFoc*0.4 + pInt*0.6;
+                }
+
+				baseItems.insertLast(BaseItemRarity(GenerateBaseItem(Modifiers::ConvertableStat::Str, slot, quality, ilvl, tags), pStr));
+				baseItems.insertLast(BaseItemRarity(GenerateBaseItem(Modifiers::ConvertableStat::Dex, slot, quality, ilvl, tags), pDex));
+				baseItems.insertLast(BaseItemRarity(GenerateBaseItem(Modifiers::ConvertableStat::Int, slot, quality, ilvl, tags), pInt));
+				baseItems.insertLast(BaseItemRarity(GenerateBaseItem(Modifiers::ConvertableStat::Vit, slot, quality, ilvl, tags), pVit));
+				baseItems.insertLast(BaseItemRarity(GenerateBaseItem(Modifiers::ConvertableStat::Foc, slot, quality, ilvl, tags), pFoc));
+				baseItems.insertLast(BaseItemRarity(GenerateBaseItem(Modifiers::ConvertableStat::Num, slot, quality, ilvl, tags), (pStr + pDex + pInt + pVit + pFoc) / 5.0f));
+				
+				for (uint i = 0; i < baseItems.length(); i++)
+				{
+					if (baseItems[i].baseItem !is null)
+						spawnChanceSum += baseItems[i].rarity;
+				}
+			}
+			else
+			{
+				for (uint i = 0; i < BaseItem::Instances.length(); i++)
+				{
+					auto baseItem = BaseItem::Instances[i];
+					if (quality != Item::Quality::None && baseItem.quality > quality)
+						continue;
+					
+					if (ilvl < baseItem.ilvl || ilvl > baseItem.ilvlMax)
+						continue;
+					
+					if (slot != Slot::None && baseItem.slot != slot)
+						continue;
+					
+					if (tags !is null && tags.length() > 0 && !MatchTags(tags, baseItem.supportedTags))
+						continue;
+					
+					if (!VerifyItem(baseItem, quality))
+						continue;
+					
+					spawnChanceSum += baseItem.spawnChance;
+					baseItems.insertLast(BaseItemRarity(baseItem, baseItem.spawnChance));
+				}
+			}
+			
+			if (baseItems.length() <= 0 || spawnChanceSum <= 0)
+				return null;
+			
+			float r = randf() * spawnChanceSum;
+			for (uint i = 0; i < baseItems.length(); i++)
+			{
+				if (baseItems[i].baseItem is null)
+					continue;
+				
+				r -= baseItems[i].rarity;
+				if (r <= 0)
+					return baseItems[i].baseItem;
+			}
+			
+			return baseItems[randi(baseItems.length())].baseItem;
+		}
+		
+		Item@ GenerateItem(Slot slot, Item::Quality quality, int ilvl, array<uint>@ tags = null, array<uint>@ modTags = null, PlayerRecord@ player = null)
+		{
+			auto baseItem = GenerateBaseItem(slot, quality, ilvl, tags, player);
+			
+			if (baseItem is null)
+				return null;
+			
+			if (quality == Item::Quality::None)
+				quality = baseItem.quality;
+			
+			if (!VerifyItem(baseItem, quality))
+				return null;
+			
+			Item item;
+			item.quality = quality;
+			@item.baseItem = baseItem;
+			
+			GenerateItemMods(item, ilvl, modTags);
+			
+			item.Finalize(randf(), ilvl, 0, null, null);
+			return item;
+		}
+
+		Item@ GenerateItem(BaseItem@ baseItem, array<uint>@ modTags = null)
+		{
+			if (baseItem is null)
+				return null;
+			
+			auto quality = RollQuality();
+			if (quality == Item::Quality::None)
+				quality = baseItem.quality;
+			
+			if (!VerifyItem(baseItem, quality))
+				return null;
+			
+			Item item;
+			item.quality = quality;
+			@item.baseItem = baseItem;
+			
+			GenerateItemMods(item, m_ilvl, modTags);
+			
+			item.Finalize(randf(), m_ilvl, 0, null, null);
+			return item;
+		}
+
+		bool VerifyItem(BaseItem@ baseItem, Item::Quality quality)
+		{
+			if (baseItem is null)
+				return false;
+			
+			if (quality == Item::Quality::Epic)
+			{
+				if (baseItem.slot == Equipment::Slot::MainHand || baseItem.slot == Equipment::Slot::OffHand || baseItem.slot == Equipment::Slot::TwoHanded)
+				{
+					if (baseItem.skill !is null && baseItem.skillEpic is null)
+						return false;
+				}
+			}
+			
+			if(!CheckGlobalConditionals(baseItem.m_conditionals))
+				return false;
+			
+			return true;
+		}
+
+		void ModifyItem(Item@ toModify, array<uint>@ tags = null, array<uint>@ modTags = null, bool clearMods = false)
+		{
+			int ilvl = toModify.GetItemLevel(true);
+			
+			auto quality = (m_qualities != Item::Quality::None ? m_qualities : toModify.GetQuality());
+			if (tags !is null || (m_slots != Slot::None && m_slots != toModify.GetSlot()))
+			{
+				auto slot = (m_slots != Slot::None ? m_slots : toModify.GetSlot());
+				
+				auto newBaseItem = GenerateBaseItem(slot, quality, ilvl, tags);
+				if (newBaseItem !is null)
+					@toModify.baseItem = newBaseItem;
+			}
+			
+			toModify.quality = quality;
+			if (clearMods)
+				toModify.mods.removeRange(0, toModify.mods.length());
+			
+			GenerateItemMods(toModify, ilvl, modTags);
+			toModify.Finalize(toModify.intensity, toModify.itemLevel, toModify.upgradeLevel, toModify.colorA, toModify.colorB);
+		}
+
+		array<ItemModRarity@>@ GetAllPossibleItemModifiers(Equipment::BaseItem@ baseItem, Item::Quality quality, int ilvl, array<ItemModifier@>@ currMods, array<uint>@ modTags = null)
+		{
+			bool hasSkill = baseItem.skill !is null;
+			
+			array<ItemModRarity@> itemMods;
+			for (uint i = 0; i < ItemModifier::Instances.length(); i++)
+			{
+				auto itemMod = ItemModifier::Instances[i];
+				if (itemMod.quality != quality)
+				{
+					//print("Mod '"+itemMod.m_id+"' had too low quality");
+					continue;
+				}
+				
+				if (ilvl < itemMod.ilvl || ilvl > itemMod.ilvlMax)
+				{
+					//print("Mod '"+itemMod.m_id+"' didn't match ilvl");
+					continue;
+				}
+				
+				if (hasSkill && itemMod.skill !is null)
+				{
+					//print("Mod '"+itemMod.m_id+"' had another skill");
+					continue;
+				}
+				
+				if (itemMod.exclusive != 0)
+				{
+					bool found = false;
+					auto excl = itemMod.exclusive;
+					for (uint j = 0; j < currMods.length(); j++)
+					{
+						if (currMods[j].exclusive == excl)
+						{
+							found = true;
+							//print("Mod '"+itemMod.m_id+"' exclusived by '"+currMods[j].m_id+"'");
+							break;
+						}
+					}
+					
+					if (found)
+						continue;
+				}
+
+				if (modTags !is null && modTags.length() > 0 && !MatchTags(modTags, itemMod.tags))
+				{
+					//print("Mod '"+itemMod.m_id+"' didn't match tags");
+					continue;
+				}
+				
+				float spawnChance = itemMod.spawnChance * CountTags(baseItem.supportedTags, itemMod.tags);
+				if (spawnChance <= 0.0f)
+				{
+					//print("Mod '"+itemMod.m_id+"' spawn chance: "+spawnChance);
+					continue;
+				}
+				
+				itemMods.insertLast(ItemModRarity(itemMod, spawnChance));
+			}
+			
+			return itemMods;
+		}
+
+		void GenerateItemMods(Item@ item, int ilvl, array<uint>@ modTags = null)
+		{
+			auto baseItem = item.baseItem;
+			
+			int numMods = Equipment::EquipmentModifiersPerQuality(item.quality);
+			for (int n = 0; n < numMods; n++)
+			{
+				if (int(item.mods.length()) > n)
+				{
+					if (item.mods[n].quality != Item::IndexToQuality(n + 2))
+						item.mods.removeRange(n, n - item.mods.length());
+					else
+						continue;
+				}
+				
+				
+				float spawnChanceSum = 0.0f;
+				
+				array<ItemModRarity@>@ itemMods;
+				if (n == 0)
+				{
+					@itemMods = GetAllPossibleItemModifiers(baseItem, Item::Quality::Uncommon, ilvl, item.mods, modTags);
+					itemMods.insertAt(0, GetAllPossibleItemModifiers(baseItem, Item::Quality::Common, ilvl, item.mods, modTags));
+				}
+				else
+					@itemMods = GetAllPossibleItemModifiers(baseItem, Item::IndexToQuality(n + 2), ilvl, item.mods, modTags);
+				
+				
+				for (uint i = 0; i < itemMods.length(); i++)
+					spawnChanceSum += itemMods[i].rarity;
+				
+				bool namedPrefix = false;
+				bool namedSuffix = false;
+				
+				for (uint i = 0; i < item.mods.length(); i++)
+				{
+					if (!item.mods[i].prefixName.isEmpty())
+						namedPrefix = true;
+					if (!item.mods[i].suffixName.isEmpty())
+						namedSuffix = true;
+				}
+				
+				bool hasSkill = baseItem.skill !is null;
+				//int checks = 50;
+				while (true)
+				{
+					if (itemMods.length() <= 0)
+					{
+						PrintError("Generated '" + baseItem.m_id + "' equipment with too few modifiers! Failed at generating mod " + n);
+						break;
+					}
+					
+					float r = randf() * spawnChanceSum;
+					uint idx = itemMods.length() - 1;
+					for (uint i = 0; i < itemMods.length(); i++)
+					{
+						r -= itemMods[i].rarity;
+						if (r <= 0)
+						{
+							idx = i;
+							break;
+						}
+					}
+					auto itemMod = itemMods[idx].itemMod;
+					/*
+					if (checks > 0 && numMods <= 2)
+					{
+						if (!((!itemMod.prefixName.isEmpty() && !namedPrefix) || (!itemMod.suffixName.isEmpty() && !namedSuffix)))
+						{
+							checks--;
+							continue;
+						}
+					}
+					*/
+					if (itemMod.skill !is null)
+					{
+						if (hasSkill)
+						{
+							spawnChanceSum -= itemMods[idx].rarity;
+							itemMods.removeAt(idx);
+							continue;
+						}
+						
+						hasSkill = true;
+					}
+					
+					if (!itemMod.prefixName.isEmpty())
+						namedPrefix = true;
+					if (!itemMod.suffixName.isEmpty())
+						namedSuffix = true;
+					
+					item.mods.insertLast(itemMod);
+					if (itemMod.exclusive != 0)
+					{
+						auto excl = itemMod.exclusive;
+						for (uint i = 0; i < itemMods.length(); )
+						{
+							if (itemMods[i].itemMod.exclusive == excl)
+							{
+								spawnChanceSum -= itemMods[i].rarity;
+								itemMods.removeAt(i);
+							}
+							else
+								i++;
+						}
+					}
+					
+					break;
+				}
+			
+			}
+			
+		}
+	}
+	
+	class ItemModRarity
+	{
+		ItemModifier@ itemMod;
+		float rarity;
+
+		ItemModRarity(ItemModifier@ _itemMod, float _rarity)
+		{
+			@itemMod = _itemMod;
+			rarity = _rarity;
+		}
+	}
+	
+	class BaseItemRarity
+	{
+		BaseItem@ baseItem;
+		float rarity;
+
+		BaseItemRarity(BaseItem@ _baseItem, float _rarity)
+		{
+			@baseItem = _baseItem;
+			rarity = _rarity;
+		}
+	}
+}

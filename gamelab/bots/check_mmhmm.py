@@ -5,8 +5,13 @@ the lab character has, so `kit` could not put them on) (Equipment::Generator mod
 after another: each one that qualifies (25 %, a function of the item) gets the bonus on top
 of its rolled modifiers, the others never do; a common hat never does. Then the worn hat
 gets it (`hwp mmhmm give`) and the Service Pistol shoots a target dummy (`bench`): the crits made while
-wearing it are counted. The voice itself is the modifier's crit TriggerEffect; GameLab is
-muted, so the sound is not measured.
+wearing it are counted, and each crit voice the trigger plays (HWPMmHmmVoice) logs
+`voice: crit from <unit>`. GameLab is muted, so the sound itself is not measured.
+
+voice (issue #31): `hwp mmhmm voice 5` says it five times at once: one plays and four are
+held back (a voice plays to the end before the wearer says it again); the one logged comes
+from the player's own unit, where the player stands (the sound is 3D at the wearer, not 2D);
+0.7 s later one plays again.
 
 moments (in a Bandit Keep run, the worn hat given the bonus): every other moment plays the voice
 once (the `[HWP:mmhmm] voice: <why>` line and the moments count): the last orb of a 3-orb tree
@@ -77,6 +82,25 @@ class Checks(Base):
         st = self.status()
         c1 = int(st[5]) if st else 0
         self.flag("mmhmm_crits", c1 > c0, f"crits with it {c0} -> {c1}; bench {str(ev)[:200]}")
+        voiced = re.findall(r"\[HWP:mmhmm\] voice: crit from (\S+)", self.g.read_log())
+        self.flag("mmhmm_crit_voice", 0 < len(voiced) <= c1 and all("player" in u for u in voiced),
+                  f"{len(voiced)} crit voice(s) for {c1} crits, from {sorted(set(voiced))}")
+
+    def voice(self):
+        self.g.console("e_cheats 1")
+        time.sleep(0.6)  # past any voice the steps before played
+        mark = len(self.g.read_log())
+        r = self.hwp("mmhmm voice 5", 0.4, until="mmhmm voice:")
+        m = re.findall(r"mmhmm voice: (\d+) of (\d+) played", r)
+        lines = re.findall(r"voice: test from (\S+) at (-?\d+),(-?\d+)", self.g.read_log()[mark:])
+        self.flag("mmhmm_voice_once", bool(m) and m[-1] == ("1", "5") and len(lines) == 1, f"{m}; logged {lines}")
+        x, y = self.pos()
+        near = bool(lines) and "player" in lines[0][0] and abs(int(lines[0][1]) - x) < 24 and abs(int(lines[0][2]) - y) < 24
+        self.flag("mmhmm_voice_at_wearer", near, f"logged {lines[:1]}, player at {x:.0f},{y:.0f}")
+        time.sleep(0.7)
+        r = self.hwp("mmhmm voice 1", 0.4, until="mmhmm voice:")
+        m = re.findall(r"mmhmm voice: (\d+) of (\d+) played", r)
+        self.flag("mmhmm_voice_again", bool(m) and m[-1] == ("1", "1"), f"{m}")
 
 
     def moments_n(self):

@@ -4,7 +4,7 @@
     {
       "id": "qol",
       "name": "HammerwatchPlus: Quality of Life",
-      "description": "Small helpers: buff tooltips in the HUD, item links in chat, a Sort button in the stash, a death recap, the party's last-run stats on a town board, projectile colours for colour-blind players, waygates across the town, a second weapon set on a hotkey, Priest summons that follow you to the next floor, pets that wait outside puzzle and trap rooms, HoH1-style class Title Bonuses, gold that shows its worth, the Mm-hmm! hats, orb picker warnings and dye-pot markers on the minimap.",
+      "description": "Small helpers: buff tooltips in the HUD, item links in chat, a Sort button in the stash, a death recap, the party's last-run stats on a town board, projectile colours for colour-blind players, waygates across the town, a second weapon set on a hotkey, Priest summons that follow you to the next floor, pets that wait outside puzzle and trap rooms, HoH1-style class Title Bonuses, gold that shows its worth, the Mm-hmm! hats, orb picker warnings, dye-pot markers on the minimap, and Shift+Click (20) or Ctrl+Click (5) at the Attribute Trainer.",
       "mods": [
         "bufftips",
         "chatlinks",
@@ -20,7 +20,8 @@
         "goldworth",
         "mmhmm",
         "orbwarn",
-        "mapicons"
+        "mapicons",
+        "attrclick"
       ]
     },
     {
@@ -94,7 +95,7 @@
     {
       "id": "dungeon",
       "name": "HammerwatchPlus: Dungeon Loot and Encounters",
-      "description": "New things on run floors: the puzzle rooms and HoH1's Constellation puzzle, locked loot vaults and exit switches, strongboxes, abyss cracks, three more map layouts, twelve endgame weapons, HoH1 trinket sets and valuables worth twice their gold.",
+      "description": "New things on run floors: the puzzle rooms and HoH1's Constellation puzzle, locked loot vaults and exit switches, strongboxes, abyss cracks, three more map layouts, twelve endgame weapons, HoH1 trinket sets, valuables worth twice their gold, and Rare and Epic items that can roll a second suffix and prefix.",
       "mods": [
         "puzzles",
         "objectives",
@@ -103,7 +104,8 @@
         "maps",
         "weapons",
         "trinkets",
-        "valuables"
+        "valuables",
+        "affixes"
       ]
     },
     {
@@ -138,5 +140,5 @@
     "holylocal"
   ],
   "_settings_top": "What the HammerwatchPlus tab of the player menu shows above the packages: key binds and accessibility (tools/make_config.py; option:<id> or a setting key).",
-  "settings_top": ["option:swapkey", "option:skill4", "option:skill5", "option:skill6", "option:dropkey", "option:colors", "option:autoaim"]
+  "settings_top": ["option:swapkey", "option:skill4", "option:skill5", "option:skill6", "option:dropkey", "option:eatkey", "option:courierkey", "option:colors", "option:autoaim"]
 }

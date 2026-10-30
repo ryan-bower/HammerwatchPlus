@@ -70,3 +70,17 @@ def test_descriptions_name_no_repo_paths():
     texts, _ = pages()
     for file, text in texts.items():
         assert not workshop.DEV_TEXT.search(text), (file, workshop.DEV_TEXT.search(text))
+
+
+def test_the_all_cover_counts_match_the_packages():
+    """workshop_art.SHORT's "15 helpers" and "8 run features" are kept by hand: the Dungeon
+    count stayed at 8 when affixes joined. A count of helpers or features is the package's
+    number of mods."""
+    import re
+    from tools import workshop_art
+    packages, _ = workshop.load_packages()
+    mods = {p["id"]: p["mods"] for p in packages}
+    for pid, (_, what) in workshop_art.SHORT.items():
+        m = re.fullmatch(r"(\d+) (helpers|party features|run features)", what)
+        if m:
+            assert int(m.group(1)) == len(mods[pid]), (pid, what, mods[pid])

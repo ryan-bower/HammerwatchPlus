@@ -1,0 +1,633 @@
+{
+ "name": "mod-keys-play",
+ "about": "The Game keys rows rebind the game's own keyboard binds, and the new keys work in play. In a mission, the Plus tab rebinds, one press each, skill 1 to U, dash to J and move up to O. Then, with the Dev Arena input log: left and right click still attack (the weapon attacks are not Game keys rows: mouse buttons are set in the game's Options > Controls), U and mouse 4 use skill 1, J dashes, O moves up and S still moves down; the old keys 1, Q, Space and W do nothing. Keys are posted window messages (no shim), as Windows delivers them. controls.cfg is GameLab's own and is put back after the run (writes_controls). Run: python -m gamelab run mod-keys-play --mode lab.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "devarena"
+ ],
+ "writes_controls": true,
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "gl",
+   "verb": "controls",
+   "save_as": "controls0",
+   "expect": {
+    "ok": true,
+    "map": "kbm",
+    "truncated": false
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-pkg-gamekeys",
+    "hwp-open",
+    "gamekeys"
+   ]
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:options\\] package gamekeys opened",
+   "timeout": 5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-skill1",
+    "hwp-opt",
+    "game-skill1"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "u",
+   "hold": 0.2
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:gamekeys\\] Skill1 bound to 24 \\(U\\)",
+   "timeout": 5,
+   "name": "skill1 rebound to U"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-skill1"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": {
+     "match": "\\| U / \\\\\"inp-4mb\"$"
+    }
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-dash",
+    "hwp-opt",
+    "game-dash"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "j",
+   "hold": 0.2
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:gamekeys\\] Dash bound to 13 \\(J\\)",
+   "timeout": 5,
+   "name": "dash rebound to J"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-dash"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": {
+     "match": "\\| J$"
+    }
+   }
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-move-up",
+    "hwp-opt",
+    "game-move-up"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "key",
+   "key": "o",
+   "hold": 0.2
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.4
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:gamekeys\\] move_y axis1 bound to 18 \\(O\\)",
+   "timeout": 5,
+   "name": "move-up rebound to O"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-opt-game-move-up"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": {
+     "match": "\\| O$"
+    }
+   }
+  },
+  {
+   "do": "shot",
+   "name": "rebound"
+  },
+  {
+   "do": "gl",
+   "verb": "controls",
+   "save_as": "controls1",
+   "expect": {
+    "ok": true,
+    "map": "kbm",
+    "truncated": false
+   }
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "cheats-on"
+  },
+  {
+   "do": "gl",
+   "verb": "da-inputlog",
+   "args": [
+    "on",
+    "reset"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "input log on (cooldown and mana reset)"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-warn GAMELAB TEST ENVIRONMENT",
+   "since": "cheats-on",
+   "timeout": 10
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "handoff",
+   "keep_focus": true,
+   "name": "hand the mouse to the player (focus kept)"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "mark",
+   "name": "left"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn main down",
+   "since": "left",
+   "timeout": 5,
+   "name": "left click still presses the primary attack (mouse kept)"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ main",
+   "since": "left",
+   "timeout": 5,
+   "name": "left click: the primary attack casts"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "right"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "right",
+   "hold": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn off down",
+   "since": "right",
+   "timeout": 5,
+   "name": "right click still presses the off-hand attack (mouse kept)"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ off",
+   "since": "right",
+   "timeout": 5,
+   "name": "right click: the off-hand attack casts"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "key-u"
+  },
+  {
+   "do": "key",
+   "key": "u",
+   "hold": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn skill1 down",
+   "since": "key-u",
+   "timeout": 5,
+   "name": "U presses skill 1"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill 1 \\S+ skill1",
+   "since": "key-u",
+   "timeout": 5,
+   "name": "U: skill 1 is used"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "place-u"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.1
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill 1 \\S+ skill1 (cooldown|cast)",
+   "since": "place-u",
+   "timeout": 5,
+   "name": "U: a left click places it (a targeted skill) or casts again"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "key-1"
+  },
+  {
+   "do": "key",
+   "key": "1",
+   "hold": 0.3
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:devarena\\] input-btn skill1",
+   "since": "key-1",
+   "settle": 1,
+   "name": "the old key 1 no longer presses skill 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "key-q"
+  },
+  {
+   "do": "key",
+   "key": "q",
+   "hold": 0.3
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:devarena\\] input-btn skill1",
+   "since": "key-q",
+   "settle": 1,
+   "name": "the old key Q no longer presses skill 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "x1"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "x1",
+   "hold": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn skill1 down",
+   "since": "x1",
+   "timeout": 5,
+   "name": "mouse 4 still presses skill 1 (mouse kept)"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "mark",
+   "name": "place-x1"
+  },
+  {
+   "do": "mouse",
+   "at": [
+    0.8,
+    0.5
+   ],
+   "button": "left",
+   "hold": 0.1
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill 1 \\S+ skill1 (cooldown|cast)",
+   "since": "place-x1",
+   "timeout": 5,
+   "name": "mouse 4: a left click places it or casts again"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "key-j"
+  },
+  {
+   "do": "key",
+   "key": "j",
+   "hold": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn dash down",
+   "since": "key-j",
+   "timeout": 5,
+   "name": "J presses dash"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-skill \\d+ \\S+ dash",
+   "since": "key-j",
+   "timeout": 5,
+   "name": "J: the dash casts"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "key-space"
+  },
+  {
+   "do": "key",
+   "key": "space",
+   "hold": 0.3
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:devarena\\] input-btn dash",
+   "since": "key-space",
+   "settle": 1,
+   "name": "the old Space no longer dashes"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "key-o"
+  },
+  {
+   "do": "key",
+   "key": "o",
+   "hold": 0.5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-move 0,-1",
+   "since": "key-o",
+   "timeout": 5,
+   "name": "O moves up"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "key-w"
+  },
+  {
+   "do": "key",
+   "key": "w",
+   "hold": 0.5
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:devarena\\] input-move 0,-1",
+   "since": "key-w",
+   "settle": 1,
+   "name": "the old W no longer moves up"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "key-s"
+  },
+  {
+   "do": "key",
+   "key": "s",
+   "hold": 0.5
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-move 0,1",
+   "since": "key-s",
+   "timeout": 5,
+   "name": "S still moves down (the other half of the axis)"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "mark",
+   "name": "key-2"
+  },
+  {
+   "do": "key",
+   "key": "2",
+   "hold": 0.3
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:devarena\\] input-btn skill2 down",
+   "since": "key-2",
+   "timeout": 5,
+   "name": "an action not rebound (skill 2 on 2) still works"
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.8
+  },
+  {
+   "do": "gl",
+   "verb": "da-inputlog",
+   "args": [
+    "off"
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "shot",
+   "name": "played"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

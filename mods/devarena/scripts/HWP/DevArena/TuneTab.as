@@ -135,7 +135,7 @@ namespace DevArena
 		if (ui.Button("ver-next", vec4(bx, y, 12, row), ">"))
 			StepVersion(1);
 		bx += 16;
-		string ab = "F2 " + (g_onB ? "B" : "A");
+		string ab = ShortKeyLabel(KeyAB()) + " " + (g_onB ? "B" : "A");
 		if (ui.Button("ab-swap", vec4(bx, y, ui.TextW(ab) + 5, row), ab))
 			SwapAB();
 		bx += ui.TextW(ab) + 7;

@@ -85,7 +85,8 @@ so they would all fire on one press. The Assassin and the Shadow have 4 actives,
 Trickster 5 and the Retiarius 4 (every other class and spec, in this mod or another, has
 at most 3). `scripts/HWP/Classes/SkillKeys.as` gives the 4th, 5th and 6th active their own
 raw key: Plus tab rows `skill4`-`skill6`, settings `skillkeys.skill4`-`6`, default the 4, 5,
-6 keys (vanilla binds 1 2 3 Q E V).
+6 keys (vanilla binds 1 2 3 Q E V). The HUD badge names each key as the player's keyboard
+labels it (hwplib `HWP::Options::ShortKeyName`).
 
 - It runs on hwplib's targeting helper (`mods/hwplib/scripts/HWP/Core/TargetHelper.as`):
   `HWP::TargetHelper::OnUpdate` polls the keys, `OnSkillInput` gives each extra skill its

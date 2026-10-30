@@ -17,4 +17,5 @@
 	<string name="hwp.cfg.s.fishing.reel_hits.v4">4</string>
 	<string name="hwp.cfg.s.fishing.keys">Keys from catches</string>
 	<string name="hwp.cfg.s.fishing.keys.about">Catches can bring up a key now and then.</string>
+	<string name="hwp.cfg.o.eatkey.about">Eats the hovered fish.</string>
 </lang>

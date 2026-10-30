@@ -5123,7 +5123,41 @@ are parked.
 **To update.** Run `tools/workshop.py`, then `tools/workshop_publish.py`. With the ids in
 `workshop.json`, every item is updated in place.
 
-## 2026-10-28: Workshop pages v2, cards from the game's art
+## 2026-10-28: Workshop subscriptions in the lab game (two mods of one id)
+
+The game loads every Workshop item the Steam account subscribes to. It asks the Steam client
+(`STEAMUGC_INTERFACE_VERSION015`) and logs `Workshop: Subscribed items: N`, then
+`Workshop: Item: <hex> - <steamapps>/workshop/content/619820/<item>` per item. There is no
+cvar or switch to skip them, and GameLab's lab copy runs the same `steam_api64.dll`, so it
+loads them too. Each mod found shows as `Resource mod: <file>: <name> (<id>)`. A packed mod's
+id is its file stem, and the enabled set in the save is by `HashString(id)`. A subscription
+whose file has the same name as a local mod is therefore the same mod twice: enabling the id
+enables both.
+
+With both enabled, the resource index keeps the **first** copy of each path and logs
+`Resource name hash conflict in package 'mods/<file>' for file '<path>'` for the second. The
+Workshop's copy came first (the conflicts named the local `mods/` file). Only enabled mods
+load: with the subscription present but its id not enabled (`pkg-pets`), nothing conflicts.
+
+Found when `pkg-all-every` failed (20261028-232218) with `Courier.as: Identifier 'KeyedAction'
+is not a data type in namespace 'HWP::ItemActions'`. Every local bin held the same
+`ItemActions.as`, and every package enabled on its own passed. `pkg-all` alone failed the same
+way. Its log listed two `Resource mod: HammerwatchPlus-All.bin` and 1203 conflicts (the last
+passing `pkg-all` had none). The second copy was Workshop item 3828529950, subscribed at 21:24,
+library stamp 19c76653f770. That stamp check couldn't say so: it runs in a module, and nothing
+runs when the scripts don't compile.
+
+GameLab now handles it:
+- `env.workshop_ids()` reads the Workshop folder next to the install.
+- A built package with such an id goes into the lab mods dir as `<id>-gamelab.bin`
+  (`env.lab_package_name`). That changes only its id, so only the build under test is
+  enabled. The run records `workshop_shadowed`.
+- An unpacked mod under test can't be renamed (its id is its folder), so `env.link` reports
+  it instead.
+- `logparse.duplicate_mods` names a mod found twice in a boot error, and every boot asserts
+  that no enabled mod was (`every enabled mod found once`).
+- `tools/run.py` warns (`run: workshop:`) when a deployed package has a subscription's id.
+
 
 **Cards.** `tools/workshop_art.py` draws each item's picture at 480x270, then scales it 3x
 nearest neighbour to 1440x810, about 20-65 KB as PNG. The cards use:
@@ -5543,6 +5577,870 @@ width, with each entry's symbols side by side before its name. In a column of 14
 tile now drops symbols from the end, keeping at least one, until the name (and the note
 under it) fits. Of the 13 cards, only Quality of Life renders differently. Republished:
 HWP-qol, HWP-pets and HammerwatchPlus-All (kit 5538d81).
+
+## 2026-10-28: bag item actions move to hwplib; the pet courier (issue #13)
+
+Issue #13 asked for a way to send items home from a run. The larger problem it ran into was
+the bag's item actions. droptrade owned the inventory overrides (`Character.as`,
+`EquipmentItemWidget.as`), so a package without droptrade had no action hints at all. Only
+the first registered action ever showed (`HWP::ItemActions::For`), and it was bound to a
+fixed E. E is also the player menu's own Destroy key, so one press ate the fish and opened
+the destroy confirm behind it.
+
+**What the menu binds** (`res/controls_default.cfg`, kbm map): `MenuAdditional` is E (the
+Destroy hint), `MenuContext` R (Compare), `MenuChatAll` T, `PlayerMenu` I and C.
+`GetActionBinding(action)` (`Utils/Functions.as`) returns only the **first** binding's key
+name for the current map, so PlayerMenu reads "i" and its C is missed. `FormatKeyName`
+returns markup (`\"k"E\"k"`), so it can't be compared with a key name either.
+`ItemActions::MenuClash` walks `GetInput().GetCurrentMap().GetBindings()` instead and
+compares each menu action's `ID` with the key name. Free letters the menu
+doesn't bind: F, G, H, Q and others.
+
+**Keys.** The actions still read raw keys (`Platform::IsKeyDown(ControllerType::Keyboard, 0,
+scancode)`, SDL scancodes: E 8, F 9, H 11, Q 20). GameLab's posted keys reach it. One poll
+per distinct scancode per frame (`ItemActions::Poll`, from the core module), only while the
+character tab is the top window's current tab, and not while text input or chat has the
+keyboard. When a key option captures a new key, the key is held at that moment
+(`HeldNow`), so the press that binds it doesn't also act.
+
+**Town stash in a run.** `g_myTownRecord.m_townStash` is loaded in every gameplay mode, runs
+included, so `TownStashTab.Add(item)` works from a dungeon. The 10-tab limit is the stash
+window's, not the data's (`GUI/PlayerStashEditWindow.as:13` turns the new-tab button off at 10). `AGameplayGameMode.SavePlayerAndTown()`
+writes both records in one `SetCharacter`, so an item moved from the bag to the stash is
+saved in one step. A crash between the two writes can't copy it or lose it.
+
+**Pets.** `PlayerBase.m_pet` (`MiniPet`) is not netsynced: every machine makes its own copy
+from the owner's `SetPetType`. `PlayerBase.ResetPet()` sends `SetPetType` to everyone, and
+the others re-make their copy. Destroying `m_pet.m_unit` and nulling `m_pet` takes the pet
+down locally; the courier tells the others through the host (`pets.away` -> `pets.gone`).
+The smoke puff is `effects/generic/other/spawn_smoke_puff.effect` (`PlayEffect`).
+
+**Test** (`fix-item-actions-eat`, `fix-pets-courier`, bot `gamelab/bots/fix_courier.py`):
+the fish's hints end `[Q] Drop`, `[F] Eat` and nothing on E. F eats it with no dialog. In a
+run the mace's hints end `[Q] Drop`, `[H] Send home`. H moves it into the stash tab "Pet
+deliveries" and the hint goes (the satchel is full). The pet leaves when the menu closes and
+is back after `pets.courier_secs` (5 in the test). The CheckKeys log has drop Q (20), eat F
+(9) and courier H (11), with no clash.
+
+## 2026-10-28: Keys on any keyboard layout, and every key rebindable in game (issue #19)
+
+The problem: mod hotkeys are polled by SDL scancode (`Platform::IsKeyDown(Keyboard, 0, sc)`),
+so they follow the key's position, but they were named by the US keycap. On AZERTY the swap
+key works on the key labelled X, and the drop key on the key labelled A, yet the hint said Q.
+
+- **No layout name from the engine.** The scripts get no SDL key name call. What they get is
+  text input: `ControlBindings::ExpectTextInput()`, then `GetInput().GetTextInputCount()` /
+  `GetTextInput(i)`, which returns a `TextInputControlEvent` (`utf8string text`, `evt`:
+  None / Cancel on Esc).
+- **While text input is on, `Platform::IsKeyDown` reports no key down.** Measured: the
+  capture polled `AnyKeyDown()` every frame with text input on and saw -1 while R was held
+  (sc stayed -1, the typed events arrived; mod-options-tab 20261028-230359, debug logging).
+  The first design read the key and its character in one press, and no key ever bound
+  (mod-keys-layout 20261028-225950, mod-options-tab 20261028-230250). Typing in chat or the
+  search could not name keys either, so `WatchTyping` is gone.
+- **So the capture (`HWPKeyCaptureWindow`) takes two steps.** It binds the key with text input
+  off, by position, when the key comes back up. Then, for a key that types a character (letters,
+  punctuation, ISO key 100; not the digit row) with no name yet, it turns text input on and
+  asks for one more press. That frame's single one-character text event names the key
+  (`HWP::Options::LearnLabel`, setting `keylabel.<sc>`, each player's own). A frame with more
+  text (a paste, GameLab's inbox command text) is ignored. Esc keeps the US name and asks
+  again on the next bind. A name equal to the US one is stored too, so the key is not asked
+  again. A key bound with Shift/Ctrl/Alt/AltGr or a second key held is not asked. A press
+  that types nothing (a dead key) names nothing.
+  Verified: mod-keys-layout 20261028-231028 and mod-options-tab 20261028-230956, both PASS.
+- **Game text treats `\` as markup**, so a learned or hand-set name goes through
+  `HWP::Options::Escape`.
+- **Vanilla's own names stay US.** `FormatKeyName` (`Utils/Functions.as:1112`) upper-cases
+  the binding's one-character SDL id. Its 117 uses are left alone; overriding that file is
+  too broad. Vanilla's hints keep the US name, and ours show the layout's.
+- **The game's binds can be rebound outside the main menu.** The vanilla Controls window
+  takes keys only through `MainMenuGameMode`. The Plus tab's Game keys group (`GameKeys.as`)
+  stages a change on the `kbm` ControlMap the way `MenuControlInput.as` does:
+  - `BeginStaging`, then collect the action's keyboard bindings from `GetStaging()` before
+    any `RemoveStaging`.
+  - `AddStaging(Keyboard, scancode, action)`, or `AddStagingAxis(..., ControlBindingSetAxis::Low/High)`
+    for one half of `move_x` / `move_y`.
+  - `CommitStaging()`, then `ControlBindings::Save()`, which writes `res/controls.cfg` (global).
+  - The staging key is an SDL scancode (vanilla tests 41 for Esc and 42 for Backspace). A
+    binding's scancode is read back with `Platform::ResolveInputKey(b.ID, type)`.
+  - MenuBack and MenuToggle are left out, so Esc always closes a menu.
+  - The new probe verb `gl controls [map] [max]` dumps a map's bindings.
+- **Every mod key is rebindable now.** The droptrade item action key (`actionkey`) and the
+  Dev Arena hotkeys (`devarena-*`) join `swapkey`, `dropkey` and `skill4`-`6`.
+- **GameLab: another layout's keypress.** A key step's `typed` sends KEYDOWN, then TEXTINPUT,
+  then KEYUP through the shim's mailslot. It needs the scenario's `"shim_input": true`,
+  because a posted WM_KEYDOWN gets its character from this machine's layout.
+  `"writes_controls": true` journals GameLab's own `res/controls.cfg` and puts it back.
+
+An adversarial review of the change found these, now fixed:
+- Shift+W bound Shift. A modifier comes down first and has the lowest scancode, so a key
+  pressed with it now replaces it. A modifier alone still binds itself.
+- An Esc that closed the capture on its text Cancel could also close the menu, through the
+  same press's MenuBack. The Cancel now closes the capture only when no Back came within a
+  frame (now in the naming step).
+- A second key held during a capture could give its character as the label. It no longer
+  can: such a bind is not asked for a name.
+- The game-key rows walked the whole binding map several times a frame. Their keys are now
+  cached until the next bind.
+- A search box still typing hands the keyboard to the capture.
+
+Keys that custom and full-size keyboards add now have names before a label is learned:
+F13-F24 (scancodes 104-115), Print Screen, Scroll Lock, Pause, Num Lock, the numpad operators
+and Enter, Menu, and both Win/GUI keys. Before this they showed as "Key 104".
+- **Long names in the value column.** Every key row now shows the short name when the full one
+  is longer than 9 characters (`HWP::Options::FitKeyName`), so "Scroll Lock" shows as ScrL.
+  That includes the swap and drop keys, unless they were named by hand. A Dev Arena
+  Ctrl hotkey always shows the short name after "Ctrl+". The 9 is a guess: the 82-pixel
+  column's font was not measured, and the `long_key_name` shot in `mod-keys-layout` will
+  show whether it is too strict.
+- **Search still finds the full names.** A key row's search text is its shown value plus the
+  full names (`KeyOption.SearchText`), so "shift" still finds a row showing RShf.
+- **Print Screen may be named but not bindable.** On Windows, SDL2 sends its press and
+  release together on key-up, and capture polls `IsKeyDown` once a frame. Unverified; the
+  scenario binds Scroll Lock instead.
+- Labels are still stored per save.
+
+These follow-ups are checked by pytest only (`tests/test_winproc_typed.py`: GameLab sends
+F13-F24, Print Screen and Scroll Lock as their SDL scancodes). No test compiles the
+AngelScript. `mod-keys-layout` now binds F13 and Scroll Lock as well, and has not been run.
+
+Verified offline: `tests/test_winproc_typed.py`, `tests/test_writes_controls.py`, the full
+pytest suite, and `make_config` / `build` / `list_verbs` / `guard_modules --check`.
+
+**GameLab runs (user-approved, lab mode).** mod-keys-layout 20261028-232952 PASS (85/85),
+which covers the F13 and Scroll Lock binds. mod-keys-play 20261028-233203 PASS (new). With these
+runs the earlier assumptions are measured: the scripts compile, staging and saving work during a
+mission, and `ResolveInputKey` returns the scancode.
+
+- **Rebound game keys work in play** (`mod-keys-play`, town-paladin, dark_citadel floor 13,
+  with the Dev Arena input log). The Plus tab rebinds:
+  - primary attack to K, named by a second posted press (Windows' own WM_CHAR);
+  - off-hand to L, skill 1 to U, dash to J and move up to O.
+
+  Results:
+  - Left and right click still attack (a bind keeps the mouse buttons), and K and L attack too.
+  - U and mouse 4 use skill 1, J dashes, O moves up and S still moves down.
+  - The old keys 1, Q, Space and W do nothing. Skill 2 on 2 is untouched.
+  - The log has `Skill1 bound to 24 (U), 2 keyboard key(s) replaced`.
+- **Forget key names row** (`keynames`, top of the Plus tab: "N named" / "none"). A name
+  learned wrong cannot be caught (below), so this row clears every `keylabel.<sc>` and each key
+  is asked again at its next bind. mod-keys-layout checks the count, the "forgotten" log line,
+  the US name coming back, and the re-ask.
+- **The naming prompt is shorter**: "Bound. Press the same key again to name it (Esc skips)".
+  It has no key name, because the US one confused AZERTY players.
+- **Checking which key typed the name does not work.** The attempt was: after the naming
+  character, turn text input off and require the bound key still held within 6 frames.
+  Every naming press failed (mod-keys-layout 20261028-232634). A key that went down while text
+  input was on is not seen by `IsKeyDown` even after text input is off and the key is still
+  held. Reverted. Pressing a different key while naming still names the bound key with that
+  key's character. The Forget row is the fix.
+- **mission-ranger fails its fixture readback** before any step runs ("player.maxDashes: want
+  1, got 2"; 20261028-233043, -233145). This was found here, not caused by this change, so
+  mod-keys-play uses town-paladin.
+
+## 2026-10-29: Every key UI change on screen (mod-keys-ui-shots), and three layout fixes
+
+`mod-keys-ui-shots` takes a 1920x1080 shot of every UI change in PR #25: the Plus tab key
+rows, both capture prompts, AZERTY names, the shared-key hint, a short long name, search,
+the Game keys group, the Forget row, the weapon swap texts, droptrade's hints, the skill 4-5
+badges and the Dev Arena dock labels (mod-keys-ui-shots 20261029-001708, PASS). Reading the
+shots found three bugs that no probe assertion could see:
+
+- **A search hid rows it had found.** `Widget::DoLayout` skips a hidden child, so it keeps
+  the origin of its last layout (`GUI/Widget.as:461`). `ScrollbarWidget::DrawChildren` walks
+  every child, hidden or not, and `return`s at the first one whose origin is below the view
+  (`GUI/Widgets/ScrollbarWidget.as:666`). A row once laid out low in the list, then hidden by
+  a search, stopped every row after it from drawing. Searching "skill 1" drew the Game keys
+  header but not Skill 1 under it, and "scroll" lost the Quality of Life rows. The probe still
+  said `shown: true`, because the rows were visible, only not drawn. It shows once Dev Arena's
+  extra top rows push the group down. Fix: `HWPOptionsTab::Layout` parks a hidden row's
+  origin above the view, which the draw loop passes over. Before: mod-keys-ui-shots
+  20261029-001127 (10, 11); after: 20261029-001708.
+- **droptrade's hint bar ran off the screen.** Vanilla `KeyNavigationBar::Draw` centres the
+  bar under its window, and the player menu sits at the right edge. A bag fish's bar (Back,
+  Equip, Compare, Destroy, Drop, Eat) lost its Eat hint past the right edge. droptrade swaps
+  the character tab's bar for a `FitNavBar` that clamps the left edge to the screen, keeping
+  its texts.
+- **The longest hint.** The game key hint is shorter now. Over three other actions on the
+  key, the rest is a count ("Chat +1"), not "...", which read "...." before the full stop.
+  Four lines fit above the footer (11b).
+
+`gl menu hwp_options` on a closed player menu opens it on the Character tab, so the next
+`hwp-opt` press goes to the wrong tab. The shots scenario sends it twice.
+
+## 2026-10-29: Rebinds survive a restart (mod-keys-persist)
+
+`mod-keys-persist 20261029-004515` PASS checks that a rebind is still there after quitting.
+- **First boot.** The log reads `Loading control bindings from 'res/controls_default.cfg'`.
+- **Rebinding in town.** Skill 1 goes to U (named), dash to J and the weapon swap key to ScrL.
+  Each game-key bind logs `Saved control bindings to 'res/controls.cfg'`.
+- **Restart.** The run quits (WM_CLOSE) and boots a new process. That process loads
+  `controls_default.cfg`, then `res/controls.cfg` on top of it.
+- **After the restart:**
+  - the 37 kbm bindings match the ones from before (Skill1 = mouse_4 + u, Dash = j);
+  - the rows read U, J and ScrL, and "1 named" (the mod key and the learned name are kept
+    in the save);
+  - in a mission, U uses skill 1 and J dashes;
+  - the old 1 and Space do nothing.
+
+The file is the same one the vanilla Controls menu writes. `deploy.py` copies only into
+`<install>/mods/`, so a deploy cannot remove it.
+
+## 2026-10-29: One-press rebinds, US key names, mouse buttons on Game keys rows
+
+The rebind flow is now: click the row, press the key, done. The next row can be clicked at once.
+- **No naming press.** The second press that learned a key's label is gone, along with what
+  depended on it:
+  - the `keylabel.<sc>` settings, `LearnLabel` and the Forget key names row (`keynames`);
+  - the naming prompt, and the capture's text-input state;
+  - the HUD caches keyed on `g_labelVersion`.
+  `HWPKeyCaptureWindow` binds the key when it comes up and closes. Shift+W still binds W.
+- **Key names are the US keycaps, as the vanilla Controls window shows them. Not localised.**
+  Binds still follow the key's position on any layout, but on AZERTY the key at Q reads Q.
+  The engine gives scripts no key names (no `SDL_GetKeyName`), and a typed character is
+  the only source. The group's hint says "Keys are named as on a US keyboard."
+- **Mouse buttons on Game keys rows.** A row listed keyboard keys only, so Primary weapon
+  (left click) and Off-hand weapon (right click) read "Unbound". A row now lists its keys,
+  then up to two mouse buttons as the game's own icons (`.input.mouse_left` = `\"inp-lmb"`).
+  Examples:
+  - Primary weapon: the left-button icon.
+  - Skill 1: `1 / Q / ` and the mouse 4 icon.
+  mod-keys-play 20261029-162932 checked the texts, before the naming change. The icons draw
+  in the row (Menu select: Enter and a mouse icon).
+
+GameLab runs after the change (lab, all PASS):
+- mod-keys-layout 20261029-164345, rewritten around one press:
+  - the AZERTY key at Q binds and reads Q at once;
+  - a second press binds nothing;
+  - three rows rebind back to back;
+  - mouse-only rows show their buttons;
+  - no key is ever asked to be named;
+  - the Forget row is gone.
+- The rest:
+  - mod-options-tab 20261029-163929, mod-keys-play 20261029-163956 and
+    mod-keys-persist 20261029-164044;
+  - mod-weaponswap 20261029-164133, mod-droptrade 20261029-164145 and mod-classes 20261029-164156;
+  - mod-keys-ui-shots 20261029-164500, which adds shot 09b (Primary and Off-hand weapon
+    with their mouse icons) and drops the naming and Forget shots.
+
+## 2026-10-29: No weapon attack rows, short hover text, GameLab never copies the user's controls.cfg
+
+- **Primary and Off-hand weapon rows removed** (25 Game keys rows). Those are mouse binds, and
+  the capture window cannot take a mouse button, so the row could only add a keyboard key next
+  to the click. Mouse buttons stay in the game's own Options > Controls. The group's hover
+  text now says so: "The game's keys. Mouse buttons: Options > Controls." The other rows still
+  show their mouse buttons as icons (Skill 1: `1 / Q /` and mouse 4).
+- **Hover text is short.** Every key row, mod keys included, ends with "Click a binding and
+  press a new key to rebind." (`.hwp.options.rebind`, added in `HWP::Options`). The mod keys'
+  own abouts are cut to a few words ("Toggles the dock.", "Drops the hovered item."). The
+  "Also on <key>: ..." line for shared keys stays.
+- **GameLab copied the user's binds.** `env.ensure_res` copied every small file from the
+  install's `res/`, so `res/controls.cfg` was copied too. The user's game wrote that file
+  (their log: Primary weapon -> K at 16:51, Chat -> K at 16:52). Every lab run after that
+  started from their keys, which showed up as Chat missing from the "Also on T" hint.
+  `ensure_res` now skips `RES_OWN` (`controls.cfg` stays GameLab's own;
+  `tests/test_writes_controls.py`). mod-keys-persist now asserts a first boot loads no
+  controls.cfg, which catches the leak. The user's file was only read, never changed.
+
+Runs after the fix (lab, all PASS, GameLab's controls.cfg deleted first): mod-keys-persist
+20261029-171245 (first boot loads only the defaults), mod-keys-layout 20261029-171335,
+mod-keys-play 20261029-171421, mod-options-tab 20261029-171504 and mod-keys-ui-shots
+20261029-171530 (shot 11b: "Also on T: Item action key, Drop item key, Chat +1").
+
+## 2026-10-29: PR #39 (item actions in hwplib) merged over PR #25 (key layouts)
+
+PR #25 added one droptrade **Item action key** (`actionkey`, E) for the single item action.
+PR #39 gives each action its own key (Drop Q, Eat F, Send home H) and moves the inventory
+overrides to hwplib, so `actionkey` is gone: the Eat and Send home keys are fishing's `eatkey`
+and pets' `courierkey`, and both join the Plus tab's top rows (`packages.json`). Kept from #25:
+the drop key's US name with `Escape`/`FitKeyName` (`HWP::DropTrade::KeyName`), and the hint
+bar that stays on screen, now hwplib's (`HWP::ItemActions::FitNavBar`, called from hwplib's
+`Character.as`). `mod-keys-layout` and `mod-keys-ui-shots` rebind `eatkey` (default F)
+where they rebound `actionkey`; `mod-keys-layout` loads fishing for it.
+
+## 2026-10-29: controller buttons for mod hotkeys (issue #14)
+
+Issue #14 asked for weapon swap on a controller. The larger problem: every HWP hotkey read the
+keyboard alone (`Platform::IsKeyDown(ControllerType::Keyboard, 0, scancode)`): weapon swap, the
+classes module's Skill 4-6, the bag item actions, droptrade. A controller player had no way to
+reach any of them. The engine's `GameInput` has a fixed set of actions (Use, Dash, Skill1-3,
+MapOverlay, ...), and the game's Controls list is a fixed table in the exe, so a mod can't add
+an action there either.
+
+**Reading a button.** `Platform::ResolveInputKey(id, type)` turns a control map id into the
+engine's code and type; `Platform::IsKeyDown(type, ctrlIndex, code)` reads it. Measured with
+`hwp pad` (20261029-000132):
+- `gp_*` ids are `ControllerType::Gamepad` (4) with SDL game controller button numbers: a 0,
+  b 1, x 2, y 3, back 4, start 6, left stick 7, right stick 8, lb 9, rb 10, D-pad up 11,
+  down 12, left 13, right 14. (Vanilla's rebind widget skips Gamepad 4 as "Select",
+  `MenuControlInput.SetExpectedInput`.)
+- `ds4_*` ids are `Joystick` (7) buttons: square 0, cross 1, circle 2, triangle 3, l1 4, r1 5,
+  share 8, options 9, l3 10, r3 11. The D-pad is `JoystickHat` (10): up 0, right 1, down 2,
+  left 3.
+- Without a controller plugged in, `GameInput.GetControlMaps()` and
+  `GetControlBindings().GetMaps()` list only `kbm` (index -1) (20261029-000159). The `gp1-gp4`
+  / `ds41-ds44` maps of `res/controls_default.cfg` appear only for a connected device, so a pad
+  map's `Index` couldn't be measured in the lab. `HWP::Input::Held` reads each listed pad map
+  at its `Index`, and with a controller in use but none listed, Gamepad index 0. To check with
+  a real controller: `hwp pad` lists its map and shows `DOWN` beside a held button.
+- Vanilla catches a rebind's button through `OnBindingInput(type, key)`, which only the main
+  menu's game mode has (`MainMenuGameMode`). A gameplay mod polls instead (`AnyHeld`).
+
+**What is free.** Vanilla's gamepad map binds every face button, both bumpers and triggers,
+back, start, D-pad up / down / right to gameplay actions. D-pad left is only `MenuLeft`, and the
+stick clicks are unbound. Weapon swap takes D-pad left and reads it only with no window open
+(in a menu it moves left). The DualShock 4 map is the same with its own ids.
+
+**Glyphs.** `FormatKeyName("gp_dl")` is `\"inp-gp-dl"` (`language/english/input.lang`), and a
+Plus tab row and the HUD text draw it as the button's icon (shots swappad-row, swappad-tip,
+20261029-000930).
+
+**GameLab.** No OS input reaches the lab game, and an emulated `GameInput` write doesn't reach
+`IsKeyDown`. gamelab-hands' `pad hold <gp id> <ms>` writes the button to GlobalCache
+`hwp_pad_held`, which `HWP::Input::Held` reads as down. Unlike `input` holds, it counts down in
+paused frames too, because the Plus tab's capture runs behind the character menu, which
+pauses a solo game. `pad on` sets `hwp_pad_using`, which stands for `GameInput.UsingGamepad`.
+`fix-weaponswap-pad` passes (20261029-000930, packages 20261029-002338).
+
+**Seen on the way.** plan-t8's swap checks `swap_channel_waits`, `s1_tip_shown` and
+`s6_swapdrop` fail on origin/main as well (swap sections alone in town: 20261029-002212 on
+main, 20261029-002059 here). The bot looks for a `> gl <id>` echo and a `HUD:HWPWeaponSwapHUD`
+widget root that the current harness no longer logs or lists. The full plan-t8 also lost its
+player to floor traps twice, walking to a chest (20261029-001059, -001407).
+
+## 2026-10-29: Lightning Kush and the strain table (issue #15)
+
+Issue #15 asked for a Lightning Kush strain. It is the fourth Holy Herb: violet (the game's
+lightning colour, `tweak/player_colors.sval` `lightning_gem` e69eff / c318e7), with
+`Modifiers::DamageMulAdd` `lightning 0.2`, like Ember Kush's `fire 0.2`.
+
+**The larger issue: a strain lived in ten places.** These were:
+- its mission buff in `buffs_herbs.sval`, with its icon cell in `farm.png` hand-indexed;
+- ten `%block` lines in `equipment_joints.sval`;
+- 7 lang strings (name, buff text, 5 joint names);
+- an `AddSeed` line, whose position indexes two sprite sheets;
+- a crop unit with a hand-indexed frame;
+- `tools/make_wild_plots.py`'s hard-coded seed list;
+- three pieces of art: the plant and buff icon in `farm.png`, a seed packet in
+  `gui/hwp_seeds.png` and a bud in `gui/hwp_harvest.png`.
+
+The harvest sheet was full: 8 cells of 16 px in 128 px.
+
+`tools/make_herbs.py` `STRAINS` now writes all of them. The art is Lucky Leaf's, recoloured
+by its three-tone ramp: light 96dc78, mid 40a848, dark 1c6028. The stem 2c682c stays, and a
+seed packet's plant takes one colour. Regenerating the three existing strains gives
+pixel-identical sheets, so the old art was drawn this way too. `hwp_harvest.png` grows to
+256 px (power of two). `farm.png` has four strain slots; the old Gambler's Gold slot
+becomes Lightning Kush. `--check` and `tests/test_make_herbs.py` fail when a generated file
+is out of date, or when `DefineSeeds` stops being the food crops followed by `DefineHerbs()`.
+
+**Found while testing: the materials grid's 16 cells.** farming registers a seed cell and a
+harvest cell per seed in hwplib's `HWP::Materials` section b. The gui had cells b0-b15, so the
+17th and 18th providers (Saint's Sage's and Lightning Kush's harvest) would have had no cell,
+and nothing said so. Section b now has 24 cells. They are 24 px wide, so 9 fit across
+((217 - 24) / 23 + 1), and the seeds sit over their harvests as before.
+`HWPMaterialsWidget` logs `materials section <s>: N providers, M cells` once when a section
+outgrows its gui (`HWP::Materials::Count`, new).
+
+**Measured** (`fix-farming-lightning-kush`, 20261029-003913):
+- A puff sets `hwp_herb` to `hwp_herb_lightning_kush`.
+- gamelab-hands `dmgmuls`: lightning 1.0 -> 1.2, fire 1.0 -> 1.0.
+- A wild Lightning Kush plot spawns (`hwp farm wild lightning_kush`).
+- All 18 Plants & Herbs cells show at 24 px.
+- The self-check reads `9 seeds, 4 herb buffs, 40 joint items`.
+
+**Seen on the way.** plan-farming-a fails three checks, the same ones on origin/main
+(20261029-004641) and here (20261029-004133):
+- `s2_sprouts_whole_groove`: the bot's hold-to-walk never reaches the groove's plots.
+- `s8_water_drops`: no drops logged.
+- `s7_joint_puffs`: the fifth puff isn't counted before the bot reads it.
+
+## 2026-10-29: guns on any class (issues #16, #29)
+
+Issue #16 asked for a Ranger with a pistol and a hand crossbow; #29 said guns don't work off
+the Firearms Specialist. The cause is the same. A gun's attack fires only while the clip stack
+holds rounds (`attacks_firearms.sval`, `buff stacks clip ge 1`). Each gun gives the clip its
+size through a marker buff, for any class. But filling it on spawn (`UpdateFill`), the reload
+on an empty trigger (`UpdateEmptyTrigger`), the magazine (`MagazineShot`, `UpdateMagazine`),
+the aim hold and reload sounds (`UpdateCombat`, `PreRenderCombat`) and the pose (`UpdatePose`)
+all asked `IsFirearms(rec)`, the class.
+
+Measured on the town-ranger fixture, pistol plus `offhand_crossbow_01` (20261029-005234):
+- The Ranger's clip stayed at 0, so the pistol never fired.
+- The hand crossbow fired.
+- A Specialist with the same gear spent 5 rounds.
+
+Now those ask `UsesGuns(rec)`: the class, or a gun (tag `hwp_firearm`) in either hand
+(`HoldsGun`). Taking a gun up counts as a change for the fill, like a class change. The class
+keeps its skills, start ranks and the shops' gun stock.
+
+`fix-firearms-ranger-offhand` (20261029-013722; its pf run -013915):
+- no clip without a gun;
+- the clip fills to 10 in town and is full on floor 1;
+- the pistol hurts a breakable target dummy and spends rounds;
+- the crossbow hurts it and spends none;
+- `hwp firearms empty` and a trigger pull reload it.
+
+**Seen on the way: a bot's gun misses unless the cursor is on the target's body.** A gun aims
+from the point its round is drawn at, `AIM_HEIGHT` (11) px above the feet, toward the cursor
+(`Combat.as AimAtCursor`). So the round's collision line ends 11 px below the cursor. A cursor on
+a target's feet makes a sideways shot pass under it: with a dummy at (60, 0) the gun read 10 deg
+and the dummy took 0 (20261029-010935), while a shot from above or below hit. A player puts the
+crosshair on the body and hits. The bot now puts the cursor 11 px above the target's feet: 5 of 5
+runs hit at 0, 45 and 135 deg (20261029-013722 to -013954). Two other things read as "no damage"
+on the way:
+- A bandit brute's `BlockSkill` blocks a front hit 1 in 4 for 30 physical, more than a pistol
+  round does (24), so a blocked burst reads 0. The crossbow's bolt gets through.
+- A bandit hunter walks out of the line of fire.
+
+The bot shoots a breakable target dummy. Bots that fire guns with `input` alone and no `cursor`
+miss since the cursor aim came in (5167447, 2026-10-25), as 2026-10-26 noted for the bench:
+`qa-firearms-magazine-edges` and `-continuity` (actual damage 0 on the dummy) and bench-smoke's
+pierce check (0 at every distance, 20261029-010334). The gun damage itself is fine; those bots
+need a `cursor` on the target's body.
+
+## 2026-10-29: two suffixes, two prefixes (issue #17, `affixes`)
+
+Issue #17 asked for items with two prefixes and two suffixes; it has no body, so the shape is
+ours. How vanilla builds an item's mods (`scripts/Items/EquipmentGenerator.as`,
+`GenerateItemMods`):
+- `EquipmentModifiersPerQuality`: Common 0, Uncommon 1, Rare 2, Epic 3, Legendary 4, but
+  `Item.Finalize` clears a Legendary's mods, so it has none.
+- Mod n is drawn from the pool of quality `IndexToQuality(n + 2)`: n = 0 the common/uncommon
+  stat pool (28 mods, each with a prefix and a suffix name), n = 1 the rare pool (58, every one
+  suffix-only), n = 2 the epic pool (27, every one prefix-only).
+- So a Rare item is a stat mod and a suffix, an Epic one a stat mod, a suffix and a prefix. The
+  name takes one prefix and one suffix.
+- `GetAllPossibleItemModifiers(base, quality, ilvl, current, tags)` filters by item level, slot
+  tags and exclusive groups against `current`, but not exact duplicates.
+- `Item.Save` and `LoadItem` write and read any number of mods; `Item.IsValid()` is unused, so
+  an item with five mods loads and is never rejected.
+
+What `affixes` does: after a call that rolled a mod (the generator also runs on items that
+already have theirs), the rare tier and the epic tier each roll a second mod at
+`affixes.chance` (25)%, drawn from the same pool by the same rarity weights, minus mods the
+item has and minus skill mods when the item has a skill already. Names stay vanilla.
+
+`mod-affixes` (20261029-020409):
+- 400 Epic at ilvl 30: 107 second suffixes, 101 second prefixes; 400 Rare: 100 suffixes, 0
+  prefixes. No duplicate, no tier over two, no item with two skills.
+- At 100%, 175 Epic at ilvl 1 (some slots have no Epic base at level 1) all get both.
+- Off: 3 mods at most.
+- `give`: a Vengeful Leather Jerkin with 5 mods; the tooltip lists them. After `gl save` and a
+  restart it still has 2 suffixes and 2 prefixes.
+- The log is clean.
+
+**Seen on the way: mod-all had fallen behind.** `mod-all`, the gate that loads every content
+mod loose side by side, keeps its mod list by hand. It lacked `petrooms` (since 2026-10-28)
+and would have lacked `affixes`. Both are in now (20261029-020849), and
+`tests/test_mod_all.py` fails when a mod in packages.json is missing from it. `pkg-all` fails
+on main with 1203 resource hash conflicts and a HWP-campaign stamp from another build. That is
+the subscribed Workshop copy of All loading beside the local one, which PR #40 fixes;
+`pkg-dungeon`, which carries `affixes`, passes (20261029-020719).
+
+## 2026-10-29: Shift+Click and Ctrl+Click at the Attribute Trainer (issue #22, `attrclick`)
+
+Attribute points are placed at the Attribute Trainer only. The Character menu once had "add"
+buttons, but their `OnFunc` branch is commented out (`GUI/PlayerMenu/Character.as`). The trainer,
+`npc_attrib_trainer.unit`, is an `AttributeAssignerShopContent`
+(`Town/AttributeAssignerShopContent.as`):
+- A click on a stat button (widget id `strength`, `dexterity`, `intelligence`, `focus`,
+  `vitality`; func `buy`) runs `ShopWindow.OnFunc`, then `Buy("assign")`.
+- `Buy` adds 1 to `pickedStr`/`Dex`/`Int`/`Foc`/`Vit`, then calls `SyncStatPoints` and
+  `RefreshModifiers`.
+- `AttributeAssignerWindow.Update` repeats `Buy` while the button is held: first after 800 ms,
+  then each gap is 0.6x the last plus 15 ms.
+
+Scripts read keys with `Platform::IsKeyDown(ControllerType::Keyboard, 0, sc)`, using SDL
+scancodes: Left Ctrl 224, Left Shift 225, Right Ctrl 228, Right Shift 229. devarena's Ctrl+Z
+already works this way. `GetInput().UsingGamepad` tells a gamepad apart.
+
+`attrclick` swaps the class (`HWPAttributeAssignerShopContent`). Its `Buy` adds
+min(20 with Shift or 5 with Ctrl, the points left) at once, with one sync; a plain click goes to
+vanilla. Its window shows the amount as each stat's cost and appends "Shift 20, Ctrl 5" to the
+points line.
+
+`mod-attrclick` (20261029-021911):
+- With 50 points, a plain click placed 1, Shift 20, Ctrl 5, and Shift 20 again.
+- Shift with 4 left placed 4, and a click with none left placed nothing.
+- Off, Shift placed 1.
+- The shots show the costs at 20 and at 4.
+
+The clicks are tested with the modifier forced (`hwp attrclick force`), since a step can't hold
+a key while it clicks. The real keys are tested on their own: the window logs "a click places N
+now" when the amount changes, and the harness `key` step holds a key in the lab window.
+- Left Ctrl held for 1 s gave 5, and 1 again when let go (20261029-023935).
+- Left Shift held the same way never registered (20261029-023743), though it goes through the
+  same path. The likely cause is SDL2's Windows event pump: it releases a Shift key that
+  `GetKeyState` doesn't report held, a guard against the lost key-up when both Shifts are down.
+  A posted key never sets `GetKeyState`.
+
+So GameLab can't hold Shift, and Shift+Click needs a hands-on try. It reads scancodes 225 / 229
+through the same `HWP::Options::KeyDown` as Ctrl's 224 / 228.
+
+## 2026-10-29: the General Merchant's tabs on a controller (issue #23); GameLab `menubutton`
+
+The General Merchant (`keys`, `HWPMerchantWindow`) has a Keys & Bags / Trinkets tab row, a
+`menutabgroup` whose tabs call `hwp-tab keys|trinkets` on a click. Nothing read the gamepad, so
+a controller player could never reach the Trinkets tab. Vanilla windows with tabs read
+`menuInput.MenuPreviousTab` / `MenuNextTab` in `Update`: the player menu, the stash (and
+`MenuPreviousSubTab` / `MenuNextSubTab` for an inner row). They show the bindings with
+`binding-display` widgets, refreshed in `RefreshKeybinds`. The merchant now does the same. With
+two tabs, either binding goes to the other tab. On a keyboard MenuNextTab is Tab and
+MenuPreviousTab has no key, so only "TAB" shows, on the right.
+
+Of HammerwatchPlus's own windows, this was the only tab row without the bindings. The
+Modifications page, the character menu (droptrade), the class picker and the run-start screen
+already read the sub-tab bindings for their rows.
+
+**GameLab could not press a menu button.** `gl input` writes GameInput (move, aim, use,
+attacks, skills), and windows read MenuInput. The new verb `menubutton <name> [pad]` writes one
+into MenuInput from the hands module's UpdateFrame: down for one frame, let go the next,
+cleared the one after. Two findings on the way:
+- The engine does not clear a written `Pressed`. A press written once and left in place was read
+  every frame, so the tab flipped about 30 times a second (20261029-022658).
+- A shop list buys when Forward is let go (`ScrollbarWidget.Update`: `Released`). With the
+  mouse in use it buys the entry under the pointer, so a press only buys the selected entry when
+  `gameInput.UsingGamepad` is set. `pad` sets it for the press.
+
+`fix-merchant-controller-tabs` (20261029-023241):
+- next tab goes to Trinkets (6), next tab wraps to Keys (5), previous tab goes to Trinkets;
+- A buys the selected trinket (6 to 5);
+- the real Tab key goes to Keys and back;
+- a mouse click on Keys still works;
+- the log is clean.
+
+## 2026-10-29: mod version mismatch notices (issue #24)
+
+The issue (from NoahFrank) has a title and no body: "Detailed notice when there are Mod Version
+Mismatches". Two notices could be meant, and both said too little:
+- **The join dialog.** `CanJoinLobby` (`GUI/WindowMainMenu.as`) refuses a lobby whose
+  `mods-hash` differs from `Resources::GetModHash()`, and lists the mods missing on either side
+  by id. With the same ids and different contents, both lists are empty and the dialog says only
+  "Join failed becxause of mismatched mods." (the typo is the game's). That dialog runs in the
+  menu script, which loads base scripts and resources only, so no mod can change it (the
+  2026-10-16 menu notes). `GetModHash()` reads 0 from mod code, at boot and in town, in the lab.
+- **Players getting in anyway.** The user's log of 2026-10-28 20:47 settles which case happens.
+  The user joined a host, and the game let them in. Then four HWP events arrived with no handler:
+  `[HWP:net] no handler for event id -415441014 (module version mismatch between players?)`.
+  Hashed against the repo's event names, they are `hwp.luck.floor`, `roulette.state`,
+  `objectives.opened` and `keys.trapped`. Those were added on 2026-10-26 (b03360e, bcd12bc). The
+  user's install had per-module `HWP-*` packages from before that, and the host had a newer build
+  with the same mod ids. So the join check doesn't compare contents (or not these), and the only
+  sign of the mismatch was an error in the log.
+
+What changed:
+- `tools/build.py` `update_id()` is the last commit's date and short hash, with `+` for
+  uncommitted tracked changes. Every package's generated check module now calls
+  `HWP::Builds::Package(name, update, stamp, HWP::LIB_STAMP)` and logs
+  `package HWP-<id>, library <stamp>, update <update>`.
+- `HWP::Builds::Tell` replaces `Packages::Tell` in town. It names each odd package's update and
+  whether it is older than the running library's, and folds in packages from before stamps
+  (`Packages::g_mismatched`).
+- A client's first gameplay tick in town sends `builds.report` (its packages, one
+  `name=update` per line). The host compares them and answers `builds.answer` with its own, and
+  each side gets a chat line: `<who> runs another HammerwatchPlus update than you ...: HWP-qol:
+  yours 2026-10-28 (3b40f37), theirs 2026-10-01 (0000000). Theirs are older: <who> should
+  update ...`. Matching packages are grouped. A package only one side has reads "not enabled".
+- A side silent for 45 s in town is named as older (`hwp.builds.silent`). That covers a host
+  that never answers, or a client in `g_players` that never reports. It is the case for anyone
+  on an update from before this one.
+- `hwp version` ends with each update and its packages, the running library's first. The
+  Workshop `changenote.txt` shows the same update, and warns when the tree has uncommitted
+  changes.
+
+Mixing with older packages. The game keeps the first copy of each path, so a newer package can
+run on an older library. `Builds.as` is a path the older packages don't have, so it always
+comes from a newer one, and the new check modules can call it. It calls only what the published
+library already has. Measured in pkg-all (20261029-025844), where the published Workshop All
+(library 19c76653f770) shadows the local build:
+- everything compiled;
+- the old `CoreModule.as` won and showed the old one-line notice;
+- the local campaign check, which calls `HWP::Builds::Package`, ran.
+
+pkg-all still fails there, for the known shadowing reason (PR #40).
+
+Tests:
+- `fix-mod-version-notice` (20261029-030319). One lab game stands in for two: a host's request
+  runs locally, and `hwp builds fake` reads every report and answer as if the other side ran
+  that. It covers the same updates (no notice), an older and a newer other side, a package only
+  they have, and a silent host and client (`fake silent` waits 3 s).
+- `pkg-mismatch` (20261029-030004) now carries a stamped older package (`HWP-stampnew`,
+  `gamelab-stampfake/CheckNew.as`) beside the unstamped one. The town line reads: "The library
+  running is from 2026-10-28 (3b40f37+); HWP-stampnew 2026-10-01 (0000000), older;
+  HWP-stampfake an update from before update stamps, older."
+- `tests/test_builds.py` locks the `Package` and `Mismatch` signatures.
+
+Not tested: two real machines. The lab can't run a second game. The real path differs from the
+loopback only in going through `HWPRequest` / `HWPEvent` like every other `HWP::Net` call, and
+in the host's `g_players` loop.
+
+**Seen on the way.** The same client log has hundreds of
+`(PlayerActiveSkillDeactivate -> GetPlayerSkill) Couldn't find active skill with ID 2135001574
+for peer 2` errors, and `Clients are not allowed to destroy netsynced unit` errors for
+caltrops, frosted ground, glyphs and guard patrols. They may come from the same mismatch (a
+skill one side has and the other doesn't). If they show again between matching updates, they
+are a co-op bug of their own.
+
+## 2026-10-29: objectives vault art and lever icons (issue #26)
+
+The issue (from ryan-bower): "Floors in bonus rooms that are locked by buttons have weird plain
+floor instead of using the floor art of that floor. also the buttons shouldnt have an icon on
+the map revealing them. but add a architect option for that".
+
+What the vault looked like (look run 20261029-030752, keep_1, the lights off): the room sat in
+the dark fill of the wall block it was carved from. It had no walls and no floor texture, only
+its chests and door. The cause is in how the cells were marked, not in the art:
+- `vault_s.pfb` carries units only (door, chests). Its cells were `ReserveWall` (02) for the
+  ring and `ReserveFloor` (03) inside. `ExecutePrefabCommands` makes those Wall and Floor and
+  **consumed**, and nothing frees them.
+- `DungeonInstanceBrush.Build` skips consumed cells. Its wall loop draws no wall units for them,
+  and `SpreadSpots`, `DrawWallTrim` and `SpreadUnits` skip them. Only `FillAll` reaches them,
+  hence a bare floor. On the keep even that didn't show. The room had no walls of its own, and
+  the dark `__color_*` blocks of the Nothing cells around it (each drawn up to 2.5 cells north
+  of its cell) are the likely cover; not measured cell by cell.
+- Vanilla uses Reserve* only for prefabs that bring their own tiles and walls. Rooms made from
+  the cells use `PlaceWall` (05) / `PlaceFloor` (06): consumed through the generation commands,
+  then `ConvertPlaceGrid` (from `LoadBaseBrushTiles`, the first thing `Build` does) turns them
+  into plain unconsumed Wall and Floor before anything paints. The puzzles module's forced
+  rooms are vanilla prefabs with their own art, so they never showed this.
+
+What changed:
+- The vault and both lever patches are `PlaceWall` / `PlaceFloor`, and the carved corridor
+  cells are `PlaceFloor`.
+- `HWPObjectivePainter` goes last on every indoor brush's painting list. It consumes the
+  floor cells again after the painters (the wall loop, the breakables and the enemy spots
+  come after it), so no enemy spot lands in a vault. It logs `painted: N floor cell(s) of M,
+  ring W wall cell(s) of 28, switches hidden|marked on <level>`.
+- The levers' idle scene has no `info_poi` icon, like vanilla's `button_lever.unit`. A
+  `marked` scene adds it, chosen on every machine when the run has the Architect alteration
+  `hwp_objectives_marked_switches` ("Marked Switches", 1000 gold and 5 wood,
+  `objectives_architect.sval`; vanilla's picker lists every MissionBuff of set `architect`).
+  The vault door keeps its icon.
+
+Tests:
+- `fix-objectives-vault-art` (20261029-031927) covers keep_1 and temple_1:
+  - 64 of 64 and 140 of 140 floor cells painted as Floor, and 28 of 28 ring cells as free
+    walls;
+  - `switch units: 2, on the map: 0`;
+  - shots show stone floor, the theme's walls and a torch inside the vault;
+  - with `hwp architect try hwp_objectives_marked_switches`, a keep floor says `switches
+    marked`, `on the map: 2`.
+- `fix-objectives` (20261029-032014) still passes. The sealed corridor (9 cells long this
+  time) now reaches 38 of 70 cells in `gl reachmap`, where it answered empty before. With the
+  door open it still answers empty (the README's known limit).
+
+On the way:
+- `gamelab/fixtures/mission-ranger.json` no longer reads back `player.maxDashes 1`. The rare
+  starting boots re-roll on a fixture rebuild, and one rebuild (cache 7d8b33f1) rolled a dash,
+  which failed fix-objectives on main before any change.
+
+Same pattern, not changed:
+- `puzzles` `puzzle_constellation.pfb` (forest and heaven floors) reserves a 10x14 patch with
+  `ReserveFloor`. `ForestBrush` paints only its painting list, which skips consumed cells, so
+  the Constellation likely stands on undecorated grass. `ForestBrush.Build` doesn't call
+  `ConvertPlaceGrid`, so the Place commands alone wouldn't help there. A painter first on the
+  list that frees the cells would.
+- The `campaign` traps reserve one cell each, or a row of three.
+
+## 2026-10-29: levers that did nothing (issue #27)
+
+The issue (from ryan-bower): "sometimes buttosn that dont work on floors, and there arent even
+anything to open". The lever takes the use, no vault opens and the way down stays as it was.
+
+The cause is the preload context, not the lever:
+- `MissionGameMode` generates the next floor ahead while the party is on the floor above
+  (`Generate` in the "mission-level-preload" context; every script log line from it is tagged
+  `[preload]`). Taking the exit loads that floor whole into the main context: its units come
+  along, its script globals don't.
+- `objectives` kept the vaults, their levers and the exit switch in globals filled during
+  generation (`HWPObjectiveSpawn`). On a preloaded floor the main context's records were the
+  ones `ClearFloor` left: no vault, no exit switch. `HostSwitchUsed` looks the lever up by
+  position, found nothing, and did nothing. And with no exit switch recorded, Start never
+  sealed the exits.
+- Only the first floor of a run is generated in the main context, so "sometimes" is "every
+  floor but the first".
+
+Evidence:
+- The user's co-op session (client side, `logs/HWR2.exe_2026-10-28_21-24-45.log` in the game
+  folder): 29 of the 30 `state from host` lines say `0 vault(s), 0 open, exit switch none`; one
+  says `1 vault(s), 0 open, exit switch sealed`.
+- Repro, lab run 20261029-032640 (before the fix): `[preload] ... placed 1 vault(s), exit
+  switch yes on keep_2`, then on keep_2 `start: 0 vault(s), exit switch none, 1 door unit(s),
+  2 switch unit(s)`. The units were there, the records weren't.
+
+What changed:
+- `g_generatedHere` is set by the generation command and cleared with the floor. At Start, a
+  host whose context didn't generate the floor runs `AdoptFromUnits`: each door unit becomes a
+  vault (the room's corner is the door minus `Gen::DOOR_IN_PFB`, the size from the vault
+  prefab def), each vault takes the farthest lever left (generation puts a lever as far from
+  its vault as it can), the exit-kind lever is the exit switch, and a used lever or open door
+  counts as opened. A floor loaded from a save takes the same path.
+- A client's exit seal retries for 3 s like the host's. The host's state can arrive before the
+  keep's exit part fabricates, and one client floor in the user's log logged `exits sealed: 0`.
+  Not measured in the lab (one machine).
+
+Tests:
+- `fix-objectives-preloaded` (20261029-032850, 20261029-033031; pkgfeat 20261029-033103):
+  keep_1, then `cht_finish_level` onto the preloaded keep_2. It logs `floor not generated here
+  (preloaded or from a save): 1 vault(s) and exit switch yes at 424,-568 taken from the units,
+  vault 0 door 416,-624 switch -424,568`, then `start: 1 vault(s), exit switch sealed` and
+  `exits sealed: 1`. The vault lever logs `vault 0 opened by Pilot` (both door units found)
+  and the exit lever `exits open: 1`.
+- `fix-objectives` (20261029-032954) still passes.
+
+The larger issue: any module that keeps state from a generation hook loses it on every
+preloaded floor. Checked the others:
+- `campaign` teleporters pick their pair when used, so they work on preloaded floors.
+- `luck` and `puzzles` only log during generation; nothing is read back at play time.
+A module that needs generation state at play time must put it in the units (or read it back
+from them), not in script globals.
+
+On the way:
+- `gamelab/fixtures/mission-ranger.json` no longer reads back `player.maxDashes 1` (the same
+  change as on issue #26's branch): a fixture rebuild can roll starting boots with a dash.
+
+## 2026-10-29: class skill buffs missing from the buff bar (issue #28)
+
+The issue: "Warcry does not show on buff bar when effect by it".
+
+Why: `HUD.ShowBuffIcon` (GUI/HUD/HUD.as:471) returns before making a widget when
+`buff.GetBuffIcon()` is null, and an `ActorBuff`'s icon is its def's `m_hud`, read from a `hud`
+sprite array (ActorBuffDef.as:211). War Cry's `warcry_1`..`warcry_5`
+(players/warrior/buffs_warrior.sval) have no `hud`, and only the commented-out `icon` line.
+
+The larger issue: of the buff files in `players/*/buffs_*.sval`, only `buffs_shared.sval`
+has `hud` arrays (3 of them), and none of the class buff files has any. Even `fuel_the_flames`, which has a
+name and description, has no icon. A survey of every buff path a skill references (vanilla
+and HWP), keeping the timed, non-debuff buffs of skills in the current class trees, found 13
+families that a player would want to see. (`pal_zealous_onslaught`, a Paladin skill in no class
+tree, is left out.)
+
+What changed (`bufftips`):
+- `ApplySkillIcons` runs when the module is made (every level) and on a `bufftips.skill_icons`
+  change. For each path in `SkillBuffs.as` it takes the cached def (`LoadActorBuff`, one per
+  path hash, which the skills share) and sets `m_hud` to a `ScriptSprite(texture, vec4)` cut
+  from `gui/hwp/bufftips/icons.png`. It fills `m_name` and `m_description` only when they are
+  empty. A def that already has `m_hud` keeps it, so a game update that adds icons wins. Off
+  takes back only the icons it gave.
+- The icons are the middle 14x14 of each skill's own 24x24 icon, cut rather than scaled
+  (`tools/make_bufftips_icons.py`). Cleansing Touch shares Lay on Hands' icon with
+  Invigorating Touch and gets a pale tint.
+- Each machine patches its own defs. A War Cry from another player applies the same def, so
+  the ally's bar shows it. Co-op is not tried in the lab (one machine).
+
+Tests:
+- `fix-bufftips-skill-icons` (20261029-034642; pkgfeat 20261029-034800): a fresh Warrior
+  learns and casts War Cry (`gl castat`). `gl buffs`: the 8000 ms buff has `hud` and a shown
+  widget. `gl buffbar`: "War Cry", "Faster weapon and movement speed.". Hovering logs `tip: War
+  Cry`, and the shot shows "7s left / War Cry". `bufftips.skill_icons 0` logs `off: 0 of 31`,
+  and the next cast has no icon; `1` brings it back. The other 12 families, given with `gl
+  givebuff`, show 13 named, described icons in vanilla's round frames (shot
+  `skill-buffs-bar`).
+- `mod-bufftips` (20261029-034848) and `plan-ui-a` (20261029-034903, the tooltip sections,
+  including "vanilla debuffs have no icon") still pass.
+
+Same gap, not changed:
+- The `trinkets` HoH1 buffs (`buffs_trinkets_hoh1.sval`: Cape of Withdrawal, Greaves, Mortar
+  and Pestle, Apothecary's Tonic, Elven Ruby) have names and descriptions but no `hud`. Their
+  item art is imported from the player's own HoH1 install (16x16 cells,
+  `icons_trinkets_hoh1.png`, not shipped), so an icon would have to be cut from that sheet at
+  runtime.
+- Status debuffs on the player (stun, slow and so on) have no `hud` in vanilla either. The game
+  shows those over the head, and `plan-ui-a` checks that they stay off the bar.
+
+## 2026-10-29: traps on one map (issue #30)
+
+The issue: "There are a bunch of spike traps added around the map, but on every level.
+restrict it to just one map that makes thematic sense".
+
+Two causes:
+- `Traps::Install` adds the `HWPTrapSpawn` command to every indoor `DungeonGenerator`, so
+  every map got traps.
+- The spikes: `Run` placed all of a floor's traps in one `PrefabPlacement.PlacePrefabs(set,
+  want, 1.0, 100)` call. `PlacePrefabs` (Generators/PrefabPlacement.as:10) rolls one type
+  (`MissionPrefabDef::RollIndex`), places up to `max(typeMinLimit, numFound / max(2,
+  remaining) / 3.5 * boost)` of it, and only then rolls another. With a limit of 100 the first
+  type takes as many as it can. `spikes_1` has no `max-num`, so when it came up first it took
+  the whole floor; the other types stop at their `max-num` (4, Confusion 3) through
+  `CanGet()`. A lab Crypt floor before the change: 20 of 20 `spikes_1`.
+
+What changed (`campaign`, `Traps.as`):
+- `campaign.trap_map` (0 Crypt, 1 Bandit Keep, 2 Dark Citadel, 3 Spider Caves, 4 every map;
+  default Crypt). The mission comes from `cast<MissionGameModeBase>(g_gameMode).m_missionLevel
+  .m_mission.m_id`, which is set during generation, the preload context included. The
+  Forsaken Tower (`hwp_forsaken_tower`, `hwp_forsaken_tower_hoh1`) always gets traps. The
+  teleporter is still placed on every floor. The `traps: placed` line names the mission and,
+  off the map, `not a trap map`.
+- One `PlacePrefabs(set, 1, 1.0, 1)` per trap, stopping when a call places none. Each roll
+  is among the types `CanGet()` still allows; the per-type counts are per generation
+  (`g_genNumId`), so they hold across calls. A rolled type with no fit is dropped and the
+  next one rolled inside the call, so 0 means nothing fits. Vanilla's spacing between prefabs
+  of one type (the `found` pruning) is per call, so two traps of a type can now be closer;
+  the grid commands still keep them from overlapping.
+- `traps: kinds ...` logs how many of each prefab (from the points of interest added).
+
+Larger issue: vanilla's own `DungeonGenerationCommands` place sets the same way (type-min-limit
+defaults to 100), which suits sets of rooms, not a set meant as a mix. Any set where
+one type has no `max-num` floods the same way. The HoH1 generator ports (`HoH1Gen`) use their
+own placer.
+
+Tests:
+- `fix-campaign-trap-map` (20261029-035951; pkgfeat 20261029-040022): Bandit Keep floor 0
+  places 0/0 (`not a trap map: campaign.trap_map is crypt`) and no glyph, while its
+  teleporter is placed; Crypt floor 0 places 19/19, `kinds fire_1 2, spikes_row 4,
+  glyph_confusion_1 3, spikes_1 3, glyph_dart_1 4, glyph_bomb_1 3`; the Forsaken Tower floor 0
+  19/19 with all six kinds; `hwp set campaign.trap_map 4` and the Bandit Keep gets 15/15.
+  The bot fails on fewer than 3 kinds (from 10 traps) or a kind over its max-num.
+- `fix-campaign-traps` (20261029-040156) and `mod-campaign` (20261029-040228) pass.
+  `fix-campaign-traps` failed once (20261029-040051) and once before this change (pkgfeat,
+  20261027-033114) on "the same spot on a second use": the game logged both uses landing
+  on the same destination, but the player stood 13 and 16 px off a second later (enemies
+  at the spot). The bot now checks the logged destination of both uses and that the player
+  stands within 48 px of it.
+
+## 2026-10-29: Mm-hmm! from the wearer, whole (issue #31)
+
+The issue: "mmhmm should play in it's entirety before repeating. and it should be the female
+"mmhmm!" from the village. and should play from the player's body, not globally for everyone".
+
+Why:
+- The crit voice was the modifier's own `PlaySound` effect with `2d` true and no cooldown
+  (TriggerEffect `timeout` 0). Every crit started another instance at full volume on every
+  machine. The moments played `PlaySound2D` too.
+- Larger issue: the module had no idea of a voice in progress. Anything that can fire faster
+  than the sound lasts (crit bursts, multi-hit skills, a moment on the same frame as a crit)
+  overlapped it, and nothing tied it to a player.
+
+What changed (`mmhmm`):
+- One `HWP::MmHmm::Voice(unit, why)` for every voice: `PlaySound3D(snd, unit)` on the wearer,
+  held back while that wearer's last voice is under `VOICE_MS` (500 ms) old. The crit
+  trigger's effect is a new `HWPMmHmmVoice : IEffect`. The TriggerEffect is net-synced, so
+  every machine runs it with the wearer, or their husk, as `owner`. A moment's `mmhmm.say`
+  broadcast carries the reporting peer, and each machine voices it from that peer's player.
+- `SoundInstance` has no "is playing" or length (the API strings list Play, PlayTracked, Stop,
+  SetPosition, SetVolume, SetParameter, SetPaused, SetLooped, SetTimelinePosition), so the gate
+  is a time measured from the takes.
+- The voice: the female village NPCs use `female_1`..`female_4` (`actors/npcs/town/*.unit`);
+  `female_5`..`female_10` are only in `players/voices.sval`. Every `interact_female_*` take
+  was rendered offline (`tools/audio_pick/fmod.py`, 16 plays each) and measured: share of
+  energy under 500 Hz (a closed-mouth hum keeps most of it there), voicing, and the pitch
+  contour. `interact_female_2` (Equipment Buyer, Enchanter, Mystic, farmer woman, Alice) has
+  two takes, both fully voiced and nasal (0.69 and 0.70 under 500 Hz, centroids 877 and 985
+  Hz). The 0.37 s take is two voiced parts with a gap, the second higher and then falling:
+  "mm-HMM!". The 0.28 s take is one falling hum. The Material Trader's `interact_male_8`
+  measures alike (0.79, 0.83). The other women's events mix a hum with open-vowel takes.
+  Picked by measurement, not by ear; a script cannot choose the take (FMOD picks one per
+  play).
+
+Tests:
+- `mod-mmhmm` (20261029-041026): 4 crits with the hat log 4 `voice: crit from
+  players/player.unit`; `hwp mmhmm voice 5` plays 1 of 5, logged at 1984,598 where the player
+  stands, and 0.7 s later 1 of 1; every moment (last orb, well, secret room, Ace chest,
+  trinket set) logs `voice: <why> from players/player.unit`; the old checks pass.
+  `mod-settings-off` (20261029-041247) passes.
+- GameLab is muted and solo: the sound itself, its 3D falloff, and another player hearing
+  it from the wearer are not measured.
 
 ## 2026-10-29: fishing harder, several hits to land (issue #32)
 
