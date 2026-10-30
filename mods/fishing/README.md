@@ -19,14 +19,23 @@ keys module, a catch can bring up a key of any tier, ace keys included.
   touches the zone. **A bite takes several hits** (issue #32): 2 for a 1-star
   fish (tiers 1-2), 3 for 2-star, 4 for 3-star (`REEL_HITS`). After each hit but
   the last the fish fights: the zone jumps at least 24 px clear of the marker,
-  the marker gets 15 % faster and the 2.5 s window starts again. A miss, or a
-  window running out, at any hit loses the fish ("It fought free and got away").
+  the marker gets 15 % faster and the window starts again. A miss at any hit
+  loses the fish ("It fought free and got away"); a window running out says
+  "Too slow: ...". Each window (the bite's and every fight's) is the marker's
+  way to the zone plus 1.5 s, 2.5 s at least (issue #72: a fight's zone often
+  lands behind the marker, which then needs up to 2.2 s to get there, and the
+  flat 2.5 s left too little).
+- **One click, one reel** (issue #72). A click on Reel is a MenuForward press
+  (mouse_left) and, on its release, the button's func (`ScalableSpriteButtonWidget`
+  fires on ClickUp). Both reeled, so the second check was always missed the moment
+  after the first hit, and a landing click cast again. The press reels (in the
+  window's Update, at the press); the func skips a press that already reeled.
   The speed-up stops where one ~33 ms game tick would carry the marker past
   90 % of the zone plus its own width: Reel reads the marker where the last
   tick left it, so a faster marker could step over the zone on every pass. The
   3-star fish is already there (11 px a tick past a 10 px zone), so it gets
   only x1.04; the fewer, harder hits are its challenge. Each hit logs
-  `reel: hit H of N (tier T), zone to X, marker xM` and the end `reel:
+  `reel: hit H of N (tier T), zone to X, marker xM, reach R ms, window W ms` and the end `reel:
   landed|missed|too slow at hit H of N (tier T)`. `fishing.reel_hits` 1-4
   sets one count for every fish (1 is the old single press). It is drawn every frame between game ticks at sub-pixel
   positions, so it glides instead of stepping. The window pauses the game, and
@@ -162,7 +171,8 @@ keys module, a catch can bring up a key of any tier, ace keys included.
   console; `hwp fishing keys` and `hwp fishing smooth` report (above). With `fishing.debug 1`: `hwp fishing hole` (host), `hwp fishing wells`
   (host, in a run: every well kind with a spot in it, plus a bucket), `hwp fishing
   catch [tier]` (rolls a key too: own key in town, a pickup on a run when host), `hwp fishing bait <worm|shrimp|squid> [n]`, `hwp fishing traps <minutes>` (fill
-  the traps as if back from a run that long), `hwp fishing tier <n>` (the coast's next bite tier).
+  the traps as if back from a run that long), `hwp fishing tier <n>` (the coast's next bite tier), `hwp fishing zone <px>` (the zone's
+  width, 240 = every reel a hit), `hwp fishing fight worst|random` (each zone where the marker gets last).
 
 - **Eat** (hwplib item action `EatAction`, order 20): a fish in the bag shows **`[F] Eat`**; F or a
   click eats it (100 health per star, town or run, the fish is used up). The key is each player's
@@ -255,3 +265,9 @@ again.
     then x1.32 and the zone moved each time; the 3-star fish stays at x1.04; a
     miss at the 2nd of 3 loses it; `fishing.reel_hits 1` lands on one click. By
     hand: a 3-star fish in a boss room should feel hard but fair.
+15. One click, one reel (`fix-fishing-reel-press`, issue #72): `gl pointer click` on
+    Reel (a real MenuForward press and release) with a whole-bar zone casts once, is
+    `hit 1 of 2` alone on the first click in the bite and lands on the second with no new
+    cast; a bite left alone ends `too slow` with "Too slow: it got away."; with the
+    Captain's rod, a 1-star fish and the worst zones the fight's window is reach + 1.5 s
+    (over 2.5 s) and the fish lands. By hand: click Reel on a 2-star fish twice.

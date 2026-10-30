@@ -207,6 +207,13 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-30, fishing's second check can be hit (#72). A click on Reel counted twice: once on
+the press and again on the release. The second count came the moment after the first hit,
+so with a 2-hit fish it was always a miss ("fought free"), and a landing click cast again
+straight away. Now a click is one reel, made on the press. Each check's time limit also
+covers the marker's way to the zone plus 1.5 s (2.5 s at least), and running out of time
+says "Too slow". Tested: `fix-fishing-reel-press`, `fix-fishing-reel-hits`.
+
 2026-10-30, Pelor's Fury on elites, and a death takes 5 Blessing stacks (#82). Pelor's Fury
 on an elite now needs and spends only 3 stacks of Pelor's Blessing and keeps the rest; on
 anything else, bosses included, it still takes all 10. A party member dying now takes 5 stacks
