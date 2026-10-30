@@ -1,0 +1,16 @@
+{
+  "id": "salvage",
+  "requires": ["hwplib"],
+  "overrides": [],
+  "exclude": [],
+  "config": {
+    "title": "Salvage",
+    "about": "Destroying gear salvages it into Crystals or Dust instead, more the higher its level.",
+    "toggle": "salvage.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": [
+      {"key": "salvage.yield", "type": "int", "default": 100, "values": [50, 75, 100, 150, 200], "suffix": "%", "title": "Salvage yield", "about": "How many materials salvaging gives, against the default."}
+    ]
+  }
+}

@@ -7,6 +7,8 @@
     "gui/playermenu/playermenu.gui",
     "scripts/GUI/PlayerMenu/Character.as",
     "scripts/GUI/Widgets/EquipmentItemWidget.as",
+    "scripts/GUI/PlayerStashWindow.as",
+    "scripts/GUI/Widgets/StashItemWidget.as",
     "scripts/GUI/PlayerMenu/Modifications.as",
     "system/messages.net",
     "tweak/missions/themes_forest.sval",

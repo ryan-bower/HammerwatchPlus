@@ -7203,3 +7203,63 @@ Tests:
   section was added.
 - plan-generosity PASS 20261030-101332 (every section), mod-all PASS 20261030-102014,
   pytest 241 passed.
+
+## 2026-10-30: Destroy becomes Salvage (issue #66, `salvage`)
+
+The vanilla Destroy gives nothing. That holds both in the character screen's bag
+(`Character.as`, the "destroy yes" func) and in the town stash (`PlayerStashWindow.as`,
+`m_deletingEquipment`). The bigger issue behind this one: there was no single place where
+a mod could change what Destroy does. So hwplib now has one, and salvage fills it.
+
+- **hwplib `HWP::ItemActions::DestroyHandler`** (`ItemActions.as`) has three methods:
+  `Label(item)` is the hint text, `Confirm(item)` is the dialog text, and
+  `Destroyed(record, item)` runs after the item is gone. An empty string falls back to
+  vanilla (`.menu.nav.destroy`, and `destroy_confirm` with the item in its quality colour).
+  A module installs one with `SetDestroyHandler`. There is one handler, since one module
+  owns what Destroy means.
+  - `Character.as` (already overridden) calls `DestroyConfirm` and `Destroyed`.
+    `EquipmentItemWidget.as` calls `DestroyLabel`.
+  - **New overrides:** `GUI/PlayerStashWindow.as`, whose confirm and remove block call the
+    same two, and `GUI/Widgets/StashItemWidget.as`, whose five `.menu.nav.destroy` hints
+    become `DestroyLabel`. Each has its vanilla `.orig` twin.
+  - `Destroyed` only runs when the remove succeeded. In the bag that's
+    `equipInventory.Remove`. In the stash it's any of Unequip, Remove or the stash's own
+    remove.
+- **Yield.** The Enchanter (`EquipmentEnchantShopContent`) spends Crystals on Common gear
+  and Dust on everything above, so salvage gives Crystals for Common and Uncommon and Dust
+  for Rare and up.
+  - The base is the mission-end trinket conversion (`MissionEndMenu`): Common 1, Uncommon
+    3, Rare 1 Dust, Epic 3. Legendary and Unique give 5.
+  - The base is multiplied by `1 + max(1, ilvl)/10`. Legendaries carry a placeholder level
+    below 0, hence the max. It is then multiplied by `salvage.yield`%, rounded, minimum 1.
+    Rounding up made a Common ilvl 1 give 2 Crystals, which is why it rounds instead.
+  - For calibration: at ilvl 20 the Enchanter asks about 55 Crystals or 11 Dust to raise
+    one quality. A Rare ilvl 20 salvages into 3 Dust, so it takes about four salvages per
+    upgrade.
+- **Materials** go through `PlayerRecord.GiveMaterial(type, n, true)`, which skips the
+  gain modifiers. In town that's `g_myTownRecord`. In a run they are carried: banked at
+  the mission's end, with 40% lost on a failed run.
+- **GameLab findings:**
+  - `dbg_show_stash` opens the stash on its Withdraw tab. The bag is on Deposit
+    (`gl func set-mode deposit-content`).
+  - The stash's navigation hints aren't clickable (only hwplib's character tab makes them
+    buttons), so the bot presses E (MenuAdditional) there.
+  - The DialogWindow isn't in the widget dump, so `Confirm` logs
+    `[HWP:salvage] confirm: <name> into <yield>` and the bot reads the dialog's text from
+    the log.
+  - Affixed items carry their affix in the name ("Long Sword of ..."), so the bot matches
+    on a substring.
+
+Tests:
+
+- New scenario `fix-salvage` (bot `fix_salvage`, extending plan_gear) PASS
+  20261030-120849.
+  - The bag yields read 1 Crystal, 3 Dust and 12 Dust.
+  - E opens the confirm, and No keeps the item.
+  - The hint click and Yes give the Rare ilvl 20 as 3 Dust and the Common ilvl 1 as
+    1 Crystal, both to the town.
+  - Yield 200 shows 24 Dust. Off shows the Destroy hint and the vanilla confirm, and
+    gives nothing.
+  - In the stash's Deposit tab, the Epic ilvl 30 gives 12 Dust.
+- pf-fix-salvage PASS 20261030-121043, mod-all PASS 20261030-121123, pytest 245 passed,
+  `build.py --check` OK.

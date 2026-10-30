@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">HammerwatchPlus Salvage</string>
+	<string name="author">Ryan Bower</string>
+	<string name="description">Destroying gear salvages it into Crystals (Common, Uncommon) or Dust (Rare and up), more the higher the item level. Part of HammerwatchPlus.</string>
+</dict>

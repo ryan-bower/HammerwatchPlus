@@ -400,7 +400,7 @@ class PlayerMenuCharacterTab : MenuTab
 
 		m_manager.CloseTooltip();
 		g_gameMode.ShowDialog("destroy",
-			Resources::GetString(".menu.player.char.equipment.destroy_confirm", {{"name", "\\c" + Item::QualityColorString(equipment.m_item.GetQuality()) + equipment.m_item.GetName() + "\\d"}}),
+			HWP::ItemActions::DestroyConfirm(equipment.m_item),   // HammerwatchPlus: a mod's Destroy (salvage)
 			Resources::GetString(".menu.yes"),
 			Resources::GetString(".menu.no"),
 			this
@@ -730,8 +730,12 @@ class PlayerMenuCharacterTab : MenuTab
 				if (equipmentWidget.m_item is null || equipmentWidget.m_type != ItemWidgetType::Inventory)
 					return;
 
-				GetLocalPlayerRecord().equipInventory.Remove(cast<Equipment::Equipment>(equipmentWidget.m_item));
-				print("destroyed " + equipmentWidget.m_item.GetName());
+				// HammerwatchPlus: only a removed item counts, and a mod's Destroy acts on it (salvage)
+				auto destroyed = equipmentWidget.m_item;
+				if (!GetLocalPlayerRecord().equipInventory.Remove(cast<Equipment::Equipment>(destroyed)))
+					return;
+				print("destroyed " + destroyed.GetName());
+				HWP::ItemActions::Destroyed(GetLocalPlayerRecord(), destroyed);
 			}
 			else if (parse[1] == "no")
 			{

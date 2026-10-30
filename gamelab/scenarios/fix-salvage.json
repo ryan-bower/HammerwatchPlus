@@ -1,0 +1,45 @@
+{
+ "name": "fix-salvage",
+ "about": "Issue #66: Destroy becomes Salvage (fix_salvage bot). In the character screen a bag item's hint reads Salvage, E opens a confirm naming the yield and No keeps it; Yes salvages a Rare ilvl 20 Long Sword into 3 Dust and a Common ilvl 1 into 1 Crystal, given to the town. salvage.yield 200 doubles the yields; salvage.enabled off is the vanilla Destroy (nothing given). In the town stash a bag item's Epic ilvl 30 Long Sword salvages into 12 Dust.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "salvage"
+ ],
+ "timeout": 360,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "fix_salvage",
+   "name": "salvage",
+   "expect": {
+    "LabSalv_ready": true,
+    "salv_yields": true,
+    "salv_key_confirm": true,
+    "salv_no_keeps": true,
+    "salv_rare_hint": true,
+    "salv_rare_confirm": true,
+    "salv_rare_given": true,
+    "salv_common_hint": true,
+    "salv_common_confirm": true,
+    "salv_common_given": true,
+    "salv_yield_setting": true,
+    "salv_off_destroy": true,
+    "salv_off_vanilla": true,
+    "salv_stash_open": true,
+    "salv_stash_hint": true,
+    "salv_stash_confirm": true,
+    "salv_stash_given": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

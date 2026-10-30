@@ -386,7 +386,7 @@ class EquipmentItemWidget : ItemWidgetBase
 				array<string> texts = {
 					FormatKeyName(GetActionBinding("MenuForward")) + " " + Resources::GetString(".menu.nav.equip"),
 					FormatKeyName(GetActionBinding("MenuContext")) + " " + Resources::GetString(".menu.nav.compare"),
-					FormatKeyName(GetActionBinding("MenuAdditional")) + " " + Resources::GetString(".menu.nav.destroy")
+					FormatKeyName(GetActionBinding("MenuAdditional")) + " " + HWP::ItemActions::DestroyLabel(m_item)
 				};
 				// HammerwatchPlus: the item's actions (hwplib ItemActions: Drop, Eat, Send home)
 				auto acts = HWP::ItemActions::NavTexts(cast<Equipment::Equipment>(m_item));

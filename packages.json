@@ -4,7 +4,7 @@
     {
       "id": "qol",
       "name": "HammerwatchPlus: Quality of Life",
-      "description": "Small helpers: buff tooltips in the HUD, item links in chat, a Sort button in the stash, a death recap, the party's last-run stats on a town board, projectile colours for colour-blind players, waygates across the town, a second weapon set on a hotkey, Priest summons that follow you to the next floor, pets that wait outside puzzle and trap rooms, HoH1-style class Title Bonuses, gold that shows its worth, the Mm-hmm! hats, orb picker warnings, dye-pot markers on the minimap, and Shift+Click (20) or Ctrl+Click (5) at the Attribute Trainer.",
+      "description": "Small helpers: buff tooltips in the HUD, item links in chat, a Sort button in the stash, a death recap, the party's last-run stats on a town board, projectile colours for colour-blind players, waygates across the town, a second weapon set on a hotkey, Priest summons that follow you to the next floor, pets that wait outside puzzle and trap rooms, HoH1-style class Title Bonuses, gold that shows its worth, the Mm-hmm! hats, orb picker warnings, dye-pot markers on the minimap, Shift+Click (20) or Ctrl+Click (5) at the Attribute Trainer, and salvaging gear into Crystals or Dust instead of destroying it.",
       "mods": [
         "bufftips",
         "chatlinks",
@@ -21,7 +21,8 @@
         "mmhmm",
         "orbwarn",
         "mapicons",
-        "attrclick"
+        "attrclick",
+        "salvage"
       ]
     },
     {
