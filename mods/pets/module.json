@@ -31,6 +31,32 @@
         "default": false,
         "title": "Feeding bowl",
         "about": "A feeding bowl in town that opens the same pet menu as the Pet Shop keeper."
+      },
+      {
+        "key": "pets.courier",
+        "type": "bool",
+        "default": true,
+        "title": "Pet courier",
+        "about": "In a run, hand bag items to your pet (Send home in the bag) and it takes them to your town stash."
+      },
+      {
+        "key": "pets.courier_secs",
+        "type": "int",
+        "default": 60,
+        "values": [
+          15,
+          30,
+          60,
+          90,
+          120
+        ],
+        "suffix": " s",
+        "title": "Courier trip",
+        "about": "How long the pet is away on a courier trip, 10 % shorter per Fetch rank."
+      },
+      {
+        "option": "courierkey",
+        "about": "Sends the hovered item home with your pet."
       }
     ]
   }

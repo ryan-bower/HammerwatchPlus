@@ -57,7 +57,10 @@ namespace Modules
 			HWP::Guards::Init();
 			HWP::HoH1::Init();
 			HWP::Market::Init();
+			HWP::ItemActions::Init();
+			HWP::Input::Init();
 			HWP::Config::Init();
+			HWP::GameKeys::Init();
 			HWP::Net::OnRequest(HWP::Core::SETTINGS_PULL, HWP::Net::RequestHandler(HWP::Core::OnPull));
 			HWP::Net::OnEvent(HWP::Core::SETTINGS_SYNC, HWP::Net::EventHandler(HWP::Core::OnSync));
 			HWP::Net::OnRequest(HWP::Builds::REPORT, HWP::Net::RequestHandler(HWP::Builds::OnReport));
@@ -93,11 +96,14 @@ namespace Modules
 
 		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
+			// the bag's item action keys (Drop, Eat, Send home) while the character tab is on top
+			HWP::ItemActions::Poll();
 			// after every mod's self-check has reported (HoH1.as, Packages.as)
 			if (g_inTown && ++m_townTicks == HWP::HoH1::TELL_TICK)
 			{
 				HWP::HoH1::Tell();
 				HWP::Builds::Tell(); // Packages::Tell's list, with each package's update
+				HWP::ItemActions::CheckKeys();
 			}
 			if (g_inTown)
 				HWP::Builds::Update(ms);

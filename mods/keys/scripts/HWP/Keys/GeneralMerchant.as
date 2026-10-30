@@ -359,18 +359,58 @@ class HWPTrinketShopItem : IShopItem
 	Item::Item@ GetItem() { return null; }
 }
 
-// the stock ShopWindow plus the tab row (gui/hwp_merchant.gui)
+// the stock ShopWindow plus the tab row (gui/hwp_merchant.gui). A click on a tab, or the
+// previous / next tab binding (a gamepad's bumpers, MenuPreviousTab / MenuNextTab, as the
+// player menu and the stash use; issue #23), switches it; the bindings show beside the row.
 class HWPMerchantWindow : ShopWindow
 {
 	MenuTabGroupWidget@ m_tabs;
+	BindingDisplayWidget@ m_bindingTabP;
+	BindingDisplayWidget@ m_bindingTabN;
 
 	HWPMerchantWindow(GUIBuilder@ b, AShopContent@ content)
 	{
 		super(b, content, "gui/hwp_merchant.gui");
 		@m_tabs = cast<MenuTabGroupWidget>(m_widget.GetWidgetById("hwp-merchant-tabs"));
+		@m_bindingTabP = cast<BindingDisplayWidget>(m_widget.GetWidgetById("hwp-merchant-tab-p"));
+		@m_bindingTabN = cast<BindingDisplayWidget>(m_widget.GetWidgetById("hwp-merchant-tab-n"));
 		auto merchant = cast<HWPGeneralMerchant>(content);
 		if (m_tabs !is null && merchant !is null)
 			m_tabs.SetChecked(merchant.m_tab == "trinkets" ? 1 : 0);
+	}
+
+	void RefreshKeybinds(ControlMap@ currMap) override
+	{
+		ShopWindow::RefreshKeybinds(currMap);
+		if (m_bindingTabP !is null)
+			m_bindingTabP.SetBinding("MenuPreviousTab");
+		if (m_bindingTabN !is null)
+			m_bindingTabN.SetBinding("MenuNextTab");
+	}
+
+	bool Update(int ms, GameInput& gameInput, MenuInput& menuInput) override
+	{
+		// two tabs: either binding goes to the other one
+		if (menuInput.MenuPreviousTab.Pressed || menuInput.MenuNextTab.Pressed)
+		{
+			auto merchant = cast<HWPGeneralMerchant>(m_shopContent);
+			if (merchant !is null)
+				SetTab(merchant.m_tab == "trinkets" ? "keys" : "trinkets");
+		}
+		return ShopWindow::Update(ms, gameInput, menuInput);
+	}
+
+	void SetTab(const string &in tab)
+	{
+		auto merchant = cast<HWPGeneralMerchant>(m_shopContent);
+		if (merchant is null || merchant.m_tab == tab)
+			return;
+		merchant.m_tab = tab;
+		if (m_tabs !is null)
+			m_tabs.SetChecked(tab == "trinkets" ? 1 : 0);
+		m_manager.CloseTooltip();
+		Refresh();
+		HWP::Log("keys", "merchant tab: " + tab);
 	}
 
 	void Refresh() override
@@ -395,13 +435,7 @@ class HWPMerchantWindow : ShopWindow
 		auto parse = name.split(" ");
 		if (parse.length() == 2 && parse[0] == "hwp-tab")
 		{
-			auto merchant = cast<HWPGeneralMerchant>(m_shopContent);
-			if (merchant !is null && merchant.m_tab != parse[1])
-			{
-				merchant.m_tab = parse[1];
-				m_manager.CloseTooltip();
-				Refresh();
-			}
+			SetTab(parse[1]);
 			return;
 		}
 		ShopWindow::OnFunc(sender, name);

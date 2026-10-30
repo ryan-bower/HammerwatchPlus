@@ -388,12 +388,10 @@ class EquipmentItemWidget : ItemWidgetBase
 					FormatKeyName(GetActionBinding("MenuContext")) + " " + Resources::GetString(".menu.nav.compare"),
 					FormatKeyName(GetActionBinding("MenuAdditional")) + " " + Resources::GetString(".menu.nav.destroy")
 				};
-				if (HWP::DropTrade::Enabled())
-					texts.insertLast(HWP::DropTrade::NavText());   // HammerwatchPlus
-				// HammerwatchPlus: a registered item action (eat a fish, ...)
-				string act = HWP::DropTrade::ActionNavText(cast<Equipment::Equipment>(m_item));
-				if (act != "")
-					texts.insertLast(act);
+				// HammerwatchPlus: the item's actions (hwplib ItemActions: Drop, Eat, Send home)
+				auto acts = HWP::ItemActions::NavTexts(cast<Equipment::Equipment>(m_item));
+				for (uint i = 0; i < acts.length(); i++)
+					texts.insertLast(acts[i]);
 				return texts;
 			}
 
