@@ -1,0 +1,19 @@
+{
+  "id": "freeskills",
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [],
+  "exclude": [],
+  "class_swaps": {
+    "SkillTrainerContent": "HWPSkillTrainerContent"
+  },
+  "config": {
+    "title": "Free skills after a respec",
+    "about": "A respec at the Skill Trainer unlearns the skills a class starts with too; learn them again there for free.",
+    "toggle": "freeskills.enabled",
+    "scope": "local",
+    "applies": "now",
+    "settings": []
+  }
+}

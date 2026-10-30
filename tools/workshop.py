@@ -54,6 +54,7 @@ TERSE = {
     "mmhmm": "some rare and epic hats say \"mm-hmm\" on crits, revives and more.",
     "orbwarn": "the orb picker shows which orbs a pick locks out.",
     "attrclick": "Shift+Click places 20 attribute points at the Attribute Trainer, Ctrl+Click 5.",
+    "freeskills": "a Skill Trainer respec unlearns your starting skills too; learn them again for free.",
     "mapicons": "dye pots marked on the minimap.",
     "groupcombo": "a party combo bonus, and rare combo orbs from boxes and vases.",
     "architect": "every player can pick and pay for Architect alterations; three saved presets.",

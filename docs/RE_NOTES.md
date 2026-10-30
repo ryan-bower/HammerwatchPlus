@@ -7203,3 +7203,63 @@ Tests:
   section was added.
 - plan-generosity PASS 20261030-101332 (every section), mod-all PASS 20261030-102014,
   pytest 241 passed.
+
+## 2026-10-30: free skills after a respec (issue #78, `freeskills`)
+
+Issue: "When respecing at the skill trainer the free skills should not be bought by default
+but the player should be able to buy it for free. includes first vanilla skill".
+
+What the game does:
+
+- **Free skills.** A skill's sval `starting-level` (`PlayerSkillDef.m_startingLevel`) is a
+  level the class gets for free. `PlayerRecord.GetSkillLevel` = pick (`pickedSkills`) + temp +
+  `m_levelBonusStat` + `m_startingLevel`. Every vanilla class starts with its first skill and
+  passive at 1 (Paladin `pal_blessed_strikes` and `pal_armor`; `pal_lay_on_hands` and
+  `pal_conviction` at 0). Every class's dash is at 1 too. The same goes for the HWP classes,
+  every Firearms rank-1 skill (Reload included; an empty clip reloads on its own), and each
+  spec's two skills.
+- **The respec.** It is `WindowSkillTrainer.OnFunc("respec-skills yes")`. It pays
+  `GetRespecCost`, runs `pickedSkills.deleteAll()`, then calls `SyncStatPoints`, `LoadSkills`
+  and `RefreshModifiers`. It sends no message, so in a lobby the other players kept the old
+  levels. `PlayerResetPickedSkills` exists, but only the unused `RefundPickedSkills` effect
+  sends it.
+- **Points.** `GetSkillPointsSpentOnSkills` sums `m_levelSkillCost[j]` for
+  `j = m_startingLevel .. m_startingLevel + pick`. It skips a pick of 0, so a negative pick
+  counts 0. `SkillUp` reads `m_levelSkillCost[m_startingLevel + pick]` and refuses when the
+  free points are fewer.
+- **Saves and sync.** `PlayerRecord.Load` drops a 0 pick and clamps the rest to
+  `0..m_levelParams.length()`, so a saved -1 loads as 0. `NetSyncSkillLevel` takes -1 (it
+  only checks `m_startingLevel + newLevel <= levels`).
+- **The trainer's costs.** `SkillTrainerContent.GetItems` makes level `j == GetSkillLevel`
+  buyable at `m_levelSkillCost[j]`. `WindowSkillTrainer.Draw` draws
+  `PickSkillWidget.GetSkillCost()`, which reads `m_levelSkillCost[m_lvl]` again, not the
+  item's cost.
+
+The fix is a new QoL module, `freeskills`, with a class swap on `npc_skill_trainer.unit` (no
+override):
+
+- **Respec.** After the vanilla respec, each starting skill (not the dash) gets pick
+  `-m_startingLevel`, which is level 0. The respec sends `PlayerResetPickedSkills` and one
+  `PlayerSyncSkillLevel` per skill.
+- **Buy.** `Buy` takes a negative pick up by one itself, with no cost check, then syncs.
+  `GetItems` sets that level's `m_skillCost` 0 and `m_buyable`. `Draw` zeroes the free levels
+  in `m_levelSkillCost` for its own call and puts the costs back after.
+- **Load.** A `PlayerRecordLoad` hook re-reads `picked-skills` and puts back negatives that
+  are no lower than `-m_startingLevel`.
+- **Divine Favor.** The Forgemaster's free Divine Favor (a bonus skill point plus a pick of
+  1) needs no change: the respec takes the pick and leaves the point.
+
+Tests:
+
+- `mod-freeskills`, Paladin: PASS 20261030-141050.
+  - Buy Lay on Hands 1 (17 free, 3 spent), then respec.
+  - Blessed Strikes and Armor are `-1/0` with 20 free.
+  - The trainer logs both at level 1 free, and the after-respec shot shows 0 under both and
+    3 under Lay on Hands and Conviction.
+  - Blessed Strikes is learned at 20 free.
+  - After a save and a restart, Armor is still `-1/0` and is learned free.
+  - Off: the vanilla respec, both `0/1`.
+  - The first run failed only on the scenario's id `pal_shining_knight`; the Armor skill's
+    id is `pal_armor`.
+- `pkgfeat/pf-mod-freeskills` PASS 20261030-141438.
+- `mod-all` PASS 20261030-141412.
