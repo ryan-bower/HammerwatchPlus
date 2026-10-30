@@ -43,6 +43,14 @@ namespace HWP
 			return HWP::Options::KeyName(g_scancode[k]);
 		}
 
+		// at most 4 characters: the HUD slot's key label is 28 pixels wide
+		string ShortName(int k)
+		{
+			if (k < 0 || k >= COUNT)
+				return "";
+			return HWP::Options::ShortKeyName(g_scancode[k]);
+		}
+
 		void RefreshSettings()
 		{
 			for (int k = 0; k < COUNT; k++)
