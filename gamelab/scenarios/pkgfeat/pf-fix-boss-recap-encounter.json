@@ -1,0 +1,57 @@
+{
+ "name": "pf-fix-boss-recap-encounter",
+ "about": "fix-boss-recap-encounter against the built package qol instead of the mods' source folders (tools/make_package_scenarios.py). Issue #33, the snakes boss showed the boss damage recap every time one of its snakes died: a boss fight is now the encounter, not one boss unit. Bandit Keep floor 0: the Bandit Lord and its boss-tagged mirror image (no bar) are both hit, one fight ('joins'); the mirror killed first logs 'down' and no recap (the Lord's bar is up); the Lord's death gives one recap, 'Bandit Lord', 2 units. Then the issue's boss on its own floor (dark_citadel courts_boss, levels/boss_bone_serpent.lvl): the level's BossStart script starts the fight, a serpent is hit (fight 'Serpents of Demise', the bar's name), killing it logs 'down' with the bar still up and no recap; killing the rest and the health unit gives one recap.",
+ "fixture": "mission-ranger",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "fix_recaps",
+   "kwargs": {
+    "sections": "multi"
+   },
+   "name": "bandit lord and mirror, one fight",
+   "expect": {
+    "multi_floor": true,
+    "multi_spawned": true,
+    "multi_one_fight": true,
+    "multi_mirror_down_goes_on": true,
+    "multi_one_recap": true
+   }
+  },
+  {
+   "do": "bot",
+   "bot": "fix_recaps",
+   "kwargs": {
+    "sections": "serpents"
+   },
+   "name": "serpents of demise, one fight",
+   "expect": {
+    "serpent_floor": true,
+    "serpent_start": true,
+    "serpent_up": true,
+    "serpent_fight_started": true,
+    "serpent_one_down_goes_on": true,
+    "serpent_one_recap": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "qol"
+ ]
+}
