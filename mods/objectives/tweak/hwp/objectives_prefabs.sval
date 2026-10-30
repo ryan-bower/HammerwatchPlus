@@ -2,9 +2,13 @@
 <array>
 	<!-- HWP objectives (scripts/HWP/Objectives/Generation.as places these itself with
 	     PlacePrefabAt; the sets are never handed to the vanilla matcher). Bytes are row-major,
-	     one per cell: pattern 07 Walkable / 05 Wall, command 03 ReserveFloor / 02 ReserveWall
-	     (the cell becomes that and is consumed, so the brush paints it and no later command
-	     fills it). The vault is 9x8: a wall ring, a floor interior, the doorway at cells
+	     one per cell: pattern 07 Walkable / 05 Wall, command 06 PlaceFloor / 05 PlaceWall, as
+	     vanilla's rooms that carry no art of their own. Those cells stay consumed through the
+	     generation commands, so nothing else lands on them, and the brush's build turns them
+	     into plain Floor and Wall (CellGrid.ConvertPlaceGrid) before it paints: the floor's
+	     own tiles, spots and trim, and its theme's walls. Not ReserveFloor / ReserveWall: those
+	     stay consumed through the build, which then skips them (no walls, no floor art; issue
+	     #26). The vault is 9x8: a wall ring, a floor interior, the doorway at cells
 	     3,7-4,7 on the south edge (the door unit covers both); grid-pos 0 0 keeps the
 	     prefab origin on the top-left cell's corner. The switches are 3x3 floor patches
 	     with the lever at the centre; they go on existing floor, far from what they open. -->
@@ -16,7 +20,7 @@
 		<ivec2 name="grid-size">9 8</ivec2>
 		<array name="junctions"><a></a><a></a><a></a><a></a></array>
 		<bytes name="grid-pattern">050505050505050505050707070707070705050707070707070705050707070707070705050707070707070705050707070707070705050707070707070705050505070705050505</bytes>
-		<bytes name="grid-command">020202020202020202020303030303030302020303030303030302020303030303030302020303030303030302020303030303030302020303030303030302020202030302020202</bytes>
+		<bytes name="grid-command">050505050505050505050606060606060605050606060606060605050606060606060605050606060606060605050606060606060605050606060606060605050505060605050505</bytes>
 	</dict>
 	<dict>
 		<string name="id">prefabs/hwp/objectives/vault_switch.pfb</string>
@@ -26,7 +30,7 @@
 		<ivec2 name="grid-size">3 3</ivec2>
 		<array name="junctions"><a></a><a></a><a></a><a></a></array>
 		<bytes name="grid-pattern">070707070707070707</bytes>
-		<bytes name="grid-command">030303030303030303</bytes>
+		<bytes name="grid-command">060606060606060606</bytes>
 	</dict>
 	<dict>
 		<string name="id">prefabs/hwp/objectives/exit_switch.pfb</string>
@@ -36,6 +40,6 @@
 		<ivec2 name="grid-size">3 3</ivec2>
 		<array name="junctions"><a></a><a></a><a></a><a></a></array>
 		<bytes name="grid-pattern">070707070707070707</bytes>
-		<bytes name="grid-command">030303030303030303</bytes>
+		<bytes name="grid-command">060606060606060606</bytes>
 	</dict>
 </array>

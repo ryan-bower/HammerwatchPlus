@@ -23,7 +23,7 @@ item to `dist/workshop/`:
 | `gallery/NN-<id>.png` (the All pack only: each published package's card) | the page's additional pictures |
 | `title.txt` | Title |
 | `description.txt` (Steam BBCode: multiplayer and what it needs first, then each module, install, settings, and a link to the All pack) | Description |
-| `changenote.txt` (version, commit, date) | change note, for an update |
+| `changenote.txt` (version, update as the game shows it, date) | change note, for an update |
 
 `dist/workshop/UPLOAD.txt` lists each item as NEW, UPDATE (with its Workshop link) or HOLD,
 based on `workshop.json`.

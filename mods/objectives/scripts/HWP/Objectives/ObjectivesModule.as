@@ -72,6 +72,16 @@ namespace HWP
 		array<HWPObjectiveDoor@> g_doors;
 		array<HWPObjectiveSwitch@> g_switches;
 
+		// The Architect alteration "Marked Switches" (tweak/hwp/objectives_architect.sval):
+		// the levers show on the map. Without it they don't (issue #26); the vault door does.
+		const string MARKED = "hwp_objectives_marked_switches";
+
+		bool SwitchesMarked()
+		{
+			auto gm = cast<HWR2GameMode>(g_gameMode);
+			return gm !is null && gm.HasArchitectBuff(MARKED);
+		}
+
 		void RefreshSettings()
 		{
 			g_enabled = HWP::Settings::GetBool("objectives.enabled", true);
@@ -527,6 +537,12 @@ namespace HWP
 			}
 			if (g_exitPresent)
 				HWP::Commands::Reply("exit switch: " + int(g_exitSwitch.x) + "," + int(g_exitSwitch.y) + (g_exitOpen ? ", pressed" : ", not yet"));
+			int icons = 0;
+			for (uint i = 0; i < g_switches.length(); i++)
+				if (g_switches[i].m_scene == "marked")
+					icons++;
+			HWP::Commands::Reply("switch units: " + g_switches.length() + ", on the map: " + icons
+				+ (SwitchesMarked() ? " (Marked Switches picked)" : " (Marked Switches not picked)"));
 			HWP::Log("objectives", "status: " + Status());
 		}
 

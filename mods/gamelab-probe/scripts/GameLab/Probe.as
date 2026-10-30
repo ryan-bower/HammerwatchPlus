@@ -282,6 +282,47 @@ namespace GameLab
 		Emit(Reply(id, true).Raw("mods", RawArray(items)));
 	}
 
+	// controls [mapId] [max]: a control map's live bindings (default kbm, at most 80) and the
+	// engine's action list. key/key2 are BoundKey/BoundKey2; sc is the binding's id resolved
+	// back through Platform::ResolveInputKey, so a scenario can see whether they agree
+	void VerbControls(const string &in id, array<string>@ args)
+	{
+		string mapId = args.length() > 0 ? args[0] : "kbm";
+		int cap = args.length() > 1 ? parseInt(args[1]) : 80;
+		if (cap <= 0)
+			cap = 80;
+		auto cb = GetControlBindings();
+		if (cb is null)
+		{
+			Fail(id, "no control bindings");
+			return;
+		}
+		auto map = cb.GetMap(mapId);
+		if (map is null)
+		{
+			Fail(id, "no control map " + mapId);
+			return;
+		}
+		auto binds = map.GetBindings();
+		array<string> items;
+		for (uint i = 0; i < binds.length() && int(i) < cap; i++)
+		{
+			auto b = binds[i];
+			ControllerType resolved;
+			int sc = Platform::ResolveInputKey(b.ID, resolved);
+			Json j;
+			j.Str("id", b.ID).Str("action", b.Action).Int("axis", int(b.SetAxis))
+				.Int("type", int(b.BoundControlType)).Int("key", int64(b.BoundKey))
+				.Int("type2", int(b.BoundControlType2)).Int("key2", int64(b.BoundKey2))
+				.Int("sc", sc).Int("scType", int(resolved));
+			items.insertLast(j.Close());
+		}
+		auto actions = cb.GetAvailableActions();
+		Emit(Reply(id, true).Str("map", mapId).Int("total", binds.length())
+			.Bool("truncated", int(binds.length()) > cap).Raw("bindings", RawArray(items))
+			.Raw("actions", StrArray(actions)));
+	}
+
 	// open windows, bottom to top, by script class
 	void VerbUi(const string &in id, array<string>@ args)
 	{
@@ -1401,6 +1442,7 @@ namespace GameLab
 		RegisterVerb("state", "", Verb(VerbState));
 		RegisterVerb("mods", "", Verb(VerbMods));
 		RegisterVerb("ui", "", Verb(VerbUi));
+		RegisterVerb("controls", "[mapId] [max]", Verb(VerbControls));
 		RegisterVerb("overlays", "", Verb(VerbOverlays));
 		RegisterVerb("buildings", "", Verb(VerbBuildings));
 		RegisterVerb("clock", "", Verb(VerbClock));
