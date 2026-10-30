@@ -7203,3 +7203,64 @@ Tests:
   section was added.
 - plan-generosity PASS 20261030-101332 (every section), mod-all PASS 20261030-102014,
   pytest 241 passed.
+
+## 2026-10-30: one click, one reel; a window that covers the marker's way (issue #72, fishing)
+
+The issue: since #32 (several hits per bite), "you never have time to hit the second check".
+
+- **The cause: a click on Reel reeled twice.**
+  - mouse_left is MenuForward (`res/controls_default.cfg:31`; Return is MenuForward and
+    MenuAccept).
+  - `HWPFishingMenu.Update` reeled on `menuInput.Forward.Pressed`.
+  - The same click also reaches the hovered Reel button through `AWindowObject::Update`
+    (`GUI/WindowObject.as`: ClickDown on the press, ClickUp on the release).
+    `ScalableSpriteButtonWidget` fires its func on ClickUp, so `OnFunc("cast")` reeled a
+    second time on the release.
+  - With one hit per fish (before #32) the second reel happened in the RESULT state. There
+    it was a new cast, which went unnoticed.
+  - Since #32, the first reel scores the hit, `Fight()` moves the zone at least 24 px clear of
+    the marker, and the release's reel is a miss: "It fought free and got away", on every
+    multi-hit fish, every time.
+  - GameLab never saw it. `sweepclick` calls the button's ClickDown/ClickUp directly, without
+    a MenuForward press, so only the func path ran.
+- **The fix:** `m_pressReeled`. The press reels in Update (the hit is judged at the press,
+  not the release), and the func skips a click whose press already reeled. That covers both
+  the second reel and the recast after a landing. The flag clears once Forward isn't down;
+  the release's func runs earlier in the same frame, inside `AWindowObject::Update`.
+- **The window, the issue's own words:** the bite window was a flat 2.5 s per check. After a
+  fight hit the new zone is often behind the marker.
+  - Worked out over every hit position, the marker needs up to 1.8 s (Driftwood rod, 1-star)
+    and up to 2.2 s (Captain's rod: better rods slow the marker by 10% each) to get there.
+    That left 0.3 to 0.7 s to react.
+  - Now `WindowMs()` = max(2500, `ReachMs()` + `REACT_MS` 1500), where `ReachPx` is the exact
+    bounce path from the marker's position and direction to the zone's overlap range. It
+    applies to the bite and to every fight.
+  - The hit log line adds `reach R ms, window W ms`.
+- **Too slow** now has its own text ("Too slow: it got away." / "... fought free and got
+  away."). Before, a timeout read the same as a miss, which is why the bug read as "out of
+  time".
+- **Debug** (with `fishing.debug 1`):
+  - `hwp fishing zone <px>` sets the zone's width; 240 makes every reel a hit, so a click's
+    reels can be counted.
+  - `hwp fishing fight worst|random`: worst puts the bite's zone at the far end and each
+    fight's zone where the marker gets last.
+  - The coast cast now logs `cast (coast)` (or `cast (run)`).
+
+Tests: new section `reel_press` (plan_fishing) and scenario `fix-fishing-reel-press`.
+
+- It clicks with `gl pointer <px> <py> click`, which writes MousePos and MenuInput.Forward
+  the way the mouse does (`HandsUi.as`).
+- Return didn't work as a stand-in: it is also MenuAccept, and pressing it closed the
+  fishing window (lab 20261030-133715).
+- Before the fix (lab 20261030-133911), one click in the bite gave
+  `['hit 1 of 2', 'landed at hit 2 of 2']`, and the next click cast again.
+- After the fix: PASS 20261030-134241.
+  - Cast: 1.
+  - The first click in the bite: `['hit 1 of 2']`.
+  - The second click: `['landed at hit 2 of 2']`, no cast, "Caught: Perch (1 star)!".
+  - A bite left alone: `too slow at hit 1 of 2` and "Too slow: it got away."
+  - Captain's rod, worst zones: reach 1121 ms, window 2621 ms (over the old 2500), landed.
+- pf-fix-fishing-reel-press PASS 20261030-135241.
+- Every other fishing scenario passes: fix-fishing-reel-hits, -smooth, -keys,
+  -personal-loot, -starter-rod, mod-fishing and mod-fishing-spots (20261030-1343 to -1352).
+- mod-all PASS 20261030-135331, pytest 245 passed, `build.py --check` OK.

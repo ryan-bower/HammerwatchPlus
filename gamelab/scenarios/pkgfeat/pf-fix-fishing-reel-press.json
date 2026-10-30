@@ -1,0 +1,42 @@
+{
+ "name": "pf-fix-fishing-reel-press",
+ "about": "fix-fishing-reel-press against the built packages keys, town instead of the mods' source folders (tools/make_package_scenarios.py). Issue #72: the second fishing check could never be hit. One MenuForward press (a mouse click on Reel, or Return with the cursor over it) reeled twice: on the press in the window's Update and on the release through the button's func, so the second check was missed at once (\"fought free\") and a landing press cast again. With a whole-bar zone (hwp fishing zone 240, every reel a hit) and the cursor pinned over Reel, Return casts once, the first press in the bite is hit 1 of 2 alone and the second lands it without a new cast. A bite left alone ends \"too slow\" with its own text. With the slowest marker (Captain's rod, a 1-star fish) and each fight's zone where the marker gets last (hwp fishing fight worst) the window covers the marker's way plus 1.5 s and the fish lands.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "plan_fishing",
+   "kwargs": {
+    "sections": "reel_press"
+   },
+   "name": "one press, one reel",
+   "expect": {
+    "press_window": true,
+    "press_casts": true,
+    "press_one_reel": true,
+    "press_lands_no_recast": true,
+    "press_too_slow_said": true,
+    "press_window_covers_reach": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)(-gamelab)?\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "keys",
+  "town"
+ ]
+}
