@@ -11,7 +11,7 @@ verdict. Purpose: claims about the game are measured on the pinned build and cit
 run dir, never assumed.
 
 This is a committed workflow for any agent, not a Claude-only API. First read the
-[canonical agent rules](../../../AGENTS.md), [GameLab quickstart](../../../gamelab/README.md),
+[project rules](../../../CLAUDE.md), [GameLab quickstart](../../../gamelab/README.md),
 and [regression guide](../../../docs/qa/REGRESSIONS.md). They provide the portable
 entry point, current evidence index, test selection, and known prerequisite failures.
 Use this skill for the detailed scenario and engine-command reference.

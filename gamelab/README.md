@@ -4,7 +4,7 @@ GameLab is a Windows CLI harness for testing mods against the installed HoH2 gam
 Scenarios are JSON, bots are Python, and verdicts/measurements are JSON or JSONL.
 An agent with filesystem and process access can use it without this chat history.
 
-Read [AGENTS.md](../AGENTS.md) first. This is the short operational guide; the
+Read [CLAUDE.md](../CLAUDE.md) first. This is the short operational guide; the
 [detailed skill](../.claude/skills/gamelab/SKILL.md) documents scenario steps,
 fixtures, bot authoring and troubleshooting.
 

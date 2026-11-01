@@ -575,7 +575,7 @@ The later Priest Forgemaster work is outside those original matrix counts.
 These counts do not establish complete mechanics, UI, interactions or ordinary
 run lifecycle coverage. Five orb-quality cases require real co-op.
 
-Agents and contributors: start with [AGENTS.md](AGENTS.md), the
+Agents and contributors: start with [CLAUDE.md](CLAUDE.md), the
 [GameLab quickstart](gamelab/README.md), and the
 [regression/known-failure map](docs/qa/REGRESSIONS.md). Deferred QA drafts are
 [committed for fresh-clone recovery](docs/qa/deferred/README.md), still unapplied.
