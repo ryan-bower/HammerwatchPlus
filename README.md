@@ -1,35 +1,67 @@
-# HammerwatchPlus
+<h1 align="center">HammerwatchPlus</h1>
 
-Co-op mods for **Heroes of Hammerwatch II**: a new class, the Heroes of Hammerwatch 1 classes and
-campaign, new dungeon finds, fishing and farming, and co-op fixes.
+<p align="center"><em>Co-op mods for Heroes of Hammerwatch II: a new class, a new campaign, more to find, all optional</em></p>
 
-**Documentation:** [docs](docs/README.md) · **Features:** [docs/features.md](docs/features.md) ·
-**Status:** [docs/status.md](docs/status.md)
+<p align="center">
+<a href="https://github.com/ryan-bower/HammerwatchPlus/actions/workflows/test.yml"><img src="https://github.com/ryan-bower/HammerwatchPlus/actions/workflows/test.yml/badge.svg" alt="Test"></a>
+<img src="https://img.shields.io/badge/python-3.14%2B-blue" alt="Python 3.14+">
+<img src="https://img.shields.io/badge/license-MIT-green" alt="MIT">
+</p>
 
-## Packages
+---
 
-Twelve packages, each working alone, plus `HammerwatchPlus-All`:
-Quality of Life · Co-op Play · Auto Aim · Firearms Specialist · Fourth Specializations ·
-HoH1 Classes · Keys and Ace Chests · The Forsaken Tower · Challenge Modes ·
-Dungeon Loot and Encounters · Town Life · Pets.
+**Documentation**: [docs/](docs/README.md)
 
-Every module can be switched off in game, on the player menu's **Plus** tab.
+**Source Code**: [github.com/ryan-bower/HammerwatchPlus](https://github.com/ryan-bower/HammerwatchPlus)
 
-## Install
+---
 
-Double-click `run.cmd`. It builds every package, deploys it and starts the game through Steam.
-More in [docs/install.md](docs/install.md).
+HammerwatchPlus is a set of twelve mod packages for Heroes of Hammerwatch II. Each works alone or
+with the others.
 
-## Develop
+The key features are:
 
+- **New classes**: the Firearms Specialist, and a fourth specialization for eight vanilla classes.
+- **The Forsaken Tower**: the HoH1 campaign, with keys, ace chests, legendaries and pets.
+- **More dungeon**: puzzles, objectives, strongboxes, affixes, new weapons and trinkets.
+- **Town life**: fishing, farming, a gambler, roulette and a tavern.
+- **Co-op fixes**: group combos, shared drops, party exits, and quality-of-life helpers.
+- **All optional**: every module switches off in game, on the player menu's **Plus** tab.
+
+The full list is in [Features](docs/features.md).
+
+## Requirements
+
+- Windows, with Steam and Heroes of Hammerwatch II.
+- [uv](https://docs.astral.sh/uv/), which brings Python 3.14.
+- Optional: Heroes of Hammerwatch 1, for its original art and pets.
+
+## Installation
+
+There is no Workshop release yet. Build and launch from source:
+
+```console
+$ git clone https://github.com/ryan-bower/HammerwatchPlus
+$ cd HammerwatchPlus
+$ run.cmd
 ```
-uv sync
-uv run python -m gamelab doctor --fix
-uv run python scripts/test.py
+
+`run.cmd` builds every package, starts the game in a new profile with them enabled, and backs up
+your saves first. More in [Installing](docs/install.md).
+
+## Example
+
+In game, open the console (the key left of 1):
+
+```console
+hwp help                      # every command and setting
+hwp set salvage.yield 150     # salvaged gear gives 150% materials
 ```
+
+## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-MIT. Game assets belong to Crackshell.
+This project is licensed under the terms of the MIT license. Game assets belong to Crackshell.
