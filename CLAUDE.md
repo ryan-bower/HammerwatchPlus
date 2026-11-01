@@ -43,7 +43,7 @@ that boots the real game to test them. Current status is in `docs/status.md`.
 - Class planner: `planner/` (`python -m planner`), records in `planner/data/<collection>/<id>.json`.
 - Tools: `tools/` top level is build, deploy, saves and release; `tools/generate/` the `make_*`
   content generators; `tools/hoh1/` the HoH1 importer; `tools/art/` art pickers and fonts.
-- Docs index: `docs/README.md`. Module rows for players: `docs/features.md`.
+- Docs index: `docs/README.md`. What each module does: `mods/README.md`.
 
 ## Before you finish
 - `python scripts/test.py` (pytest, the verb list and the settings config; CI runs the same).

@@ -1,7 +1,8 @@
 # Documentation
 
 ## Players
-- [Features](features.md): every package and module, and the in-game settings page.
+- [Features](features.md): the packages and the in-game settings page.
+- [Mods](../mods/README.md): what each module does.
 - [Installing](install.md): build, deploy and launch with `run.cmd`; sharing packages by hand.
 
 ## Mod authors

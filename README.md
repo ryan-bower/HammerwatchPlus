@@ -29,7 +29,7 @@ The key features are:
 - **Co-op fixes**: group combos, shared drops, party exits, and quality-of-life helpers.
 - **All optional**: every module switches off in game, on the player menu's **Plus** tab.
 
-The full list is in [Features](docs/features.md).
+Every module: [mods/README.md](mods/README.md).
 
 ## Requirements
 
