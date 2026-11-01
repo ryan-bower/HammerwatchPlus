@@ -107,6 +107,7 @@ class RunPlan(unittest.TestCase):
 
     def test_failed_save_backup_never_creates_a_profile(self):
         with mock.patch.object(run.saves, "confirmation_problems", return_value=[]), \
+                mock.patch.object(run.env, "workshop_ids", return_value=set()), \
                 mock.patch.object(run.pin_build, "mismatch", return_value=[]), \
                 mock.patch.object(run.saves, "backup", return_value=4), \
                 mock.patch.object(run.play_profile, "create") as create:
