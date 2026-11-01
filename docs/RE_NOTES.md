@@ -7488,3 +7488,12 @@ Tests:
 - The merge of #66 and #91 needed the Quality of Life count in `workshop_art.py` at 18, and #62
   left `docs/generated/verbs.md` stale (regenerated).
 
+
+## 2026-10-31: the console key is fixed and always on (source review, no game run)
+- Not a binding: no console action in `res/controls_default.cfg`, `HWR2.exe.cfg`, the Controls
+  menu (`scripts/GUI/Options/Controls.as`, `gui/options/controls.gui`) or any options GUI. The
+  key is in the engine (HWR2.exe has a key-name table with "grave"; code not traced).
+- No enable switch: GameLab's lab cfg (`gamelab/env/settings/lab/HWR2.exe.cfg`) sets only
+  graphics, sound, window and intro cvars, and every lab run opens the console with VK 0xC0
+  (the backtick key on US layouts). `hwp` commands are not cheats.
+- Unmeasured: whether the engine reads the key by position or by character on non-US layouts.
