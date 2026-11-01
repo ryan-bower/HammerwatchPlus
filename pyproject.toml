@@ -28,5 +28,5 @@ line-length = 120
 extend-exclude = ["gamecode", "docs/community", "hoh1_import"]
 
 [tool.ruff.lint]
-# real bugs only: syntax errors, undefined names, unused imports and variables
+# syntax errors and undefined names (real bugs), plus unused imports and variables
 select = ["E9", "F63", "F7", "F82", "F401", "F841"]

@@ -3,13 +3,13 @@
 ## Players
 - [Features](features.md): every package and module, and the in-game settings page.
 - [Installing](install.md): build, deploy and launch with `run.cmd`; sharing packages by hand.
-- [Status](status.md): what changed lately, and the QA checkpoints.
 
 ## Mod authors
 - [Module conventions](modules.md): the layout of `mods/<id>/`, packages, settings.
 - [Script hooks](hooks.md): every `Hooks::Call` site in the base game.
 - [Mechanics](MECHANICS.md): how the game works, with every claim cited.
 - [Modding notes](MODDING_NOTES.md): the mod stack, log paths, the modding ecosystem.
+- [Status](status.md): what changed lately, and the QA checkpoints.
 - [RE notes](RE_NOTES.md): the dated reverse-engineering log behind every change.
 - [Design](design/): [Firearms Specialist](design/firearms.md), [Luck](design/luck.md).
 - [Generated](generated/): [settings](generated/settings.md), [GameLab verbs](generated/verbs.md), QA inventories.
@@ -25,4 +25,4 @@
 - [Dev Arena](devarena/SPEC.md): the spec-tuning build.
 
 ## Other
-- [Sources](SOURCES.md): the mirrored community docs. [TODO](TODO.md). [Ryan's morning notes](ryan/MORNING.md).
+- [Sources](SOURCES.md): the mirrored community docs.

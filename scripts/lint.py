@@ -1,4 +1,4 @@
-"""Lint the Python with ruff (rules in pyproject.toml: real bugs only).
+"""Lint the Python with ruff (pyproject.toml: syntax errors, undefined names, unused imports and variables).
 
     python scripts/lint.py [--fix]
 """

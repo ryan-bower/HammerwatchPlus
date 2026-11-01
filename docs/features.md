@@ -1,12 +1,12 @@
 # Features
 
-A modular co-op mod for **Heroes of Hammerwatch II**: a new class (the Firearms Specialist)
-and the three HoH1 classes HoH2 lacks, Heroes of Hammerwatch 1 content (the Forsaken Tower
+A modular co-op mod for **Heroes of Hammerwatch II**: a new class (the Firearms Specialist),
+Heroes of Hammerwatch 1 content (the Forsaken Tower
 campaign, keys and ace chests, legendaries, mercenaries, titles, pets), new things to find in
 the dungeons, fishing and farming in town, and co-op and quality-of-life fixes.
 
-The modules ship as twelve Steam Workshop packages, each of which works alone, plus an
-all-in-one pack (`packages.json`; `docs/modules.md`, Packages):
+The modules ship as twelve packages, each of which works alone, plus an all-in-one pack. Eleven
+are on the Steam Workshop; The Forsaken Tower is local-build only.
 
 | Package | Modules |
 |---|---|
@@ -24,10 +24,7 @@ all-in-one pack (`packages.json`; `docs/modules.md`, Packages):
 | `HWP-pets` Pets | pets (and petrooms, shared with Quality of Life) |
 | `HammerwatchPlus-All` | every package |
 
-There is no core mod to install. The shared code is a library (`mods/hwplib`, and the parts
-`hwplib-luck` and `hwplib-classui`) that every package carries its own copy of; the game keeps
-one copy of each file, so packages work alone and together. Everyone in a lobby should run the
-same version of the same packages.
+Packages work alone or together. Everyone in a lobby needs the same packages.
 
 Every module can be turned off, and its settings changed, in game: open the player menu (inventory)
 and go to the **Plus** tab. Key binds and the projectile colours (accessibility) are at the top;
@@ -36,9 +33,7 @@ and its settings (2x valuables back to vanilla, fishing off, and so on). The sea
 finds any setting by a few letters of its name, value or description. Settings that change the game
 for everyone are the host's in a lobby. The full list is generated in
 [docs/generated/settings.md](generated/settings.md); `hwp set <key> <value>` sets any of them
-from the console. Two lab scenarios check the page: `mod-settings-sweep` clicks every row with
-every module loaded, and `mod-settings-off` turns each module off and on again and checks what it
-does in game. The HoH1 classes' switch has no effect while those classes are parked.
+from the console.
 
 ## Modules
 
@@ -47,8 +42,8 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | Module | What it does |
 |---|---|
 | `firearms` | The **Firearms Specialist**, a new class. Guns fire from a clip that counts down per shot and reloads (automatically at 0, or with the Reload skill, which a dodge cancels; the reload bar sits over the player); mana pays for gadgets. Rounds leave the gun for the point under the cursor, so diagonal shots land on the crosshair, and the gun model changes pose as you idle, fire, reload or use a gadget. A rifle (30 rounds, 3-round bursts; the Grenade Launching Rifle has an under-barrel grenade launcher, the Flamethrower Rifle a mana-fed flamethrower held on right click, the Full Auto Rifle a wild full-auto spray) or pistols, one or two (10 rounds each, 20 dual), or Hand Cannons (half a pistol's rate, 1.5 times its damage, 6 rounds; with a pistol, a pistol-cannon-pistol burst). Base kit: Reload and Frag Grenade, whose orbs give Explosive Reload, Over-Reload's timed perfect reload, and Stun, Incendiary or Gas grenades. Four specializations, each with orbs: **Marksman** (Snipe, whose aim time shortens per rank and whose Recoil Roll orb dashes you back along the shot; Critical Aim), **Demolitionist** (Rocket Launcher, Ordinance Hoarder), **Assault** (Double Barrel Burst, Adrenaline) and **Engineer** (Deploy Turret, My Turret!). New characters start with a Service Pistol. Details: `mods/firearms/README.md`; design: `docs/design/firearms.md`. |
-| `specs` | A **4th specialization** for eight vanilla classes, one active and one passive each, with orbs: **Deadeye** Ranger (Lightning Arrow, Gathering Winds), **Aerotheurge** Wizard (Thunder Orb, Static Charge), **Arcane** Sorcerer (Blink, which crosses ledges and stairs; Living Mana, one pooled blue bar for health and mana), **Winddancer** Rogue (Protective Gale, Second Wind), **Bannerlord** Warrior (Battlefield Standard, Righteous Crusade), **Branding** Warlock (Pyrebrand, Essence Extraction) and the **Devil Forgemaster** Priest (Necrotic Resurrection, Call of Heresy: raise the enemies that fall with their body intact, bosses included, as summons that keep their own skills and run with you; the raise and Sacrificial Penance channels lock you in place with a beam; braziers and pyres burn off Heresy) and the **Generosity** Paladin (Pelor's Fury, Pelor's Blessing: Lay on Hands, Blessed Strike kills and Conviction build up to 10 stacks that strengthen all three; at 10 (3 against an elite, which spends only those 3) the Fury holds any one enemy, bosses included, in beams of light: stunned, its casts cut, armor and resistances 0, taking more damage; a Fury that can't take hold spends nothing; a party member's death takes 5 stacks; crops grow twice as fast and wild plots turn up twice as often while a Paladin of Generosity is in the party). Icons and sounds are the user's picks (`art/specs/`). The Forgemaster's risen and body units are generated from the base game by `tools/generate/make_forgemaster_risen.py` (gitignored; `doctor --fix` makes them). |
-| `classes` | The HoH1 classes HoH2 lacks: **Thief**, **Gladiator** and **Witch Hunter**, three masteries each. The Thief's extra actives cast on core's Skill 4 key. The real HoH1 art comes from your own HoH1 install (`tools/hoh1/import_hoh1.py classes`). |
+| `specs` | A **4th specialization** for eight vanilla classes, one active and one passive each, with orbs: **Deadeye** Ranger (Lightning Arrow, Gathering Winds), **Aerotheurge** Wizard (Thunder Orb, Static Charge), **Arcane** Sorcerer (Blink, which crosses ledges and stairs; Living Mana, one pooled blue bar for health and mana), **Winddancer** Rogue (Protective Gale, Second Wind), **Bannerlord** Warrior (Battlefield Standard, Righteous Crusade), **Branding** Warlock (Pyrebrand, Essence Extraction) and the **Devil Forgemaster** Priest (Necrotic Resurrection, Call of Heresy: raise the enemies that fall with their body intact, bosses included, as summons that keep their own skills and run with you; the raise and Sacrificial Penance channels lock you in place with a beam; braziers and pyres burn off Heresy) and the **Generosity** Paladin (Pelor's Fury, Pelor's Blessing: Lay on Hands, Blessed Strike kills and Conviction build up to 10 stacks that strengthen all three; at 10 (3 against an elite, which spends only those 3) the Fury holds any one enemy, bosses included, in beams of light: stunned, its casts cut, armor and resistances 0, taking more damage; a Fury that can't take hold spends nothing; a party member's death takes 5 stacks; crops grow twice as fast and wild plots turn up twice as often while a Paladin of Generosity is in the party). Icons and sounds are the user's picks (`art/specs/`). |
+| `classes` | **Parked: not selectable yet.** The HoH1 classes HoH2 lacks: **Thief**, **Gladiator** and **Witch Hunter**, three masteries each. The Thief's extra actives cast on core's Skill 4 key. The real HoH1 art comes from your own HoH1 install. |
 | `weapons` | Twelve new endgame weapons (ilvl 35, four per slot) with new modifier profiles on vanilla visuals and attacks. |
 | `weaponswap` | A second weapon set on a hotkey (default X) or a controller button (default D-pad left): a 2 s channel standing still, cancelled by a dodge or a second press. |
 | `autoaim` | Auto aim for the skills you aim with a reticle (Marked Shot, Leap, Firewall): it snaps to a nearby enemy in your aim cone and can fire by itself, and ready AOE skills can cast themselves when your mana allows. On for controllers by default, an option for mouse play; settings on the character menu's Plus tab (a remake of kearneyTim's controller auto aim). |
@@ -59,7 +54,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 
 | Module | What it does |
 |---|---|
-| `campaign` | **The Forsaken Tower**: the HoH1 campaign (Mines to Battlements, 18 floors, 6 bosses), started from a portal in town. NG+ swaps in HoH1's NG+ bosses and enemies. With HoH1 installed, the portal offers HoH1's own tower instead (`tools/hoh1/import_hoh1.py campaign`): all 23 floors as HoH1 has them, the act floors built by HoH1's own floor generator, HoH1's boss rooms, level scripts and texts, for HoH2's classes; the Dark Citadel gains two Dark Halls and the two Battlements floors. HoH1's traps (spike, pressure, poison, frost, drain and confusion plates, flame jets, five kinds of glyph, wall shooters, arrow turrets, flame gargoyles, stalactites, falling bricks and bear traps, each with a warning first and picked by the floor's theme) and one teleporter pad per floor appear on generated floors, and the Dark Halls eyes confuse again. |
+| `campaign` | **The Forsaken Tower**: the HoH1 campaign (Mines to Battlements, 18 floors, 6 bosses), started from a portal in town. NG+ swaps in HoH1's NG+ bosses and enemies. With HoH1 installed, the portal offers HoH1's own tower instead: all 23 floors as HoH1 has them, the act floors built by HoH1's own floor generator, HoH1's boss rooms, level scripts and texts, for HoH2's classes; the Dark Citadel gains two Dark Halls and the two Battlements floors. HoH1's traps (spike, pressure, poison, frost, drain and confusion plates, flame jets, five kinds of glyph, wall shooters, arrow turrets, flame gargoyles, stalactites, falling bricks and bear traps, each with a warning first and picked by the floor's theme) and one teleporter pad per floor appear on generated floors, and the Dark Halls eyes confuse again. |
 | `keys` | HoH1-style keys: every chest but the cursed ones needs a key of its tier. Keys drop in runs (a party can share a key pool), and the exit guard's General Merchant sells keys, bag slots and six trinkets to take into your next run. Also ace chests (opened with the red skull ace key), seven red legendaries, and a banner for everyone when a chest turns out to be trapped. Trinket, cursed and ace chests look grander the deeper the run goes, with unused chest art from the game's own sprite sheet. |
 | `mercenary` | HoH1's mercenary mode: once a class has a level-20 hero, a fresh character of it can enlist (`hwp merc enlist`), climb the ranks from Private to General for more gold and experience, and die for good. |
 | `legacy` | HoH1-style class titles: your best hero of each class buffs every character. One "Title Bonuses" buff lists them, and Guild Hall > Titles shows every class. |
@@ -116,13 +111,3 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | `hwplib-classui` | The library part the class packages carry (Firearms, Specs, Classes): the create-character class list that fits more classes and leaves parked ones out, and the Subclass Picker's skill row by skill type. |
 
 Each module's full spec and test checklist is in `mods/<id>/README.md`.
-
-`mods/gamelab-*` are GameLab test harnesses, not player content. `build.py` never packs
-them; they are only linked into the GameLab environment.
-
-| Harness | What it does |
-|---|---|
-| `gamelab-probe` | The `gl` console command channel, read-only state probes, heartbeat. |
-| `gamelab-hands` | Action verbs for the `gl` channel (start a mission floor, ...). Requires probe. |
-| `gamelab-pilot` | Bot API for the Pilot. Requires probe and hands. |
-| `gamelab-reload` | Logs a mark from its constructor, so the `reload-mark` scenario can tell whether an edited script was picked up without a restart. |

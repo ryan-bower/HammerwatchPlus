@@ -46,7 +46,7 @@ that boots the real game to test them. Current status is in `docs/status.md`.
 - Docs index: `docs/README.md`. Module rows for players: `docs/features.md`.
 
 ## Before you finish
-- `python scripts/test.py` (all offline tests and generated-file checks; CI runs the same).
-- If you added or changed a verb: `python tools/list_verbs.py`, then `python tools/list_verbs.py --check`.
+- `python scripts/test.py` (pytest, the verb list and the settings config; CI runs the same).
+- If you added or changed a verb, run `python tools/list_verbs.py` first.
 - Add a dated entry to `docs/status.md` and the notes to `docs/RE_NOTES.md`. Keep the current
   checkpoint separate from history, and state unfinished work plainly.

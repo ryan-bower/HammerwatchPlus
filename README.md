@@ -21,7 +21,8 @@ with the others.
 
 The key features are:
 
-- **New classes**: the Firearms Specialist, and a fourth specialization for eight vanilla classes.
+- **A new class and new specs**: the Firearms Specialist, and a fourth specialization for eight
+  vanilla classes.
 - **The Forsaken Tower**: the HoH1 campaign, with keys, ace chests, legendaries and pets.
 - **More dungeon**: puzzles, objectives, strongboxes, affixes, new weapons and trinkets.
 - **Town life**: fishing, farming, a gambler, roulette and a tavern.
@@ -47,7 +48,8 @@ $ run.cmd
 ```
 
 `run.cmd` builds every package, starts the game in a new profile with them enabled, and backs up
-your saves first. More in [Installing](docs/install.md).
+your saves first. The first run also sets up the game files, which takes a few minutes. More in
+[Installing](docs/install.md).
 
 ## Example
 
@@ -55,8 +57,10 @@ In game, open the console (the key left of 1):
 
 ```console
 hwp help                      # every command and setting
-hwp set salvage.yield 150     # salvaged gear gives 150% materials
+hwp set salvage.yield 200     # salvaged gear gives double materials
 ```
+
+Salvage a Rare item-level 20 sword, and the confirm now offers 6 Dust instead of 3.
 
 ## Contributing
 

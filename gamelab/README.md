@@ -126,3 +126,15 @@ Follow the detailed skill's authoring instructions and the generated
 [verb reference](../docs/generated/verbs.md). Regenerate it with
 `uv run python tools/list_verbs.py` when registrations change. Hand off the exact
 reproduction, source, evidence and limits, and update docs/status.md and RE_NOTES.
+
+## Harness mods
+
+`mods/gamelab-*` are GameLab test harnesses, not player content. `build.py` never packs
+them; they are only linked into the GameLab environment.
+
+| Harness | What it does |
+|---|---|
+| `gamelab-probe` | The `gl` console command channel, read-only state probes, heartbeat. |
+| `gamelab-hands` | Action verbs for the `gl` channel (start a mission floor, ...). Requires probe. |
+| `gamelab-pilot` | Bot API for the Pilot. Requires probe and hands. |
+| `gamelab-reload` | Logs a mark from its constructor, so the `reload-mark` scenario can tell whether an edited script was picked up without a restart. |
