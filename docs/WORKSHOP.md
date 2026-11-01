@@ -32,7 +32,7 @@ The texts come from the repo, so fix them there, not in the kit:
 
 - Each module's line is `TERSE` in `tools/workshop.py`: a few words a player needs, or a
   short list for a one-module package (the Firearms kit, the eight specs). Keep it in step
-  with the module's README row.
+  with the module's row in docs/features.md.
 - The All pack's line for a one-module package is `ONE_LINE`.
 - What needs a DLC is `DLC` (today only the Priest's 4th specialization, the Devil
   Forgemaster: Celestial Ruins). The page's Requires line and its install steps say "only if
@@ -41,7 +41,7 @@ The texts come from the repo, so fix them there, not in the kit:
   string, the same text the game shows the player (`QUIET_STANDINS` leaves out the ones whose
   line never claims the HoH1 content).
 
-`python tools/workshop.py --check` (also in the test suite) fails when a module has no README
+`python tools/workshop.py --check` (also in the test suite) fails when a module has no docs/features.md
 row or `TERSE` line, an item has no `workshop.json` entry, or a page names a repo path.
 
 ## 2. Publish

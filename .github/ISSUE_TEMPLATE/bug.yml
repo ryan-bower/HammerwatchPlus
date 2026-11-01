@@ -1,0 +1,27 @@
+name: Bug
+description: Something in a HammerwatchPlus module is broken
+body:
+  - type: input
+    id: module
+    attributes:
+      label: Package or module
+      placeholder: e.g. Town Life / fishing
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to make it happen
+      description: Class, solo or co-op (host or client), where in the game.
+  - type: textarea
+    id: log
+    attributes:
+      label: Log lines
+      description: Any `[HWP:...]` or script error lines from the game log (docs/MODDING_NOTES.md has the path).
+      render: text

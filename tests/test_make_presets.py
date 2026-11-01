@@ -23,12 +23,14 @@ def presets():
     return mp.all_presets()
 
 
+@pytest.mark.needs_gamecode
 def test_gamedata_budgets_and_classes():
     assert gd.stars_at(1) == 0 and gd.stat_points_at(5) == 12 and gd.stat_points_at(20) == 57
     subs = gd.subclasses()
     assert len(subs) == 24 and all(c.parent for c in subs)
 
 
+@pytest.mark.needs_gamecode
 def test_every_preset_is_valid_and_the_file_is_current(presets):
     assert len(presets) >= 72
     assert len({p["id"] for p in presets}) == len(presets)
@@ -37,12 +39,14 @@ def test_every_preset_is_valid_and_the_file_is_current(presets):
     assert mp.OUT.read_text(encoding="utf-8") == mp.to_sval(presets)
 
 
+@pytest.mark.needs_gamecode
 def test_tiers_spend_the_whole_budget(presets):
     early = next(p for p in presets if p["id"] == "paladin_divine/early")
     stats = sum(int(r[2]) for r in early["rows"] if r[0] == "stat")
     assert early["level"] == 5 and stats == gd.stat_points_at(5)
 
 
+@pytest.mark.needs_gamecode
 def test_import_log_round_trips_a_saved_variant(tmp_path, monkeypatch, presets):
     hand = tmp_path / "presets_hand.json"
     hand.write_text(mp.HAND.read_text(encoding="utf-8"), encoding="utf-8")
@@ -67,6 +71,7 @@ def test_import_log_round_trips_a_saved_variant(tmp_path, monkeypatch, presets):
     assert ids[-2:] == ["paladin_divine/early+e1", "paladin_divine/early+e2"]
 
 
+@pytest.mark.needs_gamecode
 def test_validate_reports_gear_the_stats_cannot_wear(presets):
     p = next(x for x in presets if x["id"] == "priest_crusader/mid")
     bad = {**p, "rows": [r for r in p["rows"] if r[0] != "stat"]}
@@ -74,6 +79,7 @@ def test_validate_reports_gear_the_stats_cannot_wear(presets):
     assert any("mainhand_scepter_02: unusable" in e and "skills stay blocked" in e for e in errs)
 
 
+@pytest.mark.needs_gamecode
 def test_diff_variant_drops_and_adds(presets):
     base = next(p for p in presets if p["id"] == "ranger_nature/mid")
     rows = [r for r in base["rows"] if r[0] != "trinket"] + [["trinket", "x_new"]]
@@ -88,12 +94,14 @@ def skills():
     return tl.skill_entries()
 
 
+@pytest.mark.needs_gamecode
 def test_lint_vanilla_has_nothing_stale(skills):
     assert len(skills) > 300
     assert sum(len(tl.bind(e)[0]) for e in skills.values()) > 300
     assert [s for sid in skills for s in tl.stale(skills, [[sid, 0, "\0none", ""]])] == []
 
 
+@pytest.mark.needs_gamecode
 def test_lint_binds_with_units(skills):
     bound, unbound = tl.bind(skills["charge"])
     assert unbound == 0
@@ -102,6 +110,7 @@ def test_lint_binds_with_units(skills):
     assert all("move-speed-mul" not in b[0] for b in tl.bind(skills["nature_entangle"])[0].values())
 
 
+@pytest.mark.needs_gamecode
 def test_lint_reports_edits_that_the_tooltip_misses(skills):
     found = tl.stale(skills, [["charge", 1, "binds.charge-dmg", "55"], ["nature_entangle", 4, "binds.area-dmg", "99"]])
     assert [(s["skill"], s["level"], s["param"], s["shown"]) for s in found] == [
@@ -113,6 +122,7 @@ def test_lint_reports_edits_that_the_tooltip_misses(skills):
     assert tl.stale(skills, [["charge", 0, "cooldown", "3000"]]) == []
 
 
+@pytest.mark.needs_gamecode
 def test_lint_cli(tmp_path, capsys):
     from tools.devarena import overrides
     state = overrides.empty()

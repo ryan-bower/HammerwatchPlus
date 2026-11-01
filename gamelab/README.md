@@ -10,9 +10,9 @@ fixtures, bot authoring and troubleshooting.
 
 ## First session or fresh clone
 
-Use Windows with HoH2 installed and Steam running. Python 3.10+, uv, a supported
+Use Windows with HoH2 installed and Steam running. Python 3.14+, uv, a supported
 GPU and a mingw-w64 x86_64 compiler are required. Doctor checks prerequisites and
-supports the local compiler locations documented in the root README. Native runs
+supports the local compiler locations documented in [CONTRIBUTING.md](../CONTRIBUTING.md). Native runs
 need Windows process visibility; a restricted sandbox may need execution access
 outside that sandbox. Preserve all isolation checks when resolving a refusal.
 
@@ -125,4 +125,4 @@ To extend the harness, copy a relevant scenario and inspect its bot/expected row
 Follow the detailed skill's authoring instructions and the generated
 [verb reference](../docs/generated/verbs.md). Regenerate it with
 `uv run python tools/list_verbs.py` when registrations change. Hand off the exact
-reproduction, source, evidence and limits, and update root README and RE_NOTES.
+reproduction, source, evidence and limits, and update docs/status.md and RE_NOTES.

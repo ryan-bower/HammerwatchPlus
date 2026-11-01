@@ -1,0 +1,18 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    # Windows: the tools and GameLab use Windows APIs. No game here, so needs_gamecode tests skip.
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10  # Python from .python-version
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run python scripts/test.py

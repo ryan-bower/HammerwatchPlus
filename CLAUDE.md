@@ -1,7 +1,7 @@
 # HammerwatchPlus
 
 Co-op mods for Heroes of Hammerwatch II (`mods/`), and GameLab (`gamelab/`), the harness
-that boots the real game to test them. Current status is in README.md.
+that boots the real game to test them. Current status is in `docs/status.md`.
 
 ## Hard rules
 - Boot the game only with `uv run python -m gamelab run <scenario> --mode lab`. The CLI
@@ -41,8 +41,12 @@ that boots the real game to test them. Current status is in README.md.
 - Probes: add a read-only, capped `RegisterVerb` in `mods/gamelab-probe/scripts/GameLab/Probe.as`
   plus a `{"do": "gl", "verb": ...}` scenario step. All verbs: `docs/generated/verbs.md`.
 - Class planner: `planner/` (`python -m planner`), records in `planner/data/<collection>/<id>.json`.
+- Tools: `tools/` top level is build, deploy, saves and release; `tools/generate/` the `make_*`
+  content generators; `tools/hoh1/` the HoH1 importer; `tools/art/` art pickers and fonts.
+- Docs index: `docs/README.md`. Module rows for players: `docs/features.md`.
 
 ## Before you finish
+- `python scripts/test.py` (all offline tests and generated-file checks; CI runs the same).
 - If you added or changed a verb: `python tools/list_verbs.py`, then `python tools/list_verbs.py --check`.
-- Update README.md status and `docs/RE_NOTES.md`. Keep the current checkpoint separate from
-  history, and state unfinished work plainly.
+- Add a dated entry to `docs/status.md` and the notes to `docs/RE_NOTES.md`. Keep the current
+  checkpoint separate from history, and state unfinished work plainly.
