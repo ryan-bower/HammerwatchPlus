@@ -219,6 +219,11 @@ in the bag and in the town stash is now Salvage: the item becomes Crystals (Comm
 Dust (Rare and up), more the higher its level, and the confirm names the amount. A Rare ilvl 20
 gives 3 Dust and an Epic ilvl 30 gives 12. The host can turn it off (back to the vanilla Destroy)
 or set the yield from 50% to 200%. Tested: `fix-salvage`, `pf-fix-salvage`.
+2026-10-30, no Sacrificial Penance without Heresy (#68). The Devil Forgemaster's Necrotic
+Resurrection only turns into Sacrificial Penance at max Divine Favor when there is at least 1
+Heresy to wash away. With none, the key stays a raise (its icon, its cost, +Heresy) and the
+Favor is kept, so the next cast after that raise is the Penance. Tested: `fix-penance-heresy`,
+`plan-forgemaster`.
 
 2026-10-30, Pelor's Fury on elites, and a death takes 5 Blessing stacks (#82). Pelor's Fury
 on an elite now needs and spends only 3 stacks of Pelor's Blessing and keeps the rest; on
