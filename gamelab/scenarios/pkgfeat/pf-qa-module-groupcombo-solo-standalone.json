@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-module-groupcombo-solo-standalone",
- "about": "qa-module-groupcombo-solo-standalone against the built package coop instead of the mods' source folders (tools/make_package_scenarios.py). Standalone functional subset with only required modules. Actual solo combo with no group buff; no true co-op claim. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
+ "about": "qa-module-groupcombo-solo-standalone against the built package coop instead of the mods' source folders (tools/generate/make_package_scenarios.py). Standalone functional subset with only required modules. Actual solo combo with no group buff; no true co-op claim. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
  "fixture": "town-paladin",
  "timeout": 300,
  "steps": [

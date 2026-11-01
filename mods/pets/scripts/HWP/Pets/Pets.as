@@ -1285,7 +1285,7 @@ namespace HWP
 			}
 			HWP::HoH1::Report("pets", imported > 0, ".hwp.pets.hoh1");
 			if (imported == 0)
-				HWP::Log("pets", "no HoH1 pets imported (run: python tools/import_hoh1.py pets)");
+				HWP::Log("pets", "no HoH1 pets imported (run: python tools/hoh1/import_hoh1.py pets)");
 			else if (!HWP::HoH1::Enabled())
 				HWP::Log("pets", "hoh1.content off: " + imported + " HoH1 pet(s) out of the Pet Shop");
 			else

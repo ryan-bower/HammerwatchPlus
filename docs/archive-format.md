@@ -129,7 +129,7 @@ like the other.
 
 The unpacked loader reads loose mod files as **SValue XML**, not binary, so
 `.lvl` and `.pfb` under `mods/<id>/` must be XML (`<dict>...</dict>` in the
-same form as `.unit`/`.sval`). `tools/hoh1_convert.py` writes them that way.
+same form as `.unit`/`.sval`). `tools/hoh1/hoh1_convert.py` writes them that way.
 A `.lvl` keeps its 8 opaque header bytes as a first-line comment,
 
 ```

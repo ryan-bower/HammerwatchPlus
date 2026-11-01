@@ -99,7 +99,7 @@ class Double(float):
     """An f64 SValue (SV_DOUBLE), kept apart from f32 for the same reason."""
 
 
-# Bump when a decode or encode change alters what tools/import_hoh1.py writes:
+# Bump when a decode or encode change alters what tools/hoh1/import_hoh1.py writes:
 # its outputs carry the version they were made with, and older ones are redone.
 #   1  first stamped converter
 #   2  compact 0x67 decodes as true and 0x68 as false (they were swapped)
@@ -458,7 +458,7 @@ _LEVEL_HEADER_RE = re.compile(r"<!--\s*" + LEVEL_HEADER_TAG + r"\s+([0-9a-fA-F]{
 def compile_svalue_xml(path: str, data: bytes) -> bytes:
     """A loose XML .pfb/.lvl as the binary SValue packed archives hold. A level
     gets the 8 header bytes its XML names (`<!-- hwp-level-header <hex> -->`,
-    written by tools/hoh1_convert.py), or zeros."""
+    written by tools/hoh1/hoh1_convert.py), or zeros."""
     text = data.decode("utf-8-sig")
     body = encode_svalue(parse_svalue_xml(text))
     if not path.lower().endswith(".lvl"):

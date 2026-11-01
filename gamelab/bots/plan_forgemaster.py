@@ -46,7 +46,7 @@ Sections:
 - hoh1_tower: on each HoH1 boss floor (tower_bosses.RECIPES), the fight started the level's own
   way, Deeper Depravity at epic (a boss death always leaves a body), each boss killed by the
   priest: its body on the floor, raised there, standing, no script error. The dragon is not
-  raisable (tools/hoh1_risen.py EXCLUDE), so its floor checks that no body is left.
+  raisable (tools/hoh1/hoh1_risen.py EXCLUDE), so its floor checks that no body is left.
 """
 import re
 import time
@@ -66,7 +66,7 @@ PASSIVE_SKILLS = {"CompositeActorUtilitySkill", "CompositeActorFriendlySkill", "
 ROOT = Path(__file__).resolve().parents[2]
 UNITS_AS = ROOT / "mods/specs/scripts/HWP/Specs/Forgemaster_Units.as"
 BODIES = ROOT / "mods/specs/players/hwp/specs/forgemaster/bodies"
-# the HoH1 enemies' risen, written by tools/import_hoh1.py into the campaign module (local)
+# the HoH1 enemies' risen, written by tools/hoh1/import_hoh1.py into the campaign module (local)
 HOH1_FORGE = ROOT / "mods/campaign/players/hwp/specs/forgemaster"
 
 
@@ -78,7 +78,7 @@ def risen_rels():
     out = {}
     for rel in rels:
         if not (BODIES / rel).is_file():   # a generator bug, never a quiet "not elite, not boss"
-            raise FileNotFoundError(f"no body unit for {rel}: run tools/make_forgemaster_risen.py")
+            raise FileNotFoundError(f"no body unit for {rel}: run tools/generate/make_forgemaster_risen.py")
         body = (BODIES / rel).read_text(encoding="utf-8")
         out[rel] = ('<bool name="elite">true</bool>' in body, '<bool name="boss">true</bool>' in body)
     return out

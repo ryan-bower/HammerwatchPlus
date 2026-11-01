@@ -1,11 +1,11 @@
-// HoH1's two OpenInterface windows in the tower (tools/import_hoh1.py CLASS_MAP), on
+// HoH1's two OpenInterface windows in the tower (tools/hoh1/import_hoh1.py CLASS_MAP), on
 // HoH1's own .gui files: the gambler room's ItemDealer and the dragon floor's EndOfGame.
 // HoH2 has neither class, and OpenInterface hits a null pointer on a class it can't make.
 // HoH1's items are HoH2 trinkets here (HoH1Item), so the gambler bets trinkets.
 
 // HoH1's "scrollrect": a rect whose children scroll (the dealer's item list, the end
 // story). HoH2 kept ScrollableWidget but dropped the producer; the importer renames the
-// tag (tools/hoh1_convert.py GUI_TAGS).
+// tag (tools/hoh1/hoh1_convert.py GUI_TAGS).
 class HoH1ScrollableRectWidget : ScrollableWidget
 {
 	vec4 m_color;
@@ -68,7 +68,7 @@ ref@ LoadHoH1ScrollableRectWidget(WidgetLoadingContext &ctx)
 
 // HoH1's "scrollbar" (GUI/Scrollbar.as) beside a scrollrect, on HoH1's scrollbar sprites.
 // HoH2's own scrollbar is another widget (its sprites, its input) and null-pointers on
-// HoH1's markup, so the importer renames the tag (tools/hoh1_convert.py GUI_TAGS). HoH1's
+// HoH1's markup, so the importer renames the tag (tools/hoh1/hoh1_convert.py GUI_TAGS). HoH1's
 // mouse came through Widget.OnMouseDown and m_hovering, which HoH2 dropped: read here from
 // the menu input. The wheel scrolls the rect itself (ScrollableWidget.UpdateInput).
 class HoH1ScrollbarWidget : Widget

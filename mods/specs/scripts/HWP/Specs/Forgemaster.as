@@ -1,7 +1,7 @@
 // The Devil Forgemaster (Priest 4th spec, mods/specs): Necrotic Resurrection raises the intact
 // bodies that Call of Heresy leaves, as summons made from the enemy's own unit.
 // - HWPSpecsBody: an intact body (players/hwp/specs/forgemaster/bodies/<unit>, written by
-//   tools/make_forgemaster_risen.py): the enemy's scenes, gray, on its side (a boss upright), no
+//   tools/generate/make_forgemaster_risen.py): the enemy's scenes, gray, on its side (a boss upright), no
 //   collision, 60 s. The host rolls one on every enemy death while a Forgemaster is on the
 //   floor (OnActorDestroyed). The glow effect is played on the Forgemaster's own screen only.
 // - HWPSpecsRisen / HWPSpecsRisenState: the summon (.../risen/<unit>), a PlayerOwnedActor over
@@ -55,7 +55,7 @@ namespace HWP
 		const string RISEN_DIR = "players/hwp/specs/forgemaster/risen/";
 		const string BODIES_DIR = "players/hwp/specs/forgemaster/bodies/";
 		// the HoH1 enemies' risen and bodies: written with the player's own HoH1 import into the
-		// campaign module (tools/import_hoh1.py campaign) under RISEN_DIR/BODIES_DIR + their full
+		// campaign module (tools/hoh1/import_hoh1.py campaign) under RISEN_DIR/BODIES_DIR + their full
 		// "hoh1/actors/..." path, listed in this file (absent without the import)
 		const string HOH1_RISEN_LIST = "players/hwp/specs/forgemaster/hoh1_risen.sval";
 		const string HOH1_ACTORS = "hoh1/actors/";

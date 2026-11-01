@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-module-farming-standalone",
- "about": "qa-module-farming-standalone against the built package town instead of the mods' source folders (tools/make_package_scenarios.py). Minimum core+farming native shop, planting, watering, visual and well controls. Crop growth/refusal runs use a separate fresh profile to retain the dry control.",
+ "about": "qa-module-farming-standalone against the built package town instead of the mods' source folders (tools/generate/make_package_scenarios.py). Minimum core+farming native shop, planting, watering, visual and well controls. Crop growth/refusal runs use a separate fresh profile to retain the dry control.",
  "fixture": "town-paladin",
  "timeout": 900,
  "steps": [

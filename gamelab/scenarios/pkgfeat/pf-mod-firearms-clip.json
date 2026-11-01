@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-firearms-clip",
- "about": "mod-firearms-clip against the built package firearms instead of the mods' source folders (tools/make_package_scenarios.py). The clip (the starting Service Pistol: 10): full when a new character spawns in the village and on a run's first floor; the count carried to the next floor (no refill); hwp firearms empty leaves it at 0 with no reload, and pulling the trigger then starts the reload; Reload costs no mana.",
+ "about": "mod-firearms-clip against the built package firearms instead of the mods' source folders (tools/generate/make_package_scenarios.py). The clip (the starting Service Pistol: 10): full when a new character spawns in the village and on a run's first floor; the count carried to the next floor (no refill); hwp firearms empty leaves it at 0 with no reload, and pulling the trigger then starts the reload; Reload costs no mana.",
  "fixture": "town-paladin",
  "timeout": 420,
  "steps": [

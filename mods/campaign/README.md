@@ -18,7 +18,7 @@ generated floors in the closest HoH2 theme plus a vanilla boss level.
   "The Forsaken Tower (HoH1 levels)": HoH1's own 23 floors (`tweak/dungeons/base.sval`),
   the nine hand-made levels as HoH1 ships them and the fourteen act floors built by
   HoH1's own floor generator, all taken from the player's own HoH1 install by
-  `tools/import_hoh1.py campaign` (see "HoH1 tower" below). Without the import only the
+  `tools/hoh1/import_hoh1.py campaign` (see "HoH1 tower" below). Without the import only the
   mission above exists.
 - **Portal.** `doodads/hwp/forsaken_portal.unit` is an NPC doodad whose
   interact is `HWPCampaignShopContent`, the vanilla `MissionShopContent` limited to set
@@ -54,7 +54,7 @@ generated floors in the closest HoH2 theme plus a vanilla boss level.
   vanilla boards. Every floor uses `diff-level-ngp` = diff + 8 like the
   vanilla tower chain.
 
-## Real HoH1 boss levels (`tools/import_hoh1.py campaign`)
+## Real HoH1 boss levels (`tools/hoh1/import_hoh1.py campaign`)
 
 Converts `levels/boss_{mines,prison,armory,archives,chambers,dragon}.lvl` and
 `battlements_1|2.lvl` with everything they reference (1410 files: units,
@@ -78,10 +78,10 @@ leaves them out unless `--with-local`. The log is
 `hoh1_import/campaign/convert.md` (every rewrite counted, plus the 14
 references HoH1 itself does not ship).
 
-The converter (`tools/hoh1_convert.py`) rewrites paths, materials, fonts and
+The converter (`tools/hoh1/hoh1_convert.py`) rewrites paths, materials, fonts and
 classes; loose `.lvl`/`.pfb` are written as SValue XML (the engine reads loose
 mod files as XML) and `build.py` compiles them back to binary when packing.
-HoH1 classes HoH2 lacks are mapped by `CLASS_MAP` in `tools/import_hoh1.py`
+HoH1 classes HoH2 lacks are mapped by `CLASS_MAP` in `tools/hoh1/import_hoh1.py`
 to our own implementations under `scripts/HWP/Campaign/HoH1/`, written
 against HoH2's base classes with HoH1's unit parameters:
 
@@ -211,7 +211,7 @@ from `shoot`), then off again, re-armed, or spent. Every kind telegraphs before 
 stalactite's growing shadow while it falls. Every machine runs every trap by itself, as
 vanilla floor traps do (an effect only sticks to a player on that player's machine and to
 an enemy on the host; the projectiles are local units), so nothing goes over the network.
-The kinds are unit files on HoH2 art written by `tools/make_hwp_traps.py` (`--check` in
+The kinds are unit files on HoH2 art written by `tools/generate/make_hwp_traps.py` (`--check` in
 the tests), with HoH2's own trap numbers where HoH2 has the trap and HoH1's otherwise.
 
 Which kinds a floor gets is the kind table in `Traps.as` (`WEIGHTS`): each family's
@@ -277,7 +277,7 @@ on the host and prints every pad with its destination.
 
 `hwp campaign traps` prints the settings and how many floors carry the command.
 
-## HoH1 level import (`tools/import_hoh1.py levels`)
+## HoH1 level import (`tools/hoh1/import_hoh1.py levels`)
 
 HoH1 and HoH2 share the level container: `.lvl` is 8 header bytes plus a
 binary SValue dict (`tiles`, `game-mode`, `version`, `lighting`, `units`,

@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-module-gambler-standalone",
- "about": "qa-module-gambler-standalone against the built package town instead of the mods' source folders (tools/make_package_scenarios.py). Standalone functional subset with only required modules. Native rerolls, actual gold/tokens/item changes, affordability/refusals and bet animation/payout arithmetic. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
+ "about": "qa-module-gambler-standalone against the built package town instead of the mods' source folders (tools/generate/make_package_scenarios.py). Standalone functional subset with only required modules. Native rerolls, actual gold/tokens/item changes, affordability/refusals and bet animation/payout arithmetic. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
  "fixture": "town-tavern",
  "timeout": 600,
  "steps": [

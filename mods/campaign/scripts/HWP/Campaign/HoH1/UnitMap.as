@@ -2,7 +2,7 @@
 // spawned boss, miniboss or enemy is a harder copy, and the bosses' copies add
 // attacks (the Warden's bomb fan, the Vampire's Bat Spray). HoH1 swapped inside
 // its spawn scripts; HoH2's are its own, so the swap rewrites their UnitType
-// once per level instead. The map is tools/import_hoh1.py's copy of HoH1's
+// once per level instead. The map is tools/hoh1/import_hoh1.py's copy of HoH1's
 // tweak/dungeons/unitmap_base.sval, limited to the units the levels reach.
 namespace HWP
 {

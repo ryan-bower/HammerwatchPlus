@@ -50,8 +50,8 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | Module | What it does |
 |---|---|
 | `firearms` | The **Firearms Specialist**, a new class. Guns fire from a clip that counts down per shot and reloads (automatically at 0, or with the Reload skill, which a dodge cancels; the reload bar sits over the player); mana pays for gadgets. Rounds leave the gun for the point under the cursor, so diagonal shots land on the crosshair, and the gun model changes pose as you idle, fire, reload or use a gadget. A rifle (30 rounds, 3-round bursts; the Grenade Launching Rifle has an under-barrel grenade launcher, the Flamethrower Rifle a mana-fed flamethrower held on right click, the Full Auto Rifle a wild full-auto spray) or pistols, one or two (10 rounds each, 20 dual), or Hand Cannons (half a pistol's rate, 1.5 times its damage, 6 rounds; with a pistol, a pistol-cannon-pistol burst). Base kit: Reload and Frag Grenade, whose orbs give Explosive Reload, Over-Reload's timed perfect reload, and Stun, Incendiary or Gas grenades. Four specializations, each with orbs: **Marksman** (Snipe, whose aim time shortens per rank and whose Recoil Roll orb dashes you back along the shot; Critical Aim), **Demolitionist** (Rocket Launcher, Ordinance Hoarder), **Assault** (Double Barrel Burst, Adrenaline) and **Engineer** (Deploy Turret, My Turret!). New characters start with a Service Pistol. Details: `mods/firearms/README.md`; design: `docs/design/firearms.md`. |
-| `specs` | A **4th specialization** for eight vanilla classes, one active and one passive each, with orbs: **Deadeye** Ranger (Lightning Arrow, Gathering Winds), **Aerotheurge** Wizard (Thunder Orb, Static Charge), **Arcane** Sorcerer (Blink, which crosses ledges and stairs; Living Mana, one pooled blue bar for health and mana), **Winddancer** Rogue (Protective Gale, Second Wind), **Bannerlord** Warrior (Battlefield Standard, Righteous Crusade), **Branding** Warlock (Pyrebrand, Essence Extraction) and the **Devil Forgemaster** Priest (Necrotic Resurrection, Call of Heresy: raise the enemies that fall with their body intact, bosses included, as summons that keep their own skills and run with you; the raise and Sacrificial Penance channels lock you in place with a beam; braziers and pyres burn off Heresy) and the **Generosity** Paladin (Pelor's Fury, Pelor's Blessing: Lay on Hands, Blessed Strike kills and Conviction build up to 10 stacks that strengthen all three; at 10 (3 against an elite, which spends only those 3) the Fury holds any one enemy, bosses included, in beams of light: stunned, its casts cut, armor and resistances 0, taking more damage; a Fury that can't take hold spends nothing; a party member's death takes 5 stacks; crops grow twice as fast and wild plots turn up twice as often while a Paladin of Generosity is in the party). Icons and sounds are the user's picks (`art/specs/`). The Forgemaster's risen and body units are generated from the base game by `tools/make_forgemaster_risen.py` (gitignored; `doctor --fix` makes them). |
-| `classes` | The HoH1 classes HoH2 lacks: **Thief**, **Gladiator** and **Witch Hunter**, three masteries each. The Thief's extra actives cast on core's Skill 4 key. The real HoH1 art comes from your own HoH1 install (`tools/import_hoh1.py classes`). |
+| `specs` | A **4th specialization** for eight vanilla classes, one active and one passive each, with orbs: **Deadeye** Ranger (Lightning Arrow, Gathering Winds), **Aerotheurge** Wizard (Thunder Orb, Static Charge), **Arcane** Sorcerer (Blink, which crosses ledges and stairs; Living Mana, one pooled blue bar for health and mana), **Winddancer** Rogue (Protective Gale, Second Wind), **Bannerlord** Warrior (Battlefield Standard, Righteous Crusade), **Branding** Warlock (Pyrebrand, Essence Extraction) and the **Devil Forgemaster** Priest (Necrotic Resurrection, Call of Heresy: raise the enemies that fall with their body intact, bosses included, as summons that keep their own skills and run with you; the raise and Sacrificial Penance channels lock you in place with a beam; braziers and pyres burn off Heresy) and the **Generosity** Paladin (Pelor's Fury, Pelor's Blessing: Lay on Hands, Blessed Strike kills and Conviction build up to 10 stacks that strengthen all three; at 10 (3 against an elite, which spends only those 3) the Fury holds any one enemy, bosses included, in beams of light: stunned, its casts cut, armor and resistances 0, taking more damage; a Fury that can't take hold spends nothing; a party member's death takes 5 stacks; crops grow twice as fast and wild plots turn up twice as often while a Paladin of Generosity is in the party). Icons and sounds are the user's picks (`art/specs/`). The Forgemaster's risen and body units are generated from the base game by `tools/generate/make_forgemaster_risen.py` (gitignored; `doctor --fix` makes them). |
+| `classes` | The HoH1 classes HoH2 lacks: **Thief**, **Gladiator** and **Witch Hunter**, three masteries each. The Thief's extra actives cast on core's Skill 4 key. The real HoH1 art comes from your own HoH1 install (`tools/hoh1/import_hoh1.py classes`). |
 | `weapons` | Twelve new endgame weapons (ilvl 35, four per slot) with new modifier profiles on vanilla visuals and attacks. |
 | `weaponswap` | A second weapon set on a hotkey (default X) or a controller button (default D-pad left): a 2 s channel standing still, cancelled by a dodge or a second press. |
 | `autoaim` | Auto aim for the skills you aim with a reticle (Marked Shot, Leap, Firewall): it snaps to a nearby enemy in your aim cone and can fire by itself, and ready AOE skills can cast themselves when your mana allows. On for controllers by default, an option for mouse play; settings on the character menu's Plus tab (a remake of kearneyTim's controller auto aim). |
@@ -62,7 +62,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 
 | Module | What it does |
 |---|---|
-| `campaign` | **The Forsaken Tower**: the HoH1 campaign (Mines to Battlements, 18 floors, 6 bosses), started from a portal in town. NG+ swaps in HoH1's NG+ bosses and enemies. With HoH1 installed, the portal offers HoH1's own tower instead (`tools/import_hoh1.py campaign`): all 23 floors as HoH1 has them, the act floors built by HoH1's own floor generator, HoH1's boss rooms, level scripts and texts, for HoH2's classes; the Dark Citadel gains two Dark Halls and the two Battlements floors. HoH1's traps (spike, pressure, poison, frost, drain and confusion plates, flame jets, five kinds of glyph, wall shooters, arrow turrets, flame gargoyles, stalactites, falling bricks and bear traps, each with a warning first and picked by the floor's theme) and one teleporter pad per floor appear on generated floors, and the Dark Halls eyes confuse again. |
+| `campaign` | **The Forsaken Tower**: the HoH1 campaign (Mines to Battlements, 18 floors, 6 bosses), started from a portal in town. NG+ swaps in HoH1's NG+ bosses and enemies. With HoH1 installed, the portal offers HoH1's own tower instead (`tools/hoh1/import_hoh1.py campaign`): all 23 floors as HoH1 has them, the act floors built by HoH1's own floor generator, HoH1's boss rooms, level scripts and texts, for HoH2's classes; the Dark Citadel gains two Dark Halls and the two Battlements floors. HoH1's traps (spike, pressure, poison, frost, drain and confusion plates, flame jets, five kinds of glyph, wall shooters, arrow turrets, flame gargoyles, stalactites, falling bricks and bear traps, each with a warning first and picked by the floor's theme) and one teleporter pad per floor appear on generated floors, and the Dark Halls eyes confuse again. |
 | `keys` | HoH1-style keys: every chest but the cursed ones needs a key of its tier. Keys drop in runs (a party can share a key pool), and the exit guard's General Merchant sells keys, bag slots and six trinkets to take into your next run. Also ace chests (opened with the red skull ace key), seven red legendaries, and a banner for everyone when a chest turns out to be trapped. Trinket, cursed and ace chests look grander the deeper the run goes, with unused chest art from the game's own sprite sheet. |
 | `mercenary` | HoH1's mercenary mode: once a class has a level-20 hero, a fresh character of it can enlist (`hwp merc enlist`), climb the ranks from Private to General for more gold and experience, and die for good. |
 | `legacy` | HoH1-style class titles: your best hero of each class buffs every character. One "Title Bonuses" buff lists them, and Guild Hall > Titles shows every class. |
@@ -360,7 +360,7 @@ the shops' guns.
 2026-10-29, Lightning Kush (#15), a fourth Holy Herb strain: violet, +20 % lightning damage,
 Ember Kush's counterpart. Each strain had been copied by hand into seven files and three
 sprite sheets indexed by seed order, and the harvest sheet was full. So now one table makes
-them all: `tools/make_herbs.py` writes the buffs, joints, names, seed lines, units and art,
+them all: `tools/generate/make_herbs.py` writes the buffs, joints, names, seed lines, units and art,
 and a test fails when a file is out of date. Adding the strain also showed that the
 materials tab's Plants & Herbs grid had only 16 cells for 18 seeds and harvests: the last
 two would never have shown. The grid now has 24 cells, 9 across, and hwplib logs an error
@@ -441,7 +441,7 @@ followed through it. `plan-pets-b` (pet skills, puzzle and trap rooms), `plan-pe
 (a vanilla pet, QoL alone) and `pf-plan-petrooms-vanilla` (the built QoL package) pass
 (20261028-141504, -141825, -142113).
 
-2026-10-27, every package on its own and together. `tools/make_package_scenarios.py` now
+2026-10-27, every package on its own and together. `tools/generate/make_package_scenarios.py` now
 also writes `gamelab/scenarios/pkgfeat/`: each feature scenario run against the built
 packages that ship its mods instead of the source folders (162 scenarios). The first pass
 found the pets package and the all-in-one pack carrying 216 HoH1 pet files cut from this
@@ -624,14 +624,14 @@ handoff update adds documentation and a batch helper, not native coverage.
   the hidden smoke passed (`20261021-235153-null-payload-lab`). Setup details and checks
   are in `docs/RE_NOTES.md`.
 - Firearms still to do: the two base passives (the old Scavenger and Steady Hands stand in)
-  and final icons (the current ones are placeholders from `tools/make_firearms_icons.py`).
+  and final icons (the current ones are placeholders from `tools/generate/make_firearms_icons.py`).
 - Firearms gained the Hand Cannon, the Flamethrower Rifle and the Full Auto Rifle on
   2026-10-20 (`plan-firearms-cannon`); the rifle is now the Grenade Launching Rifle.
 - Built on 2026-10-21: the 4th specs of the Ranger, Wizard, Sorcerer, Rogue, Warrior and
   Warlock (`mods/specs`). `plan-specs` passes all six (80 checks, after the code review's fixes). Not yet tested: what
   needs a second player (teammates in Protective Gale and Shared Breath, the standard's
   allies, Martyr's Banner, Mana Conduit). The world sprites (brand sigil, Hellfire Claw, the standard, the
-  Tempest orb) are in. The icons are the user's picks over three rounds (`art/specs/override/`, `tools/icon_art/sp.py`,
+  Tempest orb) are in. The icons are the user's picks over three rounds (`art/specs/override/`, `tools/art/icon_art/sp.py`,
   `sp_r2.py`, `sp_r3.py`); the Arcane and Aerotheurge emblems keep their placeholders by choice. The
   sounds are the user's picks too (`art/specs/AUDIO.md`; Void Barrier's save silent). Still to do: balance (pick them in the audio picker, `art/specs/AUDIO.md`).
 - 2026-10-21: the Ranger's and Wizard's 4th specs now match Noah's PR #4 version in the planner:
@@ -651,7 +651,7 @@ handoff update adds documentation and a batch helper, not native coverage.
   (Necrotic Resurrection, Call of Heresy, Heresy as its own stack, which bosses can be raised).
   Sacrificial Penance, the form Necrotic Resurrection takes at max Divine Favor, has its own
   planner entry (new `alt_of` field): mana 50, sharing Necrotic Resurrection's cooldown. Its
-  icons are in the picker (`tools/icon_art/sp_pri.py`, then `sp_pri2.py`): the second pass on
+  icons are in the picker (`tools/art/icon_art/sp_pri.py`, then `sp_pri2.py`): the second pass on
   the user's picks, plus the emblem, four orbs and the eating status; all 11 settled in
   `art/specs/override/`, and shown in the planner). Penance consumes the Favor.
 - 2026-10-22: the **Devil Forgemaster** is built (`mods/specs`, `Forgemaster.as`). Any enemy death on
@@ -661,7 +661,7 @@ handoff update adds documentation and a batch helper, not native coverage.
   healing, leash-teleporting
   like other summons. Heresy +1/+2/+3 per raise, refused at 5; at max Divine Favor the same key is
   Sacrificial Penance (50 mana, removes the level's 1-3 plus 1 for an elite body and 2 for a boss body).
-  The four orbs are in. The risen come from `tools/make_forgemaster_risen.py`: one risen and one body
+  The four orbs are in. The risen come from `tools/generate/make_forgemaster_risen.py`: one risen and one body
   unit per raisable enemy of the base game (141 units, the 10 non-final bosses included, at 3000-8000
   health with their arena-only skills stripped and their player-only targeting opened up), checked for
   well-formed XML and regenerated by `doctor --fix`. Tested by `plan-forgemaster` (run `20261022-102006`:
@@ -690,11 +690,11 @@ handoff update adds documentation and a batch helper, not native coverage.
 - Designed in the planner, not built, and parked for later: an "Echoes of Hammerwatch I"
   (formerly "HoH1 Remastered") 5th spec for every vanilla class (the Rogue's from the HoH1
   Thief, the Warrior's from the Gladiator), one active and one passive of HoH1's that HoH2
-  lacks. The icons are wired up (`tools/import_hoh1.py classes`).
+  lacks. The icons are wired up (`tools/hoh1/import_hoh1.py classes`).
 - Parked on 2026-10-21: the Thief, Gladiator and Witch Hunter are hidden from character
   creation (`HWP::HideClass`, run `mod-classes-hidden`). The planner shows them on a second
   "HoH1" row with the six original HoH1 classes, whose kits are the HoH1 ones
-  (`tools/planner_hoh1.py`), with armor-only gear and orbs still to design.
+  (`tools/hoh1/planner_hoh1.py`), with armor-only gear and orbs still to design.
 - What each session changed, with the GameLab run behind every claim, is in
   `docs/RE_NOTES.md`. The HoH1-to-HoH2 trinket comparison is a private web app outside the
   repo; its link is there too.
@@ -742,18 +742,18 @@ python -m gamelab doctor --hoh1 "D:\Games\Heroes of Hammerwatch" --fix   # HoH1 
 python -m gamelab doctor --no-hoh1    # you don't own HoH1: skip its content, stop asking
 python -m gamelab doctor --smoke      # boot null-payload again; a failure names its cause (antivirus, GPU, cores)
 python tools/build.py                 # pack dist/HWP-<module>.bin + dist/HammerwatchPlus-All.bin
-python tools/make_herbs.py            # farming's Holy Herb strains from one table: buffs, joints, lang, art (--check)
+python tools/generate/make_herbs.py            # farming's Holy Herb strains from one table: buffs, joints, lang, art (--check)
 python tools/hwr_archive.py --help    # low-level archive tool (list/extract/pack HW2R and HWRR)
-python tools/icon_art/render.py all   # skill icon ideas in the vanilla style (tools/icon_art/README.md)
+python tools/art/icon_art/render.py all   # skill icon ideas in the vanilla style (tools/art/icon_art/README.md)
 python -m planner                     # the class planner in your browser (or planner.cmd / ./planner.sh; planner/README.md)
-python tools/import_hoh1.py pets|levels|campaign|classes   # HoH1 content by hand (doctor --fix runs all four)
+python tools/hoh1/import_hoh1.py pets|levels|campaign|classes   # HoH1 content by hand (doctor --fix runs all four)
 ```
 
 Mods live in `mods/<id>/`. Conventions are in `docs/modules.md`, the archive format in
 `docs/archive-format.md`, the script hooks in `docs/hooks.md`. What to do when the game
 updates is in `docs/GAME_UPDATES.md`.
 
-HoH1 assets are never committed. `tools/import_hoh1.py` writes into gitignored
+HoH1 assets are never committed. `tools/hoh1/import_hoh1.py` writes into gitignored
 `hoh1_import/`, and `build.py` leaves it out of packages unless `--with-local`, so each
 player imports it themselves.
 

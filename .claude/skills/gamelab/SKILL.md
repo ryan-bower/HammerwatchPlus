@@ -52,7 +52,7 @@ says `ASK THE USER`. doctor stays NOT green until they answer, so ask them:
   as skipped, not failed. A later `--hoh1` undoes it.
 
 Once HoH1 is known, `--fix` also runs bootstrap for `gamecode/sdk/hoh1/`, then
-`tools/import_hoh1.py pets|levels|campaign|classes`. It runs each importer only when its
+`tools/hoh1/import_hoh1.py pets|levels|campaign|classes`. It runs each importer only when its
 output is missing and never with `--force`, so a second `--fix` writes nothing. If
 `mods/campaign/hoh1/` exists without the importer's `.hwp-generated` marker, doctor
 reports it and leaves it alone. Ask the user before moving it.
@@ -75,11 +75,11 @@ reports it and leaves it alone. Ask the user before moving it.
   - **Low disk space.**
 - `--fix` also runs `tools/class_units.py` when its gitignored unit copies in
   `mods/keys/` and `mods/pets/` are missing or stale (made from `gamecode/sdk/hoh2/`).
-- `--fix` runs `tools/make_pet_dyes.py` (the dye-ready pet copies in
+- `--fix` runs `tools/generate/make_pet_dyes.py` (the dye-ready pet copies in
   `mods/pets/players/pets/hwp_dye/`, and `players/pets/hwp/dye/` for the HoH1 pets) after the HoH1 content steps, because it needs the
   HoH1 pet import too. Its stamp (`.hwp-generated.json`) holds the generator's and every
   source's hash, so a new HoH1 import, an edited pet unit or a changed generator marks it
-  stale and the next `--fix` remakes it (`python tools/make_pet_dyes.py --verify` checks).
+  stale and the next `--fix` remakes it (`python tools/generate/make_pet_dyes.py --verify` checks).
 
 **Smoke boot.** Once every row it needs is green (HoH1 and content rows don't count),
 `--fix` boots `null-payload` in lab mode once. It proves this machine's GPU, antivirus
@@ -132,7 +132,7 @@ The first scenario run on a new machine also builds the fixtures (cache is per b
 and recipe), so it does two extra boots. A slow first run is normal.
 
 Doctor also generates Forgemaster risen/body units through
-`tools/make_forgemaster_risen.py`. These generated game-derived prerequisites are
+`tools/generate/make_forgemaster_risen.py`. These generated game-derived prerequisites are
 local setup outputs; use doctor to refresh them. `mod-all` covers the 31 normal-release
 modules; the optional `holylocal` module is local-only and outside that stack.
 

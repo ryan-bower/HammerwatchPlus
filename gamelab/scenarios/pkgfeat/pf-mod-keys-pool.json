@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-keys-pool",
- "about": "mod-keys-pool against the built package keys instead of the mods' source folders (tools/make_package_scenarios.py). Keys in a run: found keys go to the party pool, the host reports the floor's budget from its locked chests, a budget-capped drop pass (cull mine with keys.accept 1), a spawned bronze chest opened with the party key while own keys stay, and the bottom HUD key icons (shots hud, hud_after).",
+ "about": "mod-keys-pool against the built package keys instead of the mods' source folders (tools/generate/make_package_scenarios.py). Keys in a run: found keys go to the party pool, the host reports the floor's budget from its locked chests, a budget-capped drop pass (cull mine with keys.accept 1), a spawned bronze chest opened with the party key while own keys stay, and the bottom HUD key icons (shots hud, hud_after).",
  "fixture": "town-paladin",
  "timeout": 300,
  "steps": [

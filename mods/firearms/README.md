@@ -222,14 +222,14 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
 - **Art:** portrait piece and hero title reuse the ranger assets. The
   character-select figure (`players/hwp/firearms/class_showcase.png`, 32x32) is
   the vanilla Ranger figure with the bow taken out and the t1 rifle held at port
-  arms, made by `tools/icon_art/firearms_showcase.py` (a normal character with a
+  arms, made by `tools/art/icon_art/firearms_showcase.py` (a normal character with a
   gun, the user's call on 2026-10-22, in place of the hooded figure).
   - Held guns: voxel meshes in `players/models/equipment/` (`hwp_rifle`, with
     the under-barrel launcher; `hwp_glock_mh` on the right hand bone,
     `hwp_glock_oh` on the left). They sample vanilla `character.tif`: the
     item's `color` dye is the rifle's wood and the pistol's slide, and
     `color-secondary` is the rifle's metal.
-  - Rounds and missiles in flight: `tools/make_bullet_art.py` draws
+  - Rounds and missiles in flight: `tools/generate/make_bullet_art.py` draws
     `projectiles/rounds.png` and writes one effect per sprite. The rifle/turret
     round is `round_rifle`; the pistol round is the same idea a little smaller,
     `round_pistol`. Each comes in `_fire`, `_ice`, `_lightning` and `_poison`
@@ -243,7 +243,7 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
     dex t1a) facing the camera on vanilla's shadow disc, a Service Pistol in
     hand. Taken from the character screen (look-firearms-showcase); the class
     list shows it in look-class-list.
-  - Icons are built by `tools/make_firearms_icons.py` into
+  - Icons are built by `tools/generate/make_firearms_icons.py` into
     `players/hwp/firearms/icons.png` (skills, orbs, attacks) and
     `items/hwp/firearms_items.png`. The items atlas has the guns in row 0 and
     the launcher close-ups `rifle_gl_0N`, the skill bar's off-hand slot, in
@@ -253,10 +253,10 @@ tiny module that self-checks the loaders and answers `hwp firearms`.
   as `art/firearms/override/<name>.png` (Aseprite, LibreSprite or Pixelorama)
   and re-run the tool. Atlases must be power-of-two sized: the game hangs on
   load otherwise.
-  - `tools/icon_art/` paints icon ideas in the vanilla skill-icon style, three
+  - `tools/art/icon_art/` paints icon ideas in the vanilla skill-icon style, three
     for each skill, orb, attack and HUD icon here and for the vanilla classes'
     orbs, plus a picker page that shows them beside the current icon. A picked
-    one goes into `art/firearms/override/` (tools/icon_art/README.md).
+    one goes into `art/firearms/override/` (tools/art/icon_art/README.md).
 
 The class planner (`python -m planner`, `planner/README.md`) records the skill
 design. Final icons remain an art task. See `docs/design/firearms.md`.

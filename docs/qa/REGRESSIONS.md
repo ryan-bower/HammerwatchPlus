@@ -89,7 +89,7 @@ From the repository root, select checks for the edited surface:
 | Surface | Command |
 |---|---|
 | Portable batch helper | `uv run python -m unittest tools.test_qa_batch -q` |
-| QA oracle helpers | `uv run python -m unittest discover -s gamelab/tests -q` |
+| QA oracle helpers | `uv run python -m unittest discover -s tests -q` |
 | Runner/restart/resource isolation | `uv run python -m unittest gamelab.test_runner_restart gamelab.test_res_snapshot -q` |
 | Compiler discovery | `uv run python tools/compiler_selftest.py` |
 | Save backup/doctor setup | `uv run python tools/saves_selftest.py`, `uv run python tools/doctor_selftest.py` |

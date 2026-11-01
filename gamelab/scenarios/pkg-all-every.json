@@ -1,6 +1,6 @@
 {
  "name": "pkg-all-every",
- "about": "The all-in-one pack with every single package enabled beside it, as a player who subscribed to both would have them: every path is shipped up to twice, the game keeps one copy, nothing conflicts, every stamp check passes and every package's commands answer. tools/make_package_scenarios.py.",
+ "about": "The all-in-one pack with every single package enabled beside it, as a player who subscribed to both would have them: every path is shipped up to twice, the game keeps one copy, nothing conflicts, every stamp check passes and every package's commands answer. tools/generate/make_package_scenarios.py.",
  "fixture": "town-paladin",
  "packages": [
   "all",

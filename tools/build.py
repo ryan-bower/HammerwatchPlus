@@ -111,7 +111,7 @@ def load_module(mod_dir: Path) -> dict:
 # files, so never committed): `# >>> tools/<tool>.py (generated from the HoH2 base; do not edit)`
 BASE_BLOCK = "(generated from the HoH2 base"
 # the tools build() runs before it packs, for every package that carries their output
-BASE_TOOLS = ("tools/class_units.py", "tools/make_pet_dyes.py", "tools/make_forgemaster_risen.py")
+BASE_TOOLS = ("tools/class_units.py", "tools/generate/make_pet_dyes.py", "tools/generate/make_forgemaster_risen.py")
 
 
 def base_generators(cfg: dict) -> list[str]:
@@ -163,7 +163,7 @@ def module_files(cfg: dict, with_local: bool = False):
 
 def personal_content(mods: list[dict]) -> list[str]:
     """The module.json `local` files on disk (<module>/<path>) that --with-local packs: what the
-    player made from their own HoH1 install (tools/import_hoh1.py). Not the local_only modules'
+    player made from their own HoH1 install (tools/hoh1/import_hoh1.py). Not the local_only modules'
     (a beta rider rides only with --beta). deploy.py modded-prod packs these by default."""
     return [f"{m['id']}/{rel}" for m in mods if not m["local_only"]
             for rel, _fp in module_files(m, True) if is_local(m, rel)]
@@ -476,16 +476,16 @@ def main(argv=None):
         if by_id[mid]["class_swaps"]:
             print(f"class units: {mid} {len(class_units.generate(by_id[mid]))}")
     if "pets" in used:
-        import make_pet_dyes  # the two-section pet dye copies (gitignored, made from your installs)
+        from generate import make_pet_dyes  # the two-section pet dye copies (gitignored, made from your installs)
         make_pet_dyes.main([])
     if "specs" in used:
-        import make_forgemaster_risen  # the Forgemaster's risen and intact bodies (gitignored)
+        from generate import make_forgemaster_risen  # the Forgemaster's risen and intact bodies (gitignored)
         make_forgemaster_risen.main([])
 
-    import import_hoh1
+    from hoh1 import import_hoh1
     for what in import_hoh1.stale_imports():
         print(f"warning: the HoH1 {what} import predates converter version {hwr.CONVERTER_VERSION}; "
-              f"rerun tools/import_hoh1.py {what}")
+              f"rerun tools/hoh1/import_hoh1.py {what}")
 
     stamp = library_stamp(mods)
     update = update_id(mods)

@@ -90,7 +90,7 @@ effects get an `intensity-mul` of (b + a x NG) / b, with b the tooltip's damage.
 `hwp_<name>`, so `cht_give_specific_trinket hwp_lucky_hat` gives one. Prices: common 200,
 uncommon 750, rare 3000, epic 6000.
 
-**Icons.** Every trinket has its HoH1 icon once `tools/import_hoh1.py trinkets` (or
+**Icons.** Every trinket has its HoH1 icon once `tools/hoh1/import_hoh1.py trinkets` (or
 `python -m gamelab doctor --fix`) has run on a machine with HoH1 installed. It cuts them from
 the player's own install into `gui/hwp/icons_trinkets_hoh1.png` and lists their order in
 `res/language/english/hwp_trinkets_hoh1art.lang`. Both are gitignored `local` files, packed

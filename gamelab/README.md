@@ -26,7 +26,7 @@ uv run python -m gamelab doctor --fix
 ```
 
 Doctor prepares ignored game dumps, tools, environment links, fixtures and
-Forgemaster risen/body units (`tools/make_forgemaster_risen.py`). Its
+Forgemaster risen/body units (`tools/generate/make_forgemaster_risen.py`). Its
 save-backup and optional HoH1 choices are explained in the detailed skill. Respect
 existing machine-local answers. Ask only for an unanswered HoH1 choice or ambiguous
 saves; do not invent paths, skip an owned install, manually write confirmation

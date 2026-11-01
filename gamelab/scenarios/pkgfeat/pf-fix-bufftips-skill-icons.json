@@ -1,6 +1,6 @@
 {
  "name": "pf-fix-bufftips-skill-icons",
- "about": "fix-bufftips-skill-icons against the built package qol instead of the mods' source folders (tools/make_package_scenarios.py). Issue #28, mods/bufftips: vanilla's class skill buffs with no \"hud\" icon (War Cry and 12 other families, SkillBuffs.as) get one, so they reach the buff bar and its tooltip. A fresh Warrior on Bandit Keep floor 0 learns and casts War Cry: the buff's def has an icon and the bar shows it as War Cry with its description; hovering it makes bufftips log the tip. bufftips.skill_icons off leaves the next cast off the bar, on puts it back. Each other family, given with gl givebuff, shows a named, described icon. Mods core + bufftips.",
+ "about": "fix-bufftips-skill-icons against the built package qol instead of the mods' source folders (tools/generate/make_package_scenarios.py). Issue #28, mods/bufftips: vanilla's class skill buffs with no \"hud\" icon (War Cry and 12 other families, SkillBuffs.as) get one, so they reach the buff bar and its tooltip. A fresh Warrior on Bandit Keep floor 0 learns and casts War Cry: the buff's def has an icon and the bar shows it as War Cry with its description; hovering it makes bufftips log the tip. bufftips.skill_icons off leaves the next cast off the bar, on puts it back. Each other family, given with gl givebuff, shows a named, described icon. Mods core + bufftips.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

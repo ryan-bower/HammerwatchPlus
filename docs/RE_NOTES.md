@@ -500,11 +500,11 @@ Verified means measured on the pinned build (run id or source line). Assumed is 
   (only sandboxed); a HoH1 version other than this machine's. Its `gamecode/sdk/hoh1`
   hash would differ from `gamelab/manifest.json`, so `bootstrap.py --verify` would fail
   there.
-- ~~**Not covered:** `tools/make_pet_dyes.py` output~~: covered since, see the next section.
+- ~~**Not covered:** `tools/generate/make_pet_dyes.py` output~~: covered since, see the next section.
 
 ## 2026-10-17 (night): doctor makes the pet dyes and smoke-boots the machine
 
-- **Pet dyes.** `tools/make_pet_dyes.py` now writes `dye/.hwp-generated.json` with its own
+- **Pet dyes.** `tools/generate/make_pet_dyes.py` now writes `dye/.hwp-generated.json` with its own
   sha256, the pets it made and the sha256 of every source unit and sheet. `--verify` (and
   `problems()`) reports missing copies, a changed generator, a changed source or a pet
   whose source appeared since (the HoH1 import adds 21). The dotfile never packs
@@ -684,7 +684,7 @@ Verified means measured on the pinned build (run id or source line). Assumed is 
   achievement, sets its character flag and opens the exit. The wave arena passed
   `actors/hwp/wave_boss.unit`, so the prefab was null and filling the bar threw "Null
   pointer access" (`SurvivalMission.as:126`): the arena champion never spawned. Verified
-  in plan-t6b run 051540. `tools/make_wave_boss_prefab.py` now writes a copy of the
+  in plan-t6b run 051540. `tools/generate/make_wave_boss_prefab.py` now writes a copy of the
   warrior spawner for the arena. Worldscript rows decode as `[type, id, pos, enabled,
   triggerTimes, ?, (comment), params, (links)]`; a ScriptLink's links are flat
   `id, delay` pairs.
@@ -1157,7 +1157,7 @@ Checks: `plan-firearms-a` 20261019-020024, `-b` 20261019-015752, `-orbs` 2026101
 - **Textures must be power-of-two** (verified). A 216x24 icon atlas logged
   `[ERR] Texture sizes (216x24) should be power of two`, and the game then hung after script
   compile: no main menu, exit 1, no crash dump (run 20261019-010915). Padded to 256x128 and
-  256x32, it passed (20261019-011513). `tools/make_firearms_icons.py` pads every atlas.
+  256x32, it passed (20261019-011513). `tools/generate/make_firearms_icons.py` pads every atlas.
 - **Skill tag bits are below 31** (verified, the module logs them): `hwp_firearm` and
   `hwp_explosive` are bits 21 and 22 with the plan scenarios' mods, 18 and 19 with
   `mod-firearms`'s. The bit depends on which mods are loaded.
@@ -1426,7 +1426,7 @@ empty clip gives, and for dual pistols to throw their magazines one after the ot
   halved: rifle 52/240, pistol 44/180, sniper 64/300, turret 52/240, shotgun pellet 40/132,
   and the 24 elemental rounds through `%block Round`. Hits were checked at 50-90 px and by
   the turret (plan-firearms-a 20261019-152511, plan-firearms-b 20261019-152730 PASS).
-- **The rounds have no trail now** (`tools/make_bullet_art.py`). Missiles and the GL shell
+- **The rounds have no trail now** (`tools/generate/make_bullet_art.py`). Missiles and the GL shell
   keep theirs.
 - **Console item cheats can't give mod items.** `cht_spawn_specific_equipment` runs in the
   [menu] script context, where there is no player and the mod's BaseItems are not loaded.
@@ -1779,7 +1779,7 @@ are above). Measured on build 25932569 unless marked assumed.
   ones unless the editor-only `AllowDuplicates` is set, so the second fishing spot a floor spawned
   removed the first. `HWPFishingHoleNPC` overrides it empty, as core Town.as:366 does.
 - **Unit and texture rules met on the way:** a GUI/doodad texture must be power-of-two
-  (`fish_small.png` is padded to 64Ã—32 by `tools/make_small_fish.py`), and a scene can hold one
+  (`fish_small.png` is padded to 64Ã—32 by `tools/generate/make_small_fish.py`), and a scene can hold one
   `<collision>`: UnitLoader refuses a second ("A scene can only contain a single collision
   definition", the menu crashed), so the bucket's solid rect and sensor share one.
 - **Fish in the wells.** The spot sits on the potion well's water, one scene per well kind, and
@@ -2120,7 +2120,7 @@ another Reload press starts it again as usual. Then the second `/code-review hig
     Active" and "Placeholder Passive") for the 8 vanilla classes and the 3 HoH1 classes.
     The Priest and Paladin keep their ported HoH1 mastery as well, as the page already
     showed them (base kit, vanilla specs, ported mastery, then the 4th).
-- **Icons:** `tools/icon_art/planner_icons.py` now reads `planner/data/`, also cuts the HoH1
+- **Icons:** `tools/art/icon_art/planner_icons.py` now reads `planner/data/`, also cuts the HoH1
   classes' icons (mods/classes svals), and writes `planner/web/icons.png` and `icons.json`.
   The committed sheet uses the committed placeholder atlases; with the HoH1 art imported
   (`mods/classes/hoh1art/`) it also writes the git-ignored `icons.local.png`, which the
@@ -2198,10 +2198,10 @@ another Reload press starts it again as usual. Then the second `/code-review hig
 - Holy Blast and ally healing: `pri_holy_blast.sval` has only damage effects, and
   ShootChargedBeam.as:149 skips team members, so on the pinned build it does not heal allies
   (source, not run). The owner says it heals; not yet measured in GameLab.
-- Art: `HOH1_REMASTERED_ICONS` in `tools/import_hoh1.py` holds each ability's rect in HoH1's
+- Art: `HOH1_REMASTERED_ICONS` in `tools/hoh1/import_hoh1.py` holds each ability's rect in HoH1's
   `gui/icons_skills.png` (29 cells). `import_hoh1.py classes` copies that sheet whole to
   `mods/classes/hoh1art/players/hwp/remastered/icons.png`; the committed placeholder at
-  `players/hwp/remastered/icons.png` is made by `tools/make_remastered_icons.py`. Doctor's
+  `players/hwp/remastered/icons.png` is made by `tools/generate/make_remastered_icons.py`. Doctor's
   classes row now also wants the sheet, so `doctor --fix` writes it on an existing clone
   (checked: with the file moved away, `import_missing('classes')` lists it, and the importer
   rewrites it byte-identical). Default build packs the placeholder (2608 B), `--with-local`
@@ -2272,10 +2272,10 @@ another Reload press starts it again as usual. Then the second `/code-review hig
   rounds, all within +-20, against the burst's 1.5 over 6. A wide round often leaves the probe's
   400 px radius after one sample, so a first-to-last heading drops exactly the wide ones.
 - Art (the pixel-art agent): held models `hwp_hcannon_mh/oh`, `hwp_flamerifle`,
-  `hwp_autorifle.model` (new `tools/make_gun_models.py`, an ozz mesh reader/writer: all 158
-  models round-trip byte-identical), icons and close-ups (`tools/icon_art/fa_guns.py`), drops
-  (new `tools/make_firearms_drops.py`, sheet now 128x64), cannon rounds and `flame_jet.effect`
-  (`tools/make_bullet_art.py`, rounds.png now 128x128). flame.unit now draws flame_jet.
+  `hwp_autorifle.model` (new `tools/generate/make_gun_models.py`, an ozz mesh reader/writer: all 158
+  models round-trip byte-identical), icons and close-ups (`tools/art/icon_art/fa_guns.py`), drops
+  (new `tools/generate/make_firearms_drops.py`, sheet now 128x64), cannon rounds and `flame_jet.effect`
+  (`tools/generate/make_bullet_art.py`, rounds.png now 128x128). flame.unit now draws flame_jet.
   mod-all 20261020-174139 PASS. look-firearms-cannon 20261020-173754 PASS: the held guns, the flame and full-auto rounds in
   flight, the item icons, and the skill bar's flamethrower and full-auto close-ups (logged
   "flamethrower close-up ... tier 2", "full-auto close-up ... tier 3"). Judged by eye.
@@ -2332,7 +2332,7 @@ another Reload press starts it again as usual. Then the second `/code-review hig
 
 - The planner designs became a mod, `mods/specs` (requires `core`): six subclasses
   registered by `players/hwp/specs/class_specs.sval` (written by
-  `tools/make_specs_classes.py`), one active and one passive each, two or three orbs per
+  `tools/generate/make_specs_classes.py`), one active and one passive each, two or three orbs per
   skill. Commits: a517a8e (the mod, Bannerlord, Winddancer), 290453d (Invocation),
   1f96d2c (Stormbringer), acd02c4 (Branding), ca1cc08 (Arcane).
 - Verified: `plan-specs` passes all six sections, 78 checks, in run
@@ -2342,9 +2342,9 @@ another Reload press starts it again as usual. Then the second `/code-review hig
   Gale and Shared Breath, the Battlefield Standard's ally numbers and Martyr's Banner, and
   Mana Conduit's host relay. Numbers the designs left open were picked and are marked
   assumed in each sval header and on the planner record.
-- Icons are placeholders (tinted vanilla icons, `tools/make_specs_icons.py`). The art
+- Icons are placeholders (tinted vanilla icons, `tools/generate/make_specs_icons.py`). The art
   requests went to the pixel-art agent (`art/specs/REQUESTS.md`). Effects are recoloured
-  vanilla ones (`tools/make_specs_fx.py`) or vanilla effects as they are.
+  vanilla ones (`tools/generate/make_specs_fx.py`) or vanilla effects as they are.
 
 ### Engine facts measured or read for the specs (build 25932569)
 
@@ -2395,7 +2395,7 @@ another Reload press starts it again as usual. Then the second `/code-review hig
   a status (9f6aa43): tested where `plan-specs` measured the behaviour, built where only the
   orb's numbers are checked or a second player is needed. `planner_icons.py` reads the
   specs' icon sheet.
-- Audio (4f7d229): `tools/audio_pick` renders vanilla FMOD events offline with the game's
+- Audio (4f7d229): `tools/art/audio_pick` renders vanilla FMOD events offline with the game's
   own `fmodstudio.dll` 2.2.11 (banks read from the install's `res/assets/sound`, nothing
   written there; the NRT WAV writer, so nothing plays). 17 sound slots, 3-4 options each,
   listed in `art/specs/AUDIO.md`; the picker page is a private artifact,
@@ -2435,8 +2435,8 @@ these were fixed, and the run above passes with two new checks:
   (`Verbs_specs.as`), as the read-only verbs of the other plans do (Verbs_bench, classesa/b,
   farming, firearms).
 
-World sprites: the pixel-art agent drew the four strips in `art/specs/fx` (`tools/icon_art/sp_fx.py`).
-`tools/make_specs_fx.py` packs them into `effects/fx.png` (256x128: sigil 0,0; orb 96,0; claw
+World sprites: the pixel-art agent drew the four strips in `art/specs/fx` (`tools/art/icon_art/sp_fx.py`).
+`tools/generate/make_specs_fx.py` packs them into `effects/fx.png` (256x128: sigil 0,0; orb 96,0; claw
 0,24; standard 0,72). They are used by:
 - `branded_sigil.effect`: the sigil above a branded enemy, seen in run `20261021-171214`;
 - `claw.effect`: the claw, with the vanilla fire impact (`pyrebrand.sval claw-effects`);
@@ -2491,7 +2491,7 @@ are unchanged, so no new run was made; the icons are not yet seen in game.
 
 ## 4th-spec sounds wired, icon round 3 (2026-10-21)
 
-Icon round 3 (`tools/icon_art/sp_r3.py`, picker ids `specs3.<name>`) redid the 24 icons that
+Icon round 3 (`tools/art/icon_art/sp_r3.py`, picker ids `specs3.<name>`) redid the 24 icons that
 were not unique: the six spec emblems (still placeholders) and 18 recolours, shrunken copies or
 reused motifs. The user took 6 new ones (the Deadeye, Winddancer, Bannerlord and Branding
 emblems, Lightning Rod, Feared Crest) and kept the rest, the Arcane and Aerotheurge emblems'
@@ -2896,7 +2896,7 @@ Planner only, nothing built:
   the spec still counts 1 active and 1 passive; the page draws the form inside Necrotic
   Resurrection's card (checked in a headless Edge screenshot of `#priest`). Necrotic
   Resurrection's levels no longer carry the Penance numbers; Penance's own levels do (1/1/2/2/3).
-- Icon ideas (`tools/icon_art/sp_pri.py`, picker ids `specsP.<name>`, published to the picker
+- Icon ideas (`tools/art/icon_art/sp_pri.py`, picker ids `specsP.<name>`, published to the picker
   https://claude.ai/artifact/PSk1d9NwASasB5zqmnccNq): Necrotic Resurrection, Sacrificial
   Penance, Call of Heresy (24x24) and the Heresy stack below 5 and at 5+ (14x14). Below 5 is
   purple; 5+ is red hot, each idea the same letter's motif gone too far, so the two read apart.
@@ -2907,19 +2907,19 @@ Planner only, nothing built:
 - Penance (the user's rules): mana 50, no cooldown of its own. It shares Necrotic Resurrection's,
   so it can't be used while that is on cooldown. Using it consumes your Divine Favor and starts no
   cooldown, so the skill is Necrotic Resurrection again, ready to cast.
-- Round 2 (`tools/icon_art/sp_pri2.py`, ids `specsP2.<name>`, same picker). The user's round-1
+- Round 2 (`tools/art/icon_art/sp_pri2.py`, ids `specsP2.<name>`, same picker). The user's round-1
   picks were Necrotic Resurrection a, Sacrificial Penance a, Call of Heresy c ("but replace the
   sigil with an eye") and Heresy b at both levels. This round has three refinements of each pick,
   with the pick beside them, plus first ideas for the six icons round 1 left out: the spec emblem
   (`pri_class`), the four orbs (Ravenous Lunge, Rot Bloom, Pyre Sacrifice, Deeper Depravity) and
   `hud_devouring`, the status shown during the 3 s lunge-and-eat channel.
-- Round 3 (`tools/icon_art/sp_pri3.py`, ids `specsP3.<name>`, same picker). These six were settled
+- Round 3 (`tools/art/icon_art/sp_pri3.py`, ids `specsP3.<name>`, same picker). These six were settled
   in round 2 and are in `art/specs/override/` (`sp_pri3.py --finals`): Necrotic Resurrection
   (round-1 a), Sacrificial Penance (round-2 c), the emblem (c), Deeper Depravity (a), Ravenous
   Lunge (b) and Rot Bloom (a). Round 3 redoes five of them per the user's notes: Call of Heresy and
   Pyre Sacrifice in necrotic green, both Heresy eyes green (below 5 from round-2 a, 5+ from the
   kept round-1 pick), and the eating status's maw with defined teeth and lips. The icons go into
-  the specs sheet when the spec is built (`tools/make_specs_icons.py` has no Priest row yet).
+  the specs sheet when the spec is built (`tools/generate/make_specs_icons.py` has no Priest row yet).
 - Round 3's picks: Call of Heresy a, Pyre Sacrifice b, Heresy below 5 a and the eating status b,
   now in `art/specs/override/` (`sp_pri4.py --finals`). Round 4 (`sp_pri4.py`, ids
   `specsP4.<name>`) is only the Heresy 5+ status: the kept round-1 pick with the eye's purple
@@ -2932,7 +2932,7 @@ Planner only, nothing built:
 ## Devil Forgemaster: what building the risen taught (2026-10-22)
 
 The Priest's 4th spec is in `mods/specs` (`scripts/HWP/Specs/Forgemaster.as`, the units made by
-`tools/make_forgemaster_risen.py`). Facts measured on the pinned build while building it, each with
+`tools/generate/make_forgemaster_risen.py`). Facts measured on the pinned build while building it, each with
 its run (`plan-forgemaster-smoke` and `plan-forgemaster`, `gamelab/results/`):
 
 - **`="./x"` resource paths resolve against the unit being loaded, not the file that says it.**
@@ -3205,7 +3205,7 @@ its run (`plan-forgemaster-smoke` and `plan-forgemaster`, `gamelab/results/`):
   AngelScript merged without conflicts (SpecsModule.as, Combat.as, Hands.as auto-merged).
 - **Verified on the merged tree:** `mod-all 20261022-193227` PASS, all 31 modules enabled, town
   reached, no script errors in our files, clean teardown; the sweep's Python tests (57 passed,
-  2 skipped: `gamelab/tests`, `test_res_snapshot.py`, `test_runner_restart.py`,
+  2 skipped: `tests`, `test_res_snapshot.py`, `test_runner_restart.py`,
   `tools/compiler_selftest.py`); `build.py --check`, `list_verbs.py --check`. Not re-run here: the
   sweep's gameplay reproductions (its own run ids are in `docs/QA_OVERNIGHT.md`).
 - **Review of the gameplay changes (read against the decompiled source):** `riposte.sval`'s old
@@ -3285,8 +3285,8 @@ measurement.
   the game went straight to town with no character-selection window, while the default (no
   choice) passed; "town" is the default and is now treated the same. Only an explicit "resume"
   still needs the window. Two tests added (`test_runner_restart.py`).
-- **Tests under `gamelab/tests/`**: `test_res_snapshot.py` and `test_runner_restart.py` moved there
-  from `gamelab/` (`git mv`); 52 passed, 2 skipped from `python -m pytest gamelab/tests`, the same
+- **Tests under `tests/`**: `test_res_snapshot.py` and `test_runner_restart.py` moved there
+  from `gamelab/` (`git mv`); 52 passed, 2 skipped from `python -m pytest tests`, the same
   count from the repo root.
 - **Declined: the res/ snapshot's cost.** The review flagged hashing ~296 MB twice per run. Measured
   here: `install_res_snapshot()` over 133 entries takes 0.2 s with a warm file cache (a cold one a
@@ -3309,7 +3309,7 @@ measurement.
 - **Script globals do not survive `ChangeLevel`** (seed-repeat 20261018-160442: a global set by
   the verb read 0 on the new floor, verified). Generate and Start of one level share globals.
 - **What works:** gamelab-hands overrides the 11 drawing `Generators/*.as` files (made by
-  `tools/make_seeded_generators.py`, `.orig` beside each, `--check` for drift) with the draws
+  `tools/generate/make_seeded_generators.py`, `.orig` beside each, `--check` for drift) with the draws
   routed through `GameLab::GenRand*`: a private `RandomSequence` while a seeded floor builds,
   the vanilla calls otherwise. The seed rides in the town save (TownRecordSave hook, read by
   the TownRecordLoad that `Generate` fires at MissionGameMode.as:434, before the generator at
@@ -4257,7 +4257,7 @@ With these, all 38 pass on the merged tree (last reruns 20261026-135938 to -1411
 - HoH1 item icons are 12x12 cells of `items/items.png`, named in `items/<quality>.sval`
   (`<array name="icon">` texture, frame count, rect). All 37 of ours are there under the
   HoH1 id (`hwp_` dropped, `_` to `-`).
-- `tools/import_hoh1.py trinkets` puts each one in the middle of a 16x16 cell of
+- `tools/hoh1/import_hoh1.py trinkets` puts each one in the middle of a 16x16 cell of
   `mods/trinkets/gui/hwp/icons_trinkets_hoh1.png`. `hwp_trinkets_hoh1art.lang` lists the
   ids in sheet order (`.hwp.trinkets.hoh1art`). Both are the module's `local` files and
   gitignored. At load, `HoH1.as` checks `Resources::HasString` for that string and sets
@@ -4291,7 +4291,7 @@ With these, all 38 pass on the merged tree (last reruns 20261026-135938 to -1411
   (`HWPRouletteShop`, `HWPRouletteMenu`, the board widget with edge and corner hit-testing,
   the scrolling number strip) and `RouletteModule.as` (the wheel on the table).
   `doodads/hwp/hwp_roulette_wheel.unit` (`HWPLocalNPC`, scenes `idle` and `spin`),
-  `roulette_wheel.png` from `tools/make_roulette_art.py`, `gui/hwp_roulette.gui`, lang,
+  `roulette_wheel.png` from `tools/generate/make_roulette_art.py`, `gui/hwp_roulette.gui`, lang,
   setting `roulette.max_stake`.
 - The payout is stake + stake x odds x (1 + Luck/100 + gold find), where gold find is the
   record's `MaterialGainMul * MaterialGainMulMul` minus 1, without the NG+ material bonus.
@@ -4387,7 +4387,7 @@ of e1f1fc7). Ten findings, all fixed.
 6. `BlueprintBank.as` logged the picked blueprint before its null check (food and drink,
    enchantments, trinkets), and the quality loops did not skip null entries.
 7. The trinket strings used `hwp.trinket.` beside `hwp.trinkets.`; all are `hwp.trinkets.` now
-   (lang, svals, `HoH1.as`, `tools/import_hoh1.py`).
+   (lang, svals, `HoH1.as`, `tools/hoh1/import_hoh1.py`).
 8. A roulette payout could overflow `int`. It is computed in `double` and capped at
    2,000,000,000; `roulette.max_stake` is capped at 10,000,000.
 9. The auto skill scan ran every frame; it runs at most every 150 ms now.
@@ -4545,7 +4545,7 @@ class, and `res/language/english/hwp_dup.lang` with different text.
   logged `WHO=a lang=lang-a same=1` (230644, 230659). dup-a alone works (230714).
 - So a library can be copied into every package at the same paths: with identical bytes it
   does not matter whose copy wins. Packed mods load the same way.
-- **Packages measured** (built .bin files, `tools/make_package_scenarios.py`): every package
+- **Packages measured** (built .bin files, `tools/generate/make_package_scenarios.py`): every package
   alone and the all-in-one pack pass (pkg-qol 233210; coop 233246, autoaim 233303, firearms
   233320, specs 233337, classes 233355, keys 233412, campaign 233429, modes 233446, dungeon
   233503, town 233520, pets 233540, all 233601): library booted, stamp check, the Luck cell
@@ -4718,7 +4718,7 @@ that catches one before players do, and the 33 wholesale overrides are the most 
 
 ## 2026-10-27: Packages on their own, HoH1 stand-ins, mixed builds
 
-**Every feature scenario against the built packages.** `tools/make_package_scenarios.py`
+**Every feature scenario against the built packages.** `tools/generate/make_package_scenarios.py`
 writes `gamelab/scenarios/pkgfeat/pf-<scenario>.json` for each feature scenario. The copy
 loads the packages that ship the scenario's mods (at most three) in place of the source
 folders, and keeps only the gamelab probe mods. Looks, benchmarks, probes and the
@@ -4736,7 +4736,7 @@ as a package, and the never-run ones also from source (`suite-20261027-073231-_t
 | fails from source the same way, open | fix-specs-arcane (blink 92 of 112 px, "nudged"), mod-options-tab (the inbox transport's `!gl c17 ...` text lands in the focused search field), mod-puzzle-rooms-outdoor (no constellation found), plan-forgemaster and -bosses (failing since 20261022), and 12 qa-* scenarios from d9d96f8 with no run on this machine before: gladiator/thief/witchhunter integration (the bot dies on floor 0), vanish, chatlinks-native (`chat_empty_off_fixture`), laststats-native, summons (`no_summons_in_town`), specs arcane-ranks, branding-orbs, deadeye-ward, static and static-overlap (the static controls want 0 spell crit, and a level-20 wizard has 3%) |
 
 **The pets package carried HoH1 files.** `HWP-pets.bin` and the all-in-one pack held the 216
-pet units, sprites and the `pets_hoh1.sval` that `tools/import_hoh1.py` had cut from this
+pet units, sprites and the `pets_hoh1.sval` that `tools/hoh1/import_hoh1.py` had cut from this
 machine's HoH1 install. They are gitignored but were not in the module's `local` list. The
 list now names them. `tests/test_release_files.py` asks `git check-ignore` about every file a
 release package carries and fails on any ignored one, except the generated blocks in the
@@ -4777,11 +4777,11 @@ frozen (`docs/modules.md`, Packages). The all-in-one pack with all twelve packag
 
 ## 2026-10-27, the Paladin of Generosity's icons are final
 
-Four picker rounds (`tools/icon_art/sp_pal.py`, `sp_pal3.py`, `sp_pal4.py`; the outputs in
-`tools/icon_art/out/` are gitignored). The final art is in `art/specs/override/`: the round-4 picks
+Four picker rounds (`tools/art/icon_art/sp_pal.py`, `sp_pal3.py`, `sp_pal4.py`; the outputs in
+`tools/art/icon_art/out/` are gitignored). The final art is in `art/specs/override/`: the round-4 picks
 for `pal_class` (C), `hud_pelors_blessing` (C), `pal_pelors_fury` (B), `pal_pelors_blessing` (B),
 `pal_pf_blinding_sun` (C), `pal_pb_display_of_generosity` (B) and `pal_pb_descendent_of_pentival`
-(B), and `pal_pf_holy_sacrifice` from round 2 (C). `tools/make_specs_icons.py` packs 72 painted
+(B), and `pal_pf_holy_sacrifice` from round 2 (C). `tools/generate/make_specs_icons.py` packs 72 painted
 icons into `mods/specs/players/hwp/specs/icons.png`; the two left as placeholders are
 `wiz_class` and `sor_class`, which the user chose to keep.
 
@@ -4790,7 +4790,7 @@ Generosity with Fury, Blessing, Lay on Hands and the four orbs, 10 Blessing stac
 bar, and the skills page. It is a look scenario, not evidence of play.
 
 The planner's icon sheet (`planner/web/icons.png`, `icons.json`, written by
-`tools/icon_art/planner_icons.py`) was stale. Regenerating it adds the `hwp_pal_*` and `hwp_pri_*`
+`tools/art/icon_art/planner_icons.py`) was stale. Regenerating it adds the `hwp_pal_*` and `hwp_pri_*`
 skills, the paladin 4th-spec icons, the three paladin orbs and `hwp_fs_snipe_recoil`.
 
 Things learned while painting:
@@ -4857,7 +4857,7 @@ The player menu's Plus tab (hwplib `Options.as`) is now built from a config regi
 - **The source of the list.** Each module.json has a `config` block: the module's on/off
   `toggle` key, its settings (bool, int or float; a list of values with labels, or a
   min/max/step range; a suffix), and `{"option": "<id>"}` entries for registered Options
-  (key binds, presets). `tools/make_config.py` checks every block against the code. The
+  (key binds, presets). `tools/generate/make_config.py` checks every block against the code. The
   type and default must match the `HWP::Settings::Get*` call that reads the key. A toggle
   must default to on. A module with no toggle must say why in `always_on`. An option must
   be `Register`ed. The script writes `mods/hwplib/tweak/hwp/config.sval`, the lang files
@@ -5072,7 +5072,7 @@ Each item's tags are in `workshop.json`.
 **The page texts.** README rows are written for this repo, so `workshop.py` drops the
 sentences that name repo paths or developer steps:
 
-- `tools/import_hoh1.py`;
+- `tools/hoh1/import_hoh1.py`;
 - `mods/firearms/README.md`;
 - "the user's picks (art/specs/)";
 - the gitignored risen generator.
@@ -5239,7 +5239,7 @@ submit, adds each new one in its own submit, and then reads the gallery back wit
 
 **A shared module.** `module.json` `"shared": true` lets a module be listed in one package
 (petrooms in qol) and required by mods of other packages, which then carry it too
-(`tools/build.py` closure check; `tools/make_config.py` gives each package a `carried` list
+(`tools/build.py` closure check; `tools/generate/make_config.py` gives each package a `carried` list
 and writes `<bool name="shared">` per module). In the settings page (hwplib `Config.as`) a
 package is listed only when one of its own non-shared modules is present, and a shared
 module goes under the first such package. With the same file at the same path in several
@@ -5291,7 +5291,7 @@ package pass).
 
 ## 2026-10-28: The Forsaken Tower from HoH1's own levels and generator
 
-`tools/import_hoh1.py campaign` builds mission `hwp_forsaken_tower_hoh1` from HoH1's
+`tools/hoh1/import_hoh1.py campaign` builds mission `hwp_forsaken_tower_hoh1` from HoH1's
 `tweak/dungeons/base.sval`: 23 floors, the 9 hand-made levels as HoH1 ships them and the 14
 act floors generated by HoH1's own generator scripts, copied out of the player's install at
 import time (local, gitignored `HoH1Gen/`) behind the committed `HWPHoH1Generator`. What the
@@ -5332,7 +5332,7 @@ same name whose Editable params are named differently. HoH2's defaults then stan
 | CheckTimeOfDay | OnDay / OnNight | After, Before, OnTrue / OnFalse | HoH1 ships without `TIME_DAY`, so OnNight always runs: it now sets both branches |
 
 `hoh1_convert.SCRIPT_PARAMS` renames them in every level and prefab script row, keeping a fed
-param's `#`. `tools/import_hoh1.py`'s convert log counts them (`params:<script> N`). Left as
+param's `#`. `tools/hoh1/import_hoh1.py`'s convert log counts them (`params:<script> N`). Left as
 they are: AnnounceText's AnchorY, FadeTime and Override; DangerArea's ArmorMul (only on the
 10000-damage bridge collapse); SpawnItem's ItemID (one secret room's Duke's signet ring:
 HoH1 item ids aren't HoH2's); PlayMusic's Channel; UnlockShortcut's Targets.
@@ -5446,7 +5446,7 @@ rest as MeleeFollower, the battlement archer Passive (it never moves in HoH1 eit
 `hoh1_tower`: each tower boss floor loaded and its fight started the level's own way, then the
 priest (Deeper Depravity at epic) killed each boss. The golem, the Warden, the three Wraiths,
 the Watcher and the Vampire Lord each left a body on the floor that was raised there and still
-standing 3 s later. The dragon isn't raisable (tools/hoh1_risen.py EXCLUDE) and leaves no body,
+standing 3 s later. The dragon isn't raisable (tools/hoh1/hoh1_risen.py EXCLUDE) and leaves no body,
 as intended. No code change was needed: the import's risen table and bodies were enough.
 
 ## 2026-10-28: the Forsaken Tower played floor 1 to the end (tower-run), HoH1's gambler and end windows
@@ -5492,7 +5492,7 @@ What the run found, besides the ports below:
   `LevelExit` to boss_dragon.lvl. HoH2's LevelExit is a bare `ChangeLevel`, which loads the
   file but leaves the mission's floor index on the bridge. The importer now turns a LevelExit
   to the tower's next floor into `HoH1LevelExitNext` (MissionManager::NextLevel), as the other
-  floors use (`tools/hoh1_convert.py` MISSION_EXITS). The Battlements' two exits run through a
+  floors use (`tools/hoh1/hoh1_convert.py` MISSION_EXITS). The Battlements' two exits run through a
   SetFlag (`battlements_left`/`right`) before the exit, and the bot's exit finder now follows
   that chain (`Level.exit_script`).
 - **Traps a player leaves silent.** Many shooters belong to chest rooms whose gold or silver
@@ -5546,7 +5546,7 @@ HoH1's own .gui files, and the importer maps the class names (CLASS_MAP).
   and it null-pointers on HoH1's markup (ScrollbarWidget.as:157). Both are ported as
   `hoh1-scrollrect` and `hoh1-scrollbar` (HoH1's GUI/Scrollbar.as, on HoH1's scrollbar
   sprites), and the importer renames the tags in imported .gui files
-  (`tools/hoh1_convert.py` GUI_TAGS), so HoH2's own widgets are untouched.
+  (`tools/hoh1/hoh1_convert.py` GUI_TAGS), so HoH2's own widgets are untouched.
   - HoH1's mouse came through `Widget.OnMouseDown` and `m_hovering`, which HoH2's Widget no
     longer has. The port reads hover from the mouse position and the click from
     `GetMenuInput().Forward`.
@@ -5920,13 +5920,13 @@ lightning colour, `tweak/player_colors.sval` `lightning_gem` e69eff / c318e7), w
 - 7 lang strings (name, buff text, 5 joint names);
 - an `AddSeed` line, whose position indexes two sprite sheets;
 - a crop unit with a hand-indexed frame;
-- `tools/make_wild_plots.py`'s hard-coded seed list;
+- `tools/generate/make_wild_plots.py`'s hard-coded seed list;
 - three pieces of art: the plant and buff icon in `farm.png`, a seed packet in
   `gui/hwp_seeds.png` and a bud in `gui/hwp_harvest.png`.
 
 The harvest sheet was full: 8 cells of 16 px in 128 px.
 
-`tools/make_herbs.py` `STRAINS` now writes all of them. The art is Lucky Leaf's, recoloured
+`tools/generate/make_herbs.py` `STRAINS` now writes all of them. The art is Lucky Leaf's, recoloured
 by its three-tone ramp: light 96dc78, mid 40a848, dark 1c6028. The stem 2c682c stays, and a
 seed packet's plant takes one colour. Regenerating the three existing strains gives
 pixel-identical sheets, so the old art was drawn this way too. `hwp_harvest.png` grows to
@@ -6324,7 +6324,7 @@ What changed (`bufftips`):
   empty. A def that already has `m_hud` keeps it, so a game update that adds icons wins. Off
   takes back only the icons it gave.
 - The icons are the middle 14x14 of each skill's own 24x24 icon, cut rather than scaled
-  (`tools/make_bufftips_icons.py`). Cleansing Touch shares Lay on Hands' icon with
+  (`tools/generate/make_bufftips_icons.py`). Cleansing Touch shares Lay on Hands' icon with
   Invigorating Touch and gets a pale tint.
 - Each machine patches its own defs. A War Cry from another player applies the same def, so
   the ally's bar shows it. Co-op is not tried in the lab (one machine).
@@ -6423,7 +6423,7 @@ What changed (`mmhmm`):
   is a time measured from the takes.
 - The voice: the female village NPCs use `female_1`..`female_4` (`actors/npcs/town/*.unit`);
   `female_5`..`female_10` are only in `players/voices.sval`. Every `interact_female_*` take
-  was rendered offline (`tools/audio_pick/fmod.py`, 16 plays each) and measured: share of
+  was rendered offline (`tools/art/audio_pick/fmod.py`, 16 plays each) and measured: share of
   energy under 500 Hz (a closed-mouth hum keeps most of it there), voicing, and the pitch
   contour. `interact_female_2` (Equipment Buyer, Enchanter, Mystic, farmer woman, Alice) has
   two takes, both fully voiced and nasal (0.69 and 0.70 under 500 Hz, centroids 877 and 985
@@ -6767,7 +6767,7 @@ walking player takes from 40 px to 20 px, then confused them 0.15 s later; a gly
 under a player standing there appeared under their feet. The larger issue: the dart glyph
 was built the same way (0.2 s), and the HoH1 traps of issue #37 already have a telegraphed
 behaviour (`HWPTrap`), so both glyphs are now generated HWPTrap kinds
-(`tools/make_hwp_traps.py`): always shown (`glyph_idle`), a player within 20 px lights them
+(`tools/generate/make_hwp_traps.py`): always shown (`glyph_idle`), a player within 20 px lights them
 (`glyph_active`, HoH2's red `area_warning_xray_1000` and a click) for 1 s, then the burst;
 they re-arm in place. The burst units are gone. The bomb glyph keeps its TripMine and HoH1's
 1125 ms fuse with the bomb's shadow, a telegraph already.
@@ -7137,7 +7137,7 @@ to the next floor is vanilla's path for the dead, not measured here).
 "Necrotic Resurrection isn't possible because there are no intact bodies at all." The
 published v0.3 `HammerwatchPlus-All.bin` (release asset, built from `d903442`) holds 0 of the
 141 `players/hwp/specs/forgemaster/bodies/` and 0 of the 141 `risen/` units. Those units are
-made from the player's own `gamecode/sdk/hoh2/` by `tools/make_forgemaster_risen.py` and
+made from the player's own `gamecode/sdk/hoh2/` by `tools/generate/make_forgemaster_risen.py` and
 gitignored, and `tools/build.py` never ran that tool. It also skipped the class-unit copies
 without a word when `gamecode/sdk/hoh2/` was missing, and the release has none of those either
 (colors 184, keys 13, attrclick, mmhmm and trinkets 1 to 3 each, pets 12 plus the dyes). Every

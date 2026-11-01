@@ -165,7 +165,7 @@ keys module, a catch can bring up a key of any tier, ace keys included.
   alone (`SpawnCatchLoot`), maybe a key pickup, and sends the catcher
   `fishing.landed` (fish + item level + key tier) for the fish itself.
 - Fishing spots, holes and full traps show a fish icon on the minimap
-  (`gui/hwp/map_icons.png` from hwplib, made by `tools/make_map_icons.py`).
+  (`gui/hwp/map_icons.png` from hwplib, made by `tools/generate/make_map_icons.py`).
 - `fishing.*` settings are host-synced; `fishing.coast 0` removes the coast
   spots and the pirate. `hwp fishing buy bait|bait20|shrimp|squid|rod|trap` buys from the
   console; `hwp fishing keys` and `hwp fishing smooth` report (above). With `fishing.debug 1`: `hwp fishing hole` (host), `hwp fishing wells`

@@ -33,8 +33,8 @@ saves-backup/
 .base/
 .base-hoh1/
 /modules/
-# icon idea renders (tools/icon_art/README.md)
-tools/icon_art/out/
-# the class planner's icons cut from the local HoH1 art (tools/icon_art/planner_icons.py)
+# icon idea renders (tools/art/icon_art/README.md)
+tools/art/icon_art/out/
+# the class planner's icons cut from the local HoH1 art (tools/art/icon_art/planner_icons.py)
 planner/web/icons.local.png
-tools/audio_pick/out/
+tools/art/audio_pick/out/

@@ -147,7 +147,7 @@ look like the game and like each other:
   no smoothing, 1 px outline). Each card is drawn at 480x270 and scaled 3x, nearest
   neighbour.
 - **The wordmark.** "HammerwatchPlus" is set in UnifrakturMaguntia, a blackletter face under
-  the SIL Open Font License (`tools/fonts/`, licence beside it).
+  the SIL Open Font License (`tools/art/fonts/`, licence beside it).
 - **The symbols.** Every module has a symbol (`SYMBOLS`): game sprites, or the module's own
   art, several where one doesn't say it (farming's crops and herb, keys' three tiers).
   `python tools/workshop_art.py --sheet` draws them all with their ids, for checking a

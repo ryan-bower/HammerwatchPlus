@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-specs-righteous-ranks",
- "about": "qa-specs-righteous-ranks against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Righteous Crusade all5 ranks: native ApplyBuff duration scaling, actual Warcry movement effect, natural expiry and reversion. Controlled setup; ally aura remains blocked without a second client.",
+ "about": "qa-specs-righteous-ranks against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Righteous Crusade all5 ranks: native ApplyBuff duration scaling, actual Warcry movement effect, natural expiry and reversion. Controlled setup; ally aura remains blocked without a second client.",
  "fixture": "town-paladin",
  "timeout": 300,
  "steps": [

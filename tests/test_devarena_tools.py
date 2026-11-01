@@ -141,7 +141,7 @@ def test_export_refuses(tmp_path, edit, why):
 
 
 def test_export_refuses_a_generated_vanilla_copy(tmp_path):
-    # tools/make_specs_classes.py copies a vanilla skill with its vanilla id (the Generosity
+    # tools/generate/make_specs_classes.py copies a vanilla skill with its vanilla id (the Generosity
     # paladin's Lay on Hands): an edit to that id is a vanilla edit, not one to bake there
     from tools.devarena import export
     f = tmp_path / "mods" / "specs" / "generosity" / "bolt.sval"

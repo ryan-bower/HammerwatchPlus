@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-farming",
- "about": "mod-farming against the built package town instead of the mods' source folders (tools/make_package_scenarios.py). mods/farming loads in town: the self-check lines from mods/farming/README.md Testing step 1, no script errors in our files.",
+ "about": "mod-farming against the built package town instead of the mods' source folders (tools/generate/make_package_scenarios.py). mods/farming loads in town: the self-check lines from mods/farming/README.md Testing step 1, no script errors in our files.",
  "fixture": "town-paladin",
  "timeout": 120,
  "steps": [

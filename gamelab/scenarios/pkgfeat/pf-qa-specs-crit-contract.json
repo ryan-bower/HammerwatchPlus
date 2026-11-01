@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-specs-crit-contract",
- "about": "qa-specs-crit-contract against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Normal-speed harness contract only: native skill crit query/set, independent critprobe readback, unrelated native orb/skill modifier rebuild, then restore/query original. Does not claim gameplay damage or critical-hit behavior coverage.",
+ "about": "qa-specs-crit-contract against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Normal-speed harness contract only: native skill crit query/set, independent critprobe readback, unrelated native orb/skill modifier rebuild, then restore/query original. Does not claim gameplay damage or critical-hit behavior coverage.",
  "fixture": "town-paladin",
  "timeout": 240,
  "steps": [

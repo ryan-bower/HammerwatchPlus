@@ -40,7 +40,7 @@ LUCKY_BUFF = hash_string("hwp_herb_lucky_leaf")
 EMBER_BUFF = hash_string("hwp_herb_ember_kush")
 LIGHTNING_BUFF = hash_string("hwp_herb_lightning_kush")
 REPO = Path(__file__).resolve().parents[2]
-# the wild plot units' minimap sprite (tools/make_wild_plots.py): the crop icon of core's map icons
+# the wild plot units' minimap sprite (tools/generate/make_wild_plots.py): the crop icon of core's map icons
 WILD_ICON = 'texture="gui/hwp/map_icons.png" frame="24 0 9 11"'
 WILD_LINE = r"\[HWP:farming\] (wild (\w+) plot at (-?\d+),(-?\d+)|no spot for a wild plot on this floor)"
 
@@ -674,7 +674,7 @@ class Checks(Base):
 
     # --- fix-farming-lightning-kush
     def lightning_kush(self):
-        """Issue #15: Lightning Kush, the fourth Holy Herb strain, one row of tools/make_herbs.py's
+        """Issue #15: Lightning Kush, the fourth Holy Herb strain, one row of tools/generate/make_herbs.py's
         table. Its joint rolls, wields and puffs like the others; the buff (hwp_herb_lightning_kush
         in the off hand's hwp_herb slot) adds 0.2 to the lightning damage multiplier and nothing
         to fire. Plants & Herbs shows every seed and harvest (section b had 16 cells: the 17th

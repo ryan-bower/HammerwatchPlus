@@ -45,7 +45,7 @@ A record with no `cls` belongs to the Firearms Specialist.
 The class bar's second row holds the parked HoH1 classes (`row: "hoh1"` on the class record):
 the three ported ones (Thief, Gladiator, Witch Hunter, built in `mods/classes` but hidden from
 character creation) and the six original HoH1 classes HoH2 remade, `hoh1_<cls>.json`. Those
-six are written by `tools/planner_hoh1.py` from a local HoH1 install (read only; `--check`
+six are written by `tools/hoh1/planner_hoh1.py` from a local HoH1 install (read only; `--check`
 reports drift): HoH1's attack, three actives and three passives with HoH1's numbers per
 level and HoH1's stats, in our own words. HoH1 had no weapons and no orbs, so they start with
 armor only, and their orbs are `mods` records on those skill ids.
@@ -81,10 +81,10 @@ of Hammerwatch I specs:
 `web/icons.png` and `web/icons.json` are the skill and orb icons, cut from the game's
 atlases (vanilla, Firearms, the 4th specs' placeholder sheet and the HoH1 classes' committed
 placeholders) by
-`tools/icon_art/planner_icons.py`, which needs `gamecode/`. With the HoH1 art imported
+`tools/art/icon_art/planner_icons.py`, which needs `gamecode/`. With the HoH1 art imported
 (`python -m gamelab doctor --fix`), it also writes the git-ignored `web/icons.local.png`,
 which the server sends instead. A record with `hoh1_icon` (`"<cls>/<skill>"`, a key of
-`HOH1_REMASTERED_ICONS` in `tools/import_hoh1.py`) takes its icon from the HoH1 Remastered (now Echoes of Hammerwatch I)
+`HOH1_REMASTERED_ICONS` in `tools/hoh1/import_hoh1.py`) takes its icon from the HoH1 Remastered (now Echoes of Hammerwatch I)
 sheet, `mods/classes/players/hwp/remastered/icons.png`; `hoh1_file` names its HoH1 sval.
 A doctrine, skill or orb with `icon_art` (a name in `art/specs/override/`, e.g. `pri_rot_bloom`)
 takes that drawn icon instead, before the spec is in the game; a doctrine's shows beside its

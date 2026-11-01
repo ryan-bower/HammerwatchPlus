@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-module-wave-standalone",
- "about": "qa-module-wave-standalone against the built package modes instead of the mods' source folders (tools/make_package_scenarios.py). Standalone functional subset with only required modules. Native arena UI/start/NG+5 and controlled accelerated clock expiry/death without rank reward. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
+ "about": "qa-module-wave-standalone against the built package modes instead of the mods' source folders (tools/generate/make_package_scenarios.py). Standalone functional subset with only required modules. Native arena UI/start/NG+5 and controlled accelerated clock expiry/death without rank reward. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

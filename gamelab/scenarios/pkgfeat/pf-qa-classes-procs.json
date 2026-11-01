@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-classes-procs",
- "about": "qa-classes-procs against the built package classes instead of the mods' source folders (tools/make_package_scenarios.py). Fixed 30-second real held-main-attack benches for Poisoned Blades ranks0/1/5 and Torch ranks1/5, with actual per-skill damage/hits and exact target HP. Planned Attack applied multiplier at all five ranks plus actual low/max-rank damage. Controlled 1x fixtures; no ordinary-run claim or retries.",
+ "about": "qa-classes-procs against the built package classes instead of the mods' source folders (tools/generate/make_package_scenarios.py). Fixed 30-second real held-main-attack benches for Poisoned Blades ranks0/1/5 and Torch ranks1/5, with actual per-skill damage/hits and exact target HP. Planned Attack applied multiplier at all five ranks plus actual low/max-rank damage. Controlled 1x fixtures; no ordinary-run claim or retries.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

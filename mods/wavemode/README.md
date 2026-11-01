@@ -12,7 +12,7 @@ rank, and the rank is the arena's NG+ level next time.
   `prefabs/hwp/wave_boss_spawner.pfb`. The survival module loads `boss` with
   `Resources::GetPrefab`, so it must be a spawner prefab: a `.unit` there left
   the prefab null and the champion never came (fixed 2026-10-18).
-  `tools/make_wave_boss_prefab.py` copies the valor trial's
+  `tools/generate/make_wave_boss_prefab.py` copies the valor trial's
   `heaven_warrior_spawner.pfb` (intro, music, enemy clear-out, exit portal) with
   the boss swapped for `actors/hwp/wave_boss.unit` and the trial's achievement
   and `boss_warrior` character flag unlinked; rerun it (`--check` reports a stale

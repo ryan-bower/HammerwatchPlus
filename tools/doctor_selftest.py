@@ -29,7 +29,7 @@ Smoke boot (gamelab/doctor.py explain_smoke / smoke; subprocess.run is stubbed s
   every failure shape   -> its plain cause (antivirus, no GL, blank frames, slow, leak, ...)
   stamp                 -> none / current / core count changed; a red prerequisite blocks --fix
 
-Pet dyes (tools/make_pet_dyes.py problems(), the real generator on two pets in a sandbox):
+Pet dyes (tools/generate/make_pet_dyes.py problems(), the real generator on two pets in a sandbox):
   missing, deleted copy, generator changed, source unit changed, new pet source -> stale
 
 Exit 0 only if every case held.
@@ -342,7 +342,7 @@ def pet_dye_cases(check) -> None:
     """make_pet_dyes.problems(): complete, missing, script changed, source changed, new pet.
     Runs the real generator on two vanilla pets into a sandbox mods/pets."""
     check = detailed(check)
-    import make_pet_dyes as mpd
+    from generate import make_pet_dyes as mpd
     print("--- pet dyes")
     if not mpd.BASE.is_dir():
         check("pet dyes: gamecode/sdk/hoh2 present (run bootstrap.py first)", False)
