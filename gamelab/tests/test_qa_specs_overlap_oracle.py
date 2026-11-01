@@ -65,5 +65,59 @@ class OverlapOracleTests(unittest.TestCase):
         self.assertFalse(evaluate(data)["two_casts"][0])
 
 
+
+class CurrentSpeedGeometryTests(unittest.TestCase):
+    """Source-time model controls are not native critical/damage evidence."""
+
+    @staticmethod
+    def native_schedule():
+        from pathlib import Path
+        import re
+        source = (Path(__file__).resolve().parents[2] /
+                  "mods/gamelab-hands/scripts/GameLab/Verbs_qa_static_overlap.as").read_text()
+        return tuple(int(re.search(r"!" + name + r" && m_t >= (\d+)", source).group(1))
+                     for name in ("m_newOnly", "m_oldStart", "m_oldOnly"))
+
+    @staticmethod
+    def physics(schedule, first_delay=132, second_delay=132, overshoot=0):
+        data = observation()
+        times = (33, 900, 924, *schedule, 4800)
+        for index, (row, when) in enumerate(zip(data["phases"], times)):
+            when += overshoot if index in (3, 4, 5) else 0
+            row["t"], row["now"] = when, 10000 + when
+            if index:
+                old = 8 + 2 * (when - 33 - first_delay) / 33
+                positions = [old] if index < 3 else [old, 108 + 2 * (when - 900 - second_delay) / 33]
+                row["projectiles"] = [{"unit": -k - 1, "x": x, "y": 0} for k, x in enumerate(positions)]
+            if index >= 3:
+                row["crits"] = [{"type": 11, "text": "11!", "born": row["now"] - 50}]
+        return data
+
+    def test_historical_fixed_times_fail_current_speed_geometry(self):
+        result = evaluate(self.physics((2000, 4400, 4700)))
+        self.assertTrue(result["two_casts"][0])
+        self.assertFalse(result["new_orb_crit"][0])
+        self.assertFalse(result["old_orb_crit"][0])
+
+    def test_current_native_schedule_retains_both_isolated_windows(self):
+        schedule = self.native_schedule()
+        self.assertEqual(schedule[2] - schedule[1], 300)
+        for first in (99, 132, 165):
+            for second in (99, 132, 165):
+                for overshoot in (0, 33):
+                    with self.subTest(first=first, second=second, overshoot=overshoot):
+                        result = evaluate(self.physics(schedule, first, second, overshoot))
+                        self.assertTrue(all(ok for ok, _ in result.values()), result)
+
+    def test_measured_positions_still_refuse_old_orb_in_new_window(self):
+        data = self.physics(self.native_schedule())
+        data["phases"][3]["projectiles"][0]["x"] = 125
+        self.assertFalse(evaluate(data)["new_orb_crit"][0])
+
+    def test_measured_positions_still_refuse_new_orb_in_old_window(self):
+        data = self.physics(self.native_schedule())
+        data["phases"][4]["projectiles"][1]["x"] = 250
+        self.assertFalse(evaluate(data)["old_orb_crit"][0])
+
 if __name__ == "__main__":
     unittest.main()

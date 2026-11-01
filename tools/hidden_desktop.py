@@ -54,6 +54,7 @@ from __future__ import annotations
 
 import ctypes
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -70,6 +71,24 @@ if WINDOWS:
     _u32.CreateDesktopW.restype = wintypes.HANDLE
     _k32.CreateFileW.restype = wintypes.HANDLE
     _k32.CreateJobObjectW.restype = wintypes.HANDLE
+    _k32.CreateJobObjectW.argtypes = [wintypes.LPVOID, wintypes.LPCWSTR]
+    _k32.OpenJobObjectW.restype = wintypes.HANDLE
+    _k32.OpenJobObjectW.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.LPCWSTR]
+    _k32.OpenProcess.restype = wintypes.HANDLE
+    _k32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+    _k32.GetCurrentProcess.restype = wintypes.HANDLE
+    _k32.IsProcessInJob.argtypes = [wintypes.HANDLE, wintypes.HANDLE,
+                                   ctypes.POINTER(wintypes.BOOL)]
+    _k32.GetProcessAffinityMask.argtypes = [wintypes.HANDLE,
+                                          ctypes.POINTER(ctypes.c_size_t),
+                                          ctypes.POINTER(ctypes.c_size_t)]
+    _k32.SetInformationJobObject.argtypes = [wintypes.HANDLE, ctypes.c_int,
+                                            wintypes.LPVOID, wintypes.DWORD]
+    _k32.QueryInformationJobObject.argtypes = [wintypes.HANDLE, ctypes.c_int,
+                                              wintypes.LPVOID, wintypes.DWORD,
+                                              wintypes.LPVOID]
+    _k32.CloseHandle.argtypes = [wintypes.HANDLE]
+    _u32.CloseDesktop.argtypes = [wintypes.HANDLE]
 
     GENERIC_ALL = 0x10000000
     GENERIC_WRITE = 0x40000000
@@ -81,6 +100,7 @@ if WINDOWS:
     INVALID_HANDLE = wintypes.HANDLE(-1).value
 
     CREATE_SUSPENDED = 0x00000004
+    CREATE_UNICODE_ENVIRONMENT = 0x00000400
     IDLE_PRIORITY_CLASS = 0x00000040
     BELOW_NORMAL_PRIORITY_CLASS = 0x00004000
 
@@ -91,6 +111,9 @@ if WINDOWS:
     JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE = 0x00002000
     JobObjectBasicAccountingInformation = 1
     JobObjectExtendedLimitInformation = 9
+    JOB_OBJECT_QUERY = 0x0004
+    PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+    ERROR_ALREADY_EXISTS = 183
 
     ULONG_PTR = ctypes.c_size_t
 
@@ -156,6 +179,19 @@ if WINDOWS:
         _fields_ = [("nLength", wintypes.DWORD), ("lpSecurityDescriptor", wintypes.LPVOID),
                     ("bInheritHandle", wintypes.BOOL)]
 
+    _u32.CreateDesktopW.argtypes = [wintypes.LPCWSTR, wintypes.LPCWSTR, wintypes.LPVOID,
+                                   wintypes.DWORD, wintypes.DWORD, wintypes.LPVOID]
+    _k32.CreateProcessW.argtypes = [wintypes.LPCWSTR, wintypes.LPWSTR, wintypes.LPVOID,
+                                    wintypes.LPVOID, wintypes.BOOL, wintypes.DWORD,
+                                    wintypes.LPVOID, wintypes.LPCWSTR,
+                                    ctypes.POINTER(_StartupInfoW), ctypes.POINTER(_ProcessInformation)]
+    _k32.AssignProcessToJobObject.argtypes = [wintypes.HANDLE, wintypes.HANDLE]
+    _k32.TerminateJobObject.argtypes = [wintypes.HANDLE, wintypes.UINT]
+    _k32.TerminateProcess.argtypes = [wintypes.HANDLE, wintypes.UINT]
+    _k32.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+    _k32.ResumeThread.argtypes = [wintypes.HANDLE]
+    _k32.GetExitCodeProcess.argtypes = [wintypes.HANDLE, ctypes.POINTER(wintypes.DWORD)]
+
 
 DESKTOP = "claude_hidden"
 
@@ -168,6 +204,65 @@ TIMEOUT_EXIT_CODE = 124
 
 def _win_error(call: str) -> OSError:
     return ctypes.WinError(ctypes.get_last_error(), f"{call} failed")
+
+
+def _object_name(name: str, kind: str) -> str:
+    # A single session-local object name, never a window-station path or a
+    # Global namespace. Slot callers supply a fresh pool/slot/run UUID.
+    if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9_.-]{1,120}", name):
+        raise ValueError(f"{kind} must be 1-120 ASCII letters, digits, dots, dashes or underscores")
+    return name
+
+
+def process_in_job(pid: int, job_name: str) -> bool:
+    """Query membership of this exact named job; unknown visibility raises.
+
+    An absent/inaccessible job or process is not proof of membership. No
+    machine-wide process enumeration and no fallback to 'in any job' occurs.
+    The owning run must still hold its job handle when this is called.
+    """
+    _object_name(job_name, "job_name")
+    if type(pid) is not int or not 0 < pid <= 0xFFFFFFFF:
+        raise ValueError("pid must be a positive DWORD integer")
+    if not WINDOWS:
+        raise OSError("exact Windows job membership is unavailable on this platform")
+    job = _k32.OpenJobObjectW(JOB_OBJECT_QUERY, False, job_name)
+    if not job:
+        raise _win_error("OpenJobObjectW")
+    process = None
+    try:
+        process = _k32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
+        if not process:
+            raise _win_error("OpenProcess")
+        belongs = wintypes.BOOL()
+        if not _k32.IsProcessInJob(process, job, ctypes.byref(belongs)):
+            raise _win_error("IsProcessInJob")
+        return bool(belongs.value)
+    finally:
+        if process:
+            _k32.CloseHandle(process)
+        _k32.CloseHandle(job)
+
+
+def _environment(env, job_name: str | None):
+    """Private UTF-16 environment block; never modify the supervisor's env."""
+    if env is None and job_name is None:
+        return None
+    values = dict(os.environ if env is None else env)
+    seen = set()
+    for key, value in values.items():
+        if (not isinstance(key, str) or not key or "=" in key or "\0" in key
+                or not isinstance(value, str) or "\0" in value):
+            raise ValueError("child environment requires nonempty string keys and NUL-free string values")
+        if key.upper() in seen:
+            raise ValueError("duplicate case-insensitive child environment key")
+        seen.add(key.upper())
+    if job_name is not None:
+        values = {k: v for k, v in values.items() if k.upper() != "GAMELAB_JOB_NAME"}
+        values["GAMELAB_JOB_NAME"] = job_name
+    text = "\0".join(f"{k}={values[k]}" for k in sorted(values, key=str.upper)) + "\0\0"
+    payload = text.encode("utf-16le")
+    return ctypes.create_string_buffer(payload, len(payload))
 
 
 def _inheritable_file(path: Path) -> int:
@@ -192,6 +287,25 @@ def _active_processes(job) -> int:
                                           ctypes.byref(acct), ctypes.sizeof(acct), None):
         return -1
     return acct.ActiveProcesses
+
+
+def job_empty(job_name: str) -> bool:
+    """Prove a named worker job absent or empty; visibility errors never pass."""
+    _object_name(job_name, "job_name")
+    if not WINDOWS:
+        raise OSError("named job accounting requires Windows")
+    job = _k32.OpenJobObjectW(JOB_OBJECT_QUERY, False, job_name)
+    if not job:
+        if ctypes.get_last_error() == 2:  # ERROR_FILE_NOT_FOUND
+            return True
+        raise _win_error("OpenJobObjectW")
+    try:
+        count = _active_processes(job)
+        if count < 0:
+            raise _win_error("QueryInformationJobObject")
+        return count == 0
+    finally:
+        _k32.CloseHandle(job)
 
 
 def _kill_tree(job, exit_code: int, wait: float = 10.0) -> bool:
@@ -231,8 +345,29 @@ def _unlink_quietly(path: Path, wait: float = 2.0) -> None:
             time.sleep(0.05)
 
 
-def _make_job(cores: int | None, memory_mb: int) -> wintypes.HANDLE:
-    """A job the whole child tree is born into, so no descendant escapes it.
+def _affinity(cores: int | None, affinity_mask: int | None) -> int:
+    total = os.cpu_count() or 4
+    if cores is not None and (type(cores) is not int or cores < 1):
+        raise ValueError("cores must be a positive integer")
+    if affinity_mask is None:
+        return (1 << max(1, min(cores if cores else total - 2, total))) - 1
+    if cores is not None:
+        raise ValueError("supply cores or affinity_mask, not both")
+    if (type(affinity_mask) is not int or affinity_mask <= 0
+            or affinity_mask.bit_length() > min(total, ctypes.sizeof(ctypes.c_size_t) * 8)):
+        raise ValueError("affinity_mask must select available processors in one native affinity mask")
+    process_mask, system_mask = ctypes.c_size_t(), ctypes.c_size_t()
+    if not _k32.GetProcessAffinityMask(_k32.GetCurrentProcess(),
+                                      ctypes.byref(process_mask), ctypes.byref(system_mask)):
+        raise _win_error("GetProcessAffinityMask")
+    if affinity_mask & ~process_mask.value:
+        raise ValueError("affinity_mask selects processors unavailable to this supervisor")
+    return affinity_mask
+
+
+def _make_job(cores: int | None, memory_mb: int, *, job_name: str | None = None,
+              affinity_mask: int | None = None, allow_breakaway: bool = True) -> wintypes.HANDLE:
+    """Create the job before the suspended child can spawn descendants.
 
     `KILL_ON_JOB_CLOSE` is the one that stops runs from accumulating: whatever
     happens to this script — clean exit, exception, being killed — every process
@@ -241,25 +376,37 @@ def _make_job(cores: int | None, memory_mb: int) -> wintypes.HANDLE:
 
     `BREAKAWAY_OK` is set because Chrome nests jobs of its own for sandboxing;
     without it the browser fails to start its renderers on older Windows. The
-    limits still apply — a child may leave *this* job only if it asks, and
-    Chrome's sandbox jobs are created inside it.
+    legacy browser behavior is retained by default. Slot runs disable breakaway
+    so a descendant cannot request escape from this owned job.
     """
-    job = _k32.CreateJobObjectW(None, None)
+    if type(memory_mb) is not int or not 0 < memory_mb <= (2 ** (ctypes.sizeof(ctypes.c_size_t) * 8) - 1) // (1024 * 1024):
+        raise ValueError("memory_mb must be a positive integer fitting a native byte count")
+    if type(allow_breakaway) is not bool:
+        raise ValueError("allow_breakaway must be a boolean")
+    if job_name is not None:
+        _object_name(job_name, "job_name")
+    affinity = _affinity(cores, affinity_mask)
+    ctypes.set_last_error(0)
+    job = _k32.CreateJobObjectW(None, job_name)
+    error = ctypes.get_last_error()
     if not job:
         raise _win_error("CreateJobObjectW")
+    if job_name is not None and error == ERROR_ALREADY_EXISTS:
+        # CreateJobObject opens an existing job. Never change its limits or
+        # terminate its members: this run does not own that kernel object.
+        _k32.CloseHandle(job)
+        raise OSError(f"named job already exists: {job_name}")
 
-    total = os.cpu_count() or 4
-    # Leave the user two cores no matter what. The point is not to be fast.
-    keep = max(1, min(cores if cores else total - 2, total))
     info = _JobExtendedLimits()
     b = info.BasicLimitInformation
     b.LimitFlags = (JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
                     | JOB_OBJECT_LIMIT_PRIORITY_CLASS
                     | JOB_OBJECT_LIMIT_AFFINITY
-                    | JOB_OBJECT_LIMIT_JOB_MEMORY
-                    | JOB_OBJECT_LIMIT_BREAKAWAY_OK)
+                    | JOB_OBJECT_LIMIT_JOB_MEMORY)
+    if allow_breakaway:
+        b.LimitFlags |= JOB_OBJECT_LIMIT_BREAKAWAY_OK
     b.PriorityClass = IDLE_PRIORITY_CLASS
-    b.Affinity = (1 << keep) - 1
+    b.Affinity = affinity
     info.BasicLimitInformation = b
     info.JobMemoryLimit = memory_mb * 1024 * 1024
 
@@ -270,9 +417,30 @@ def _make_job(cores: int | None, memory_mb: int) -> wintypes.HANDLE:
     return job
 
 
+def _job_telemetry(job) -> dict:
+    """Best-effort scalar accounting, not an independent process-exit proof."""
+    info, acct = _JobExtendedLimits(), _JobBasicAccounting()
+    limits_ok = bool(_k32.QueryInformationJobObject(job, JobObjectExtendedLimitInformation,
+                                                  ctypes.byref(info), ctypes.sizeof(info), None))
+    accounting_ok = bool(_k32.QueryInformationJobObject(job, JobObjectBasicAccountingInformation,
+                                                      ctypes.byref(acct), ctypes.sizeof(acct), None))
+    return {
+        "affinity_mask": int(info.BasicLimitInformation.Affinity) if limits_ok else None,
+        "memory_limit_bytes": int(info.JobMemoryLimit) if limits_ok else None,
+        "peak_job_memory_bytes": int(info.PeakJobMemoryUsed) if limits_ok else None,
+        "peak_process_memory_bytes": int(info.PeakProcessMemoryUsed) if limits_ok else None,
+        "total_processes": int(acct.TotalProcesses) if accounting_ok else None,
+        "active_processes": int(acct.ActiveProcesses) if accounting_ok else None,
+        "accounting_ok": accounting_ok, "limits_query_ok": limits_ok,
+    }
+
+
 def run(cmd: list[str], cwd: Path | str | None = None, timeout: float = 1800.0,
         visible: bool = False, cores: int | None = None,
-        memory_mb: int = 4096) -> subprocess.CompletedProcess:
+        memory_mb: int = 4096, *, desktop_name: str | None = None,
+        job_name: str | None = None, affinity_mask: int | None = None,
+        env: dict[str, str] | None = None,
+        allow_breakaway: bool = True) -> subprocess.CompletedProcess:
     """Like subprocess.run(capture_output=True, text=True), boxed and out of sight.
 
     `visible=True` spawns on the caller's desktop instead — the only route by
@@ -284,36 +452,57 @@ def run(cmd: list[str], cwd: Path | str | None = None, timeout: float = 1800.0,
     `cores` defaults to every core but two, `memory_mb` to 4 GB for the whole
     tree. Both are ceilings on the tree, not on one process.
 
+    Slot callers opt in with fresh ASCII `desktop_name` and `job_name` values,
+    `allow_breakaway=False`, and an explicit memory/affinity budget. `affinity_mask`
+    and `cores` are mutually exclusive. A named job is exclusive; a collision
+    refuses before any child starts. Its exact name is passed to the child as
+    GAMELAB_JOB_NAME, for `process_in_job` verification while the owner is alive.
+    `env` follows subprocess's replacement-environment convention. The returned
+    CompletedProcess has scalar `.isolation` accounting (also on timeout errors).
+    Unspecified names retain the shared legacy desktop and unnamed job.
+
     At `timeout` the whole tree is killed (each process exits with
     `TIMEOUT_EXIT_CODE`) and waited for, then `subprocess.TimeoutExpired` is
     raised with the output captured so far on `.stdout` / `.stderr` — the same
     contract as `subprocess.run`. Any descendant still running after the child
     exits normally is killed the same way before `run()` returns.
     """
+    slot_controls = desktop_name is not None or job_name is not None or affinity_mask is not None or not allow_breakaway
+    if slot_controls and (visible or not WINDOWS):
+        raise ValueError("desktop/job/affinity isolation requires a hidden Windows run")
+    if desktop_name is not None:
+        _object_name(desktop_name, "desktop_name")
+    if job_name is not None:
+        _object_name(job_name, "job_name")
     if visible or not WINDOWS:
         return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True,
-                              timeout=timeout)
+                              timeout=timeout, **({"env": env} if env is not None else {}))
 
-    hdesk = _u32.CreateDesktopW(DESKTOP, None, None, 0, GENERIC_ALL, None)
+    selected_desktop = DESKTOP if desktop_name is None else desktop_name
+    environment = _environment(env, job_name)
+    hdesk = _u32.CreateDesktopW(selected_desktop, None, None, 0, GENERIC_ALL, None)
     if not hdesk:
         raise OSError(
-            f"cannot create the hidden desktop {DESKTOP!r} "
+            f"cannot create the hidden desktop {selected_desktop!r} "
             f"(error {ctypes.get_last_error()}), so the child's window would "
             "have to open on your desktop. Refusing — pass visible=True to "
             "allow that deliberately.")
 
-    job = _make_job(cores, memory_mb)
-    tmp = Path(tempfile.mkdtemp(prefix="claude-hidden-"))
-    out_path, err_path = tmp / "stdout.txt", tmp / "stderr.txt"
+    job = tmp = None
+    out_path = err_path = None
     h_out = h_err = None
     killed = False
     pi = _ProcessInformation()
     try:
+        job = _make_job(cores, memory_mb, job_name=job_name,
+                        affinity_mask=affinity_mask, allow_breakaway=allow_breakaway)
+        tmp = Path(tempfile.mkdtemp(prefix="claude-hidden-"))
+        out_path, err_path = tmp / "stdout.txt", tmp / "stderr.txt"
         h_out, h_err = _inheritable_file(out_path), _inheritable_file(err_path)
 
         si = _StartupInfoW()
         si.cb = ctypes.sizeof(si)
-        si.lpDesktop = "WinSta0\\" + DESKTOP  # the whole point of this module
+        si.lpDesktop = "WinSta0\\" + selected_desktop
         si.dwFlags = STARTF_USESTDHANDLES
         si.hStdInput = None
         si.hStdOutput = h_out
@@ -325,19 +514,30 @@ def run(cmd: list[str], cwd: Path | str | None = None, timeout: float = 1800.0,
         line = subprocess.list2cmdline(cmd)
         if not _k32.CreateProcessW(None, ctypes.create_unicode_buffer(line), None,
                                    None, True,
-                                   CREATE_SUSPENDED | IDLE_PRIORITY_CLASS, None,
+                                   CREATE_SUSPENDED | IDLE_PRIORITY_CLASS
+                                   | (CREATE_UNICODE_ENVIRONMENT if environment is not None else 0), environment,
                                    str(cwd) if cwd else None,
                                    ctypes.byref(si), ctypes.byref(pi)):
             raise _win_error("CreateProcessW")
         if not _k32.AssignProcessToJobObject(job, pi.hProcess):
             _k32.TerminateProcess(pi.hProcess, 1)
+            _k32.WaitForSingleObject(pi.hProcess, 10000)
             raise _win_error("AssignProcessToJobObject")
+        if job_name is not None:
+            belongs = wintypes.BOOL()
+            if not _k32.IsProcessInJob(pi.hProcess, job, ctypes.byref(belongs)) or not belongs.value:
+                raise OSError("suspended child is not verifiably in its exact owned job")
         if _k32.ResumeThread(pi.hThread) == wintypes.DWORD(-1).value:
             raise _win_error("ResumeThread")
 
         deadline = time.monotonic() + timeout
         timed_out = False
-        while _k32.WaitForSingleObject(pi.hProcess, 200) == WAIT_TIMEOUT:
+        while True:
+            status = _k32.WaitForSingleObject(pi.hProcess, 200)
+            if status == 0:
+                break
+            if status != WAIT_TIMEOUT:
+                raise _win_error("WaitForSingleObject")
             if time.monotonic() > deadline:
                 timed_out = True
                 break
@@ -346,10 +546,14 @@ def run(cmd: list[str], cwd: Path | str | None = None, timeout: float = 1800.0,
         # after a normal exit it is any orphan still running, which the job's
         # kill-on-close would have killed anyway, only asynchronously and
         # while we were deleting files it still had open.
-        _kill_tree(job, TIMEOUT_EXIT_CODE if timed_out else 1)
+        tree_clean = _kill_tree(job, TIMEOUT_EXIT_CODE if timed_out else 1)
         killed = True
+        isolation = {"desktop_name": selected_desktop, "job_name": job_name,
+                     "allow_breakaway": allow_breakaway, "tree_clean": tree_clean,
+                     **_job_telemetry(job)}
         code = wintypes.DWORD()
-        _k32.GetExitCodeProcess(pi.hProcess, ctypes.byref(code))
+        if not _k32.GetExitCodeProcess(pi.hProcess, ctypes.byref(code)):
+            raise _win_error("GetExitCodeProcess")
         # Close the write ends before reading, or the tail can still be buffered.
         for h in (h_out, h_err):
             _k32.CloseHandle(h)
@@ -357,23 +561,33 @@ def run(cmd: list[str], cwd: Path | str | None = None, timeout: float = 1800.0,
         stdout, stderr = _read(out_path), _read(err_path)
         if timed_out:
             # Same shape as subprocess.run: partial output on the exception.
-            raise subprocess.TimeoutExpired(cmd, timeout, output=stdout, stderr=stderr)
-        return subprocess.CompletedProcess(cmd, code.value, stdout, stderr)
+            error = subprocess.TimeoutExpired(cmd, timeout, output=stdout, stderr=stderr)
+            error.isolation = isolation
+            raise error
+        if job_name is not None and not tree_clean:
+            raise OSError("owned job did not become observably empty before return")
+        done = subprocess.CompletedProcess(cmd, code.value, stdout, stderr)
+        done.isolation = isolation
+        return done
     finally:
         # Nothing here may raise: an exception from cleanup would replace the
         # result (or the TimeoutExpired carrying the partial output).
-        for h in (h_out, h_err, pi.hProcess, pi.hThread, hdesk):
+        for h in (h_out, h_err, pi.hProcess, pi.hThread):
             if h:
                 _k32.CloseHandle(h)
         # Tree dead before the job handle goes (kill-on-close would do it, but
         # without waiting) and before the files are deleted.
-        if not killed:
+        if job and not killed:
             _kill_tree(job, 1)
-        _k32.CloseHandle(job)
+        if job:
+            _k32.CloseHandle(job)
+        _u32.CloseDesktop(hdesk)
         for p in (out_path, err_path):
-            _unlink_quietly(p)
+            if p is not None:
+                _unlink_quietly(p)
         try:
-            tmp.rmdir()
+            if tmp is not None:
+                tmp.rmdir()
         except OSError:
             pass
 

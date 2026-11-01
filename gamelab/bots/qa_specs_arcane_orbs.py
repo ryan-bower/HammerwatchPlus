@@ -10,6 +10,7 @@ import re
 import time
 
 from gamelab.bots.plan_specs import Checks
+from gamelab.bots.qa_specs_arcane_ranks import BLINK_DISTANCE
 from gamelab.bots.qa_specs_navigation import certified_corridor as certified_lane
 from gamelab.bots.qa_specs_wizard_ranks import spawn, targets, health, target_ok
 
@@ -123,7 +124,10 @@ def barrier(c, origin, direction):
     p1, p2, p3 = (sample[n].get("player", {}) for n in (1, 3, 5))
     elapsed = (sample[6].get("sceneMs", -10000) - pre[0].get("sceneMs", 0))
     moved = math.hypot(p1.get("x", 1e6) - p0.get("x", 0), p1.get("y", 1e6) - p0.get("y", 0))
-    window = bool(fired.get("ok") and 100 <= elapsed <= 950 and abs(moved - 85.5) <= 1)
+    wanted = (p0.get("x", 0) + direction[0] * BLINK_DISTANCE,
+              p0.get("y", 0) + direction[1] * BLINK_DISTANCE)
+    landing_error = math.hypot(p1.get("x", 1e6) - wanted[0], p1.get("y", 1e6) - wanted[1])
+    window = bool(fired.get("ok") and 100 <= elapsed <= 950 and landing_error <= 1)
     nonlethal = bool(window and sample[2].get("ok") and sample[2].get("took") == 5
                      and abs(p1.get("manaExact", -1000) - p2.get("manaExact", 1000) - 5) <= 0.05
                      and p2.get("dead") is False)
@@ -134,7 +138,7 @@ def barrier(c, origin, direction):
     counters1 = nums(c)
     mirror = bool(after.get("dead") is False and abs(after.get("hp", 0) / max(1, after.get("hpMax", 1))
                   - after.get("manaExact", 0) / max(1, after.get("manaMax", 1))) < 0.02)
-    c.flag("barrier_native_window", window, f"pre={pre}; input={fired}; sample={sample}; moved={moved}; elapsed={elapsed}")
+    c.flag("barrier_native_window", window, f"pre={pre}; input={fired}; sample={sample}; moved={moved}; wanted={wanted}; landing_error={landing_error}; elapsed={elapsed}")
     c.flag("barrier_nonlethal_drain", nonlethal, f"real pure5, same-frame mana {p1.get('manaExact')}->{p2.get('manaExact')}")
     c.flag("barrier_lethal_saved", saved and mirror and counters1.get("barrier saves") == counters0.get("barrier saves", -10) + 1,
            f"real pure1000; same-frame={p3}; next-frame={after}; counters={counters0}->{counters1}")

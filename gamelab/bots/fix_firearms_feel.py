@@ -24,11 +24,13 @@ import re
 import time
 
 from gamelab.bots.plan_firearms import Checks as Base
+from gamelab.bots.qa_firearms_pose_capture import PoseCapture
 
 POSE = r"pose: main (\S+), off (\S+) \(([^)]*(?:\([^)]*\))?)\)"
 
 
 class Checks(Base):
+    POSE_PATTERN = POSE
     # --- plumbing
     def setup(self, name):
         self.gl("char", "hwp_firearms", name)
@@ -164,10 +166,15 @@ class Checks(Base):
     def poses(self):
         if not self.setup("LabPose"):
             return
-        self.rifle_poses()
-        self.pistol_poses()
+        self.pose_capture = PoseCapture(self)
+        try:
+            self.pose_capture.establish_anchor()
+            self.rifle_poses()
+            self.pistol_poses()
+        finally:
+            self.pose_capture.restore_clock()
         st = self.hwp("firearms pose", 0.3, until="pose: state")
-        self.flag("pose_status", "pose: state" in st, st.strip()[-240:])
+        self.flag("pose_status", "pose: state" in st and self.pose_capture.complete, st.strip()[-240:])
         self.to_town()
 
     def shoot(self, button="main", ms=60):
@@ -182,12 +189,12 @@ class Checks(Base):
         idle = self.wait_log(r"pose: main down, off - \(idle\)", pos, 2.0)
         self.flag("rifle_idle_down", all(eq) and idle is not None, f"equip {eq}, {idle and idle.group(0)}")
         time.sleep(0.3)
-        self.g.shot("rifle idle down")
+        self.pose_capture.capture("rifle idle down", ("down", "-", "idle"), pos, ("hwp_rifle_01", ""))
 
         pos, t0 = self.shoot()
         fire = self.wait_log(r"pose: main straight, off - \(firing\)", pos, 1.5)
         time.sleep(0.3)
-        self.g.shot("rifle firing straight", settle=False)
+        self.pose_capture.capture("rifle firing straight", ("straight", "-", "firing"), pos, ("hwp_rifle_01", ""))
         down = self.wait_log(r"pose: main down, off - \(idle \(1000 ms without a shot\)\)", pos, 3.0)
         dt = time.time() - t0
         self.flag("rifle_firing_straight", fire is not None, f"{fire and fire.group(0)}")
@@ -205,18 +212,20 @@ class Checks(Base):
 
         pos, t0 = self.shoot()
         self.wait_log(r"\(firing\)", pos, 1.0)
-        self.gl("input", 120, 0, 1, 0, 1, "dash")
+        dx, dy = self.pose_capture.direction
+        self.gl("input", 120, dx, dy, dx, dy, "dash")
         dodge = self.wait_log(r"pose: main down, off - \(idle \(another skill\)\)", pos, 1.5)
         # the reason is the check: "(another skill)", not the 1000 ms idle; the time is a note
         # (the inbox's round trips put the dodge itself ~1 s after the shot, poses 20261026-140606)
         self.flag("rifle_down_on_dodge", dodge is not None, f"{dodge and dodge.group(0)} {time.time() - t0:.2f} s after the shot")
         time.sleep(1.2)
+        self.pose_capture.return_anchor()
 
         pos, t0 = self.shoot()
         self.gl("givestacks", self.CLIP, -999)
         up = self.wait_log(r"pose: main up, off - \(reloading\)", pos, 1.5)
         time.sleep(0.3)
-        self.g.shot("rifle reloading up", settle=False)
+        self.pose_capture.capture("rifle reloading up", ("up", "-", "reloading"), pos, ("hwp_rifle_01", ""))
         self.flag("rifle_up_reloading", up is not None, f"{up and up.group(0)}")
         time.sleep(3.0)
 
@@ -224,7 +233,7 @@ class Checks(Base):
         pos, t0 = self.shoot("off")
         high = self.wait_log(r"pose: main high, off - \(secondary\)", pos, 1.5)
         time.sleep(0.2)
-        self.g.shot("rifle launcher high", settle=False)
+        self.pose_capture.capture("rifle launcher high", ("high", "-", "secondary"), pos, ("hwp_rifle_01", ""))
         self.flag("rifle_high_on_launcher", high is not None, f"{high and high.group(0)}")
         time.sleep(1.5)
 
@@ -244,18 +253,20 @@ class Checks(Base):
         idle = self.wait_log(r"pose: main up, off up \(idle\)", pos, 2.0)
         self.flag("pistols_idle_up", all(eq) and idle is not None, f"equip {eq}, {idle and idle.group(0)}")
         time.sleep(0.3)
-        self.g.shot("pistols idle up")
+        self.pose_capture.capture("pistols idle up", ("up", "up", "idle"), pos, ("hwp_glock_mh_01", "hwp_glock_oh_01"))
 
         # a slowed clock so a 100 ms kick is on screen for a second
         self.gl("givestacks", self.CLIP, 999)
         pos = self.log_pos()
-        self.gl("timescale", 0.1)
-        self.gl("input", 700, 0, 0, 1, 0, "main")  # game ms: left, right, left
-        time.sleep(0.5)  # the left round's 100 game ms kick = 1 s real
-        self.g.shot("pistols firing main kick", settle=False)
-        time.sleep(3.0)  # the right-hand round, about 300 game ms in
-        self.g.shot("pistols firing off kick", settle=False)
-        self.gl("timescale", 1)
+        try:
+            self.pose_capture.set_slow_clock()
+            self.gl("input", 700, 0, 0, 1, 0, "main")  # unchanged game-ms sequence
+            self.pose_capture.capture("pistols firing main kick", ("kick", "straight", "firing"), pos,
+                                      ("hwp_glock_mh_01", "hwp_glock_oh_01"), timeout=1.5)
+            self.pose_capture.capture("pistols firing off kick", ("straight", "kick", "firing"), pos,
+                                      ("hwp_glock_mh_01", "hwp_glock_oh_01"), timeout=4.5)
+        finally:
+            self.pose_capture.restore_clock()
         time.sleep(1.5)
         got = self.since(pos, POSE)
         self.flag("pistols_main_kick", any(p[0] == "kick" and p[1] == "straight" and p[2] == "firing" for p in got), f"{got}")
@@ -268,7 +279,7 @@ class Checks(Base):
         self.gl("givestacks", self.CLIP, -999)
         down = self.wait_log(r"pose: main down, off down \(reloading\)", pos, 1.5)
         time.sleep(0.3)
-        self.g.shot("pistols reloading down", settle=False)
+        self.pose_capture.capture("pistols reloading down", ("down", "down", "reloading"), pos, ("hwp_glock_mh_01", "hwp_glock_oh_01"))
         self.flag("pistols_down_reloading", down is not None, f"{down and down.group(0)}")
         time.sleep(3.0)
 

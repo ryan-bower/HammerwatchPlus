@@ -49,6 +49,7 @@ import time
 from pathlib import Path
 
 from gamelab.bots.plan_checks import Checks as Base
+from gamelab.bots.qa_town_economy_oracle import assess
 
 REPO = Path(__file__).resolve().parents[2]
 # mods/fishing/scripts/HWP/Fishing/FishingModule.as
@@ -656,20 +657,27 @@ class Checks(Base):
         run_min, rolls, caught = (int(x) for x in m[-1]) if m else (0, 0, 0)
         self.flag("traps_resolved", bool(m) and run_min >= 20 and rolls == run_min // 10,
                   f"{m[-1:] or 'no traps line'}; reply {filled[-1:]}")
-        if caught == 0:
-            # the step's quick test: 60 minutes of rolls (6 per trap)
-            q = self.hwp("fishing traps 60", 0.6, until="[HWP] Fish traps")
-            self.notes.append("traps: no fish from the run's rolls; quick test: "
-                              + " ".join(re.findall(r"traps: [^\n]*", q))[-160:])
-            time.sleep(1.5)
+        # Zero from6 natural Bernoulli(.5) rolls is valid (1/64), and retained.
+        # No debug-generated fish may replace this observed state.
+        c = self.out.setdefault("coverage", {})
+        c["natural_traps"] = {"run_minutes": run_min, "rolls_per_trap": rolls,
+                              "caught": caught, "positive_observed": caught > 0}
         st = self.hwp("fishing traps", 0.3, until="[HWP] Fish traps")
         lists = re.findall(r"Fish traps \d+/\d+: (.*?)\. This run", st)
         per = []
         for part in (lists[-1].split("; ") if lists else []):
             ids = part.split(": ", 1)[-1]
             per.append(0 if ids == "-" else len(ids.split(",")))
-        self.flag("traps_cap_3", len(per) == 3 and all(n <= 3 for n in per) and sum(per) > 0, f"fish per trap {per}")
+        self.flag("traps_cap_3", len(per) == 3 and all(0 <= n <= 3 for n in per), f"fish per trap {per}")
+        self.flag("traps_natural_conserved", len(per) == 3 and sum(per) == caught,
+                  f"natural reported{caught}, trap contents{per}")
         full = self.gl("near", 8000, "fish_trap_full").get("units") or []
+        if not full:
+            if caught > 0:
+                self.flag("traps_full_shown", False, "natural fish exist but no full-trap units")
+            self.out["coverage"]["trap_visual"] = {"observed": False, "reason": "natural sample empty"}
+            return
+        self.out["coverage"]["trap_visual"] = {"observed": True, "full_traps": len(full)}
         self.flag("traps_full_shown", len(full) == sum(1 for n in per if n), f"{len(full)} full trap units, {per}")
         src = (REPO / "mods/fishing/doodads/hwp/fish_trap_full.unit").read_text(encoding="utf-8")
         # the live unit's minimap icon (Verbs_farming mapicons: its scene draws a minimap
@@ -739,6 +747,21 @@ class Checks(Base):
                 continue
             return (cx, cy), "; ".join(tried[-4:]) or "first candidate"
         return None, "; ".join(tried[-6:])
+
+    def traps_walk_if_natural(self):
+        full = self.gl("near", 8000, TRAP_FULL).get("units") or []
+        if not full:
+            if sum(self.trap_counts()) > 0:
+                self.flag("trap_observation_accounted", False, "stored natural fish have no full trap")
+                return
+            self.out.setdefault("coverage", {})["trap_collection"] = {
+                "observed": False, "reason": "natural sample empty; no substitution"}
+            self.flag("trap_observation_accounted", True, "positive collection unobserved")
+            return
+        self.traps_walk()
+        self.out.setdefault("coverage", {})["trap_collection"] = {"observed": True}
+        self.flag("trap_observation_accounted",
+                  self.out.get("trap_collected") is True and self.out.get("trap_emptied") is True)
 
     def traps_walk(self):
         """fishing s9: walking up to a full trap empties it into the bag. traps_run left the player
@@ -1311,13 +1334,15 @@ class Checks(Base):
         self.hwp("set fishing.bite_max 3000")
 
 
-def run(p, sections="fish_sword,fish_enchant,rod_slot", **_):
+def run(p, sections="fish_sword,fish_enchant,rod_slot", required_flags=(), **_):
     c = Checks(p)
     for s in sections.split(","):
         try:
             getattr(c, s)()
         except Exception as e:  # a section's crash is its own failure, not the bot's
             c.flag(f"{s}_crashed", False, repr(e))
+    if required_flags:
+        c.out.update(assess(c.out, required_flags))
     c.out["notes"] = c.notes
     c.out["terminal"] = " | ".join(c.notes)[-3000:]
     return c.out

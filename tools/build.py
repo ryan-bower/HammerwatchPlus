@@ -268,20 +268,27 @@ def load_packages(mods: list[dict]) -> tuple[list[dict], dict]:
     for p in pkgs:
         closure: list[str] = []
         seen: set[str] = set()
+        visiting: set[str] = set()
 
         # each module after what it requires, so a library part follows its base
         def add(mid: str, via: str) -> None:
+            if mid in visiting:
+                sys.exit(f"package {p['id']}: dependency cycle at {mid!r} (via {via})")
             if mid in seen:
                 return
             if mid not in by_id:
                 sys.exit(f"{via} requires unknown module {mid!r}")
             m = by_id[mid]
+            if m["dev"] or m["local_only"] or mid in bench:
+                sys.exit(f"package {p['id']}: {via} requires {mid}, a dev, local-only or bench module")
             if not (m["library"] or m["shared"]) and owner.get(mid) != p["id"]:
                 sys.exit(f"package {p['id']}: {via} requires {mid}, which is not in it; a package must work alone "
                          f"(move the shared code into a library part, module.json `library: true`)")
-            seen.add(mid)
+            visiting.add(mid)
             for r in m["requires"]:
                 add(r, mid)
+            visiting.remove(mid)
+            seen.add(mid)
             closure.append(mid)
         for mid in p["mods"]:
             add(mid, mid)

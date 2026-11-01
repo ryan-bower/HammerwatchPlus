@@ -41,6 +41,7 @@ mods/specs/.gitignore) and remade here, like tools/class_units.py's copies.
     python tools/make_forgemaster_risen.py --list   # the raisable units, write nothing
     python -m unittest tools.test_make_forgemaster_risen   # the unit texts' invariants
 """
+import argparse
 import math
 import re
 import sys
@@ -481,10 +482,15 @@ def same(p, t):
 
 
 def main(argv):
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     allow_abbrev=False)
+    parser.add_argument("--check", action="store_true", help="compare generated files without writing")
+    parser.add_argument("--list", action="store_true", help="list raisable units without writing")
+    args = parser.parse_args(argv)
     if not ACTORS.is_dir():
         sys.exit("gamecode/sdk/hoh2/actors missing: run tools/bootstrap.py first")
     out, rels = build()
-    if "--list" in argv:
+    if args.list:
         print("\n".join(rels))
         print(f"{len(rels)} raisable")
         return
@@ -493,7 +499,7 @@ def main(argv):
         print("malformed:", p.relative_to(REPO).as_posix(), "|", why)
     if bad:
         sys.exit(f"{len(bad)} generated unit(s) would not parse; nothing written")
-    if "--check" in argv:
+    if args.check:
         stale = [p for p, t in out.items() if not same(p, t)]
         extra = [p for d in OUT_DIRS if d.is_dir() for p in d.rglob("*") if p.is_file() and p not in out]
         for p in stale + extra:

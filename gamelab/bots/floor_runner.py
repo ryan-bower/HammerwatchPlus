@@ -9,14 +9,18 @@ took 1.7 s in which a swarm took 140 hp off an unsteered player (pilot-crossleve
 Terminal telemetry event: "bot_terminal" in gl.jsonl, with terminal = "next_floor" when
 the next floor's place differs from this one; "died", "no_route", "stuck" or "budget" otherwise.
 """
+import math
 import time
 
 BREAK_RADIUS = 250     # breakables this close to where the route was lost are tried
 
 
-def run(p, budget_s=300, kite_range=90, potion_below=50, fire_radius=160, to_place=None):
+def run(p, budget_s=300, kite_range=90, potion_below=50, fire_radius=160, to_place=None,
+        combat_before_travel=False):
     """to_place: travel there through the travel graph (path_to(level), no_route when the
     graph does not know the transition); None takes the nearest exit, as an exploration run does."""
+    if combat_before_travel:
+        return _run_combat_before_travel(p, budget_s, kite_range, potion_below, fire_radius, to_place)
     t0 = time.time()
     p.reflex(potion=potion_below, fire=fire_radius)
     start = p.scan(400)
@@ -152,4 +156,122 @@ def run(p, budget_s=300, kite_range=90, potion_below=50, fire_radius=160, to_pla
             # three stops in one spot with nothing to break or fight (pilot-floor
             # 20261017-193337: 33 exit/kite cycles stuck at 909,-2170 until the budget ran out)
             return finish("stuck", reason=r.reason + " (no progress in 3 retries)")
+    return finish("budget")
+
+
+def _finite(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+
+
+def _player_observation(reply):
+    if not isinstance(reply, dict) or reply.get("ok") is not True:
+        return "UNRUN", "native state refused or malformed"
+    player = reply.get("player")
+    if not isinstance(player, dict) or type(player.get("dead")) is not bool:
+        return "UNRUN", "native player/dead readback missing"
+    if player["dead"]:
+        return "dead", "native player dead"
+    if (reply.get("phase") != "mission" or player.get("spawned") is not True
+            or not all(_finite(player.get(k)) for k in ("hp", "hpMax", "x", "y"))
+            or player["hpMax"] <= 0 or player["hp"] <= 0):
+        return "UNRUN", "live mission player readback incomplete"
+    return "live", ""
+
+
+def _nearby_enemies(reply):
+    """Validate scan180; its native enemy list caps at32 without a truncation flag."""
+    if not isinstance(reply, dict) or reply.get("ok") is not True:
+        return None, "native enemy scan refused or malformed"
+    rows = reply.get("enemies")
+    count = reply.get("enemyCount")
+    if (reply.get("truncated", False) not in (False, 0) or not isinstance(rows, list)
+            or type(count) is not int or count != len(rows) or count >= 32
+            or not isinstance(reply.get("place"), str) or not reply["place"]):
+        return None, "enemy scan incomplete, capped or truncated"
+    seen = set()
+    for row in rows:
+        if (not isinstance(row, dict) or type(row.get("unit")) is not int or not row["unit"]
+                or row["unit"] in seen or not all(_finite(row.get(k)) for k in ("x", "y", "dist", "hp"))
+                or row["dist"] < 0 or not 0 < row["hp"] <= 1):
+            return None, "enemy row malformed, duplicate or nonfinite"
+        seen.add(row["unit"])
+    return sorted((row for row in rows if row["dist"] <= 180), key=lambda row: row["dist"]), ""
+
+
+def _intent_observation(result):
+    return {key: getattr(result, key, None) for key in ("intent", "id", "result", "reason", "tick", "event")}
+
+
+def _run_combat_before_travel(p, budget_s, kite_range, potion_below, fire_radius, to_place):
+    """Opt-in ordinary strategy. No new abilities, resources or native steering."""
+    if not _finite(budget_s) or budget_s <= 0:
+        raise ValueError("floor budget must be finite and positive")
+    t0 = time.monotonic()
+    deadline = t0 + budget_s
+    out = {"strategy": "combat_before_travel", "start_place": None, "exits_seen": None,
+           "fights": 0, "exit_attempts": 0, "observations": [], "combat": [], "routes": []}
+
+    def finish(terminal, **extra):
+        out.update(extra, terminal=terminal, seconds=round(time.monotonic() - t0, 1))
+        p.game.note("bot_terminal", bot="floor_runner", **out)
+        return out
+
+    while time.monotonic() < deadline:
+        state = p.state()
+        status, reason = _player_observation(state)
+        out["observations"].append({"kind": "state", "status": status, "reason": reason, "raw": state})
+        if status == "dead":
+            return finish("died")
+        if status == "UNRUN":
+            return finish("observation_failed", reason=reason)
+        if "reflex_configuration" not in out:
+            reply = p.reflex(potion=potion_below, fire=fire_radius)
+            out["reflex_configuration"] = reply
+            if not isinstance(reply, dict) or reply.get("ok") is not True:
+                return finish("observation_failed", reason="native reflex configuration refused")
+        scan = p.scan(180)
+        enemies, reason = _nearby_enemies(scan)
+        out["observations"].append({"kind": "enemy_scan", "status": "UNRUN" if enemies is None else "OBSERVED",
+                                    "reason": reason, "raw": scan})
+        if enemies is None:
+            return finish("observation_failed", reason=reason)
+        if out["start_place"] is None:
+            out.update(start_place=scan["place"], exits_seen=scan.get("exitCount"))
+        elif scan["place"] != out["start_place"]:
+            return finish("level_changed_in_fight", place_to=scan["place"])
+        remaining = deadline - time.monotonic()
+        if remaining < 1:
+            return finish("budget")
+        if enemies:
+            if out["fights"] >= 6:
+                return finish("combat_limit", reason="six bounded combat episodes completed")
+            target = enemies[0]
+            out["fights"] += 1
+            result = p.kite(target["unit"], kite_range, until=["dead", "target_dead"], timeout=min(20, remaining))
+            out["combat"].append({"target": target, "state_before": state, "result": _intent_observation(result)})
+            if result.reason == "dead":
+                return finish("died")  # Do not issue another scan/exit after a native death result.
+            if not ((result.result == "interrupted" and result.reason == "target_dead")
+                    or (result.result == "done" and result.reason == "target dead")):
+                return finish("combat_failed", reason=result.reason)
+            continue  # Fresh native state/scan precedes another episode or route.
+        if out["exit_attempts"] >= 6:
+            return finish("route_limit", reason="six bounded route attempts exhausted")
+        out["exit_attempts"] += 1
+        until = ["dead", "under_attack", "hp_below:30"]
+        action = p.travel if to_place else p.exit
+        args = (to_place,) if to_place else ()
+        result = action(*args, until=until, timeout=min(120, remaining))
+        out["routes"].append(_intent_observation(result))
+        if result.reason == "dead":
+            return finish("died")
+        if result.ok:
+            event = result.event if isinstance(result.event, dict) else {}
+            to = event.get("place_to")
+            if isinstance(to, str) and to and to != "?" and to != out["start_place"]:
+                return finish("next_floor", place_to=to, learned=result.event.get("learned"), new_edge=result.event.get("new_edge"))
+            return finish("arrived_unknown", place_to=to)
+        if result.reason == "under_attack" or result.reason.startswith("hp_below"):
+            continue  # Observe actual nearby targets; never invent an aggro/LOS state.
+        return finish("route_failed", reason=result.reason)
     return finish("budget")

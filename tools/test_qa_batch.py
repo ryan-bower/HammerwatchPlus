@@ -48,7 +48,7 @@ class BatchTests(unittest.TestCase):
                   "partial": False, "build_drift": False, "error": None,
                   "assertions": [{"name": "native check", "ok": True}], "teardown": {"clean": True}}
         (directory / "run.json").write_text(json.dumps(record), encoding="utf-8")
-        (directory / "inner.json").write_text(json.dumps({"scenario": name, "mode": "lab", "partial": False}), encoding="utf-8")
+        (directory / "inner.json").write_text(json.dumps({"scenario": name, "mode": "lab", "partial": False, "assertions": record["assertions"]}), encoding="utf-8")
         return subprocess.CompletedProcess(argv, 0)
 
     def rows(self, label="trial"):
@@ -211,6 +211,71 @@ class BatchTests(unittest.TestCase):
                         path.unlink()
                     directory.rmdir()
                 self.assertEqual(self.main("--label", "inner" + str(index), "first", "second"), 1)
+
+    def test_final_inner_assertions_must_be_the_successful_outer_prefix(self):
+        mutations = (
+            ("missing", {}),
+            ("null", {"assertions": None}),
+            ("empty", {"assertions": []}),
+            ("object", {"assertions": {"ok": True}}),
+            ("malformed", {"assertions": [True]}),
+            ("failed", {"assertions": [{"name": "native check", "ok": False}]}),
+            ("different", {"assertions": [{"name": "different observation", "ok": True}]}),
+            ("detail", {"assertions": [{"name": "native check", "ok": True, "detail": "stale"}]}),
+            ("longer", {"assertions": [{"name": "native check", "ok": True}, {"name": "extra", "ok": True}]}),
+        )
+        for label, change in mutations:
+            with self.subTest(label=label):
+                def corrupt(argv, **kwargs):
+                    result = self.launch_ok(argv, **kwargs)
+                    path = next(self.results.glob("*-first-lab")) / "inner.json"
+                    inner = json.loads(path.read_text())
+                    inner.pop("assertions")
+                    inner.update(change)
+                    path.write_text(json.dumps(inner), encoding="utf-8")
+                    return result
+                self.launch.side_effect = corrupt
+                self.launch.reset_mock()
+                for directory in self.results.glob("*-first-lab"):
+                    for path in directory.iterdir():
+                        path.unlink()
+                    directory.rmdir()
+                self.assertEqual(self.main("--label", "assertions-" + label, "first", "second"), 1)
+                self.assertEqual(self.launch.call_count, 1)
+                self.assertFalse(self.rows("assertions-" + label)[0]["ok"])
+
+    def test_inner_failure_markers_and_copied_metadata_cannot_disagree(self):
+        changes = ({"error": None}, {"error": ""}, {"timeout": True},
+                   {"fixture": "other-fixture"}, {"passes": 999}, {"live": [{"stale": True}]})
+        for index, change in enumerate(changes):
+            with self.subTest(change=change):
+                def corrupt(argv, **kwargs):
+                    result = self.launch_ok(argv, **kwargs)
+                    path = next(self.results.glob("*-first-lab")) / "inner.json"
+                    inner = json.loads(path.read_text())
+                    inner.update(change)
+                    path.write_text(json.dumps(inner), encoding="utf-8")
+                    return result
+                self.launch.side_effect = corrupt
+                self.launch.reset_mock()
+                for directory in self.results.glob("*-first-lab"):
+                    for path in directory.iterdir():
+                        path.unlink()
+                    directory.rmdir()
+                self.assertEqual(self.main("--label", "inner-state-" + str(index), "first", "second"), 1)
+                self.assertEqual(self.launch.call_count, 1)
+
+    def test_launcher_may_append_its_own_successful_guards(self):
+        def append_guard(argv, **kwargs):
+            result = self.launch_ok(argv, **kwargs)
+            path = next(self.results.glob("*-first-lab")) / "run.json"
+            record = json.loads(path.read_text())
+            record["assertions"].append({"name": "install res/ unchanged", "ok": True})
+            path.write_text(json.dumps(record), encoding="utf-8")
+            return result
+        self.launch.side_effect = append_guard
+        self.assertEqual(self.main("--label", "guard", "first"), 0)
+        self.assertTrue(self.rows("guard")[0]["ok"])
 
     def test_source_drift_during_and_between_cases_never_re_pins(self):
         changed = copy.deepcopy(self.source)

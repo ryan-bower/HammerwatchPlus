@@ -62,5 +62,161 @@ class PlayProfile(unittest.TestCase):
             self.assertEqual(list(root.iterdir()), [])
 
 
+class TransactionFailures(unittest.TestCase):
+    """Faults affect temporary fake install paths only."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="h1-profile-transaction-")
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.install = self.root / "game"
+        self.saves = self.install / "saves"
+        self.saves.mkdir(parents=True)
+        self.previous = self.saves / "0.hps"
+        self.previous.write_bytes(b"existing profile must survive")
+        self.config = self.install / "HWR2.exe.cfg"
+        self.config.write_bytes(b"g_save_slot 0\nsnd_volume 0.2\ng_save_slot_cloud 1\n")
+        self.before_config = self.config.read_bytes()
+        self.new_profile = self.saves / "1.hps"
+
+    def assert_preserved(self, new_exists=False):
+        self.assertEqual(self.previous.read_bytes(), b"existing profile must survive")
+        self.assertEqual(self.config.read_bytes(), self.before_config)
+        self.assertEqual(self.new_profile.exists(), new_exists)
+        self.assertEqual(list(self.install.glob("HWR2.cfg-*")), [])
+
+    def create(self):
+        return play_profile.create(self.install, ["HammerwatchPlus-All"],
+                                   self.root / "backups", "FaultProbe")
+
+    def save_failure(self, stage):
+        original = Path.open
+        target = self.new_profile
+
+        class FaultedFile:
+            def __init__(self, file):
+                self.file = file
+
+            def __enter__(self):
+                self.file.__enter__()
+                return self
+
+            def __exit__(self, *error):
+                result = self.file.__exit__(*error)
+                if stage == "close":
+                    raise OSError("injected save close failure")
+                return result
+
+            def write(self, data):
+                if stage == "write":
+                    self.file.write(data[:8])
+                    self.file.flush()
+                    raise OSError("injected save prefix write failure")
+                return self.file.write(data)
+
+        def opened(path, *args, **kwargs):
+            file = original(path, *args, **kwargs)
+            return FaultedFile(file) if path == target and args and args[0] == "xb" else file
+
+        with mock.patch.object(Path, "open", new=opened):
+            with self.assertRaises(OSError):
+                self.create()
+        self.assert_preserved()
+
+    def test_save_write_failure_removes_only_new_profile(self):
+        self.save_failure("write")
+
+    def test_save_close_failure_removes_only_new_profile(self):
+        self.save_failure("close")
+
+    def test_config_temp_creation_failure_rolls_back_new_profile(self):
+        with mock.patch.object(play_profile.tempfile, "NamedTemporaryFile",
+                               side_effect=OSError("injected config temp creation failure")):
+            with self.assertRaises(OSError):
+                self.create()
+        self.assert_preserved()
+
+    def test_config_temp_write_failure_rolls_back_new_profile(self):
+        original = play_profile.tempfile.NamedTemporaryFile
+
+        class FaultedTemp:
+            def __init__(self, file):
+                self.file = file
+                self.name = file.name
+
+            def __enter__(self):
+                self.file.__enter__()
+                return self
+
+            def __exit__(self, *error):
+                return self.file.__exit__(*error)
+
+            def write(self, data):
+                self.file.write(data[:4])
+                raise OSError("injected config temp write failure")
+
+        with mock.patch.object(play_profile.tempfile, "NamedTemporaryFile",
+                               side_effect=lambda *a, **kw: FaultedTemp(original(*a, **kw))):
+            with self.assertRaises(OSError):
+                self.create()
+        self.assert_preserved()
+
+    def test_config_replace_failure_rolls_back_new_profile(self):
+        original = Path.replace
+        install = self.install
+
+        def replaced(path, target):
+            if path.parent == install and path.name.startswith("HWR2.cfg-"):
+                raise OSError("injected config replacement failure")
+            return original(path, target)
+
+        with mock.patch.object(Path, "replace", new=replaced):
+            with self.assertRaises(OSError):
+                self.create()
+        self.assert_preserved()
+
+    def test_exclusive_collision_preserves_the_competing_profile(self):
+        original = Path.open
+        target = self.new_profile
+
+        def opened(path, *args, **kwargs):
+            if path == target and args and args[0] == "xb":
+                with original(target, "wb") as file:
+                    file.write(b"competing profile")
+            return original(path, *args, **kwargs)
+
+        with mock.patch.object(Path, "open", new=opened):
+            with self.assertRaises(FileExistsError):
+                self.create()
+        self.assert_preserved(new_exists=True)
+        self.assertEqual(self.new_profile.read_bytes(), b"competing profile")
+
+    def test_config_backup_failure_never_creates_profile(self):
+        original = Path.write_bytes
+
+        def write(path, data):
+            if path.name == "HWR2.exe.cfg.before":
+                raise OSError("injected config backup failure")
+            return original(path, data)
+
+        with mock.patch.object(Path, "write_bytes", new=write):
+            with self.assertRaises(OSError):
+                self.create()
+        self.assert_preserved()
+
+    def test_receipt_failure_never_creates_profile(self):
+        original = Path.write_text
+
+        def write(path, *args, **kwargs):
+            if path.name == "profile.json":
+                raise OSError("injected receipt failure")
+            return original(path, *args, **kwargs)
+
+        with mock.patch.object(Path, "write_text", new=write):
+            with self.assertRaises(OSError):
+                self.create()
+        self.assert_preserved()
+
+
 if __name__ == "__main__":
     unittest.main()

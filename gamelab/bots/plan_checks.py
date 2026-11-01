@@ -27,19 +27,24 @@ class Checks:
         return self.g.gl_cmd(*a, **kw)
 
     def hwp(self, line, wait=0.8, until=None, timeout=4.0):
-        """An HWP console command; the log text it added. With `until`, polls up to
-        `timeout` seconds for that text (a reply can land a few frames late)."""
+        """Send once and poll its acknowledgement; never retry an uncertain mutation.
+
+        On a missing required response, stop the section and retain a failing flag.
+        Reconciliation must use independent read-only state before an explicit retry.
+        """
         mark = len(self.g.read_log())
-        for attempt in range(2):
-            self.g.console("hwp " + line)
-            time.sleep(wait)
-            end = time.time() + timeout
-            while until and until not in self.g.read_log()[mark:] and time.time() < end:
-                time.sleep(0.25)
-            # a console line can arrive mangled (seen: a stray backtick before "hwp"); once more
-            if not until or until in self.g.read_log()[mark:]:
-                break
-        return self.g.read_log()[mark:]
+        # One dispatch: a missing acknowledgement never proves a mutation failed.
+        self.g.console("hwp " + line)
+        time.sleep(wait)
+        end = time.time() + timeout
+        while until and until not in self.g.read_log()[mark:] and time.time() < end:
+            time.sleep(0.25)
+        output = self.g.read_log()[mark:]
+        if until and until not in output:
+            self.flag("hwp_unconfirmed_dispatch", False,
+                      f"sent once, acknowledgement missing; reconcile state before any retry: {line!r}")
+            raise RuntimeError(f"unconfirmed HWP command sent once: {line!r}; expected {until!r}")
+        return output
 
     def gold(self):
         return self.gl("inv")["materials"]["gold"]

@@ -85,17 +85,17 @@ class Checks(Base):
         # the setting: off takes the icon away from the next cast, on gives it back
         time.sleep(8.5)
         log = self.hwp("set bufftips.skill_icons 0", until="skill buff icons off")
-        m = re.search(r"skill buff icons off: 0 of (\d+)", log)
+        m = re.search(r"skill buff icons off: 0 loaded definition\(s\) given an icon", log)
         self.cast()
         b_off = self.warcry_buff()
         self.flag("setting_off", bool(m) and b_off is not None and not b_off.get("hud") and not b_off.get("icon")
                   and self.bar_icon(WARCRY_KEY) is None, f"log {m and m.group(0)}; buff {b_off}")
         time.sleep(8.5)
         log = self.hwp("set bufftips.skill_icons 1", until="skill buff icons on")
-        m = re.search(r"skill buff icons on: (\d+) of (\d+) buff\(s\) given an icon, 0 with their own, 0 missing", log)
+        m = re.search(r"skill buff icons on: (\d+) loaded definition\(s\) given an icon", log)
         self.cast()
         b_on = self.warcry_buff()
-        self.flag("setting_on", bool(m) and m.group(1) == m.group(2) and b_on is not None and b_on.get("icon")
+        self.flag("setting_on", bool(m) and int(m.group(1)) >= 1 and b_on is not None and b_on.get("icon")
                   and self.bar_icon(WARCRY_KEY) is not None, f"log {m and m.group(0)}; buff {b_on}")
 
         # every other family

@@ -9,6 +9,7 @@ import time
 
 from gamelab.bots.qa_firearms_passives import Checks as Base
 from gamelab.bots.plan_firearms import SKILLS, BLOCKERS
+from gamelab.bots.qa_observe import collect_trace as collect_observer_trace
 
 
 def rider_counter_oracle(samples, kind, expect):
@@ -85,49 +86,8 @@ def rider_counter_oracle(samples, kind, expect):
 
 
 class Checks(Base):
-    def collect_trace(self, event, tag, timeout):
-        first = self.g.wait_gl(lambda e: e.get("ev") == event and e.get("tag") == tag,
-                               timeout=timeout) or {}
-        count = first.get("parts", 0)
-        if not isinstance(count, int) or not 1 <= count <= 64:
-            return {"valid": False, "parts": [first], "samples": []}
-        parts = []
-        for index in range(count):
-            part = (first if first.get("part") == index else
-                    self.g.wait_gl(lambda e: e.get("ev") == event and e.get("tag") == tag
-                                   and e.get("part") == index, timeout=3) or {})
-            parts.append(part)
-        samples = [row for part in parts for row in part.get("samples", part.get("events", []))]
-        valid = (all(p.get("parts") == count and p.get("part") == i
-                     and p.get("dropped") == 0 and p.get("truncated") is False
-                     and p.get("start") == first.get("start") and p.get("end") == first.get("end")
-                     for i, p in enumerate(parts))
-                 and len(samples) == first.get("stored") and bool(samples))
-        complete = {}
-        if event == "actorbuffobserve":
-            # This observer stores every native frame plus its initial sample.
-            # buffobserve above stores only semantic transitions and therefore
-            # intentionally does not share this per-frame contract.
-            complete = {
-                "all_headers_consistent": all(all(p.get(k) == first.get(k) for k in
-                    ("stored", "seen", "frames", "ms", "unit", "buff")) for p in parts),
-                "every_native_frame_retained": first.get("stored") == first.get("seen")
-                    == first.get("frames", -2) + 1,
-                "initial_and_final": bool(samples) and samples[0].get("elapsed") == 0
-                    and samples[0].get("dt") == 0 and samples[0].get("now") == first.get("start")
-                    and samples[-1].get("elapsed") == first.get("ms")
-                    and samples[-1].get("now") == first.get("end")
-                    and samples[-1].get("final") is True
-                    and all(x.get("final") is False for x in samples[:-1]),
-                "sample_identity": all(x.get("unit") == first.get("unit") for x in samples),
-                "native_frame_continuity": all(
-                    isinstance(b.get("dt"), int) and b["dt"] > 0
-                    and b.get("elapsed", -1) - a.get("elapsed", -1) == b["dt"]
-                    and 0 <= b.get("now", -1) - a.get("now", -1) <= b["dt"] + 1
-                    for a, b in zip(samples, samples[1:])),
-            }
-            valid = valid and all(complete.values())
-        return {"valid": valid, "parts": parts, "samples": samples, "completeness": complete}
+    def collect_trace(self, event, tag, timeout, *, expected=None):
+        return collect_observer_trace(self.g, event, tag, timeout, expected=expected)
 
     def native_snapshot(self, final_input=None):
         commands = [("skills",), ("state",), ("givestacks", self.CLIP, 0),
@@ -354,7 +314,8 @@ class Checks(Base):
                 break
             key = tag + "-bank-ready-" + str(attempt)
             started = self.gl("buffobserve", key, 100, "-", self.STACKS + "rocket_charges", target)
-            trace = self.collect_trace("buffobserve", key, timeout=3)
+            trace = self.collect_trace("buffobserve", key, timeout=3,
+                                       expected={"buff": "-", "stack": self.STACKS + "rocket_charges", "target_unit": target})
             raw = self.gl("skills")
             shown = self.stacks("rocket_charges_shown")  # existing zero-delta native counter read
             rows = trace["samples"]
@@ -396,7 +357,9 @@ class Checks(Base):
             ]))
         watch = self.cast_watch("hwp_fs_rpg", fire, secs=1.6)
         done = self.input_done(sent[-1])
-        trace = self.collect_trace("buffobserve", tag, timeout=5)
+        trace = self.collect_trace("buffobserve", tag, timeout=5,
+                                   expected={"buff": "players/hwp/firearms/buffs_firearms.sval:rocket_jump",
+                                             "stack": self.STACKS + "rocket_charges", "target_unit": dummy})
         after = self.native_snapshot()
         hp1, log = self.hps([dummy]).get(dummy), self.log_from(marker)
         p0, p1 = before["state"].get("player", {}), after["state"].get("player", {})
@@ -515,7 +478,7 @@ class Checks(Base):
         # The real hold lasts4000ms, beyond input_done's3s immediate wait.
         # Collect the complete8s native trace first; the exact matching native
         # completion is then already retained. No input, trace, or guard changes.
-        trace = self.collect_trace("actorbuffobserve", tag, timeout=12)
+        trace = self.collect_trace("actorbuffobserve", tag, timeout=12, expected={"buff": buff, "unit": target})
         done = self.input_done(sent[-1])
         fired = self.fired()
         counts = {name: value for name, value in fired.items() if value > 0}

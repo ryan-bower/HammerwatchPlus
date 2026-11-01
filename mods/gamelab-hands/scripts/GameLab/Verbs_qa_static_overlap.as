@@ -93,9 +93,9 @@ namespace GameLab
 			sample.Int("t", m_t).Int("now", int(g_scene.GetTime())).Int("stacks", plr.GetStacks(m_read.m_stacks))
 				.Raw("hp", m_read.Health()).Int("tt_cd", QAStaticCooldown(m_read.m_tt));
 			if (m_samples.length() < 200) m_samples.insertLast(sample.Close()); else m_truncated = true;
-			if (!m_newOnly && m_t >= 2000) {m_newOnly = true; Phase("new_orb_only");}
-			if (!m_oldStart && m_t >= 4400) {m_oldStart = true; Phase("old_orb_only_start");}
-			if (!m_oldOnly && m_t >= 4700) {m_oldOnly = true; Phase("old_orb_only");}
+			if (!m_newOnly && m_t >= 1500) {m_newOnly = true; Phase("new_orb_only");}
+			if (!m_oldStart && m_t >= 3750) {m_oldStart = true; Phase("old_orb_only_start");}
+			if (!m_oldOnly && m_t >= 4050) {m_oldOnly = true; Phase("old_orb_only");}
 			if (m_t < 4800) return false;
 			Phase("finished"); Finish(true, ""); return true;
 		}

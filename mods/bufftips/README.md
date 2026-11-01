@@ -20,16 +20,23 @@ debuffs, "x N" for stacks) and its description.
   re-applied every 2 s), Spirit Cloak.
 - **Class buff icons** (issue #28). Vanilla gives almost none of the class
   skill buffs a `hud` icon, so War Cry and others never showed on the bar.
-  The module gives 13 of them one at runtime (`ApplySkillIcons`, the list in
+  The module supports all 31 ranks from 13 families at runtime (`ApplySkillIcons`, the list in
   `SkillBuffs.as`): War Cry; Fuel the Flame, Invigorating Touch and
   Cleansing Touch (Paladin); Holy Flames (Priest); Healing Wisps and Hot
   Pursuit (Ranger); Lethal Opening (Rogue); Flamewalker and Power Surge
-  (Sorcerer); and the three Combo Bursting buffs. It patches the buff def
-  every skill loads (`LoadActorBuff` keeps one per path) in place, with the
+  (Sorcerer); and the three Combo Bursting buffs. It reads only name, description and HUD metadata from the 31 raw SValues, then patches
+  definitions already loaded by the game. It does not call `LoadActorBuff` or parse
+  gameplay modifiers/effects to install display metadata. A guarded watcher observes
+  later native loads, definition/hash replacement and HUD/list replacement; a first
+  active buff receives its missing widget through `HUD.ShowBuffIcon`. It patches each
+  loaded definition in place, with the
   middle 14x14 of the skill's own icon (`gui/hwp/bufftips/icons.png`). A def
   with an icon of its own keeps it, and a name or description is filled in
-  only when the def has none. It logs `skill buff icons on: 31 of 31 buff(s)
-  given an icon, 0 with their own, 0 missing`. Each machine patches its own
+  only when the def has none. It logs `skill buff metadata: 31 of 31 raw definitions available, 0 invalid`;
+  its separate icon count reports only definitions that the game has actually loaded.
+  Off removes only the exact sprites installed here; later third-party sprites remain.
+  Native skill loads still parse their original gameplay data, including any upstream
+  data diagnostics; this display-only change does not repair or suppress that schema. Each machine patches its own
   defs; an ally hit by War Cry gets the same def, so their bar should show
   it too (co-op not tried in the lab).
   `tools/make_bufftips_icons.py` writes the sheet and `SkillBuffs.as` from

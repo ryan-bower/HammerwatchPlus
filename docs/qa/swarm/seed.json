@@ -1,0 +1,587 @@
+{
+    "schema_version":  1,
+    "campaign":  "swarm-20261029",
+    "runtime_owner":  "runtime",
+    "integrator":  "integrator",
+    "agent_limits":  {
+                         "initial":  32,
+                         "working_max":  48,
+                         "hard_max":  100
+                     },
+    "tasks":  [
+                  {
+                      "id":  "BASELINE",
+                      "title":  "Inventory current source and prerequisites",
+                      "lane":  "coordinator",
+                      "operation":  "review",
+                      "priority":  0,
+                      "paths":  [
+                                    "AGENTS.md",
+                                    "packages.json",
+                                    "pyproject.toml",
+                                    "gamelab/build_id.json",
+                                    "docs/qa/SWARM_VERIFICATION_PLAN.md"
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "next_action":  "Capture epoch E001 after setup/source stabilization; record current branch, dirty files, manifests, historical gaps and the scoped campaign inventory."
+                  },
+                  {
+                      "id":  "H1-INVENTORY",
+                      "title":  "H1 inventory and bounded task decomposition",
+                      "lane":  "H1",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Save creator, save_builder.py, play_profile.py, profile_seed.py, profile bot",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Save creator, save_builder.py, play_profile.py, profile_seed.py, profile bot. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Exact roster/gold after reload/export; corrupt input; fake-install transaction failures; preservation of existing files. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "H2-INVENTORY",
+                      "title":  "H2 inventory and bounded task decomposition",
+                      "lane":  "H2",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Runtime isolation, launcher, lock.py, restart, resource snapshots and posted input",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Runtime isolation, launcher, lock.py, restart, resource snapshots and posted input. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Active-player refusal, inaccessible process identity, cancellation, dirty/stale state, no other owner\u0027s lock deletion or real-input calls. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "H3-INVENTORY",
+                      "title":  "H3 inventory and bounded task decomposition",
+                      "lane":  "H3",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Batch scheduling, GameLab Python oracles and observer contracts",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Batch scheduling, GameLab Python oracles and observer contracts. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Source drift, stale/partial/mismatched results, false aggregates, geometry/input/resource contracts, constituent effect rows. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "H4-INVENTORY",
+                      "title":  "H4 inventory and bounded task decomposition",
+                      "lane":  "H4",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Doctor, save backups, bootstrap/path/compiler discovery",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Doctor, save backups, bootstrap/path/compiler discovery. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Ambiguous accounts, damaged backups, missing prerequisites, sandbox preservation and existing machine-local choices. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "B1-INVENTORY",
+                      "title":  "B1 inventory and bounded task decomposition",
+                      "lane":  "B1",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Builds, release composition, generators, assets, HoH1 conversion/imports and archives",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Builds, release composition, generators, assets, HoH1 conversion/imports and archives. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Dependency closure, decoded archive integrity, stale outputs, safe paths, personal/dev-content exclusion, corrupt-format handling. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "D1-INVENTORY",
+                      "title":  "D1 inventory and bounded task decomposition",
+                      "lane":  "D1",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Developer tools, devarena, tuning/bench/clone helpers and remaining host utilities",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Developer tools, devarena, tuning/bench/clone helpers and remaining host utilities. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Temporary-fixture tests, parser boundaries, reproducibility, abort/cleanup and release exclusion; label optional runtime scope. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "P1-INVENTORY",
+                      "title":  "P1 inventory and bounded task decomposition",
+                      "lane":  "P1",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Planner server, inline JavaScript, data relations and icons",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Planner server, inline JavaScript, data relations and icons. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Temporary-data CRUD, invalid requests, all class views, budgets/status/alternate forms, polling and save errors. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "L1-INVENTORY",
+                      "title":  "L1 inventory and bounded task decomposition",
+                      "lane":  "L1",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: hwplib, hwplib-luck, hwplib-classui, hooks/settings/shared actions",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for hwplib, hwplib-luck, hwplib-classui, hooks/settings/shared actions. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Authority, record ownership, module disable/re-enable, persistence, cleanup, settings completeness and shared overrides. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "F1-INVENTORY",
+                      "title":  "F1 inventory and bounded task decomposition",
+                      "lane":  "F1",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Firearms gun, magazine, reload, held model and pose state",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Firearms gun, magazine, reload, held model and pose state. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Uneven hands, swap/unequip, interrupted reload, input release, floor/save continuity, actual per-gun critical damage. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "F2-INVENTORY",
+                      "title":  "F2 inventory and bounded task decomposition",
+                      "lane":  "F2",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Firearms skills, projectiles, gadgets, turret and orbs",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Firearms skills, projectiles, gadgets, turret and orbs. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Damage/radius/timing/expiry, cost and cancellation, turret consumers, legal orb interactions and boundary exclusions. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "C1-INVENTORY",
+                      "title":  "C1 inventory and bounded task decomposition",
+                      "lane":  "C1",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Thief",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Thief. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Knives, Grappling Hook, Smoke, Shadow Strike geometry, all ranks and actual passive procs. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "C2-INVENTORY",
+                      "title":  "C2 inventory and bounded task decomposition",
+                      "lane":  "C2",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Gladiator",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Gladiator. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Pit Fighters, Beast, Pack Leader, summon ownership/attacks, Gladius, Riposte, Caltrops and Whirl. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "C3-INVENTORY",
+                      "title":  "C3 inventory and bounded task decomposition",
+                      "lane":  "C3",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Witch Hunter",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Witch Hunter. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Hound, Ward, Crows, Pack, Net duration contract, Pyre ownership and natural-kill procs. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "S1-INVENTORY",
+                      "title":  "S1 inventory and bounded task decomposition",
+                      "lane":  "S1",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Arcane and Winddancer",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Arcane and Winddancer. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Unified resource bounds/death/healing, Blink geometry, barriers/feedback, orb consumers and transition cleanup. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "S2-INVENTORY",
+                      "title":  "S2 inventory and bounded task decomposition",
+                      "lane":  "S2",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Aerotheurge and Deadeye",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Aerotheurge and Deadeye. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Per-cast critical attribution, delayed spell overlap, return/catch geometry, collision and outside-radius controls. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "S3-INVENTORY",
+                      "title":  "S3 inventory and bounded task decomposition",
+                      "lane":  "S3",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Branding and Bannerlord",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Branding and Bannerlord. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Current charged Pyrebrand, post-spend refresh, legal orb combinations, banner ownership/overlap/expiry. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "S4-INVENTORY",
+                      "title":  "S4 inventory and bounded task decomposition",
+                      "lane":  "S4",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Forgemaster",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Forgemaster. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Body families, bosses, interrupted channels/payment, Heresy thresholds, risen behavior and floor persistence. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "S5-INVENTORY",
+                      "title":  "S5 inventory and bounded task decomposition",
+                      "lane":  "S5",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Generosity",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Generosity. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Rank effects, stack spending/gain, refusal preservation, boss targeting, channel exit paths and farming interactions. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "M1-INVENTORY",
+                      "title":  "M1 inventory and bounded task decomposition",
+                      "lane":  "M1",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Campaign, keys, maps and imported traps",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Campaign, keys, maps and imported traps. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Reachable generation, chest refusal/rewards, boss/progression paths, map traversal and HoH1 prerequisite distinctions. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "M2-INVENTORY",
+                      "title":  "M2 inventory and bounded task decomposition",
+                      "lane":  "M2",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Puzzles, objectives, strongbox, abyss, weapons, trinkets, valuables and affixes",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Puzzles, objectives, strongbox, abyss, weapons, trinkets, valuables and affixes. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Successful clear/reward plus timeout, item effects, scaling, placement failure and bounded random sampling. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "M3-INVENTORY",
+                      "title":  "M3 inventory and bounded task decomposition",
+                      "lane":  "M3",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Fishing, farming, gambler, roulette and tavern",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Fishing, farming, gambler, roulette and tavern. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Exact economy, insufficient funds, cap/overflow, cancel/abort, growth/harvest, trap payouts, Luck and market currencies. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "M4-INVENTORY",
+                      "title":  "M4 inventory and bounded task decomposition",
+                      "lane":  "M4",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Pets, petrooms, summons, legacy, mercenary and wavemode",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Pets, petrooms, summons, legacy, mercenary and wavemode. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Courier conservation/restart, trap waiting, restoration without duplicates, title persistence, death/prestige and wave rewards. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "M5-INVENTORY",
+                      "title":  "M5 inventory and bounded task decomposition",
+                      "lane":  "M5",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Stash, weaponswap, attrclick and other QoL modules",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Stash, weaponswap, attrclick and other QoL modules. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Inventory conservation, UI consumers, targeting, controller bindings, settings, full bags, display cleanup and persistence. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "M6-INVENTORY",
+                      "title":  "M6 inventory and bounded task decomposition",
+                      "lane":  "M6",
+                      "operation":  "review",
+                      "priority":  20,
+                      "paths":  [
+
+                                ],
+                      "depends_on":  [
+
+                                     ],
+                      "required_scopes":  [
+                                              "source"
+                                          ],
+                      "checks":  [
+
+                                 ],
+                      "summary":  "Not started. Owned surface: Architect, groupcombo, droptrade and cross-module network authority",
+                      "next_action":  "Read the lane in SWARM_VERIFICATION_PLAN.md, enumerate contracts/tests/gaps for Architect, groupcombo, droptrade and cross-module network authority. Add bounded follow-up tasks with exact allowed paths, checks and dependencies; prioritize Charge/grant once, owner routing, pickup/drop consistency, host-synced settings and genuine client-delivery requirements. Verify this inventory only, without claiming gameplay coverage."
+                  },
+                  {
+                      "id":  "SMOKE",
+                      "title":  "Current-source isolated boot and full-stack load gates",
+                      "lane":  "runtime",
+                      "operation":  "native",
+                      "priority":  5,
+                      "paths":  [
+                                    "gamelab/scenarios/null-payload.json",
+                                    "gamelab/scenarios/mod-all.json"
+                                ],
+                      "depends_on":  [
+                                         "BASELINE"
+                                     ],
+                      "required_scopes":  [
+                                              "load"
+                                          ],
+                      "checks":  [
+                                     "null-payload",
+                                     "mod-all"
+                                 ],
+                      "next_action":  "Runtime owner: check doctor, resolve prerequisites, obtain freeze acknowledgements and freeze the epoch; run a unique qa_batch smoke queue and import both result rows. Record load evidence only."
+                  },
+                  {
+                      "id":  "NATIVE-CONTRACTS",
+                      "title":  "Native input and critical-observer prerequisite contracts",
+                      "lane":  "runtime",
+                      "operation":  "native",
+                      "priority":  10,
+                      "paths":  [
+                                    "gamelab/scenarios/qa-firearms-input-sequence.json",
+                                    "gamelab/scenarios/qa-specs-crit-contract.json"
+                                ],
+                      "depends_on":  [
+                                         "SMOKE",
+                                         "H2-INVENTORY",
+                                         "H3-INVENTORY"
+                                     ],
+                      "required_scopes":  [
+                                              "native-contract"
+                                          ],
+                      "checks":  [
+                                     "qa-firearms-input-sequence",
+                                     "qa-specs-crit-contract"
+                                 ],
+                      "next_action":  "Inspect controller/observer contracts, run serially after smoke and lane prerequisite review, import exact rows, and keep contract evidence separate from gameplay effect evidence."
+                  }
+              ]
+}

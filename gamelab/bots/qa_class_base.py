@@ -56,7 +56,7 @@ class Checks(ProcChecks):
     def projectile(self, key):
         knives = key == "knives"
         skill = "hwp_thief_knives" if knives else "hwp_gladiator_gladius"
-        filt = "rog_throwing_knife" if knives else "whirling_axe"
+        filt = "rog_throwing_knife" if knives else "players/hwp/gladiator/projectiles/gladius.unit"
         lane, note = self.to_trident_lane(front=72, back_neighbor=True, ray_distance=120, tag=key,
                                           clearance_points=() if knives else ((0, 0, 40),))
         self.flag(key + "_geometry", bool(lane), note)

@@ -6,6 +6,13 @@ cases, interpreting failures, and continuing the recorded QA work. The detailed
 [GameLab skill](.claude/skills/gamelab/SKILL.md) is ordinary Markdown and can be read by
 any agent; it does not require Claude.
 
+For swarm work, start or resume with `python tools/qa_swarm.py resume --owner <alias>`
+and read the [agent tracker protocol](docs/qa/SWARM_TRACKER.md). The versioned
+ledger in `docs/qa/swarm/state.json` carries task ownership, dependencies, next
+actions and evidence across compactions; do not reconstruct status from chat or
+edit it by hand. Checkpoint meaningful progress through the CLI before a handoff.
+Tracker claims are bookkeeping and never replace the runtime/source rules below.
+
 ## Safety and coordination
 
 - Run the game only through `python -m gamelab run <scenario> --mode lab`, using the
@@ -17,8 +24,12 @@ any agent; it does not require Claude.
 - No real input or focus changes: no `SendInput`, `keybd_event`, `mouse_event`,
   `SetCursorPos`, `SetForegroundWindow`, or `bring_to_front`. Use GameLab's posted-input
   and in-engine command APIs.
-- One runtime owner and one GameLab run at a time, machine-wide. The lock protects game
-  lifetime, not source files. Freeze gameplay, harness, bot, scenario, and tool sources
+- One runtime coordinator machine-wide. Ordinary runs remain serial. The user authorized
+  implementation and validation of two isolated workers on 2026-10-31: concurrent
+  acceptance runs must use `python -m gamelab pool ... --mode lab --workers 2 --label ...`,
+  retain the coordinator's machine lease and use authenticated private slots. Never
+  start independent ordinary runs concurrently or disable ownership/isolation gates.
+  The lock protects game lifetime, not source files. Freeze gameplay, harness, bot, scenario, and tool sources
   during a native run/serial queue. Stage drafts under ignored `gamelab/results/` and
   apply reviewed changes only at a clean boundary. Deliberate scenario-owned
   `write_*_file` tests are the documented, restored exception.

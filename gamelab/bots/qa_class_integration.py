@@ -4,6 +4,7 @@ Preparation is a lab fixture. The ordinary-floor phase clears no enemies,
 teleports nowhere, keeps timescale1 and god off, and uses the existing Pilot.
 """
 import json
+import math
 import time
 from pathlib import Path
 
@@ -67,7 +68,42 @@ class Checks(ClassChecks):
         self.flag("prepared", self.out.get("verified") and self.out["prepared_snapshot"]["state"].get("player", {}).get("level") == 5)
         self.gl("save")
 
-    def ordinary(self, cls, floors=2, budget_s=180):
+    def summon_census(self, filt, state):
+        """A refused/dead-player query is UNRUN, never an observed empty census."""
+        player = state.get("player", {}) if isinstance(state, dict) else {}
+        if (not isinstance(state, dict) or state.get("ok") is not True or state.get("phase") != "mission"
+                or not isinstance(player, dict) or player.get("dead") is not False or player.get("spawned") is not True):
+            return {"status": "UNRUN", "reason": "no confirmed live mission player", "state": state,
+                    "raw": None, "units": None}
+        try:
+            raw = self.gl("near", 800, filt)
+        except Exception as exc:
+            return {"status": "UNRUN", "reason": "native census query failed: " + str(exc)[:240],
+                    "raw": None, "units": None}
+        rows = raw.get("units") if isinstance(raw, dict) else None
+        valid = (isinstance(raw, dict) and raw.get("ok") is True and raw.get("truncated") in (False, 0)
+                 and isinstance(rows, list) and type(raw.get("count")) is int and raw["count"] == len(rows))
+        seen = set()
+        for row in rows if isinstance(rows, list) else []:
+            good = (isinstance(row, dict) and type(row.get("unit")) is int and row["unit"] != 0
+                    and row["unit"] not in seen and type(row.get("dead")) is bool
+                    and isinstance(row.get("name"), str) and filt in row["name"]
+                    and all(isinstance(row.get(k), (int, float)) and not isinstance(row[k], bool)
+                            and math.isfinite(row[k]) for k in ("hpMax", "hpExact", "x", "y", "dist"))
+                    and row["hpMax"] > 0 and row["dist"] >= 0
+                    and (row["dead"] or row["hpExact"] > 0))
+            valid = valid and good
+            if good:
+                seen.add(row["unit"])
+        if not valid:
+            return {"status": "UNRUN", "reason": "native census refused, malformed or truncated", "raw": raw, "units": None}
+        return {"status": "OBSERVED", "reason": "presence only; no ownership/conservation inference", "raw": raw, "units": rows}
+
+    def ordinary(self, cls, floors=2, budget_s=180, combat_before_travel=False):
+        for key in ("ordinary_god_off", "ordinary_floors", "ordinary_class_survives", "ordinary_rewards",
+                    "ordinary_summon_after_floor"):
+            self.out[key] = False
+        self.out["ordinary_samples"] = []
         if not self.god_off():
             self.flag("ordinary_god_off", False)
             return
@@ -78,13 +114,20 @@ class Checks(ClassChecks):
             return
         time.sleep(3)
         self.flag("ordinary_god_off", self.god_off())
+        if not self.out["ordinary_god_off"]:
+            return
         summon_filter = CLASSES[cls]["summon"]
-        summon_before = self.gl("near", 800, summon_filter).get("units", []) if summon_filter else []
+        summon_before = self.summon_census(summon_filter, self.gl("state")) if summon_filter else None
+        self.out["ordinary_summon_before"] = summon_before
+        if summon_before is not None and summon_before["status"] == "UNRUN":
+            self.notes.append("ordinary before-floor summon census UNRUN: " + summon_before["reason"])
+            return
         samples = []
         driver = ClassPilot(self.p, cls)
         self.out["ordinary_driver"] = driver.description()
         for index in range(int(floors)):
-            result = floor_runner.run(driver, budget_s=budget_s, kite_range=CLASSES[cls]["kite"])
+            result = floor_runner.run(driver, budget_s=budget_s, kite_range=CLASSES[cls]["kite"],
+                                      combat_before_travel=combat_before_travel)
             samples.append(result)
             self.notes.append(f"ordinary floor {index}: {result}")
             if result.get("terminal") != "next_floor":
@@ -99,9 +142,12 @@ class Checks(ClassChecks):
         self.flag("ordinary_class_survives", a.get("class") == cls and not a.get("dead") and after["state"].get("phase") == "mission", str(a))
         self.flag("ordinary_rewards", reward, f"before {b}, materials {before['materials']}; after {a}, materials {after['materials']}")
         if summon_filter:
-            summon_after = self.gl("near", 800, summon_filter).get("units", [])
-            self.flag("ordinary_summon_after_floor", any(not u.get("dead") for u in summon_before)
-                      and any(not u.get("dead") for u in summon_after), f"before {summon_before}; after {summon_after}")
+            summon_after = self.summon_census(summon_filter, after["state"])
+            self.out["ordinary_summon_after"] = summon_after
+            presence = (summon_before["status"] == "OBSERVED" and summon_after["status"] == "OBSERVED"
+                        and any(not u["dead"] for u in summon_before["units"])
+                        and any(not u["dead"] for u in summon_after["units"]))
+            self.flag("ordinary_summon_after_floor", presence, f"before {summon_before}; after {summon_after}")
         self.out["ordinary_samples"] = samples
         self.out["ordinary_before"], self.out["ordinary_after"] = before, after
         self.to_town()

@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-31",
+  "status": "two-worker-foundation-verified",
+  "broader_campaign": {
+    "status": "paused-by-user",
+    "ledger_revision": 4847,
+    "ledger_advanced": false
+  },
+  "build": {
+    "build_id": "25932569",
+    "game_version": null,
+    "exe_sha256": "232cfb7a784c4851618afae1f9b7481deb60e1b46e7e4fcae79c4b4c35751100"
+  },
+  "implementation": {
+    "coordinators": 1,
+    "maximum_workers": 2,
+    "default_ordinary_runs": "serial",
+    "private": [
+      "game tree",
+      "saves",
+      "LocalAppData",
+      "configuration",
+      "harness-mod sources",
+      "generated plan",
+      "fixture cache",
+      "logs",
+      "capture requests",
+      "hidden desktop",
+      "owned process job"
+    ],
+    "per_worker_memory_limit_mib": 4096,
+    "ownership": "PID creation time, executable, slot lease and exact named job; held-handle termination"
+  },
+  "offline": {
+    "report": "gamelab/results/two-slot-offline-003.txt",
+    "passed": 725,
+    "skipped": 2,
+    "subtests_passed": 718,
+    "source": {
+      "head": "964e1b7e16d6221a1bdfd70fdb181f1f8a360446",
+      "source_sha256": "12dae302bbd70f73d9a00ba10ff62487202e69521451db8a0c04d471d63d5a47",
+      "files": 2238,
+      "fingerprint_scope": "mods+gamelab+tools-v2"
+    }
+  },
+  "source_revisions": {
+    "stock_validation_and_benchmark": {
+      "head": "964e1b7e16d6221a1bdfd70fdb181f1f8a360446",
+      "source_sha256": "64f39ca551e8d7fde0cef96ac9b27b83e73264228c9fac8d1efecb7fb3f8122b",
+      "files": 2238,
+      "fingerprint_scope": "mods+gamelab+tools-v2"
+    },
+    "repaired_routing_and_fault": {
+      "head": "964e1b7e16d6221a1bdfd70fdb181f1f8a360446",
+      "source_sha256": "12dae302bbd70f73d9a00ba10ff62487202e69521451db8a0c04d471d63d5a47",
+      "files": 2238,
+      "fingerprint_scope": "mods+gamelab+tools-v2"
+    },
+    "repair_inverse_exact": true
+  },
+  "native": {
+    "legacy_smoke": "PASS20outer/14inner;three clean boots",
+    "serial_stock": "4/4PASS",
+    "paired_stock": "4/4PASS",
+    "routing_002": "2/2PASS;10barrier observations/eight captures inspected; markers57/59 restored60",
+    "fault_001": {
+      "containment": "accepted by root and independent raw reviewer",
+      "raw_timeout_exit": 6,
+      "raw_timeout_verdict": "TIMEOUT",
+      "raw_partial": true,
+      "raw_coordinator_exit": 4,
+      "raw_coordinator_clean": false,
+      "survivor_exit": 0,
+      "survivor_verdict": "PASS",
+      "survivor_observations": 92,
+      "after_peer_captures_viewed": 3,
+      "source_stable": true,
+      "all_jobs_empty": true,
+      "all_game_processes_absent": true,
+      "explicit_owned_reset_exit": 0,
+      "reset_killed_processes": 0,
+      "private_worker_dirty_records_preserved": true,
+      "finality_audit": "gamelab/results/two-slot-validation-20261031/fault-001-finality.json"
+    },
+    "qa_batch_recovery_001": {
+      "receipt": "gamelab/results/pool-two-slot-recovery-001/pool.json",
+      "passed": 2,
+      "exit": 0,
+      "coordinator_clean": true,
+      "jobs_empty": true,
+      "source": {
+        "head": "964e1b7e16d6221a1bdfd70fdb181f1f8a360446",
+        "source_sha256": "12dae302bbd70f73d9a00ba10ff62487202e69521451db8a0c04d471d63d5a47",
+        "files": 2238,
+        "fingerprint_scope": "mods+gamelab+tools-v2"
+      }
+    }
+  },
+  "benchmark": {
+    "serial_seconds": 149.681902885437,
+    "parallel_seconds": 94.63891434669495,
+    "speedup": 1.5816105237334046,
+    "time_reduction_percent": 36.773308915554516,
+    "scope": "One matched warm-cache four-case comparison, not a saturation benchmark"
+  },
+  "retained_failure": {
+    "receipt": "gamelab/results/pool-two-slot-routing-001/pool.json",
+    "observed": "Two requested clock markers11/17 both immediately read14; tags/state were own; no capture/routing credit",
+    "repaired": "Use writable FPS marker with immediate and independent readback; preserve original trial"
+  },
+  "framework_integration": {
+    "qa_batch_workers_2": true,
+    "public_record_pool_actual_ingestion": "LOADS and CONTRACTS verified in an isolated demonstration ledger",
+    "demonstration_state": "gamelab/results/two-slot-validation-20261031/tracker-integration.json",
+    "canonical_ledger_unchanged": true
+  },
+  "eligible_stock_scenarios": [
+    "null-payload",
+    "mod-all",
+    "qa-firearms-input-sequence",
+    "qa-specs-crit-contract"
+  ],
+  "admission": "Exact audited scenario and bot hashes; dedicated probes require their exact two-role pair. Other scenarios require eligibility review.",
+  "scope_limits": [
+    "One matched warm-cache benchmark, not maximum capacity",
+    "Four stock cases and dedicated isolation probes do not establish broad feature coverage",
+    "Local independent solo workers do not establish genuine co-op coverage",
+    "No Steam-account isolation claim"
+  ],
+  "raw_checkpoint": "gamelab\\results\\two-slot-validation-20261031\\checkpoint.json",
+  "next_action": "Review eligibility for the wider native scenario queue, then benchmark higher worker counts; ordinary launches stay serial and current pool cap stays two. Broader campaign remains paused."
+}

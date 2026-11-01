@@ -1,6 +1,29 @@
 # HammerwatchPlus
 
-> **QA checkpoint (2026-10-22): paused at the user-requested PR boundary.** The full sweep is incomplete. Recorded original-sweep passes: six original fourth specs60/60 rank cases and61/65 orb-quality cases; Firearms60/60 ranks and74/75 orb qualities; HoH1 imports29/39 skills and136/191 ranks;9/9 selected-mastery saves. Five orb cases need real co-op. All 31 normal-release modules have load evidence, with broader feature/lifecycle work open. Earlier QA summaries below are historical snapshots. See [the authoritative checkpoint](docs/generated/qa_pr_checkpoint.json) and [QA ledger](docs/QA_OVERNIGHT.md).
+The [admission pipeline validation](docs/qa/swarm/admission_pipeline_validation.json)
+verifies reviewed feature cases through a data catalog, exact consumer checks and
+atomic tracker import. Two isolated stash cases passed all ten consumer rows;
+both were verified together in one ledger revision, and two broken bundles left
+the ledger byte-for-byte unchanged. Private HPS backups and stale module-input
+admission gaps were fixed. Final host tests:1240PASS/three unavailable-symlink skips,
+1269 subtests. Native evidence remains pinned to executed source9884dd30; final
+source9e92c11a differs only by the independently reviewed tracker CLI import fix
+and its subprocess tests. The limited acceptance ledger is idle with three
+verified tasks; the broad campaign remains paused at r4847/E018. Worker cap stays
+two. Repeated closure validation consumed40.66s of the87.20s feature wave, a
+measured optimization candidate before increasing workers.
+
+> **Earlier isolation checkpoint (2026-10-31): two-worker GameLab isolation verified; broader campaign remains paused.** The [validation record](docs/qa/swarm/multi_run_validation.json) records725 automated tests passing, paired native load/input/helper checks, independently routed commands/input/captures, and a contained intentional timeout whose sibling passed. One matched warm-cache four-case comparison took149.68s serial versus94.64s paired (1.58x; preliminary). The original failed clock-marker probe and expected timeout remain retained. The post-fault qa_batch recovery pair also passed; final coordinator teardown is clean. Parallel admission is limited to audited scenario/bot hashes; four-worker capacity and broader scenario eligibility remain future work.
+
+> **Earlier campaign execution checkpoint (2026-10-31, E018).** Dated r4847: ROOT18 is integrated r6; installed core561 returned559PASS/two named WinError1314 skips and three metadata exits0. Independent result review is pending; no E018 AS/load/native result is recorded. Build25932569/B176; source `26acb452...`/2,226, inputs `feb56819...`/6,294, supplementary `cfc2c4db...`/270. Two reviewed files install unit-or-neutral pulse control and twelve passing pure models. Ownership, tiny precision budget, strict2px, route/hold/correction limits remain. Availability is unproved; intentional neutral commands may affect stuck/repath behavior. Source inventories/continuity renewals are underway. E017 history: core549=547PASS/two skips; separate direct selftests10methods+14save+78doctor assertions; seven native trials=sixPASS/oneposeFAIL. Merchant130213 and inventory130734 were independently accepted only at controlled UI scope; M4 parent queued16, Courier remains separate. Pose124559 materially refused X after26frames; F1HB56/released. All earlier failures remain. Browser cases are blocked/unrun; eight genuine co-op tasks user-deferred; boss/per-killer policy unchanged. [Resume the tracker](docs/qa/SWARM_TRACKER.md) for live work. Portable E015/r4165 and actual E016Planner18 stay historical; no campaign completion or broad gameplay coverage is claimed.
+
+Agents: resume from `python tools/qa_swarm.py resume --owner <alias>`. The
+[tracker protocol](docs/qa/SWARM_TRACKER.md) and persistent JSON ledger preserve
+claims, next actions, dependencies and evidence across compactions. The initial
+27 bootstrap tasks have expanded into bounded lane-owned verification and repair
+tasks. Read the ledger for current counts and next actions.
+
+> **Historical QA checkpoint (2026-10-22): paused at the user-requested PR boundary.** The original sweep was incomplete. Recorded original-sweep passes: six original fourth specs60/60 rank cases and61/65 orb-quality cases; Firearms60/60 ranks and74/75 orb qualities; HoH1 imports29/39 skills and136/191 ranks;9/9 selected-mastery saves. Five orb cases need real co-op. The then-current 31 normal-release modules had load evidence, with broader feature/lifecycle work open. Earlier QA summaries below are historical snapshots. See [the historical checkpoint](docs/generated/qa_pr_checkpoint.json) and [QA ledger](docs/QA_OVERNIGHT.md).
 
 
 A modular co-op mod for **Heroes of Hammerwatch II**: a new class (the Firearms Specialist)
@@ -664,6 +687,15 @@ handoff update adds documentation and a batch helper, not native coverage.
 </details>
 
 ## GameLab
+
+Runtime cleanup uses an acquisition nonce plus
+`gamelab/env/userdata/gamelab.lock.lifecycle` to serialize acquisition, teardown,
+reset and final result publication. If either lock is refused, inspect its
+recorded owner and the cause with adequate process visibility. Never automatically
+delete a lifecycle guard or reset another owner's run. A stale guard needs an
+accounted owner/cause before explicit recovery. `--wait` currently may refuse
+transient lifecycle contention; keep the campaign's single-owner queue serial
+and retry only after the known owner has finished, without bypassing the gate.
 
 GameLab is the test harness: it boots a sandboxed copy of the game hidden and muted,
 drives it through its own scripts (no real input, no focus steals, never touching your

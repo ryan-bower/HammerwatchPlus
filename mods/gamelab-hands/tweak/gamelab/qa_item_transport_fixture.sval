@@ -1,0 +1,4 @@
+<dict>
+  <!-- Pure owned calibration data, no loader or game-state action. -->
+  <bytes name="unsupported">000102ff</bytes>
+</dict>

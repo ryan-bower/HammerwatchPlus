@@ -68,12 +68,149 @@ namespace GameLab
 		bool hasApproach = false;
 		bool nav = false;              // exit: the route came from NavRoute
 		int navExpanded = 0;
+		// Only path_to with an original finite 0 < tol <= 2 uses this controller.
+		// Bounds are cumulative for the intent; no engine velocity conversion is assumed.
+		bool tight = false, tightHolding = false, tightForeign = false;
+		vec2 tightGoal, tightExpectedMove, tightPrevious;
+		float tightTol = 0, tightStepPeak = 0, tightCap = 1;
+		float tightPulseCredit = 0; // cap is callback duty; writes remain unit direction or zero
+		int tightBoots = 0, tightPlayer = 0, tightNow = 0;
+		string tightLevel;
+		Scene@ tightScene;
+		PlayerRecord@ tightRecord;
+		PlayerBase@ tightActor;
+		array<GameInput@> tightInputs;
+		array<bool> tightPads;
+		uint tightWrites = 0;
+		int tightCorrections = 0, tightHolds = 0, tightQuiet = 0, tightInsideQuiet = 0, tightNeutral = 0;
+		int tightObservations = 0, tightNoMotion = 0;
+		// Diagnostic state only. No controller field is read from these values.
+		int tightDiagEntries = 0, tightDiagRecords = 0, tightDiagDropped = 0;
+		bool tightDiagInvalid = false, tightDiagTruncated = false;
+		TightProbe@ tightDiagLastGuard;
 	}
 
 	PilotIntent@ g_intent;
 	bool g_pilotPaused = false;
 	int g_pilotSteps = 0;          // frames to run while paused (step)
 	uint g_tick = 0;               // pilot frames run in this level (a level load resets it)
+
+	// Read-only, at most five observations of one tight path_to arrival. This
+	// callback counter is NOT an engine actor/physics phase or g_tick clock.
+	uint g_arrivalCallbacks = 0;
+	string g_arrivalId, g_arrivalLevel;
+	int g_arrivalPlayer = 0, g_arrivalBoots = 0, g_arrivalSeen = 0, g_arrivalTail = 0;
+	int g_arrivalDt = 0;
+	bool g_arrivalPaused = false;
+	bool ArrivalFinite(float value) { return value == value && value >= -1000000 && value <= 1000000; }
+
+	string ArrivalInput(GameInput@ input)
+	{
+		if (input is null) return "null";
+		if (!ArrivalFinite(input.MoveDir.x) || !ArrivalFinite(input.MoveDir.y)) return "null";
+		int slot = -1; // Looking up an existing handle never registers one.
+		for (uint i = 0; i < g_inputs.length(); i++)
+			if (g_inputs[i] is input) { slot = int(i); break; }
+		array<string> down;
+		if (input.Use.Down) down.insertLast("use");
+		if (input.Potion.Down) down.insertLast("potion");
+		if (input.Dash.Down) down.insertLast("dash");
+		if (input.MainHandAttack.Down) down.insertLast("main");
+		if (input.OffHandAttack.Down) down.insertLast("off");
+		if (input.Skill1.Down) down.insertLast("skill1");
+		if (input.Skill2.Down) down.insertLast("skill2");
+		if (input.Skill3.Down) down.insertLast("skill3");
+		Json row;
+		row.Int("slot", slot).Num("mx", input.MoveDir.x).Num("my", input.MoveDir.y)
+			.Bool("gamepad", input.UsingGamepad).Raw("down", StrArray(down));
+		return row.Close();
+	}
+
+	void ArrivalProbeAbort(const string &in reason)
+	{
+		if (!g_arrivalId.isEmpty() && g_arrivalSeen < 5)
+		{
+			Json row;
+			Emit(row.Str("id", g_arrivalId).Str("ev", "path_arrival_probe").Str("phase", "abort")
+				.Int("sample", g_arrivalSeen).Int("planned", 5).Bool("complete", false).Str("reason", reason));
+		}
+		g_arrivalId = ""; g_arrivalTail = 0;
+	}
+
+	void ArrivalProbeSample(GameInput& callbackInput, const string &in phase, bool complete)
+	{
+		if (g_arrivalId.isEmpty()) return;
+		auto player = GetLocalPlayer();
+		auto record = GetLocalPlayerRecord();
+		if (player is null || record is null || !record.local || record.actor !is player
+			|| !player.m_unit.IsValid() || player.IsDead() || player.m_unit.GetId() != g_arrivalPlayer
+			|| g_boots != g_arrivalBoots || GetCurrentLevelFilename() != g_arrivalLevel
+			|| g_players.length() > 16 || g_inputs.length() > MAX_INPUTS || g_arrivalSeen >= 5)
+		{ ArrivalProbeAbort("unavailable or changed sole actor/world/input bounds"); return; }
+		for (uint i = 0; i < g_players.length(); i++)
+			if (g_players[i] !is null && g_players[i] !is record)
+			{ ArrivalProbeAbort("another player record"); return; }
+		auto body = player.m_unit.GetPhysicsBody();
+		if (body is null) { ArrivalProbeAbort("body unavailable"); return; }
+		vec2 velocity = body.GetLinearVelocity(); // read only, no physics setter
+		vec3 pos = player.m_unit.GetPosition();
+		if (!ArrivalFinite(velocity.x) || !ArrivalFinite(velocity.y) || !ArrivalFinite(pos.x)
+			|| !ArrivalFinite(pos.y) || !ArrivalFinite(pos.z))
+		{ ArrivalProbeAbort("nonfinite/unbounded native motion observation"); return; }
+		auto current = GetInput();
+		GameInput@ callback = callbackInput;
+		array<string> buffers;
+		for (uint i = 0; i < g_inputs.length(); i++) buffers.insertLast(ArrivalInput(g_inputs[i]));
+		Json row;
+		row.Str("id", g_arrivalId).Str("ev", "path_arrival_probe").Str("phase", phase)
+			.Int("sample", g_arrivalSeen).Int("planned", 5).Bool("complete", complete)
+			.Int("callback", g_arrivalCallbacks).Int("pilot_tick", g_tick).Int("dt", g_arrivalDt).Bool("paused", g_arrivalPaused)
+			.Int("now", int(g_scene.GetTime())).Int("probe_frames", g_frames).Int("boots", g_boots)
+			.Int("player", g_arrivalPlayer).Str("level", g_arrivalLevel)
+			.Num("x", pos.x).Num("y", pos.y).Num("z", pos.z).Num("vx", velocity.x).Num("vy", velocity.y)
+			.Raw("callback_input", ArrivalInput(callback)).Raw("current_input", ArrivalInput(current))
+			.Bool("callback_is_current", current is callback).Raw("buffers", RawArray(buffers))
+			.Int("input_writes", g_inputFrames).Bool("release_pending", g_releasePending)
+			.Int("release_calls_left", g_releaseFrames).Str("held_owner", g_held.owner)
+			.Int("held_ms", g_held.msLeft).Raw("held_buttons", StrArray(g_held.buttons))
+			.Str("skillkeys_held", GlobalCache::Get(SKILLKEYS_HELD)).Bool("sequence_busy", g_qaInputSequenceBusy)
+			.Num("reflex_fire", g_reflexFire).Num("reflex_potion", g_reflexPotion)
+			.Str("active_intent", g_intent is null ? "" : g_intent.id)
+			.Str("scope", "Pilot callback observations only; no actor/physics phase or causal conclusion");
+		if (row.Close().length() > 12000) { ArrivalProbeAbort("diagnostic emit cap"); return; }
+		Emit(row);
+		g_arrivalSeen++;
+		if (complete) g_arrivalId = "";
+	}
+
+	void BeginArrivalProbe(PilotIntent@ it, GameInput& input)
+	{
+		if (it.tol > 2) return; // unchanged tight path_to requests only
+		if (!g_arrivalId.isEmpty()) ArrivalProbeAbort("superseded before complete");
+		g_arrivalId = it.id; g_arrivalSeen = 0; g_arrivalTail = 3;
+		g_arrivalPlayer = GetLocalPlayer().m_unit.GetId();
+		g_arrivalBoots = g_boots; g_arrivalLevel = GetCurrentLevelFilename();
+		try { ArrivalProbeSample(input, "pre_neutral", false); }
+		catch { ArrivalProbeAbort("diagnostic read exception"); }
+	}
+
+	void AfterArrivalProbe(GameInput& input)
+	{
+		try { ArrivalProbeSample(input, "post_neutral", false); }
+		catch { ArrivalProbeAbort("diagnostic read exception"); }
+	}
+
+	void AdvanceArrivalProbe(int ms, GameInput& input, bool paused)
+	{
+		g_arrivalCallbacks++; g_arrivalDt = ms; g_arrivalPaused = paused;
+		if (g_arrivalId.isEmpty() || g_arrivalTail <= 0) return;
+		if (g_intent !is null && g_intent.id != g_arrivalId)
+		{ ArrivalProbeAbort("another intent before observation complete"); return; }
+		string phase = "future" + (4 - g_arrivalTail);
+		g_arrivalTail--;
+		try { ArrivalProbeSample(input, phase, g_arrivalTail == 0); }
+		catch { ArrivalProbeAbort("diagnostic read exception"); }
+	}
 
 	Actor@ ActorOf(UnitPtr u)
 	{
@@ -207,6 +344,255 @@ namespace GameLab
 		return best;
 	}
 
+	// Observation only. A foreign/unknown owner must not schedule a later neutral
+	// writer. Inactive HeldInput configuration is history, not an active writer.
+	bool TightButtonsClear(GameInput@ input)
+	{
+		return input !is null && !input.Use.Down && !input.Use.Pressed
+			&& !input.Potion.Down && !input.Potion.Pressed && !input.Dash.Down && !input.Dash.Pressed
+			&& !input.MainHandAttack.Down && !input.MainHandAttack.Pressed
+			&& !input.OffHandAttack.Down && !input.OffHandAttack.Pressed
+			&& !input.Skill1.Down && !input.Skill1.Pressed && !input.Skill2.Down && !input.Skill2.Pressed
+			&& !input.Skill3.Down && !input.Skill3.Pressed;
+	}
+
+	// Fixed small observation cache. "unobserved" is never a neutral/default value.
+	class TightProbeInput
+	{
+		string nullSeen = "\"unobserved\"", handleSame = "\"unobserved\"";
+		string pad = "\"unobserved\"", savedPad = "\"unobserved\"";
+		string mx = "\"unobserved\"", my = "\"unobserved\"";
+		int downSeen = 0, downTrue = 0, pressedSeen = 0, pressedTrue = 0;
+		string Raw()
+		{
+			Json j; j.Raw("null", nullSeen).Raw("handle_same", handleSame).Raw("pad", pad).Raw("saved_pad", savedPad)
+				.Raw("mx", mx).Raw("my", my).Int("down_seen", downSeen).Int("down_true", downTrue)
+				.Int("pressed_seen", pressedSeen).Int("pressed_true", pressedTrue);
+			return j.Close();
+		}
+	}
+	class TightProbe
+	{
+		string location, phase, first, now = "\"unobserved\"", player = "\"unobserved\"";
+		string owner = "\"unobserved\"", writer = "\"unobserved\"", callbackSame = "\"unobserved\"";
+		string operandActual = "\"unobserved\"", operandExpected = "\"unobserved\"";
+		string guardWrites = "\"unobserved\"", guardExpectedWrites = "\"unobserved\"";
+		string expectedX, expectedY, plannedX = "\"unobserved\"", plannedY = "\"unobserved\"";
+		int callback = 0, frame = 0, boots = 0, entry = 0, writes = 0, expectedWrites = 0;
+		int currentSlot = -1, callbackSlot = -1, failedSlot = -1;
+		string heldMs = "\"unobserved\"";
+		bool invalid = false;
+		array<TightProbeInput@> inputs;
+		TightProbe() { for (uint i = 0; i < MAX_INPUTS; i++) inputs.insertLast(TightProbeInput()); }
+	}
+	string TightProbeBool(bool value) { return value ? "true" : "false"; }
+	string TightProbeFloat(double value)
+	{
+		return value == value && value >= -1000000 && value <= 1000000 ? formatFloat(value, "", 0, 9) : "null";
+	}
+	string TightProbeNumber(TightProbe@ p, double value)
+	{
+		if (!(value == value && value >= -1000000 && value <= 1000000)) p.invalid = true;
+		return TightProbeFloat(value);
+	}
+	void TightProbeInit(PilotIntent@ it, TightProbe@ p, const string &in location, const string &in phase, vec2 planned)
+	{
+		p.location = location; p.phase = phase; p.callback = int(g_arrivalCallbacks); // ordering, NOT physics phase
+		p.frame = g_frames; p.boots = g_boots; p.entry = it.tightDiagEntries;
+		p.writes = g_inputFrames; p.expectedWrites = it.tightWrites;
+		p.expectedX = TightProbeNumber(p,it.tightExpectedMove.x); p.expectedY = TightProbeNumber(p,it.tightExpectedMove.y);
+		if (location == "pre_write" || phase == "post_write")
+		{ p.plannedX = TightProbeNumber(p,planned.x); p.plannedY = TightProbeNumber(p,planned.y); }
+		// One explicitly new metadata read, before guard evaluation, never retried in a handler.
+		try { if (g_scene !is null) { int now = int(g_scene.GetTime()); p.now = "" + now; if (now < 0) p.invalid = true; } else p.invalid = true; }
+		catch { p.invalid = true; }
+	}
+	string TightProbeAt(TightProbe@ p, int slot)
+	{
+		return slot >= 0 && slot < int(p.inputs.length()) ? p.inputs[slot].Raw() : "\"unobserved\"";
+	}
+	void TightProbeEmit(PilotIntent@ it, TightProbe@ p)
+	{
+		// No Native/Input/actor getter is called here: failures use only the cache.
+		try
+		{
+			if (it.tightDiagRecords >= 16) { it.tightDiagDropped++; it.tightDiagTruncated = true; it.tightDiagInvalid = true; return; }
+			// No "id": admit-time events must not steal gl_cmd's first matching reply.
+			Json j; j.Str("intent_id", it.id).Str("ev", "tight_input_probe").Int("seq", it.tightDiagRecords + 1)
+				.Str("location", p.location).Str("phase", p.phase).Str("first_failed", p.first)
+				.Str("binding_source", p.phase == "post_write" ? "preceding guard cache; NEW input readback" : "original guard operands; marker inputs unobserved")
+				.Bool("valid", !p.invalid).Str("later_predicates", "unobserved after first failure")
+				.Int("callback", p.callback).Int("entry", p.entry).Int("frame", p.frame).Raw("now", p.now)
+				.Int("boots", p.boots).Int("expected_boots", it.tightBoots).Raw("player", p.player).Int("expected_player", it.tightPlayer)
+				.Raw("owner_binding_ok", p.owner).Raw("writer_guard_ok", p.writer).Raw("callback_same", p.callbackSame)
+				.Int("writes_at_start", p.writes).Int("expected_writes", p.expectedWrites).Raw("held_ms", p.heldMs)
+				.Raw("guard_writes", p.guardWrites).Raw("guard_expected_writes", p.guardExpectedWrites)
+				.Raw("expected_x", p.expectedX).Raw("expected_y", p.expectedY).Raw("planned_x", p.plannedX).Raw("planned_y", p.plannedY)
+				.Int("current_slot", p.currentSlot).Int("callback_slot", p.callbackSlot)
+				.Int("failed_slot", p.failedSlot).Raw("guard_actual", p.operandActual).Raw("guard_expected", p.operandExpected)
+				.Raw("current", TightProbeAt(p, p.currentSlot)).Raw("callback_input", TightProbeAt(p, p.callbackSlot))
+				.Raw("slot0", TightProbeAt(p, 0)).Raw("failed_input", TightProbeAt(p, p.failedSlot))
+				.Int("window_entries", 3).Int("record_cap", 16).Int("char_cap", 3000);
+			if (j.Close().length() > 3000) { it.tightDiagDropped++; it.tightDiagTruncated = true; it.tightDiagInvalid = true; return; }
+			// Separate bounded log event: do not alter Emit's in-engine reply-capture buffer.
+			print("[GL] " + j.Close()); it.tightDiagRecords++;
+			if (p.invalid) it.tightDiagInvalid = true;
+		}
+		catch { it.tightDiagDropped++; it.tightDiagInvalid = true; }
+	}
+	bool TightProbeFail(TightProbe@ p, const string &in code, bool failed, int slot = -1)
+	{
+		if (failed && p.first.isEmpty()) { p.first = code; p.failedSlot = slot; }
+		return failed;
+	}
+	bool TightProbeButton(TightProbe@ p, TightProbeInput@ row, int bit, bool pressed, bool value, const string &in code, int slot)
+	{
+		if (pressed) { row.pressedSeen |= bit; if (value) row.pressedTrue |= bit; }
+		else { row.downSeen |= bit; if (value) row.downTrue |= bit; }
+		if (code != "") TightProbeFail(p, code, value, slot); return !value;
+	}
+	bool TightProbeButtons(TightProbe@ p, TightProbeInput@ row, GameInput@ input, int slot)
+	{
+		// The original TightButtonsClear short-circuit order and getter count.
+		return input !is null
+			&& TightProbeButton(p,row,1,false,input.Use.Down,"use.down",slot) && TightProbeButton(p,row,1,true,input.Use.Pressed,"use.pressed",slot)
+			&& TightProbeButton(p,row,2,false,input.Potion.Down,"potion.down",slot) && TightProbeButton(p,row,2,true,input.Potion.Pressed,"potion.pressed",slot)
+			&& TightProbeButton(p,row,4,false,input.Dash.Down,"dash.down",slot) && TightProbeButton(p,row,4,true,input.Dash.Pressed,"dash.pressed",slot)
+			&& TightProbeButton(p,row,8,false,input.MainHandAttack.Down,"main.down",slot) && TightProbeButton(p,row,8,true,input.MainHandAttack.Pressed,"main.pressed",slot)
+			&& TightProbeButton(p,row,16,false,input.OffHandAttack.Down,"off.down",slot) && TightProbeButton(p,row,16,true,input.OffHandAttack.Pressed,"off.pressed",slot)
+			&& TightProbeButton(p,row,32,false,input.Skill1.Down,"skill1.down",slot) && TightProbeButton(p,row,32,true,input.Skill1.Pressed,"skill1.pressed",slot)
+			&& TightProbeButton(p,row,64,false,input.Skill2.Down,"skill2.down",slot) && TightProbeButton(p,row,64,true,input.Skill2.Pressed,"skill2.pressed",slot)
+			&& TightProbeButton(p,row,128,false,input.Skill3.Down,"skill3.down",slot) && TightProbeButton(p,row,128,true,input.Skill3.Pressed,"skill3.pressed",slot);
+	}
+	string TightProbeReturn(PilotIntent@ it, TightProbe@ p, const string &in reason)
+	{
+		if (p.invalid) it.tightDiagInvalid = true;
+		if (reason == "tight actor/world ownership changed or unavailable") p.owner = "false";
+		if (reason == "tight foreign writer, release, skill key or write counter") p.writer = "false";
+		if (p.first == "callback_handle") p.callbackSame = "false";
+		p.phase = reason == "" ? "guard_pass" : "guard_fail";
+		@it.tightDiagLastGuard = p; // bounded scalar cache only; contains no native handles
+		if (reason != "" || p.location == "admit" || p.location == "admit_after_route" || it.tightDiagEntries <= 3)
+			TightProbeEmit(it, p);
+		return reason;
+	}
+	void TightProbeReadback(PilotIntent@ it, GameInput@ callback, vec2 planned)
+	{
+		if (it.tightDiagEntries > 3) return;
+		TightProbe p; TightProbeInit(it,p,"tight_write","post_write",planned);
+		// NEW readback only, after the existing write AND tracker update. Never
+		// substitutes for a guard, updates expected state, or rescues ownership.
+		try
+		{
+			if (it.tightDiagLastGuard !is null)
+			{ p.player = it.tightDiagLastGuard.player; p.owner = it.tightDiagLastGuard.owner; p.writer = it.tightDiagLastGuard.writer; }
+			auto current = GetInput(); p.callbackSame = TightProbeBool(current is callback);
+			if (current is null || callback is null) p.invalid = true;
+			if (g_inputs.length() > MAX_INPUTS) { p.invalid = true; TightProbeEmit(it,p); return; }
+			for (uint i = 0; i < g_inputs.length(); i++)
+			{
+				auto input = g_inputs[i];
+				if (input is current) p.currentSlot = int(i); if (input is callback) p.callbackSlot = int(i);
+				if (i != 0 && input !is current && input !is callback) continue;
+				TightProbeInput@ row = p.inputs[i]; row.nullSeen = TightProbeBool(input is null);
+				if (input is null) { p.invalid = true; continue; }
+				row.handleSame = TightProbeBool(i < it.tightInputs.length() && input is it.tightInputs[i]);
+				row.pad = TightProbeBool(input.UsingGamepad);
+				if (i < it.tightPads.length()) row.savedPad = TightProbeBool(it.tightPads[i]);
+				row.mx = TightProbeNumber(p,input.MoveDir.x); row.my = TightProbeNumber(p,input.MoveDir.y);
+				// Explicit NEW post-write observations; all buttons sampled even if one is down.
+				bool ignored = TightProbeButton(p,row,1,false,input.Use.Down,"",int(i)); ignored = TightProbeButton(p,row,1,true,input.Use.Pressed,"",int(i));
+				ignored = TightProbeButton(p,row,2,false,input.Potion.Down,"",int(i)); ignored = TightProbeButton(p,row,2,true,input.Potion.Pressed,"",int(i));
+				ignored = TightProbeButton(p,row,4,false,input.Dash.Down,"",int(i)); ignored = TightProbeButton(p,row,4,true,input.Dash.Pressed,"",int(i));
+				ignored = TightProbeButton(p,row,8,false,input.MainHandAttack.Down,"",int(i)); ignored = TightProbeButton(p,row,8,true,input.MainHandAttack.Pressed,"",int(i));
+				ignored = TightProbeButton(p,row,16,false,input.OffHandAttack.Down,"",int(i)); ignored = TightProbeButton(p,row,16,true,input.OffHandAttack.Pressed,"",int(i));
+				ignored = TightProbeButton(p,row,32,false,input.Skill1.Down,"",int(i)); ignored = TightProbeButton(p,row,32,true,input.Skill1.Pressed,"",int(i));
+				ignored = TightProbeButton(p,row,64,false,input.Skill2.Down,"",int(i)); ignored = TightProbeButton(p,row,64,true,input.Skill2.Pressed,"",int(i));
+				ignored = TightProbeButton(p,row,128,false,input.Skill3.Down,"",int(i)); ignored = TightProbeButton(p,row,128,true,input.Skill3.Pressed,"",int(i));
+			}
+			if (p.currentSlot < 0 || p.callbackSlot < 0 || g_inputs.length() == 0) p.invalid = true;
+		}
+		catch { p.invalid = true; }
+		TightProbeEmit(it,p);
+	}
+
+	// Only movement readback: one local binary32 spacing, never more than 2^-24.
+	// Unit-range finite values only; zero and sign changes remain exact refusals.
+	// No conversion, getter retry, expected-state update or normalization here.
+	bool TightMoveComponentSame(double actual, double expected)
+	{
+		if (!(actual >= -1 && actual <= 1 && expected >= -1 && expected <= 1)) return false;
+		if (actual == expected) return true;
+		if (actual == 0 || expected == 0 || (actual < 0) != (expected < 0)) return false;
+		double a = actual < 0 ? -actual : actual, e = expected < 0 ? -expected : expected;
+		double magnitude = a > e ? a : e;
+		double gap = 0.000000059604644775390625, edge = 0.5; // 2^-24, half unit
+		// At a binade edge use the smaller inward spacing; subnormal floor 2^-149.
+		for (uint bit = 0; bit < 125 && magnitude <= edge; bit++) { gap *= 0.5; edge *= 0.5; }
+		double difference = actual > expected ? actual - expected : expected - actual;
+		return difference <= gap;
+	}
+
+	string TightOwnerReason(PilotIntent@ it, GameInput@ callback, const string &in location, vec2 planned = vec2())
+	{
+		TightProbe p; TightProbeInit(it, p, location, "before_guard", planned);
+		if (location == "frame_entry" && it.tightDiagEntries <= 3) TightProbeEmit(it, p);
+		auto rec = GetLocalPlayerRecord();
+		auto actor = GetLocalPlayer();
+		if (TightProbeFail(p,"record_null",rec is null) || TightProbeFail(p,"actor_null",actor is null)
+			|| TightProbeFail(p,"record_handle",rec !is it.tightRecord) || TightProbeFail(p,"actor_handle",actor !is it.tightActor)
+			|| TightProbeFail(p,"record_local",!rec.local) || TightProbeFail(p,"record_actor",rec.actor !is actor)
+			|| TightProbeFail(p,"unit_invalid",!actor.m_unit.IsValid()))
+			return TightProbeReturn(it,p,"tight actor/world ownership changed or unavailable");
+		int playerId = actor.m_unit.GetId(); p.player = "" + playerId;
+		if (TightProbeFail(p,"unit_id",playerId != it.tightPlayer) || TightProbeFail(p,"scene_handle",g_scene !is it.tightScene)
+			|| TightProbeFail(p,"boots",g_boots != it.tightBoots) || TightProbeFail(p,"level",GetCurrentLevelFilename() != it.tightLevel))
+			return TightProbeReturn(it,p,"tight actor/world ownership changed or unavailable");
+		p.owner = "true";
+		if (TightProbeFail(p,"player_bound",g_players.length() > 16)) return TightProbeReturn(it,p,"tight player bound");
+		for (uint i = 0; i < g_players.length(); i++)
+			if (TightProbeFail(p,"other_player",g_players[i] !is null && g_players[i] !is rec)) return TightProbeReturn(it,p,"tight sole player changed");
+		int heldMs = g_held.msLeft; p.heldMs = "" + heldMs;
+		if (TightProbeFail(p,"held_positive",heldMs > 0) || TightProbeFail(p,"sequence_busy",g_qaInputSequenceBusy)
+			|| TightProbeFail(p,"reflex_fire",g_reflexFire > 0) || TightProbeFail(p,"reflex_potion",g_reflexPotion > 0)
+			|| TightProbeFail(p,"skillkeys",!GlobalCache::Get(SKILLKEYS_HELD).isEmpty()) || TightProbeFail(p,"releasing",Releasing()))
+			return TightProbeReturn(it,p,"tight foreign writer, release, skill key or write counter");
+		uint observedWrites = g_inputFrames; uint expectedWrites = it.tightWrites;
+		p.guardWrites = "" + observedWrites; p.guardExpectedWrites = "" + expectedWrites;
+		if (TightProbeFail(p,"write_counter",observedWrites != expectedWrites) || TightProbeFail(p,"write_bound",g_inputFrames >= uint(2000000000)))
+			return TightProbeReturn(it,p,"tight foreign writer, release, skill key or write counter");
+		p.writer = "true";
+		auto current = GetInput();
+		if (TightProbeFail(p,"current_null",current is null) || TightProbeFail(p,"callback_null",callback is null)
+			|| TightProbeFail(p,"callback_handle",current !is callback) || TightProbeFail(p,"inputs_empty",g_inputs.length() == 0)
+			|| TightProbeFail(p,"inputs_bound",g_inputs.length() > MAX_INPUTS) || TightProbeFail(p,"inputs_count",g_inputs.length() != it.tightInputs.length()))
+			return TightProbeReturn(it,p,"tight current/callback or remembered input bound changed");
+		p.callbackSame = "true";
+		bool found = false;
+		for (uint i = 0; i < g_inputs.length(); i++)
+		{
+			auto input = g_inputs[i];
+			TightProbeInput@ row = p.inputs[i]; row.nullSeen = TightProbeBool(input is null);
+			// Reference aliases only: no getter/pointer/token registration or handler reread.
+			if (input is current) p.currentSlot = int(i); if (input is callback) p.callbackSlot = int(i);
+			if (TightProbeFail(p,"input_null",input is null,int(i))) return TightProbeReturn(it,p,"tight untracked, changed or non-owned input");
+			bool same = input is it.tightInputs[i]; row.handleSame = TightProbeBool(same);
+			if (TightProbeFail(p,"saved_input_handle",!same,int(i)) || !TightProbeButtons(p,row,input,int(i)))
+				return TightProbeReturn(it,p,"tight untracked, changed or non-owned input");
+			bool pad = input.UsingGamepad; bool expectedPad = it.tightPads[i]; row.pad = TightProbeBool(pad); row.savedPad = TightProbeBool(expectedPad);
+			if (TightProbeFail(p,"gamepad",pad != expectedPad,int(i))) return TightProbeReturn(it,p,"tight untracked, changed or non-owned input");
+			auto x = input.MoveDir.x; auto expectedX = it.tightExpectedMove.x; bool differentX = !TightMoveComponentSame(x,expectedX); row.mx = TightProbeNumber(p,x);
+			if (TightProbeFail(p,"move_x",differentX,int(i)))
+			{ p.operandActual = TightProbeNumber(p,x); p.operandExpected = TightProbeNumber(p,expectedX); return TightProbeReturn(it,p,"tight untracked, changed or non-owned input"); }
+			auto y = input.MoveDir.y; auto expectedY = it.tightExpectedMove.y; bool differentY = !TightMoveComponentSame(y,expectedY); row.my = TightProbeNumber(p,y);
+			if (TightProbeFail(p,"move_y",differentY,int(i)))
+			{ p.operandActual = TightProbeNumber(p,y); p.operandExpected = TightProbeNumber(p,expectedY); return TightProbeReturn(it,p,"tight untracked, changed or non-owned input"); }
+			if (input is current) found = true;
+		}
+		TightProbeFail(p,"current_untracked",!found);
+		return TightProbeReturn(it,p,found ? "" : "tight current input untracked");
+	}
+
 	void PilotEnd(const string &in result, const string &in reason)
 	{
 		if (g_intent is null)
@@ -215,7 +601,7 @@ namespace GameLab
 		j.Str("ev", "pilot").Str("id", g_intent.id).Str("intent", g_intent.kind).Str("result", result)
 			.Str("reason", reason).Int("tick", g_tick).Int("ms", g_intent.elapsed).Int("frames", g_intent.frames);
 		auto plr = GetLocalPlayer();
-		if (plr !is null)
+		if (plr !is null && (!g_intent.tight || plr.m_unit.IsValid()))
 		{
 			vec3 pos = plr.m_unit.GetPosition();
 			j.Num("x", pos.x).Num("y", pos.y);
@@ -223,8 +609,27 @@ namespace GameLab
 		auto rec = GetLocalPlayerRecord();
 		if (rec !is null)
 			j.Int("hp", rec.CurrentHealth()).Int("hpMax", rec.MaxHealth());
+		bool release = true;
+		if (g_intent.tight)
+		{
+			// Fail closed if the read itself fails; do not clear foreign state either.
+			release = false;
+			try { release = !g_intent.tightForeign && TightOwnerReason(g_intent, GetInput(), "end_owner") == ""; }
+			catch { g_intent.tightDiagInvalid = true; } // cache unavailable; no getter retry/recovery
+			j.Bool("tight", true).Bool("release_scheduled", release)
+				.Bool("holding", g_intent.tightHolding).Bool("foreign_observed", g_intent.tightForeign)
+				.Int("corrections", g_intent.tightCorrections).Int("hold_observations", g_intent.tightHolds)
+				.Int("quiet_observations", g_intent.tightQuiet).Int("inside_quiet_observations", g_intent.tightInsideQuiet)
+				.Int("neutral_writes", g_intent.tightNeutral)
+				.Int("observations", g_intent.tightObservations).Int("scene_now", g_intent.tightNow)
+				.Num("world_step_peak", g_intent.tightStepPeak).Num("input_cap", g_intent.tightCap)
+				.Bool("pulse_control", true).Num("pulse_credit", g_intent.tightPulseCredit)
+				.Int("diag_entries", g_intent.tightDiagEntries).Int("diag_records", g_intent.tightDiagRecords)
+				.Int("diag_dropped", g_intent.tightDiagDropped).Bool("diag_truncated", g_intent.tightDiagTruncated)
+				.Bool("diag_invalid", g_intent.tightDiagInvalid);
+		}
 		@g_intent = null;
-		g_releasePending = true;       // gamelab-hands zeroes the controller for RELEASE_FRAMES
+		if (release) g_releasePending = true; // existing default for all other intents
 		Emit(j);
 	}
 
@@ -701,6 +1106,145 @@ namespace GameLab
 		return vec2();
 	}
 
+	bool TightWrite(PilotIntent@ it, GameInput& gi, vec2 move)
+	{
+		string why = TightOwnerReason(it, gi, "pre_write", move);
+		if (why != "") { it.tightForeign = true; PilotEnd("interrupted", why); return false; }
+		WriteInput(gi, move, false, vec2(), null, false); // the existing owned writer only
+		it.tightWrites = g_inputFrames;
+		it.tightExpectedMove = move;
+		TightProbeReadback(it, gi, move);
+		return true;
+	}
+
+	// NEW endpoint corrections only: stricter than qa_routeleg.complete (12px).
+	// Initial/approach routes keep their old acceptance, including longer routes.
+	// A correction accepts no partial/escape-start/implicit straight final segment.
+	bool TightRouteBound(PilotIntent@ it, vec2 from)
+	{
+		if (it.goal.x != it.tightGoal.x || it.goal.y != it.tightGoal.y || it.path is null
+			|| it.path.length() == 0 || it.path.length() > 256 || dist(from, it.path[0]) > it.tightTol)
+			return false;
+		float arc = 0;
+		vec2 previous = from;
+		for (uint i = 0; i < it.path.length(); i++)
+		{
+			vec2 point = it.path[i];
+			if (!ArrivalFinite(point.x) || !ArrivalFinite(point.y)) return false;
+			arc += dist(previous, point);
+			if (!ArrivalFinite(arc) || arc > 128.0f) return false;
+			previous = point;
+		}
+		return dist(previous, it.tightGoal) <= it.tightTol;
+	}
+
+	bool TightRepath(PilotIntent@ it, vec2 pos, bool endpointCorrection)
+	{
+		if (it.tightCorrections >= 4) { PilotEnd("failed", "tight correction budget"); return false; }
+		it.tightCorrections++;
+		// Preserve the original goal. Only a NEW settled-endpoint correction also
+		// needs a complete bounded local polyline; approach retries keep old routing.
+		bool routed = Repath(it, pos);
+		if (!routed || it.goal.x != it.tightGoal.x || it.goal.y != it.tightGoal.y
+			|| (endpointCorrection && !TightRouteBound(it, pos)))
+		{ PilotEnd("no_route", "tight correction requires original goal"); return false; }
+		it.tightHolding = false; it.tightQuiet = 0; it.tightInsideQuiet = 0; it.tightNeutral = 0;
+		it.tightPulseCredit = 0; // fresh actual-origin route; no old pulse debt
+		it.stuckFrom = pos; it.stuckMs = 0;
+		return true;
+	}
+
+	// Bounded input-only arrival. Scene observations are not engine phase clocks;
+	// zero raw velocity is unit independent. No gain estimate from the last stick.
+	void TightFrame(PilotIntent@ it, int ms, GameInput& gi, vec2 pos)
+	{
+		int now = int(g_scene.GetTime());
+		if (ms <= 0 || ms > 250 || now < 0 || now <= it.tightNow
+			|| !ArrivalFinite(pos.x) || !ArrivalFinite(pos.y)
+			|| it.goal.x != it.tightGoal.x || it.goal.y != it.tightGoal.y || it.tol != it.tightTol)
+		{ PilotEnd("failed", "tight stale/nonfinite observation or changed goal/bound"); return; }
+		it.tightObservations++;
+		auto actor = GetLocalPlayer();
+		auto body = actor.m_unit.GetPhysicsBody();
+		if (body is null) { PilotEnd("failed", "tight body unavailable"); return; }
+		vec2 velocity = body.GetLinearVelocity(); // no setter, scale or velocity conversion
+		if (!ArrivalFinite(velocity.x) || !ArrivalFinite(velocity.y))
+		{ PilotEnd("failed", "tight nonfinite body velocity"); return; }
+		float step = dist(pos, it.tightPrevious);
+		if (!ArrivalFinite(step)) { PilotEnd("failed", "tight nonfinite world step"); return; }
+		it.tightStepPeak = max(it.tightStepPeak, step);
+		it.tightPrevious = pos; it.tightNow = now;
+		float remaining = dist(pos, it.tightGoal);
+		if (remaining <= it.tightTol) it.tightHolding = true;
+		if (it.tightHolding)
+		{
+			it.tightPulseCredit = 0; // settlement cannot accumulate or discharge a pulse
+			if (++it.tightHolds > 12) { PilotEnd("failed", "tight hold observation budget"); return; }
+			bool neutral = it.tightExpectedMove.x == 0 && it.tightExpectedMove.y == 0;
+			bool quiet = neutral && step <= 0.05f && velocity.x == 0 && velocity.y == 0;
+			it.tightQuiet = quiet ? it.tightQuiet + 1 : 0;
+			it.tightInsideQuiet = quiet && remaining <= it.tightTol ? it.tightInsideQuiet + 1 : 0;
+			if (it.tightNeutral >= 4 && it.tightQuiet >= 2
+				&& (remaining > it.tightTol || it.tightInsideQuiet >= 2))
+			{
+				if (remaining <= it.tightTol)
+				{
+					if (TightOwnerReason(it, gi, "final_release") != "")
+					{ it.tightForeign = true; PilotEnd("interrupted", "tight final owner changed"); return; }
+					// Retain the original diagnostic and owned completion release sequence.
+					try { BeginArrivalProbe(it, gi); } catch { g_arrivalId = ""; g_arrivalTail = 0; }
+					ReleaseInput(gi);
+					it.tightWrites = g_inputFrames; it.tightExpectedMove = vec2();
+					try { AfterArrivalProbe(gi); } catch { g_arrivalId = ""; g_arrivalTail = 0; }
+					PilotEnd("done", "arrived neutral and settled"); return;
+				}
+				// Correct only after actual neutral settling, from the actual new point.
+				if (!TightRepath(it, pos, true)) return;
+			}
+			else
+			{
+				if (TightWrite(it, gi, vec2())) it.tightNeutral++;
+				return;
+			}
+		}
+
+		// This branch replaces generic stuck detection only for tight arrivals.
+		// Every automatic retry consumes the same cumulative correction budget.
+		it.stuckMs += ms;
+		if (it.stuckMs >= 1000)
+		{
+			if (dist(pos, it.stuckFrom) < 3 && !TightRepath(it, pos, false)) return;
+			it.stuckFrom = pos; it.stuckMs = 0;
+		}
+		vec2 move;
+		if (FollowPath(it, pos, move) || !ArrivalFinite(move.x) || !ArrivalFinite(move.y) || length(move) <= 0)
+		{ PilotEnd("failed", "tight route has no valid outside-band direction"); return; }
+		// Observed displacement is a conservative bound, NOT a stick/velocity gain.
+		// Unknown/zero motion uses a bounded small pulse and never grants done.
+		if (remaining <= max(16.0f, 4 * it.tightStepPeak))
+		{
+			float cap = it.tightStepPeak > 0 ? remaining / (4 * max(it.tightTol, it.tightStepPeak)) : 0.125f;
+			it.tightCap = min(it.tightCap, min(1.0f, cap));
+		}
+		if (step <= 0.0001f && (it.tightExpectedMove.x != 0 || it.tightExpectedMove.y != 0)) it.tightNoMotion++;
+		else it.tightNoMotion = 0;
+		if (it.tightNoMotion > 8) { PilotEnd("failed", "tight no observed movement"); return; }
+		// Do not rely on subunit stick magnitude surviving to the next callback.
+		// Cap is a duty ratio over these observations, NOT a native frame/physics rate.
+		if (!ArrivalFinite(it.tightCap) || it.tightCap <= 0 || it.tightCap > 1
+			|| !ArrivalFinite(it.tightPulseCredit) || it.tightPulseCredit < 0 || it.tightPulseCredit >= 1)
+		{ PilotEnd("failed", "tight invalid pulse duty or credit"); return; }
+		vec2 command = move;
+		if (it.tightCap == 1) it.tightPulseCredit = 0;
+		else
+		{
+			it.tightPulseCredit += it.tightCap;
+			command = vec2();
+			if (it.tightPulseCredit >= 1) { it.tightPulseCredit -= 1; command = move; }
+		}
+		TightWrite(it, gi, command); // original guarded owned writer/tracker only
+	}
+
 	string CheckInterrupts(PilotIntent@ it, PlayerRecord@ rec)
 	{
 		for (uint i = 0; i < it.until.length(); i++)
@@ -801,6 +1345,15 @@ namespace GameLab
 				ReleaseInput(gi);
 			return;
 		}
+		// Check before pause/record early returns: they otherwise write a neutral or
+		// retain an old tight state after a foreign takeover or actor replacement.
+		if (it.tight)
+		{
+			it.tightDiagEntries++; // independent of the later intent tick/frame counters
+			string ownerWhy = TightOwnerReason(it, gi, "frame_entry");
+			if (ownerWhy != "") { it.tightForeign = true; PilotEnd("interrupted", ownerWhy); return; }
+			if (g_pilotPaused) { PilotEnd("interrupted", "tight paused"); return; }
+		}
 		if (g_pilotPaused)
 		{
 			if (g_pilotSteps <= 0)
@@ -837,6 +1390,7 @@ namespace GameLab
 		}
 
 		vec2 pos = xy(plr.m_unit.GetPosition());
+		if (it.tight) { TightFrame(it, ms, gi, pos); return; }
 		vec2 move;
 		bool aimSet = false;
 		vec2 aim;
@@ -918,6 +1472,13 @@ namespace GameLab
 		{
 			if (FollowPath(it, pos, move))
 			{
+				// Do not leave the previous move live until the pending release.
+				// PilotEnd still schedules its normal neutral tail after this write.
+				try { BeginArrivalProbe(it, gi); }
+				catch { g_arrivalId = ""; g_arrivalTail = 0; }
+				ReleaseInput(gi);
+				try { AfterArrivalProbe(gi); }
+				catch { g_arrivalId = ""; g_arrivalTail = 0; }
 				PilotEnd("done", "arrived");
 				return;
 			}
@@ -1162,6 +1723,33 @@ namespace GameLab
 		Emit(j);
 	}
 
+	string TightAdmit(PilotIntent@ it, vec2 pos)
+	{
+		if (g_intent !is null || g_pilotPaused || Releasing() || g_scene is null
+			|| g_inputs.length() == 0 || g_inputs.length() > MAX_INPUTS
+			|| !ArrivalFinite(it.goal.x) || !ArrivalFinite(it.goal.y)
+			|| !ArrivalFinite(pos.x) || !ArrivalFinite(pos.y) || it.timeoutMs <= 0)
+			return "tight admission needs idle, unpaused, finite owned context";
+		auto actor = GetLocalPlayer();
+		auto rec = GetLocalPlayerRecord();
+		if (actor is null || rec is null || rec.IsDead() || actor.IsDead() || !actor.m_unit.IsValid())
+			return "tight admission needs live actor";
+		it.tight = true; it.tightGoal = it.goal; it.tightTol = it.tol;
+		it.tightPlayer = actor.m_unit.GetId(); it.tightBoots = g_boots;
+		it.tightLevel = GetCurrentLevelFilename();
+		@it.tightScene = g_scene; @it.tightRecord = rec; @it.tightActor = actor;
+		it.tightInputs = g_inputs;
+		for (uint i = 0; i < g_inputs.length(); i++)
+		{
+			if (g_inputs[i] is null) return "tight admission null input";
+			it.tightPads.insertLast(g_inputs[i].UsingGamepad);
+		}
+		it.tightWrites = g_inputFrames; it.tightPrevious = pos;
+		it.tightNow = int(g_scene.GetTime());
+		if (it.tightLevel.isEmpty() || it.tightNow < 0) return "tight admission missing world/clock";
+		return TightOwnerReason(it, GetInput(), "admit"); // neutral expected move, no new registration
+	}
+
 	// pilot <intent|pause|resume|step|target|stop|status|reflex> [args] [until=..] [timeout=ms]:
 	// start an intent (path_to, move, exit, attack, kite, use, potion, wait) that runs in-engine
 	// until done or an `until` interrupt, ending in a "pilot" event; or control the running one;
@@ -1253,6 +1841,10 @@ namespace GameLab
 			Fail(id, "unknown pilot verb '" + sub + "' (intents: " + join(INTENTS, ",") + "; control: pause,resume,step,target,stop,status)");
 			return;
 		}
+		// Do not replace a live tight controller and leave its release tail under a
+		// different intent. Explicit stop + completed neutral tail precedes admission.
+		if (g_intent !is null && g_intent.tight)
+		{ Fail(id, "tight arrival active; stop and observe release before another intent"); return; }
 		auto plr = GetLocalPlayer();
 		if (plr is null)
 		{
@@ -1342,7 +1934,13 @@ namespace GameLab
 			return;
 		}
 
-		// a new intent replaces the running one
+		if (sub == "path_to" && ArrivalFinite(it.tol) && it.tol > 0 && it.tol <= 2)
+		{
+			string admission = TightAdmit(it, pos);
+			if (admission != "") { Fail(id, admission); return; }
+		}
+
+		// a new intent replaces the running one (tight admission requires idle)
 		if (g_intent !is null)
 			PilotEnd("interrupted", "replaced by " + id);
 		auto reply = Reply(id, true).Str("accepted", sub).Int("tick", g_tick);
@@ -1358,6 +1956,13 @@ namespace GameLab
 		}
 		if (it.target.IsValid())
 			reply.Int("target", it.target.GetId());
+		if (it.tight)
+		{
+			string ownerWhy = TightOwnerReason(it, GetInput(), "admit_after_route");
+			if (ownerWhy != "" || it.goal.x != it.tightGoal.x || it.goal.y != it.tightGoal.y)
+			{ Fail(id, "tight initial route changed goal or ownership: " + ownerWhy); return; }
+			reply.Bool("tight", true).Int("maxCorrections", 4).Int("maxHoldObservations", 12);
+		}
 		Emit(reply);
 		@g_intent = it;
 		if (!routed)
@@ -1943,12 +2548,28 @@ namespace Modules
 
 		void UpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused) override
 		{
+			// One fixed point before the ordinary paused/Pilot dispatch.
+			try { GameLab::AdvanceArrivalProbe(ms, gameInput, paused); }
+			catch { GameLab::g_arrivalId = ""; GameLab::g_arrivalTail = 0; }
+			if (paused && GameLab::g_intent !is null && GameLab::g_intent.tight)
+			{
+				try { if (GameLab::TightOwnerReason(GameLab::g_intent, gameInput, "paused") != "") GameLab::g_intent.tightForeign = true; }
+				catch { GameLab::g_intent.tightDiagInvalid = true; GameLab::g_intent.tightForeign = true; }
+				GameLab::PilotEnd("interrupted", "tight engine paused");
+			}
 			if (paused)
 				return;
 			try {
 				GameLab::PilotFrame(ms, gameInput);
 			} catch {
 				GameLab::g_exceptions++;
+				// An ownership read may be the failing operation. Latch uncertainty
+				// before End; a successful second read cannot re-authorize a tail.
+				if (GameLab::g_intent !is null && GameLab::g_intent.tight)
+				{
+					GameLab::g_intent.tightDiagInvalid = true;
+					GameLab::g_intent.tightForeign = true;
+				}
 				GameLab::PilotEnd("failed", "exception in the pilot frame");
 			}
 		}

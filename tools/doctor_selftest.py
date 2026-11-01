@@ -232,8 +232,13 @@ def smoke_cases(check) -> None:
     def run(error=None, verdict="FAIL", failed=()):
         return {"verdict": verdict, "error": error, "assertions": [{"name": n, "ok": False, "detail": ""} for n in failed]}
 
+    # A real successful launcher record copies these inner assertions and metadata.
+    passed_inner = {"scenario": "null-payload", "mode": "lab", "partial": False,
+                    "assertions": [{"name": "smoke control", "ok": True}]}
+    passed_outer = {**passed_inner, "environment": "gamelab", "verdict": "PASS", "error": None,
+                    "build_drift": False, "teardown": {"clean": True}, "build": doctor.pin_build.pinned()}
     cases = [
-        ("pass", (0, run(verdict="PASS"), ok_log, ""), ""),
+        ("pass", (0, passed_outer, ok_log, "", passed_inner), ""),
         ("preflight", (2, None, "", "PREFLIGHT saves: not confirmed\n"), "preflight"),
         ("build", (3, None, "", ""), "build mismatch"),
         ("lock", (4, None, "", "REFUSED lock"), "lock"),

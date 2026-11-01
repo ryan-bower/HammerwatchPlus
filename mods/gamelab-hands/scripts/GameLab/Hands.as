@@ -660,11 +660,14 @@ namespace Modules
 			GameLab::Register_qa_routeleg();
 			GameLab::Register_qa_input_sequence();
 			GameLab::Register_qa_input_target();
+			GameLab::Register_qa_pose_frame();
 			GameLab::Register_qa_spheres();
 			GameLab::Register_qa_damage_fields();
 			GameLab::Register_qa_trigger_payload();
 			GameLab::Register_qa_class_projectile();
 			GameLab::Register_qa_skill_cost();
+			GameLab::Register_qa_item_identity_calibration();
+			GameLab::Register_qa_forgemaster_channel();
 			GameLab::Register_ui();
 			GameLab::RegisterVerb("assign", "<str|dex|int|foc|vit> <n|all>", GameLab::Verb(GameLab::VerbAssign));
 			GameLab::RegisterVerb("upgrade", "<shopId> <upgradeId> <step>", GameLab::Verb(GameLab::VerbUpgrade));

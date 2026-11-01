@@ -3,7 +3,7 @@
 A spec mod is shippable when the game parses it as a named mastery of its base class, every
 lang key it shows resolves, the real Subclass Picker NPC offers it and switches the player to
 it, its own tooltips show its own numbers (the tooltip lint), and its skills cast. This reads
-an hp6-ship run (its da-ship replies in gl.jsonl and run.json's assertions), runs the spec
+an hp6-ship run (its da-ship replies in gl.jsonl and matching final guarded run.json/inner.json), runs the spec
 lint on the mod folder, and writes docs/devarena/ship/<classId>.md.
 
     python tools/devarena/ship_check.py --run gamelab/results/<time>-hp6-ship-lab
@@ -21,6 +21,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent.parent))
 from tools.devarena import overrides, tooltip_lint  # noqa: E402
+from tools import qa_batch  # noqa: E402
 
 SHIP = overrides.REPO / "docs" / "devarena" / "ship"
 
@@ -33,6 +34,8 @@ def ship_replies(run: Path) -> list[dict]:
             d = json.loads(line)
         except ValueError:
             continue
+        if not isinstance(d, dict):
+            continue
         if d.get("ev") == "rx" and d.get("verb") == "da-ship":
             want.add(d.get("cid"))
         elif d.get("id") in want and "class" in d:
@@ -41,11 +44,16 @@ def ship_replies(run: Path) -> list[dict]:
     return out
 
 
-def checks(replies: list[dict], assertions: list[dict], stale: list[dict], linted: int) -> list[tuple[str, bool, str]]:
+def checks(replies: list[dict], record: dict, inner: dict, stale: list[dict], linted: int) -> list[tuple[str, bool, str]]:
     first, last = replies[0], replies[-1]
     shown = next((r for r in replies if r.get("picker") and r.get("shows") == first["class"]), None)
-    failed = [a["name"] for a in assertions if not a.get("ok")]
+    run_ok = (qa_batch.successful(record, "hp6-ship")
+              and qa_batch.inner_matches_outer(record, inner, "hp6-ship"))
+    run_detail = (f"{len(record['assertions'])} assertions" if run_ok else
+                  "run.json/inner.json must be matching final lab PASS results with successful assertions and clean teardown")
     return [
+        ("da-ship replies succeeded", all(r.get("ok") is True and r.get("class") == first["class"] for r in replies),
+         f"{len(replies)} replies for {first['class']}"),
         ("parsed: named, with an icon", bool(first.get("name")) and first.get("icon") is True, f"{first.get('name')!r}"),
         ("a mastery of its base class", bool(first.get("parent")) and first.get("pickerIndex", -1) >= 0,
          f"parent {first.get('parent')}, picker slot {first.get('pickerIndex')} of {first.get('siblings')}"),
@@ -56,8 +64,8 @@ def checks(replies: list[dict], assertions: list[dict], stale: list[dict], linte
                                   f"passive {shown.get('skill-passive-name')!r}"),
         ("picking it switches the class", last.get("picked") is True and last.get("playerClass") == first["class"],
          f"player class {last.get('playerClass')}"),
-        ("its tooltips show its numbers", not stale, f"{linted} skills linted, {len(stale)} stale"),
-        ("the run passed", not failed, "; ".join(failed) or f"{len(assertions)} assertions"),
+        ("its tooltips show its numbers", linted > 0 and not stale, f"{linted} skills linted, {len(stale)} stale"),
+        ("the run passed", run_ok, run_detail),
     ]
 
 
@@ -89,9 +97,13 @@ def main(argv=None) -> int:
     run = Path(a.run)
     try:
         replies = ship_replies(run)
-        assertions = json.loads((run / "run.json").read_text(encoding="utf-8")).get("assertions", [])
-    except OSError as e:
+        record = json.loads((run / "run.json").read_text(encoding="utf-8"))
+        inner = json.loads((run / "inner.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
         print(f"bad input: {e}")
+        return 2
+    if not isinstance(record, dict) or not isinstance(inner, dict):
+        print("bad input: run.json and inner.json must contain result objects")
         return 2
     if not replies:
         print(f"bad input: no da-ship reply in {run / 'gl.jsonl'}")
@@ -103,7 +115,7 @@ def main(argv=None) -> int:
     except ValueError as e:
         print(f"bad input: {e}")
         return 2
-    rows = checks(replies, assertions, stale, linted)
+    rows = checks(replies, record, inner, stale, linted)
     out = Path(a.out) if a.out else SHIP / f"{cls['class']}.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(render(run, cls, rows, stale), encoding="utf-8")

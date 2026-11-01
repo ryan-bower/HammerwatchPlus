@@ -925,20 +925,30 @@ class Checks(Base, TowerBoss):
         if not self.to_arena("orb"):
             return
         # three boss deaths on the floor (the host rolls each): three bodies
-        rolls0 = self.fnum(self.forge_status(), "rolls") or 0
-        bodies = 0
-        sp = None
+        rolls0 = self.fnum(self.forge_status(), "rolls")
+        rows = []
+        self.out["orb_boss_rows"] = rows
         for i in range(3):
-            sp = self.gl("spawn", "actors/bosses/boss_bandit/boss_bandit_encounter.unit", 120, 0)
+            row = {"trial": i + 1}
+            rows.append(row)  # retain completed observations if a later RPC fails
+            row["spawn"] = self.gl("spawn", "actors/bosses/boss_bandit/boss_bandit_encounter.unit", 120, 0)
             time.sleep(0.6)
-            self.gl("kill", 300, "boss_bandit")
+            row["kill"] = self.gl("kill", 300, "boss_bandit")
             time.sleep(0.8)
             st = self.hwp("forge bodies", 0.3, until="forge bodies")
-            bodies = len(re.findall(r"boss_bandit_encounter\.unit", st))
+            row["body_status"] = st
+            row["bodies"] = len(re.findall(r"boss_bandit_encounter\.unit", st))
             self.cull()
             self.origin()
-        rolls = self.fnum(self.forge_status(), "rolls") or 0
-        self.flag("orb_boss_always", rolls - rolls0 >= 3 and bodies >= 1, f"rolls {rolls0} -> {rolls}, boss bodies after the last death {bodies} (spawn {sp})")
+        rolls = self.fnum(self.forge_status(), "rolls")
+        every_body = len(rows) == 3 and all(
+            r["spawn"].get("ok") is True and r["kill"].get("ok") is True
+            and type(r["kill"].get("killed")) is int and r["kill"]["killed"] == 1
+            and r["bodies"] == 1 for r in rows
+        )
+        counted = rolls0 is not None and rolls is not None and rolls - rolls0 >= 3
+        self.flag("orb_boss_always", counted and every_body,
+                  f"rolls {rolls0} -> {rolls}; per-death rows {rows}")
         self.cull()
 
     # --- the units' fixes (the user, 2026-10-25; Forgemaster_Risen.as, make_forgemaster_risen.py,

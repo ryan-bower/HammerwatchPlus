@@ -9,7 +9,7 @@ namespace HWP
 		const array<string> UNITS = {
 			"players/hwp/witchhunter/units/pyre.unit",
 			"players/rogue/projectiles/rog_throwing_knife.unit",
-			"players/warrior/projectiles/whirling_axe_right.unit",
+			"players/hwp/gladiator/projectiles/gladius.unit",
 			"players/ranger/units/wolf.unit",
 			"players/priest/units/crusader_pikeman.unit" };
 		bool g_checked = false;

@@ -1,6 +1,6 @@
 {
  "name": "plan-generosity-bosses",
- "about": "Pelor's Fury on every boss (plan_generosity bot, section bosses): each boss of BOSSES spawned live 110 px from a god-mode Paladin of Generosity, left to attack for 3 s, then the Fury through the skill's own Activate: held, or (a boss that cannot be targeted or buffed then, by design) refused with the stacks, mana and cooldown kept; while held no skill of the boss but a triggered or aura one is casting and it stays put; armor and resistances 0; the 60 s boss cooldown; 4 beams or more; no script error. kwargs only: a comma list of boss names to run alone.",
+ "about": "Controlled Fury boss observations: exact nonempty expected roster and requested/predicted-pick/actual-held/cast-log IDs; actual-held position reads, cost, boss cooldown, buff multipliers and beam metadata. A nonpassive pre-cast IsCasting observation followed by sampled casting zero establishes only pre-active, later suppressed; the skill may end naturally before Fury lands, so no causal interruption credit. All per-attempt observations are retained.",
  "fixture": "town-paladin",
  "mods": ["hwplib", "hwplib-luck", "hwplib-classui", "classes", "specs"],
  "timeout": 1200,
@@ -10,8 +10,9 @@
   {"do": "console", "line": "show_chat"},
   {"do": "sleep", "seconds": 1},
   {"do": "bot", "bot": "plan_generosity", "kwargs": {"sections": "bosses"}, "name": "bosses",
-   "expect": {"boss_char": true, "boss_learned": true, "boss_spawned": true, "boss_held_most": true, "boss_refused_by_design": true, "boss_refusal_keeps": true,
-              "boss_attack_cut": true, "boss_stays": true, "boss_cooldown_60": true, "boss_spent": true, "boss_armor_0": true,
+   "expect": {"boss_char": true, "boss_learned": true, "boss_roster": true, "boss_target_identity": true, "boss_precast_active": true, "boss_motion_observed": true,
+              "boss_spawned": true, "boss_held_most": true, "boss_refused_by_design": true, "boss_refusal_keeps": true,
+              "boss_pre_active_then_suppressed": true, "boss_stays": true, "boss_cooldown_60": true, "boss_spent": true, "boss_armor_0": true,
               "boss_beams": true, "boss_no_errors": true}},
   {"do": "log_clean"}
  ]

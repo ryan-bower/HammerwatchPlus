@@ -8,6 +8,7 @@ import math
 import time
 
 from gamelab.bots.qa_firearms_missing_orbs import Checks as Base
+from gamelab.bots.qa_firearms_input_geometry import target_body_cursor, cursor_binding
 
 
 def sequence_protocol(accepted, terminal, done, expected):
@@ -82,6 +83,16 @@ class Checks(Base):
         protocol = sequence_protocol(accepted, terminal, done, expected)
         return {"accepted": accepted, "terminal": terminal, "input_done": done, "protocol": protocol}
 
+    def aimed_sequence(self, tag, steps, expected, world):
+        # Local import: qa_input_target itself imports sequence_protocol above.
+        from gamelab.bots.qa_input_target import collect
+        accepted = self.gl("inputtarget", tag, "-", *world, *steps)
+        cursor = collect(self.g, accepted, expected) if accepted.get("ok") else {}
+        return {"accepted": accepted, "terminal": cursor.get("terminal", {}),
+                "input_done": cursor.get("input_done", []),
+                "protocol": cursor.get("sequence", {"valid": False, "steps": []}),
+                "cursor": cursor, "binding": cursor_binding(accepted, cursor, world)}
+
     def released(self):
         first = self.g.gl_multi([["controller"], ["state"]])
         time.sleep(.2)
@@ -125,12 +136,18 @@ class Checks(Base):
         dd, target = self.tough(d, 80)
         self.top_up()
         before = self.native_snapshot()
+        nearby = self.gl("near", 200, "target_dummy")
+        fixture = target_body_cursor(before["state"], nearby, target, dd)
+        self.check("sequence_shot_body_fixture", fixture["valid"], fixture)
+        if not fixture["valid"]:
+            return
         observed = self.gl("buffobserve", "fs-sequence-shots", 1800, "-", self.CLIP, target)
-        shots = self.sequence("fs-sequence-shots", [
+        shots = self.aimed_sequence("fs-sequence-shots", [
             self.step(1, (0, 0), dd, "main"), self.step(600, (0, 0), dd),
             self.step(1, (0, 0), dd, "main"), self.step(300, (0, 0), dd)],
-            [(1, ["main"]), (600, []), (1, ["main"]), (300, [])])
-        trace = self.collect_trace("buffobserve", "fs-sequence-shots", timeout=8)
+            [(1, ["main"]), (600, []), (1, ["main"]), (300, [])], fixture["world"])
+        trace = self.collect_trace("buffobserve", "fs-sequence-shots", timeout=8,
+                                   expected={"buff": "-", "stack": self.CLIP, "target_unit": target})
         after, release = self.native_snapshot(), self.released()
         samples = trace["samples"]
         changes = [(a.get("stacks"), b.get("stacks")) for a, b in zip(samples, samples[1:])
@@ -138,12 +155,13 @@ class Checks(Base):
         hp_hits = [(a.get("now"), b.get("now")) for a, b in zip(samples, samples[1:])
                    if a.get("target_hpExact", 0)-b.get("target_hpExact", 0) > .01]
         self.check("sequence_two_real_button_presses", observed.get("ok") and shots["protocol"]["valid"]
+                   and shots["binding"]["valid"]
                    and before["valid"] and after["valid"] and before["clip"] == 10 and after["clip"] == 8
                    and trace["valid"] and changes == [(10, 9), (9, 8)] and len(hp_hits) == 2
-                   and all(x.get("target_valid") and x.get("target_hpMax") == 10000000
+                   and all(x.get("target_valid") and x.get("target_unit") == target and x.get("target_hpMax") == 10000000
                            and x.get("player_valid") for x in samples),
                    {"sequence": shots, "observer": trace, "clip_changes": changes,
-                    "actual_hp_hits": hp_hits, "before": before, "after": after})
+                    "actual_hp_hits": hp_hits, "before": before, "after": after, "target_fixture": fixture})
         self.check("sequence_button_release_across_console", release["valid"], release)
         self.clear_dummies()
         self.to_town()
