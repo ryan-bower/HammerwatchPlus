@@ -104,6 +104,7 @@ SYMBOLS = {
     "mapicons": [px("mods/hwplib/gui/hwp/map_icons.png", 12, 0, 11, 11)],
     "attrclick": [px("gui/icons_lang.png", 196, 61, 13, 13)],  # the attribute point (icn-attrpt)
     "salvage": [px("gui/icons.png", 65, 128, 13, 13)],  # the Dust material icon (icons.inc icon-dust)
+    "freeskills": [px("gui/icons_lang.png", 1, 46, 13, 13)],  # the skill point (icn-skillpt)
     # Co-op Play
     "groupcombo": [cell("combo", 0, 0)],
     "architect": [cell("town", 0, 0)],
