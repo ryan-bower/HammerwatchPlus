@@ -26,7 +26,7 @@ The key features are:
 - **The Forsaken Tower**: the HoH1 campaign, with keys, ace chests, legendaries and pets.
 - **More dungeon**: puzzles, objectives, strongboxes, affixes, new weapons and trinkets.
 - **Town life**: fishing, farming, a gambler, roulette and a tavern.
-- **Co-op**: group combos, shared drops, party exits, and quality-of-life helpers.
+- **Co-op**: group combos, shared drops, party exits, and Architect alterations the whole party pays for.
 - **All optional**: every module switches off in game, on the player menu's **Plus** tab.
 
 Every module: [mods/README.md](mods/README.md).
