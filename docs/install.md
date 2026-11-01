@@ -5,7 +5,7 @@ No Workshop release yet. Build and play from the repo:
 1. Double-click `run.cmd` (or `python tools/run.py`).
 2. In the save builder, add characters (class and level 1–20) and set starting gold, then
    **Build save & launch**.
-3. Pick your character. In game, the console (key left of 1) takes `hwp help`.
+3. Pick your character. In game, open the console with `~` (tilde) and type `hwp help`.
 
 Each run builds every package from your checkout, deploys it, and starts the game in a **new
 profile** with the mods enabled. Your saves and config are backed up first; old profiles are

@@ -53,7 +53,7 @@ your saves first. The first run also sets up the game files, which takes a few m
 
 ## Example
 
-In game, open the console (the key left of 1):
+In game, open the console with `~` (tilde):
 
 ```console
 hwp help                      # every command and setting
