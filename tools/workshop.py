@@ -58,6 +58,7 @@ TERSE = {
     "groupcombo": "a party combo bonus, and rare combo orbs from boxes and vases.",
     "architect": "every player can pick and pay for Architect alterations; three saved presets.",
     "droptrade": "drop gear for friends (Q in the inventory).",
+    "partyexit": "a floor's exit opens once two thirds of the party stands at it (3 of 4, 2 of 3).",
     "autoaim": ["the reticle of an aimed skill snaps to an enemy in your aim cone",
                 "aimed skills can fire by themselves, ready area skills cast themselves",
                 "on for controllers by default, an option for mouse players"],

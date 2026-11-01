@@ -1,5 +1,7 @@
 # HammerwatchPlus
 
+> **PR publication checkpoint (2026-11-01).** The complete QA worktree is checkpointed on `codex/run-save-builder-followup` and integrated with upstream `e7d060f1` (including merged PRs83?86). The merged host suite passed **1,244 tests**, with three unavailable-symlink skips and1,269 subtests. See [the publication record](docs/qa/swarm/pr_publication.json). Earlier native results below retain their exact execution revisions; no new native pass is claimed for this upstream integration. The broader campaign remains paused at r4847/E018. Historical scenario/catalog pins require current review before further native admission.
+
 The [admission pipeline validation](docs/qa/swarm/admission_pipeline_validation.json)
 verifies reviewed feature cases through a data catalog, exact consumer checks and
 atomic tracker import. Two isolated stash cases passed all ten consumer rows;
@@ -37,7 +39,7 @@ all-in-one pack (`packages.json`; `docs/modules.md`, Packages):
 | Package | Modules |
 |---|---|
 | `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, petrooms, legacy, goldworth, mmhmm, orbwarn, mapicons, attrclick |
-| `HWP-coop` Co-op Play | groupcombo, architect, droptrade |
+| `HWP-coop` Co-op Play | groupcombo, architect, droptrade, partyexit |
 | `HWP-autoaim` Auto Aim | autoaim |
 | `HWP-firearms` Firearms Specialist | firearms |
 | `HWP-specs` Fourth Specializations | specs |
@@ -73,7 +75,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | Module | What it does |
 |---|---|
 | `firearms` | The **Firearms Specialist**, a new class. Guns fire from a clip that counts down per shot and reloads (automatically at 0, or with the Reload skill, which a dodge cancels; the reload bar sits over the player); mana pays for gadgets. Rounds leave the gun for the point under the cursor, so diagonal shots land on the crosshair, and the gun model changes pose as you idle, fire, reload or use a gadget. A rifle (30 rounds, 3-round bursts; the Grenade Launching Rifle has an under-barrel grenade launcher, the Flamethrower Rifle a mana-fed flamethrower held on right click, the Full Auto Rifle a wild full-auto spray) or pistols, one or two (10 rounds each, 20 dual), or Hand Cannons (half a pistol's rate, 1.5 times its damage, 6 rounds; with a pistol, a pistol-cannon-pistol burst). Base kit: Reload and Frag Grenade, whose orbs give Explosive Reload, Over-Reload's timed perfect reload, and Stun, Incendiary or Gas grenades. Four specializations, each with orbs: **Marksman** (Snipe, whose aim time shortens per rank and whose Recoil Roll orb dashes you back along the shot; Critical Aim), **Demolitionist** (Rocket Launcher, Ordinance Hoarder), **Assault** (Double Barrel Burst, Adrenaline) and **Engineer** (Deploy Turret, My Turret!). New characters start with a Service Pistol. Details: `mods/firearms/README.md`; design: `docs/design/firearms.md`. |
-| `specs` | A **4th specialization** for eight vanilla classes, one active and one passive each, with orbs: **Deadeye** Ranger (Lightning Arrow, Gathering Winds), **Aerotheurge** Wizard (Thunder Orb, Static Charge), **Arcane** Sorcerer (Blink, which crosses ledges and stairs; Living Mana, one pooled blue bar for health and mana), **Winddancer** Rogue (Protective Gale, Second Wind), **Bannerlord** Warrior (Battlefield Standard, Righteous Crusade), **Branding** Warlock (Pyrebrand, Essence Extraction) and the **Devil Forgemaster** Priest (Necrotic Resurrection, Call of Heresy: raise the enemies that fall with their body intact, bosses included, as summons that keep their own skills and run with you; the raise and Sacrificial Penance channels lock you in place with a beam; braziers and pyres burn off Heresy) and the **Generosity** Paladin (Pelor's Fury, Pelor's Blessing: Lay on Hands, Blessed Strike kills and Conviction build up to 10 stacks that strengthen all three; at 10 the Fury holds any one enemy, bosses included, in beams of light: stunned, its casts cut, armor and resistances 0, taking more damage; a Fury that can't take hold spends nothing; crops grow twice as fast and wild plots turn up twice as often while a Paladin of Generosity is in the party). Icons and sounds are the user's picks (`art/specs/`). The Forgemaster's risen and body units are generated from the base game by `tools/make_forgemaster_risen.py` (gitignored; `doctor --fix` makes them). |
+| `specs` | A **4th specialization** for eight vanilla classes, one active and one passive each, with orbs: **Deadeye** Ranger (Lightning Arrow, Gathering Winds), **Aerotheurge** Wizard (Thunder Orb, Static Charge), **Arcane** Sorcerer (Blink, which crosses ledges and stairs; Living Mana, one pooled blue bar for health and mana), **Winddancer** Rogue (Protective Gale, Second Wind), **Bannerlord** Warrior (Battlefield Standard, Righteous Crusade), **Branding** Warlock (Pyrebrand, Essence Extraction) and the **Devil Forgemaster** Priest (Necrotic Resurrection, Call of Heresy: raise the enemies that fall with their body intact, bosses included, as summons that keep their own skills and run with you; the raise and Sacrificial Penance channels lock you in place with a beam; braziers and pyres burn off Heresy) and the **Generosity** Paladin (Pelor's Fury, Pelor's Blessing: Lay on Hands, Blessed Strike kills and Conviction build up to 10 stacks that strengthen all three; at 10 (3 against an elite, which spends only those 3) the Fury holds any one enemy, bosses included, in beams of light: stunned, its casts cut, armor and resistances 0, taking more damage; a Fury that can't take hold spends nothing; a party member's death takes 5 stacks; crops grow twice as fast and wild plots turn up twice as often while a Paladin of Generosity is in the party). Icons and sounds are the user's picks (`art/specs/`). The Forgemaster's risen and body units are generated from the base game by `tools/make_forgemaster_risen.py` (gitignored; `doctor --fix` makes them). |
 | `classes` | The HoH1 classes HoH2 lacks: **Thief**, **Gladiator** and **Witch Hunter**, three masteries each. The Thief's extra actives cast on core's Skill 4 key. The real HoH1 art comes from your own HoH1 install (`tools/import_hoh1.py classes`). |
 | `weapons` | Twelve new endgame weapons (ilvl 35, four per slot) with new modifier profiles on vanilla visuals and attacks. |
 | `weaponswap` | A second weapon set on a hotkey (default X) or a controller button (default D-pad left): a 2 s channel standing still, cancelled by a dodge or a second press. |
@@ -125,6 +127,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | `groupcombo` | A party-wide combo bonus that grows with how many players are in combo, and brief invulnerability when everyone is. Boxes, barrels, sacks and vases also drop a rare **combo orb** (0.1 %, up to 1 % with the Luck of whoever breaks them): everyone with combo unlocked gets their own, and picking it up puts you in combo at once (pets leave it alone). |
 | `architect` | Any player can pick and pay for Architect alterations; the host's picks are split across the party. Seven HoH1 challenges discount them, down to free. The run-start screen keeps three named presets of picks and NG+ level per character, shows NG+ last with the start hint, and lets a non-host leave. |
 | `droptrade` | Drop equipment on the ground for friends: a Drop button (Q) next to Destroy in the inventory (each player can rebind it on the Plus tab). The use key picks up a dropped item before it talks to an NPC or opens a shop, chest or shrine underfoot. |
+| `partyexit` | A floor's exit opens once two thirds of the living party stands at it (3 of 4, 2 of 3), not only when everyone does; whoever is left behind comes along. The host can set Half, Two thirds or Three quarters, or turn it off for the vanilla rule. |
 | `attrclick` | At the Attribute Trainer, Shift+Click places 20 attribute points and Ctrl+Click 5 (never more than you have); the costs show the amount while the key is held. |
 | `orbwarn` | The orb picker says which orbs a pick would make unavailable (mutually exclusive orbs such as the Firearms grenades), with their icons and names. |
 | `deathrecap` | Who killed you: the top damage sources of the last 10 s, on screen and in chat. After a boss fight, a recap of everyone's damage by skill and damage taken (one per fight, however many boss units it has). |
@@ -228,6 +231,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 
 ## Status
+
+2026-10-30, Pelor's Fury on elites, and a death takes 5 Blessing stacks (#82). Pelor's Fury
+on an elite now needs and spends only 3 stacks of Pelor's Blessing and keeps the rest; on
+anything else, bosses included, it still takes all 10. A party member dying now takes 5 stacks
+instead of all of them, and that includes the paladin's own death: the game used to clear the
+stacks on the revive, so they are put back. Tested: `fix-fury-elite`, `plan-generosity`.
 
 2026-10-29, confusion traps you can dodge (#38). The confusion glyph went off 0.15 s after a
 player came near, out of sight until then. Now it, and the dart glyph that had the same

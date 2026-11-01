@@ -6,14 +6,17 @@
 //   Blessed Strike kill (the PlayerKilledActor hook, the killer's client); Conviction giving
 //   mana (HWPGenConvictionMana), at most once every CONVICTION_CD. Each stack adds pb-pct to
 //   Lay on Hands healing (the intensity of HWPGenHeal / HWPGenHPHeal), Blessed Strike damage
-//   (the PlayerDamageActor hook, before the damage is worked out) and Conviction mana. Reset
-//   by a party player's death (OnPlayerDied, players only), by Pelor's Fury and in town.
+//   (the PlayerDamageActor hook, before the damage is worked out) and Conviction mana. A party
+//   player's death takes DEATH_LOSS (5) of them (OnPlayerDied, players only, issue #82; the
+//   paladin's own death too: the rest is put back on the revive, RestoreAfterDeath); reset by
+//   Pelor's Fury and in town.
 // - Pelor's Fury (HWPGenFury): Activate picks the enemy nearest the reticle (FURY_PICK) and
 //   refuses, spending nothing, when there is none or it can't be held (FuryRefusal); the cast's
 //   cost is held back (GetCost is 0 while casting) and paid in Deactivate once the castpoint is
 //   passed and the target still holds (StartFury): the pelors_fury buff on the target (stun,
-//   armor and resistances 0, damage taken +pf-dmg; intensity pf-dmg, duration pf-stun), every
-//   Blessing stack spent, the cooldown 30 s or FURY_BOSS_CD on a boss. A failed hold gives the
+//   armor and resistances 0, damage taken +pf-dmg; intensity pf-dmg, duration pf-stun), the
+//   Blessing paid (FuryNeed: FURY_ELITE (3) on an elite, spent; else all 10, every stack spent;
+//   issue #82), the cooldown 30 s or FURY_BOSS_CD on a boss. A failed hold gives the
 //   cooldown back. In a party the caster is held (pelors_channel, the dash pinned); solo not.
 //   The hold ends at pf-stun (Blinding Sun: bs-buff on the target) or when the target dies
 //   (Holy Sacrifice: hs-stacks Blessing back and half the cooldown off).
@@ -33,6 +36,10 @@ namespace HWP
 		const string BLESSING = "pelors_blessing";
 		const string GENEROSITY_ID = "hwp_paladin_generosity";
 		const int BLESSING_MAX = 10;
+		// issue #82: a party player's death takes 5 stacks, not all; the Fury on an elite needs
+		// and spends 3
+		const int DEATH_LOSS = 5;
+		const int FURY_ELITE = 3;
 		const int GAIN_CD = 2000;
 		const int CONVICTION_CD = 6000;
 		const int FURY_BOSS_CD = 60000;
@@ -44,6 +51,12 @@ namespace HWP
 		bool g_lohSelf = false, g_lohPending = false;
 		// `hwp gen solo on|off`: the tests' party switch (-1: the real player count)
 		int g_soloForce = -1;
+		// the paladin's own death: the stacks left after DEATH_LOSS, put back once alive (the game
+		// clears the stack's buff on the death or the revive: 7 -> 2 by OnPlayerDied, then 0,
+		// fix-fury-elite 20261030-100926); RESTORE_MS of re-tries after the revive
+		const int RESTORE_MS = 1000;
+		int g_reviveStacks = -1;
+		int g_reviveC = 0;
 		// counters for `hwp gen status`
 		int g_genGained = 0, g_genBlocked = 0, g_genLoH = 0, g_genKills = 0, g_genConv = 0, g_genResets = 0;
 		int g_bsScaled = 0, g_lohScaled = 0, g_convScaled = 0;
@@ -97,6 +110,7 @@ namespace HWP
 			g_lohPending = false;
 			g_lohAllies = 0;
 			g_lohSelf = false;
+			g_reviveStacks = -1;
 		}
 
 		PlayerBase@ LocalGenerosity()
@@ -169,9 +183,15 @@ namespace HWP
 
 		void ResetBlessing(PlayerBase@ plr, const string &in why)
 		{
-			if (plr is null || Blessing(plr) <= 0)
+			LoseBlessing(plr, BLESSING_MAX, why);
+		}
+
+		// n stacks off (at least 0 left); counted with the resets
+		void LoseBlessing(PlayerBase@ plr, int n, const string &in why)
+		{
+			if (plr is null || Blessing(plr) <= 0 || n <= 0)
 				return;
-			SetBlessing(plr, 0, why);
+			SetBlessing(plr, Blessing(plr) - n, why);
 			g_genResets++;
 		}
 
@@ -224,7 +244,25 @@ namespace HWP
 			auto plr = LocalGenerosity();
 			if (plr is null || dead is null)
 				return;
-			ResetBlessing(plr, "party player died");
+			LoseBlessing(plr, DEATH_LOSS, "party player died");
+			if (dead is plr || (dead.m_record !is null && dead.m_record is plr.m_record))
+			{
+				g_reviveStacks = Blessing(plr);
+				g_reviveC = RESTORE_MS;
+			}
+		}
+
+		// the stacks the paladin's own death left, back once alive (a few frames, the revive may
+		// clear the buff after the first)
+		void RestoreAfterDeath(PlayerBase@ plr, int ms)
+		{
+			if (g_reviveStacks < 0 || plr.IsDead())
+				return;
+			if (Blessing(plr) < g_reviveStacks)
+				SetBlessing(plr, g_reviveStacks, "kept through the death");
+			g_reviveC -= ms;
+			if (g_reviveC <= 0)
+				g_reviveStacks = -1;
 		}
 
 		// --- Pelor's Fury -----------------------------------------------------------------------------
@@ -232,6 +270,29 @@ namespace HWP
 		bool IsBossActor(Actor@ a)
 		{
 			return HasActorTag(a, "boss");
+		}
+
+		// the "elite" actor tag (the _elite units; the vanilla thorns and elite-damage masks read
+		// it); a boss with it stays a boss
+		bool IsEliteActor(Actor@ a)
+		{
+			return HasActorTag(a, "elite") && !IsBossActor(a);
+		}
+
+		// the Blessing stacks a Fury on `a` needs and spends: FURY_ELITE on an elite, all of
+		// them (BLESSING_MAX) on anything else
+		int FuryNeed(Actor@ a)
+		{
+			return IsEliteActor(a) ? FURY_ELITE : BLESSING_MAX;
+		}
+
+		// "" when the paladin has the stacks for a Fury on `a`, else the refusal reason
+		string BlessingShort(PlayerBase@ plr, Actor@ a)
+		{
+			int need = FuryNeed(a);
+			if (Blessing(plr) >= need)
+				return "";
+			return "blessing " + Blessing(plr) + "/" + need + (need < BLESSING_MAX ? " elite" : "");
 		}
 
 		// why a cast on `a` can't hold, or "" when it can
@@ -377,11 +438,13 @@ namespace HWP
 				Give(plr, plr, Buff("pelors_channel"), 1.0f, stun);
 				PinFuryDash(h);
 			}
-			ResetBlessing(plr, "pelor's fury");
+			bool elite = IsEliteActor(a);
+			g_reviveStacks = -1;
+			LoseBlessing(plr, FuryNeed(a), elite ? "pelor's fury, elite" : "pelor's fury");
 			g_furyCasts++;
-			g_furyLast = "held " + a.m_unit.GetId() + (h.m_boss ? " boss" : "") + " " + stun + " ms +" + Rounded(dmg * 100) + "%"
+			g_furyLast = "held " + a.m_unit.GetId() + (h.m_boss ? " boss" : (elite ? " elite" : "")) + " " + stun + " ms +" + Rounded(dmg * 100) + "%"
 				+ (h.m_locked ? " locked" : " free");
-			Log("specs", "pelor's fury on " + a.m_unit.GetId() + " (" + a.m_unit.GetDebugName() + ")" + (h.m_boss ? " boss" : "")
+			Log("specs", "pelor's fury on " + a.m_unit.GetId() + " (" + a.m_unit.GetDebugName() + ")" + (h.m_boss ? " boss" : (elite ? " elite" : ""))
 				+ (g_furyPickVia.isEmpty() ? "" : " via " + g_furyPickVia)
 				+ " stun " + stun + " ms dmg +" + Rounded(dmg * 100) + "% " + (h.m_locked ? "caster locked" : "solo, caster free"));
 
@@ -680,9 +743,11 @@ namespace HWP
 			}
 			if (g_inTown)
 			{
+				g_reviveStacks = -1;
 				ResetBlessing(plr, "town");
 				return;
 			}
+			RestoreAfterDeath(plr, ms);
 			if (g_gainC > 0)
 				g_gainC -= ms;
 			if (g_convC > 0)
@@ -781,7 +846,8 @@ namespace HWP
 				auto a = PickFuryTarget(plr, aim);
 				string why = FuryRefusal(plr, a);
 				HWP::Commands::Reply("gen: pick " + (a is null ? "none" : a.m_unit.GetId() + " " + a.m_unit.GetDebugName()
-					+ " " + Reflect::GetTypeName(a)) + "; " + (why.isEmpty() ? "holds" : "refused: " + why)
+					+ " " + Reflect::GetTypeName(a) + (IsBossActor(a) ? " boss" : (IsEliteActor(a) ? " elite" : "")) + " needs " + FuryNeed(a))
+					+ "; " + (why.isEmpty() ? "holds" : "refused: " + why)
 					+ (g_furyPickVia.isEmpty() ? "" : "; via " + g_furyPickVia));
 				return;
 			}
@@ -862,13 +928,15 @@ class HWPGenFury : Skills::PlayerSkillPosition
 			string why = "";
 			if (HWP::Specs::g_fury !is null)
 				why = "a hold is running";
-			else if (HWP::Specs::Blessing(plr) < HWP::Specs::BLESSING_MAX)
-				why = "blessing " + HWP::Specs::Blessing(plr) + "/" + HWP::Specs::BLESSING_MAX;
+			// the fewest any target needs (an elite's); the target's own need is checked once it
+			// is picked (Activate, Deactivate)
+			else if (HWP::Specs::Blessing(plr) < HWP::Specs::FURY_ELITE)
+				why = "blessing " + HWP::Specs::Blessing(plr) + "/" + HWP::Specs::FURY_ELITE;
 			if (!why.isEmpty())
 			{
 				// warn: a press (the HUD asks without one every frame). The targeting helper asks a
 				// press without a warning first and warns only once its input buffer runs out
-				// (CheckQueued), which a real press below 10 never reached (plan-generosity
+				// (CheckQueued), which a real press below the need never reached (plan-generosity
 				// 20261027-015913: no refusal, no "cant"), so the press frame itself warns too;
 				// once per 300 ms, the two never both speak
 				if (warn || JustPressed(plr))
@@ -911,6 +979,8 @@ class HWPGenFury : Skills::PlayerSkillPosition
 			return false;
 		auto a = HWP::Specs::PickFuryTarget(plr, target);
 		string why = HWP::Specs::FuryRefusal(plr, a, float(m_range) + 48.0f);
+		if (why.isEmpty())
+			why = HWP::Specs::BlessingShort(plr, a);
 		if (!why.isEmpty())
 		{
 			HWP::Specs::Refuse(plr, why);
@@ -939,6 +1009,9 @@ class HWPGenFury : Skills::PlayerSkillPosition
 			return;
 		}
 		string why = HWP::Specs::FuryRefusal(plr, a);
+		// a party death during the cast can take the stacks below the need
+		if (why.isEmpty())
+			why = HWP::Specs::BlessingShort(plr, a);
 		float mana = plr.m_record.mana;
 		if (why.isEmpty() && (m_realCost !is null && !plr.UsePoints(true, true, m_realCost)))
 			why = "not enough mana";

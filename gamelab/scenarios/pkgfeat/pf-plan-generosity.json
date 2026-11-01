@@ -1,6 +1,6 @@
 {
  "name": "pf-plan-generosity",
- "about": "plan-generosity against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). The Paladin of Generosity (Paladin 4th spec, mods/specs), the plan_generosity bot: smoke (binds, status, button, tooltips), refusals (a Fury that cannot take hold spends no stacks, mana or cooldown), fury (the real cast on a brute: cost, stun, armor and resistances 0, damage taken, strike, end; solo free, party locked), stacks_section (Lay on Hands, Blessed Strike kills, Conviction, the shared 2 s cooldown, cap, multiplier, carry, death and town resets), orbs (binds, Blinding Sun, Holy Sacrifice, Descendent of Pentival). The bosses are plan-generosity-bosses.",
+ "about": "plan-generosity against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). The Paladin of Generosity (Paladin 4th spec, mods/specs), the plan_generosity bot: smoke (binds, status, button, tooltips), refusals (a Fury that cannot take hold spends no stacks, mana or cooldown), fury (the real cast on a brute: cost, stun, armor and resistances 0, damage taken, strike, end; solo free, party locked), stacks_section (Lay on Hands, Blessed Strike kills, Conviction, the shared 2 s cooldown, cap, multiplier, carry, 5 lost on a death, town reset), elite (issue #82: 3 stacks needed and spent on an elite), orbs (binds, Blinding Sun, Holy Sacrifice, Descendent of Pentival). The bosses are plan-generosity-bosses.",
  "fixture": "town-paladin",
  "timeout": 1500,
  "steps": [
@@ -54,7 +54,7 @@
     "ref_dummy_target": true,
     "ref_zero_stacks": true,
     "ref_button_cast": true,
-    "ref_button_below_10": true
+    "ref_button_below_3": true
    }
   },
   {
@@ -86,6 +86,24 @@
    "do": "bot",
    "bot": "plan_generosity",
    "kwargs": {
+    "sections": "elite"
+   },
+   "name": "elite",
+   "expect": {
+    "elite_tagged": true,
+    "elite_cast_3": true,
+    "elite_keeps_rest": true,
+    "elite_below_3": true,
+    "elite_plain_needs_10": true,
+    "elite_plain_spends_10": true,
+    "elite_death_takes_5": true,
+    "elite_no_errors": true
+   }
+  },
+  {
+   "do": "bot",
+   "bot": "plan_generosity",
+   "kwargs": {
     "sections": "stacks_section"
    },
    "name": "stacks",
@@ -100,7 +118,7 @@
     "stk_cap": true,
     "stk_conviction": true,
     "stk_carry": true,
-    "stk_death_reset": true,
+    "stk_death_loss": true,
     "stk_town_reset": true
    }
   },

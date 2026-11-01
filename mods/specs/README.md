@@ -130,12 +130,15 @@ Spec (the numbers are the planner's, `planner/data/skills/paladin-spec4-*.json`)
 - **Pelor's Blessing** (passive, max 10 stacks, 2 s between gains): Lay on Hands healing a
   teammate (solo, healing yourself counts; in a party it does not), a Blessed Strike kill,
   Conviction giving mana (at most once every 6 s). Each stack adds 0.5-2.5% (by rank) to Lay on
-  Hands healing, Blessed Strike damage and Conviction mana. Reset by a party player's death,
-  by casting the Fury and in town; kept between floors.
-- **Pelor's Fury** (80-120 mana, 10 stacks): picks the enemy nearest the reticle (40 px) within
+  Hands healing, Blessed Strike damage and Conviction mana. A party player's death takes 5
+  stacks (issue #82; it used to take them all); casting the Fury spends them; reset in town;
+  kept between floors.
+- **Pelor's Fury** (80-120 mana, 10 stacks, 3 on an elite): picks the enemy nearest the reticle (40 px) within
   range, the nearest one that can be held first, and holds it in beams of light for 3-5 s: stunned, its casts cut, armor and
   resistances 0, damage taken +20-60%. One strike on a normal enemy, a ring of 4 to 10 around a
-  boss by its size. Cooldown 30 s, 60 s on a boss. In a party the caster is held for the
+  boss by its size. Cooldown 30 s, 60 s on a boss. On an elite (the `elite` actor tag; a boss
+  with it stays a boss) it needs and spends only 3 stacks, keeping the rest (issue #82); on
+  anything else all 10. In a party the caster is held for the
   channel (`pelors_channel`, the dash pinned); solo they move freely.
 - **A body part stands for its boss** (issue #34). The Serpents of Demise are mostly body: a
   trail of boss-tagged `BossWormSegment` units (untargetable, buff-immune, 4 s each) that pass
@@ -147,11 +150,12 @@ Spec (the numbers are the planner's, `planner/data/skills/paladin-spec4-*.json`)
   passes its damage to the fight's health unit, which is never picked. The cast log adds
   `via <segment>` when the pick went through one.
 - **Nothing is spent on a Fury that can't hold.** Activate refuses with a reason line and spends
-  nothing below 10 stacks, with no target, on an untargetable, invulnerable or buff-immune
+  nothing below the target's need (`blessing 5/10`, `blessing 2/3 elite`; the button itself
+  is refused below 3), with no target, on an untargetable, invulnerable or buff-immune
   enemy, or on one with no physics body ("out of reach": a boss spirit mid-dive, the Serpent
   tunnelling). The mana and stacks are paid in Deactivate, once the castpoint passes and the
   target still holds; a hit that cuts the paladin's own cast keeps them, and a failed hold
-  gives the cooldown back. A button press below 10 is refused on its press frame (the
+  gives the cooldown back. A button press below 3 is refused on its press frame (the
   targeting helper would only warn after its input buffer runs out).
 - **Cutting casts**: the host cancels every casting skill on the held unit except the passive
   ones (`Triggered*`, `Aura*`), each frame of the hold, since the vanilla stun leaves skills

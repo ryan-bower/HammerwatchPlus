@@ -176,4 +176,3 @@ def assess_saved_item(reply):
         or any(value[0]!="Integer" for value in values[7:])):
         raise ValueError("real generated-item save shape/base/quality/level mismatch")
     return canonical,{"intensity_ieee_little_endian":values[2][1],"nodes":nodes,"depth":depth,"modifiers":len(values)-7}
-

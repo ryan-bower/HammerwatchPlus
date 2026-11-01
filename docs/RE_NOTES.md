@@ -1,15 +1,14 @@
 # RE notes: Heroes of Hammerwatch II
 
-Current session status (2026-10-31): reviewed feature admission and atomic tracker
-import are verified in a limited three-task ledger, now idle and fully verified.
-The broad campaign remains paused at r4847/E018. Two independent stash runs passed
-all ten consumer rows; final host suite1240PASS/three unavailable-symlink skips,
-1269 subtests. Native source9884dd30 remains explicit; final9e92c11a differs only
-by the reviewed tracker CLI import bootstrap and its subprocess tests. No native
-retagging or broad M5 completion is claimed. Shared HPS backups were made private,
-and exact module inventories plus pre/post input checks close stale admission.
-See the [structured validation](qa/swarm/admission_pipeline_validation.json).
-Historical findings below remain separate from this current checkpoint.
+Current session status (2026-11-01): all214authored worktree files were saved in
+checkpoint293e5f73, then upstream e7d060f1 was merged while preserving both dated
+note histories and the upstream party-exit/Forgemaster/Pelor changes. The merged
+host suite passed1244tests/three unavailable-symlink skips/1269subtests. Publication
+preserves the paused r4847/E018 ledger and prior execution pins; it neither renews
+native admission nor declares broader QA completion. Historical catalog/scenario
+pins can refuse changed inputs and require fresh review. See the
+[publication record](qa/swarm/pr_publication.json). Historical findings below
+remain separate from this current checkpoint.
 
 Dated findings log. Each entry says how it was measured; "assumed" marks anything not yet
 measured. Newest entries at the bottom of each date.
@@ -9106,3 +9105,118 @@ scope excludes full serialization, inactive tabs, restart, ordinary play and co-
 One87.20s feature wave spent40.66s rechecking selected closures. This measured
 repeated-input cost merits optimization before more workers; no four-worker or
 hardware saturation result is claimed.
+
+## 2026-10-30: floor exits with most of the party (issue #75, `partyexit`)
+
+A floor's exit is `WorldScript::LevelExitAreaNext` (`LevelExitAreaJump` inherits its `Use`).
+Vanilla `Use` refuses (".exit.notall") while any living, connected player is outside the
+exit's areas; with several areas it even wanted each player inside every one of them. `Use`
+runs on the presser's machine and again through `NetUse` on every other one, each counting
+from its own view. The new Co-op module `partyexit` overrides that file: `Use` asks
+`HWP::PartyExit::Refusal`, which counts living players inside any area (the presser always)
+and needs `partyexit.share` percent of them, rounded up (default 66: 3 of 4, 2 of 3, 2 of 2;
+host setting). The rest come along through `MissionManager::NextLevel`, as the dead do in
+vanilla. Lang parameters are `%name%`, not `{{name}}` (`.menu.loadout.waiting_plrs`): the
+first refusal announce showed the braces raw (shot in `20261030-095107`), fixed and asserted
+through the logged text.
+
+Solo test: `hwp partyexit phantom <outside> [inside]` adds living players to the count.
+`fix-party-exit` (dark_citadel floor 0; `exit_stand` bot teleports onto the exit's sensor,
+since the Pilot's walk timed out once and found no route once on random floors) PASS
+`20261030-095204`: 1 of 3 refused, 2 of 3 refused at 75 %, 2 of 3 opens at 66 % and the next
+floor boots. `pf-fix-party-exit` (the built packages) PASS `20261030-095326`, `mod-all` PASS
+`20261030-095248`. Not covered: a real two-machine lobby (players left outside being carried
+to the next floor is vanilla's path for the dead, not measured here).
+
+## 2026-10-30: v0.3 shipped without base-generated content (issue #76, no Forgemaster bodies)
+
+"Necrotic Resurrection isn't possible because there are no intact bodies at all." The
+published v0.3 `HammerwatchPlus-All.bin` (release asset, built from `d903442`) holds 0 of the
+141 `players/hwp/specs/forgemaster/bodies/` and 0 of the 141 `risen/` units. Those units are
+made from the player's own `gamecode/sdk/hoh2/` by `tools/make_forgemaster_risen.py` and
+gitignored, and `tools/build.py` never ran that tool. It also skipped the class-unit copies
+without a word when `gamecode/sdk/hoh2/` was missing, and the release has none of those either
+(colors 184, keys 13, attrclick, mmhmm and trinkets 1 to 3 each, pets 12 plus the dyes). Every
+`.gitignore` block marked "generated from the HoH2 base" was absent from the release.
+In game, every body roll on an enemy death fails in `SpawnBody` ("no body unit for ...") and
+the skill never finds a body.
+
+Fix: `build.py` `require_base` stops the build when a package carries a module whose
+`.gitignore` names a base generator and `gamecode/sdk/hoh2/` is missing. It also refuses a
+generator it doesn't run (`BASE_TOOLS`), and it runs `make_forgemaster_risen` itself when
+`specs` is packed (`tests/test_build_base.py`). The specs self-check probes three raisable
+units (first, middle, last) and logs `Forgemaster units present (141 raisable; 3 of 3 probed
+load)` or an error naming them. The first probe run found `RISEN_RELS` had 142 entries: the
+generated initializer list ended in a comma, which AngelScript turns into one more empty
+element (`ENEMY_UNITS` too). The generator no longer writes the trailing comma.
+
+Evidence: `plan-forgemaster-smoke` with the bodies/risen dirs moved aside reproduces the
+issue, FAIL `20261030-100042`: 77 rolls, 0 bodies, no cast, the self-check error. The dirs
+were regenerated afterwards and `--check` is clean. Then `plan-forgemaster-smoke` PASS
+`20261030-100139`, `pf-plan-forgemaster-smoke` (built packages, 141 bodies + 141 risen
+counted in `dist/HWP-specs.bin` and the All pack) PASS `20261030-095952`, `mod-all` PASS
+`20261030-100217`. A new release is needed for players to get the bodies; that build must run
+on a machine with `gamecode/` (doctor --fix).
+
+## 2026-10-30: Pelor's Blessing on a death, Pelor's Fury on an elite (issue #82)
+
+Two Paladin of Generosity balance changes (`mods/specs/scripts/HWP/Specs/Generosity.as`).
+
+1. **A party player's death takes 5 stacks.** It used to take all of them.
+   - `OnPlayerDied` now calls `LoseBlessing(plr, DEATH_LOSS)`.
+   - The larger catch: when the paladin dies themselves, the game clears the stack's
+     buff on the death or the revive. The log of fix-fury-elite 20261030-100926 showed
+     `blessing 7 -> 2 (party player died)` and then 0 after the revive, so their own death
+     still cost everything.
+   - `OnPlayerDied` now remembers the count left when the dead player is the local
+     paladin. `RestoreAfterDeath` puts it back once they are alive, re-trying for 1 s in case
+     the revive clears the buff after the first frame. Town and a Fury cancel it.
+2. **Pelor's Fury on an elite needs and spends 3 stacks.** Normal enemies and bosses still
+   need all 10 and spend every stack.
+   - An elite is an actor with the `elite` tag. That is the tag the vanilla thorns and
+     elite-damage masks read, and the `_elite` units carry it; the Forgemaster already uses
+     it. A unit tagged `boss` stays a boss.
+   - Before the cast, the target isn't known yet, so `CanActivate` only gates below 3, the
+     fewest any target needs.
+   - Activate checks the picked target's own need through `BlessingShort`, which gives
+     reasons like `blessing 5/10` and `blessing 2/3 elite`. Deactivate checks it again,
+     since a death during the cast can drop the stacks below the need.
+   - StartFury spends `FuryNeed(a)`.
+   - `hwp gen pick` now names `boss`/`elite` and `needs N`, and the cast log line adds
+     `elite`.
+
+Tests:
+
+- New scenario `fix-fury-elite` (section `elite` of plan_generosity): PASS 20261030-101113,
+  and against the built packages pf-fix-fury-elite PASS 20261030-102037.
+  - A bandit_brute_elite picks as `elite needs 3`.
+  - The real cast at 3 stacks spends 3; at 7 it keeps 4.
+  - 2 stacks on the elite and 5 on a plain brute are refused, with nothing spent.
+  - 10 on the plain brute spends all 10.
+  - The paladin's own death goes 7 -> 2 and 3 -> 0.
+- In plan-generosity, `ref_button_below_10` became `ref_button_below_3` (the press-frame
+  gate now sits at 3), `stk_death_reset` became `stk_death_loss` (7 -> 2), and the elite
+  section was added.
+- plan-generosity PASS 20261030-101332 (every section), mod-all PASS 20261030-102014,
+  pytest 241 passed.
+
+
+## 2026-11-01: publish complete worktree as a follow-up PR
+
+Saved all214authored changes in293e5f73 before integrating origin/main e7d060f1.
+PR83 had already merged. Upstream PRs84?86 are preserved; package dependency
+cycle/dev-module guards coexist with the new required-base build/generation gate,
+strict generator CLI parsing coexists with upstream trailing-comma fixes, and
+Generosity's identity/oracle improvements coexist with upstream elite/death rules.
+Only the append-only RE_NOTES histories conflicted; both complete sides survived.
+Eight added files received EOF-only whitespace cleanup; no behavior changed there.
+
+The fresh merged installed suite passed1244tests, skipped the same three Windows
+symlink controls, and passed1269subtests. Verb reference is current and the PR diff
+passes whitespace checks. No game was launched for publication. Prior native
+runs remain at their recorded revisions; neither upstream integration nor new
+commit IDs retag those results. Source-bound builtin audits and stash-v1 catalog
+must be reviewed before renewing any stale input pins. The canonical385-task
+ledger stays byte-for-byte unchanged at r4847/E018; genuine co-op remains deferred.
+Raw lab artifacts, saves, imported game assets and machine-local caches remain
+ignored. The authored portable tracker and evidence summaries are included.

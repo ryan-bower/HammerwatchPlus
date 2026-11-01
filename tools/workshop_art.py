@@ -107,6 +107,7 @@ SYMBOLS = {
     "groupcombo": [cell("combo", 0, 0)],
     "architect": [cell("town", 0, 0)],
     "droptrade": [px("gui/icons.png", 104, 77, 20, 12)],
+    "partyexit": [px("gui/icons.png", 213, 0, 15, 15)],  # the HUD's exit use icon (hud.gui use-icon-exit)
     # Auto Aim
     "autoaim": [cell("skills", 6, 2)],
     # Firearms Specialist, Fourth Specializations
@@ -665,7 +666,8 @@ FEATURES = {
 # a few words per module, on the cards with room for them
 NOTES = {
     "groupcombo": "party combo bonus, combo orbs", "architect": "everyone picks and pays",
-    "droptrade": "drop gear for friends", "mercenary": "enlist, rank up, die for good",
+    "droptrade": "drop gear for friends", "partyexit": "most of the party opens an exit",
+    "mercenary": "enlist, rank up, die for good",
     "wavemode": "survival arena, from a town statue", "fishing": "on the coast and run floors",
     "farming": "crops and Holy Herbs", "gambler": "Higher or Lower, rerolls",
     "roulette": "one table, whole lobby", "tavern": "three more tavern levels",
@@ -681,7 +683,7 @@ def prereq(pids) -> str:
     return ", ".join(f"{card}: {dlc} DLC" for dlc, _, card in (workshop.DLC[p] for p in pids if p in workshop.DLC))
 # the All pack's cover: a short name and what the package is, in a few words
 SHORT = {
-    "qol": ("Quality of Life", "16 helpers"), "coop": ("Co-op Play", "3 party features"),
+    "qol": ("Quality of Life", "16 helpers"), "coop": ("Co-op Play", "4 party features"),
     "autoaim": ("Auto Aim", "aim assist"), "firearms": ("Firearms", "a new class"),
     "specs": ("4th Specs", "8 new specializations"),
     "keys": ("Keys & Chests", "locked loot, ace chests"), "campaign": ("Forsaken Tower", "18-floor campaign"),

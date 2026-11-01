@@ -96,4 +96,3 @@ def run(p, **_):
         scope="native-contract only if actual lab run passes outer guards; no ordinary/realrestart/co-op claim",
     )
     return result
-

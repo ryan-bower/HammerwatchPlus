@@ -1,14 +1,15 @@
 %include "players/skills_cost.inc"
 <!--
 	Pelor's Fury (Generosity active), the planner's paladin-spec4-active. Needs 10 stacks of
-	Pelor's Blessing (stacks_specs.sval:pelors_blessing) and the mana. Cast on an enemy: the one
+	Pelor's Blessing (stacks_specs.sval:pelors_blessing), 3 on an elite (the "elite" actor tag, not a
+	boss; issue #82), and the mana. Cast on an enemy: the one
 	nearest the reticle within the range (HWPGenFury, scripts/HWP/Specs/Generosity.as; one that can be
 	held first, a body part such as the Serpent's segments standing for its head), refused
 	with no cost when there is none or it can't be held (dead, immortal, untargetable, a boss in an
 	invulnerable or scripted phase, immune to buffs). The target gets the pelors_fury buff for
 	pf-stun ms: stunned (rooted, disarmed, silenced: a boss's attack is cancelled), armor and
 	resistances 0, damage taken +pf-dmg from every source. The buff has no tags, so no stun
-	immunity or buff resistance refuses it. Every Blessing stack is spent. In a party the caster
+	immunity or buff resistance refuses it. Every Blessing stack is spent, 3 on an elite. In a party the caster
 	is held for the stun (pelors_channel, the dash pinned); solo the caster moves and attacks
 	freely. Light strikes (effects/pelors_strike.effect) pulse on the target, a ring of them
 	around a boss (4 to 10 by its size). Cooldown 30 s, 60 s when cast on a boss.

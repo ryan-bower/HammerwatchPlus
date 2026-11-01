@@ -1,0 +1,36 @@
+{
+  "id": "partyexit",
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [
+    "scripts/WorldScript/Missions/LevelExitAreaNext.as"
+  ],
+  "exclude": [],
+  "config": {
+    "title": "Party exit",
+    "about": "A floor's exit opens when most of the party is at it, not only everyone.",
+    "toggle": "partyexit.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": [
+      {
+        "key": "partyexit.share",
+        "type": "int",
+        "default": 66,
+        "values": [
+          50,
+          66,
+          75
+        ],
+        "labels": [
+          "Half",
+          "Two thirds",
+          "Three quarters"
+        ],
+        "title": "Party at the exit",
+        "about": "How much of the living party must stand at a floor exit, rounded up: two thirds is 3 of 4, 2 of 3."
+      }
+    ]
+  }
+}

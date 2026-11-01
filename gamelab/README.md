@@ -89,7 +89,11 @@ workers and do not establish genuine co-op coverage.
 
 ### Admit reviewed feature cases through data
 
-Use `docs/qa/swarm/catalogs/stash-v1.json` as a concrete catalog example. A case
+Use `docs/qa/swarm/catalogs/stash-v1.json` as a concrete catalog example. It retains
+its historical reviewed bytes and inputs. Upstream integration changes those
+inputs, so validation may intentionally refuse until a fresh case review. The
+builtin stock audits are source-bound too; never renew their pins merely to get
+a pass. Publication does not refresh admission or resume the campaign. A case
 declares its exact scenario, task/check/scope, expected predicates, bot consumer
 rows, lifecycle, private writes, reviewed input hashes and review artifact. The
 reviewer must establish the reached calls and writes; import discovery only

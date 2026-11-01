@@ -1,0 +1,148 @@
+{
+ "name": "fix-party-exit",
+ "about": "Issue #75 (mods/partyexit: override of WorldScript/Missions/LevelExitAreaNext.as). A floor exit opens once partyexit.share % of the living party (rounded up) stands in it, not everyone. Solo, 'hwp partyexit phantom <outside> [inside]' adds living players to the count: on dark_citadel floor 0, standing in the exit's area (exit_stand bot: the measurement verb teleport onto the exit's sensor, so no walk) and pressing Use is refused with 1 of 3 there (2 needed) and the 'Gather your party' announce (shot exit-refused), refused with 2 of 3 at Three quarters (3 needed), and taken with 2 of 3 at Two thirds (the next floor loads). cull and teleport are measurement verbs: setup only; what is under test is the exit's Use.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "hwplib",
+  "partyexit"
+ ],
+ "timeout": 420,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:partyexit\\] self-check done: on, share 66%, 4 players need 3, 3 need 2",
+   "timeout": 20,
+   "name": "partyexit module up"
+  },
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    0
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "console",
+   "line": "hwp partyexit",
+   "expect": "party exit on, share 66%: need 1/1 2/2 2/3 3/4",
+   "name": "two thirds: 1/1 2/2 2/3 3/4"
+  },
+  {
+   "do": "gl",
+   "verb": "cull"
+  },
+  {
+   "do": "bot",
+   "bot": "exit_stand",
+   "expect": {
+    "in_area": true
+   },
+   "name": "standing in the exit's area"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyexit phantom 2",
+   "expect": "phantoms 2 outside, 0 inside",
+   "name": "party of 3, only me at the exit"
+  },
+  {
+   "do": "mark",
+   "name": "one_of_three"
+  },
+  {
+   "do": "pilot",
+   "call": "use",
+   "timeout": 5,
+   "name": "1 of 3 at the exit: no next floor (Use)"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:partyexit\\] exit refused: 1 of 3 at the exit, 2 needed: Gather your party: 2 of 3 must stand at the exit, 1 there now",
+   "since": "one_of_three",
+   "timeout": 5,
+   "name": "1 of 3 refused"
+  },
+  {
+   "do": "shot",
+   "name": "exit-refused"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyexit.share 75",
+   "expect": "partyexit\\.share = 75"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyexit phantom 1 1",
+   "expect": "share 75%: need 1/1 2/2 3/3 3/4; phantoms 1 outside, 1 inside",
+   "name": "party of 3, 2 at the exit, three quarters"
+  },
+  {
+   "do": "mark",
+   "name": "two_of_three_75"
+  },
+  {
+   "do": "pilot",
+   "call": "use",
+   "timeout": 5,
+   "name": "2 of 3 at Three quarters: no next floor (Use)"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:partyexit\\] exit refused: 2 of 3 at the exit, 3 needed: Gather your party: 3 of 3 must stand at the exit, 2 there now",
+   "since": "two_of_three_75",
+   "timeout": 5,
+   "name": "2 of 3 refused at 75%"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyexit.share 66",
+   "expect": "partyexit\\.share = 66"
+  },
+  {
+   "do": "mark",
+   "name": "two_of_three_66"
+  },
+  {
+   "do": "pilot",
+   "call": "use",
+   "timeout": 10,
+   "name": "2 of 3 at Two thirds: the next floor loads (Use)"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:partyexit\\] exit opens: 2 of 3 at the exit, 2 needed",
+   "since": "two_of_three_66",
+   "timeout": 5,
+   "name": "2 of 3 opens at 66%"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\"ev\":\"boot\",\"n\":[0-9]+",
+   "since": "two_of_three_66",
+   "timeout": 60,
+   "name": "the next floor booted"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

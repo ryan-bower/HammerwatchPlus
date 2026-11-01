@@ -16,10 +16,10 @@
   ],
   "mana": "",
   "name": "Pelor's Blessing",
-  "notes": "Decided 2026-10-27. In game (hwp_pal_pelors_blessing, tested): stacks up to 10 from Lay on Hands (solo it counts on yourself; in a party one per ally healed), a Blessed Strike kill, and Conviction restoring mana (at most once per 6 s); every gain shares a 2 s cooldown. Each stack gives +0.5/1/1.5/2/2.5% Lay on Hands healing, Blessed Strike damage and Conviction mana. Stacks reset when a party player dies, when Pelor's Fury is cast and in town; they carry between floors. plan-generosity 20261027-020522. Pelor's favour (mods/farming): while a Paladin of Generosity is in the party crops grow twice as fast and wild plots turn up twice as often (plan-generosity-farm 20261027-015840).",
+  "notes": "Decided 2026-10-27. In game (hwp_pal_pelors_blessing, tested): stacks up to 10 from Lay on Hands (solo it counts on yourself; in a party one per ally healed), a Blessed Strike kill, and Conviction restoring mana (at most once per 6 s); every gain shares a 2 s cooldown. Each stack gives +0.5/1/1.5/2/2.5% Lay on Hands healing, Blessed Strike damage and Conviction mana. A party player's death takes 5 stacks (2026-10-30, issue #82; was a reset); Pelor's Fury spends them; they reset in town; they carry between floors. plan-generosity 20261027-020522. Pelor's favour (mods/farming): while a Paladin of Generosity is in the party crops grow twice as fast and wild plots turn up twice as often (plan-generosity-farm 20261027-015840).",
   "order": 1,
   "role": "",
   "status": "built",
-  "summary": "Whenever you heal a teammate with Lay on Hands or kill an enemy with Blessed Strike or gain mana from Conviction, gain a stack of Pelor's Blessing. Each stack increases the healing, damage, or mana gain of these abilities. 2 second cooldown, max 10 stacks, stacks reset when someone in the party dies or Pelor's Fury is used.",
+  "summary": "Whenever you heal a teammate with Lay on Hands or kill an enemy with Blessed Strike or gain mana from Conviction, gain a stack of Pelor's Blessing. Each stack increases the healing, damage, or mana gain of these abilities. 2 second cooldown, max 10 stacks, someone in the party dying removes 5 stacks, Pelor's Fury uses them.",
   "unlock": "free"
 }

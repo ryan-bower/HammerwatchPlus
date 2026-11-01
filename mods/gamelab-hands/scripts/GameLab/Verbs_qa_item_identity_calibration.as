@@ -164,4 +164,3 @@ namespace GameLab
         RegisterVerb("qa_item_transport_calibrate", "<exact calibration case>", Verb(VerbQAItemTransportCalibrate));
     }
 }
-

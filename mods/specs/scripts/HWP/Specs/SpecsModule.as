@@ -94,6 +94,28 @@ namespace HWP
 				if (Buff(buffs[i]) is null)
 					LogError("specs", "buff not registered: " + BUFFS + buffs[i]);
 			}
+
+			// the Forgemaster's risen and body units are made from the game's own files by
+			// tools/make_forgemaster_risen.py, so a build made without them carries none: every body
+			// roll then fails and Necrotic Resurrection never has a body to raise (issue #76, v0.3).
+			// A few raisable enemies stand for the set (looking all up loads them all).
+			if (RISEN_RELS.length() > 0)
+			{
+				array<string> probe = { RISEN_RELS[0], RISEN_RELS[RISEN_RELS.length() / 2], RISEN_RELS[RISEN_RELS.length() - 1] };
+				int found = 0;
+				string missing = "";
+				for (uint i = 0; i < probe.length(); i++)
+				{
+					if (Resources::GetUnitProducer(BODIES_DIR + probe[i]) !is null && Resources::GetUnitProducer(RISEN_DIR + probe[i]) !is null)
+						found++;
+					else
+						missing += " " + probe[i];
+				}
+				if (found == 0)
+					LogError("specs", "Forgemaster units missing from this build:" + missing + ": no intact bodies can drop; build it with tools/build.py, which makes them");
+				else
+					Log("specs", "Forgemaster units present (" + RISEN_RELS.length() + " raisable; " + found + " of " + probe.length() + " probed load" + (missing.isEmpty() ? "" : ", not:" + missing) + ")");
+			}
 		}
 
 		void CmdStatus(array<string>@ args)

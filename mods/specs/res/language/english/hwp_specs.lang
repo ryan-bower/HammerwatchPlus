@@ -157,17 +157,17 @@
 	<string name="hwp.specs.param.per_blessing">Bonus per Stack:</string>
 	<string name="hwp.specs.param.stacks_per_cast">Most Stacks per Cast:</string>
 	<string name="hwp.specs.pelors_fury.name">Pelor's Fury</string>
-	<string name="hwp.specs.pelors_fury.desc">Spend 10 stacks of Pelor's Blessing to call down Pelor's light on the enemy you target, even a boss: it is stunned for %stun%, its current attack interrupted, its armor and resistances stripped to 0, and it takes %dmg% more damage from every source. In a party you are held in prayer while the light burns; alone you move and fight freely. Can't be cast on an invulnerable enemy, and a cast that can't take hold costs nothing. 60 second cooldown when cast on a boss.</string>
+	<string name="hwp.specs.pelors_fury.desc">Spend 10 stacks of Pelor's Blessing (only 3 on an elite) to call down Pelor's light on the enemy you target, even a boss: it is stunned for %stun%, its current attack interrupted, its armor and resistances stripped to 0, and it takes %dmg% more damage from every source. In a party you are held in prayer while the light burns; alone you move and fight freely. Can't be cast on an invulnerable enemy, and a cast that can't take hold costs nothing. 60 second cooldown when cast on a boss.</string>
 	<string name="hwp.specs.blinding_sun.name">Blinding Sun</string>
 	<string name="hwp.specs.blinding_sun.desc">When Pelor's Fury ends, its target is blinded for %blind%.</string>
 	<string name="hwp.specs.holy_sacrifice.name">Holy Sacrifice</string>
 	<string name="hwp.specs.holy_sacrifice.desc">If the enemy held by Pelor's Fury dies before the stun ends, the cooldown is halved and you gain %stacks% stacks of Pelor's Blessing.</string>
 	<string name="hwp.specs.pelors_blessing.name">Pelor's Blessing</string>
-	<string name="hwp.specs.pelors_blessing.desc">Healing a teammate with Lay on Hands (alone: healing yourself), killing an enemy with Blessed Strike or gaining mana from Conviction (at most once every 6 seconds) grants a stack of Pelor's Blessing, at most once every 2 seconds. Each stack increases Lay on Hands healing, Blessed Strike damage and Conviction mana by %pct%. Up to 10 stacks; they reset when a party member dies or Pelor's Fury is cast. While you follow Pelor, crops grow twice as fast and are found twice as often in runs.</string>
+	<string name="hwp.specs.pelors_blessing.desc">Healing a teammate with Lay on Hands (alone: healing yourself), killing an enemy with Blessed Strike or gaining mana from Conviction (at most once every 6 seconds) grants a stack of Pelor's Blessing, at most once every 2 seconds. Each stack increases Lay on Hands healing, Blessed Strike damage and Conviction mana by %pct%. Up to 10 stacks; a party member's death takes 5 of them, and casting Pelor's Fury spends them. While you follow Pelor, crops grow twice as fast and are found twice as often in runs.</string>
 	<string name="hwp.specs.display_of_generosity.name">Display of Generosity</string>
 	<string name="hwp.specs.display_of_generosity.desc">Lay on Hands grants a stack of Pelor's Blessing for each ally it heals, up to %max% per cast.</string>
 	<string name="hwp.specs.descendent_of_pentival.name">Descendent of Pentival</string>
 	<string name="hwp.specs.descendent_of_pentival.desc">Each stack of Pelor's Blessing also increases the effects of your Dragon trinkets and the Dragon Lord set bonuses by the same amount.</string>
 	<string name="hwp.specs.stack.pelors_blessing.name">Pelor's Blessing</string>
-	<string name="hwp.specs.stack.pelors_blessing.desc">Each stack strengthens Lay on Hands, Blessed Strike and Conviction. At 10, Pelor's Fury can be cast. Resets when a party member dies, when Pelor's Fury is cast and in town.</string>
+	<string name="hwp.specs.stack.pelors_blessing.desc">Each stack strengthens Lay on Hands, Blessed Strike and Conviction. At 10, Pelor's Fury can be cast (at 3 on an elite). A party member's death takes 5; Pelor's Fury spends them; resets in town.</string>
 </lang>
