@@ -1,6 +1,6 @@
 <h1 align="center">HammerwatchPlus</h1>
 
-<p align="center"><em>Co-op mods for Heroes of Hammerwatch II: a new class, a new campaign, more to find, all optional</em></p>
+<p align="center"><em>HammerwatchPlus for Heroes of Hammerwatch II, more classes, more dungeon, more town</em></p>
 
 <p align="center">
 <a href="https://github.com/ryan-bower/HammerwatchPlus/actions/workflows/test.yml"><img src="https://github.com/ryan-bower/HammerwatchPlus/actions/workflows/test.yml/badge.svg" alt="Test"></a>
@@ -26,7 +26,7 @@ The key features are:
 - **The Forsaken Tower**: the HoH1 campaign, with keys, ace chests, legendaries and pets.
 - **More dungeon**: puzzles, objectives, strongboxes, affixes, new weapons and trinkets.
 - **Town life**: fishing, farming, a gambler, roulette and a tavern.
-- **Co-op fixes**: group combos, shared drops, party exits, and quality-of-life helpers.
+- **Co-op**: group combos, shared drops, party exits, and quality-of-life helpers.
 - **All optional**: every module switches off in game, on the player menu's **Plus** tab.
 
 Every module: [mods/README.md](mods/README.md).
