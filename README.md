@@ -704,21 +704,21 @@ GameLab setup are not required. Install Python 3.10+ and either
 (`sudo apt install python3 python3-venv python3-pip` on Debian/Ubuntu), then run:
 
 ```sh
-./build.sh                  # all modules and dist/HammerwatchPlus-All.bin
-./build.sh core firearms    # selected modules only
+./build.sh                  # all packages and dist/HammerwatchPlus-All.bin
+./build.sh HWP-firearms --no-all  # one selected package
 ./build.sh --with-local     # include your imported HoH1 assets; do not publish
 ```
 
 The launcher installs dependencies into an isolated environment and forwards all
 arguments to `tools/build.py`. It can be run from any working directory. Packages
 go into `dist/`; install them as described above. Do not enable the all-in-one
-package alongside its individual modules.
+package alongside its individual packages.
 
-**Fresh-clone limitation:** without `gamecode/sdk/hoh2/`, the current builder
-packages committed content but skips generated base-game class-swap units and pet
-dyes. For a complete build equivalent to Windows, copy that gitignored SDK tree
-from a Windows development checkout prepared with `gamelab doctor --fix`, or use
-the experimental Linux GameLab setup in `docs/gamelab-linux.md`, before building.
+**Fresh-clone prerequisite:** the builder refuses packages needing base-generated
+content when `gamecode/sdk/hoh2/` is missing; it does not silently ship incomplete
+class-swap units, pet dyes or Forgemaster bodies. Copy that gitignored SDK tree
+from a prepared development checkout, or use the experimental Linux GameLab setup
+in `docs/gamelab-linux.md`, before building.
 Optional HoH1 imports likewise need to be prepared separately. The
 launcher does not run bootstrap, import game assets, launch the game, or touch saves.
 The game still runs as a Windows executable; the experimental Linux Proton bridge

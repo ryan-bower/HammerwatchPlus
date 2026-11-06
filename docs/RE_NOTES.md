@@ -1,5 +1,25 @@
 # RE notes: Heroes of Hammerwatch II
 
+## Current Linux PR integration checkpoint (2026-11-05)
+
+Rebased the Linux host onto main `e7d060f111adf3b043c8df96526b1d27b8a86e4b`.
+Kept upstream's suite/--wait controls, typed/modifier/shim input, compiler cache
+discovery, mandatory base-generated package content, and `Header.saved_ms` format.
+The Linux host now checks for existing HoH2 processes across Wine prefixes before
+boots, preserving main's real-play runtime exclusion beyond Windows tasklist.
+Partial datatable export indexes no longer suppress a full SDK export.
+
+Initial integration validation: portable pytest selection 235 passed, 2 skipped,
+345 subtests passed. Seven Windows-dependent test modules require the private
+Windows runtime and are excluded from that portable count. Unrestricted pytest
+collection traversed ignored assets and timed out; explicit source directories
+are required. Doctor regenerated the newer shim/class units/HoH1 art/pet dyes/
+Forgemaster units and passed smoke `null-payload 20261105-192126` on build 25932569.
+Final merged-source live checks and Windows-only tests are recorded below when
+complete; October and pre-rebase November results remain historical only.
+No player save restore or install launch was performed. Broader gameplay QA is
+still paused/incomplete. GitHub CLI authentication is needed to publish the PR.
+
 Dated findings log. Each entry says how it was measured; "assumed" marks anything not yet
 measured. Newest entries at the bottom of each date.
 

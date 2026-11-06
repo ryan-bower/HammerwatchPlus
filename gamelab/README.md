@@ -1,6 +1,6 @@
 # GameLab: start here
 
-GameLab is a Windows CLI harness for testing mods against the installed HoH2 game.
+GameLab uses a Windows runtime for testing mods against the installed HoH2 game.
 Scenarios are JSON, bots are Python, and verdicts/measurements are JSON or JSONL.
 An agent with filesystem and process access can use it without this chat history.
 
@@ -9,6 +9,13 @@ Read [AGENTS.md](../AGENTS.md) first. This is the short operational guide; the
 fixtures, bot authoring and troubleshooting.
 
 ## First session or fresh clone
+
+On x86-64 Linux, use the experimental pinned Proton/Xvfb bridge:
+`./gamelab.sh setup`, `./gamelab.sh doctor`, then `./gamelab.sh doctor --fix`.
+Run scenarios with `./gamelab.sh run <scenario> --mode lab`; `suite` also forwards
+to the Windows runtime and refuses watch mode. See [Linux setup](../docs/gamelab-linux.md).
+Do not use the player's Proton prefix or display. The Windows instructions below
+retain their native backend; save, build and isolation gates apply on both hosts.
 
 Use Windows with HoH2 installed and Steam running. Python 3.10+, uv, a supported
 GPU and a mingw-w64 x86_64 compiler are required. Doctor checks prerequisites and

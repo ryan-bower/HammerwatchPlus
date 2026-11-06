@@ -105,6 +105,19 @@ automatically. Missing dependencies return exit 2, without starting the game.
 - Input stays as posted window messages. The boot sequence selects keyboard
   navigation with Down/Up before Return; it never warps a cursor or changes focus.
   `HWP_TRACE_INPUT=1` optionally logs received SDL events to the lab capture log.
+- Current main's `run --wait`, recursive `list <folder>` and `suite` commands are
+  retained. Linux suites default to lab mode and reject watch mode. Before a boot,
+  the host also refuses an existing HoH2 process in another Wine/Proton prefix;
+  Windows tasklist alone cannot see a real play session in that prefix.
+
+## Latest-main integration (2026-11-05)
+
+The PR is rebased onto current main. Upstream's typed/modifier/shim input paths,
+suite controls, compiler discovery and unsigned `Header.saved_ms` save format are
+preserved. Base-generated content is mandatory for affected package builds, as
+required by main; the earlier warning-only packaging behavior below is historical.
+Pre-rebase October runs and the initial November smoke checks do not establish
+compatibility with this merged source. Current validation is recorded in RE_NOTES.
 
 ## Historical setup probes (2026-10-29; superseded)
 

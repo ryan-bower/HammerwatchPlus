@@ -130,7 +130,7 @@ class LinuxHostTests(unittest.TestCase):
         doctor.main.assert_called_once_with(["--fix"])
 
     def test_native_cli_does_not_import_win32(self):
-        for args in (["list"], ["--help"]):
+        for args in (["list"], ["list", "it"], ["--help"]):
             done = subprocess.run([sys.executable, "-m", "gamelab", *args],
                                   cwd=linux.REPO, capture_output=True, text=True, timeout=15)
             self.assertEqual(done.returncode, 0, done.stderr)
@@ -174,6 +174,39 @@ class LinuxHostTests(unittest.TestCase):
                      ["doctor", "--hoh1=/games/HoH 1"]):
             translated = linux.translate_arguments(args)
             self.assertIn(linux.windows_path("/games/HoH 1"), translated[-1])
+
+    def test_host_game_detection_includes_other_wine_prefixes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "123").mkdir()
+            (root / "123/comm").write_text("HWR2.exe\n")
+            self.assertEqual(linux.game_processes(root), [123])
+            with mock.patch.object(linux.os, "getuid", return_value=-1):
+                self.assertEqual(linux.game_processes(root), [])
+
+    def test_player_game_or_unknown_visibility_refuses_before_wine(self):
+        for error, pids in ((None, [123]), (RuntimeError("permission denied"), [])):
+            for args in (["run", "null-payload", "--mode", "lab"],
+                         ["suite", "it", "--mode", "lab"], ["doctor", "--smoke"]):
+                with mock.patch.object(linux, "prerequisites", return_value=({}, [])), \
+                        mock.patch.object(linux, "steam_running", return_value=True), \
+                        mock.patch.object(linux, "game_processes", return_value=pids, side_effect=error), \
+                        mock.patch.object(linux, "isolated_display") as display, \
+                        contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(linux.main(args), 4)
+                    display.assert_not_called()
+
+    def test_current_run_and_suite_options_are_forwarded(self):
+        for args in (["run", "null-payload", "--mode", "lab", "--wait", "30"],
+                     ["suite", "it", "--stop-on-fail", "--since", "20261105-190000", "--wait", "30"]):
+            with mock.patch.object(linux, "prerequisites", return_value=({}, ["missing runtime"])) as check, \
+                    contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(linux.main(args), 2)
+                check.assert_called_once()
+        with mock.patch.object(linux, "prerequisites") as check, \
+                contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(linux.main(["suite", "it", "--mode", "watch"]), 2)
+            check.assert_not_called()
 
     def test_private_environment_and_real_proton_backup_discovery(self):
         sys.path.insert(0, str(linux.REPO / "tools"))

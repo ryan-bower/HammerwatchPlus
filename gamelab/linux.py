@@ -77,6 +77,28 @@ def mod_versions() -> dict:
     return trees
 
 
+def game_processes(proc_root: Path = Path("/proc")) -> list[int]:
+    """Wine tasklist cannot see a player game in another prefix; check the host too.
+
+    Refuse any existing HoH2 process owned by this user, including stale lab games.
+    Do not inspect or kill the player's prefix to determine ownership.
+    """
+    found = []
+    for entry in proc_root.iterdir():
+        if not entry.name.isdecimal():
+            continue
+        try:
+            if entry.stat().st_uid != os.getuid():
+                continue
+            if (entry / "comm").read_text().strip().lower() in ("hwr2.exe", "hwr2"):
+                found.append(int(entry.name))
+        except FileNotFoundError:
+            continue  # process exited while being inspected
+        except (OSError, UnicodeError) as exc:
+            raise RuntimeError(f"cannot inspect host process {entry.name}: {exc}") from exc
+    return found
+
+
 def prerequisites() -> tuple[dict[str, str], list[str]]:
     runtime = {}
     errors = []
@@ -251,6 +273,17 @@ def _main(argv: list[str]) -> int:
     if argv[:1] in (["run"], ["suite"]) and not steam_running():
         print("PREFLIGHT: start Steam and sign in to the account that owns HoH2; no game started.")
         return 2
+    if argv[:1] in (["run"], ["suite"]) or (argv[:1] == ["doctor"] and
+                                                   ("--fix" in argv or "--smoke" in argv)):
+        try:
+            players = game_processes()
+        except RuntimeError as exc:
+            print(f"REFUSED: {exc}; resolve host process visibility before running")
+            return 4
+        if players:
+            print(f"REFUSED: an existing host HoH2 process owns the runtime: {players}; "
+                  "close the player game or diagnose a stale lab run first")
+            return 4
     STATE.mkdir(parents=True, exist_ok=True)
     # Held through wineserver cleanup. A second Linux invocation must not kill
     # the first invocation's Wine processes, even before the Windows lab lock.
