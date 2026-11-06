@@ -9805,3 +9805,43 @@ existing generated trees and smoke stamp. All 31 host regressions pass.
 the previous all-mod scenario's links and exact fixture-only mod verification.
 The final full-width timestamp implementation was verified again by
 `mod-all 20261031-152227` (PASS, 20.5 s); its end frame was inspected.
+
+## 2026-11-06: how a run is won (issue #96, `laststats`; source review, no game run)
+
+- A run is won at the last floor's exit: `LevelExitNext` / `LevelExitAreaNext` call
+  `MissionManager::NextLevel()`, which looks up the level's `m_idNext`; when no level of the
+  `MissionDef` has that id it calls `AbortMission(Succeeded)` (`Missions/MissionManager.as:171`).
+  The host sends `SetMissionState` to everyone, `NetSetMissionState` sets `currMissionState`
+  on each machine's local `PlayerRecord`s, and the level changes to the town. There is no
+  hook or event at that point; the town's `PostStart` opens `MissionEndMenu` for the local
+  record, whose constructor resets `currMissionState` to `None`. A mod sees the win only in
+  a `PlayerRecordLoad` hook while the town loads (as laststats and farming already did).
+  The Wave Arena (`hwp_wave_arena`) ends the same way through its champion spawner's exit
+  portal, so a mod that means "won" must leave it out by mission id.
+- A `HUDAnnounceStyle` draws over open windows unless it says `top-draw` false (default
+  true, `HUDAnnounce.as:274`): `HUD.DrawPost` (after the window manager) draws those
+  (`DrawTop`). `title-color` works with `HUDAnnounceTextAnimationFade`, which passes the
+  style's title and text colours with its alpha.
+
+## 2026-11-06: enemy armor and resistances, and which bosses refuse buffs (issue #96, `bosses`; source review, no game run)
+
+- An enemy's armor and its fire, ice, lightning and poison resistances are flat ints on its
+  own `ActorProperties` (`m_armor`, `m_resistanceFire/Ice/Lightning/Poison`, from the unit's
+  `armor` / `res-*`), one object per spawned unit (`CompositeActorBehavior.LoadParams` makes
+  it) and one per state of a `StateActorBehavior` (`state.m_props`, swapped in by
+  `SetActorProperties`). `CompositeActorBehavior.Damage` uses
+  `ApplyArmor(dmg, m_buffs.ArmorMul().x * m_armor * (1 + g_ngp * EnemyNGPArmorMul), pen)` (`.y`
+  and `EnemyNGPResistanceMul` for the resistances); `ApplyArmor` takes `a = value *
+  ArmorApplyEfficiency` and keeps `1 - a / (1 + a)` of the damage, so there is no cap: any
+  value reduces less than 100 %. Penetration only applies to a positive value. No vanilla
+  actor has a negative armor or resistance.
+- `ActorBuffList.ArmorMul()` is the product of every buff's and stack's `armor-mul` /
+  `resistance-mul`, each lerped by the buff's intensity (`Modifiers::lerp`, not clamped), so a
+  buff at 0 0 (Pelor's Fury) zeroes whatever the properties say.
+- `Damage` runs on the machine that works the hit out (the attacker's), so a mod that changes
+  an enemy's properties must do it on every machine.
+- `boss_avatar.unit` and `boss_face.unit` are `no-buffs`: `CompositeActorBehavior.ApplyBuff`
+  returns false for them, so a buff-based boss change misses them. 23 vanilla units carry the
+  `boss` actor tag; the Serpents' and Harbingers' shared health units
+  (`boss_serpent_health.unit`, `boss_harbingers_health.unit`) carry the boss bar without the
+  tag and have no armor (their bodies are `TransferDamageActor`s with their own).

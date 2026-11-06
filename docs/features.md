@@ -19,7 +19,7 @@ are on the Steam Workshop; The Forsaken Tower is local-build only.
 | `HWP-keys` Keys and Ace Chests | keys |
 | `HWP-campaign` The Forsaken Tower | campaign |
 | `HWP-modes` Challenge Modes | mercenary, wavemode |
-| `HWP-dungeon` Dungeon Loot and Encounters | puzzles, objectives, strongbox, abyss, maps, weapons, trinkets, valuables, affixes |
+| `HWP-dungeon` Dungeon Loot and Encounters | puzzles, objectives, strongbox, abyss, maps, weapons, trinkets, valuables, affixes, bosses |
 | `HWP-town` Town Life | fishing, farming, gambler, roulette, tavern |
 | `HWP-pets` Pets | pets (and petrooms, shared with Quality of Life) |
 | `HammerwatchPlus-All` | every package |

@@ -20,6 +20,7 @@ next level.
 | Death recap | Boss panel time | `deathrecap.boss_seconds` | 15 s | 5 s, 10 s, 15 s, 30 s, 60 s | local |
 | Death recap | Panel collapsed | `deathrecap.collapsed` | off | on, off | local |
 | Last run stats | On | `laststats.enabled` | on | on, off | host |
+| Last run stats | Win banner | `laststats.winner` | on | on, off | local |
 | Colors | On | `colors.enabled` | on | on, off | local |
 | Colors | (option `colors`) | | | | local |
 | Colors | Projectile markers | `colors.markers` | on | on, off | local |
@@ -166,6 +167,8 @@ next level.
 | Valuables | Gold multiplier | `valuables.gold_mult` | 2x | 1x, 1.5x, 2x, 3x, 5x | host |
 | Extra affixes | On | `affixes.enabled` | on | on, off | host |
 | Extra affixes | Extra affix chance | `affixes.chance` | 25% | 10%, 25%, 50%, 75%, 100% | host |
+| Tougher bosses | On | `bosses.enabled` | on | on, off | host |
+| Tougher bosses | Armor and resistances | `bosses.toughness` | 25 % | 0 %, 10 %, 25 %, 50 %, 75 %, 100 % | host |
 
 ## Town Life
 
