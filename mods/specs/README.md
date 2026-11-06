@@ -30,9 +30,11 @@ Spec (the numbers are the planner's, `planner/data/skills/priest-spec4-*.json`):
 - **Necrotic Resurrection**: a channel (3 s, elite 5 s, boss 10 s) under the `raising` buff
   (silence, disarm, lock-movement, lock-rotation) on a body within 150, then the host raises
   it. Mana and cooldown are spent when the channel completes. Heresy +1/+2/+3.
-- **Sacrificial Penance** (the same key at max Divine Favor): the priest dodges to under the
-  body, faces up and channels 3 s; Heresy -(rank table + 1 elite + 2 boss), Divine Favor spent,
-  50 mana, no cooldown. The skill's HUD icon is the Penance icon while Favor is at max.
+- **Sacrificial Penance** (the same key at max Divine Favor with at least 1 Heresy): the
+  priest dodges to under the body, faces up and channels 3 s; Heresy -(rank table + 1 elite +
+  2 boss), Divine Favor spent, 50 mana, no cooldown. The skill's HUD icon is the Penance icon
+  while Favor is at max and there is Heresy. With no Heresy (issue #68) the key stays a raise
+  (its icon, its 70 mana, +Heresy) and the max Favor is kept, so the next cast is a Penance.
 - **The channel lock** (2026-10-25): the channel locks the priest onto the body. A raise faces
   the body at its start, a Penance faces up once its dodge lands; the raising buff's
   lock-rotation holds the facing against the aim. The Dash has `ignore-blocking`, so the
@@ -68,6 +70,9 @@ Test checklist (`gamelab/scenarios/`, bot `gamelab/bots/plan_forgemaster.py`):
   at epic, three boss deaths leave bodies). Status fields read: `locked`, `beam`, `pulses`,
   `lockface`, `beamframes`, `bar`, `dashpin`, `dashrefused`, `dashcd`, `icon`, `pyreuses`,
   `pyreremoved`, `pyrenocurse`.
+- `fix-penance-heresy.json` (issue #68): `penance_heresy` (at max Favor, Heresy 0 is `penance 0`
+  and the raise icon, 1 is the Penance icon; the cast with none raises and keeps the Favor, then
+  with 1 Heresy it is a Penance), plus `penance_icon`.
 
 ### The risen and the bodies (the units, 2026-10-25)
 

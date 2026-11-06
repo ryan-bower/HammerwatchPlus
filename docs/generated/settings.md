@@ -12,6 +12,7 @@ next level.
 | Buff tooltips | On | `bufftips.enabled` | on | on, off | local |
 | Buff tooltips | Class buff icons | `bufftips.skill_icons` | on | on, off | local |
 | Chat item links | On | `chatlinks.enabled` | on | on, off | local |
+| Chat item links | (option `linkkey`) | | | | local |
 | Stash sort | On | `stash.enabled` | on | on, off | local |
 | Death recap | On | `deathrecap.enabled` | on | on, off | local |
 | Death recap | Chat summaries | `deathrecap.chat` | on | on, off | local |
@@ -43,6 +44,8 @@ next level.
 | Map icons | On | `mapicons.enabled` | on | on, off | local |
 | Map icons | Dye pots | `mapicons.dyes` | on | on, off | local |
 | Attribute point clicks | On | `attrclick.enabled` | on | on, off | local |
+| Salvage | On | `salvage.enabled` | on | on, off | host |
+| Salvage | Salvage yield | `salvage.yield` | 100% | 50%, 75%, 100%, 150%, 200% | host |
 
 ## Co-op Play
 

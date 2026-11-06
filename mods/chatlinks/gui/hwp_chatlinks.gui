@@ -1,0 +1,13 @@
+<gui>
+	<doc>
+		<group id="root" anchor="0 0" offset="0 0" width="200" height="64">
+			<rect id="panel" anchor="0 0" color="#00000099" border="#ffffff30" width="200" height="64">
+				<text id="line0" text="" color="#ffffff" font="text" anchor="0 0" offset="5 4" width="290" />
+				<text id="line1" text="" color="#ffffff" font="text" anchor="0 0" offset="5 16" width="290" />
+				<text id="line2" text="" color="#ffffff" font="text" anchor="0 0" offset="5 28" width="290" />
+				<text id="line3" text="" color="#ffffff" font="text" anchor="0 0" offset="5 40" width="290" />
+				<text id="line4" text="" color="#ffffff" font="text" anchor="0 0" offset="5 52" width="290" />
+			</rect>
+		</group>
+	</doc>
+</gui>

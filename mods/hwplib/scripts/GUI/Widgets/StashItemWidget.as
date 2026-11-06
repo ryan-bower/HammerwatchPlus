@@ -1,0 +1,138 @@
+class StashItemWidget : ItemWidgetBase
+{
+	Sprite@ m_backgroundSprite;
+	Sprite@ m_hoverSprite;
+
+	RectWidget@ m_inventory;
+
+	StashItemWidget()
+	{
+		super();
+	}
+
+	Widget@ Clone() override
+	{
+		StashItemWidget@ w = StashItemWidget();
+		CloneInto(w);
+		return w;
+	}
+
+	void Set(Item::Item@ item) override
+	{
+		ItemWidgetBase::Set(item);
+	}
+
+	void ClickDown(bool usingMouse, vec2 mousePos) override 
+	{ 
+		if (m_item !is null)
+		{
+			string func;
+			switch (m_type)
+			{
+				case ItemWidgetType::StashTown: func = "withdraw"; break;
+				case ItemWidgetType::StashPlayerEquipped: func = "deposit equipped";  break;
+				case ItemWidgetType::StashPlayerInventory: func = "deposit inventory";  break;
+			}
+
+			m_host.OnFunc(this, func);
+		}
+	}
+
+	void Load(WidgetLoadingContext &ctx) override
+	{
+		ItemWidgetBase::Load(ctx);
+
+		auto backgroundStr = ctx.GetString("background-src", false);
+		if (backgroundStr != "")
+			@m_backgroundSprite = ctx.GetGUIDef().GetSprite(backgroundStr);
+
+		auto hoverStr = ctx.GetString("hover-src", false);
+		if (hoverStr != "")
+			@m_hoverSprite = ctx.GetGUIDef().GetSprite(hoverStr);
+	}
+
+	void DoDraw(SpriteBatch& sb, vec2 pos) override
+	{
+		sb.DrawSprite(pos, GetCurrentSprite(), g_menuTime);
+
+		ItemWidgetBase::DoDraw(sb, pos);
+	}
+
+	Sprite@ GetCurrentSprite()
+	{
+		if (m_hovering)
+			return m_hoverSprite;
+
+		return m_backgroundSprite;
+	}
+
+	vec4 GetRect() override
+	{ 
+		if (m_inventory !is null)
+			return vec4(m_inventory.m_origin.x + m_offset.x, m_inventory.m_origin.y + m_offset.y, m_width, m_height); 
+		
+		return ItemWidgetBase::GetRect();
+	}
+
+	array<string>@ NavigationBarText() override
+	{
+		if (m_item is null)
+			return {};
+
+		switch (m_type)
+		{
+			case ItemWidgetType::StashTown:
+			{
+				return {
+					FormatKeyName(GetActionBinding("MenuForward")) + " " + Resources::GetString(".menu.nav.withdraw"),
+					FormatKeyName(GetActionBinding("MenuContext")) + " " + Resources::GetString(".menu.nav.compare"),
+					FormatKeyName(GetActionBinding("MenuAdditional")) + " " + HWP::ItemActions::DestroyLabel(m_item)
+				};
+			}
+
+			case ItemWidgetType::StashPlayerEquipped:
+			{
+				auto stashWindow = cast<PlayerStashWindow>(m_host);
+				if (stashWindow !is null)
+				{
+					return {
+						FormatKeyName(GetActionBinding("MenuForward")) + " " + Resources::GetString(".menu.nav.deposit_to", {{"to", stashWindow.m_currTownStashTab.m_name}}),
+						FormatKeyName(GetActionBinding("MenuAdditional")) + " " + HWP::ItemActions::DestroyLabel(m_item)
+					};
+				}
+
+				return {
+					FormatKeyName(GetActionBinding("MenuForward")) + " " + Resources::GetString(".menu.nav.deposit"),
+					FormatKeyName(GetActionBinding("MenuAdditional")) + " " + HWP::ItemActions::DestroyLabel(m_item)
+				};
+			}
+
+			case ItemWidgetType::StashPlayerInventory:
+			{
+				auto stashWindow = cast<PlayerStashWindow>(m_host);
+				if (stashWindow !is null)
+				{
+					return {
+						FormatKeyName(GetActionBinding("MenuForward")) + " " + Resources::GetString(".menu.nav.deposit_to", {{"to", stashWindow.m_currTownStashTab.m_name}}),
+						FormatKeyName(GetActionBinding("MenuAdditional")) + " " + HWP::ItemActions::DestroyLabel(m_item)
+					};
+				}
+
+				return {
+					FormatKeyName(GetActionBinding("MenuForward")) + " " + Resources::GetString(".menu.nav.deposit"),
+					FormatKeyName(GetActionBinding("MenuContext")) + " " + Resources::GetString(".menu.nav.compare"),
+					FormatKeyName(GetActionBinding("MenuAdditional")) + " " + HWP::ItemActions::DestroyLabel(m_item)
+				};
+			}
+		}
+
+		return {};
+	}
+}
+
+ref@ LoadStashItemWidget(WidgetLoadingContext &ctx)
+{
+	StashItemWidget@ w = StashItemWidget();
+	w.Load(ctx);
+	return w;
+}
