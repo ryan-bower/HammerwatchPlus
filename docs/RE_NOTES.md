@@ -9819,3 +9819,13 @@ The final full-width timestamp implementation was verified again by
   API lists `SetCollisionTeam(uint16 team)`, which no vanilla script or mod calls (its effect is
   unmeasured). The Forgemaster's risen get the flag from their generator
   (`tools/generate/make_forgemaster_risen.py`), not at raise time.
+
+## 2026-11-06: the cursor's world point for a directional skill (issue #98, source review)
+- A `PlayerSkillDirectional`'s `NetActivate(target)` gets only the aim direction. The world point
+  under the mouse is read the way a TargetAOE skill reads it (`PlayerTargetingHelper.as:264`):
+  `xy(ToWorldspace(GetInput().MousePos))`, only when `!GetInput().UsingGamepad`.
+  `MouseBase.as` treats a negative `MousePos` as no reading (the mouse off the window).
+  The Forgemaster's `PickBody` uses it on the caster's client only; other peers get the unit id.
+- GameLab's `input` verb writes `GameInput.AimDir` but not `MousePos`, so a lab cast aims with
+  the posted direction while the cursor stays wherever the hidden window's mouse is. A lab test
+  of the cursor pick has to write `MousePos` itself, as `gamelab-hands` `Verbs_firearms.as` does.

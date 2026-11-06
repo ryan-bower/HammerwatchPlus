@@ -12,6 +12,8 @@
 //   is the enemy's formula times nr-hp-pct, damage the enemy's times nr-dmg-base x nr-dmg-pct
 //   x (1 + Heresy x coh-dmg), unhealable, decaying 1% every 3 s (a boss 9 s).
 // - HWPSpecsResurrection: the skill. It needs a body within RAISE_RANGE and Heresy below 5;
+//   the cast takes the body within RAISE_RANGE nearest the cursor's world point (issue #98,
+//   2026-11-06; a gamepad, with no cursor, the one nearest the aim line: PickBody);
 //   its cast starts a channel on the caster's client (the raising buff: 3 s, elite 5 s, boss
 //   10 s), and UpdateForgemaster finishes it: the skill's mana and cooldown are spent then (a
 //   cancelled channel costs nothing) and the host raises the body (specs.raise request) and
@@ -307,15 +309,36 @@ namespace HWP
 			}
 		}
 
-		// the body the cast takes: within RAISE_RANGE of the priest, the nearest to the aim line
-		// (dir zero: the nearest to the priest)
-		HWPSpecsBody@ PickBody(PlayerBase@ plr, vec2 dir)
+		// the local player's cursor on the map: the world point under the mouse, as a targeted
+		// skill reads it (PlayerTargetingHelper.as:264, xy(ToWorldspace(input.MousePos))); none with
+		// a gamepad, or with the mouse off the window (MousePos < 0, MouseBase.as)
+		bool HasCursor()
+		{
+			auto input = GetInput();
+			return input !is null && !input.UsingGamepad && input.MousePos.x >= 0 && input.MousePos.y >= 0;
+		}
+
+		vec2 CursorWorld()
+		{
+			return xy(ToWorldspace(GetInput().MousePos));
+		}
+
+		int g_pickCursor = 0;   // casts whose body was picked at the cursor
+		int g_pickAim = 0;      // casts whose body was picked along the aim (a gamepad, no cursor)
+
+		// the body the cast takes, always within RAISE_RANGE of the priest. atCursor (the caster's
+		// own cast, issue #98: "it should be resing the intact body closest to my cursor") and a
+		// mouse: the one nearest the cursor's world point. Otherwise (a gamepad, the console) the
+		// nearest to the aim line, and with dir zero the nearest to the priest.
+		HWPSpecsBody@ PickBody(PlayerBase@ plr, vec2 dir, bool atCursor = false)
 		{
 			PruneBodies();
 			if (plr is null)
 				return null;
 			vec2 pos = xy(plr.m_unit.GetPosition());
-			bool aimed = lengthsq(dir) > 0.01f;
+			bool cursor = atCursor && HasCursor();
+			vec2 at = cursor ? CursorWorld() : pos;
+			bool aimed = !cursor && lengthsq(dir) > 0.01f;
 			if (aimed)
 				dir = normalize(dir);
 			HWPSpecsBody@ best = null;
@@ -327,7 +350,9 @@ namespace HWP
 				if (dst > RAISE_RANGE)
 					continue;
 				float score = dst;
-				if (aimed && dst > 1)
+				if (cursor)
+					score = dist(xy(g_bodies[i].m_unit.GetPosition()), at);
+				else if (aimed && dst > 1)
 				{
 					float along = dot(d, dir);
 					float off = length(d - dir * along);
@@ -339,6 +364,15 @@ namespace HWP
 					@best = g_bodies[i];
 					bestScore = score;
 				}
+			}
+			if (atCursor && best !is null)
+			{
+				if (cursor)
+					g_pickCursor++;
+				else
+					g_pickAim++;
+				Log("specs", "pick " + best.m_unit.GetId() + (cursor ? " nearest the cursor at " + int(at.x) + " " + int(at.y)
+					+ " (" + int(bestScore) + " px off)" : " along the aim (no cursor)"));
 			}
 			return best;
 		}
@@ -1542,6 +1576,7 @@ namespace HWP
 				+ " lift " + (g_eat is null ? 0 : Rounded(plr.m_unit.GetPosition().y - g_eat.m_spot.y))
 				+ "; pen lights " + g_penLights + " shine " + g_penFacing + " beside " + g_penBeside + " under " + g_penUnder
 				+ "; angle " + Rounded(plr.m_dirAngle * 180 / PI)
+				+ "; pickcursor " + g_pickCursor + " pickaim " + g_pickAim
 				+ "; cd " + (FindSkill(plr, NR) !is null ? cast<Skills::PlayerSkill>(FindSkill(plr, NR)).m_cooldownC : -1)
 				+ "; mana " + int(ManaPts(plr) + 0.5f) + "/" + plr.m_record.MaxMana();
 			HWP::Commands::Reply(ret);
@@ -1992,8 +2027,10 @@ class HWPSpecsResurrection : Skills::PlayerSkillDirectional
 			// the engine spends a skill's cost at its castpoint (PlayerSkillDirectional::Update), which
 			// the raising buff's silence never lets this cast reach: the channel spends it, and starts
 			// a raise's cooldown, when it completes (CompleteChannel), so a cancelled channel costs
-			// nothing (CanActivate has checked the cost can be paid)
-			auto body = HWP::Specs::PickBody(plr, target);
+			// nothing (CanActivate has checked the cost can be paid). The body: the one nearest the
+			// cursor, along the aim with a gamepad (PickBody); the host gets its unit id with the
+			// raise (specs.raise) or the Penance's specs.body_gone
+			auto body = HWP::Specs::PickBody(plr, target, true);
 			if (body !is null)
 				HWP::Specs::StartChannel(plr, body, m_penanceCast, -1, this, GetCost());
 		}

@@ -30,6 +30,14 @@ Spec (the numbers are the planner's, `planner/data/skills/priest-spec4-*.json`):
 - **Necrotic Resurrection**: a channel (3 s, elite 5 s, boss 10 s) under the `raising` buff
   (silence, disarm, lock-movement, lock-rotation) on a body within 150, then the host raises
   it. Mana and cooldown are spent when the channel completes. Heresy +1/+2/+3.
+- **Which body** (issue #98, 2026-11-06): the cast (a raise or a Penance) takes the body within
+  150 of the priest that is nearest the cursor's world point (`PickBody`, the cursor read as a
+  targeted skill reads it: `xy(ToWorldspace(GetInput().MousePos))`). With a gamepad, or the
+  mouse off the window, it is the body nearest the aim line, as before. The pick runs on the
+  caster's client and the host gets the body's unit id (`specs.raise`, `specs.body_gone`).
+  Each cast logs `pick <id> nearest the cursor at X Y (N px off)` or `pick <id> along the aim
+  (no cursor)`; `hwp forge` counts them (`pickcursor`, `pickaim`). `hwp forge raise|penance`
+  still takes the body nearest the priest.
 - **Sacrificial Penance** (the same key at max Divine Favor with at least 1 Heresy): the
   priest dodges to under the body, faces up and channels 3 s; Heresy -(rank table + 1 elite +
   2 boss), Divine Favor spent, 50 mana, no cooldown. The skill's HUD icon is the Penance icon
