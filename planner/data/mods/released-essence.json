@@ -5,17 +5,21 @@
   "levels": [
     {
       "q": "uncommon",
-      "text": "3 stacks"
+      "text": "+10% movement speed for 3 seconds"
+    },
+    {
+      "q": "uncommon",
+      "text": "+15% movement speed for 3 seconds"
     },
     {
       "q": "rare",
-      "text": "6 stacks"
+      "text": "+20% movement speed for 3 seconds"
     }
   ],
-  "name": "Released Essence",
-  "notes": "In game (hwp_wlk_ee_released_essence, tested): an elite or boss killed by the Hellfire Claw gives the stacks (a death within 1 s of the claw counts: the host decides the kill).",
+  "name": "Soul Stride",
+  "notes": "Source implementation; runtime validation pending. Existing ranks retain their numerical rank under the old perk ID; a third rank is now available.",
   "order": null,
   "skill": "warlock-spec4-passive",
-  "status": "tested",
-  "summary": "Elites killed by Hellfire Claw add stacks of essence"
+  "status": "built",
+  "summary": "Gaining Essence grants movement speed for 3 seconds. Further gains refresh, not stack."
 }

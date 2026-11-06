@@ -44,6 +44,26 @@ results remain historical only. These are load/isolation checks, not gameplay pr
 No player save restore or install launch was performed. Broader gameplay QA is
 still paused/incomplete. GitHub CLI authentication is needed to publish the PR.
 
+## 2026-11-05: Branding/Bannerlord source implementation (no runtime evidence)
+
+Implemented the agreed rework and recorded initial tuning in
+[`design/branding-bannerlord-rework.md`](design/branding-bannerlord-rework.md).
+Six source/data contract tests pass (`python -m unittest discover -s tests -p
+test_specs_support_rework.py`). These do not establish compilation or gameplay.
+`python -m gamelab doctor` failed before preflight on Linux: importing `winproc.py`
+calls unavailable `ctypes.WinDLL`. No game runs or engine measurements were performed.
+Read-only engine source from the original checkout informed modifier/stack APIs:
+PlayerBase.AddStacks emits StackGained even at cap; ApplyBuff scales duration on
+the recipient; Killing Spree uses native damage multipliers, native CriticalHit
+chance combination, and Killer Physique endpoint interpolation (not a flat additive
+crit/regen grant). Shared effects use those conventions with one native stack pool.
+Existing perk IDs are retained for purchased-rank compatibility; Soul Stride adds
+a third rank. Standard shields use the source Bannerlord's maximum Health on each
+pulse; Soul Guard retains the Warlock's own maximum Health basis.
+Native compilation, timer/HUD sync, multiplayer source arbitration,
+shield absorption ordering, collision behavior of the directional throw, and gameplay
+balance remain unverified. Historical QA evidence below does not validate this source.
+
 Dated findings log. Each entry says how it was measured; "assumed" marks anything not yet
 measured. Newest entries at the bottom of each date.
 

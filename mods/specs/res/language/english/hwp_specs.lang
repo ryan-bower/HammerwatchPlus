@@ -31,14 +31,19 @@
 	<string name="hwp.specs.param.conduit_share">Mana Shared:</string>
 
 	<!-- Bannerlord -->
+	<string name="hwp.specs.param.shield">Shield (% max Health)</string>
+	<string name="hwp.specs.param.banner_shield">Shield (% of your max Health)</string>
+	<string name="hwp.specs.param.ally_shield">Allied shield strength</string>
+	<string name="hwp.specs.param.shield_cap">Shield cap (% max Health)</string>
+	<string name="hwp.specs.param.spree_stacks">Killing Spree stacks</string>
 	<string name="hwp.specs.battlefield_standard.name">Battlefield Standard</string>
-	<string name="hwp.specs.battlefield_standard.desc">Raise a Battlefield Standard for %duration%. You and your allies near it take %dr% less damage. Use it again while you carry it to plant it where you stand, for free: the damage reduction doubles and the time left is halved.</string>
-	<string name="hwp.specs.feared_crest.name">Feared Crest</string>
-	<string name="hwp.specs.feared_crest.desc">Enemies near the Standard suffer %vulnerability%.</string>
+	<string name="hwp.specs.battlefield_standard.desc">Raise a Battlefield Standard for %duration%. Every 3 seconds, you and allies within 120 gain a shield worth %shield% of your maximum Health for 4 seconds. Recast for free to throw the banner 180 in the direction you aim: its remaining duration is preserved and both you and the banner pulse. Overlapping shields replenish, not stack. Buff duration bonuses extend the shields.</string>
+	<string name="hwp.specs.feared_crest.name">Rallying Standard</string>
+	<string name="hwp.specs.feared_crest.desc">Each Standard pulse grants %stacks% stacks of your Killing Spree to you and allies, including your Brutality and Killer Physique benefits. Allies can build and refresh these stacks with their own kills, even after leaving the banner. Maximum 10 stacks; overlapping pulses do not grant twice. Requires Killing Spree.</string>
 	<string name="hwp.specs.martyrs_banner.name">Martyr's Banner</string>
-	<string name="hwp.specs.martyrs_banner.desc">The Standard's damage reduction is %ally-mul% on your allies, but you no longer receive it.</string>
+	<string name="hwp.specs.martyrs_banner.desc">The Standard grants %ally-mul% shield strength to allies, but no longer shields you. Killing Spree sharing is unchanged.</string>
 	<string name="hwp.specs.righteous_crusade.name">Righteous Crusade</string>
-	<string name="hwp.specs.righteous_crusade.desc">Your buffs last %buff-duration% longer, and so do the buffs of allies standing near your Battlefield Standard.</string>
+	<string name="hwp.specs.righteous_crusade.desc">Your buffs last %buff-duration% longer, and so do those of allies near you or your thrown Battlefield Standard while it lasts. This extends Standard shields and shared Killing Spree, but not the Standard's own lifetime.</string>
 	<string name="hwp.specs.war_drum.name">War Drum</string>
 	<string name="hwp.specs.war_drum.desc">Warcry and the Battlefield Standard weaken nearby enemies. Each cast makes the Weakness one step more severe, up to %weakness%.</string>
 	<string name="hwp.specs.shared_provisions.name">Shared Provisions</string>
@@ -99,17 +104,17 @@
 	<string name="hwp.specs.stack.static_charge.desc">At 5, your next spell releases lightning strikes. Each new stack resets the 10 second timer.</string>
 	<!-- Branding -->
 	<string name="hwp.specs.pyrebrand.name">Pyrebrand</string>
-	<string name="hwp.specs.pyrebrand.desc">Brand the enemy you aim at with a demonic sigil for 6 seconds. The damage you deal to it feeds the brand, and the brand charges as it burns. Use Pyrebrand again, for free, or let the brand run out, and a Hellfire Claw tears up through the victim, dealing %base% Fire damage to it and the enemies beside it, plus up to %pct% of the damage that fed it: the longer the brand has burned, the more, all of it when it runs out. If the victim dies first, the brand passes to the nearest enemy with its stored damage and charge.</string>
+	<string name="hwp.specs.pyrebrand.desc">Brand an enemy for 6 seconds. Your damage feeds the charging brand. Recast for free, let it expire, or kill its victim to unleash Hellfire Claw: %base% Fire damage plus up to %pct% of the damage that fed it, scaled by charge. Manual detonation deals 25% more damage. Death or manual detonation spreads the brand within 100, carrying all stored damage, charge and remaining duration. Claws cannot feed brands; expired brands cannot spread.</string>
 	<string name="hwp.specs.combustion.name">Combustion</string>
 	<string name="hwp.specs.combustion.desc">Hellfire Claw consumes all of your Essence, dealing %per-stack% more damage in a %per-stack% larger area for each stack.</string>
-	<string name="hwp.specs.proliferation.name">Proliferation</string>
-	<string name="hwp.specs.proliferation.desc">When a branded enemy dies, the brand spreads with all of its stored damage to every enemy within %radius%. Brands last half as long.</string>
+	<string name="hwp.specs.proliferation.name">Enfeeblement</string>
+	<string name="hwp.specs.proliferation.desc">Pyrebranded enemies suffer %weakness% while branded.</string>
 	<string name="hwp.specs.essence_extraction.name">Essence Extraction</string>
 	<string name="hwp.specs.essence_extraction.desc">Your magic weapon attacks now also gain stacks of Essence, once every %cooldown%. Essence gained from Pyrebranded enemies has its effects trigger twice.</string>
-	<string name="hwp.specs.essence_empowerment.name">Essence Empowerment</string>
-	<string name="hwp.specs.essence_empowerment.desc">Each stack of Essence adds %per-stack% of your Physical damage multiplier to your Fire damage. Hellfire Claw gains this before Combustion consumes the stacks.</string>
-	<string name="hwp.specs.released_essence.name">Released Essence</string>
-	<string name="hwp.specs.released_essence.desc">An elite or boss killed by Hellfire Claw grants %stacks% stacks of Essence.</string>
+	<string name="hwp.specs.essence_empowerment.name">Soul Guard</string>
+	<string name="hwp.specs.essence_empowerment.desc">Each Essence gained adds a shield worth %per-stack% of your maximum Health, up to %cap%. Lasts 4 seconds, refreshed by gains. Spending Essence does not remove it.</string>
+	<string name="hwp.specs.released_essence.name">Soul Stride</string>
+	<string name="hwp.specs.released_essence.desc">Gaining Essence grants %speed% Movement Speed for 3 seconds. Further gains refresh the duration; the speed does not stack.</string>
 	<!-- Arcane -->
 	<string name="hwp.specs.blink.name">Blink</string>
 	<string name="hwp.specs.blink.desc">Teleport a short distance in the direction you aim, over ledges and stairs, dealing %damage% Pure damage to every enemy within %radius% of where you reappear. If you have a dash charge, Blink spends it to recast your last elemental spell from where you started, even while that spell is on cooldown. The spell's mana is still paid, down to 1 mana, and its cooldown starts over.</string>

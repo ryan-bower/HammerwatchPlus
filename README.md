@@ -1,5 +1,9 @@
 # HammerwatchPlus
 
+Source checkpoint (2026-11-05): [Branding and Bannerlord rework](docs/design/branding-bannerlord-rework.md)
+implements Warlock proliferation/support perks and Warrior shield/rally support.
+Source/data checks pass; native compilation and co-op gameplay validation remain pending.
+
 > **QA checkpoint (2026-10-22): paused at the user-requested PR boundary.** The full sweep is incomplete. Recorded original-sweep passes: six original fourth specs60/60 rank cases and61/65 orb-quality cases; Firearms60/60 ranks and74/75 orb qualities; HoH1 imports29/39 skills and136/191 ranks;9/9 selected-mastery saves. Five orb cases need real co-op. All 31 normal-release modules have load evidence, with broader feature/lifecycle work open. Earlier QA summaries below are historical snapshots. See [the authoritative checkpoint](docs/generated/qa_pr_checkpoint.json) and [QA ledger](docs/QA_OVERNIGHT.md).
 
 

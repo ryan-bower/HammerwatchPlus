@@ -1,4 +1,43 @@
 <svals>
+	<dict name="support_shield">
+		<bool name="debuff">false</bool>
+		<bool name="ignore-buff-scaling">true</bool>
+		<array name="modifiers"><dict><string name="class">HWPSpecsShield</string></dict></array>
+	</dict>
+	<dict name="standard_shield">
+		<bool name="debuff">false</bool>
+		<bool name="ignore-buff-scaling">true</bool>
+		<string name="fx">players/hwp/specs/effects/gale_buff.effect</string>
+		<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>192 96 14 14</vec4></array>
+	</dict>
+	<dict name="soul_guard">
+		<bool name="debuff">false</bool>
+		<bool name="ignore-buff-scaling">true</bool>
+		<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>192 120 14 14</vec4></array>
+	</dict>
+	%defblock SoulStride LVL SPEED
+	<dict name="soul_stride_%%LVL%%">
+		<bool name="debuff">false</bool>
+		<int name="duration">3000</int>
+		<string name="category">hwp_soul_stride</string>
+		<int name="category-level">%%LVL%%</int>
+		<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>208 120 14 14</vec4></array>
+		<array name="modifiers"><dict><string name="class">Modifiers::SpeedMul</string><float name="move-speed">%%SPEED%%</float></dict></array>
+	</dict>
+	%endblock
+	%block SoulStride 1 1.1
+	%block SoulStride 2 1.15
+	%block SoulStride 3 1.2
+	<dict name="rallied_spree">
+		<bool name="debuff">false</bool>
+		<bool name="ignore-buff-scaling">true</bool>
+		<array name="modifiers">
+			<dict><string name="class">HWPSpecsRalliedStats</string></dict>
+			<dict><string name="class">HWPSpecsRalliedDamage</string></dict>
+			<dict><string name="class">HWPSpecsRalliedGain</string></dict>
+			<dict><string name="class">HWPSpecsRalliedKill</string></dict>
+		</array>
+	</dict>
 	<!--
 		Buffs of the 4th specializations (mods/specs). A buff def never sees skill binds, so
 		the strength of a scripted buff is its intensity: the scripts read the skill's binds
@@ -35,12 +74,14 @@
 	%defblock Crusade LVL SCALE
 	<dict name="crusade_%%LVL%%">
 		<bool name="debuff">false</bool>
+		<string name="category">hwp_crusade_duration</string>
+		<int name="category-level">%%LVL%%</int>
 		<int name="duration">600</int>
 		<bool name="ignore-buff-scaling">true</bool>
 		<array name="modifiers">
 			<dict>
-				<string name="class">Modifiers::BuffScaling</string>
-				<vec2 name="buff-scale">%%SCALE%% %%SCALE%%</vec2>
+				<string name="class">HWPSpecsCrusadeDuration</string>
+				<float name="scale">%%SCALE%%</float>
 			</dict>
 		</array>
 	</dict>

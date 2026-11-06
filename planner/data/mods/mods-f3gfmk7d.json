@@ -5,21 +5,21 @@
   "levels": [
     {
       "q": "uncommon",
-      "text": "1.5x DR"
+      "text": "1.25x allied shield strength"
     },
     {
       "q": "uncommon",
-      "text": "2x DR"
+      "text": "1.5x allied shield strength"
     },
     {
       "q": "rare",
-      "text": "3x DR"
+      "text": "1.75x allied shield strength"
     }
   ],
   "name": "Martyr's Banner",
-  "notes": "In game (hwp_war_bs_martyrs_banner, built): the others get 1.5x/2x/3x the reduction, the bearer none. Only the orb's numbers are checked (needs a second player).",
+  "notes": "Reworked to shields in source; runtime/co-op validation pending.",
   "order": null,
   "skill": "warrior-spec4-active",
   "status": "built",
-  "summary": "Ally DR is increased, but you no longer receive the DR."
+  "summary": "Increase allied Standard shield strength, but the Standard no longer shields you. Killing Spree sharing is unaffected."
 }
