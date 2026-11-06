@@ -567,7 +567,13 @@ class Game:
 def in_job(pid: int) -> bool:
     """IsProcessInJob(process, NULL): is the process in any job object?"""
     k32 = ctypes.WinDLL("kernel32", use_last_error=True)
-    h = k32.OpenProcess(0x1000, False, pid)        # PROCESS_QUERY_LIMITED_INFORMATION
+    # IsProcessInJob requires PROCESS_QUERY_INFORMATION. Windows may accept the
+    # limited right too, but Wine rejects it; a failed query is not "not in job".
+    k32.OpenProcess.restype = wintypes.HANDLE
+    k32.OpenProcess.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
+    k32.IsProcessInJob.argtypes = (wintypes.HANDLE, wintypes.HANDLE, ctypes.POINTER(wintypes.BOOL))
+    k32.CloseHandle.argtypes = (wintypes.HANDLE,)
+    h = k32.OpenProcess(0x0400, False, pid)        # PROCESS_QUERY_INFORMATION
     if not h:
         return False
     res = wintypes.BOOL()

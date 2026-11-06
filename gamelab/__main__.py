@@ -5,15 +5,14 @@ python -m gamelab reset     # after a refused run: kill lab game processes, wipe
 python -m gamelab doctor [--fix] [--confirm-saves] [--smoke]   # fresh clone: is this machine ready (gamelab/doctor.py)"""
 import argparse
 import json
+from pathlib import Path
 import sys
 import time
-
-from gamelab import launcher, lock
-
 
 def ran_since(since: str, mode: str) -> set[str]:
     """scenario names with a run in mode on the pinned build, started at or after since (a
     YYYYmmdd-HHMMSS run-dir stamp): what a resumed suite skips"""
+    from gamelab import launcher
     pin = json.loads((launcher.RESULTS.parent / "build_id.json").read_text(encoding="utf-8"))["build_id"]
     done = set()
     for rj in launcher.RESULTS.glob(f"*-{mode}/run.json"):
@@ -45,6 +44,7 @@ def suite(folder: str, mode: str, wait: float, stop_on_fail: bool, accept_drift:
     for the lock, then print a table and write gamelab/results/suite-<time>-<folder>.json.
     since: skip scenarios already run on the pinned build from that stamp on (resume).
     Exit 0 when every run passed, else the worst run's code (refusals first)."""
+    from gamelab import launcher, lock
     root = launcher.SCENARIOS / folder
     files = sorted(root.rglob("*.json")) if root.is_dir() else []
     if not files:
@@ -92,6 +92,9 @@ def suite(folder: str, mode: str, wait: float, stop_on_fail: bool, accept_drift:
 
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else argv
+    if sys.platform == "linux" and argv[:1] in (["doctor"], ["run"], ["reset"], ["suite"]):
+        from gamelab import linux
+        return linux.main(argv)
     if argv[:1] == ["doctor"]:
         from gamelab import doctor
         return doctor.main(argv[1:])
@@ -123,11 +126,12 @@ def main(argv=None) -> int:
     sub.add_parser("tail", help="the live game log, filtered to our mods' errors and boot milestones (-f follows)")
     a = ap.parse_args(argv)
     if a.cmd == "list":
+        scenarios = Path(__file__).parent / "scenarios"
         if a.folder:
-            for p in sorted((launcher.SCENARIOS / a.folder).rglob("*.json")):
-                print(str(p.relative_to(launcher.SCENARIOS).with_suffix("")).replace("\\", "/"))
+            for p in sorted((scenarios / a.folder).rglob("*.json")):
+                print(str(p.relative_to(scenarios).with_suffix("")).replace("\\", "/"))
         else:
-            for p in sorted(launcher.SCENARIOS.glob("*.json")):
+            for p in sorted(scenarios.glob("*.json")):
                 print(p.stem)
         return 0
     if a.cmd == "reset":
@@ -135,6 +139,7 @@ def main(argv=None) -> int:
         return lock.reset()
     if a.cmd == "suite":
         return suite(a.folder, a.mode, a.wait, a.stop_on_fail, a.accept_build_drift, a.since)
+    from gamelab import launcher
     return launcher.run(a.scenario, a.mode, a.accept_build_drift, a.wait)
 
 

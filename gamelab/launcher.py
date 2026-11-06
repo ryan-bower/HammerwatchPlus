@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -55,6 +56,10 @@ def sha(p: Path) -> str | None:
 
 def mods_version() -> dict:
     """Mod sources as deployed into the GameLab game dir: git tree id + dirty flag per mod."""
+    if "HWP_HOST_MODS_VERSION" in os.environ:
+        versions = json.loads(os.environ["HWP_HOST_MODS_VERSION"])
+        return {m: versions.get(m, {"tree": None, "dirty": True})
+                for m in env.environments()["gamelab"]["mods"]}
     out = {}
     for m in env.environments()["gamelab"]["mods"]:
         tree = subprocess.run(["git", "rev-parse", f"HEAD:mods/{m}"], cwd=REPO, capture_output=True, text=True).stdout.strip()

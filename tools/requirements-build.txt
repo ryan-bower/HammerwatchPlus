@@ -1,0 +1,3 @@
+# Standalone package building; GameLab's Windows tooling is not needed.
+lz4>=4.0
+pillow>=10.0

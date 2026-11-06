@@ -684,7 +684,47 @@ with no switch to turn that off). A built package whose id a subscription has go
 the lab as `<id>-gamelab` (the run records `workshop_shadowed`), and every run asserts that
 no enabled mod was found twice.
 
+Linux now has an **experimental, locally verified Proton/Xvfb
+bridge** (`docs/gamelab-linux.md`); `./gamelab.sh setup` installs the hash-pinned
+Windows Python runtime and dependencies, and `./gamelab.sh doctor --fix` uses the
+locked Nix host environment. `python3 -m gamelab list` and help work natively,
+and `doctor` reports runtime/setup blockers rather than crashing on Win32 imports.
+Both `null-payload` and `mod-all` pass on the pinned Linux runtime; no isolation
+checks are bypassed. Windows keeps its native GameLab backend.
+HoH1 asset discovery accepts both Windows (`HWR.exe`) and native Linux (`HWR`)
+installs; its game archive is required in either case.
+
 ## Developing
+
+### Building on Linux
+
+Package building runs natively on Linux; Wine, Steam running, and the Windows
+GameLab setup are not required. Install Python 3.10+ and either
+[uv](https://docs.astral.sh/uv/) (recommended) or Python's `venv`/`pip`
+(`sudo apt install python3 python3-venv python3-pip` on Debian/Ubuntu), then run:
+
+```sh
+./build.sh                  # all modules and dist/HammerwatchPlus-All.bin
+./build.sh core firearms    # selected modules only
+./build.sh --with-local     # include your imported HoH1 assets; do not publish
+```
+
+The launcher installs dependencies into an isolated environment and forwards all
+arguments to `tools/build.py`. It can be run from any working directory. Packages
+go into `dist/`; install them as described above. Do not enable the all-in-one
+package alongside its individual modules.
+
+**Fresh-clone limitation:** without `gamecode/sdk/hoh2/`, the current builder
+packages committed content but skips generated base-game class-swap units and pet
+dyes. For a complete build equivalent to Windows, copy that gitignored SDK tree
+from a Windows development checkout prepared with `gamelab doctor --fix`, or use
+the experimental Linux GameLab setup in `docs/gamelab-linux.md`, before building.
+Optional HoH1 imports likewise need to be prepared separately. The
+launcher does not run bootstrap, import game assets, launch the game, or touch saves.
+The game still runs as a Windows executable; the experimental Linux Proton bridge
+also supports automatic SDK bootstrap (`docs/gamelab-linux.md`).
+
+### Windows development and GameLab
 
 Requirements:
 - Windows, with Steam running.

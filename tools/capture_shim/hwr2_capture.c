@@ -613,6 +613,19 @@ static void *hook_iat(HMODULE exe, const char *dll, const char *func, void *hook
     return NULL;
 }
 
+/* Optional, observation-only input diagnostics for Wine/SDL message delivery. */
+static int (__cdecl *real_poll_event)(void *);
+static int __cdecl traced_poll_event(void *event)
+{
+    int got = real_poll_event(event);
+    if (got && event) {
+        unsigned int *words = (unsigned int *)event;
+        if (words[0] == 0x200 || (words[0] >= 0x300 && words[0] <= 0x304))
+            shim_log("SDL event type=0x%x window=%u data=%u,%u,%u mod=0x%x", words[0], words[2], words[3], words[4], words[5], words[6] & 0xffff);
+    }
+    return got;
+}
+
 BOOL WINAPI DllMain(HINSTANCE inst, DWORD reason, LPVOID reserved)
 {
     (void)inst; (void)reserved;
@@ -626,6 +639,9 @@ BOOL WINAPI DllMain(HINSTANCE inst, DWORD reason, LPVOID reserved)
                  real_known_folder ? "hooked" : "ERR import not found");
         HMODULE sdl = GetModuleHandleA("SDL2.dll");
         char flag[8] = {0};
+        if (GetEnvironmentVariableA("HWP_TRACE_INPUT", flag, sizeof flag) > 0 && flag[0] == '1')
+            real_poll_event = (int (__cdecl *)(void *))hook_iat(exe, "SDL2.dll", "SDL_PollEvent", (void *)traced_poll_event);
+        flag[0] = 0;
         no_activate = GetEnvironmentVariableA("GAMELAB_NO_ACTIVATE", flag, sizeof flag) > 0 && flag[0] == '1';
         real_show = (PFNSHOWWINDOW)hook_iat(sdl, "user32.dll", "ShowWindow", (void *)hooked_show);
         real_setpos = (PFNSETWINDOWPOS)hook_iat(sdl, "user32.dll", "SetWindowPos", (void *)hooked_setpos);

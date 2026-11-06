@@ -29,6 +29,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -136,7 +137,8 @@ def build_shim(force: bool) -> None:
     src_sha = hashlib.sha256(SHIM_SRC.read_bytes()).hexdigest()
     if not force and SHIM_DLL.is_file() and stamp.is_file() and json.loads(stamp.read_text())["source_sha256"] == src_sha:
         return
-    gcc = gamepaths.find_gcc()
+    gcc = (shutil.which(os.environ.get("HWP_MINGW_CC", "x86_64-w64-mingw32-gcc"))
+           if sys.platform == "linux" else gamepaths.find_gcc())
     if not gcc:
         sys.exit("gcc (mingw-w64, x86_64) is required to build tools/bin/hwr2_capture.dll")
     compiler_env = gamepaths.gcc_environment(gcc)
