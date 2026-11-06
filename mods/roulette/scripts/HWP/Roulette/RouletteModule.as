@@ -7,6 +7,13 @@
 // gambler's spot. Only the host produces it (netsynced, core's HWPLocalNPC). Every machine
 // sets that table to its bare "default" scene, so the vanilla food and mugs don't sit under
 // the wheel. With no table in reach, the wheel stands at the gambler's spot.
+//
+// The table is a vanilla Breakable (60 HP, it respawns after ~24 s), and when it broke the
+// wheel jumped to another table (issue #63). Every machine now keeps that table's health
+// topped up (Shield), so it cannot break. Should it go anyway, the module places the wheel
+// again as after a rebuild. A dealer (doodads/hwp/hwp_roulette_dealer.unit, local on every
+// machine) stands behind a hall table, toward the nearer of the hall's north and west walls,
+// facing it (DealerPos).
 namespace HWP
 {
 	namespace Roulette
@@ -61,9 +68,53 @@ namespace HWP
 			return best >= 0.0f;
 		}
 
+		bool g_inHall = false; // the wheel's table is a main-hall table (the dealer stands there)
+
 		bool FindTable(UnitPtr &out table)
 		{
-			return Nearest(ROOM, true, table) || Nearest(CORNER, false, table);
+			g_inHall = Nearest(ROOM, true, table);
+			return g_inHall || Nearest(CORNER, false, table);
+		}
+
+		// Breakable (Behaviors/Objects/Breakable.as) breaks its unit once m_health runs out,
+		// counted on each machine (a hit's NetDamage too). Topped up every frame, no hit
+		// gets there; no wood chips fly either. A hit still makes its sound.
+		const int TABLE_HP = 1000000000;
+
+		void Shield(UnitPtr table)
+		{
+			if (!table.IsValid() || table.IsDestroyed())
+				return;
+			auto brk = cast<Breakable>(table.GetScriptBehavior());
+			if (brk is null)
+				return;
+			brk.m_health = TABLE_HP;
+			brk.m_alwaysHitGore = false;
+		}
+
+		// the dealer. The hall's inner wall faces (tavern_tier_1..3.pfb, the town's tavern
+		// segment at -64,-176; the HWP levels 4-6 reuse tier 3): the north wall's h_32 pieces
+		// at y -256 collide down to -240, the west wall's v_32 pieces at x -240 out to -224.
+		const string DEALER_UNIT = "doodads/hwp/hwp_roulette_dealer.unit";
+		const float WALL_N = -240.0f;
+		const float WALL_W = -224.0f;
+		const float DEALER_BACK = 20.0f;  // behind the table's centre
+		const float DEALER_WALL_N = 4.0f; // at least this far off the north wall
+		const float DEALER_WALL_W = 7.0f; // and the west wall (its sprite is wider than its feet)
+
+		// behind the table, toward the nearer wall, facing the table: tiers 1-2 (the round
+		// table by the north wall) put him north of it facing south (2), tier 3 (the long
+		// table by the west wall) west of it facing east (0), a step back so the table draws
+		// over him
+		vec2 DealerPos(vec2 table, int &out facing)
+		{
+			if (table.y - WALL_N <= table.x - WALL_W)
+			{
+				facing = 2;
+				return vec2(table.x, max(WALL_N + DEALER_WALL_N, table.y - DEALER_BACK));
+			}
+			facing = 0;
+			return vec2(max(WALL_W + DEALER_WALL_W, table.x - DEALER_BACK), table.y - 2.0f);
 		}
 
 		bool TavernBuilt()
@@ -98,6 +149,7 @@ namespace Modules
 		// the table it sits on (every machine bares the new one)
 		HWP::Town::Kept m_wheel;
 		HWP::Town::Kept m_table = HWP::Town::Kept(false);
+		HWP::Town::Kept m_dealer = HWP::Town::Kept(false); // every machine's own
 
 		HWPRouletteModule()
 		{
@@ -120,6 +172,7 @@ namespace Modules
 			m_placed = false;
 			m_wheel.Reset();
 			m_table.Reset();
+			m_dealer.Reset();
 			// chips still on the table when the last level ended
 			m_owedChecked = HWP::Roulette::RefundOwed();
 			if (!g_inTown)
@@ -158,11 +211,18 @@ namespace Modules
 					wheel.Destroy();
 					HWP::Log("roulette", "turned off: took the wheel away");
 				}
+				RemoveDealer();
 				m_wheel.Reset();
 				m_table.Reset();
+				m_dealer.Reset();
 				m_placed = false;
 				return;
 			}
+			// the table can't break (a rebuild can hand its id to another unit: same unit file only)
+			UnitPtr table = m_table.m_unit;
+			if (m_placed && m_table.m_prod !is null && table.IsValid() && !table.IsDestroyed()
+				&& table.GetUnitProducer() is m_table.m_prod)
+				HWP::Roulette::Shield(table);
 			HWP::Roulette::Tick(ms);
 			// the host runs the rounds while the town has a tavern (built mid-session too)
 			if (m_placed && Network::IsServer() && HWP::Roulette::TavernBuilt())
@@ -186,14 +246,51 @@ namespace Modules
 			// a building upgrade reloads the town without a new Start
 			bool wheelGone = m_wheel.Due(ms);
 			bool tableGone = m_table.Due(ms);
-			if ((wheelGone || tableGone) && HWP::Roulette::TavernBuilt())
+			bool dealerGone = m_dealer.Due(ms);
+			if ((wheelGone || tableGone || dealerGone) && HWP::Roulette::TavernBuilt())
 			{
-				HWP::Log("roulette", "the town was rebuilt, placing the wheel again");
+				HWP::Log("roulette", "the " + (tableGone ? "table" : wheelGone ? "wheel" : "dealer")
+					+ " went (a rebuild?), placing the wheel again");
 				Place();
 			}
 		}
 
-		// every machine: the table bare; the host: the wheel on it
+		void RemoveDealer()
+		{
+			UnitPtr dealer = m_dealer.m_unit;
+			if (dealer.IsValid() && !dealer.IsDestroyed()
+				&& dealer.GetUnitProducer() is Resources::GetUnitProducer(HWP::Roulette::DEALER_UNIT))
+				dealer.Destroy();
+		}
+
+		// every machine: its own dealer behind a hall table
+		void PlaceDealer(vec2 tablePos)
+		{
+			RemoveDealer();
+			if (!HWP::Roulette::g_inHall)
+			{
+				m_dealer.Set(UnitPtr()); // not watched: no dealer away from the hall
+				return;
+			}
+			auto prod = Resources::GetUnitProducer(HWP::Roulette::DEALER_UNIT);
+			if (prod is null)
+			{
+				HWP::LogError("roulette", "missing " + HWP::Roulette::DEALER_UNIT);
+				m_dealer.Set(UnitPtr());
+				return;
+			}
+			int facing = 2;
+			vec2 at = HWP::Roulette::DealerPos(tablePos, facing);
+			UnitPtr dealer = prod.Produce(g_scene, vec3(at.x, at.y, 0.0f));
+			if (dealer.IsValid())
+				dealer.SetUnitScene("face-" + facing, true);
+			m_dealer.Set(dealer);
+			HWP::Log("roulette", "the dealer stands at " + int(at.x) + "," + int(at.y) + " facing " + facing
+				+ (dealer.IsValid() ? "" : ": Produce made nothing"));
+		}
+
+		// every machine: the table bare and unbreakable, the dealer behind it; the host: the
+		// wheel on it
 		void Place()
 		{
 			vec2 pos = HWP::Roulette::CORNER;
@@ -202,11 +299,13 @@ namespace Modules
 			{
 				pos = xy(table.GetPosition());
 				table.SetUnitScene("default", true);
+				HWP::Roulette::Shield(table);
 			}
 			else
 				HWP::Roulette::g_tableName = "";
 			m_table.Set(table);
 			HWP::Roulette::g_tablePos = pos;
+			PlaceDealer(pos);
 			if (!Network::IsServer())
 				return;
 			auto prod = Resources::GetUnitProducer(HWP::Roulette::WHEEL_UNIT);

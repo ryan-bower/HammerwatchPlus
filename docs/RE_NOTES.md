@@ -9805,3 +9805,21 @@ existing generated trees and smoke stamp. All 31 host regressions pass.
 the previous all-mod scenario's links and exact fixture-only mod verification.
 The final full-width timestamp implementation was verified again by
 `mod-all 20261031-152227` (PASS, 20.5 s); its end frame was inspected.
+
+## 2026-11-05: an unbreakable tavern table, the hall walls (source review, no game run)
+
+- **A `Breakable` breaks when its script `m_health` runs out, counted on each machine.**
+  `Behaviors/Objects/Breakable.as`: `ResetHealth` reads the unit's `health` data (tavern
+  `table_wood_*`: 60, the long ones 100); `DamageEffects` subtracts each hit (`Damage` on the
+  attacker's machine, `NetDamage` on the others) and, at 0 or below, destroys the unit and,
+  when `Respawn` is on, leaves a `SpawnerBehavior` that makes it again after
+  `respawn-time` (tables: 24 s, +-10%). The fields are public, so a mod can top
+  `cast<Breakable>(unit.GetScriptBehavior()).m_health` up on every machine to keep one unit
+  from breaking (roulette, issue #63). The stone tables (`table_stone_*`) have no behaviour
+  and never break; every wood table is a `Breakable`.
+- **The tavern hall's inner walls** (tiers 1-3, world = prefab + (-64,-176)): the north wall
+  `h_32` pieces at y -256 collide down to y -240 (`h_32.inc` rect `-4 0 40 16`); the west
+  wall `v_32` pieces at x -240 out to x -224 (`v_32.inc` rect `0 12 16 40`). The front wall
+  is at y -64 with the door at x -176. A prefab's walls are under `statics`, not `units`.
+- An NPC's idle frame N faces N x 45 degrees, clockwise from east (`AnimString`): 0 east,
+  2 south (toward the camera), 4 west, 6 north.
