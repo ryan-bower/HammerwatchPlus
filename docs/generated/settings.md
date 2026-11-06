@@ -20,6 +20,7 @@ next level.
 | Death recap | Boss panel time | `deathrecap.boss_seconds` | 15 s | 5 s, 10 s, 15 s, 30 s, 60 s | local |
 | Death recap | Panel collapsed | `deathrecap.collapsed` | off | on, off | local |
 | Last run stats | On | `laststats.enabled` | on | on, off | host |
+| Last run stats | Win banner | `laststats.winner` | on | on, off | local |
 | Colors | On | `colors.enabled` | on | on, off | local |
 | Colors | (option `colors`) | | | | local |
 | Colors | Projectile markers | `colors.markers` | on | on, off | local |

@@ -1,0 +1,26 @@
+<loader>HUDAnnounceStyle::LoadMultiple</loader>
+<array>
+	<!-- "Winner winner chicken dinner!" after a won run (HWP::LastStats::ShowWinner): the
+	     biggest font, gold, upper third of the screen, 5 s, the quest-complete fanfare.
+	     top-draw (the default) draws it over open windows. -->
+	<dict>
+		<string name="id">hwp_winner</string>
+		<string name="title-font">gui/fonts/arial24.fnt</string>
+		<string name="font">gui/fonts/arial14.fnt</string>
+		<string name="sound">event:/sfx/ui/quests/quest_complete</string>
+		<int name="time">5000</int>
+		<dict name="animation">
+			<string name="class">HUDAnnounceTextAnimationFade</string>
+			<int name="fade-in-time">300</int>
+			<int name="fade-out-time">800</int>
+		</dict>
+		<vec2 name="anchor">0.5 0.3</vec2>
+		<vec2 name="title-anchor">0.5 0</vec2>
+		<vec2 name="text-anchor">0.5 0</vec2>
+		<vec2 name="offset">0 0</vec2>
+		<vec4 name="title-color">1 0.84 0 1</vec4>
+		<vec4 name="text-color">1 1 1 1</vec4>
+		<string name="text-alignment">center</string>
+		<string name="behaviour">replace</string>
+	</dict>
+</array>

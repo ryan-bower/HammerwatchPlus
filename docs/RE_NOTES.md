@@ -9805,3 +9805,20 @@ existing generated trees and smoke stamp. All 31 host regressions pass.
 the previous all-mod scenario's links and exact fixture-only mod verification.
 The final full-width timestamp implementation was verified again by
 `mod-all 20261031-152227` (PASS, 20.5 s); its end frame was inspected.
+
+## 2026-11-06: how a run is won (issue #96, `laststats`; source review, no game run)
+
+- A run is won at the last floor's exit: `LevelExitNext` / `LevelExitAreaNext` call
+  `MissionManager::NextLevel()`, which looks up the level's `m_idNext`; when no level of the
+  `MissionDef` has that id it calls `AbortMission(Succeeded)` (`Missions/MissionManager.as:171`).
+  The host sends `SetMissionState` to everyone, `NetSetMissionState` sets `currMissionState`
+  on each machine's local `PlayerRecord`s, and the level changes to the town. There is no
+  hook or event at that point; the town's `PostStart` opens `MissionEndMenu` for the local
+  record, whose constructor resets `currMissionState` to `None`. A mod sees the win only in
+  a `PlayerRecordLoad` hook while the town loads (as laststats and farming already did).
+  The Wave Arena (`hwp_wave_arena`) ends the same way through its champion spawner's exit
+  portal, so a mod that means "won" must leave it out by mission id.
+- A `HUDAnnounceStyle` draws over open windows unless it says `top-draw` false (default
+  true, `HUDAnnounce.as:274`): `HUD.DrawPost` (after the window manager) draws those
+  (`DrawTop`). `title-color` works with `HUDAnnounceTextAnimationFade`, which passes the
+  style's title and text colours with its alpha.
