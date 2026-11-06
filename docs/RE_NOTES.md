@@ -1,5 +1,49 @@
 # RE notes: Heroes of Hammerwatch II
 
+## Current Linux PR integration checkpoint (2026-11-05)
+
+Rebased the Linux host onto main `e7d060f111adf3b043c8df96526b1d27b8a86e4b`.
+Kept upstream's suite/--wait controls, typed/modifier/shim input, compiler cache
+discovery, mandatory base-generated package content, and `Header.saved_ms` format.
+The Linux host now checks for existing HoH2 processes across Wine prefixes before
+boots, preserving main's real-play runtime exclusion beyond Windows tasklist.
+Partial datatable export indexes no longer suppress a full SDK export.
+
+Initial integration validation: portable pytest selection 235 passed, 2 skipped,
+345 subtests passed. Seven Windows-dependent test modules require the private
+Windows runtime and are excluded from that portable count. Unrestricted pytest
+collection traversed ignored assets and timed out; explicit source directories
+are required. Doctor regenerated the newer shim/class units/HoH1 art/pet dyes/
+Forgemaster units and passed smoke `null-payload 20261105-192126` on build 25932569.
+Final merged-source validation at `a6a4bad16406237a9eea70dde405265e0c6aac20`:
+
+- 36 focused host/export/runtime regressions pass; portable pytest 235 passed,
+  2 skipped, 345 subtests; the 7 Windows-dependent modules pass all 46 tests in
+  the private pinned Proton runtime. The initial offline Windows run lacked the
+  host provenance variable and failed 1 test; providing the same host facts as
+  the normal bridge yielded 46/46. Native Windows hardware was not tested.
+- Native `./build.sh` builds all 12 packages plus the All archive (1,355 entries).
+  `./build.sh --check`, verb reference and whitespace checks pass.
+- `null-payload 20261105-192739` PASS (18.5 s), including new `--wait` forwarding.
+- `mod-all 20261105-192812` FAIL: stale gitignored HoH1 mission import had 18
+  floors, current main expects 23. All outer isolation checks and teardown passed.
+  Regenerated only the marked campaign import with current `import_hoh1.py campaign`
+  (no --force); output is 23 floors. No authored gameplay or assertion changed.
+- `mod-all 20261105-192932` PASS (35 s): exact 46 content modules + 3 harness
+  modules, no duplicates/script errors, clean exit and unchanged saves/config/res.
+
+Both final passing outer run.json files were inspected: no error, failed assertion,
+partial result or build drift, clean teardown, job/desktop/focus containment intact.
+Town/end captures were inspected. Pinned build 25932569 / B176. Before/after raw
+`mods+gamelab+tools-v2` fingerprint was unchanged (2,175 files):
+`e1271e0526529739372fe87d8b4ae139b89d31416f640cfffe71ccf6419ae642`.
+Ignored generated imports are outside that hash; the regeneration is recorded
+separately above. The optional upstream `run_summary` module is absent; its warning
+does not replace the inspected outer verdicts. October and pre-rebase November
+results remain historical only. These are load/isolation checks, not gameplay proof.
+No player save restore or install launch was performed. Broader gameplay QA is
+still paused/incomplete. GitHub CLI authentication is needed to publish the PR.
+
 Current session status (2026-11-01): all214authored worktree files were saved in
 checkpoint293e5f73, then upstream e7d060f1 was merged while preserving both dated
 note histories and the upstream party-exit/Forgemaster/Pelor changes. The merged
@@ -9517,3 +9561,132 @@ must be reviewed before renewing any stale input pins. The canonical385-task
 ledger stays byte-for-byte unchanged at r4847/E018; genuine co-op remains deferred.
 Raw lab artifacts, saves, imported game assets and machine-local caches remain
 ignored. The authored portable tracker and evidence summaries are included.
+
+## 2026-10-29: native Linux package build
+
+Added executable `build.sh`: use `uv run` when available, otherwise create `.venv`
+with Python 3.10+ and install the standalone build dependencies from
+`tools/requirements-build.txt`. All arguments pass through to `tools/build.py`.
+README now separates Linux packaging from Windows GameLab setup. The builder warns
+when the SDK is absent and selected modules need generated class units or pet dyes.
+Complete Windows-equivalent content still requires the extracted SDK from a prepared
+Windows checkout; this change does not port GameLab/bootstrap or launch the game.
+
+**Verified on Linux (package tooling, not a pinned-build game measurement):**
+`sh -n build.sh`; `./build.sh core`; `./build.sh` (30 module packages plus the
+all-in-one); an absolute-path invocation from `/tmp/opencode` selecting `core firearms`;
+and parsing/decompressing every entry of all 31 output archives with `hwr_archive`.
+The fallback venv/pip path was exercised; uv is not installed on this machine.
+No live-game compatibility claim: SDK-generated content is absent here and GameLab
+was not run.
+
+## 2026-10-29: experimental Linux GameLab host
+
+Moved Win32 launcher imports behind CLI dispatch: scenario listing/help now work
+with native Linux Python. Linux doctor/run/reset dispatch to `gamelab/linux.py`,
+which runs Windows Python and the existing GameLab implementation under Wine on
+a private Xvfb display, with a separate 64-bit prefix under gitignored userdata.
+The host refuses watch/default-watch runs, locks the prefix, bounds report/reset
+startup, handles SIGTERM, and cleans up only its own Wine server/display. Existing
+Windows save/build/focus/capture/teardown checks are retained, not waived for Wine.
+`tools/gamepaths.py` now discovers the real Proton appdata tree in the game's Steam
+library; the bridge forwards it for save backup discovery instead of mistaking
+its private Wine profile for the player's real profile. Setup/limitations are in
+`docs/gamelab-linux.md`.
+
+**Verified on Linux, not a pinned-build game run:** 11 host regressions pass
+(`.venv/bin/python -m unittest gamelab.test_linux -v`), including native CLI,
+Windows doctor dispatch, path/environment isolation, watch refusal, host lock,
+timeout cleanup, Proton discovery and an actual Xvfb start/stop. Compilation and
+`git diff --check` pass. No private-prefix processes remained after testing.
+
+System Wine 11 is 32-bit and returned Bad EXE format for the downloaded official
+CPython 3.11.9 x64 embedded interpreter. The installed Proton 7 Wine64 binaries
+successfully ran the Windows doctor with the bridge's own prefix and display
+(not the game's Proton prefix). Doctor found build 25932569 matching the pin,
+30 real cloud save files and 16 real Proton backup files. It exited 2 because
+Windows Python deps, Windows Steam/toolchain, SDK/shim, save confirmation and smoke
+boot are not ready. HoH1 was not found and awaits the user's install/ownership
+answer; no decline was recorded on their behalf. The initial Wine initialization
+blocked on an optional Mono installer; the private prefix was explicitly cleaned
+up, and the bridge now disables Mono/Gecko installation prompts.
+
+**Unverified:** live game startup, Wine Steam integration, DLL injection/capture,
+hidden desktop/job support and `null-payload`/`mod-all` on Linux. Native Windows
+execution also needs its normal regression run. No game was launched; no save
+backup was confirmed/restored, and no player saves/config/install were modified.
+
+### HoH1 installation follow-up
+
+After the user installed HoH1, Steam appmanifest 677120 pointed to the native Linux
+install (`Heroes of Hammerwatch/HWR`, not `HWR.exe`). Discovery incorrectly rejected
+it. `valid_hoh1` now accepts either executable name with `res/assets.bin`, including
+from Windows Python under Wine, since importers only consume the game assets.
+Doctor's manual path validation/messages also recognize either name.
+
+**Verified:** Wine64 doctor now reports `[ok] HoH1 install (optional)` using the
+automatically discovered install; no user-provided path was guessed or recorded.
+All 12 Linux host regressions pass, including a native-HoH1 fixture that is rejected
+without its archive and accepted from both host and Wine platform perspectives.
+Doctor still exits 2 for the previously reported runtime/toolchain, generated content,
+backup and smoke prerequisites. No game was launched or saves modified.
+## 2026-10-31: reproducible Linux GameLab runtime
+
+The Linux host can now complete the real smoke loop, not just run host unit tests.
+`null-payload 20261031-150725` passed in 45.9 s with a newly built fixture (three
+boots), real capture, exact enabled-mod checks, graceful teardown and unchanged
+user config/saves/install/focus. Its town/end captures were inspected. The SDK
+export `export-datatables 20261031-150939` passed in 179.2 s: all 326 datatables
+exported and `bootstrap.py --verify` matched the committed manifest. Doctor's
+subsequent smoke `null-payload 20261031-151334` passed in 19 s.
+
+Reproduction is `./gamelab.sh setup`, `./gamelab.sh doctor --fix`, then
+`./gamelab.sh run null-payload --mode lab`. Steam must be running and signed in.
+The launcher stages only the two Nix definition files, never ignored saves or
+game assets. The lock pins GE-Proton 11-11, its FHS runtime, Xvfb and MinGW;
+the setup script pins and SHA-256-checks CPython 3.11.9 and Windows wheels.
+All Windows processes remain on a private Xvfb display and private Proton prefix.
+
+Measured blockers and fixes (no isolation assertion was disabled):
+
+- System Wine was 32-bit. Standalone Wine 11 ran Python/SDK extraction but could
+  not authenticate to native Steam. Proton supplies that bridge and starts OpenGL.
+- `IsProcessInJob` rejected a process handle opened with only the limited-query
+  right. Open with the documented `PROCESS_QUERY_INFORMATION` right and declare
+  pointer-sized ctypes handle arguments; the original containment assertion passes.
+- Main-menu Return is routed to mouse hover while `WindowInput.m_usingMouse` is
+  true (`scripts/GUI/WindowObject.as`). An Xvfb cursor is not over Singleplayer.
+  Posted Down/Up selects keyboard navigation before Return, preserving the first
+  menu row. Longer key holds did not fix this and were reverted. No mouse warp or
+  focus-changing API is used.
+- Windows Python cannot execute Linux Git/MinGW. The host supplies measured Git
+  provenance and compiler facts and cross-compiles the capture shim. Optional
+  `HWP_TRACE_INPUT=1` SDL-event tracing was added for observation-only diagnostics.
+- A failed datatable export had left `_index.json`, which previously suppressed
+  retries. Only a complete index with all output files now counts as cached.
+- Proton can discard inherited stdout. A Windows bridge entry records output and
+  the actual Windows exit code, rather than treating launcher exit zero as PASS.
+
+The existing doctor saves gate backed up and re-hashed 48 files at
+`saves-backup/2026-10-31T13-53-37`; no restore was performed. Both native game SDKs,
+all HoH1 imports, class units and pet dyes were generated locally. Native
+`./build.sh --check` and the complete 30-module/all-in-one build passed afterwards.
+
+The all-mod gate initially failed its exact enabled-set assertion: only the three
+fixture mods loaded. Inspection of the lab rotations showed that header offset 8
+was a 64-bit `mtime * 1000` (within 2 ms), not float play time plus a build number.
+For example, the complete value was 1793473673479, whose high word was 417
+(previously mislabelled the game build). The low-word values
+2472295688 < 2472310397 < 2472311047 were increasing, while their float
+interpretations sorted backwards because bit 31 was set. `hps.current_save` now
+compares full unsigned 64-bit timestamps; sandbox regressions cover the sign
+boundary, low-word rollover and byte-identical header encoding.
+`mod-all 20261031-151727` then passed in 20.2 s, including all 30 content mods
+enabled exactly, core startup, clean script load, capture and every outer
+isolation assertion. Its end capture was inspected. Finally, rerunning setup
+and `doctor --fix` with the finished launcher returned exit 0 / green using the
+existing generated trees and smoke stamp. All 31 host regressions pass.
+`null-payload 20261031-152035` then passed again in 18.5 s, including removal of
+the previous all-mod scenario's links and exact fixture-only mod verification.
+The final full-width timestamp implementation was verified again by
+`mod-all 20261031-152227` (PASS, 20.5 s); its end frame was inspected.

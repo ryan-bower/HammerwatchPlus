@@ -16,6 +16,26 @@ and [regression guide](../../../docs/qa/REGRESSIONS.md). They provide the portab
 entry point, current evidence index, test selection, and known prerequisite failures.
 Use this skill for the detailed scenario and engine-command reference.
 
+## Linux host
+
+On x86-64 Linux, use `./gamelab.sh` in place of `python -m gamelab` in the
+commands below. The wrapper provides the locked Nix GE-Proton/Xvfb/MinGW runtime;
+do not use system Wine or the player's Proton prefix as a fallback.
+
+```
+./gamelab.sh doctor                      # first readiness check; may report missing Python
+./gamelab.sh setup                       # hash-checked private Windows Python + wheels
+./gamelab.sh doctor --fix
+./gamelab.sh run null-payload --mode lab
+./gamelab.sh run mod-all --mode lab
+```
+
+Nix and a running, signed-in native Steam client with HoH2 installed are required.
+The SDK, content generators, save gate, capture and containment assertions still
+apply. The wrapper stages only the Nix definitions, not ignored assets or save
+backups. See `docs/gamelab-linux.md` for setup, overrides and measured results.
+All the safety rules below remain in force, especially lab mode and one run at a time.
+
 ## First: is this machine ready? (`doctor`)
 
 A fresh clone lacks everything gitignored: `.venv`, `gamecode/` (the game's scripts and
@@ -43,10 +63,10 @@ next to the HoH2 install and in every library's `steamapps/common/`. When none o
 works and nobody has answered yet, the `HoH1 install (optional)` row is `[NO]` and
 says `ASK THE USER`. doctor stays NOT green until they answer, so ask them:
 
-> Where is Heroes of Hammerwatch (1) installed (the folder with HWR.exe)? Or don't you own it?
+> Where is Heroes of Hammerwatch (1) installed (the folder with HWR.exe or native HWR)? Or don't you own it?
 
 - They give a folder: `python -m gamelab doctor --hoh1 "<folder>" --fix`. The folder must
-  have `HWR.exe` and `res/assets.bin`, or nothing is recorded and doctor exits 2; ask again.
+  have `HWR.exe` or native `HWR`, plus `res/assets.bin`, or nothing is recorded and doctor exits 2; ask again.
   HoH2's folder (HWR2.exe) is not it. Never pass a path they did not give you.
 - They don't own it: `python -m gamelab doctor --no-hoh1`. HoH1 content is then reported
   as skipped, not failed. A later `--hoh1` undoes it.

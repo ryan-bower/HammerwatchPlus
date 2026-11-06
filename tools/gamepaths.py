@@ -149,14 +149,17 @@ def save_local_paths(**values) -> Path:
 
 
 def valid_hoh1(d: Path | None) -> bool:
-    return d is not None and (d / "HWR.exe").is_file() and (d / "res" / "assets.bin").is_file()
+    # Importers only read assets; a native Linux install is equally usable,
+    # including when the importer itself runs in Windows Python under Wine.
+    return (d is not None and any((d / exe).is_file() for exe in ("HWR.exe", "HWR"))
+            and (d / "res" / "assets.bin").is_file())
 
 
 def find_hoh1() -> tuple[Path | None, str]:
     """(install dir, how it was found). Order: HWP_HOH1_DIR (taken as given), the Steam
     appmanifest in any library, the path the user gave (`doctor --hoh1`, tools/paths.local.json),
-    a sibling of the HoH2 install holding HWR.exe, then every library's steamapps/common/.
-    Everything but the env override must have HWR.exe and res/assets.bin."""
+    a sibling of the HoH2 install holding HWR.exe or HWR, then every library's steamapps/common/.
+    Everything but the env override must have HWR.exe or HWR, and res/assets.bin."""
     if os.environ.get("HWP_HOH1_DIR"):
         return Path(os.environ["HWP_HOH1_DIR"]), "HWP_HOH1_DIR"
     acf = app_manifest(HOH1_APPID)
@@ -203,6 +206,18 @@ def steam_account_id() -> str | None:
     return str(int(owner) - STEAMID64_BASE) if owner and owner.isdigit() and int(owner) > STEAMID64_BASE else None
 
 
+def proton_localappdata() -> Path | None:
+    """The real game's Proton profile, for read-only save discovery on Linux."""
+    if sys.platform != "linux":
+        return None
+    acf = app_manifest(HOH2_APPID)
+    if acf is None:
+        return None
+    appdata = (acf.parent / "compatdata" / HOH2_APPID / "pfx" / "drive_c" /
+               "users" / "steamuser" / "AppData" / "Local")
+    return appdata if appdata.is_dir() else None
+
+
 def real_save_dirs() -> dict[str, Path]:
     """Every directory the game keeps the player's saves in, by a stable name.
     cloud: Steam Remote Storage (g_save_slot_cloud 1); local: <install>/saves (cloud 0);
@@ -215,6 +230,8 @@ def real_save_dirs() -> dict[str, Path]:
     if game:
         out["local"] = game / "saves"
     appdata = os.environ.get("HWP_LOCALAPPDATA") or os.environ.get("LOCALAPPDATA")
+    if not appdata:
+        appdata = proton_localappdata()
     if appdata:
         out["game_backups"] = Path(appdata) / "HeroesofHammerwatch2" / "save_backups"
     return out

@@ -96,12 +96,18 @@ def deps_missing(py: str) -> list[str]:
 
 
 def process_running(image: str) -> bool:
+    if image.lower() == "steam.exe" and "HWP_HOST_STEAM_RUNNING" in os.environ:
+        # The Linux bridge measured the native client before entering Wine.
+        # This is readiness only: a smoke boot still has to prove Steam interop.
+        return os.environ["HWP_HOST_STEAM_RUNNING"] == "1"
     r = subprocess.run(["tasklist", "/FI", f"IMAGENAME eq {image}", "/NH", "/FO", "CSV"],
                        capture_output=True, text=True)
     return f'"{image.lower()}"' in r.stdout.lower()
 
 
 def gcc_target() -> str | None:
+    if os.environ.get("HWP_HOST_GCC_TARGET"):
+        return os.environ["HWP_HOST_GCC_TARGET"]
     gcc = gamepaths.find_gcc()
     if not gcc:
         return None
@@ -218,7 +224,7 @@ def confirm_saves(r: Report, no_saves_yet: bool, auto: bool) -> bool:
 
 
 HOH1_ASK = ("not found through Steam or next to the HoH2 install. ASK THE USER: \"Where is Heroes of "
-            "Hammerwatch (1) installed (the folder with HWR.exe)? Or don't you own it?\" Then "
+            "Hammerwatch (1) installed (the folder with HWR.exe or HWR)? Or don't you own it?\" Then "
             "`python -m gamelab doctor --hoh1 \"<that folder>\" --fix`, or `python -m gamelab doctor --no-hoh1` "
             "if they don't have it. Never guess a path")
 
@@ -239,7 +245,7 @@ def hoh1_check(r: Report) -> tuple[str, Path | None, str]:
         r.check("HoH1 install (optional)", True, f"{d} ({how})")
     elif state == "invalid":
         r.check("HoH1 install (optional)", False,
-                hint=f"HWP_HOH1_DIR={d} has no HWR.exe + res/assets.bin: fix or unset it")
+                hint=f"HWP_HOH1_DIR={d} needs HWR.exe or HWR, plus res/assets.bin: fix or unset it")
     elif state == "declined":
         r.check("HoH1 install (optional)", True, "skipped: the user has no HoH1 (recorded with --no-hoh1)")
     else:
@@ -255,11 +261,11 @@ def record_hoh1(path: str | None, no_hoh1: bool) -> bool:
               f"`--hoh1 <dir>` undoes it")
         return True
     p = Path(path.strip().strip('"')).expanduser()
-    if p.is_file() and p.name.lower() == "hwr.exe":
+    if p.is_file() and p.name.lower() in ("hwr.exe", "hwr"):
         p = p.parent
     p = p.resolve() if p.exists() else p
     if not gamepaths.valid_hoh1(p):
-        print(f"  [NO] {p} is not a Heroes of Hammerwatch (1) install: it needs HWR.exe and res/assets.bin. "
+        print(f"  [NO] {p} is not a Heroes of Hammerwatch (1) install: it needs HWR.exe or HWR, and res/assets.bin. "
               f"Nothing recorded; ask the user again (HoH2's folder, with HWR2.exe, is not it)")
         return False
     f = gamepaths.save_local_paths(hoh1_dir=str(p), no_hoh1=False)
@@ -667,7 +673,7 @@ def diagnose(fix: bool, force_smoke: bool = False, no_smoke: bool = False) -> Re
     r.check("Steam found", gamepaths.steam_root() is not None)
     if not r.check("HoH2 install found", game is not None, str(game) if game else "set HWP_HOH2_DIR"):
         return r
-    r.check("Steam running", process_running("steam.exe"),
+    steam_ok = r.check("Steam running", process_running("steam.exe"),
             hint="start Steam: the game is launched directly and needs a running Steam client (docs/RE_NOTES.md)")
     hoh1 = hoh1_check(r)
     state = hoh1[0]
@@ -708,7 +714,9 @@ def diagnose(fix: bool, force_smoke: bool = False, no_smoke: bool = False) -> Re
     if (v.returncode or need_hoh1_tree) and fix:
         if not saves_ok:
             r.info("not running bootstrap.py until saves are confirmed: its datatables step boots the "
-                   "game through the GameLab launcher, which refuses before that (--confirm-saves)")
+                    "game through the GameLab launcher, which refuses before that (--confirm-saves)")
+        elif not steam_ok:
+            r.info("not running bootstrap.py until Steam is running: its datatables step boots the game")
         elif pinned and gcc_ok and (have_tree or free_gb >= BOOTSTRAP_FREE_GB):
             r.info("running tools/bootstrap.py (PACKAGER unpack on a hidden desktop, a few minutes)")
             b = subprocess.run([python(), str(REPO / "tools" / "bootstrap.py")], cwd=REPO)

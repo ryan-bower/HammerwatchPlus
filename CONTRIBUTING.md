@@ -31,6 +31,31 @@ Before merging, boot every mod together: `uv run python -m gamelab run mod-all -
 A change ends with a dated entry in [docs/status.md](docs/status.md) and its notes in
 [docs/RE_NOTES.md](docs/RE_NOTES.md).
 
+## Linux
+
+Package building runs natively on Linux; Wine, Steam and the Windows GameLab setup are not
+needed. Install [uv](https://docs.astral.sh/uv/) (recommended), or Python 3.10+ with
+`venv`/`pip` (`sudo apt install python3 python3-venv python3-pip` on Debian/Ubuntu), then:
+
+```console
+$ ./build.sh                       # all packages and dist/HammerwatchPlus-All.bin
+$ ./build.sh HWP-firearms --no-all # one package
+$ ./build.sh --with-local          # include your imported HoH1 assets; do not publish
+```
+
+`build.sh` installs its dependencies into an isolated environment and forwards every
+argument to `tools/build.py`; it runs from any directory. It does not run bootstrap, import
+game assets, launch the game or touch saves. The builder refuses packages that need
+base-generated content (class-swap units, pet dyes, Forgemaster bodies) while
+`gamecode/sdk/hoh2/` is missing: copy that ignored tree from a prepared checkout, or let the
+Linux GameLab bridge bootstrap it. HoH1 asset discovery accepts both `HWR.exe` and the native
+Linux `HWR`; its game archive is required either way.
+
+GameLab on x86-64 Linux is an experimental, pinned Proton/Xvfb bridge: `./gamelab.sh setup`,
+`./gamelab.sh doctor --fix`, then `./gamelab.sh run <scenario> --mode lab`. It never uses the
+player's Proton prefix or display, and no isolation check is bypassed. See
+[docs/gamelab-linux.md](docs/gamelab-linux.md).
+
 ## Where to look
 
 - Mods: `mods/<id>/`, conventions in [docs/modules.md](docs/modules.md).

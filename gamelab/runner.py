@@ -295,6 +295,13 @@ class Run:
                 if self.mode == "watch" and not game.shim_input:
                     winproc.sdl_focus(game.window())
                     time.sleep(0.2)
+                if os.environ.get("HWP_PROTON") == "1":
+                    # WindowObject.as routes Forward to the mouse hover until
+                    # arrow navigation selects keyboard mode. Xvfb's cursor is
+                    # not over Singleplayer. Down/up preserves the first row,
+                    # without moving a cursor or relying on screen coordinates.
+                    game.key("down")
+                    game.key("up")
                 # GAMELAB_MENU_CONTINUE=1 (measurement): no Enter, straight to menu-continue below
                 if not (expect_mods and os.environ.get("GAMELAB_MENU_CONTINUE") == "1"):
                     game.key("enter")
@@ -320,6 +327,8 @@ class Run:
                         time.sleep(0.25)
                     if started:
                         break
+                if attempt == 0:
+                    game.shot(f"pass{self.passes}-menu-enter-not-accepted", timeout=2)
             if expect_mods:
                 if game.wait_gl(lambda o: o.get("ev") == "boot", 60) is None:
                     raise GameError("gamelab-probe never booted (mods not enabled, or a script error)")
@@ -335,6 +344,11 @@ class Run:
             # the same mod id twice (a Workshop subscription beside the build under test) mixes
             # two builds' files: name it, the compile error alone reads like a bug in the code
             dup = logparse.duplicate_mods(log)
+            if game.alive():
+                try:
+                    game.shot(f"pass{self.passes}-boot-failure", timeout=2)
+                except Exception as capture_error:
+                    game.note("boot_failure_capture_error", error=str(capture_error))
             self.finish(game)                      # stop the game, keep its logs, assert its exit
             raise GameError(f"{e}" + (f"; mods found twice (a Workshop copy?): {dup}" if dup else "")
                             + (f"; script errors: {'; '.join(errors[:5])}" if errors else "")) from None

@@ -237,7 +237,8 @@ def build_shim(force: bool) -> None:
         source_sha = hashlib.sha256(source.read_bytes()).hexdigest()
         if not force and not _shim_problems():
             return
-        gcc = gamepaths.find_gcc()
+        gcc = (shutil.which(os.environ.get("HWP_MINGW_CC", "x86_64-w64-mingw32-gcc"))
+               if sys.platform == "linux" else gamepaths.find_gcc())
         if not gcc:
             raise ValueError("gcc (mingw-w64, x86_64) is required to build tools/bin/hwr2_capture.dll")
         compiler_env = gamepaths.gcc_environment(gcc)

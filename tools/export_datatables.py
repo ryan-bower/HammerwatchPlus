@@ -100,14 +100,18 @@ def main(argv=None) -> int:
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--only", nargs="*", default=[])
     a = ap.parse_args(argv)
-    if (DEST / "_index.json").is_file() and not a.force and not a.only:
-        print("gamecode/datatables/ already exported (use --force)")
-        return 0
     files = sorted(p.relative_to(SDK).as_posix() for p in SDK.rglob("*.sval"))
     if a.only:
         files = [f for f in files if any(f.startswith(o) for o in a.only)]
     if not files:
         sys.exit(f"no .sval files under {SDK}; run bootstrap.py first")
+    if (DEST / "_index.json").is_file() and not a.force and not a.only:
+        index = json.loads((DEST / "_index.json").read_text(encoding="utf-8"))
+        if all(index.get(name) == "ok" and (DEST / (name + ".json")).is_file()
+               for name in files):
+            print("gamecode/datatables/ already exported (use --force)")
+            return 0
+        print("Previous datatable export was incomplete; retrying without deleting existing outputs")
     if a.force and not a.only and DEST.exists():
         shutil.rmtree(DEST)
     DEST.mkdir(parents=True, exist_ok=True)
