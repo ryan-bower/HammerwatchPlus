@@ -13,7 +13,7 @@ all-in-one pack (`packages.json`; `docs/modules.md`, Packages):
 
 | Package | Modules |
 |---|---|
-| `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, petrooms, legacy, goldworth, mmhmm, orbwarn, mapicons, attrclick |
+| `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, petrooms, legacy, goldworth, mmhmm, orbwarn, mapicons, attrclick, salvage |
 | `HWP-coop` Co-op Play | groupcombo, architect, droptrade, partyexit |
 | `HWP-autoaim` Auto Aim | autoaim |
 | `HWP-firearms` Firearms Specialist | firearms |
@@ -107,11 +107,12 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | `orbwarn` | The orb picker says which orbs a pick would make unavailable (mutually exclusive orbs such as the Firearms grenades), with their icons and names. |
 | `deathrecap` | Who killed you: the top damage sources of the last 10 s, on screen and in chat. After a boss fight, a recap of everyone's damage by skill and damage taken (one per fight, however many boss units it has). |
 | `bufftips` | Hover a buff icon to see what it does and how many seconds it has left. Class buffs the game leaves off the buff bar, like War Cry, get an icon. |
-| `chatlinks` | Linked items stay in chat with their slot and item level; `hwp link` links an equipped item. |
+| `chatlinks` | Link an item in chat with a right-click or its "Link in chat" hint; the links show above the chat, hover one for the item's tooltip; `hwp link` links an equipped item. |
 | `colors` | Colour-blind and high-contrast tints for enemy and friendly projectiles, with a ring in the team's colour around each (player menu > Plus tab), and each player in their own colour on the minimap and the overlay map, with names for players far away. |
 | `goldworth` | Gold on the floor shows what it is worth: 15 coin and pile looks, from a bronze coin to a big pile of gold. |
 | `mmhmm` | **Mm-hmm!** A quarter of rare and epic hats carry the Mm-hmm! bonus: the wearer says a village woman's "mm-hmm!", heard from where they stand and one at a time, on every crit, when the wearer revives someone or is revived, drinks from a pool, completes a trinket set, takes the last orb of an orb tree (trees with more than one orb), opens an Ace chest or opens a secret room. |
 | `mapicons` | A dye-pot marker on the minimap over every dye bucket of a floor (setting `mapicons.dyes`). |
+| `salvage` | Destroy becomes Salvage, in the bag and the town stash: the item turns into Crystals (Common, Uncommon) or Dust (Rare and up), more the higher its level; the confirm says how many. Host settings: on/off and the yield. |
 | `hwplib` | The library every package carries (not a mod of its own): settings (the Plus tab and the `hwp` console command), save data and networking, and the plumbing other modules fill: the targeting and aim hooks, a wares market, untitled Materials tab sections, gear slot frames and the bag size. |
 | `hwplib-luck` | The library part the packages that read Luck carry (Co-op, Keys, Dungeon, Town): **Luck**, a stat from gear affixes of Fortune, the Rabbit's Foot trinket and timed buffs from herbs and fish, which weights chest, strongbox, abyss and key drops towards the rarer results (a chest at its opener's Luck) and gives the party's average to generated floors (secret rooms, the imp, floor rewards, blueprints, fishing holes, keys and ace chests). Without it the Luck stat is hidden. |
 | `hwplib-classui` | The library part the class packages carry (Firearms, Specs, Classes): the create-character class list that fits more classes and leaves parked ones out, and the Subclass Picker's skill row by skill type. |
@@ -212,6 +213,19 @@ Resurrection only turns into Sacrificial Penance at max Divine Favor when there 
 Heresy to wash away. With none, the key stays a raise (its icon, its cost, +Heresy) and the
 Favor is kept, so the next cast after that raise is the Penance. Tested: `fix-penance-heresy`,
 `plan-forgemaster`.
+
+2026-10-30, gear salvages into materials (#66, new `salvage` module in Quality of Life). Destroy
+in the bag and in the town stash is now Salvage: the item becomes Crystals (Common, Uncommon) or
+Dust (Rare and up), more the higher its level, and the confirm names the amount. A Rare ilvl 20
+gives 3 Dust and an Epic ilvl 30 gives 12. The host can turn it off (back to the vanilla Destroy)
+or set the yield from 50% to 200%. Tested: `fix-salvage`, `pf-fix-salvage`.
+
+2026-10-30, linking items in chat (#62). Right-click any item in the character screen, bag or
+worn, or use its new "[L] Link in chat" hint (click it or press L, rebindable on the
+HammerwatchPlus tab), to link it. The chat line is just your name and the item in its rarity
+colour. Mods can't reach the chat box itself, so the last five links also show in a small panel
+just above it for 30 s (`hwp links` brings it back); hover a link there for the item's full
+tooltip, picture and all, as when hovering it in the inventory. Tested: `fix-chat-links`.
 
 2026-10-30, Pelor's Fury on elites, and a death takes 5 Blessing stacks (#82). Pelor's Fury
 on an elite now needs and spends only 3 stacks of Pelor's Blessing and keeps the rest; on

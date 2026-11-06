@@ -7204,6 +7204,113 @@ Tests:
 - plan-generosity PASS 20261030-101332 (every section), mod-all PASS 20261030-102014,
   pytest 241 passed.
 
+## 2026-10-30: linking items in chat, and the chat is out of mod reach (issue #62, `chatlinks`)
+
+Asked for: a right-click "link in chat" on items, and hovering the linked item in chat to see
+its preview and description.
+
+- **The in-game chat can't be read or hovered from mods.** `GameChatWidget`
+  (`MainMenuGameMode.m_wChat`, `InGameChat`) lives in the main menu's script context, which
+  loads only the base scripts. In a level `g_gameMode` is a `TownGameMode` / `HWR2GameMode`,
+  so `cast<MainMenuGameMode>(g_gameMode)` is null (lab 20261030: "mode TownGameMode, no chat
+  widget"). Gameplay code can only add a line, with `SendSystemMessage("AddChat", text)`.
+  - Side note: hwplib `ItemActions::TypingInChat` casts the same way, so in a level it is
+    always false.
+- So the links show in a HUD panel instead (`HWPChatLinksHUD`, `[Hook] HUDConstructor`), just
+  above the chat box. The chat's box is placed by cvars (`InGameChat.Update`): `ui_chat_pos`
+  is its anchor (default 0.05 0.8), `ui_chat_width` its width as a share of the screen (0.35),
+  `ui_chat_scale` its scale. Its height is 190 (`gui/main_menu/chat.gui`, list 170 plus
+  input 20). Its top in UI units is `pos.y * (wndHeight - 190 * scale)`, the anchor maths of
+  `Widget.CalculateOrigin`.
+- **Tooltip placement:** `WindowManager.SetTooltip(tt, pos)` puts the tooltip exactly at
+  `pos`, clamped on screen (`CheckTooltipPos`). The loot log's `vec2(0)` (MouseOverTooltip)
+  means the top-left corner. The panel passes the hovered line's right edge instead, top-aligned
+  like inventory tooltips. A HUD component with `m_drawOnTop` draws over the tooltip, so the
+  panel leaves it off.
+- **Right-click:** the menu binds nothing to the right button. `Platform::ResolveInputKey(
+  "mouse_right", type)` gives key 3, type Mouse, and `Platform::IsKeyDown(ControllerType::Mouse,
+  0, 3)` reads it raw. It is only acted on while the character tab is on top. The worn item
+  under the cursor is `cast<EquipmentItemWidget>(tab.m_input.GetCurrentInteractable())` with
+  `m_type == ItemWidgetType::Equipped`.
+- GameLab lab mode can't press the mouse (posted mouse messages don't reach the game, see the
+  2026-10-21 notes), so `hwp chatlinks rclick` arms one stand-in press. It is taken on the
+  first frame within 3 s that the tab is back on top, through the same `PollRightClick` path.
+  The hover is the lab's real one (`gl hover mainhand`).
+- gamelab-hands `setvar` now sets vec2 cvars (type 4, two numbers). `cvar_type` has no script
+  name for it; `SetVar(name, vec2)` works.
+
+Tests: new scenario `fix-chat-links` (bot fix_chat_links) PASS 20261030-115030, covering:
+
+- the hint;
+- its click and the L key link;
+- the chat line has no slot or level;
+- the right-click path links the worn Long Sword;
+- the panel lists all 3 links;
+- the cursor on a line shows that item's tooltip, and off it the tooltip goes;
+- moving `ui_chat_pos` moves the panel.
+
+Also pf-fix-chat-links PASS 20261030-115115 and mod-all PASS 20261030-115219.
+
+## 2026-10-30: Destroy becomes Salvage (issue #66, `salvage`)
+
+The vanilla Destroy gives nothing. That holds both in the character screen's bag
+(`Character.as`, the "destroy yes" func) and in the town stash (`PlayerStashWindow.as`,
+`m_deletingEquipment`). The bigger issue behind this one: there was no single place where
+a mod could change what Destroy does. So hwplib now has one, and salvage fills it.
+
+- **hwplib `HWP::ItemActions::DestroyHandler`** (`ItemActions.as`) has three methods:
+  `Label(item)` is the hint text, `Confirm(item)` is the dialog text, and
+  `Destroyed(record, item)` runs after the item is gone. An empty string falls back to
+  vanilla (`.menu.nav.destroy`, and `destroy_confirm` with the item in its quality colour).
+  A module installs one with `SetDestroyHandler`. There is one handler, since one module
+  owns what Destroy means.
+  - `Character.as` (already overridden) calls `DestroyConfirm` and `Destroyed`.
+    `EquipmentItemWidget.as` calls `DestroyLabel`.
+  - **New overrides:** `GUI/PlayerStashWindow.as`, whose confirm and remove block call the
+    same two, and `GUI/Widgets/StashItemWidget.as`, whose five `.menu.nav.destroy` hints
+    become `DestroyLabel`. Each has its vanilla `.orig` twin.
+  - `Destroyed` only runs when the remove succeeded. In the bag that's
+    `equipInventory.Remove`. In the stash it's any of Unequip, Remove or the stash's own
+    remove.
+- **Yield.** The Enchanter (`EquipmentEnchantShopContent`) spends Crystals on Common gear
+  and Dust on everything above, so salvage gives Crystals for Common and Uncommon and Dust
+  for Rare and up.
+  - The base is the mission-end trinket conversion (`MissionEndMenu`): Common 1, Uncommon
+    3, Rare 1 Dust, Epic 3. Legendary and Unique give 5.
+  - The base is multiplied by `1 + max(1, ilvl)/10`. Legendaries carry a placeholder level
+    below 0, hence the max. It is then multiplied by `salvage.yield`%, rounded, minimum 1.
+    Rounding up made a Common ilvl 1 give 2 Crystals, which is why it rounds instead.
+  - For calibration: at ilvl 20 the Enchanter asks about 55 Crystals or 11 Dust to raise
+    one quality. A Rare ilvl 20 salvages into 3 Dust, so it takes about four salvages per
+    upgrade.
+- **Materials** go through `PlayerRecord.GiveMaterial(type, n, true)`, which skips the
+  gain modifiers. In town that's `g_myTownRecord`. In a run they are carried: banked at
+  the mission's end, with 40% lost on a failed run.
+- **GameLab findings:**
+  - `dbg_show_stash` opens the stash on its Withdraw tab. The bag is on Deposit
+    (`gl func set-mode deposit-content`).
+  - The stash's navigation hints aren't clickable (only hwplib's character tab makes them
+    buttons), so the bot presses E (MenuAdditional) there.
+  - The DialogWindow isn't in the widget dump, so `Confirm` logs
+    `[HWP:salvage] confirm: <name> into <yield>` and the bot reads the dialog's text from
+    the log.
+  - Affixed items carry their affix in the name ("Long Sword of ..."), so the bot matches
+    on a substring.
+
+Tests:
+
+- New scenario `fix-salvage` (bot `fix_salvage`, extending plan_gear) PASS
+  20261030-120849.
+  - The bag yields read 1 Crystal, 3 Dust and 12 Dust.
+  - E opens the confirm, and No keeps the item.
+  - The hint click and Yes give the Rare ilvl 20 as 3 Dust and the Common ilvl 1 as
+    1 Crystal, both to the town.
+  - Yield 200 shows 24 Dust. Off shows the Destroy hint and the vanilla confirm, and
+    gives nothing.
+  - In the stash's Deposit tab, the Epic ilvl 30 gives 12 Dust.
+- pf-fix-salvage PASS 20261030-121043, mod-all PASS 20261030-121123, pytest 245 passed,
+  `build.py --check` OK.
+
 ## 2026-10-30: Sacrificial Penance needs Heresy (issue #68)
 
 At max Divine Favor, Necrotic Resurrection became Sacrificial Penance even with 0 Heresy. That
