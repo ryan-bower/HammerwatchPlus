@@ -13,7 +13,8 @@ StateActor or TransferDamage actor; not on the EXCLUDE list) two units are writt
       minimap dot, and an elite's ring from marker/ (below) in the summon HP bar's orange
       instead of the enemies' red. Bosses get the BOSS_HP table and every solid collision circle
       is clamped to RADIUS_MAX so the summon fits the hallways (there is no radius setter at
-      runtime).
+      runtime). Every collision shape is ignore-player, as the vanilla summons' are: a risen
+      never blocks a player (the unit file is the same on every peer, so it holds everywhere).
   players/hwp/specs/forgemaster/bodies/<rel>   the intact body: HWPSpecsBodyUnit (grey) with the
       enemy's scenes made dead (dead_scenes): every sprite frozen on its first frame, no effects,
       lights or particles (a Dark Citadel wisp is nothing but effects: its idle scene gets the
@@ -143,6 +144,7 @@ FRAME_RE = re.compile(r"[ \t]*<frame\b[^>]*(?:/>|>.*?</frame>)[ \t]*\r?\n?", re.
 ANIM_ATTR_RE = re.compile(r'\s+(?:looping|loopback|random-start)="[^"]*"')
 SCENE_TAG_RE = re.compile(r"<scene\b[^>]*>")
 SHAPE_RE = re.compile(r"<(?:circle|rect|polygon)\b[^>]*>")
+COLLISION_RE = re.compile(r"<collision\b[^>]*>.*?</collision>", re.S)
 THROUGH = ("shoot-through", "aim-through", "charge-through")
 DEAD_CORE = (f'\n\t\t\t<sprite origin="{CORE_SIZE // 2} {CORE_SIZE // 2}" texture="{MARKER_REL}dead_core.png" material="{BODY_MATERIAL}">'
              f'\n\t\t\t\t<frame time="100">0 0 {CORE_SIZE} {CORE_SIZE}</frame>\n\t\t\t</sprite>')
@@ -302,7 +304,23 @@ def risen_unit(rel, text):
     text = ENEMY_MATERIAL_RE.sub(f'material="{RISEN_MATERIAL}"', text)
     text = ENEMY_MINIMAP_RE.sub(RISEN_MINIMAP, text)
     text = text.replace(ELITE_MARKER, MARKER_REL + "elite_marker.unit:")
-    return clamp_circles(text)
+    return ignore_players(clamp_circles(text))
+
+
+def ignore_player_shape(m):
+    """a collision shape the players pass through: ignore-player true"""
+    tag = m.group(0)
+    if re.search(r'ignore-player="', tag):
+        return re.sub(r'ignore-player="[^"]*"', 'ignore-player="true"', tag)
+    end = "/>" if tag.endswith("/>") else ">"
+    return tag[:-len(end)].rstrip() + ' ignore-player="true"' + (" " if end == "/>" else "") + end
+
+
+def ignore_players(text):
+    """every collision shape ignore-player, as the vanilla summons have it (the Priest's crusaders,
+    the Ranger's wolves, the Warlock's fiends, the pets, the heavy ballista): a risen never blocks a
+    player, and still collides with the walls and the enemies (the owner, 2026-11-06)"""
+    return COLLISION_RE.sub(lambda b: SHAPE_RE.sub(ignore_player_shape, b.group(0)), text)
 
 
 def shape_flags(m):
