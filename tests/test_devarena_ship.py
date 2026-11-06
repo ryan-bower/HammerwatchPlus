@@ -4,6 +4,8 @@ import shutil
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.devarena import ship_check  # noqa: E402
 
@@ -40,6 +42,7 @@ def picked_run(tmp_path, ok=True):
                          reply("c3", picked=True, playerClass="ranger_test")], ok)
 
 
+@pytest.mark.needs_gamecode  # tooltip_lint reads gamecode/datatables/players
 def test_a_picked_resolved_spec_ships(tmp_path):
     picked_run(tmp_path)
     out = tmp_path / "r.md"
@@ -63,6 +66,7 @@ def test_a_run_without_da_ship_is_a_bad_input(tmp_path):
     assert ship_check.main(["--run", str(tmp_path), "--mod", str(MOD), "--out", str(tmp_path / "r.md")]) == 2
 
 
+@pytest.mark.needs_gamecode  # tooltip_lint reads gamecode/datatables/players
 def test_ship_main_checks_real_numeric_tooltip_values(tmp_path_factory):
     # The cloned skill paths are long; keep this temporary root short on Windows.
     tmp_path = tmp_path_factory.mktemp("n")
@@ -85,6 +89,7 @@ def test_ship_main_checks_real_numeric_tooltip_values(tmp_path_factory):
     assert "damage shows '99%'" in report and "binds.mainhand-dmg-mul" in report
 
 
+@pytest.mark.needs_gamecode  # tooltip_lint reads gamecode/datatables/players
 def test_ship_main_rejects_stale_composed_tooltip(tmp_path_factory):
     tmp_path = tmp_path_factory.mktemp("c")
     picked_run(tmp_path)

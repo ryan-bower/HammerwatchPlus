@@ -73,6 +73,7 @@ class EnvironmentContracts(unittest.TestCase):
 class FakeWindowsSlots(unittest.TestCase):
     def setUp(self):
         results = Path(__file__).resolve().parents[1] / "gamelab" / "results"
+        results.mkdir(parents=True, exist_ok=True)  # ignored, so absent in a fresh clone
         self.scratch = tempfile.TemporaryDirectory(prefix="hd-slots-", dir=results)
         self.addCleanup(self.scratch.cleanup)
         original_mkdtemp = tempfile.mkdtemp

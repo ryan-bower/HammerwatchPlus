@@ -17,3 +17,8 @@ jobs:
           enable-cache: true
       - run: uv sync --locked
       - run: uv run python scripts/test.py
+        env:
+          # The runner's default TEMP is an 8.3 short path (C:\Users\RUNNER~1\...), which
+          # GameLab's path-alias guards refuse. runner.temp has no short-name components.
+          TEMP: ${{ runner.temp }}
+          TMP: ${{ runner.temp }}
