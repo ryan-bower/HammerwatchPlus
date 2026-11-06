@@ -350,6 +350,75 @@ namespace HWP
 			HWP::Log("roulette", "round " + g_round + " landed " + g_result + ": staked " + staked + ", paid " + won
 				+ " (bonus " + Pct(Bonus()) + ")" + (hits.isEmpty() ? "" : ": " + hits));
 			ForgetBets();
+			if (won > 0)
+				Winner();
+		}
+
+		// ---- "Winner winner chicken dinner!" (issue #96), once per round a player wins: the
+		// winner's machine shows the announce (style hwp_roulette_win,
+		// tweak/hwp/announce_roulette.sval) at once and asks the host ("roulette.won") to tell
+		// the lobby ("roulette.winner"): every machine prints "<name>: Winner winner chicken
+		// dinner!" in the chat and floats it over the winner.
+
+		const string WIN_STYLE = "hwp_roulette_win";
+		bool g_winStyleLogged = false;
+
+		void Winner()
+		{
+			string text = Resources::GetString(".hwp.roulette.winner");
+			auto hud = GetHUD();
+			if (hud !is null)
+			{
+				if (HUDAnnounceStyle::Get(WIN_STYLE) !is null)
+					hud.AddAnnounce(text, WIN_STYLE);
+				else
+				{
+					if (!g_winStyleLogged)
+					{
+						g_winStyleLogged = true;
+						HWP::LogError("roulette", "announce style " + WIN_STYLE + " missing (tweak/hwp/announce_roulette.sval); using region_enter");
+					}
+					hud.AddAnnounce(text, "", "region_enter");
+				}
+			}
+			auto rec = Me();
+			SValueBuilder b;
+			b.PushDictionary();
+			b.PushString("name", rec is null ? "?" : rec.GetName());
+			b.PopDictionary();
+			HWP::Net::Request("roulette.won", b.Build());
+		}
+
+		// the host: a player won, tell everyone
+		void OnWon(uint8 peer, SValue@ data)
+		{
+			SValueBuilder b;
+			b.PushDictionary();
+			b.PushInteger("peer", int(peer));
+			b.PushString("name", HWP::SV::Str(data, "name", "?"));
+			b.PopDictionary();
+			HWP::Net::Broadcast("roulette.winner", b.Build());
+		}
+
+		// every machine (the host too)
+		void OnWinner(SValue@ data)
+		{
+			int peer = HWP::SV::Int(data, "peer", -1);
+			string name = HWP::SV::Str(data, "name", "?");
+			string line = Resources::GetString(".hwp.roulette.winner_chat", { { "name", name } });
+			SValueBuilder b;
+			b.PushString("\\cffd700" + line + "\\d");
+			SendSystemMessage("AddChat", b.Build());
+			for (uint i = 0; i < ::g_players.length(); i++)
+			{
+				auto rec = ::g_players[i];
+				if (rec is null || int(rec.peer) != peer || rec.actor is null || !rec.actor.m_unit.IsValid())
+					continue;
+				AddFloatingText(FloatingTextType::Pickup, Resources::GetString(".hwp.roulette.winner"),
+					rec.actor.m_unit.GetPosition() + vec3(0, -24, 0));
+				break;
+			}
+			HWP::Log("roulette", "winner: " + name + " (peer " + peer + ")");
 		}
 
 		// ---- the host's rounds (h_*, see the top)

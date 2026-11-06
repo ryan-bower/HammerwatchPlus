@@ -43,6 +43,8 @@
 	<string name="hwp.roulette.mine">Your chips: %total% (limit %max%)</string>
 	<string name="hwp.roulette.bonus">Payout bonus +%total% (Luck +%luck%, gold find +%gold%)</string>
 	<string name="hwp.roulette.won">%num%! You won %won% on %staked% staked.</string>
+	<string name="hwp.roulette.winner">Winner winner chicken dinner!</string>
+	<string name="hwp.roulette.winner_chat">%name%: Winner winner chicken dinner!</string>
 	<string name="hwp.roulette.lost">%num%. The house takes your %staked%.</string>
 	<string name="hwp.roulette.history">Last numbers: %list%</string>
 	<string name="hwp.roulette.lobby">At the table this round: %players% player(s), %staked% gold down</string>
