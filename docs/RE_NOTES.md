@@ -9805,3 +9805,39 @@ existing generated trees and smoke stamp. All 31 host regressions pass.
 the previous all-mod scenario's links and exact fixture-only mod verification.
 The final full-width timestamp implementation was verified again by
 `mod-all 20261031-152227` (PASS, 20.5 s); its end frame was inspected.
+
+## 2026-11-05: the Shady Trader's orb offers show the rank they grant (issue #70, vanilla bug)
+
+Source review only, against the decompiled scripts of the pinned Build 176 (Steam build
+25932569); no game run (the user was playing).
+
+- The in-run trade window is the Shady Trader (`ShopContent/ShadyTrader.as`,
+  `ShadyTraderShopContent` / `ShadyTraderMenu`, `gui/shady_trader.gui`, lang
+  `menu.shady_trader.*`): three deals, each a cost and an offer. An orb on either side is a
+  `ShadyDealSkill`; the cost takes one temp rank (`SkillTempDown`), the offer gives one
+  (`SkillTempUp`).
+- `ShadyDealSkill` stores one index for both sides, `max(0, min(GetSkillLevel, n) - 1)` with
+  `n = m_levelParams.length()`: the rank the player has now. That is right for a cost and one
+  rank low for an offer. The index picks the title colour (`m_levelQualities`) and the
+  description (`GetSkillDescriptionParams(..., index + 1, ...)`: the `%param%` values and the
+  highlighted entry of each per-rank row). The title has no rank number.
+- Index facts: `m_levelParams[i]`, `m_levelQualities[i]` and `m_levelSkillCost[i]` belong to
+  rank `i + 1` (PlayerClass.as `LoadParams`: the base `skill` dict, then each `upgrades`
+  entry); `GetSkillLevel` is picked + combo + temp ranks + the `level-bonus-stat` stat +
+  `starting-level`, so it can pass `n`. The orb picker (`GiveSkillSphereMenu.SetSkillUI`) shows
+  the next rank as index `min(GetSkillLevel, n - 1)`, title `name + " " + (index + 1)`, and
+  passes `index + 1` to `GetSkillDescriptionParams`. (`SarcophagusRewardSkillSphere` and the
+  trader's own `GetSkillDropRateChance` use `min(GetSkillLevel + 1, n - 1)`, one further;
+  left alone, they only pick a quality.)
+- The deals are rolled once, on the first `MakeShopWindow`, and saved as `"skill", idHash`
+  pairs in the `cost` and `offer` arrays; the index was recomputed only on construction and
+  load.
+- Fix: hwplib overrides `ShopContent/ShadyTrader.as` (nothing else did; `.orig` kept).
+  `ShadyDealSkill` takes `offer` (false by default, so a cost is as before), set by
+  `GenerateShadyDealOffer` and by `Load` for the `offer` array (a default parameter on
+  `LoadIShadyDealComponent`). `RefreshLevel()` recomputes the index on every `GetQuality`,
+  `GetName` and `GetDescription`: an offer uses the picker's `min(GetSkillLevel, n - 1)`, a
+  cost vanilla's. An offer's title carries the rank number, as the picker's does. Save format
+  unchanged.
+- Unverified in game: the window text, and that a skill offer whose orb was maxed after the
+  roll shows the last rank (what the trade then gives is vanilla's `SkillTempUp`, unchanged).
