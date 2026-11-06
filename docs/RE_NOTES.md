@@ -1,5 +1,81 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-05: Rework focused solo validation PASS
+
+`qa-specs-support-rework 20261105-200813` PASS on pinned build 25932569 / B176,
+111.8 seconds, all 16 declared behavior assertions true. Inspected outer run.json
+verdict/assertions/error/teardown/build drift, inner partial flag and completed bot
+result: clean teardown, no errors/failed assertions/drift, partial=false. Two actual
+gameplay trials total: the first observer/oracle FAIL retained below, then this PASS;
+two intervening launch attempts were refused for host runtime ownership before boot.
+The owners had exited when inspected; no other owner's process was reset or killed.
+
+Before/after source hash is unchanged:
+`58068f723d811e665fcfe549d964322e3c8c16239685bcfae5a9f75704b209c1`
+(`mods+gamelab+tools-v2`, 2,178 files, HEAD `9ef620b0` plus the new bot/scenario).
+Portable summary: [`qa/specs-support-rework.json`](qa/specs-support-rework.json).
+Observed thrown lifetime 18,680 ms; 222 HP at Essence gain yielded the expected
+22.2 shield cap. Shield absorption, Crusade shield duration, pulse renewal,
+Soul Stride effect/reversion, Soul Guard cap/spend persistence/expiry, and manual
+Pyrebrand proliferation/investment/bonus/expiry passed their declared checks.
+
+Scope is controlled solo, with forced character/rank/orb/Essence setup and controlled
+damage/casts. Shared Killing Spree is only checked as active on the source Warrior;
+remote inheritance, ally kill maintenance, multiple Bannerlords, Martyr ally values,
+and actual thrown-origin coverage still need co-op evidence. Weakness application
+and death-triggered proliferation are source-reviewed but not exercised by this new
+scenario. Pyrebrand amount/transfer checks use script telemetry rather than an
+independent native target-HP oracle. No ordinary-run balance claim is made.
+
+## 2026-11-05: Rebased rework native load checkpoint
+
+Linux GameLab doctor is green on build 25932569 / B176. Exported 326/326 datatables
+(`20261105-195835-export-datatables-lab`); smoke `20261105-200123-null-payload-lab`
+and full-mod compilation/load `20261105-200212-mod-all-lab` PASS. Inspected the
+full-mod outer verdict, assertions, error, build drift, teardown and inner partial
+flag: no failed assertion/error/drift, clean teardown, partial=false. End screenshots
+for smoke and mod-all were inspected (town). These establish setup/load, not combat.
+
+Source: HEAD `9ef620b0`, raw `mods+gamelab+tools-v2` fingerprint before mod-all
+`5ec43c8584d975009fb644b6fa1b8df66abc9f7f3775e9cbd3aa0086c03978ca`
+(2,176 files). The focused solo rework bot/scenario were promoted only after that
+run ended; gameplay run fingerprint is
+`18431efa66fbc8e61f9e325a025845ef3676be2682af731718c81f3a78509084`
+(2,178 files). Focused gameplay outcome pending at this checkpoint; remote-party
+behavior remains untested.
+
+Focused solo trial 1 (`20261105-200339-qa-specs-support-rework-lab`) FAIL,
+with clean teardown, no script errors/error/build drift, and 14/16 expected
+behavior assertions passing. Preserved its raw artifacts. The two failed checks
+were observer/oracle assumptions, not demonstrated gameplay defects:
+
+- The immediate status sample still said carried; the same captured log then
+  showed `standard: thrown, 19076 ms left`. `castat` acknowledges activation before
+  the 150 ms action. The corrected observer waits up to 2 seconds for fresh thrown
+  status and still requires over 10 seconds left from the 20-second Standard.
+- First Soul Guard increment was 4.36 from 218 HP; native Essence increased HP to
+  222 before the next gain. The observed cap was 22.2 (10% of that new gain's HP
+  snapshot), not 21.8 (five times the first increment). The corrected oracle samples
+  max HP immediately before the next gain and requires its 10% cap.
+
+Observed in trial 1: 412 HP produced a 20.6 Standard shield; a controlled 20-damage
+hit went from 20 HP lost without it to 0 with it; the shield had 5,934 ms left under
+rank-5 Crusade. Soul Stride changed native movement multiplier 1.0 -> 1.2 and expired
+back to 1.0. Pyrebrand carried 760 stored damage onto two targets (1,520 aggregate),
+retained charge, applied the manual 1.25x claw formula, and naturally ended with
+zero brands. These are forced solo measurements, not remote-ally or ordinary-play
+proof; brand damage formula checks use script telemetry, not an independent HP oracle.
+Only the test observer/oracle changed for trial 2; gameplay scripts were unchanged.
+Trial 2 source fingerprint:
+`58068f723d811e665fcfe549d964322e3c8c16239685bcfae5a9f75704b209c1`
+(2,178 files, same HEAD). Trial 2 outcome pending.
+
+Retained setup failures: first shell timeout left the worktree's export-datatables
+lock (PID 520, started 19:50:04, interrupted run `20261105-195005-export-datatables-lab`).
+Inspected its partial artifacts and dead owner; reset killed nothing. A later retry
+was refused while PID 38267 owned another worktree's lab runtime; it was not killed.
+Retried after that process ended. No isolation guard or gameplay assertion was bypassed.
+
 ## 2026-11-05: Branding/Bannerlord Linux rebase checkpoint
 
 Rebased `feat/branding-bannerlord-rework` onto Linux GameLab adoption

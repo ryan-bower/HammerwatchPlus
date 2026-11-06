@@ -1,8 +1,11 @@
 # Branding and Bannerlord rework draft
 
-Status: source implementation, 2026-11-05. **Native compilation and gameplay/co-op
-validation pending.** Six source/data contract tests pass; GameLab doctor cannot
-import the Windows-only launcher on this Linux worktree. No runtime evidence.
+Status: source implementation, 2026-11-05, rebased onto Linux GameLab adoption.
+**Native full-mod compilation/load PASS** (`20261105-200212-mod-all-lab`, build
+25932569); six source/data and 24 Linux host tests pass. **16 focused controlled solo
+gameplay assertions PASS** (`20261105-200813-qa-specs-support-rework-lab`). Remote-party
+behavior remains untested. See RE_NOTES for source pins, exact evidence scope and
+retained failed trial/setup attempts; this does not establish ordinary-run balance.
 Numbers below are initial tuning targets, not measured balance findings. Existing
 comparisons come from committed skill data, not a new runtime measurement.
 

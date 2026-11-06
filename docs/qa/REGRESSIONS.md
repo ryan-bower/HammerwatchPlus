@@ -40,6 +40,7 @@ A table row is not a promise that the current revision will pass. Execute with
 | Thunder Orb / Static Charge | `qa-specs-static-native`, `qa-specs-static-overlap` | Controlled cast identity and critical effects; 091916/092036 at `20e6...`; generic delayed non-Thunder-Orb attribution remains open |
 | Tailwind return/catch | `qa-specs-return` | Native return/catch effects; 092156 at `20e6...` |
 | Branding | `qa-specs-branding-native-combo` | Post-spend refresh and declared combo effects; inspect Branding evidence/inventory for each source qualification |
+| Reworked Branding/Bannerlord | `qa-specs-support-rework` | Controlled solo shield absorption/own-HP math/Crusade duration/throw lifetime/pulse renewal; Soul Guard/Stride; manual brand transfer/bonus/expiry telemetry. See `specs-support-rework.json`; not remote-party, Weakness, death-spread or independent brand HP proof. Older banner DR/orb oracles predate the rework and are not valid unchanged. |
 | HoH1 class repairs | `qa-classes-shadow-strike`, `qa-classes-riposte`, `qa-classes-gladius-collision` | Shadow endpoints and flat melee-only reflection, 093637/093528 at `20e6...`; Gladius first-contact damage all ranks, 145123 at `f8b0...` |
 | Stash families/neighbors | `qa-content-stash-families`, `qa-content-stash-neighbors` | Typed family ordering, preservation and idempotence; 092457/092519 at `20e6...` |
 | Magazine / Hoarder | `qa-firearms-magazine-crit`, `qa-firearms-hoarder-unequip` | Own-magazine crit damage and absent-gun HUD/bank preservation; 093247/093432 at `20e6...` |
