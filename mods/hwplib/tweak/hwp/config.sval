@@ -34,6 +34,7 @@
 					<bool name="host">false</bool>
 					<bool name="level">false</bool>
 					<array name="settings">
+						<dict><string name="option">linkkey</string></dict>
 					</array>
 				</dict>
 				<dict>
