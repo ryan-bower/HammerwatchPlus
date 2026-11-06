@@ -352,8 +352,7 @@ environment. The coordinator partitions them without overlap and checks missing
 asset prerequisites. Final consolidation replaces repeated lane discovery runs.
 
 ```powershell
-.venv/Scripts/python.exe -m unittest tools.test_run tools.test_play_profile tools.test_save_builder tools.test_qa_batch tools.test_build_update tools.test_make_forgemaster_risen -q
-.venv/Scripts/python.exe -m unittest discover -s gamelab/tests -q
+.venv/Scripts/python.exe -m pytest tests/test_run.py tests/test_play_profile.py tests/test_save_builder.py tests/test_qa_batch.py tests/test_build_update.py tests/test_make_forgemaster_risen.py -q
 .venv/Scripts/python.exe -m pytest tests -q
 .venv/Scripts/python.exe tools/compiler_selftest.py
 .venv/Scripts/python.exe tools/saves_selftest.py
@@ -362,21 +361,20 @@ asset prerequisites. Final consolidation replaces repeated lane discovery runs.
 .venv/Scripts/python.exe tools/build.py --check
 .venv/Scripts/python.exe tools/workshop.py --check
 .venv/Scripts/python.exe tools/list_verbs.py --check
-.venv/Scripts/python.exe tools/make_config.py --check
-.venv/Scripts/python.exe tools/make_herbs.py --check
-.venv/Scripts/python.exe tools/make_hwp_traps.py --check
-.venv/Scripts/python.exe tools/make_package_scenarios.py --check
-.venv/Scripts/python.exe tools/make_specs_classes.py --check
-.venv/Scripts/python.exe tools/make_seeded_generators.py --check
-.venv/Scripts/python.exe tools/make_forgemaster_risen.py --check
-.venv/Scripts/python.exe tools/make_pet_dyes.py --verify
+.venv/Scripts/python.exe tools/generate/make_config.py --check
+.venv/Scripts/python.exe tools/generate/make_herbs.py --check
+.venv/Scripts/python.exe tools/generate/make_hwp_traps.py --check
+.venv/Scripts/python.exe tools/generate/make_package_scenarios.py --check
+.venv/Scripts/python.exe tools/generate/make_specs_classes.py --check
+.venv/Scripts/python.exe tools/generate/make_seeded_generators.py --check
+.venv/Scripts/python.exe tools/generate/make_forgemaster_risen.py --check
+.venv/Scripts/python.exe tools/generate/make_pet_dyes.py --verify
 ```
 
-Inventory all `tools/test_*.py` as well; the first command is a focused shard,
-not exhaustive discovery of tooling tests. The correct moved restart/resource
-modules are `gamelab.tests.test_runner_restart` and
-`gamelab.tests.test_res_snapshot`; the old import paths in the regression guide
-need correction during execution.
+Every test lives in `tests/` (the repo reorganisation moved `tools/test_*.py` and
+`gamelab/tests/` there); the first command is a focused shard, not exhaustive
+discovery. The restart/resource tests are `tests/test_runner_restart.py` and
+`tests/test_res_snapshot.py`.
 
 Save/doctor selftests use redirected sandbox trees under `C:\tmp\claude` and may
 need permissions outside this worktree. Audit that redirection first and honor

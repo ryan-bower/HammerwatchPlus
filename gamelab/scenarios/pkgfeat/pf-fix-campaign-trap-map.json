@@ -1,6 +1,6 @@
 {
  "name": "pf-fix-campaign-trap-map",
- "about": "fix-campaign-trap-map against the built package campaign instead of the mods' source folders (tools/make_package_scenarios.py). Issue #30, mods/campaign: the HoH1 traps (spikes, flame jets, glyphs) only on one map's floors, the Crypt by default (campaign.trap_map), and on the Forsaken Tower's. A Bandit Keep floor logs placed 0/0 'not a trap map' and has no HWP trap glyph, and still gets its teleporter pad. A Crypt floor (temple_1) and the Forsaken Tower's first floor place traps. With campaign.trap_map 4 (every map) the keep floor places them again. Mods core + campaign.",
+ "about": "fix-campaign-trap-map against the built package campaign instead of the mods' source folders (tools/generate/make_package_scenarios.py). Issue #30, mods/campaign: the HoH1 traps (spikes, flame jets, glyphs) only on one map's floors, the Crypt by default (campaign.trap_map), and on the Forsaken Tower's. A Bandit Keep floor logs placed 0/0 'not a trap map' and has no HWP trap glyph, and still gets its teleporter pad. A Crypt floor (temple_1) and the Forsaken Tower's first floor place traps. With campaign.trap_map 4 (every map) the keep floor places them again. Mods core + campaign.",
  "fixture": "mission-ranger",
  "timeout": 900,
  "steps": [

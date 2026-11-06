@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-specs-static",
- "about": "qa-specs-static against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Three fixed real-cast Static Charge first-critical-hit and overlapping-spell trials. Independently verifies native crit setup survives a stats rebuild and restores, observes actual target HP and stacks, and retains all outcomes. Measurement fixture only.",
+ "about": "qa-specs-static against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Three fixed real-cast Static Charge first-critical-hit and overlapping-spell trials. Independently verifies native crit setup survives a stats rebuild and restores, observes actual target HP and stacks, and retains all outcomes. Measurement fixture only.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

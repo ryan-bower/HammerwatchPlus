@@ -1,6 +1,6 @@
 {
  "name": "pkg-specs",
- "about": "HammerwatchPlus: Fourth Specializations (HWP-specs.bin, built by tools/build.py) alone, packed as players get it: the library boots from the package's own copy, the stamp check passes, the Luck cell is hidden (no hwplib-luck in it), and the log is clean. tools/make_package_scenarios.py.",
+ "about": "HammerwatchPlus: Fourth Specializations (HWP-specs.bin, built by tools/build.py) alone, packed as players get it: the library boots from the package's own copy, the stamp check passes, the Luck cell is hidden (no hwplib-luck in it), and the log is clean. tools/generate/make_package_scenarios.py.",
  "fixture": "town-paladin",
  "packages": [
   "specs"

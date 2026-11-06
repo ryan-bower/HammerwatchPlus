@@ -86,7 +86,7 @@ namespace HWP
 
 		int KeyPrice(int tier)
 		{
-			// one literal key each, so tools/make_config.py can check them against module.json
+			// one literal key each, so tools/generate/make_config.py can check them against module.json
 			switch (tier)
 			{
 				case 1: return HWP::Settings::GetInt("keys.price_bronze", 500);

@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-specs-return",
- "about": "qa-specs-return against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Bounded three-trial Lightning Arrow catch and return-damage regression. Normal flight measures target HP on both legs; accelerated close-wall flight stresses endpoint catch misses and premature outbound catches. Measurement-only: isolated character, god mode, teleport, timescale. Retains every trial; never retries until green.",
+ "about": "qa-specs-return against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Bounded three-trial Lightning Arrow catch and return-damage regression. Normal flight measures target HP on both legs; accelerated close-wall flight stresses endpoint catch misses and premature outbound catches. Measurement-only: isolated character, god mode, teleport, timescale. Retains every trial; never retries until green.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

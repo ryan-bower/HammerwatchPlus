@@ -1,5 +1,5 @@
 // The Forsaken Tower's generated floors, made by HoH1's own floor generator.
-// tools/import_hoh1.py campaign copies HoH1's Generators/ scripts and its
+// tools/hoh1/import_hoh1.py campaign copies HoH1's Generators/ scripts and its
 // MakeDungeonGenerator from the player's install into the local
 // scripts/HWP/Campaign/HoH1Gen/ (namespace HoH1Gen, paths under hoh1/), plus a
 // class HWPHoH1GenFloor that implements HWP::Campaign::HoH1Floor. This file is
@@ -53,7 +53,7 @@ class HWPHoH1Generator : ALevelGenerator
 		auto floor = cast<HWP::Campaign::HoH1Floor>(InstantiateClass(HWP::Campaign::HOH1_FLOOR_CLASS));
 		if (floor is null)
 		{
-			PrintError("[HWP:campaign] HoH1 floor generator missing (tools/import_hoh1.py campaign)");
+			PrintError("[HWP:campaign] HoH1 floor generator missing (tools/hoh1/import_hoh1.py campaign)");
 			return;
 		}
 

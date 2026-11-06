@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-classes-stats",
- "about": "qa-classes-stats against the built package classes instead of the mods' source folders (tools/make_package_scenarios.py). Live applied stats at every rank1-5 for10 HoH1 passives: Sidestep,ViciousCuts,QuickHands,ArenaMastery,Riposte,TridentMastery,Zeal,Brand,SilverBolts,Tracker. Includes native remaining-chance combination for evade/crit. Proc and ordinary combat coverage is separate.",
+ "about": "qa-classes-stats against the built package classes instead of the mods' source folders (tools/generate/make_package_scenarios.py). Live applied stats at every rank1-5 for10 HoH1 passives: Sidestep,ViciousCuts,QuickHands,ArenaMastery,Riposte,TridentMastery,Zeal,Brand,SilverBolts,Tracker. Includes native remaining-chance combination for evade/crit. Proc and ordinary combat coverage is separate.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

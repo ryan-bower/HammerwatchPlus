@@ -1,4 +1,4 @@
-"""tools/make_herbs.py: the Holy Herb strains come from one table, and every file and sprite
+"""tools/generate/make_herbs.py: the Holy Herb strains come from one table, and every file and sprite
 sheet it writes is current (issue #15: a strain was copied by hand into seven files and three
 sheets indexed by seed order)."""
 import re
@@ -7,7 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from tools import make_herbs  # noqa: E402
+from tools.generate import make_herbs  # noqa: E402
 
 FARMING = make_herbs.FARM / "scripts" / "HWP" / "Farming" / "FarmingModule.as"
 

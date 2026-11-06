@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-forgemaster-payment-repro",
- "about": "qa-forgemaster-payment-repro against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Original-product controlled native payment consumer rows; preserve every row, original failure, exact source and teardown. Requires current cursor projection/native contracts and generated family before root execution.",
+ "about": "qa-forgemaster-payment-repro against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Original-product controlled native payment consumer rows; preserve every row, original failure, exact source and teardown. Requires current cursor projection/native contracts and generated family before root execution.",
  "fixture": "town-paladin",
  "timeout": 300,
  "steps": [

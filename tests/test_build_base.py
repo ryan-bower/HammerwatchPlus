@@ -18,7 +18,7 @@ def modules() -> dict:
 
 
 def test_the_forgemaster_units_are_generated_from_the_base():
-    assert "tools/make_forgemaster_risen.py" in build.base_generators(modules()["specs"])
+    assert "tools/generate/make_forgemaster_risen.py" in build.base_generators(modules()["specs"])
 
 
 def test_build_runs_every_base_generator_a_module_names():

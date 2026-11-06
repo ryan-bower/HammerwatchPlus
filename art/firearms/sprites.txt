@@ -1,4 +1,4 @@
-# Firearms Specialist placeholder sprites, read by tools/make_firearms_icons.py.
+# Firearms Specialist placeholder sprites, read by tools/generate/make_firearms_icons.py.
 #
 # One sprite per "== name" header, then its rows: one character per pixel, "." is
 # transparent, every other letter is a palette colour (PALETTE in the tool). Rows may be

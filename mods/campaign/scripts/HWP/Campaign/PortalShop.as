@@ -9,7 +9,7 @@
 // seems to be hoh2 level"): both missions share the set, and the board listed the
 // HoH2-themed hwp_forsaken_tower first (lower level span), so the top entry was the
 // HoH2 version even with the HoH1 levels imported. Now the HoH1 mission
-// (hwp_forsaken_tower_hoh1, tools/import_hoh1.py campaign) is the only entry whenever
+// (hwp_forsaken_tower_hoh1, tools/hoh1/import_hoh1.py campaign) is the only entry whenever
 // its MissionDef exists at runtime; campaign.portal_both lists both again. The log
 // says which version the portal offers and which one a pick starts.
 class HWPCampaignShopContent : MissionShopContent

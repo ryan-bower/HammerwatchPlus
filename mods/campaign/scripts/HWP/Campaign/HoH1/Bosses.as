@@ -1,7 +1,7 @@
 // HoH2 implementations of the HoH1 boss behaviors: the Armory wraiths
 // (BossLich), the Chambers vampire lord (BossVampire) and the Archives
 // watcher (BossEye) with its wisps, under HoH1-prefixed names
-// (tools/import_hoh1.py maps them) and HoH1's unit parameters. Host
+// (tools/hoh1/import_hoh1.py maps them) and HoH1's unit parameters. Host
 // decisions reach the other peers through HWP::Net events ("hoh1.*").
 namespace HWP
 {
@@ -453,7 +453,7 @@ class HoH1BossVampire : CompositeActorBehavior
 		if (m_target is null)
 			m_targetSearchCd = 0;
 
-		// the roam unit (the fire trail) is netsynced (tools/hoh1_convert.py NETSYNC):
+		// the roam unit (the fire trail) is netsynced (tools/hoh1/hoh1_convert.py NETSYNC):
 		// the host drops it, clients get it from the network
 		if (m_roamingC > 0 && m_roamProd !is null && Network::IsServer())
 		{

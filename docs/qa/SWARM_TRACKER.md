@@ -180,7 +180,7 @@ task updates use the task revision from `show`.
   "lane": "H1",
   "operation": "sandbox",
   "priority": 10,
-  "paths": ["tools/save_builder.py", "tools/test_save_builder.py"],
+  "paths": ["tools/save_builder.py", "tests/test_save_builder.py"],
   "depends_on": ["H1-INVENTORY"],
   "required_scopes": ["offline"],
   "checks": ["truncated-profile"],

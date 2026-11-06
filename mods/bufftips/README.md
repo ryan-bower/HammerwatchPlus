@@ -39,7 +39,7 @@ debuffs, "x N" for stacks) and its description.
   data diagnostics; this display-only change does not repair or suppress that schema. Each machine patches its own
   defs; an ally hit by War Cry gets the same def, so their bar should show
   it too (co-op not tried in the lab).
-  `tools/make_bufftips_icons.py` writes the sheet and `SkillBuffs.as` from
+  `tools/generate/make_bufftips_icons.py` writes the sheet and `SkillBuffs.as` from
   one table (`--check` for stale files).
 - Not given icons: buffs under about 1 s, which are refreshed while
   something lasts (auras, banners); effect carriers with no stats (the

@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-module-laststats-native-standalone",
- "about": "qa-module-laststats-native-standalone against the built package qol instead of the mods' source folders (tools/make_package_scenarios.py). Actual native aborted and lethal-damage failed run: compare native end formatted values with serialized LastStats, exact normal board interaction, current legend/union rows/numeric-input bar geometry and OnFunc search/nomatch/clear, save/restart and two town rebuilds. Controlled intro-complete Town/walking/god fixture; no counters/snapshot setters. No raw-counter producer, typed-focus, rendered color, success/co-op/large-list/locales claim.",
+ "about": "qa-module-laststats-native-standalone against the built package qol instead of the mods' source folders (tools/generate/make_package_scenarios.py). Actual native aborted and lethal-damage failed run: compare native end formatted values with serialized LastStats, exact normal board interaction, current legend/union rows/numeric-input bar geometry and OnFunc search/nomatch/clear, save/restart and two town rebuilds. Controlled intro-complete Town/walking/god fixture; no counters/snapshot setters. No raw-counter producer, typed-focus, rendered color, success/co-op/large-list/locales claim.",
  "fixture": "town-paladin",
  "timeout": 900,
  "steps": [

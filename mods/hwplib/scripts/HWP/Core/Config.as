@@ -1,6 +1,6 @@
 // HWP::Config - what the HammerwatchPlus tab lists: every package, its modules,
 // their on/off switch and settings. Read from tweak/hwp/config.sval, which
-// tools/make_config.py writes from the modules' module.json "config" blocks
+// tools/generate/make_config.py writes from the modules' module.json "config" blocks
 // (docs/modules.md, Settings); every package ships the same hwplib, so every
 // package carries the whole list and a module shows only when it is loaded:
 // its generated lang file (hwp_<id>_cfg.lang) holds ".hwp.cfg.<id>".

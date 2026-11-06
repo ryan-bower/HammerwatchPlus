@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-valuables",
- "about": "mod-valuables against the built package dungeon instead of the mods' source folders (tools/make_package_scenarios.py). mods/valuables: every valuable's gold doubled at boot, a dropped vase pays 300 instead of 150, the multiplier setting never compounds; README Test checklist.",
+ "about": "mod-valuables against the built package dungeon instead of the mods' source folders (tools/generate/make_package_scenarios.py). mods/valuables: every valuable's gold doubled at boot, a dropped vase pays 300 instead of 150, the multiplier setting never compounds; README Test checklist.",
  "fixture": "town-paladin",
  "timeout": 240,
  "steps": [

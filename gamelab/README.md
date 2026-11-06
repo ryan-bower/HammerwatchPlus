@@ -4,15 +4,15 @@ GameLab is a Windows CLI harness for testing mods against the installed HoH2 gam
 Scenarios are JSON, bots are Python, and verdicts/measurements are JSON or JSONL.
 An agent with filesystem and process access can use it without this chat history.
 
-Read [AGENTS.md](../AGENTS.md) first. This is the short operational guide; the
+Read [CLAUDE.md](../CLAUDE.md) first. This is the short operational guide; the
 [detailed skill](../.claude/skills/gamelab/SKILL.md) documents scenario steps,
 fixtures, bot authoring and troubleshooting.
 
 ## First session or fresh clone
 
-Use Windows with HoH2 installed and Steam running. Python 3.10+, uv, a supported
+Use Windows with HoH2 installed and Steam running. Python 3.14+, uv, a supported
 GPU and a mingw-w64 x86_64 compiler are required. Doctor checks prerequisites and
-supports the local compiler locations documented in the root README. Native runs
+supports the local compiler locations documented in [CONTRIBUTING.md](../CONTRIBUTING.md). Native runs
 need Windows process visibility; a restricted sandbox may need execution access
 outside that sandbox. Preserve all isolation checks when resolving a refusal.
 
@@ -26,7 +26,7 @@ uv run python -m gamelab doctor --fix
 ```
 
 Doctor prepares ignored game dumps, tools, environment links, fixtures and
-Forgemaster risen/body units (`tools/make_forgemaster_risen.py`). Its
+Forgemaster risen/body units (`tools/generate/make_forgemaster_risen.py`). Its
 save-backup and optional HoH1 choices are explained in the detailed skill. Respect
 existing machine-local answers. Ask only for an unanswered HoH1 choice or ambiguous
 saves; do not invent paths, skip an owned install, manually write confirmation
@@ -61,6 +61,15 @@ before/after each case and stops on failures, missing results, dirty teardown,
 errors, partial results, build drift or source changes. It never resets, retries
 or re-pins automatically. Its `--help` describes local journal and stop-file paths.
 Stop files are honored between cases; an unfinished queue returns nonzero.
+
+Runtime cleanup uses an acquisition nonce plus
+`gamelab/env/userdata/gamelab.lock.lifecycle` to serialize acquisition, teardown,
+reset and final result publication. If either lock is refused, inspect its
+recorded owner and the cause with adequate process visibility. Never automatically
+delete a lifecycle guard or reset another owner's run. A stale guard needs an
+accounted owner/cause before explicit recovery. `--wait` currently may refuse
+transient lifecycle contention; keep the campaign's single-owner queue serial
+and retry only after the known owner has finished, without bypassing the gate.
 
 ### Isolated worker pool (two-worker acceptance)
 
@@ -131,7 +140,7 @@ wall-clock cap: the launcher uses `outer_timeout` or normally three times `timeo
 For host-side automated checks, select installed test directories explicitly:
 
 ```powershell
-uv run python -B -m pytest gamelab/tests tools tests planner -q --tb=short -rs --basetemp=gamelab/results/pytest-UNIQUE_LABEL
+uv run python -B -m pytest tests planner -q --tb=short -rs --basetemp=gamelab/results/pytest-UNIQUE_LABEL
 ```
 
 Choose a new temporary label. Unrestricted discovery also enters ignored QA
@@ -195,4 +204,16 @@ To extend the harness, copy a relevant scenario and inspect its bot/expected row
 Follow the detailed skill's authoring instructions and the generated
 [verb reference](../docs/generated/verbs.md). Regenerate it with
 `uv run python tools/list_verbs.py` when registrations change. Hand off the exact
-reproduction, source, evidence and limits, and update root README and RE_NOTES.
+reproduction, source, evidence and limits, and update docs/status.md and RE_NOTES.
+
+## Harness mods
+
+`mods/gamelab-*` are GameLab test harnesses, not player content. `build.py` never packs
+them; they are only linked into the GameLab environment.
+
+| Harness | What it does |
+|---|---|
+| `gamelab-probe` | The `gl` console command channel, read-only state probes, heartbeat. |
+| `gamelab-hands` | Action verbs for the `gl` channel (start a mission floor, ...). Requires probe. |
+| `gamelab-pilot` | Bot API for the Pilot. Requires probe and hands. |
+| `gamelab-reload` | Logs a mark from its constructor, so the `reload-mark` scenario can tell whether an edited script was picked up without a restart. |

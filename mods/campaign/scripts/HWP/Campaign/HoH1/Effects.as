@@ -1,5 +1,5 @@
 // HoH2 implementations of the effect classes HoH1 units and buffs use and
-// HoH2 lacks. tools/import_hoh1.py renames each HoH1 class to the HoH1-prefixed
+// HoH2 lacks. tools/hoh1/import_hoh1.py renames each HoH1 class to the HoH1-prefixed
 // one here; the parameters are HoH1's.
 
 // GiveGold / GiveOre: money and ore pickups. HoH1 credits the local player

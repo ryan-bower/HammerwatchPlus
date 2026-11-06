@@ -26,7 +26,7 @@ namespace HWP
 			if (prod is null)
 				return false;
 			string p = prod.GetResourceName();
-			// the HoH1 floors' actors live under hoh1/actors/ (tools/import_hoh1.py)
+			// the HoH1 floors' actors live under hoh1/actors/ (tools/hoh1/import_hoh1.py)
 			if (p.findFirst("hoh1/") == 0)
 				p = p.substr(5);
 			if (p.findFirst("actors/") != 0 || p.findFirst("/bosses/") >= 0 || p.findFirst("spawner") >= 0 || p.findFirst("nest") >= 0

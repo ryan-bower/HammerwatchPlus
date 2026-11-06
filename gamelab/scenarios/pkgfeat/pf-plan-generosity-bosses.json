@@ -1,6 +1,6 @@
 {
  "name": "pf-plan-generosity-bosses",
- "about": "plan-generosity-bosses against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Controlled Fury boss observations: exact nonempty expected roster and requested/predicted-pick/actual-held/cast-log IDs; actual-held position reads, cost, boss cooldown, buff multipliers and beam metadata. A nonpassive pre-cast IsCasting observation followed by sampled casting zero establishes only pre-active, later suppressed; the skill may end naturally before Fury lands, so no causal interruption credit. All per-attempt observations are retained.",
+ "about": "plan-generosity-bosses against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Controlled Fury boss observations: exact nonempty expected roster and requested/predicted-pick/actual-held/cast-log IDs; actual-held position reads, cost, boss cooldown, buff multipliers and beam metadata. A nonpassive pre-cast IsCasting observation followed by sampled casting zero establishes only pre-active, later suppressed; the skill may end naturally before Fury lands, so no causal interruption credit. All per-attempt observations are retained.",
  "fixture": "town-paladin",
  "timeout": 1200,
  "steps": [

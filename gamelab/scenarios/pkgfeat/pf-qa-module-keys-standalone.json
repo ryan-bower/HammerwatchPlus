@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-module-keys-standalone",
- "about": "qa-module-keys-standalone against the built package keys instead of the mods' source folders (tools/make_package_scenarios.py). Standalone functional subset with only required modules. Native bag purchases/cap and actual locked-chest key/refusal/loot checks; controlled floor setup and chest spawns. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
+ "about": "qa-module-keys-standalone against the built package keys instead of the mods' source folders (tools/generate/make_package_scenarios.py). Standalone functional subset with only required modules. Native bag purchases/cap and actual locked-chest key/refusal/loot checks; controlled floor setup and chest spawns. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

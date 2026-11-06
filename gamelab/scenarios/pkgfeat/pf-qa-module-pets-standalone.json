@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-module-pets-standalone",
- "about": "qa-module-pets-standalone against the built package pets instead of the mods' source folders (tools/make_package_scenarios.py). Standalone functional subset with only required modules. Actual pet shop purchase/import listing and native pet gold pickup toggles/following; no food/dye/skill claim. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
+ "about": "qa-module-pets-standalone against the built package pets instead of the mods' source folders (tools/generate/make_package_scenarios.py). Standalone functional subset with only required modules. Actual pet shop purchase/import listing and native pet gold pickup toggles/following; no food/dye/skill claim. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

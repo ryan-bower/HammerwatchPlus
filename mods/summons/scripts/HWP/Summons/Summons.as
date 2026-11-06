@@ -25,7 +25,7 @@ namespace HWP
 			"players/priest/units/crusader_pikeman_boon.unit"
 		};
 
-		// the Devil Forgemaster's risen units (tools/make_forgemaster_risen.py), tracked by prefix:
+		// the Devil Forgemaster's risen units (tools/generate/make_forgemaster_risen.py), tracked by prefix:
 		// 141 producers, one per raisable enemy (the user, 2026-10-25: the risen were not coming
 		// along between floors)
 		const string RISEN_DIR = "players/hwp/specs/forgemaster/risen/";

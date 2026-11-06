@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-classes-thief-actives",
- "about": "qa-classes-thief-actives against the built package classes instead of the mods' source folders (tools/make_package_scenarios.py). Controlled missing HoH1 mastery active damage/debuff behavior at ranks1/5; no natural-run or multiplayer claim.",
+ "about": "qa-classes-thief-actives against the built package classes instead of the mods' source folders (tools/generate/make_package_scenarios.py). Controlled missing HoH1 mastery active damage/debuff behavior at ranks1/5; no natural-run or multiplayer claim.",
  "fixture": "town-paladin",
  "timeout": 480,
  "steps": [

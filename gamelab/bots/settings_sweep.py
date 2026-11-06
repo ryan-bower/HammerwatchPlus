@@ -1,7 +1,7 @@
 """Every row of the settings page (the Plus tab, hwplib Options.as + Config.as), checked through
 posted GameLab input/UI dispatch, with every current feature and required library loaded.
 This checks row/store/capture behavior, not every feature's functional toggle effect. The rows come from the same sources the
-page does: packages.json and each module.json's config block (tools/make_config.py).
+page does: packages.json and each module.json's config block (tools/generate/make_config.py).
 
 - Module switches: a click turns the module off ("[HWP:options] <id> -> off", the row reads
   Off), a second one on again. All modules are turned off together first, so the town runs

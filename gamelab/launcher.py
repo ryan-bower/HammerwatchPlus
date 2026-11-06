@@ -139,11 +139,11 @@ EXIT_SKIPPED = 7
 
 
 def hoh1_missing(scenario: dict) -> list[str]:
-    """`"needs_hoh1": true`: the HoH1 imports (tools/import_hoh1.py, named like the mods that read
+    """`"needs_hoh1": true`: the HoH1 imports (tools/hoh1/import_hoh1.py, named like the mods that read
     them; every import when none of its mods has one) this machine lacks."""
     if not scenario.get("needs_hoh1"):
         return []
-    from tools import import_hoh1
+    from tools.hoh1 import import_hoh1
     outputs = import_hoh1.IMPORT_OUTPUTS
     want = [m for m in env.expand_mods(scenario.get("mods")) if m in outputs] or list(outputs)
     return [m for m in want if not outputs[m].exists()]

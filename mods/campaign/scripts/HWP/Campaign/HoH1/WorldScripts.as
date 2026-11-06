@@ -1,6 +1,6 @@
 // HoH2 implementations of the level-script types HoH1 levels use and HoH2
 // lacks, under the names and Editable parameters the converted levels store
-// (tools/import_hoh1.py campaign). Written against HoH2's API; where HoH2 has
+// (tools/hoh1/import_hoh1.py campaign). Written against HoH2's API; where HoH2 has
 // no such system (hardcore, character titles, top numbers) they keep the
 // level flowing and do nothing else.
 namespace HWP
@@ -168,7 +168,7 @@ namespace WorldScript
 		void ClientExecute(SValue@ val) { ServerExecute(); }
 	}
 
-	// HoH1 named its boss bars from the bestiary; tools/import_hoh1.py writes those
+	// HoH1 named its boss bars from the bestiary; tools/hoh1/import_hoh1.py writes those
 	// names as hoh1.bosses.<unit name> (hwp_campaign_hoh1.lang)
 	string HoH1BossName(UnitPtr unit)
 	{
@@ -413,7 +413,7 @@ namespace WorldScript
 		}
 	}
 
-	// HoH1's speech bubble (tools/import_hoh1.py CLASS_MAP): HoH1's style file (its
+	// HoH1's speech bubble (tools/hoh1/import_hoh1.py CLASS_MAP): HoH1's style file (its
 	// spriteset, tail, text color and font), the title over the text, above the first
 	// of Objects, for the ForPlayer player only, until Time runs out (-2: by the text's
 	// length, as HoH1; 0: until a HideSpeechBubble). HoH2's bubble has one font, so the

@@ -1,6 +1,6 @@
 {
  "name": "pkg-dungeon",
- "about": "HammerwatchPlus: Dungeon Loot and Encounters (HWP-dungeon.bin, built by tools/build.py) alone, packed as players get it: the library boots from the package's own copy, the stamp check passes, the Luck cell shows (the package carries hwplib-luck), and the log is clean. tools/make_package_scenarios.py.",
+ "about": "HammerwatchPlus: Dungeon Loot and Encounters (HWP-dungeon.bin, built by tools/build.py) alone, packed as players get it: the library boots from the package's own copy, the stamp check passes, the Luck cell shows (the package carries hwplib-luck), and the log is clean. tools/generate/make_package_scenarios.py.",
  "fixture": "town-paladin",
  "packages": [
   "dungeon"

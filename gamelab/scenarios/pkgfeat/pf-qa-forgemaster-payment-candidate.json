@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-forgemaster-payment-candidate",
- "about": "qa-forgemaster-payment-candidate against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Candidate-SHA controlled completion-payment regression with unchanged P0-P3 and nine healthy expectations. Retain the original-product failure and all setup/source/input/teardown gates; separate root integration and admission required.",
+ "about": "qa-forgemaster-payment-candidate against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Candidate-SHA controlled completion-payment regression with unchanged P0-P3 and nine healthy expectations. Retain the original-product failure and all setup/source/input/teardown gates; separate root integration and admission required.",
  "fixture": "town-paladin",
  "timeout": 300,
  "steps": [

@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-abyss-tiers",
- "about": "mod-abyss-tiers against the built package dungeon instead of the mods' source folders (tools/make_package_scenarios.py). mods/abyss reward tiers: a crack on Dark Citadel floor 1 (diff 2) pays hwp_abyss_reward_1, one on the new game+ floor 1 (diff 18) pays hwp_abyss_reward_3; README Test checklist step 5.",
+ "about": "mod-abyss-tiers against the built package dungeon instead of the mods' source folders (tools/generate/make_package_scenarios.py). mods/abyss reward tiers: a crack on Dark Citadel floor 1 (diff 2) pays hwp_abyss_reward_1, one on the new game+ floor 1 (diff 18) pays hwp_abyss_reward_3; README Test checklist step 5.",
  "fixture": "town-paladin",
  "timeout": 420,
  "steps": [

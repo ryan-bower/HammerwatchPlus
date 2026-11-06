@@ -39,7 +39,7 @@
 				</array>
 
 				<!-- SurvivalMission loads this with GetPrefab: a spawner prefab (intro, boss, exit
-				     portal), never a .unit. tools/make_wave_boss_prefab.py writes it. -->
+				     portal), never a .unit. tools/generate/make_wave_boss_prefab.py writes it. -->
 				<string name="boss">prefabs/hwp/wave_boss_spawner.pfb</string>
 				<string name="stat">valor</string>
 				<string name="display-name">.hwp.wave.bar</string>

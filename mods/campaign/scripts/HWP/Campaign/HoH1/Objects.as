@@ -1,5 +1,5 @@
 // HoH2 implementations of HoH1's keys, locked chests, locked doors, item drops
-// and looping doodad animations, under HoH1-prefixed names (tools/import_hoh1.py
+// and looping doodad animations, under HoH1-prefixed names (tools/hoh1/import_hoh1.py
 // CLASS_MAP) and HoH1's parameters. HoH1 numbered its keys ("lock" 0-3); HoH2
 // names them, so lock N is HoH2's key HOH1_KEYS[N] and the keys show in HoH2's
 // HUD (the ace key's name comes from mods/keys when it is on).

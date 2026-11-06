@@ -9,12 +9,12 @@ Watcher in their own Update.
 - **Pet classes.** `module.json` `class_swaps` puts `HWPMiniPetWalking` and
   `HWPMiniPetFlying` (`scripts/HWP/Pets/PetClasses.as`) into copies of the
   vanilla pet units (`tools/class_units.py`; the engine ignores info.xml
-  classmaps), and `tools/import_hoh1.py pets` (and again `tools/make_pet_dyes.py`,
+  classmaps), and `tools/hoh1/import_hoh1.py pets` (and again `tools/generate/make_pet_dyes.py`,
   whose `--verify` flags a HoH1 unit left on a vanilla class) into the HoH1 pet units, so
   every vanilla and imported pet gets the wait watcher, the owner's pickup
   toggles, the Fetch passives, the skill runner and XP per pickup. Pets are not
   netsynced: like vanilla, only the owner's copy picks up or acts.
-- **HoH1 pets.** `python tools/import_hoh1.py pets` reads the player's own HoH1
+- **HoH1 pets.** `python tools/hoh1/import_hoh1.py pets` reads the player's own HoH1
   install and writes (gitignored) `players/pets/hwp/*.unit|.png`,
   `gui/hwp/icons_pets_hoh1.png` and `tweak/hwp/pets_hoh1.sval` (22 `PetDef`s,
   ids `hwp_pet_<skin>`, costs 2500-15000 like vanilla pets). The vanilla Pet
@@ -76,7 +76,7 @@ Watcher in their own Update.
   clothes / rucksack (imps, squires; skin and hair keep their colours), fur /
   flames (the flaming dog and hound) and taco / fur (taco cat); a "Dyeing:"
   row switches the section. The dyes are per character and per pet
-  (`pets.dye.<petId>`, `pets.dye2.<petId>`). `tools/make_pet_dyes.py` (run by
+  (`pets.dye.<petId>`, `pets.dye2.<petId>`). `tools/generate/make_pet_dyes.py` (run by
   `build.py`) writes dye-ready copies of those pets (`players/pets/hwp_dye/` for the vanilla pets, which ship; `players/pets/hwp/dye/` for the HoH1 ones, local like the rest of the import;
   gitignored: made from your HoH2 base and HoH1 import) whose sprite pixels are
   indexed for the engine's multicolour shader (`.tif` sheets: the shader only
