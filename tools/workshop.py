@@ -2,7 +2,7 @@
 
     python tools/workshop.py              build every package (tools/build.py), then the kit
     python tools/workshop.py --no-build   the kit from the .bin files already in dist/
-    python tools/workshop.py --check      the texts only (packages.json, README, workshop.json)
+    python tools/workshop.py --check      the texts only (packages.json, mods/README.md, workshop.json)
 
 For each package in packages.json, and the all-in-one pack, it writes
 dist/workshop/<file>/:
@@ -54,7 +54,9 @@ TERSE = {
     "mmhmm": "some rare and epic hats say \"mm-hmm\" on crits, revives and more.",
     "orbwarn": "the orb picker shows which orbs a pick locks out.",
     "attrclick": "Shift+Click places 20 attribute points at the Attribute Trainer, Ctrl+Click 5.",
+    "freeskills": "a Skill Trainer respec unlearns your starting skills too; learn them again for free.",
     "mapicons": "dye pots marked on the minimap.",
+    "salvage": "destroying gear salvages it into Crystals or Dust, more the higher its level.",
     "groupcombo": "a party combo bonus, and rare combo orbs from boxes and vases.",
     "architect": "every player can pick and pay for Architect alterations; three saved presets.",
     "droptrade": "drop gear for friends (Q in the inventory).",
@@ -130,9 +132,9 @@ def load_packages() -> tuple[list[dict], dict]:
 
 
 def module_lines() -> dict[str, str]:
-    """README.md's module tables: `id` -> the one-line description."""
+    """mods/README.md's module tables: `id` -> the one-line description."""
     out = {}
-    for ln in (REPO / "README.md").read_text(encoding="utf-8").splitlines():
+    for ln in (REPO / "mods" / "README.md").read_text(encoding="utf-8").splitlines():
         m = re.match(r"\|\s*`([\w-]+)`\s*\|\s*(.+?)\s*\|\s*$", ln)
         if m and m.group(1) not in out:
             out[m.group(1)] = m.group(2)
@@ -309,7 +311,7 @@ def check(packages, allp, led) -> list[str]:
         if inside is None:
             for mod in p["mods"]:
                 if mod not in lines:
-                    errors.append(f"{file}: README.md has no module line for {mod}")
+                    errors.append(f"{file}: mods/README.md has no module line for {mod}")
             for mod in p["mods"]:
                 if mod not in TERSE:
                     errors.append(f"{file}: no Workshop line (TERSE) for {mod}")

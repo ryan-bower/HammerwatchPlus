@@ -350,7 +350,7 @@ class Checks(Base):
 
         # Gladius: the whirling axe goes out and flies back to the thrower
         clear, f = self.open_dirs()[0]
-        ev, c = self.track(4500, 500, "whirling_axe",
+        ev, c = self.track(4500, 500, "players/hwp/gladiator/projectiles/gladius.unit",
                            lambda: self.scene(cast=("hwp_gladiator_gladius", f[0] * 100, f[1] * 100), aim=f)[0])
         tracks = (ev or {}).get("tracks", [])
         t = tracks[0] if tracks else {}

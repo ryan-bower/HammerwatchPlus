@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-specs-winddancer-orbs",
- "about": "qa-specs-winddancer-orbs against the built package specs instead of the mods' source folders (tools/make_package_scenarios.py). Lasting Gale all3 native8/10/12s expiries; Tailwind all3 exact live movement multipliers plus actual ordinary/buffed travel and reversion; Lingering Breeze all3 actual2/4/6-heal texts and HP, four1s ticks and stop. Natural expiry separates each orb rank. Shared Breath true teammate behavior remains BLOCKED outside this single-player case.",
+ "about": "qa-specs-winddancer-orbs against the built package specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Lasting Gale all3 native8/10/12s expiries; Tailwind all3 exact live movement multipliers plus actual ordinary/buffed travel and reversion; Lingering Breeze all3 actual2/4/6-heal texts and HP, four1s ticks and stop. Natural expiry separates each orb rank. Shared Breath true teammate behavior remains BLOCKED outside this single-player case.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

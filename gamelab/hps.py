@@ -35,24 +35,34 @@ without first running the game with it.
     hps.py clear
     hps.py restore                       # put back the newest backup made by this tool
 
-Every write first copies the save to gamelab/env/userdata/hps_backups/.
+Every write first copies the save to hps_backups/ in its GameLab userdata root
+(the private worker root in slot mode).
 Never run this while the GameLab game is open.
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
+import os
 import re
 import shutil
+import stat
 import struct
 import sys
 import time
+import uuid
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-USERDATA = REPO / "gamelab" / "env" / "userdata"
-SAVES = USERDATA / "game" / "saves"
-BACKUP_DIR = USERDATA / "hps_backups"
+# Preserve direct ``python gamelab/hps.py`` use as well as package imports.
+if __package__ in (None, ""):
+    sys.path.insert(0, str(REPO))
+from gamelab import runtime
+
+_SLOT = runtime.current()
+USERDATA = _SLOT.game_dir.parent if _SLOT else REPO / "gamelab" / "env" / "userdata"
+SAVES = _SLOT.game_dir / "saves" if _SLOT else USERDATA / "game" / "saves"
+BACKUP_DIR = _SLOT.game_dir / "hps_backups" if _SLOT else USERDATA / "hps_backups"
 MAGIC = b"H2SV"
 HASH_SEED = 0xF808409C
 
@@ -157,10 +167,72 @@ def read_save(path: Path) -> tuple[bytes, Header]:
     return data, hdr
 
 
+def _slot_root() -> Path:
+    current = runtime.current()
+    if (current is None or current.pool_id != _SLOT.pool_id or current.slot_id != _SLOT.slot_id
+            or current.game_dir != _SLOT.game_dir or current.manifest != _SLOT.manifest):
+        sys.exit("refusing HPS access: authenticated runtime slot changed")
+    return _SLOT.game_dir.parent
+
+
+def _ordinary_under(path: Path, root: Path, *, directory=False, missing=False) -> None:
+    """Do not resolve through a link into another worker (or outside userdata)."""
+    path, root = Path(path).absolute(), Path(root).absolute()
+    try:
+        relative = path.relative_to(root)
+    except ValueError:
+        sys.exit(f"refusing HPS path outside {root}: {path}")
+    if any(part in (".", "..") for part in relative.parts):
+        sys.exit(f"refusing unnormalized HPS path: {path}")
+    current = root
+    for part in (None, *relative.parts):
+        if part is not None:
+            current /= part
+        try:
+            info = current.lstat()
+        except FileNotFoundError:
+            if missing and current == path:
+                return
+            raise
+        if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x400:
+            sys.exit(f"refusing redirected HPS path: {current}")
+        if current != path or directory:
+            valid = stat.S_ISDIR(info.st_mode)
+        else:
+            valid = stat.S_ISREG(info.st_mode) and info.st_nlink == 1
+        if not valid:
+            sys.exit(f"refusing nonordinary HPS path: {current}")
+
+
 def guard(path: Path) -> None:
-    """GameLab never writes the user's saves: refuse anything outside gamelab/env/userdata."""
-    if USERDATA.resolve() not in path.resolve().parents:
-        sys.exit(f"refusing to write {path}: hps.py only writes saves under {USERDATA}")
+    """Legacy userdata guard; slot writes are confined to authenticated own saves."""
+    path = Path(path)
+    if _SLOT:
+        root = _slot_root()
+        expected = _SLOT.game_dir / "saves"
+        if SAVES != expected or USERDATA != root:
+            sys.exit("refusing HPS access: private save roots changed")
+        if expected.absolute() not in path.absolute().parents:
+            sys.exit(f"refusing save outside current slot: {path}")
+        _ordinary_under(path, root, missing=True)
+    else:
+        if runtime.current() is not None:
+            sys.exit("refusing HPS access: serial module acquired a runtime slot")
+        if USERDATA.resolve() not in path.resolve().parents:
+            sys.exit(f"refusing to write {path}: hps.py only writes saves under {USERDATA}")
+
+
+def _backups(*, create=False) -> Path:
+    if _SLOT:
+        root = _slot_root()
+        if USERDATA != root or BACKUP_DIR != _SLOT.game_dir / "hps_backups":
+            sys.exit("refusing HPS access: private backup root changed")
+        _ordinary_under(BACKUP_DIR, root, directory=True, missing=True)
+    if create:
+        BACKUP_DIR.mkdir(parents=not bool(_SLOT), exist_ok=True)
+        if _SLOT:
+            _ordinary_under(BACKUP_DIR, root, directory=True)
+    return BACKUP_DIR
 
 
 def write_save(path: Path, data: bytes, hdr: Header) -> Path:
@@ -168,9 +240,22 @@ def write_save(path: Path, data: bytes, hdr: Header) -> Path:
     body = data[hdr.body_offset:-4]
     new = hdr.encode() + body
     new += hashlib.md5(new).digest()[:4]
-    BACKUP_DIR.mkdir(parents=True, exist_ok=True)
-    backup = BACKUP_DIR / f"{path.stem}_{time.strftime('%Y%m%d_%H%M%S')}.hps"
-    shutil.copy2(path, backup)
+    backup_root = _backups(create=True)
+    backup = backup_root / f"{path.stem}_{time.strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex}.hps"
+    # Exclusive creation prevents two same-second edits from replacing a backup.
+    with backup.open("xb") as target:
+        try:
+            with path.open("rb") as source:
+                shutil.copyfileobj(source, target)
+            target.flush()
+            os.fsync(target.fileno())
+        except BaseException:
+            target.close()
+            try:
+                backup.unlink()  # only this invocation's exclusively created file
+            except OSError:
+                pass  # retain the original copy/flush error; no save mutation
+            raise
     path.write_bytes(new)
     return backup
 
@@ -257,13 +342,16 @@ def cmd_clear(args):
     _apply(args, [])
 
 
-BACKUP_NAME = re.compile(r"^(?P<stem>.+)_(?P<ts>\d{8}_\d{6})\.hps$")
+BACKUP_NAME = re.compile(r"^(?P<stem>.+)_(?P<ts>\d{8}_\d{6})(?:_[0-9a-f]{32})?\.hps$")
 
 
 def cmd_restore(args):
     """Copy the newest backup back over the rotation file it was taken from."""
     backups = []
-    for p in (BACKUP_DIR.glob("*.hps") if BACKUP_DIR.is_dir() else []):
+    backup_root = _backups()
+    for p in (backup_root.glob("*.hps") if backup_root.is_dir() else []):
+        if _SLOT:
+            _ordinary_under(p, _slot_root())
         m = BACKUP_NAME.match(p.name)
         if not m:
             continue
@@ -272,10 +360,10 @@ def cmd_restore(args):
         else:
             wanted = re.fullmatch(rf"{args.slot}(_\d+)?", m.group("stem")) is not None
         if wanted:
-            backups.append((m.group("ts"), m.group("stem"), p))
+            backups.append((m.group("ts"), p.stat().st_mtime_ns, m.group("stem"), p))
     if not backups:
         sys.exit(f"no backups for slot {args.slot} in {BACKUP_DIR}")
-    _, stem, src = max(backups)
+    _, _, stem, src = max(backups)
     dst = SAVES / f"{stem}.hps"
     guard(dst)
     shutil.copy2(src, dst)

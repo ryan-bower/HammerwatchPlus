@@ -4,7 +4,7 @@ GameLab uses a Windows runtime for testing mods against the installed HoH2 game.
 Scenarios are JSON, bots are Python, and verdicts/measurements are JSON or JSONL.
 An agent with filesystem and process access can use it without this chat history.
 
-Read [AGENTS.md](../AGENTS.md) first. This is the short operational guide; the
+Read [CLAUDE.md](../CLAUDE.md) first. This is the short operational guide; the
 [detailed skill](../.claude/skills/gamelab/SKILL.md) documents scenario steps,
 fixtures, bot authoring and troubleshooting.
 
@@ -17,9 +17,9 @@ to the Windows runtime and refuses watch mode. See [Linux setup](../docs/gamelab
 Do not use the player's Proton prefix or display. The Windows instructions below
 retain their native backend; save, build and isolation gates apply on both hosts.
 
-Use Windows with HoH2 installed and Steam running. Python 3.10+, uv, a supported
+Use Windows with HoH2 installed and Steam running. Python 3.14+, uv, a supported
 GPU and a mingw-w64 x86_64 compiler are required. Doctor checks prerequisites and
-supports the local compiler locations documented in the root README. Native runs
+supports the local compiler locations documented in [CONTRIBUTING.md](../CONTRIBUTING.md). Native runs
 need Windows process visibility; a restricted sandbox may need execution access
 outside that sandbox. Preserve all isolation checks when resolving a refusal.
 
@@ -33,7 +33,7 @@ uv run python -m gamelab doctor --fix
 ```
 
 Doctor prepares ignored game dumps, tools, environment links, fixtures and
-Forgemaster risen/body units (`tools/make_forgemaster_risen.py`). Its
+Forgemaster risen/body units (`tools/generate/make_forgemaster_risen.py`). Its
 save-backup and optional HoH1 choices are explained in the detailed skill. Respect
 existing machine-local answers. Ask only for an unanswered HoH1 choice or ambiguous
 saves; do not invent paths, skip an owned install, manually write confirmation
@@ -60,13 +60,82 @@ are supported too:
 uv run python -m gamelab run mod-all --mode lab
 ```
 
-Always pass `--mode lab`: the direct CLI defaults to visible watch mode. One native
-run at a time across all agents/terminals. Freeze `mods/`, `gamelab/` and `tools/`
+Always pass `--mode lab`: the direct CLI defaults to visible watch mode. Ordinary
+runs remain serial; concurrent acceptance is restricted to the coordinated pool
+below. Freeze `mods/`, `gamelab/` and `tools/`
 during a batch; prepare proposed edits elsewhere. The batch helper records source
 before/after each case and stops on failures, missing results, dirty teardown,
 errors, partial results, build drift or source changes. It never resets, retries
 or re-pins automatically. Its `--help` describes local journal and stop-file paths.
 Stop files are honored between cases; an unfinished queue returns nonzero.
+
+Runtime cleanup uses an acquisition nonce plus
+`gamelab/env/userdata/gamelab.lock.lifecycle` to serialize acquisition, teardown,
+reset and final result publication. If either lock is refused, inspect its
+recorded owner and the cause with adequate process visibility. Never automatically
+delete a lifecycle guard or reset another owner's run. A stale guard needs an
+accounted owner/cause before explicit recovery. `--wait` currently may refuse
+transient lifecycle contention; keep the campaign's single-owner queue serial
+and retry only after the known owner has finished, without bypassing the gate.
+
+### Isolated worker pool (two-worker acceptance)
+
+The pool retains one coordinator machine lease;
+each worker has private saves, LocalAppData, logs, captures, generated plans,
+module deployment, a hidden desktop and an exact owned process job. Do not run
+independent ordinary launches concurrently. Only exact audited scenario/bot
+revisions are eligible; writing scenarios, setup and package building stay exclusive.
+
+```powershell
+uv run python -m gamelab pool null-payload mod-all --mode lab --workers 2 --label pair-001 --dry-run
+uv run python -m gamelab pool null-payload mod-all --mode lab --workers 2 --label pair-001
+uv run python tools/qa_batch.py --workers 2 --label pair-002 null-payload mod-all
+```
+
+Use `pool --workers 1` to compare the same slot path serially. `qa_batch` defaults
+to its original serial runner. The pool caps concurrency at two and stops further
+dispatch after any failure while accounting for already running siblings.
+`gamelab/results/pool-<label>/pool.json` preserves source, child exits, explicit
+nested result paths, cache origins and job/process finality. Each child still
+produces the original `run.json`, `inner.json`, telemetry and screenshots. Shared
+verified fixture snapshots are copied before a wave; new trusted caches are
+published by the coordinator after the wave ends. A dirty or uncertain teardown
+is retained for diagnosis, never automatically reset. These are independent solo
+workers and do not establish genuine co-op coverage.
+
+### Admit reviewed feature cases through data
+
+Use `docs/qa/swarm/catalogs/stash-v1.json` as a concrete catalog example. It retains
+its historical reviewed bytes and inputs. Upstream integration changes those
+inputs, so validation may intentionally refuse until a fresh case review. The
+builtin stock audits are source-bound too; never renew their pins merely to get
+a pass. Publication does not refresh admission or resume the campaign. A case
+declares its exact scenario, task/check/scope, expected predicates, bot consumer
+rows, lifecycle, private writes, reviewed input hashes and review artifact. The
+reviewer must establish the reached calls and writes; import discovery only
+detects obvious omissions. Enabled and transitive module roots have complete
+file inventories so newly added scripts/resources invalidate their review.
+Never automatically add files or renew review acceptance after a refusal.
+
+```powershell
+uv run python -m gamelab catalog --catalog docs/qa/swarm/catalogs/stash-v1.json
+uv run python -m gamelab catalog --catalog docs/qa/swarm/catalogs/stash-v1.json --case qa-content-stash-families
+uv run python tools/qa_batch.py --workers 2 --catalog docs/qa/swarm/catalogs/stash-v1.json --catalog-sha256 REVIEWED_SHA256 --label stash-001 qa-content-stash-families qa-content-stash-neighbors
+```
+
+Listing is structural discovery; `--case` validates current selected files.
+Explicit execution requires the reviewed catalog's exact SHA256. The coordinator
+freezes its bytes to `catalog.snapshot.json`, authenticates that snapshot to both
+children, and retains each scenario's exact bytes and raw bot-result hashes.
+Declared consumer rows must all exist exactly once and pass; aggregate `ok`
+alone is insufficient. Existing audited stock/probe cases remain available
+without a catalog. Worker count stays capped at two.
+
+Pool receipts expose phase timings and explicit catalog task bindings. After
+independent result review, use the tracker's `plan-pool-import` followed by
+`record-pool-bundle` to validate every selected child and atomically record their
+evidence. See [the tracker guide](../docs/qa/SWARM_TRACKER.md). This never creates
+claims, fixes prerequisites or resumes a paused campaign automatically.
 
 Select checks using [the regression map](../docs/qa/REGRESSIONS.md). Some `qa-*`
 scenarios are investigations with known setup failures; running all of them is
@@ -74,6 +143,16 @@ not a defined green regression suite. Scenario `timeout` is a budget, not the
 wall-clock cap: the launcher uses `outer_timeout` or normally three times `timeout`.
 
 ## Read the result before making a claim
+
+For host-side automated checks, select installed test directories explicitly:
+
+```powershell
+uv run python -B -m pytest tests planner -q --tb=short -rs --basetemp=gamelab/results/pytest-UNIQUE_LABEL
+```
+
+Choose a new temporary label. Unrestricted discovery also enters ignored QA
+drafts and retained historical test copies under `gamelab/results/`, producing
+unrelated import collisions. Host tests do not establish native gameplay proof.
 
 Each native run writes `gamelab/results/<timestamp>-<scenario>-lab/`:
 
@@ -132,4 +211,16 @@ To extend the harness, copy a relevant scenario and inspect its bot/expected row
 Follow the detailed skill's authoring instructions and the generated
 [verb reference](../docs/generated/verbs.md). Regenerate it with
 `uv run python tools/list_verbs.py` when registrations change. Hand off the exact
-reproduction, source, evidence and limits, and update root README and RE_NOTES.
+reproduction, source, evidence and limits, and update docs/status.md and RE_NOTES.
+
+## Harness mods
+
+`mods/gamelab-*` are GameLab test harnesses, not player content. `build.py` never packs
+them; they are only linked into the GameLab environment.
+
+| Harness | What it does |
+|---|---|
+| `gamelab-probe` | The `gl` console command channel, read-only state probes, heartbeat. |
+| `gamelab-hands` | Action verbs for the `gl` channel (start a mission floor, ...). Requires probe. |
+| `gamelab-pilot` | Bot API for the Pilot. Requires probe and hands. |
+| `gamelab-reload` | Logs a mark from its constructor, so the `reload-mark` scenario can tell whether an edited script was picked up without a restart. |

@@ -26,8 +26,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import math
 import re
-import shutil
 import subprocess
 import sys
 import time
@@ -36,7 +36,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(REPO / "tools"))
-from gamelab import env, lock, winproc  # noqa: E402
+from gamelab import env, lock, winproc, runtime  # noqa: E402
 from gamelab.runner import restore_written  # noqa: E402
 import gamepaths  # noqa: E402
 import hidden_desktop  # noqa: E402
@@ -51,7 +51,10 @@ INVALIDATING = ("user config unchanged", "user saves unchanged", "install res/ u
 
 
 def sha(p: Path) -> str | None:
-    return hashlib.sha256(p.read_bytes()).hexdigest() if p.is_file() else None
+    try:
+        return hashlib.sha256(p.read_bytes()).hexdigest()
+    except FileNotFoundError:
+        return None
 
 
 def mods_version() -> dict:
@@ -70,6 +73,9 @@ def mods_version() -> dict:
 
 def preflight(mode: str, accept_drift: bool = False, mods: list[str] | None = None,
               packages: list[str] | None = None) -> tuple[list[str], list[str]]:
+    slot = runtime.current()
+    if slot and env.GAME.resolve() != slot.game_dir.resolve():
+        return ["runtime slot game directory does not match its admission"], []
     errors = [f"saves: {p}" for p in saves.confirmation_problems()]
     if errors:
         return errors, []
@@ -93,7 +99,7 @@ def preflight(mode: str, accept_drift: bool = False, mods: list[str] | None = No
     errors += [f"env_link: {p}" for p in problems]
     gl = env.environments()["gamelab"]
     user_data = Path(gl["user_data"].replace("<repo>", str(REPO))).resolve()
-    if env.GAME.resolve() != user_data and user_data not in env.GAME.resolve().parents:
+    if not slot and env.GAME.resolve() != user_data and user_data not in env.GAME.resolve().parents:
         errors.append(f"gamelab game dir {env.GAME} is not the declared user_data {user_data}")
     profile = env.cvars((env.SETTINGS / mode / "HWR2.exe.cfg").read_text())
     if mode == "lab" and any(float(v) != 0 for k, v in profile.items() if k.startswith("snd_volume")):
@@ -113,29 +119,36 @@ def acquire(scenario_name: str, mode: str, wait: float = 0) -> None:
     """lock.acquire; with `wait` seconds, wait while another LIVE run holds the lock (another
     agent's run). A stale lock or a dirty teardown is still refused at once: those need a
     look, then `python -m gamelab reset`."""
-    end, said = time.time() + wait, False
+    if not math.isfinite(wait) or wait < 0:
+        raise lock.Refused("--wait must be a finite nonnegative number of seconds")
+    deadline, said, pending = time.monotonic() + wait, False, None
     while True:
+        if pending is not None and time.monotonic() >= deadline:
+            raise pending
         try:
             lock.acquire(scenario_name, mode)
             return
-        except lock.Refused as e:
-            if not (wait and "another GameLab run holds the lock" in str(e) and time.time() < end):
+        except lock.Refused as error:
+            remaining = deadline - time.monotonic()
+            if not (wait and isinstance(error, lock.Busy) and remaining > 0):
                 raise
             if not said:
-                print("WAITING", e, flush=True)
+                print("WAITING", error, flush=True)
                 said = True
-            time.sleep(3)
+            pending = error
+            time.sleep(min(3.0, remaining))
+
 
 
 EXIT_SKIPPED = 7
 
 
 def hoh1_missing(scenario: dict) -> list[str]:
-    """`"needs_hoh1": true`: the HoH1 imports (tools/import_hoh1.py, named like the mods that read
+    """`"needs_hoh1": true`: the HoH1 imports (tools/hoh1/import_hoh1.py, named like the mods that read
     them; every import when none of its mods has one) this machine lacks."""
     if not scenario.get("needs_hoh1"):
         return []
-    from tools import import_hoh1
+    from tools.hoh1 import import_hoh1
     outputs = import_hoh1.IMPORT_OUTPUTS
     want = [m for m in env.expand_mods(scenario.get("mods")) if m in outputs] or list(outputs)
     return [m for m in want if not outputs[m].exists()]
@@ -145,6 +158,19 @@ def run(scenario_name: str, mode: str, accept_drift: bool = False, wait: float =
     scenario_path = scenario_file(scenario_name)
     scenario_name = scenario_path.stem
     scenario = json.loads(scenario_path.read_text(encoding="utf-8"))
+    slot = runtime.current()
+    if slot and (mode != "lab" or accept_drift):
+        print("REFUSED runtime slots require lab mode and the pinned build")
+        return lock.EXIT_REFUSED
+    if slot:
+        from gamelab.pool import validate_scenario
+        try:
+            admitted = validate_scenario(scenario_name)
+            if scenario_path.resolve() != (SCENARIOS / (scenario_name + ".json")).resolve() or admitted != scenario:
+                raise ValueError("slot scenario is not the canonical admitted file")
+        except (OSError, ValueError) as error:
+            print("REFUSED", error)
+            return lock.EXIT_REFUSED
     missing = hoh1_missing(scenario)
     if missing:
         print("SKIPPED", f"needs_hoh1: no HoH1 import of {', '.join(missing)} on this machine "
@@ -153,12 +179,14 @@ def run(scenario_name: str, mode: str, accept_drift: bool = False, wait: float =
     # the lock before preflight: preflight re-links the lab mods dir (env.link), and doing that
     # under another live run drops that run's mods under test from the game dir
     try:
-        acquire(scenario_name, mode, wait)
+        with runtime.preparation_guard():
+            acquire(scenario_name, mode, wait)
     except lock.Refused as e:
         print("REFUSED", e)
         return lock.EXIT_REFUSED
     try:
-        errors, drift = preflight(mode, accept_drift, env.expand_mods(scenario.get("mods")), scenario.get("packages"))
+        with runtime.preparation_guard():
+            errors, drift = preflight(mode, accept_drift, env.expand_mods(scenario.get("mods")), scenario.get("packages"))
     except BaseException:
         lock.release(scenario_name, [])     # nothing ran (e.g. the build gate's exit 3)
         raise
@@ -170,40 +198,60 @@ def run(scenario_name: str, mode: str, accept_drift: bool = False, wait: float =
     try:
         return _run(scenario_path, scenario_name, scenario, mode, drift)
     except BaseException as e:
-        lock.release(scenario_name, [f"launcher raised {type(e).__name__}: {e}"])
+        if lock.owned():
+            lock.release(scenario_name, [f"launcher raised {type(e).__name__}: {e}"])
         raise
 
 
 def _run(scenario_path: Path, scenario_name: str, scenario: dict, mode: str, drift: list[str]) -> int:
-    results = RESULTS / f"{time.strftime('%Y%m%d-%H%M%S')}-{scenario_name}-{mode}"
-    results.mkdir(parents=True)
-    config = gamepaths.real_config()
-    config_before = sha(config)
+    slot = runtime.current()
+    results = slot.results if slot else RESULTS / f"{time.strftime('%Y%m%d-%H%M%S')}-{scenario_name}-{mode}"
+    baseline_step = "result directory"
     try:
+        results.mkdir(parents=True)
+        baseline_step = "user config discovery"
+        config = gamepaths.real_config()
+        baseline_step = "user config snapshot"
+        config_before = sha(config)
+        baseline_step = "install res snapshot"
         res_before = env.install_res_snapshot()
-    except OSError as e:
-        # the install's res/ could not be read whole (a file changed under us, a
-        # permission): nothing ran, so refuse like a preflight instead of a dirty lock
-        print("PREFLIGHT", f"install res/ snapshot: {e}")
-        shutil.rmtree(results, ignore_errors=True)
+        baseline_step = "user save snapshot"
+        saves_before = saves.snapshot()
+        baseline_step = "baseline evidence"
+        # Preserve completed observations locally even if a later preflight
+        # operation fails. These files never establish a native run or PASS.
+        res_evidence = {"before": res_before}
+        (results / "isolation-res.json").write_text(json.dumps(res_evidence, indent=1), encoding="utf-8")
+    except (OSError, saves.MetadataError) as error:
+        # No runner/game has started. Keep any partial evidence and refuse;
+        # never reinterpret a denied baseline read as gameplay or retry ACLs.
+        print("PREFLIGHT", f"{baseline_step}: {type(error).__name__}: {error}")
+        try:
+            lock.abandon()
+        except (lock.Refused, OSError) as refusal:
+            print("REFUSED", f"cannot release unused runtime ownership: {refusal}")
+            return lock.EXIT_REFUSED
         return 2
-    # Preserve the exact observation if the isolation gate later fails. A bare
-    # entry name cannot distinguish directory metadata drift from a file write.
-    res_evidence = {"before": res_before}
-    (results / "isolation-res.json").write_text(json.dumps(res_evidence, indent=1), encoding="utf-8")
-    saves_before = saves.snapshot()
     cmd = [sys.executable, "-m", "gamelab.runner", str(scenario_path), str(results), "--mode", mode]
     timeout = scenario.get("timeout", 300) * 3          # fixture passes + the run itself
     timeout = scenario.get("outer_timeout", timeout)   # test hook: kill before the runner's own deadline
     t0 = time.time()
     timed_out = aborted = False
+    runner_box = None
     with winproc.ForegroundSampler(game_dir=str(env.GAME.resolve()) if mode == "lab" else None) as fg:
         try:
-            done = hidden_desktop.run(cmd, cwd=REPO, timeout=timeout, visible=(mode == "watch"))
+            options = {}
+            if slot:
+                options = dict(desktop_name=slot.desktop_name, job_name=slot.job_name,
+                               affinity_mask=slot.affinity_mask, memory_mb=slot.memory_mb,
+                               allow_breakaway=False)
+            done = hidden_desktop.run(cmd, cwd=REPO, timeout=timeout, visible=(mode == "watch"), **options)
             inner_code, stdout, stderr = done.returncode, done.stdout, done.stderr
+            runner_box = getattr(done, "isolation", None)
         except subprocess.TimeoutExpired as e:
             inner_code, stdout, stderr = None, str(e.stdout or ""), f"timeout after {timeout}s"
             timed_out = True
+            runner_box = getattr(e, "isolation", None)
         except KeyboardInterrupt:
             # Ctrl+C (the user ending a watch session): hidden_desktop's job object has killed
             # the game tree, and the checks below still run, so this is a normal end, not a
@@ -223,6 +271,10 @@ def _run(scenario_path: Path, scenario_name: str, scenario: dict, mode: str, dri
     def outer(name, ok, detail=""):
         assertions.append({"name": name, "ok": bool(ok), "detail": detail})
 
+    if slot:
+        outer("owned worker job fully exited", isinstance(runner_box, dict)
+              and runner_box.get("job_name") == slot.job_name and runner_box.get("tree_clean") is True
+              and runner_box.get("active_processes") == 0, json.dumps(runner_box))
     outer("user config unchanged", sha(config) == config_before, str(config))
     try:
         res_after = env.install_res_snapshot()
@@ -278,36 +330,41 @@ def _run(scenario_path: Path, scenario_name: str, scenario: dict, mode: str, dri
         dirty.append("runner wrote no inner.json")
     elif inner.get("partial"):
         dirty.append("runner was killed before it finished (inner.json is partial)")
-    teardown = lock.release(results.name, dirty)
-    record = {"verdict": verdict, "build_drift": bool(drift), "teardown": teardown, "scenario": scenario_name, "mode": mode, "environment": "gamelab",
-              "build": pin_build.live(), "fixture": inner.get("fixture"), "mods": mods_version(),
-              "seconds": round(time.time() - t0, 1), "foreground": report, "error": inner.get("error"),
-              "assertions": assertions, "live": inner.get("live"), "passes": inner.get("passes"),
-              "partial": bool(inner.get("partial")), "menu": inner.get("menu"),
-              "boundaries": inner.get("boundaries"), "travel_revision": inner.get("travel_revision"),
-              "explore": inner.get("explore")}
-    (results / "run.json").write_text(json.dumps(record, indent=1), encoding="utf-8")
-    if inner.get("boundaries"):
-        (results / "boundaries.md").write_text(boundary_table(inner["boundaries"]), encoding="utf-8")
-    # summary.{json,md}: per place wall/stall/loot/hits (tools/run_summary.py); never fails the run
-    try:
-        sys.path.insert(0, str(REPO / "tools"))
-        import run_summary
-        summ = run_summary.write(results)
-        if summ.get("stall_s"):
-            print(f"  stalled frames: {summ['stall_s']} s (summary.md)")
-    except Exception as e:                     # noqa: BLE001 - a report, not a gate
-        print(f"  summary failed: {type(e).__name__}: {e}")
-    for a in assertions:
-        print(f"  [{'PASS' if a['ok'] else 'FAIL'}] {a['name']}" + (f"  -- {a['detail']}" if a["detail"] and not a["ok"] else ""))
-    if inner.get("error"):
-        print("  error:", inner["error"])
-    if drift:
-        print("  BUILD DRIFT: this run is not comparable to clean runs")
-    if not teardown["clean"]:
-        print("  dirty teardown:", "; ".join(teardown["reasons"]))
-    print(f"{verdict}  {scenario_name} ({mode}) in {record['seconds']}s -> {results.relative_to(REPO)}")
-    return {"PASS": 0, "FAIL": 1, "INVALID": 5, "TIMEOUT": 6, "ABORTED": 130}[verdict]
+    with lock.finishing(results.name, dirty) as teardown:
+        record = {"verdict": verdict, "build_drift": bool(drift), "teardown": teardown, "scenario": scenario_name, "mode": mode, "environment": "gamelab",
+                  "build": pin_build.live(), "fixture": inner.get("fixture"), "mods": mods_version(),
+                  "seconds": round(time.time() - t0, 1), "foreground": report, "error": inner.get("error"),
+                  "assertions": assertions, "live": inner.get("live"), "passes": inner.get("passes"),
+                  "partial": bool(inner.get("partial")), "menu": inner.get("menu"),
+                  "boundaries": inner.get("boundaries"), "travel_revision": inner.get("travel_revision"),
+                  "explore": inner.get("explore")}
+        if slot:
+            record["runtime_slot"] = {"pool_id": slot.pool_id, "slot_id": slot.slot_id,
+                                      "game_dir": str(slot.game_dir), "desktop_name": slot.desktop_name,
+                                      "job_name": slot.job_name}
+            record["runner_box"] = runner_box
+        (results / "run.json").write_text(json.dumps(record, indent=1), encoding="utf-8")
+        if inner.get("boundaries"):
+            (results / "boundaries.md").write_text(boundary_table(inner["boundaries"]), encoding="utf-8")
+        # summary.{json,md}: per place wall/stall/loot/hits (tools/run_summary.py); never fails the run
+        try:
+            sys.path.insert(0, str(REPO / "tools"))
+            import run_summary
+            summ = run_summary.write(results)
+            if summ.get("stall_s"):
+                print(f"  stalled frames: {summ['stall_s']} s (summary.md)")
+        except Exception as e:                     # noqa: BLE001 - a report, not a gate
+            print(f"  summary failed: {type(e).__name__}: {e}")
+        for a in assertions:
+            print(f"  [{'PASS' if a['ok'] else 'FAIL'}] {a['name']}" + (f"  -- {a['detail']}" if a["detail"] and not a["ok"] else ""))
+        if inner.get("error"):
+            print("  error:", inner["error"])
+        if drift:
+            print("  BUILD DRIFT: this run is not comparable to clean runs")
+        if not teardown["clean"]:
+            print("  dirty teardown:", "; ".join(teardown["reasons"]))
+        print(f"{verdict}  {scenario_name} ({mode}) in {record['seconds']}s -> {results.relative_to(REPO)}")
+        return {"PASS": 0, "FAIL": 1, "INVALID": 5, "TIMEOUT": 6, "ABORTED": 130}[verdict]
 
 
 def boundary_table(rows: list[dict]) -> str:

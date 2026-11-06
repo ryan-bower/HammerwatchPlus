@@ -12,7 +12,7 @@ namespace HWP
 	{
 		namespace StandIns
 		{
-			// read here too, so tools/make_config.py finds the campaign config's key in campaign
+			// read here too, so tools/generate/make_config.py finds the campaign config's key in campaign
 			bool On() { return HWP::Settings::GetBool("hoh1.content", false); }
 
 			// a generated floor of a theme, like vanilla's own Dark Halls entries

@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-specs-branding-ranks",
- "about": "qa-specs-branding-ranks against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). All5 Pyrebrand ranks: real native claw HP damage/radius/cooldown and stored fraction from a real rank5 Demon's Tail. Noncrit control, no orbs; controlled measurement.",
+ "about": "qa-specs-branding-ranks against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). All5 Pyrebrand ranks: real native claw HP damage/radius/cooldown and stored fraction from a real rank5 Demon's Tail. Noncrit control, no orbs; controlled measurement.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

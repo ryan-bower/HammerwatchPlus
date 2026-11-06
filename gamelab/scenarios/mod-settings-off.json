@@ -1,6 +1,6 @@
 {
  "name": "mod-settings-off",
- "about": "Every module's switch off and on again with every package installed, through the settings_offtests bot, each checked by what the module does in game: its town units gone and back (campaign portal after a town rebuild, farm, fishing coast, gambler, notice board, roulette wheel, wave statue, way gates, a dye bucket's map icon), its status line, its effect (a trap arrow's tint, a hovered buff's tip, the item over a Skill Trainer, the class hidden at create-character, the Title Bonuses buff, the stash sort button, the HoH1 trinkets in the drops, a level 4 tavern's 4th drink), two Bandit Keep floors with the run modules off then on (abyss crack, strongbox, key chest art, objectives, the keep puzzle, deathrecap's line on a death) and a Firearms character's orb warnings. classes is parked: only its stored value. Then every switch is on again and no script errors from HWP files.",
+ "about": "All 42 current feature modules and 3 required libraries loaded. Explicit per-feature applicability separates named effect/UI/unit checks, generated-floor logs, status-only checks and authored Classes PARKED policy. Adds bounded actual Affixes generator off/on, Attrclick trainer point-delta off/on with forced Shift, and Petrooms pet movement off/on on a checked trap-room route. Goldworth and library toggles are N/A. No exhaustive feature, persistence, ordinary-play, physical modifier/controller or co-op pass is claimed; provider off-start and delayed-sync cases remain separate tasks. Entries use explicit non-teleport Pilot intents and one bound pet ID with positive off displacement. No radius trap deletion; created IDs and unrelated-pressure preservation are recorded before disposable-floor abort. Owned initial settings reconcile/restore after failures without masking the original error. Petrooms pins the base Dog producer/type (idle 90px, leash 100px) and requires actual separation >=130px in every sample of both on windows, otherwise setup fails. No imported pet dependency.",
  "fixture": "town-tavern",
  "mods": [
   "hwplib",
@@ -44,7 +44,10 @@
   "goldworth",
   "mmhmm",
   "orbwarn",
-  "mapicons"
+  "mapicons",
+  "petrooms",
+  "attrclick",
+  "affixes"
  ],
  "timeout": 1500,
  "steps": [
@@ -63,7 +66,7 @@
   {
    "do": "bot",
    "bot": "settings_offtests",
-   "name": "every module off and on",
+   "name": "scoped settings effects and applicability",
    "expect": {
     "off_bufftips": true,
     "off_chatlinks": true,
@@ -107,7 +110,20 @@
     "off_puzzles_run": true,
     "off_deathrecap_run": true,
     "off_restored": true,
-    "off_no_errors": true
+    "off_no_errors": true,
+    "off_affixes": true,
+    "off_attrclick_setup": true,
+    "off_attrclick": true,
+    "off_petrooms_setup": true,
+    "off_petrooms": true,
+    "off_petrooms_returned_town": true,
+    "off_contract_inventory": true,
+    "off_not_applicable": true,
+    "off_initial_enabled": true,
+    "off_cleanup": true,
+    "off_petrooms_cleanup": true,
+    "off_petrooms_pet_setup": true,
+    "off_petrooms_on_geometry": true
    }
   },
   {

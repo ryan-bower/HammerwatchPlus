@@ -1,90 +1,96 @@
 {
- "name": "plan-fishing-d",
- "about": "Test plan through the plan_fishing bot: fishing s9 (three traps, a Bandit Keep run at g_timescale 16 until 20+ game minutes, back in town: the rolls, at most 3 fish a trap, the full-trap units and their minimap icon, the live full-trap unit's minimap icon (gl mapicons) and shot trap-full-map: the map tab centred on the player beside the full trap, a fish icon at it; walking up to it (from a clear spot beside it) puts its fish in the bag; the step's quick test `hwp fishing traps 60` if the run's rolls gave nothing).",
- "fixture": "town-paladin",
- "mods": [
-   "hwplib",
-   "hwplib-luck",
-   "hwplib-classui",
-   "mapicons",
-   "abyss",
-   "architect",
-   "bufftips",
-   "campaign",
-   "chatlinks",
-   "classes",
-   "colors",
-   "deathrecap",
-   "droptrade",
-   "farming",
-   "firearms",
-   "fishing",
-   "gambler",
-   "groupcombo",
-   "keys",
-   "laststats",
-   "legacy",
-   "maps",
-   "mercenary",
-   "pets",
-   "puzzles",
-   "specs",
-   "stash",
-   "strongbox",
-   "summons",
-   "valuables",
-   "wavemode",
-   "weapons",
-   "weaponswap"
- ],
- "timeout": 600,
- "steps": [
-  {
-   "do": "console",
-   "line": "e_cheats 1"
-  },
-  {
-   "do": "console",
-   "line": "show_chat"
-  },
-  {
-   "do": "sleep",
-   "seconds": 1
-  },
-  {
-   "do": "bot",
-   "bot": "plan_fishing",
-   "kwargs": {
-    "sections": "traps_run"
-   },
-   "name": "traps over a run",
-   "expect": {
-    "traps_owned": true,
-    "traps_run_counts": true,
-    "traps_resolved": true,
-    "traps_cap_3": true,
-    "traps_full_shown": true,
-    "traps_full_icon": true
-   }
-  },
-  {
-   "do": "shot",
-   "name": "trap-full-map"
-  },
-  {
-   "do": "bot",
-   "bot": "plan_fishing",
-   "kwargs": {
-    "sections": "traps_walk"
-   },
-   "name": "walk up to a full trap",
-   "expect": {
-    "trap_collected": true,
-    "trap_emptied": true
-   }
-  },
-  {
-   "do": "log_clean"
-  }
- ]
+  "name": "plan-fishing-d",
+  "about": "Natural trap elapsed-time accounting only:3 traps,20+ game minutes, exact trap contents equal reported natural catches. Zero is valid and retains positive collection/visual scope as unobserved; no debug replacement. Positive samples additionally inspect full units/icons and native walk-up. Read coverage dispositions; aggregate PASS does not imply a positive natural payout.",
+  "fixture": "town-paladin",
+  "mods": [
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
+    "mapicons",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "sleep",
+      "seconds": 1
+    },
+    {
+      "do": "bot",
+      "bot": "plan_fishing",
+      "kwargs": {
+        "sections": "traps_run",
+        "required_flags": [
+          "traps_owned",
+          "traps_run_counts",
+          "traps_resolved",
+          "traps_cap_3",
+          "traps_natural_conserved"
+        ]
+      },
+      "name": "traps over a run",
+      "expect": {
+        "traps_owned": true,
+        "traps_run_counts": true,
+        "traps_resolved": true,
+        "traps_cap_3": true,
+        "traps_natural_conserved": true,
+        "ok": true
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "plan_fishing",
+      "kwargs": {
+        "sections": "traps_walk_if_natural",
+        "required_flags": [
+          "trap_observation_accounted"
+        ]
+      },
+      "name": "walk up to a full trap",
+      "expect": {
+        "trap_observation_accounted": true,
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
 }

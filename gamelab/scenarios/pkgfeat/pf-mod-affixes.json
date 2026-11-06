@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-affixes",
- "about": "mod-affixes against the built package dungeon instead of the mods' source folders (tools/make_package_scenarios.py). Issue #17, mods/affixes: Rare and Epic items may roll a second suffix (the rare tier) and Epic items a second prefix (the epic tier), affixes.chance (25) percent each. Rolls 400 Epic and 400 Rare items through the generator (rates, no duplicate mod, no tier over two, one skill), 100% and off, gives an Epic chest piece with both extras (tooltip shot), saves, restarts and finds it unchanged.",
+ "about": "mod-affixes against the built package dungeon instead of the mods' source folders (tools/generate/make_package_scenarios.py). Issue #17, mods/affixes: Rare and Epic items may roll a second suffix (the rare tier) and Epic items a second prefix (the epic tier), affixes.chance (25) percent each. Rolls 400 Epic and 400 Rare items through the generator (rates, no duplicate mod, no tier over two, one skill), 100% and off, gives an Epic chest piece with both extras (tooltip shot), saves, restarts and finds it unchanged.",
  "fixture": "town-paladin",
  "timeout": 300,
  "steps": [

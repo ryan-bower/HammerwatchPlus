@@ -1,11 +1,11 @@
-"""tools/make_config.py: a module's config block is checked against how its code reads each
+"""tools/generate/make_config.py: a module's config block is checked against how its code reads each
 setting, and the generated files are current."""
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from tools import make_config  # noqa: E402
+from tools.generate import make_config  # noqa: E402
 
 
 def fake_mod(tmp_path, monkeypatch, code: str, name="demo"):

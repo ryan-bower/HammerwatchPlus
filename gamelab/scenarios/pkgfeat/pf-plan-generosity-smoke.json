@@ -1,6 +1,6 @@
 {
  "name": "pf-plan-generosity-smoke",
- "about": "plan-generosity-smoke against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). The Paladin of Generosity (Paladin 4th spec, mods/specs) compiles and sets up: the specs module registers 8 subclasses, a Paladin takes hwp_paladin_generosity, the binds of the level, the hwp gen status line, the Fury on its own button, the tooltips filled (plan_generosity bot, section smoke).",
+ "about": "plan-generosity-smoke against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). The Paladin of Generosity (Paladin 4th spec, mods/specs) compiles and sets up: the specs module registers 8 subclasses, a Paladin takes hwp_paladin_generosity, the binds of the level, the hwp gen status line, the Fury on its own button, the tooltips filled (plan_generosity bot, section smoke).",
  "fixture": "town-paladin",
  "timeout": 300,
  "steps": [

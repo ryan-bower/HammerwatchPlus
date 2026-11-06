@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-31",
+  "status": "two-worker-foundation-verified",
+  "authorization": "User requested two isolated workers, native proof and harness integration before broader verification resumes; optimize capacity only after two work.",
+  "progress": {
+    "runtime_context": "Implemented and natively validated",
+    "ownership": "Implemented; exact process/job ownership and paired cleanup validated",
+    "desktop_jobs": "Implemented; paired native jobs/desktops observed",
+    "launcher_runner": "Four original cases pass serially and paired",
+    "scheduler_cache": "Implemented; matched benchmark uses cache hits",
+    "acceptance_probes": "Routing0022/2PASS/eight inspected captures; fault001 expectedTIMEOUT retained, survivorPASS/92observations/three inspected post-peer captures",
+    "native_acceptance": "Paired routing and contained-timeout survivor accepted; explicit owned reset and fresh qa_batch recovery2/2PASS; final coordinator clean",
+    "benchmark": "One warm four-case comparison:149.68s serial versus94.64s paired,1.58x; preliminary"
+  },
+  "audience": "LLM coding agents and the runtime coordinator",
+  "campaign": {
+    "goal_status": "paused-by-user",
+    "ledger_revision_observed": 4847,
+    "epoch": "E018",
+    "phase": "idle",
+    "canonical_ledger_modified": false
+  },
+  "investigation_scope": [
+    "Read-only source inspection and Windows hardware inventory",
+    "Independent Python-runtime and native-shim reviews",
+    "Investigation itself had no game launches; subsequent authorized implementation and acceptance are tracked in progress"
+  ],
+  "machine_observed": {
+    "cpu": "AMD Ryzen 7 7800X3D",
+    "physical_cores": 8,
+    "logical_processors": 16,
+    "memory_gib_rounded": 31.1,
+    "gpu_names": [
+      "AMD Radeon RX 9070 XT",
+      "AMD Radeon(TM) Graphics"
+    ],
+    "gpu_vram": "Not established; the 32-bit Win32_VideoController.AdapterRAM value is unsuitable here",
+    "lab_resolution": "640x360",
+    "lab_fps_limit": 60,
+    "capacity_conclusion": "Two workers are a reasonable first engineering target. Actual capacity and speedup are unmeasured."
+  },
+  "conclusion": "The current single-run restriction protects shared mutable state. It is not evidence that the hardware or game inherently supports only one instance. Safe concurrency needs isolated runtime slots and ownership-aware orchestration; removing the lock alone is insufficient.",
+  "native_static_observation": {
+    "method": "Read-only PE imports and bounded string inspection of the isolated executable; no load or execution",
+    "exe_sha256": "232cfb7a784c4851618afae1f9b7481deb60e1b46e7e4fcae79c4b4c35751100",
+    "observed": [
+      "SteamAPI_Init import",
+      "SteamAPI_RestartAppIfNecessary import",
+      "Failure/restart abort messages",
+      "SteamNetworking006 string"
+    ],
+    "limitation": "No direct named-mutex or single-instance literal was found, but dynamic lookup and SDL/Steam DLL behavior prevent concluding that no singleton or session restriction exists."
+  },
+  "confirmed_constraints": [
+    {
+      "id": "shared-runtime-files",
+      "sources": [
+        "gamelab/env.py:28",
+        "gamelab/env.py:345",
+        "gamelab/session.py:101",
+        "gamelab/session.py:544"
+      ],
+      "finding": "One env.GAME path holds executable-relative saves, appdata, profile, game log, shim log and capture request. Startup overwrites or unlinks shared files.",
+      "required_change": "Give each slot its own validated game directory, mutable resource files, save tree, LocalAppData redirect and capture channel."
+    },
+    {
+      "id": "shared-module-deployment",
+      "sources": [
+        "gamelab/env.py:275",
+        "gamelab/env.py:321",
+        "gamelab/launcher.py:158"
+      ],
+      "finding": "Preflight changes the shared module deployment and removes prior scenario module links or packages.",
+      "required_change": "Deploy modules independently per slot from one frozen source bundle; never relink another live worker."
+    },
+    {
+      "id": "shared-generated-source",
+      "sources": [
+        "gamelab/runner.py:100",
+        "gamelab/runner.py:111",
+        "gamelab/runner.py:1139",
+        "gamelab/runner.py:1205",
+        "gamelab/pilot.py:92"
+      ],
+      "finding": "Every run clears repo-wide PlanData.as, including runs without a plan. Writing scenarios and travel exploration have additional shared source outputs.",
+      "required_change": "Use a private generated-plan module or source overlay per slot. Initially keep other writing/exploration scenarios exclusive; audit bot and import effects before admission."
+    },
+    {
+      "id": "global-process-classification-and-cleanup",
+      "sources": [
+        "gamelab/lock.py:26",
+        "gamelab/lock.py:88",
+        "gamelab/lock.py:94",
+        "gamelab/lock.py:188",
+        "gamelab/lock.py:243",
+        "gamelab/lock.py:290"
+      ],
+      "finding": "One lock and teardown record cover all runs. Another executable path is classified as a player; cleanup selects all processes with the current lab executable image.",
+      "required_change": "Retain a machine coordinator lease, register verified sibling slots, and add per-slot leases/teardown. Cleanup must prove exact worker ownership with PID, creation identity, executable, job and run token. Unknown HWR2 processes still refuse."
+    },
+    {
+      "id": "shared-preparation-and-result-discovery",
+      "sources": [
+        "gamelab/runner.py:424",
+        "gamelab/runner.py:480",
+        "gamelab/launcher.py:74",
+        "gamelab/launcher.py:83",
+        "gamelab/launcher.py:184",
+        "tools/qa_batch.py:98"
+      ],
+      "finding": "Fixture publication, package output and save-preservation preparation are shared. Result directories use second-resolution names; batch discovery assumes one new directory.",
+      "required_change": "Initially prepare/cache/build serially and consume immutable artifacts in parallel waves. Use unique run IDs and explicit child result paths. Parallel cache publication would need per-key arbitration and atomic publication. Preserve all backup and isolation checks."
+    },
+    {
+      "id": "desktop-and-resource-budget",
+      "sources": [
+        "tools/hidden_desktop.py:160",
+        "tools/hidden_desktop.py:247",
+        "tools/hidden_desktop.py:262",
+        "tools/hidden_desktop.py:273",
+        "tools/hidden_desktop.py:297",
+        "gamelab/session.py:584"
+      ],
+      "finding": "Workers currently use one desktop name. Each job independently uses the same CPU affinity mask and 4096 MiB tree ceiling. Live verification tests membership in any job, rather than the exact owned job. GPU resources remain shared.",
+      "required_change": "Use unique hidden desktops, exact owned-job verification and a shared total resource budget. Benchmark affinity choices instead of multiplying existing defaults."
+    },
+    {
+      "id": "coordination-and-evidence",
+      "sources": [
+        "AGENTS.md:27",
+        "docs/qa/SWARM_TRACKER.md:266",
+        "tools/qa_swarm.py:568",
+        "tools/qa_swarm.py:619"
+      ],
+      "finding": "The operating contract is one native run machine-wide. The tracker has one runtime-owner role and no slot identity or capacity accounting.",
+      "required_change": "Keep one coordinator owning a frozen epoch and dispatching bounded slots. Extend admission/evidence with slot, run, process identity and resource reservations. Update operating instructions with the tested implementation. Existing task claims are not concurrency permission."
+    }
+  ],
+  "reusable_isolation": [
+    {
+      "source": "gamelab/session.py:112",
+      "finding": "LocalAppData redirection is supplied in the individual child environment before resume."
+    },
+    {
+      "source": "gamelab/winproc.py:110",
+      "finding": "Shim-input mailslots are PID-qualified; window lookup is PID-based."
+    },
+    {
+      "source": "tools/hidden_desktop.py:247",
+      "finding": "Each invocation already creates a separate unnamed job and temporary output directory."
+    }
+  ],
+  "unresolved_by_static_review": [
+    "Whether the pinned native game and same Steam account allow simultaneous independent single-player sessions without singleton, port or Steam-session conflicts",
+    "Whether concurrent rendering/frame pacing changes time-sensitive verdicts",
+    "Peak per-worker CPU, committed memory, GPU memory and actual throughput",
+    "All bot/import side effects and resource reloads; no general parallel-safe scenario classification is claimed",
+    "Resource hardlinks/junctions are shared read-only assumptions, not a write-containment boundary"
+  ],
+  "proposed_mvp": {
+    "default_workers": 1,
+    "initial_opt_in_maximum": 2,
+    "next_benchmark_candidate": 4,
+    "architecture": "One coordinator and frozen bundle; process workers with private game trees, generated sources, hidden desktops, leases and result directories.",
+    "initial_parallel_scope": "Audited independent single-player scenarios using prebuilt packages and prewarmed read-only fixture caches.",
+    "exclusive_until_adapted": [
+      "Doctor/setup, package building, cache creation and save-preservation preparation",
+      "Source edits, bot edits, relaunch overrides, travel learning and shared exports",
+      "Tests of global lifecycle/reset/isolation behavior",
+      "Timing-sensitive cases without concurrent-versus-serial validation"
+    ],
+    "co_op_policy": "Local solo workers do not establish genuine co-op coverage. Existing user-requested co-op deferrals remain."
+  },
+  "implementation_work_packages": [
+    {
+      "id": "runtime-context",
+      "depends_on": [],
+      "work": "Introduce validated slot paths and private deployment/source overlays; preserve default behavior."
+    },
+    {
+      "id": "ownership",
+      "depends_on": [
+        "runtime-context"
+      ],
+      "work": "Add coordinator registry, per-slot leases, exact cleanup and unknown-process refusals."
+    },
+    {
+      "id": "launch-and-results",
+      "depends_on": [
+        "runtime-context"
+      ],
+      "work": "Carry slot identity through launcher, runner, Game, desktop, plan generation, cache reads and unique results."
+    },
+    {
+      "id": "scheduler-and-tracker",
+      "depends_on": [
+        "ownership",
+        "launch-and-results"
+      ],
+      "work": "Add bounded dispatch, exclusive-case admission, total resource reservations and slot-bound evidence."
+    },
+    {
+      "id": "acceptance",
+      "depends_on": [
+        "scheduler-and-tracker"
+      ],
+      "work": "Complete staged native acceptance before enabling campaign concurrency."
+    }
+  ],
+  "acceptance_sequence": [
+    {
+      "id": "offline-isolation",
+      "checks": [
+        "Escaping/reparse slot paths refuse",
+        "Same-slot claims collide; distinct slots do not",
+        "Foreign/reused PIDs cannot be cleaned up",
+        "Sibling teardown/cache failures do not mutate another slot",
+        "Same-scenario submissions get unique result paths"
+      ]
+    },
+    {
+      "id": "single-slot-parity",
+      "requires": "offline-isolation",
+      "checks": [
+        "Run one new-path worker through minimal/full load and input/helper contracts",
+        "Retain user-save/config/resource/focus/build and teardown assertions"
+      ]
+    },
+    {
+      "id": "two-live-workers",
+      "requires": "single-slot-parity",
+      "checks": [
+        "Prove overlapping live game PIDs with both live isolation checks",
+        "Use distinguishable states/commands to detect cross-routing",
+        "Inspect actual captures from both workers",
+        "Both exit cleanly with separate original assertions/artifacts"
+      ]
+    },
+    {
+      "id": "fault-containment",
+      "requires": "two-live-workers",
+      "checks": [
+        "An intentionally timed-out owned worker cannot stop/alter its sibling",
+        "A dirty slot refuses reuse while its clean sibling remains usable",
+        "Unregistered game processes still block admission"
+      ]
+    },
+    {
+      "id": "capacity-benchmark",
+      "requires": "fault-containment",
+      "checks": [
+        "Compare a matched scenario mix at one/two workers; test four only after two is sound",
+        "Measure trustworthy cases/hour, duration, frame pacing, RAM/GPU use and failures",
+        "Keep original assertions/timeouts fixed",
+        "Choose the count improving throughput without changing verdict reliability"
+      ]
+    }
+  ],
+  "external_primary_references": [
+    {
+      "url": "https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createdesktopw",
+      "supports": "An existing desktop name returns that existing desktop; distinct objects require unique names."
+    },
+    {
+      "url": "https://partner.steamgames.com/doc/api/steam_api?l=english",
+      "supports": "Steam initialization has client/application/OS-user requirements; this does not prove this game's concurrent-session behavior."
+    }
+  ],
+  "next_action": "Review parallel eligibility for the wider queue, then benchmark higher worker counts after the verified two-worker baseline. Keep broader campaign paused.",
+  "validation_record": "docs/qa/swarm/multi_run_validation.json"
+}

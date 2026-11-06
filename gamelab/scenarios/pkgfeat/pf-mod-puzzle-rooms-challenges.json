@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-puzzle-rooms-challenges",
- "about": "mod-puzzle-rooms-challenges against the built packages coop, dungeon instead of the mods' source folders (tools/make_package_scenarios.py). mods/puzzles with mods/architect: a floor with Architect challenges picked (ChallengeSetup wraps a non-SpawnPrefabSet command, Challenges.as) still gets its puzzle room at puzzles.room_chance 100.",
+ "about": "mod-puzzle-rooms-challenges against the built packages coop, dungeon instead of the mods' source folders (tools/generate/make_package_scenarios.py). mods/puzzles with mods/architect: a floor with Architect challenges picked (ChallengeSetup wraps a non-SpawnPrefabSet command, Challenges.as) still gets its puzzle room at puzzles.room_chance 100.",
  "fixture": "town-paladin",
  "timeout": 300,
  "steps": [

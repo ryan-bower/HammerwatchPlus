@@ -4,6 +4,9 @@ import math
 import time
 
 
+WALK_GUIDE_RADIUS = 128
+
+
 def valid_grid(t, step):
     rows, n = t.get("rows", []), t.get("size", 0)
     return bool(t.get("ok") and not t.get("truncated") and t.get("step") == step
@@ -107,7 +110,7 @@ def _route_targets(fine, coarse, origin, predicate, visited, excluded):
                     continue
                 ox, oy = (ix-mid)*step, (iy-mid)*step
                 distance = math.hypot(ox, oy)
-                if distance < 8:
+                if distance < 8 or distance > WALK_GUIDE_RADIUS:
                     continue
                 world = (origin[0]+ox, origin[1]+oy)
                 key = (round(world[0]/8), round(world[1]/8))
@@ -124,8 +127,11 @@ def _route_targets(fine, coarse, origin, predicate, visited, excluded):
                     candidates[key] = item
     if candidates:
         return sorted(candidates.values(), key=lambda q:q["score"])
-    # Explore distinct native-reachable room/frontier points when the requested
-    # large footprint is not yet visible. No exploration point can pass geometry.
+    # Explore nearby room/frontier points when the full footprint is not locally
+    # available. Far raster-clear rooms can be disconnected: query short native
+    # departures before spending the walk budget on those rooms. This radius is
+    # a guide policy, not a native Pathfind destination limit. No exploration
+    # point can pass geometry; every moved origin is fully recertified below.
     grid, mid = coarse, coarse["size"]//2
     for iy, row in enumerate(grid["rows"]):
         for ix, cell in enumerate(row):
@@ -133,7 +139,7 @@ def _route_targets(fine, coarse, origin, predicate, visited, excluded):
                 continue
             ox, oy = (ix-mid)*grid["step"], (iy-mid)*grid["step"]
             distance = math.hypot(ox, oy)
-            if not 64 <= distance <= 240:
+            if not 32 <= distance <= WALK_GUIDE_RADIUS:
                 continue
             world = (origin[0]+ox, origin[1]+oy)
             key = (round(world[0]/8), round(world[1]/8))
@@ -143,7 +149,7 @@ def _route_targets(fine, coarse, origin, predicate, visited, excluded):
             free = sum(0 <= iy+y < grid["size"] and 0 <= ix+x < grid["size"]
                        and grid["rows"][iy+y][ix+x] != "#"
                        for y in range(-2,3) for x in range(-2,3))
-            score = max(0, 128-revisit)*5 - free*3 - distance*.1
+            score = distance + max(0, 80-revisit)*4 - free*3
             candidates[key] = {"goal":world,"key":key,"guide":"native-path frontier",
                                "score":score,"provisional_lanes":[]}
     return sorted(candidates.values(), key=lambda q:q["score"])
@@ -162,16 +168,24 @@ def _blocked_departure(origin, goal, failures):
                and _departure_sector(origin, goal) == f["sector"] for f in failures)
 
 
-def _walk(c, predicate, tag, ray_distance, ray_half_width, requirements, extra_probe=None):
+def _walk(c, predicate, tag, ray_distance, ray_half_width, requirements, extra_probe=None,
+          *, max_moves=20, max_seconds=150):
+    if (type(max_moves) is not int or not 0 <= max_moves <= 20
+            or type(max_seconds) not in (int, float) or not math.isfinite(max_seconds)
+            or not 0 < max_seconds <= 150):
+        geometry = {"attempts": [], "requirements": requirements, "teleports": 0,
+                    "error": "invalid bounded walk budget"}
+        c.out[tag+"_geometry"] = geometry
+        return None, None, None, geometry
     attempts, visited, excluded = [], [], set()
     blocked_native = set()
     failed_departures = []
     started = time.monotonic()
-    # Twenty movement attempts plus a mandatory terminal observation pass.
+    # Bounded movement attempts plus a mandatory terminal observation pass.
     # Reaching a guide on the last allowed move never grants geometry credit;
     # it must still face the unchanged fresh fine/ray predicate.
-    for attempt in range(21):
-        terminal_observation = attempt == 20 or time.monotonic()-started >= 150
+    for attempt in range(max_moves+1):
+        terminal_observation = attempt == max_moves or time.monotonic()-started >= max_seconds
         origin = c.pos()
         fine = c.gl("terrain", 160, 8)
         detail = {"attempt":attempt,"origin":origin,"fine":fine,

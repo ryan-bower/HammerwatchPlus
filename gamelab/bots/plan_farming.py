@@ -26,6 +26,7 @@ import time
 from pathlib import Path
 
 from gamelab.bots.plan_checks import Checks as Base
+from gamelab.bots.qa_town_economy_oracle import assess
 from gamelab.hps import hash_string
 
 FARMER = "npc_misc_farmer_man"
@@ -40,7 +41,7 @@ LUCKY_BUFF = hash_string("hwp_herb_lucky_leaf")
 EMBER_BUFF = hash_string("hwp_herb_ember_kush")
 LIGHTNING_BUFF = hash_string("hwp_herb_lightning_kush")
 REPO = Path(__file__).resolve().parents[2]
-# the wild plot units' minimap sprite (tools/make_wild_plots.py): the crop icon of core's map icons
+# the wild plot units' minimap sprite (tools/generate/make_wild_plots.py): the crop icon of core's map icons
 WILD_ICON = 'texture="gui/hwp/map_icons.png" frame="24 0 9 11"'
 WILD_LINE = r"\[HWP:farming\] (wild (\w+) plot at (-?\d+),(-?\d+)|no spot for a wild plot on this floor)"
 
@@ -382,7 +383,7 @@ class Checks(Base):
         self.close_windows()
         self.flag("s2_can_bought", u.get("window") == "HWPFarmMenu" and g0 - g1 > 0 and "4/4" in st1,
                   f"{st0!r} -> {st1!r}, paid {g0 - g1} g (plan says 150, source CAN_PRICE[1] = 200)")
-        self.flag("s2_can_price_150", g0 - g1 == 150, f"paid {g0 - g1} g: the plan's 150 g; the source and README say 200")
+        self.flag("s2_can_price_200", g0 - g1 == 200, f"paid {g0 - g1} g; source CAN_PRICE[1] = 200")
         self.flag("s2_seed_bought", g1 - g2 == 20 and any("Cabbage seed" in s for s in said), f"gold {g1} -> {g2}, {said}")
 
     def groove_plant(self):
@@ -674,7 +675,7 @@ class Checks(Base):
 
     # --- fix-farming-lightning-kush
     def lightning_kush(self):
-        """Issue #15: Lightning Kush, the fourth Holy Herb strain, one row of tools/make_herbs.py's
+        """Issue #15: Lightning Kush, the fourth Holy Herb strain, one row of tools/generate/make_herbs.py's
         table. Its joint rolls, wields and puffs like the others; the buff (hwp_herb_lightning_kush
         in the off hand's hwp_herb slot) adds 0.2 to the lightning damage multiplier and nothing
         to fire. Plants & Herbs shows every seed and harvest (section b had 16 cells: the 17th
@@ -904,7 +905,7 @@ class Checks(Base):
                   f"{wild} of {floors} floors ({wild / floors if floors else 0:.2f}), per floor {seen}")
 
 
-def run(p, sections="", **_):
+def run(p, sections="", required_flags=(), **_):
     """sections: comma separated; "name:arg" passes one argument (farm_town:16, wild_yield:60)."""
     c = Checks(p)
     for s in sections.split(","):
@@ -915,6 +916,8 @@ def run(p, sections="", **_):
             getattr(c, name)(*([arg] if arg else []))
         except Exception as e:  # a section's crash is its own failure, not the bot's
             c.flag(f"{name}_crashed", False, repr(e))
+    if required_flags:
+        c.out.update(assess(c.out, required_flags))
     c.out["notes"] = c.notes
     c.out["terminal"] = " | ".join(c.notes)[-3000:]
     return c.out

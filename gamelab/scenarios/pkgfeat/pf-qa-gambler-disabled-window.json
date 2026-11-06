@@ -1,0 +1,25 @@
+{
+ "name": "pf-qa-gambler-disabled-window",
+ "about": "qa-gambler-disabled-window against the built package town instead of the mods' source folders (tools/generate/make_package_scenarios.py). Single-player legal open-menu setting disable: zero stale paid-action mutation, closes/unpauses, re-enable one NPC and one2000g ilvl1 reroll. Includes natural UI event APIs only.",
+ "fixture": "town-tavern",
+ "timeout": 180,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_gambler_disabled_window",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "town"
+ ]
+}

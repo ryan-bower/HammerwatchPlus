@@ -1,6 +1,6 @@
 {
  "name": "fix-farming-lightning-kush",
- "about": "Issue #15: Lightning Kush, the fourth Holy Herb strain (tools/make_herbs.py). A rolled joint wields and puffs; its buff hwp_herb_lightning_kush lands in the hwp_herb slot and adds 0.2 to the lightning damage multiplier (fire untouched). A wild Lightning Kush plot spawns; Plants & Herbs shows all 9 seeds over their 9 harvests (section b had 16 cells). Shots: lightning-kush-wild (the violet plants), lightning-kush-herbs (the seed packet and bud).",
+ "about": "Issue #15: Lightning Kush, the fourth Holy Herb strain (tools/generate/make_herbs.py). A rolled joint wields and puffs; its buff hwp_herb_lightning_kush lands in the hwp_herb slot and adds 0.2 to the lightning damage multiplier (fire untouched). A wild Lightning Kush plot spawns; Plants & Herbs shows all 9 seeds over their 9 harvests (section b had 16 cells). Shots: lightning-kush-wild (the violet plants), lightning-kush-herbs (the seed packet and bud).",
  "fixture": "town-paladin",
  "mods": [
   "hwplib",

@@ -6,6 +6,15 @@ namespace HWP
 {
 	namespace Gambler
 	{
+		HWPGamblerMenu@ g_openMenu;
+
+		void CloseOpenMenu()
+		{
+			HWPGamblerMenu@ menu = g_openMenu;
+			if (menu !is null)
+				menu.CloseOwned();
+		}
+
 		const int REROLL_PER_LEVEL = 2000;  // gold per item level for a gear reroll
 		const int TOKEN_LEVELS = 5;         // or 1 bet token (HWP::Market) per 5 item levels
 		const int REROLL_TRIES = 8;         // rolls a reroll makes for a modifier set the item did not have
@@ -28,7 +37,7 @@ class HWPGamblerShop : AShopContent
 
 	bool CanInteract(PlayerRecord@ player) override
 	{
-		if (!HWP::Gambler::g_enabled)
+		if (!HWP::Gambler::Enabled())
 			return false; // gambler.enabled off: the host takes him away within a frame
 		if (!player.local)
 			return true;
@@ -37,6 +46,8 @@ class HWPGamblerShop : AShopContent
 
 	AWindowObject@ MakeShopWindow(GUIBuilder@ guiBuilder) override
 	{
+		if (!HWP::Gambler::Enabled())
+			return null;
 		m_gameState = 0;
 		m_selectedBet = 0;
 		m_playerCard = 0;
@@ -46,6 +57,11 @@ class HWPGamblerShop : AShopContent
 	}
 
 	string GetName() override { return "gambler"; }
+
+	bool CanStartTransaction()
+	{
+		return HWP::Gambler::Enabled() && m_player !is null && m_window !is null && !m_window.m_closing;
+	}
 
 	int GetPlayerGold()
 	{
@@ -120,7 +136,7 @@ class HWPGamblerShop : AShopContent
 
 	bool PlayGame()
 	{
-		if (m_gameState != 0)
+		if (!CanStartTransaction() || m_gameState != 0)
 			return false;
 
 		int bet = GetSelectedBetAmount();
@@ -283,7 +299,7 @@ class HWPGamblerShop : AShopContent
 
 	bool Reroll(bool tokens)
 	{
-		if (m_gameState == 1 || !CanReroll(tokens))
+		if (!CanStartTransaction() || m_gameState == 1 || !CanReroll(tokens))
 			return false;
 		auto item = RerollItem();
 		if (tokens)
@@ -326,6 +342,7 @@ class HWPGamblerShop : AShopContent
 class HWPGamblerMenu : AWindowObject
 {
 	HWPGamblerShop@ m_gambler;
+	bool m_closed = false;
 	TextWidget@ m_goldText;
 	TextWidget@ m_resultText;
 	// what the last sell or reroll press said; UpdateUI shows it over the bet prompt or the
@@ -354,6 +371,7 @@ class HWPGamblerMenu : AWindowObject
 		super(b, "gui/hwp_gambler.gui");
 		PauseGame(true, true);
 		@m_gambler = gambler;
+		@HWP::Gambler::g_openMenu = this;
 
 		@m_goldText = cast<TextWidget>(m_widget.GetWidgetById("gold-amount"));
 		@m_resultText = cast<TextWidget>(m_widget.GetWidgetById("result-text"));
@@ -380,8 +398,25 @@ class HWPGamblerMenu : AWindowObject
 		UpdateUI();
 	}
 
+	void CloseOwned()
+	{
+		if (m_closed)
+			return;
+		m_closing = true; // AShopContent::IsDone releases this interaction
+		m_animationTimer = 0;
+		if (m_manager !is null)
+			m_manager.CloseWindow(this);
+	}
+
 	void OnClose() override
 	{
+		if (m_closed)
+			return;
+		m_closed = true;
+		m_closing = true;
+		m_animationTimer = 0;
+		if (HWP::Gambler::g_openMenu is this)
+			@HWP::Gambler::g_openMenu = null;
 		PauseGame(false, true);
 	}
 
@@ -470,7 +505,17 @@ class HWPGamblerMenu : AWindowObject
 
 	bool Update(int ms, GameInput& gameInput, MenuInput& menuInput) override
 	{
+		if (m_closed || m_closing || !HWP::Gambler::Enabled())
+		{
+			CloseOwned();
+			return false; // CloseWindow already performed OnClose and cleanup
+		}
 		bool result = AWindowObject::Update(ms, gameInput, menuInput);
+		if (result || m_closed || m_closing || !HWP::Gambler::Enabled())
+		{
+			CloseOwned();
+			return false;
+		}
 
 		// Handle animation timing
 		if (m_gambler.m_gameState == 1 && m_animationTimer > 0)
@@ -596,8 +641,12 @@ class HWPGamblerMenu : AWindowObject
 	{
 		if (name == "close")
 		{
-			m_closing = true; // the NPC's IsDone() reads it; CloseWindow doesn't set it
-			m_manager.CloseWindow(this);
+			CloseOwned();
+			return;
+		}
+		if (m_closed || m_closing || !HWP::Gambler::Enabled())
+		{
+			CloseOwned();
 			return;
 		}
 

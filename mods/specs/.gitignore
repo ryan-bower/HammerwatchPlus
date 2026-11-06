@@ -1,8 +1,8 @@
-# >>> tools/make_forgemaster_risen.py (generated from the HoH2 base; do not edit)
+# >>> tools/generate/make_forgemaster_risen.py (generated from the HoH2 base; do not edit)
 /players/hwp/specs/forgemaster/risen/
 /players/hwp/specs/forgemaster/bodies/
 /players/hwp/specs/forgemaster/marker/
-# <<< tools/make_forgemaster_risen.py
+# <<< tools/generate/make_forgemaster_risen.py
 # >>> tools/class_units.py (generated from the HoH2 base; do not edit)
 /doodads/lamps/brazier_pyre.unit
 # <<< tools/class_units.py

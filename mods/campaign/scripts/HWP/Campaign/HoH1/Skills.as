@@ -1,5 +1,5 @@
 // HoH2 implementations of the HoH1 enemy skills that HoH2 has no match for,
-// under HoH1-prefixed names (tools/import_hoh1.py maps them) and HoH1's
+// under HoH1-prefixed names (tools/hoh1/import_hoh1.py maps them) and HoH1's
 // parameters ("cooldown" is a plain int, effects use HoH2 effect classes).
 // The host decides when a skill starts and tells the peers (stage 0, with the
 // aim where it matters); the peers play it out locally.

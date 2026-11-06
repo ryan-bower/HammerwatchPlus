@@ -4,7 +4,7 @@
 	     (scripts/HWP/Campaign/Traps.as adds an HWPTrapSpawn command to every indoor
 	     DungeonGenerator; it places the hwp_traps set, weighted by the floor's theme, then
 	     one hwp_teleporters pad). The HWPTrap kinds (issue #37) are the generated block at
-	     the end of the hwp_traps entries (tools/make_hwp_traps.py); the entries above it are
+	     the end of the hwp_traps entries (tools/generate/make_hwp_traps.py); the entries above it are
 	     HoH2's flame jet and the TripMine glyphs.
 	     Patterns are row-major bytes, one per cell (Pattern enum: 07 Walkable), the
 	     commands likewise (PatternCommand: 03 ReserveFloor keeps the cell as floor and

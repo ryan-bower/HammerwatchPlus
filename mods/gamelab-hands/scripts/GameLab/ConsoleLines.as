@@ -4,7 +4,7 @@
 namespace GameLab
 {
 	// setvar <name> <value...>: SetVar with the cvar's own type (GetVarType); a String cvar
-	// takes the rest of the line. The engine runs the cvar's change callback as the console's
+	// takes the rest of the line, a vec2 (type 4) two numbers. The engine runs the cvar's change callback as the console's
 	// assignment does (measured by gamelab/scenarios/inbox-check.json: cht_god, hwp_line).
 	void VerbSetVar(const string &in id, array<string>@ args)
 	{
@@ -41,6 +41,13 @@ namespace GameLab
 				s += " " + args[i];
 			SetVar(name, s);
 			j.Str("value", GetVarString(name));
+		}
+		else if (int(t) == 4 && args.length() >= 3)
+		{
+			// a vec2 (ui_chat_pos): the enum has no name for it in scripts, AddVar(name, vec2) makes it
+			SetVar(name, vec2(parseFloat(v), parseFloat(args[2])));
+			vec2 got = GetVarVec2(name);
+			j.Str("value", got.x + " " + got.y);
 		}
 		else
 		{

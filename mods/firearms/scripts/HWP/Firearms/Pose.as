@@ -14,7 +14,7 @@
 // the rifle is the 2h crossbow set, the pistols the wand set) and the scripts reach no
 // bone, so a pose is the gun's own model turned about the hand: pre-rotated copies of each
 // gun model (players/models/equipment/pose_<gun>_<pose>.model, from the job script
-// make_pose_models.py through tools/make_gun_models.py's reader and writer: pistols up 90,
+// make_pose_models.py through tools/generate/make_gun_models.py's reader and writer: pistols up 90,
 // kick 40, down -75 degrees; rifles down -40, up 70, high 45) swapped into the item's
 // Equipment::m_modelTmp, the slot PlayerVisuals::GetModel draws in place of the item's own
 // model, the way the held guns do it (HeldModel.as). The arm itself still follows the
@@ -89,6 +89,9 @@ namespace HWP
 		{
 			Equipment::Equipment@ m_item;
 			CustomUnitModel@ m_was;
+			// Stable base while posed; m_was remains the exact original reference,
+			// including null, for the existing swap/Clear restoration.
+			CustomUnitModel@ m_straight;
 			int m_pose = PoseStraight;
 		}
 
@@ -126,6 +129,7 @@ namespace HWP
 					}
 					@hand.m_item = null;
 					@hand.m_was = null;
+					@hand.m_straight = null;
 					hand.m_pose = PoseStraight;
 				}
 				if (item is null || gun == "")
@@ -134,8 +138,17 @@ namespace HWP
 				{
 					@hand.m_item = item;
 					@hand.m_was = item.m_modelTmp;
+					@hand.m_straight = hand.m_was;
+					if (hand.m_straight is null)
+					{
+						// Same lazy base wrapper as native PlayerVisuals.GetModel,
+						// once per binding rather than clearing/rebuilding each frame.
+						auto base = item.GetModel();
+						if (base !is null)
+							@hand.m_straight = CustomUnitModel(base, g_plrMat);
+					}
 				}
-				CustomUnitModel@ want = hand.m_was;
+				CustomUnitModel@ want = hand.m_straight;
 				string path = PoseModelPath(gun, pose);
 				if (path != "")
 				{
@@ -167,6 +180,8 @@ namespace HWP
 				}
 				@m_main.m_item = null;
 				@m_off.m_item = null;
+				@m_main.m_straight = null;
+				@m_off.m_straight = null;
 				if (changed && m_plr !is null && m_plr.m_unit.IsValid())
 					m_plr.RefreshScene();
 			}

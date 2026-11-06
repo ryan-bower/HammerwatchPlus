@@ -1,0 +1,514 @@
+{
+  "schema_version": 1,
+  "kind": "limited-admission-pipeline-progress",
+  "updated_at": "2026-11-01T00:58:48.130037+00:00",
+  "status": "DONE; limited acceptance slice only",
+  "purpose": "Resolve and verify the next admission bottleneck through two real stash feature cases, using existing catalog/pool/review/tracker interfaces.",
+  "authority": {
+    "coordinator": "root",
+    "user_authorization": "Resolve the next bottleneck and verify it.",
+    "broad_campaign": "paused; no reopening/import/mutation of docs/qa/swarm/state.json is authorized by this document",
+    "baseline_audit": {
+      "path": "gamelab/results/two-slot-validation-20261031/next-workload-readiness.r4847.json",
+      "sha256": "b55ac3788751033f61db31cd4b255dd77ea4c4e173cd48ad435616020e776652",
+      "canonical_revision": 4847,
+      "canonical_epoch": "E018",
+      "canonical_tasks": 385,
+      "queued_native_cards": 82
+    },
+    "counts_are_not_coverage": true
+  },
+  "work_packages": [
+    {
+      "id": "catalog",
+      "owner": "review_host",
+      "status": "DONE",
+      "acceptance": [
+        "Two exact scenario+bot/import/fixture/mod/generated-input closures independently reviewed and cataloged.",
+        "Reviewed case admission requires catalog changes only; no scenario/bot hash edits in scheduler implementation.",
+        "Missing closure and stale scenario/bot/closure hash refuse before any native child launch."
+      ],
+      "result": "Reviewed data entries admit both stash cases without scheduler-code hash edits. One-case catalog exit2 versus two-case catalog dry-run exit0; no native launch. Missing/stale closure controls host-tested.",
+      "evidence_keys": [
+        "catalog-seal.json",
+        "data-only-admission-proof.json"
+      ]
+    },
+    {
+      "id": "pool",
+      "owner": "plan_host_checks/root",
+      "status": "DONE",
+      "acceptance": [
+        "Existing two-worker coordinator consumes reviewed catalog entries under one runtime owner/freeze and retains original per-child assertions/guards.",
+        "Exact reviewed stash pair admitted; unreviewed cases and unsupported behavior fail closed.",
+        "Coordinator/native child/runtime slot/process-finality receipts retain actual source/build/input/catalog identities and all sibling outcomes."
+      ],
+      "result": "Both cases executed with two simultaneous exact owned game identities, stable source/catalog/closure and clean parent/jobs/leases.",
+      "evidence_keys": [
+        "native-feature-audit.json",
+        "feature-overlap.json"
+      ]
+    },
+    {
+      "id": "atomicimport",
+      "owner": "plan_release_planner",
+      "status": "DONE",
+      "acceptance": [
+        "Independent reviewer seals exact immutable pool/run/inner/consumer/teardown/context hashes into a review bundle.",
+        "Public CLI validates the complete bundle, task revision/claim/attempt/epoch/dependency state and all raw evidence before any state mutation.",
+        "A malformed/stale second entry or hash conflict leaves the entire limited ledger byte-identical; no partial import or partial verification.",
+        "One successful public atomic import accepts both leaf evidence sets and verifies only the bounded declared scopes; failures/history remain retained."
+      ],
+      "result": "Public read-only plan PASS2; two public negative imports exit2 preserve r7 bytes; one successful atomic import r7->r8 verifies both leaves together/10consumers. Public idle produces r9.",
+      "evidence_keys": [
+        "import.plan.fixed.receipt.json",
+        "import.bundle.json",
+        "rollback.actual.json",
+        "import.commit.receipt.json",
+        "atomic-import.actual.json",
+        "state.json"
+      ]
+    },
+    {
+      "id": "nativefeaturewave",
+      "owner": "root/runtime",
+      "status": "DONE",
+      "acceptance": [
+        "Current source/input/build, reviewed catalog closure, doctor/readiness and applicable load/helper prerequisites admitted by coordinator; no stale E017 task-label copying.",
+        "Both exact stash scenarios actually execute on two isolated slots, with measured overlap and actual consumer rows.",
+        "Read run verdict/assertions/errors/teardown then inner result and all five bot rows per case; fixture acknowledgements alone cannot satisfy sort behavior.",
+        "Retain every FAIL/blocked/timeout/partial trial and stop dependent work per original rules; no automatic retries or assertion weakening.",
+        "No real player profile/install/config, real input/focus, Steam account mutation or genuine co-op claim; account isolation is not inferred from filesystem isolation."
+      ],
+      "result": "Two actual stash cases PASS with5 consumer rows each at executed9884; independent review accepts controlled token-fixture scope.",
+      "evidence_keys": [
+        "prereq-audit.json",
+        "native-feature-audit.json",
+        "feature-review"
+      ]
+    },
+    {
+      "id": "validation",
+      "owner": "root + independent reviewer",
+      "status": "DONE",
+      "acceptance": [
+        "Independent source/host review and relevant targeted implementation checks accepted by root with actual terminal evidence.",
+        "Retained missing-closure/stale-hash rejection receipts establish zero native launches.",
+        "Both real feature cases are independently accepted at their actual controlled-native scope; clean closed parent/slots and exact artifacts agree.",
+        "Atomic public import receipt plus finite read-only postinspection proves both limited leaf tasks verified at actual epoch/dependency revisions, with broad ledger untouched.",
+        "Documentation reports this small pipeline result, remaining gaps and retained failures without campaign sign-off or coverage percentage."
+      ],
+      "result": "Final current-source suite1240PASS/3same symlinkSKIP/1269nested. Exact2-file CLI delta independently source-reviewed; final machine no games/leases/clean. Broadr4847 unchanged.",
+      "evidence_keys": [
+        "final-host-log",
+        "post-native-cli-delta.json",
+        "cli-source-review",
+        "final-machine-state.json",
+        "state.json"
+      ]
+    }
+  ],
+  "selected_cases": [
+    {
+      "id": "qa-content-stash-families",
+      "scenario_path": "gamelab/scenarios/qa-content-stash-families.json",
+      "scenario_sha256": "f90ec88df5be30c3a7e28a6ad5ffd28f0e3cef5b7eeee8d4bfdc76a23ae89f10",
+      "bot": {
+        "name": "qa_content_stash_families",
+        "path": "gamelab/bots/qa_content_stash_families.py",
+        "sha256": "513544a26b3f7d5bf08f28dffad0acd3399291b297e036301e572f5b1d68446a"
+      },
+      "fixture": "town-paladin",
+      "mods": 32,
+      "timeout_seconds": 600,
+      "default_outer_timeout_seconds": 1800,
+      "required_actual_rows": [
+        "custom_family_stash_fixture",
+        "custom_family_stash_ui",
+        "custom_weapons_group_by_actual_family",
+        "custom_family_sort_preserves_all_items",
+        "custom_family_second_press_idempotent"
+      ],
+      "status": "DONE; native PASS executed9884/verified ADMISSION01",
+      "run_id": "case-0001-qa-content-stash-families-lab",
+      "outer_assertions": 16,
+      "inner_assertions": 9,
+      "consumer_rows_pass": 5,
+      "items": 4
+    },
+    {
+      "id": "qa-content-stash-neighbors",
+      "scenario_path": "gamelab/scenarios/qa-content-stash-neighbors.json",
+      "scenario_sha256": "b843f3b34a87b420b35c1a89ac5801c1d2463c21bf4410679202e40d2f5ff470",
+      "bot": {
+        "name": "qa_content_stash_neighbors",
+        "path": "gamelab/bots/qa_content_stash_neighbors.py",
+        "sha256": "51b988fe5be42ec36025d2081636e10b441c9ae1300702f26c8c9a5b4b538379"
+      },
+      "fixture": "town-paladin",
+      "mods": 32,
+      "timeout_seconds": 600,
+      "default_outer_timeout_seconds": 1800,
+      "required_actual_rows": [
+        "custom_family_stash_fixture",
+        "custom_family_stash_ui",
+        "custom_weapons_group_by_actual_family",
+        "custom_family_sort_preserves_all_items",
+        "custom_family_second_press_idempotent"
+      ],
+      "status": "DONE; native PASS executed9884/verified ADMISSION01",
+      "run_id": "case-0002-qa-content-stash-neighbors-lab",
+      "outer_assertions": 16,
+      "inner_assertions": 9,
+      "consumer_rows_pass": 5,
+      "items": 8
+    }
+  ],
+  "source_boundary": {
+    "native_executed_source": {
+      "head": "964e1b7e16d6221a1bdfd70fdb181f1f8a360446",
+      "source_sha256": "9884dd30b3eeccab8a4addcd54603c2cbf188d3394339a5fa9134c2dda2b8ec6",
+      "files": 2243,
+      "fingerprint_scope": "mods+gamelab+tools-v2"
+    },
+    "final_host_and_cli_source": {
+      "head": "964e1b7e16d6221a1bdfd70fdb181f1f8a360446",
+      "source_sha256": "9e92c11a18e89f88fadc37dac4bed0fba9bd52ee88676b67f408316eea89bb9c",
+      "files": 2243,
+      "fingerprint_scope": "mods+gamelab+tools-v2"
+    },
+    "post_native_delta": [
+      {
+        "path": "tools/qa_swarm.py",
+        "executed_sha256": "c09bfd6e38e709050221c59df05abee0f3450821a2d5372aed320f7ee6ef8098",
+        "final_sha256": "22253254eb0065b287793497e92655fd9e39867eb51b2d592cb2aec19a633b32"
+      },
+      {
+        "path": "tools/test_qa_swarm.py",
+        "executed_sha256": "d65bdb6d16194786d4e1d4c8588cb896d8691de9af1dbfb172f35014427a4d58",
+        "final_sha256": "f1e591c608142adad0d587ca6c7009b642a04e607d2a83ec4a4c5c0ee1c908ac"
+      }
+    ],
+    "inverse_source_sha256": "9884dd30b3eeccab8a4addcd54603c2cbf188d3394339a5fa9134c2dda2b8ec6",
+    "production_inverse_byte_exact": true,
+    "effect": "Direct-script repository module resolution only; no game/harness/bot/scenario/consumer code or native verdict guard changed. Test-only subprocess regressions are the second changed file.",
+    "independent_source_review": "accept-minimal-direct-script-import-bootstrap",
+    "native_rule": "Historical at execution fingerprint, preserved without retagging as a final-source native run."
+  },
+  "final_host": {
+    "passed": 1240,
+    "skipped": 3,
+    "nested_subtests_passed": 1269,
+    "seconds": 79.5,
+    "skip_ids": [
+      "gamelab/tests/test_res_snapshot.py:202",
+      "gamelab/tests/test_res_snapshot.py:225",
+      "tests/test_hwr_archive_paths.py:131"
+    ],
+    "skip_reason": "Same unavailable Windows file/directory symlink controls.",
+    "counts_policy": "One final full suite; do not sum earlier cohorts or nested subtests.",
+    "evidence_key": "final-host-log"
+  },
+  "atomic_import": {
+    "planner_read_only": true,
+    "planner_imports": 2,
+    "rollback_trials": [
+      {
+        "trial": "stale-second-cas",
+        "exit": 2,
+        "error": {
+          "code": "revision_conflict",
+          "message": "reread task before updating",
+          "details": {
+            "expected": 2,
+            "actual": 1
+          }
+        },
+        "ledger_bytes_unchanged": true
+      },
+      {
+        "trial": "missing-second-raw",
+        "exit": 2,
+        "error": {
+          "code": "invalid_or_unreadable_state",
+          "message": "[WinError 3] The system cannot find the path specified: 'C:\\\\Users\\\\zakgi\\\\.codex\\\\worktrees\\\\3b26\\\\HammerwatchPlus\\\\gamelab\\\\results\\\\pool-admission-never-created\\\\pool.json'",
+          "details": {}
+        },
+        "ledger_bytes_unchanged": true
+      }
+    ],
+    "rollback_state_before_sha256": "f40f0cbd9df96e4f8b3badcb3865c2ab5adf7f5366cfa725f224ab9c0f2e77f1",
+    "rollback_state_after_sha256": "f40f0cbd9df96e4f8b3badcb3865c2ab5adf7f5366cfa725f224ab9c0f2e77f1",
+    "public_import_exit": 0,
+    "elapsed_seconds": 0.7225936999893747,
+    "revision_before": 7,
+    "revision_after": 8,
+    "verified_together": [
+      "ADMISSION-STASH-FAMILIES",
+      "ADMISSION-STASH-NEIGHBORS"
+    ],
+    "consumer_rows_imported": 10,
+    "gate_unchanged": true,
+    "final_limited_state": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/state.json",
+      "sha256": "4ce3c610aa8d9859ba2645d5fddb9869a0ffa7b3481a79eacc6a85ae770507e0",
+      "revision": 9,
+      "phase": "idle",
+      "epoch": "ADMISSION01",
+      "tasks": [
+        {
+          "id": "ADMISSION-STASH-READY",
+          "status": "verified",
+          "revision": 2,
+          "claimed": false,
+          "verified_epoch": "ADMISSION01",
+          "verified_dependencies": {}
+        },
+        {
+          "id": "ADMISSION-STASH-FAMILIES",
+          "status": "verified",
+          "revision": 2,
+          "claimed": false,
+          "verified_epoch": "ADMISSION01",
+          "verified_dependencies": {
+            "ADMISSION-STASH-READY": 2
+          }
+        },
+        {
+          "id": "ADMISSION-STASH-NEIGHBORS",
+          "status": "verified",
+          "revision": 2,
+          "claimed": false,
+          "verified_epoch": "ADMISSION01",
+          "verified_dependencies": {
+            "ADMISSION-STASH-READY": 2
+          }
+        }
+      ]
+    },
+    "scope": "Isolated3-task ledger only; original M5 parent and canonical385-task graph unchanged."
+  },
+  "limited_ledger_design": {
+    "status": "actual3-task slice completed",
+    "proposed_seed": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-plan/limited-seed.proposed.json",
+      "sha256": "dba532ff95bc6b44524ae48090ec34433fb0ab11a0362adb360c5436339b2f51",
+      "not_a_ledger": true,
+      "task_count": 3,
+      "gate": "ADMISSION-STASH-READY",
+      "leaves": [
+        "ADMISSION-STASH-FAMILIES",
+        "ADMISSION-STASH-NEIGHBORS"
+      ],
+      "catalog_mapping": "Exact leaf task/check/scope must match reviewed catalog; root may choose different names before sealing."
+    },
+    "original_provenance": {
+      "task": "M5-STASH-CONSERVATION-NATIVE",
+      "check": "stash-family-neighbors",
+      "remaining_checks": [
+        "stash-serialized-multiset",
+        "active-tab-stability",
+        "stash-restart"
+      ],
+      "original_task_definition_and_history": "unchanged and not closed by the limited ledger",
+      "original_plan": "docs/qa/SWARM_VERIFICATION_PLAN.md"
+    },
+    "verification_limit": "A limited-ledger success proves the admission/import pipeline and two controlled stash sort checks only. It neither changes original broad dependencies nor verifies original M5, ordinary, packed, persistence or remote co-op obligations."
+  },
+  "original_gate_application": [
+    {
+      "gates": [
+        "scenario-prerequisites",
+        "doctor-pin",
+        "freeze-acknowledgements",
+        "source-boundaries",
+        "failure-stopping",
+        "save-safety-stop"
+      ],
+      "scope": "Retain runtime/source safety gates; authorized two-worker execution has one coordinator owner and private isolated slots."
+    },
+    {
+      "gates": [
+        "smoke",
+        "native-prerequisites"
+      ],
+      "scope": "Actual current applicable load/helper prerequisite evidence must be reviewed; no historical/current relabeling or global geometry inference."
+    },
+    {
+      "gates": [
+        "m5-qol",
+        "interaction-inventory"
+      ],
+      "scope": "Partial contribution: base-id@ilvl native stash ordering/preservation/idempotence in prepared fixtures. Full serialization, inactive tabs, persistence and other QoL interactions remain open."
+    },
+    {
+      "gates": [
+        "native-claim-fields",
+        "native-audit",
+        "scope-separation"
+      ],
+      "scope": "Exact build/run/source/input identities, consumer/raw results/finality and independent bounded review are mandatory."
+    },
+    {
+      "gates": [
+        "ordinary-lifecycle",
+        "packed-packages",
+        "packed-pairings",
+        "packed-fixed-consumers",
+        "final-native",
+        "lane-closeout"
+      ],
+      "scope": "Not closed by this acceptance slice; all82 original gates retain their definitions/history. Eight genuine co-op user deferrals remain unchanged."
+    }
+  ],
+  "native_scope": {
+    "source": "Executed9884, not final9e92",
+    "case_results": 2,
+    "consumer_rows_pass": 10,
+    "independent_review": "accept-actual-controlled-native-token-fixture-results",
+    "scope": "controlled native UI/item id@ilvl token checks; no full serialization, restart, inactive tab, ordinary or co-op proof",
+    "root_viewed_images": "Root reports actually viewing2 final town frames with stash closed; no Sort visual credit.",
+    "remaining_limits": "No full serialization/inactive-tab/capacity/restart/ordinary/controller/packed/remote co-op proof. Original82 gates retain definitions and8 genuine co-op deferrals unchanged."
+  },
+  "resolved_blockers": [
+    {
+      "id": "shared-HPS-backup",
+      "result": "94legacy shared HPS files unchanged;1private backup per slot in actual native wave.",
+      "evidence_key": "native-feature-audit.json"
+    },
+    {
+      "id": "direct-script-tracker-import",
+      "result": "Minimal import bootstrap independently source-accepted; actual public plan/import succeed. Original failure retained.",
+      "evidence_keys": [
+        "cli-source-review",
+        "import.plan.fixed.receipt.json",
+        "atomic-import.actual.json"
+      ]
+    }
+  ],
+  "active_blockers": [],
+  "final_machine_receipt": {
+    "games": [],
+    "leases": [],
+    "teardown": {
+      "clean": true,
+      "reasons": [],
+      "run": "pool-admission-feature-001",
+      "at": "2026-10-31T19:49:31"
+    },
+    "source": {
+      "head": "964e1b7e16d6221a1bdfd70fdb181f1f8a360446",
+      "source_sha256": "9e92c11a18e89f88fadc37dac4bed0fba9bd52ee88676b67f408316eea89bb9c",
+      "files": 2243,
+      "fingerprint_scope": "mods+gamelab+tools-v2"
+    }
+  },
+  "historical_checkpoints": [
+    {
+      "kind": "initial plan",
+      "metadata_check": "gamelab/results/two-slot-validation-20261031/admission-plan/metadata-consistency.initial.json"
+    },
+    {
+      "kind": "host only",
+      "metadata_check": "gamelab/results/two-slot-validation-20261031/admission-plan/metadata-consistency.host001.json"
+    },
+    {
+      "kind": "native measured/import pending",
+      "metadata_check": "gamelab/results/two-slot-validation-20261031/admission-plan/metadata-consistency.native-preimport001.json",
+      "progress_preimage_sha256": "22807d58446db8622466116c9504f29ccefd3f1bf506193de34a1b3ae9201fdb",
+      "progress_archive": {
+        "path": "gamelab/results/two-slot-validation-20261031/admission-plan/progress.native-preimport001.json",
+        "sha256": "22807d58446db8622466116c9504f29ccefd3f1bf506193de34a1b3ae9201fdb"
+      }
+    }
+  ],
+  "retained_failed_public_plan": {
+    "stdout": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/import.plan.receipt.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/import.plan.stderr.txt",
+      "sha256": "f02f56e2f3ec56ddbdbc79b0bd67e4139932f69aecc29f9f23173eae30a00732"
+    },
+    "error": "ModuleNotFoundError: No module named gamelab; no ledger mutation. Fixed attempt distinct."
+  },
+  "evidence": {
+    "catalog-seal.json": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/catalog-seal.json",
+      "sha256": "a44e50fc9514f1524fb5e1fae80f0dc8b1275a6b2acccfbcd5a3d47c0bbd6cc7"
+    },
+    "data-only-admission-proof.json": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/data-only-admission-proof.json",
+      "sha256": "3118ee804b3502cc512610197dfdd58eecbdc7ce62131c71c3f3f0c295926810"
+    },
+    "host-validation.json": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/host-validation.json",
+      "sha256": "f5da8f201ced25f84fb0636cab86d479e021c4ca959182a6fcbca2f4f6ae8742"
+    },
+    "prereq-audit.json": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/prereq-audit.json",
+      "sha256": "8ceeb38e078ca7ad0bb37bfc6148ba23f8b4dff622281a88dc7ac890bcbdedbe"
+    },
+    "native-feature-audit.json": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/native-feature-audit.json",
+      "sha256": "b6a0eebe7206b85591ffd70f1426f77784401eb7c069a934ff04c6eb57d1994c"
+    },
+    "feature-overlap.json": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/feature-overlap.json",
+      "sha256": "2420d30bbc89399a7813a0392511ec56396f8cfdb6c08cfb4ea1e276720672c7"
+    },
+    "rollback.actual.json": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/rollback.actual.json",
+      "sha256": "c95ce7146f0fc5a81e83e3ee53eb3600a5747763e21ccaf9c4b02dd1b1915fbe"
+    },
+    "atomic-import.actual.json": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/atomic-import.actual.json",
+      "sha256": "a60174df11730cbfb70a9f46b0b3db99e00993ba347a5080fc6eb583847afa3e"
+    },
+    "post-native-cli-delta.json": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/post-native-cli-delta.json",
+      "sha256": "98cfa2a61b43659c9ee8d5b99d95bbbb0b1f2f478917c6de8f6071f3e34a7c46"
+    },
+    "final-machine-state.json": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/final-machine-state.json",
+      "sha256": "e9514668fe6bd9226fe870bc8ea333248a90b104e0a51ad85a0429a80f476031"
+    },
+    "import.plan.fixed.receipt.json": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/import.plan.fixed.receipt.json",
+      "sha256": "4691e68ebec4af374c2a8b0214dcb328a866a8fe4eea89ebfb18360b8ec8a7ee"
+    },
+    "import.commit.receipt.json": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/import.commit.receipt.json",
+      "sha256": "8deca5e067982ec3f1340b88c1217374ff6f16d8188a72095f28a8f712f89855"
+    },
+    "import.bundle.json": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/import.bundle.json",
+      "sha256": "7ff4510116e619fa21695b655436d3188d8aaeb2d7d9f1473221d3861d063f18"
+    },
+    "state.json": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/state.json",
+      "sha256": "4ce3c610aa8d9859ba2645d5fddb9869a0ffa7b3481a79eacc6a85ae770507e0"
+    },
+    "cli-source-review": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-review/cli-bootstrap-source-review-001.json",
+      "sha256": "dd48b5f8b893b4d72d30f08c92cf30719b17ab94a45410f8022ebd3d1ed1fa53"
+    },
+    "feature-review": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-review/actual-feature-pair-001.json",
+      "sha256": "2260e23c25575b637b6108acea6e573c102a68d3a04720c187dc2c5c0e901d0a"
+    },
+    "final-host-log": {
+      "path": "gamelab/results/admission-offline-final-002.txt",
+      "sha256": "98d7268fafcb9dd07a3048a04dc073f9c236673bc248eb8c8ed0f62a3c35a182"
+    }
+  },
+  "broad_campaign_preserved": {
+    "path": "docs/qa/swarm/state.json",
+    "revision": 4847,
+    "sha256": "b0df114da53662bb5972099a2241d88b5334099d0a1c351633056e5a09e1d770",
+    "status": "paused; unchanged by limited acceptance"
+  },
+  "next_checkpoint": "No further action required for this limited acceptance slice. Broader campaign remains paused; further workloads or worker counts require separate admission.",
+  "steward_boundary": "Only this new progress JSON and ignored audit artifacts may be written by evidence_steward; no tests/project imports/native/source/canonical-ledger actions."
+}

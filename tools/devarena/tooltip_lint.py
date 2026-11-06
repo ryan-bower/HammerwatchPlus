@@ -121,6 +121,39 @@ def params(entry: dict) -> list[tuple[str, list]]:
     return out
 
 
+def param_pairs(vanilla: dict, spec: dict) -> list[tuple[int, int]]:
+    """Vanilla/spec param slots paired by key, flag and label, never shown numbers.
+
+    Compose can remove earlier rows. Exact duplicate identities retain occurrence
+    order only when all remain; a partial duplicate group cannot be safely guessed.
+    """
+    def slots(entry):
+        out = {}
+        index = 0
+        for p in entry.get("description-params", []):
+            if not isinstance(p, list) or len(p) < 3 or not isinstance(p[0], str):
+                continue
+            flagged = isinstance(p[1], bool)
+            label = p[2] if flagged else p[1]
+            if not isinstance(label, str):
+                raise ValueError(f"tooltip param {p[0]!r} has no string label")
+            identity = (p[0], p[1] if flagged else None, label)
+            out.setdefault(identity, []).append(index)
+            index += 1
+        return out
+
+    source, target = slots(vanilla), slots(spec)
+    pairs = []
+    for identity, indexes in target.items():
+        original = source.get(identity, [])
+        if not original:
+            continue
+        if len(original) != len(indexes):
+            raise ValueError(f"ambiguous tooltip param {identity[0]!r}: {len(indexes)} of {len(original)} rows")
+        pairs.extend(zip(original, indexes))
+    return sorted(pairs)
+
+
 def per_level(vals: list, n: int) -> list | None:
     if len(vals) == 1:
         return vals * n
@@ -238,11 +271,12 @@ def rewrite_params(vanilla: dict, spec: dict) -> tuple[list[tuple[int, list | No
     eff = effective(level_dicts(spec))
     out, notes = [], []
     sp = params(spec)
-    for i, (key, vals) in enumerate(params(vanilla)):
-        if i not in bound or i >= len(sp) or sp[i][0] != key:
+    for i, j in param_pairs(vanilla, spec):
+        if i not in bound:
             continue
+        key, vals = sp[j]
         paths, scale = bound[i]
-        lv = per_level(sp[i][1], len(eff))
+        lv = per_level(vals, len(eff))
         if lv is None:
             continue
         shown = [parse_shown(v) for v in lv]
@@ -255,9 +289,9 @@ def rewrite_params(vanilla: dict, spec: dict) -> tuple[list[tuple[int, list | No
                 new = None
                 break
             new.append(fmt_shown(abs(e[p] * scale), s[1], s[2]))
-        if new is not None and len(sp[i][1]) == 1 and len(set(new)) == 1:
+        if new is not None and len(vals) == 1 and len(set(new)) == 1:
             new = new[:1]
-        out.append((i, new))
+        out.append((j, new))
         notes.append(f"{spec.get('id')} {key}: {'dropped (its fields are gone)' if new is None else '/'.join(lv) + ' -> ' + '/'.join(new)}")
     return out, notes
 
@@ -285,11 +319,12 @@ def lint_spec(entries: dict[str, dict], mod: Path) -> tuple[int, list[dict]]:
         bound, _ = bind(vanilla)
         eff = effective(level_dicts(spec))
         sp = params(spec)
-        for i, (key, _vals) in enumerate(params(vanilla)):
-            if i not in bound or i >= len(sp) or sp[i][0] != key:
+        for i, j in param_pairs(vanilla, spec):
+            if i not in bound:
                 continue
+            key, vals = sp[j]
             paths, scale = bound[i]
-            lv = per_level(sp[i][1], len(eff))
+            lv = per_level(vals, len(eff))
             for L, (e, v) in enumerate(zip(eff, lv or []), 1):
                 s = parse_shown(v)
                 if s is None or not any(p in e and shows(e[p], s, scale) for p in paths):

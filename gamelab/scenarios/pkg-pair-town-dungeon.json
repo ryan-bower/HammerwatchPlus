@@ -1,6 +1,6 @@
 {
  "name": "pkg-pair-town-dungeon",
- "about": "Two packages side by side (town and dungeon): both carry the library at the same paths, the game keeps one copy of each and nothing conflicts; every stamp check passes. tools/make_package_scenarios.py.",
+ "about": "Two packages side by side (town and dungeon): both carry the library at the same paths, the game keeps one copy of each and nothing conflicts; every stamp check passes. tools/generate/make_package_scenarios.py.",
  "fixture": "town-paladin",
  "packages": [
   "town",

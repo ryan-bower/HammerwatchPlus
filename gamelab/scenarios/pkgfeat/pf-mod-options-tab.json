@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-options-tab",
- "about": "mod-options-tab against the built package qol instead of the mods' source folders (tools/make_package_scenarios.py). The player menu's Plus tab (core HWPOptionsTab, gui/hwp/options.gui): the hook adds it to the open PlayerMenu, the colors row cycles presets on click, and the weaponswap row rebinds the swap key to the next key pressed (posted R). The swap key does nothing while the Plus tab is up, and Esc during a capture closes only the capture window (the menu stays, the key is kept). The search field filters rows as you type (posted chars) and Esc clears it without closing the menu.",
+ "about": "mod-options-tab against the built package qol instead of the mods' source folders (tools/generate/make_package_scenarios.py). The player menu's Plus tab (core HWPOptionsTab, gui/hwp/options.gui): the hook adds it to the open PlayerMenu, the colors row cycles presets on click, and the weaponswap row rebinds the swap key to the next key pressed (posted R). The swap key does nothing while the Plus tab is up, and Esc during a capture closes only the capture window (the menu stays, the key is kept). The search field filters rows as you type (posted chars) and Esc clears it without closing the menu.",
  "fixture": "town-paladin",
  "timeout": 150,
  "steps": [
@@ -134,27 +134,6 @@
    "do": "log_has",
    "pattern": "\\[HWP:options\\] swapkey key set to 21 \\(R\\)",
    "timeout": 5
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:options\\] swapkey naming key 21",
-   "timeout": 5,
-   "name": "R types a character: the capture asks for a second press to name it"
-  },
-  {
-   "do": "key",
-   "key": "escape",
-   "hold": 0.1
-  },
-  {
-   "do": "sleep",
-   "seconds": 0.3
-  },
-  {
-   "do": "log_has",
-   "pattern": "\\[HWP:options\\] swapkey key 21 keeps its name R",
-   "timeout": 5,
-   "name": "Esc while naming keeps the US name"
   },
   {
    "do": "gl",

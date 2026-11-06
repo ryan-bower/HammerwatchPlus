@@ -1,0 +1,15 @@
+name: Feature
+description: An idea for a module, or a change to one
+body:
+  - type: input
+    id: module
+    attributes:
+      label: Package or module (or "new")
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What it should do
+    validations:
+      required: true

@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-tavern",
- "about": "mod-tavern against the built package town instead of the mods' source folders (tools/make_package_scenarios.py). The six-level tavern (mods/tavern: tweak/town/buildings/tavern.sval with levels 4-6 on tavern_tier_3.pfb, Missions/MissionFoods.as with a food list) through the fix_tavern bot: the food and drink picker reads Food n/1 and Drinks n/1 at level 1, n/1 and n/4 at level 4, n/2 and n/4 at level 5, n/3 and n/5 at level 6 (gl buildup); at level 6 four foods and six drinks picked leave 3 and 5 (the oldest drops) and 8 icons; the picks come back when the loadout reopens; the started run holds 3 foods and 5 drinks as mission buffs (gl run). Shots: tavern-picker, tavern-loadout.",
+ "about": "mod-tavern against the built package town instead of the mods' source folders (tools/generate/make_package_scenarios.py). The six-level tavern (mods/tavern: tweak/town/buildings/tavern.sval with levels 4-6 on tavern_tier_3.pfb, Missions/MissionFoods.as with a food list) through the fix_tavern bot: the food and drink picker reads Food n/1 and Drinks n/1 at level 1, n/1 and n/4 at level 4, n/2 and n/4 at level 5, n/3 and n/5 at level 6 (gl buildup); at level 6 four foods and six drinks picked leave 3 and 5 (the oldest drops) and 8 icons; the picks come back when the loadout reopens; the started run holds 3 foods and 5 drinks as mission buffs (gl run). Shots: tavern-picker, tavern-loadout.",
  "fixture": "town-paladin",
  "timeout": 360,
  "steps": [

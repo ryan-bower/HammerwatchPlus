@@ -1,7 +1,7 @@
 // The Dark Citadel's top (bugs 10.22.26 line 39): two Dark Halls floors (the eyeball
 // floors), then the two HoH1 Battlements floors (giants, breaking glass walkways) and
 // the Avatar. Vanilla ships one Dark Halls floor with dark_halls_2 commented out; the
-// import (tools/import_hoh1.py campaign) splices the Battlements into the mission file
+// import (tools/hoh1/import_hoh1.py campaign) splices the Battlements into the mission file
 // (tweak/missions/missions_dark_citadel.sval, packed with --with-local). Doctor never
 // re-imports an existing import, so an older generated file may lack dark_halls_2:
 // the second Dark Halls floor is added here at runtime from the loaded MissionDef,

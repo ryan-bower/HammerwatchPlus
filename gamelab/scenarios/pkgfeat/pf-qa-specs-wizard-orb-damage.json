@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-specs-wizard-orb-damage",
- "about": "qa-specs-wizard-orb-damage against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Native1x real-input Wizard orb effects. Source-pinned damage-round controls, fresh native15k targets, bounded crit setup and explicit prerequisite cooldown resets. All fixed trials retained. Runtime untested until root gate.",
+ "about": "qa-specs-wizard-orb-damage against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Native1x real-input Wizard orb effects. Source-pinned damage-round controls, fresh native15k targets, bounded crit setup and explicit prerequisite cooldown resets. All fixed trials retained. Runtime untested until root gate.",
  "fixture": "town-paladin",
  "timeout": 900,
  "steps": [

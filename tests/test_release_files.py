@@ -1,12 +1,12 @@
 """A release package (tools/build.py without --with-local) packs only files the repo ships.
 
-A file git ignores is machine-local: HoH1 content tools/import_hoh1.py cut from the player's
+A file git ignores is machine-local: HoH1 content tools/hoh1/import_hoh1.py cut from the player's
 own install, or something a tool made. It may reach a package only when
 
 - module.json lists it as `local` (packed with --with-local, never released), or
 - a tool remakes it from the HoH2 base on every machine: the .gitignore pattern that ignores
   it sits in a `# >>> tools/<tool>.py (generated from the HoH2 base ...)` block
-  (tools/class_units.py, tools/make_forgemaster_risen.py, ...).
+  (tools/class_units.py, tools/generate/make_forgemaster_risen.py, ...).
 
 HWP-pets.bin carried 216 imported HoH1 pet files before the pets module listed them
 (2026-10-27).

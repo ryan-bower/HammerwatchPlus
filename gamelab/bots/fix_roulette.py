@@ -9,7 +9,7 @@
   then `hwp roulette spin 17`. While the ball runs the wheel shows its "spin" scene. The
   result pays 1000 + 35000 x 1.2, 1000 + 8000 x 1.2 and 1000 + 1000 x 1.2 (red loses):
   55800 back on 4000 staked at +20%. A fixture gold-find bonus adds to that; its status
-  line is rounded to whole percent, so the check allows 0.6% of the winnings.
+  line is for UI only; economyinputs supplies exact raw factors to an independent oracle.
 - Clear: chips placed and cleared in the next round come back in full.
 - The limit: ten 100K chips fill roulette.max_stake (1,000,000); an eleventh is refused.
 
@@ -28,6 +28,7 @@ import re
 import time
 
 from gamelab.bots.plan_runs import Checks as Base
+from gamelab.bots.qa_town_economy_oracle import assess, credit, ledger, same_inputs
 
 WHEEL = "doodads/hwp/hwp_roulette_wheel.unit"
 STATUS = re.compile(r"roulette: round (\d+), phase (\d+), .*?bonus (\d+)% \(luck (\d+)%, gold (\d+)%\).*?; (\d+) bets")
@@ -113,7 +114,7 @@ class Checks(Base):
         g1 = self.gold()
         self.g.shot("roulette-menu")
         st = self.status()
-        bonus = (int(st[3]) + int(st[4])) / 100 if st else 0
+        inputs = self.gl("economyinputs")
         mark = len(self.g.read_log())
         self.hwp("roulette spin 17", 0.3, until="the ball lands on 17")
         time.sleep(1.2)
@@ -125,12 +126,14 @@ class Checks(Base):
             time.sleep(0.5)
             landed = LANDED.findall(self.g.read_log()[mark:])
         g2 = self.gold()
-        want = 1000 + int(35000 * (1 + bonus)) + 1000 + int(8000 * (1 + bonus)) + 1000 + int(1000 * (1 + bonus))
+        after_inputs = self.gl("economyinputs")
+        stakes = {key: 1000 for key in bets}
+        want = credit(stakes, 17, inputs)
         paid = int(landed[-1][3]) if landed else -1
         self.flag("rl_scene", spin_scene == "spin", f"wheel scene while the ball runs: {spin_scene}")
-        self.flag("rl_payout", g0 - g1 == 4000 and landed and landed[-1][1] == "17" and abs(paid - want) <= 3 + 0.006 * 44000
-                  and g2 - g1 == paid, f"gold {g0} -> {g1} (bets) -> {g2}; landed {landed[-1:]}; want {want} "
-                  f"(bonus {bonus:.2f}: luck {st[3] if st else '?'}%, gold {st[4] if st else '?'}%)")
+        self.flag("rl_payout", bool(landed) and landed[-1][1] == "17" and paid == want
+                  and same_inputs(inputs, after_inputs) and ledger(g0, g1, g2, stakes, want),
+                  f"gold{g0}->{g1}->{g2}; landed{landed[-1:]}; exact expected{want}; inputs{inputs}->{after_inputs}")
         self.g.shot("roulette-result")
 
         # Clear in the next round
@@ -144,16 +147,76 @@ class Checks(Base):
         self.flag("rl_clear", h0 - h1 == 5000 and h2 == h0 and idle == "idle",
                   f"gold {h0} -> {h1} -> {h2}; wheel scene between spins {idle}")
 
-        # the per-round limit
-        self.gl("material", "gold", 1100000)
-        replies = []
+        # Exact cap / refusal ledger. Same fixed per-round cap as scenario settings.
+        phase = self.wait_phase(0)
+        if not phase or int(phase[1]) != 0:
+            raise RuntimeError("no betting phase for cap controls")
+        self.set_gold(1100000)
+        cap_start = self.gold()
+        replies, amounts = [], []
         for i in range(11):
-            log = self.hwp("roulette bet low 100000", 0.25, until="bet 100000 on low" if i < 10 else "no bet")
+            log = self.hwp("roulette bet low 100000", 0.2,
+                           until="bet 100000 on low" if i < 10 else "no bet")
             replies.append("no bet" not in log)
-        refused = self.hwp("roulette bet low 100", 0.3, until="no bet")
-        self.flag("rl_limit", all(replies[:10]) and not replies[10] and "table limit" in refused,
-                  f"{replies}; {refused.strip()[-120:]}")
-        self.hwp("roulette clear", 0.3)
+            amounts.append(self.gold())
+        refused = self.hwp("roulette bet low 100", 0.2, until="no bet")
+        self.flag("rl_limit", all(replies[:10]) and not replies[10] and "table limit" in refused
+                  and amounts == [cap_start - 100000 * min(i + 1, 10) for i in range(11)]
+                  and self.gold() == cap_start - 1000000,
+                  f"accepted{replies}; exact balances{amounts}; {refused.strip()[-120:]}")
+        self.hwp("roulette clear", 0.2, until="cleared")
+        self.flag("rl_limit_refund", self.gold() == cap_start, f"gold{self.gold()}, want{cap_start}")
+
+    def controls(self):
+        phase = self.wait_phase(0)
+        if not phase or int(phase[1]) != 0:
+            raise RuntimeError("no betting phase for refusal controls")
+        self.hwp("roulette clear", 0.2)
+        self.set_gold(99)
+        before = self.gold()
+        refused = self.hwp("roulette bet s:17 100", 0.2, until="no bet")
+        status = self.hwp("roulette", 0.2, until="roulette: round")
+        self.flag("rl_poor_preserved", before == self.gold() == 99 and "mine: none" in status
+                  and "gold" in refused.lower(), f"gold{before}->{self.gold()}; {refused.strip()[-160:]}")
+        self.set_gold(50000)
+        before = self.gold()
+        self.hwp("roulette bet s:17 1000", 0.2, until="on s:17")
+        placed = self.gold()
+        self.hwp("set roulette.enabled 0", 0.2)
+        after = self.gold()
+        self.flag("rl_disable_refund", before - placed == 1000 and after == before,
+                  f"gold{before}->{placed}->{after}")
+        self.hwp("set roulette.enabled 1", 0.2)
+        phase = self.wait_phase(0)
+        if not phase or int(phase[1]) != 0:
+            raise RuntimeError("no reopened betting phase")
+        self.flag("rl_reenable_no_double_refund", self.gold() == before, f"gold{self.gold()}, want{before}")
+
+    def zero(self):
+        phase = self.wait_phase(0)
+        if not phase or int(phase[1]) != 0:
+            raise RuntimeError("no betting phase for zero control")
+        self.hwp("roulette clear", 0.2)
+        self.set_gold(100000)
+        stakes = {"s:0": 1000, "f4": 1000, "even": 1000}
+        before = self.gold()
+        for key, amount in stakes.items():
+            self.hwp(f"roulette bet {key} {amount}", 0.2, until=f"on {key}")
+        after_debit = self.gold()
+        inputs = self.gl("economyinputs")
+        mark = len(self.g.read_log())
+        self.hwp("roulette spin 0", 0.2, until="the ball lands on 0")
+        end = time.monotonic() + 12
+        hits = []
+        while time.monotonic() < end and not hits:
+            time.sleep(0.25)
+            hits = LANDED.findall(self.g.read_log()[mark:])
+        after = self.gold()
+        final_inputs = self.gl("economyinputs")
+        want = credit(stakes, 0, inputs)
+        self.flag("rl_zero_exact", bool(hits) and hits[-1][1] == "0" and int(hits[-1][3]) == want
+                  and same_inputs(inputs, final_inputs) and ledger(before, after_debit, after, stakes, want),
+                  f"gold{before}->{after_debit}->{after}; expected{want}; result{hits[-1:]}")
 
     def tiers(self):
         """Each tavern upgrade reloads the town: the wheel comes back, one of it, on a main
@@ -211,13 +274,15 @@ class Checks(Base):
                   f"town gold {g0} -> {g1} (bet); run gold {run_gold}; phase {phase}; refund logged {back}; "
                   f"back in {town}: town gold {g2}; mission {r}")
 
-def run(p, sections="roulette", **_):
+def run(p, sections="roulette", required_flags=(), **_):
     c = Checks(p)
     for s in sections.split(","):
         try:
             getattr(c, s)()
         except Exception as e:  # a section's crash is its own failure, not the bot's
             c.flag(f"{s}_crashed", False, repr(e))
+    if required_flags:
+        c.out.update(assess(c.out, required_flags))
     c.out["notes"] = c.notes
     c.out["terminal"] = " | ".join(c.notes)[-3000:]
     return c.out

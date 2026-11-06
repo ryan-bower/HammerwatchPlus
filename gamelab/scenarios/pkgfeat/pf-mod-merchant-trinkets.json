@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-merchant-trinkets",
- "about": "mod-merchant-trinkets against the built package keys instead of the mods' source folders (tools/make_package_scenarios.py). mods/keys General Merchant Trinkets tab: the exit guard's shop (spawned beside the player: the fixture town has no north exit yet) shows Keys (4 keys + bag slot) and Trinkets (6) tabs; two bought trinkets are packed (not in the town bag) and handed over when the next run's first level starts; after the run (cht_finish_level) the stock rerolls to 6. Then no script errors in our files.",
+ "about": "mod-merchant-trinkets against the built package keys instead of the mods' source folders (tools/generate/make_package_scenarios.py). mods/keys General Merchant Trinkets tab: the exit guard's shop (spawned beside the player: the fixture town has no north exit yet) shows Keys (4 keys + bag slot) and Trinkets (6) tabs; two bought trinkets are packed (not in the town bag) and handed over when the next run's first level starts; after the run (cht_finish_level) the stock rerolls to 6. Then no script errors in our files.",
  "fixture": "town-paladin",
  "timeout": 240,
  "steps": [

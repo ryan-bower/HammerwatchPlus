@@ -8,7 +8,7 @@ skill svals' `binds`.
 
 Art: the committed `players/hwp/<class>/icons.png` (skill icons) and
 `class_showcase.png` (create-character class icon) are placeholders.
-`tools/import_hoh1.py classes` makes the real ones from your HoH1 install
+`tools/hoh1/import_hoh1.py classes` makes the real ones from your HoH1 install
 (the HoH1 skill icons, and the HoH1 sprite facing the camera in default HoH1
 dyes) into the gitignored `hoh1art/`, which `build.py --with-local` packs in
 their place (`local_overlay`). The skills that are new here borrow a fitting
@@ -19,8 +19,8 @@ spec for each vanilla class, built from that class's HoH1 abilities HoH2 lacks
 (the Rogue's from the HoH1 Thief, the Warrior's from the Gladiator). Nothing in
 game uses it yet. Its icons are
 `players/hwp/remastered/icons.png`: the committed placeholder
-(`tools/make_remastered_icons.py`) has a shape in each cell of
-`HOH1_REMASTERED_ICONS` in `tools/import_hoh1.py`, and `import_hoh1.py classes`
+(`tools/generate/make_remastered_icons.py`) has a shape in each cell of
+`HOH1_REMASTERED_ICONS` in `tools/hoh1/import_hoh1.py`, and `import_hoh1.py classes`
 copies HoH1's whole `gui/icons_skills.png` over it in `hoh1art/` (same 256x256
 layout, so a skill keeps its HoH1 rect).
 

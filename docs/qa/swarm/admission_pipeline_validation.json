@@ -1,0 +1,429 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-11-01T00:57:04.876507+00:00",
+  "decision": "verified-limited-reviewed-case-admission-and-atomic-import",
+  "broad_campaign": "paused; canonical r4847/E018 unchanged; no original M5 completion or campaign coverage promotion",
+  "worker_cap": 2,
+  "changes": [
+    "Reviewed data catalog admits feature cases without scheduler-code edits.",
+    "Exact module inventories and selected pre/post/final closure checks cover ignored consumed inputs.",
+    "Frozen catalog/scenario bytes and raw bot hashes bind every declared consumer row.",
+    "HPS backups are authenticated, private, unique and exclusive; sibling writes refuse.",
+    "Read-only planner plus atomic pool bundle preserves CAS/claims/dependencies/epoch verification.",
+    "Two-line direct-script import bootstrap plus real subprocess regressions."
+  ],
+  "catalog": {
+    "artifact": {
+      "path": "docs/qa/swarm/catalogs/stash-v1.json",
+      "sha256": "59810af9688ea000d65e4331718bd204340121b39498958749eff9142db36fee"
+    },
+    "source_review": {
+      "path": "docs/qa/swarm/catalogs/reviews/stash-v1.source-review.json",
+      "sha256": "4f44ca3735dc6e77ff680b00ab474ec1ca746fd95ac5d7fe56664ad4daa66653"
+    },
+    "cases": 2,
+    "modules_per_case": 36,
+    "explicit_files_per_case": 6121,
+    "consumer_rows_per_case": 5,
+    "adding_case_requires_scheduler_change": false,
+    "data_only_proof": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/data-only-admission-proof.json",
+      "sha256": "3118ee804b3502cc512610197dfdd58eecbdc7ce62131c71c3f3f0c295926810"
+    }
+  },
+  "native_executed_source": {
+    "head": "964e1b7e16d6221a1bdfd70fdb181f1f8a360446",
+    "source_sha256": "9884dd30b3eeccab8a4addcd54603c2cbf188d3394339a5fa9134c2dda2b8ec6",
+    "files": 2243,
+    "fingerprint_scope": "mods+gamelab+tools-v2"
+  },
+  "final_source": {
+    "head": "964e1b7e16d6221a1bdfd70fdb181f1f8a360446",
+    "source_sha256": "9e92c11a18e89f88fadc37dac4bed0fba9bd52ee88676b67f408316eea89bb9c",
+    "files": 2243,
+    "fingerprint_scope": "mods+gamelab+tools-v2"
+  },
+  "post_native_delta": {
+    "valid": true,
+    "native_executed_source": {
+      "head": "964e1b7e16d6221a1bdfd70fdb181f1f8a360446",
+      "source_sha256": "9884dd30b3eeccab8a4addcd54603c2cbf188d3394339a5fa9134c2dda2b8ec6",
+      "files": 2243,
+      "fingerprint_scope": "mods+gamelab+tools-v2"
+    },
+    "final_source": {
+      "head": "964e1b7e16d6221a1bdfd70fdb181f1f8a360446",
+      "source_sha256": "9e92c11a18e89f88fadc37dac4bed0fba9bd52ee88676b67f408316eea89bb9c",
+      "files": 2243,
+      "fingerprint_scope": "mods+gamelab+tools-v2"
+    },
+    "inverse_source_sha256": "9884dd30b3eeccab8a4addcd54603c2cbf188d3394339a5fa9134c2dda2b8ec6",
+    "delta": [
+      {
+        "path": "tools/qa_swarm.py",
+        "executed_sha256": "c09bfd6e38e709050221c59df05abee0f3450821a2d5372aed320f7ee6ef8098",
+        "final_sha256": "22253254eb0065b287793497e92655fd9e39867eb51b2d592cb2aec19a633b32"
+      },
+      {
+        "path": "tools/test_qa_swarm.py",
+        "executed_sha256": "d65bdb6d16194786d4e1d4c8588cb896d8691de9af1dbfb172f35014427a4d58",
+        "final_sha256": "f1e591c608142adad0d587ca6c7009b642a04e607d2a83ec4a4c5c0ee1c908ac"
+      }
+    ],
+    "production_inverse_byte_exact": true,
+    "production_effect": "Direct-script repository module resolution only; no game/harness/bot/scenario/consumer code or native verdict guard changed. Test-only subprocess regressions are the second changed file.",
+    "native_status": "Historical at execution fingerprint, preserved without retagging as a final-source native run.",
+    "artifact": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/post-native-cli-delta.json",
+      "sha256": "98cfa2a61b43659c9ee8d5b99d95bbbb0b1f2f478917c6de8f6071f3e34a7c46"
+    }
+  },
+  "automated": {
+    "passed": 1240,
+    "skipped": 3,
+    "subtests_passed": 1269,
+    "source": {
+      "head": "964e1b7e16d6221a1bdfd70fdb181f1f8a360446",
+      "source_sha256": "9e92c11a18e89f88fadc37dac4bed0fba9bd52ee88676b67f408316eea89bb9c",
+      "files": 2243,
+      "fingerprint_scope": "mods+gamelab+tools-v2"
+    },
+    "report": {
+      "path": "gamelab/results/admission-offline-final-002.txt",
+      "sha256": "98d7268fafcb9dd07a3048a04dc073f9c236673bc248eb8c8ed0f62a3c35a182"
+    },
+    "skip_reason": "Three unavailable Windows file/directory symlink controls; names retained in report.",
+    "command": "python -B -m pytest gamelab/tests tools tests planner -q --tb=short -rs --basetemp=gamelab/results/pytest-admission-final-002",
+    "earlier_failed_trials": [
+      "Unrestricted discovery entered retained ignored QA drafts: 449 collection errors, no gameplay conclusion.",
+      "First actual direct-script import plan: ModuleNotFoundError before ledger mutation; retained and fixed."
+    ]
+  },
+  "prerequisites": {
+    "doctor": {
+      "exit": 0,
+      "green": true,
+      "smoke": "explicitly skipped; separate native prerequisite pair",
+      "report": {
+        "path": "gamelab/results/admission-doctor-001.txt",
+        "sha256": "6b9390890b555a3eb8ed9ffd0d84c191ed714c4ba77373e591b7e96d4ffb05e6"
+      }
+    },
+    "native_pair": {
+      "path": "gamelab/results/pool-admission-prereqs-001/pool.json",
+      "sha256": "aea26740f1d1a2f493ddaefcc338af58141f7c26e16c612ea7dd2578896bae5f"
+    },
+    "audit": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/prereq-audit.json",
+      "sha256": "8ceeb38e078ca7ad0bb37bfc6148ba23f8b4dff622281a88dc7ac890bcbdedbe"
+    },
+    "scope": "mod-all load and crit query/set/rebuild/restore helper contract only; zero crit damage trials"
+  },
+  "native_feature_wave": {
+    "parent": {
+      "path": "gamelab/results/pool-admission-feature-001/pool.json",
+      "sha256": "e537b06d20f1733c6acca56241a7be9b79c33e6e1173a5fe4e92ccd466f2427f"
+    },
+    "audit": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/native-feature-audit.json",
+      "sha256": "b6a0eebe7206b85591ffd70f1426f77784401eb7c069a934ff04c6eb57d1994c"
+    },
+    "wall_seconds": 87.19776678085327,
+    "cases": [
+      {
+        "case": "qa-content-stash-families",
+        "run_id": "case-0001-qa-content-stash-families-lab",
+        "outer_assertions": 16,
+        "inner_assertions": 9,
+        "consumers_pass": 5,
+        "items": 4,
+        "actual_before": [
+          "hwp_mh_warhammer@36",
+          "hwp_mh_frostbrand@38",
+          "hwp_mh_warhammer@40",
+          "hwp_mh_frostbrand@35"
+        ],
+        "actual_order": [
+          "hwp_mh_frostbrand@38",
+          "hwp_mh_frostbrand@35",
+          "hwp_mh_warhammer@40",
+          "hwp_mh_warhammer@36"
+        ],
+        "second_order": [
+          "hwp_mh_frostbrand@38",
+          "hwp_mh_frostbrand@35",
+          "hwp_mh_warhammer@40",
+          "hwp_mh_warhammer@36"
+        ],
+        "window": "PlayerStashWindow",
+        "build": {
+          "app_id": "619820",
+          "build_id": "25932569",
+          "exe_sha256": "232cfb7a784c4851618afae1f9b7481deb60e1b46e7e4fcae79c4b4c35751100",
+          "exe_pe_timestamp": 1791978318
+        }
+      },
+      {
+        "case": "qa-content-stash-neighbors",
+        "run_id": "case-0002-qa-content-stash-neighbors-lab",
+        "outer_assertions": 16,
+        "inner_assertions": 9,
+        "consumers_pass": 5,
+        "items": 8,
+        "actual_before": [
+          "hwp_rifle_01@16",
+          "hwp_mh_warhammer@36",
+          "hwp_autorifle_01@18",
+          "hwp_mh_frostbrand@38",
+          "hwp_rifle_01@20",
+          "hwp_mh_warhammer@40",
+          "hwp_autorifle_01@15",
+          "hwp_mh_frostbrand@35"
+        ],
+        "actual_order": [
+          "hwp_mh_frostbrand@38",
+          "hwp_mh_frostbrand@35",
+          "hwp_mh_warhammer@40",
+          "hwp_mh_warhammer@36",
+          "hwp_autorifle_01@18",
+          "hwp_autorifle_01@15",
+          "hwp_rifle_01@20",
+          "hwp_rifle_01@16"
+        ],
+        "second_order": [
+          "hwp_mh_frostbrand@38",
+          "hwp_mh_frostbrand@35",
+          "hwp_mh_warhammer@40",
+          "hwp_mh_warhammer@36",
+          "hwp_autorifle_01@18",
+          "hwp_autorifle_01@15",
+          "hwp_rifle_01@20",
+          "hwp_rifle_01@16"
+        ],
+        "window": "PlayerStashWindow",
+        "build": {
+          "app_id": "619820",
+          "build_id": "25932569",
+          "exe_sha256": "232cfb7a784c4851618afae1f9b7481deb60e1b46e7e4fcae79c4b4c35751100",
+          "exe_pe_timestamp": 1791978318
+        }
+      }
+    ],
+    "consumers_pass": 10,
+    "closure_stable": true,
+    "source_stable": true,
+    "catalog_stable": true,
+    "overlap": {
+      "observations": [
+        {
+          "at": "2026-11-01T00:48:37.803661+00:00",
+          "games": [
+            {
+              "slot": "worker-2",
+              "pid": 4032,
+              "created": 134379677175748448,
+              "image": "C:\\Users\\zakgi\\.codex\\worktrees\\3b26\\HammerwatchPlus\\gamelab\\env\\userdata\\workers\\p0156bd8ef37341cb95be3a34edca5814\\worker-2\\game\\HWR2.exe",
+              "identity_matches": true,
+              "job": "gamelab_job_p0156bd8ef37341cb95be3a34edca5814_2_0f372caa",
+              "in_exact_job": true
+            }
+          ]
+        },
+        {
+          "at": "2026-11-01T00:48:38.315171+00:00",
+          "games": [
+            {
+              "slot": "worker-1",
+              "pid": 39400,
+              "created": 134379677181478425,
+              "image": "C:\\Users\\zakgi\\.codex\\worktrees\\3b26\\HammerwatchPlus\\gamelab\\env\\userdata\\workers\\p0156bd8ef37341cb95be3a34edca5814\\worker-1\\game\\HWR2.exe",
+              "identity_matches": true,
+              "job": "gamelab_job_p0156bd8ef37341cb95be3a34edca5814_1_0f372caa",
+              "in_exact_job": true
+            },
+            {
+              "slot": "worker-2",
+              "pid": 4032,
+              "created": 134379677175748448,
+              "image": "C:\\Users\\zakgi\\.codex\\worktrees\\3b26\\HammerwatchPlus\\gamelab\\env\\userdata\\workers\\p0156bd8ef37341cb95be3a34edca5814\\worker-2\\game\\HWR2.exe",
+              "identity_matches": true,
+              "job": "gamelab_job_p0156bd8ef37341cb95be3a34edca5814_2_0f372caa",
+              "in_exact_job": true
+            }
+          ]
+        }
+      ],
+      "two_distinct_live_owned_games": true,
+      "artifact": {
+        "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/feature-overlap.json",
+        "sha256": "2420d30bbc89399a7813a0392511ec56396f8cfdb6c08cfb4ea1e276720672c7"
+      }
+    },
+    "hps_isolation": {
+      "legacy_unchanged": true,
+      "legacy_files": 94,
+      "private_backups": [
+        {
+          "slot": "worker-1",
+          "root": "C:\\Users\\zakgi\\.codex\\worktrees\\3b26\\HammerwatchPlus\\gamelab\\env\\userdata\\workers\\p0156bd8ef37341cb95be3a34edca5814\\worker-1\\game\\hps_backups",
+          "files": 1,
+          "filenames": [
+            "0_2_20261031_194838_e2aaa1131fe548cf9759deb22a363c54.hps"
+          ]
+        },
+        {
+          "slot": "worker-2",
+          "root": "C:\\Users\\zakgi\\.codex\\worktrees\\3b26\\HammerwatchPlus\\gamelab\\env\\userdata\\workers\\p0156bd8ef37341cb95be3a34edca5814\\worker-2\\game\\hps_backups",
+          "files": 1,
+          "filenames": [
+            "0_2_20261031_194835_c67ff71446224cb592f2740013e0e198.hps"
+          ]
+        }
+      ]
+    },
+    "screenshots": "Root inspected both end.png files: town with stash closed; no intermediate Sort UI visual credit.",
+    "scope": "controlled native UI/item id@ilvl token checks; no full serialization, restart, inactive tab, ordinary or co-op proof"
+  },
+  "atomic_tracker_proof": {
+    "valid": true,
+    "exit": 0,
+    "elapsed_seconds": 0.7225936999893747,
+    "campaign_revision_before": 7,
+    "campaign_revision_after": 8,
+    "state_before_sha256": "f40f0cbd9df96e4f8b3badcb3865c2ab5adf7f5366cfa725f224ab9c0f2e77f1",
+    "state_after_sha256": "511d1253a359eb14e6126746344b2e7f723e5c260c576091a510bc291a011df7",
+    "verified_together": [
+      "ADMISSION-STASH-FAMILIES",
+      "ADMISSION-STASH-NEIGHBORS"
+    ],
+    "consumer_rows_imported": 10,
+    "gate_unchanged": true,
+    "main_campaign_unchanged": true,
+    "tasks": {
+      "ADMISSION-STASH-READY": {
+        "revision": 2,
+        "status": "verified",
+        "evidence_rows": 1
+      },
+      "ADMISSION-STASH-FAMILIES": {
+        "revision": 2,
+        "status": "verified",
+        "evidence_rows": 1
+      },
+      "ADMISSION-STASH-NEIGHBORS": {
+        "revision": 2,
+        "status": "verified",
+        "evidence_rows": 1
+      }
+    },
+    "artifact": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/atomic-import.actual.json",
+      "sha256": "a60174df11730cbfb70a9f46b0b3db99e00993ba347a5080fc6eb583847afa3e"
+    },
+    "rollback": {
+      "valid": true,
+      "state_before_sha256": "f40f0cbd9df96e4f8b3badcb3865c2ab5adf7f5366cfa725f224ab9c0f2e77f1",
+      "state_after_sha256": "f40f0cbd9df96e4f8b3badcb3865c2ab5adf7f5366cfa725f224ab9c0f2e77f1",
+      "campaign_revision": 7,
+      "trials": [
+        {
+          "trial": "stale-second-cas",
+          "exit": 2,
+          "error": {
+            "code": "revision_conflict",
+            "message": "reread task before updating",
+            "details": {
+              "expected": 2,
+              "actual": 1
+            }
+          },
+          "ledger_bytes_unchanged": true
+        },
+        {
+          "trial": "missing-second-raw",
+          "exit": 2,
+          "error": {
+            "code": "invalid_or_unreadable_state",
+            "message": "[WinError 3] The system cannot find the path specified: 'C:\\\\Users\\\\zakgi\\\\.codex\\\\worktrees\\\\3b26\\\\HammerwatchPlus\\\\gamelab\\\\results\\\\pool-admission-never-created\\\\pool.json'",
+            "details": {}
+          },
+          "ledger_bytes_unchanged": true
+        }
+      ],
+      "both_native_tasks_unchanged": true
+    },
+    "rollback_artifact": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/rollback.actual.json",
+      "sha256": "c95ce7146f0fc5a81e83e3ee53eb3600a5747763e21ccaf9c4b02dd1b1915fbe"
+    },
+    "limited_state": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/state.json",
+      "sha256": "4ce3c610aa8d9859ba2645d5fddb9869a0ffa7b3481a79eacc6a85ae770507e0"
+    },
+    "final_revision": 9,
+    "final_phase": "idle",
+    "all_three_tasks_verified": true,
+    "read_only_proposal": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/import.plan.fixed.receipt.json",
+      "sha256": "4691e68ebec4af374c2a8b0214dcb328a866a8fe4eea89ebfb18360b8ec8a7ee"
+    },
+    "commit_receipt": {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-acceptance/import.commit.receipt.json",
+      "sha256": "8deca5e067982ec3f1340b88c1217374ff6f16d8188a72095f28a8f712f89855"
+    },
+    "read_only_plan_proof_scope": "Root actual invocation captured bytes before, asserted equality after public plan, and exited0; no separate pre-plan state snapshot retained. Receipt and subprocess/source checks support read-only behavior."
+  },
+  "final_machine": {
+    "games": [],
+    "leases": [],
+    "teardown": {
+      "clean": true,
+      "reasons": [],
+      "run": "pool-admission-feature-001",
+      "at": "2026-10-31T19:49:31"
+    },
+    "source": {
+      "head": "964e1b7e16d6221a1bdfd70fdb181f1f8a360446",
+      "source_sha256": "9e92c11a18e89f88fadc37dac4bed0fba9bd52ee88676b67f408316eea89bb9c",
+      "files": 2243,
+      "fingerprint_scope": "mods+gamelab+tools-v2"
+    }
+  },
+  "raw_artifacts_local_only": true,
+  "canonical_main_state": {
+    "revision": 4847,
+    "epoch": "E018",
+    "sha256": "b0df114da53662bb5972099a2241d88b5334099d0a1c351633056e5a09e1d770",
+    "unchanged": true
+  },
+  "measured_next_cost": {
+    "description": "Repeated selected closure validation is a measured optimization candidate before increasing workers.",
+    "seconds": 40.658992399985436,
+    "wave_seconds": 87.19776678085327,
+    "fraction_of_wave": 0.4662847903223281,
+    "limits": "One two-case wave; no four-worker or CPU/GPU/storage saturation measurement. Preserve omission/hash/finality gates when deduplicating shared reads."
+  },
+  "remaining": [
+    "Admit additional reviewed cases when the broad campaign resumes.",
+    "Optimize repeated/shared input verification before expanding workers.",
+    "Serialization/restart/ordinary/co-op and campaign closeout remain outside this proof."
+  ],
+  "closeout_artifacts": [
+    {
+      "path": "docs/qa/swarm/admission_pipeline_progress.json",
+      "sha256": "123ea029b2a61ec629d045613dc6ba42f15541196d46faeef6122832c073ab4a"
+    },
+    {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-review/integration-review-001.json",
+      "sha256": "b7ccff08a63f8289da66553404b40aaee7aa98290e8a1c87b77cc26fbc8fd698"
+    },
+    {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-review/actual-feature-pair-001.json",
+      "sha256": "2260e23c25575b637b6108acea6e573c102a68d3a04720c187dc2c5c0e901d0a"
+    },
+    {
+      "path": "gamelab/results/two-slot-validation-20261031/admission-review/cli-bootstrap-source-review-001.json",
+      "sha256": "dd48b5f8b893b4d72d30f08c92cf30719b17ab94a45410f8022ebd3d1ed1fa53"
+    }
+  ]
+}

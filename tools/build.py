@@ -111,7 +111,7 @@ def load_module(mod_dir: Path) -> dict:
 # files, so never committed): `# >>> tools/<tool>.py (generated from the HoH2 base; do not edit)`
 BASE_BLOCK = "(generated from the HoH2 base"
 # the tools build() runs before it packs, for every package that carries their output
-BASE_TOOLS = ("tools/class_units.py", "tools/make_pet_dyes.py", "tools/make_forgemaster_risen.py")
+BASE_TOOLS = ("tools/class_units.py", "tools/generate/make_pet_dyes.py", "tools/generate/make_forgemaster_risen.py")
 
 
 def base_generators(cfg: dict) -> list[str]:
@@ -163,7 +163,7 @@ def module_files(cfg: dict, with_local: bool = False):
 
 def personal_content(mods: list[dict]) -> list[str]:
     """The module.json `local` files on disk (<module>/<path>) that --with-local packs: what the
-    player made from their own HoH1 install (tools/import_hoh1.py). Not the local_only modules'
+    player made from their own HoH1 install (tools/hoh1/import_hoh1.py). Not the local_only modules'
     (a beta rider rides only with --beta). deploy.py modded-prod packs these by default."""
     return [f"{m['id']}/{rel}" for m in mods if not m["local_only"]
             for rel, _fp in module_files(m, True) if is_local(m, rel)]
@@ -302,20 +302,27 @@ def load_packages(mods: list[dict]) -> tuple[list[dict], dict]:
     for p in pkgs:
         closure: list[str] = []
         seen: set[str] = set()
+        visiting: set[str] = set()
 
         # each module after what it requires, so a library part follows its base
         def add(mid: str, via: str) -> None:
+            if mid in visiting:
+                sys.exit(f"package {p['id']}: dependency cycle at {mid!r} (via {via})")
             if mid in seen:
                 return
             if mid not in by_id:
                 sys.exit(f"{via} requires unknown module {mid!r}")
             m = by_id[mid]
+            if m["dev"] or m["local_only"] or mid in bench:
+                sys.exit(f"package {p['id']}: {via} requires {mid}, a dev, local-only or bench module")
             if not (m["library"] or m["shared"]) and owner.get(mid) != p["id"]:
                 sys.exit(f"package {p['id']}: {via} requires {mid}, which is not in it; a package must work alone "
                          f"(move the shared code into a library part, module.json `library: true`)")
-            seen.add(mid)
+            visiting.add(mid)
             for r in m["requires"]:
                 add(r, mid)
+            visiting.remove(mid)
+            seen.add(mid)
             closure.append(mid)
         for mid in p["mods"]:
             add(mid, mid)
@@ -476,16 +483,16 @@ def main(argv=None):
         if by_id[mid]["class_swaps"]:
             print(f"class units: {mid} {len(class_units.generate(by_id[mid]))}")
     if "pets" in used:
-        import make_pet_dyes  # the two-section pet dye copies (gitignored, made from your installs)
+        from generate import make_pet_dyes  # the two-section pet dye copies (gitignored, made from your installs)
         make_pet_dyes.main([])
     if "specs" in used:
-        import make_forgemaster_risen  # the Forgemaster's risen and intact bodies (gitignored)
+        from generate import make_forgemaster_risen  # the Forgemaster's risen and intact bodies (gitignored)
         make_forgemaster_risen.main([])
 
-    import import_hoh1
+    from hoh1 import import_hoh1
     for what in import_hoh1.stale_imports():
         print(f"warning: the HoH1 {what} import predates converter version {hwr.CONVERTER_VERSION}; "
-              f"rerun tools/import_hoh1.py {what}")
+              f"rerun tools/hoh1/import_hoh1.py {what}")
 
     stamp = library_stamp(mods)
     update = update_id(mods)

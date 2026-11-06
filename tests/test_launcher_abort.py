@@ -42,7 +42,9 @@ def test_ctrl_c_is_aborted_and_releases_the_lock_clean(tmp_path, monkeypatch):
         raise KeyboardInterrupt
 
     monkeypatch.setattr(launcher.hidden_desktop, "run", ctrl_c)
-    (tmp_path / "lock.json").write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(lock.env, "GAME", tmp_path / "game")
+    monkeypatch.setattr(lock, "player_processes", lambda: [])
+    lock.acquire("s", "watch")
 
     code = launcher._run(tmp_path / "s.json", "s", {"timeout": 1}, "watch", [])
 

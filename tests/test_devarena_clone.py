@@ -1,4 +1,5 @@
 """tools/devarena/clone_spec.py and make_compose.py, offline (no game)."""
+import pytest
 import json
 import re
 import sys
@@ -36,6 +37,7 @@ def skill(tmp_path, name="hwp_ranger_test_nature_entangle"):
     return (tmp_path / "spec-ranger-test/players/hwp/spec_ranger_test/skills" / f"{name}.sval").read_text(encoding="utf-8")
 
 
+@pytest.mark.needs_gamecode
 def test_plain_clone_keeps_shared_skills_and_renames_own(tmp_path):
     assert run(tmp_path) == 0
     mod = tmp_path / "spec-ranger-test"
@@ -49,6 +51,7 @@ def test_plain_clone_keeps_shared_skills_and_renames_own(tmp_path):
     assert "Test Warden" in (mod / "res/language/english/hwp_spec_ranger_test.lang").read_text(encoding="utf-8")
 
 
+@pytest.mark.needs_gamecode
 def test_plain_edits_patch_the_level_dict(tmp_path):
     log = tmp_path / "game.log"
     log.write_text(log_with(state(["nature_entangle", 0, "binds.area-dmg", "33"],
@@ -60,6 +63,7 @@ def test_plain_edits_patch_the_level_dict(tmp_path):
     assert "<i>120</i><s>cast</s>" in base
 
 
+@pytest.mark.needs_gamecode
 def test_an_edit_the_file_does_not_spell_out_is_refused(tmp_path, capsys):
     log = tmp_path / "game.log"
     log.write_text(log_with(state(["nature_entangle", 0, "binds.no-such", "1"],
@@ -69,6 +73,7 @@ def test_an_edit_the_file_does_not_spell_out_is_refused(tmp_path, capsys):
     assert "binds.no-such" in out and "does not own: ran_trap" in out
 
 
+@pytest.mark.needs_gamecode
 def test_compose_bakes_the_dict_and_keeps_the_star_budget(tmp_path, capsys):
     log = tmp_path / "game.log"
     draft = "t=projectile;p=marked_arrow;c=;s=;dt=;st=;n=Thorn Volley;src=;cp=;cd=;mc=;dmg="
@@ -84,6 +89,7 @@ def test_compose_bakes_the_dict_and_keeps_the_star_budget(tmp_path, capsys):
     assert "Thorn Volley" in lang
 
 
+@pytest.mark.needs_gamecode
 def test_compose_without_its_dict_line_is_refused(tmp_path):
     log = tmp_path / "game.log"
     log.write_text(log_with(state(["nature_entangle", 0, "@compose", "t=nova;n=X"])), encoding="utf-8")
@@ -99,6 +105,7 @@ def test_a_base_class_is_not_a_subclass(tmp_path):
         raise AssertionError("cloned a base class")
 
 
+@pytest.mark.needs_gamecode
 def test_compose_catalog_is_current():
     cat, _ = make_compose.catalog()
     assert make_compose.render(cat) == make_compose.OUT.read_text(encoding="utf-8")
@@ -107,6 +114,7 @@ def test_compose_catalog_is_current():
         assert p["unit"] and (make_compose.GAME / p["unit"]).is_file()
 
 
+@pytest.mark.needs_gamecode
 def test_a_changed_field_rewrites_its_tooltip_and_the_spec_lint_passes(tmp_path):
     from tools.devarena import tooltip_lint
     log = tmp_path / "game.log"
@@ -123,6 +131,7 @@ def test_a_changed_field_rewrites_its_tooltip_and_the_spec_lint_passes(tmp_path)
     assert n == 2 and {s["param"] for s in stale} == {"cooldown"}
 
 
+@pytest.mark.needs_gamecode
 def test_compose_drops_the_tooltip_rows_whose_fields_are_gone(tmp_path):
     log = tmp_path / "game.log"
     draft = "t=projectile;p=marked_arrow;c=;s=;dt=;st=;n=Thorn Volley;src=;cp=;cd=;mc=;dmg="

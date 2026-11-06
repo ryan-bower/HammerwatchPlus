@@ -65,6 +65,25 @@ def successful(record, name):
             and all(isinstance(a, dict) and a.get("ok") is True for a in assertions))
 
 
+def inner_matches_outer(record, inner, name):
+    """A final successful inner result supplied the outer assertion prefix.
+
+    The launcher copies the runner assertions and metadata before appending its
+    isolation/version guards. A safe outer verdict cannot replace that source
+    agreement when artifacts are missing, stale or corrupted.
+    """
+    if not isinstance(record, dict) or not isinstance(inner, dict):
+        return False
+    assertions, outer = inner.get("assertions"), record.get("assertions")
+    copied = ("fixture", "live", "passes", "menu", "boundaries", "travel_revision", "explore")
+    return (inner.get("scenario") == name and inner.get("mode") == "lab"
+            and inner.get("partial") is False and "error" not in inner and not inner.get("timeout")
+            and isinstance(assertions, list) and bool(assertions)
+            and all(isinstance(row, dict) and row.get("ok") is True for row in assertions)
+            and isinstance(outer, list) and outer[:len(assertions)] == assertions
+            and all(record.get(key) == inner.get(key) for key in copied))
+
+
 def run_case(name, index, prefix, results, source):
     output = results / f"{prefix}-{index:03d}-{name}.out.txt"
     row = {"scenario": name, "index": index, "started": dt.datetime.now(dt.timezone.utc).isoformat(),
@@ -93,9 +112,8 @@ def run_case(name, index, prefix, results, source):
             raise ValueError("run.json must be an object")
         row["verdict"] = record.get("verdict", "NO_RESULT")
         inner = json.loads((directory / "inner.json").read_text(encoding="utf-8"))
-        if (not isinstance(inner, dict) or inner.get("scenario") != name
-                or inner.get("mode") != "lab" or inner.get("partial") is not False or inner.get("error")):
-            raise ValueError("missing, mismatched, partial or errored runner result")
+        if not inner_matches_outer(record, inner, name):
+            raise ValueError("missing, mismatched, partial, errored or inconsistent runner result")
         if process.returncode != 0 or not successful(record, name):
             raise ValueError("nonzero exit or unsafe/non-PASS result; inspect native records")
     except (Exception, KeyboardInterrupt) as error:
@@ -118,19 +136,36 @@ def main(argv=None):
         "Labels use letters/digits/_/-; other characters become '-'. Existing journals refuse reuse. "
         "A stale qa-batch.lock requires inspection; this tool never resets it."))
     parser.add_argument("--label", help="unique local journal label (required except --fingerprint)")
+    parser.add_argument("--workers", type=int, choices=(1, 2), default=1,
+                        help="1: existing serial runner; 2: audited isolated GameLab pool")
+    parser.add_argument("--catalog", help="reviewed JSON catalog for the isolated worker pool")
+    parser.add_argument("--catalog-sha256", help="expected exact catalog byte hash")
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--dry-run", action="store_true", help="validate/print only; no writes or launches")
     modes.add_argument("--fingerprint", action="store_true", help="print source fingerprint only")
     parser.add_argument("scenarios", nargs="*")
     args = parser.parse_args(argv)
     if args.fingerprint:
-        if args.label or args.scenarios:
+        if args.label or args.scenarios or args.workers != 1 or args.catalog or args.catalog_sha256:
             parser.error("--fingerprint takes no label or scenarios")
         print(json.dumps(fingerprint(), sort_keys=True))
         return 0
     label = re.sub(r"[^A-Za-z0-9_-]+", "-", args.label or "").strip("-_")
     if not label or len(label) > 80 or not args.scenarios:
         parser.error("provide --label (1-80 filename characters after sanitizing) and scenario stems")
+    if args.catalog_sha256 and not args.catalog:
+        parser.error("--catalog-sha256 requires --catalog")
+    if args.workers == 2 or args.catalog:
+        sys.path.insert(0, str(ROOT))
+        from gamelab import pool
+        argv = ["--label", label, "--workers", str(args.workers), "--mode", "lab"]
+        if args.dry_run:
+            argv.append("--dry-run")
+        if args.catalog:
+            argv.extend(["--catalog", args.catalog])
+        if args.catalog_sha256:
+            argv.extend(["--catalog-sha256", args.catalog_sha256])
+        return pool.main(argv + args.scenarios)
     results = ROOT / "gamelab" / "results"
     prefix = "qa-batch-" + label
     journal, stop = results / (prefix + ".jsonl"), results / (prefix + ".stop")
