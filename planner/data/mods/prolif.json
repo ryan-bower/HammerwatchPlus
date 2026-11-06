@@ -5,21 +5,21 @@
   "levels": [
     {
       "q": "uncommon",
-      "text": "Spreads within 60"
+      "text": "Minor Weakness while branded"
     },
     {
       "q": "uncommon",
-      "text": "Spreads within 80"
+      "text": "Weakness while branded"
     },
     {
       "q": "rare",
-      "text": "Spreads within 100"
+      "text": "Greater Weakness while branded"
     }
   ],
-  "name": "Proliferation",
-  "notes": "In game (hwp_wlk_pb_proliferation, tested): a dying victim's brand goes to every enemy within 60/80/100 (assumed), each with the whole stored damage; brands last 3 s.",
+  "name": "Enfeeblement",
+  "notes": "Rework implemented in source; native/co-op validation pending. Retains the old perk ID for purchased-rank compatibility. Proliferation is now baseline.",
   "order": null,
   "skill": "warlock-spec4-active",
-  "status": "tested",
-  "summary": "After the target dies the brand spreads to nearby targets with the snapshotted damage. Scaling, scales radius. Duration of the brand is halved."
+  "status": "built",
+  "summary": "Branded enemies suffer Minor Weakness / Weakness / Greater Weakness while branded."
 }

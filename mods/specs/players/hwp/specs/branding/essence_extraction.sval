@@ -10,9 +10,8 @@
 	gives no detail). For Drain Essence's own melee gain the second one comes from the hit and
 	spellhit triggers below, on its 250 ms timeout. HWPSpecsEssenceHit and GainEssence,
 	scripts/HWP/Specs/Branding.as. The max Essence stays the vanilla 10.
-	Orbs: Essence Empowerment (ee-emp: the fire damage multiplier + 1/2/3% of the physical
-	damage multiplier per stack, assumed; HWPSpecsEssenceFire in the Essence stack), Released
-	Essence (ee-released: an elite or boss killed by the Hellfire Claw gives 3/6 stacks).
+	Orbs: Soul Guard adds a capped shield per native Essence gain; Soul Stride grants
+	refreshing movement speed. Legacy perk IDs retain existing purchased ranks.
 -->
 <dict>
 	<string name="name">.hwp.specs.essence_extraction.name</string>
@@ -34,8 +33,8 @@
 		<string name="class">Skills::PassiveSkill</string>
 		<dict name="binds">
 			<int name="ee-cd">2000</int>
-			<float name="ee-emp">0</float>
-			<int name="ee-released">0</int>
+			<float name="ee-guard">0</float>
+			<int name="ee-stride">0</int>
 		</dict>
 		<array name="modifiers">
 			<array>
@@ -76,18 +75,7 @@
 					</array>
 				</dict>
 				<dict>
-					<string name="class">Modifiers::InjectModifiersIntoStack</string>
-					<string name="buff">players/warlock/stacks_warlock.sval:essence</string>
-					<array name="modifiers">
-						<dict>
-							<string name="class">HWPSpecsEssenceFire</string>
-							<bool name="add">true</bool>
-							<vec2 name="mul">0 0</vec2>
-							<string name="from">physicaldamagemul</string>
-							<string name="to">firedamagemul</string>
-							<string name="per-stack-bind">ee-emp</string>
-						</dict>
-					</array>
+					<string name="class">HWPSpecsEssenceSupport</string>
 				</dict>
 			</array>
 		</array>
@@ -117,7 +105,8 @@
 			<string name="name">.hwp.specs.essence_empowerment.name</string>
 			<string name="description">.hwp.specs.essence_empowerment.desc</string>
 			<array name="description-params">
-				<array><s>per-stack</s><s>.hwp.specs.param.per_essence</s><s>1%</s><s>2%</s><s>3%</s></array>
+				<array><s>per-stack</s><s>.hwp.specs.param.per_essence</s><s>1%</s><s>1.5%</s><s>2%</s></array>
+				<array><s>cap</s><s>.hwp.specs.param.shield_cap</s><s>5%</s><s>7.5%</s><s>10%</s></array>
 			</array>
 			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>144 120 24 24</vec4></array>
 			<array name="tags"><s>passive</s></array>
@@ -125,16 +114,16 @@
 			<string name="quality">uncommon</string>
 			<int name="starting-level">0</int>
 			<dict name="skill">
-				<dict name="binds"><float name="ee-emp">0.01</float></dict>
+				<dict name="binds"><float name="ee-guard">0.01</float></dict>
 			</dict>
 			<array name="upgrades">
 				<dict>
 					<string name="quality">uncommon</string>
-					<dict name="binds"><float name="ee-emp">0.02</float></dict>
+					<dict name="binds"><float name="ee-guard">0.015</float></dict>
 				</dict>
 				<dict>
 					<string name="quality">rare</string>
-					<dict name="binds"><float name="ee-emp">0.03</float></dict>
+					<dict name="binds"><float name="ee-guard">0.02</float></dict>
 				</dict>
 			</array>
 		</dict>
@@ -142,7 +131,7 @@
 			<string name="name">.hwp.specs.released_essence.name</string>
 			<string name="description">.hwp.specs.released_essence.desc</string>
 			<array name="description-params">
-				<array><s>stacks</s><s>.hwp.specs.param.essence_stacks</s><s>3</s><s>6</s></array>
+				<array><s>speed</s><s>.skills.desc.params.mspeed</s><s>10%</s><s>15%</s><s>20%</s></array>
 			</array>
 			<array name="icon"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>168 120 24 24</vec4></array>
 			<array name="tags"><s>passive</s></array>
@@ -150,12 +139,16 @@
 			<string name="quality">uncommon</string>
 			<int name="starting-level">0</int>
 			<dict name="skill">
-				<dict name="binds"><int name="ee-released">3</int></dict>
+				<dict name="binds"><int name="ee-stride">1</int></dict>
 			</dict>
 			<array name="upgrades">
 				<dict>
+					<string name="quality">uncommon</string>
+					<dict name="binds"><int name="ee-stride">2</int></dict>
+				</dict>
+				<dict>
 					<string name="quality">rare</string>
-					<dict name="binds"><int name="ee-released">6</int></dict>
+					<dict name="binds"><int name="ee-stride">3</int></dict>
 				</dict>
 			</array>
 		</dict>

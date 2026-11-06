@@ -5,21 +5,21 @@
   "levels": [
     {
       "q": "uncommon",
-      "text": "Minor"
+      "text": "1 Killing Spree stack per pulse"
     },
     {
       "q": "uncommon",
-      "text": "Normal"
+      "text": "2 Killing Spree stacks per pulse"
     },
     {
       "q": "rare",
-      "text": "Greater"
+      "text": "3 Killing Spree stacks per pulse"
     }
   ],
-  "name": "Feared Crest",
-  "notes": "In game (hwp_war_bs_feared_crest, tested): enemies in the standard's radius get the area Vulnerability (500 ms, re-applied every 250 ms).",
+  "name": "Rallying Standard",
+  "notes": "Source implementation; runtime/co-op validation pending. Old perk ID retained. Uses source Warrior's Killing Spree, Brutality and Killer Physique; allies maintain the native stack pool with kills. Requires learned Killing Spree.",
   "order": null,
   "skill": "warrior-spec4-active",
-  "status": "tested",
-  "summary": "Enemies within the aura of the Standard are inflicted with Vulnerability."
+  "status": "built",
+  "summary": "Standard pulses grant your improved Killing Spree to you and allies, up to 10 stacks, without overlapping grants. Allies maintain stacks with their own kills."
 }

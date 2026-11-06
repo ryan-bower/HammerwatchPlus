@@ -88,7 +88,7 @@ namespace HWP
 			}
 
 			// the buffs the scripts load by name (the svals' own are checked when they load)
-			array<string> buffs = { "standard_dr", "standard_dr_planted", "crusade_5", "gale_share_20_0", "gale_share_60_3", "conduit_1_1", "conduit_2_5", "tailwind_1_1", "tailwind_5_5", "wind_ward", "pyrebrand", "raising", "penance_stance", "devouring", "pelors_fury", "pelors_channel" };
+			array<string> buffs = { "standard_shield", "support_shield", "soul_guard", "soul_stride_3", "rallied_spree", "crusade_5", "gale_share_20_0", "gale_share_60_3", "conduit_1_1", "conduit_2_5", "tailwind_1_1", "tailwind_5_5", "wind_ward", "pyrebrand", "raising", "penance_stance", "devouring", "pelors_fury", "pelors_channel" };
 			for (uint i = 0; i < buffs.length(); i++)
 			{
 				if (Buff(buffs[i]) is null)
@@ -131,7 +131,7 @@ namespace HWP
 			for (uint i = 0; i < g_standards.length(); i++)
 			{
 				auto s = g_standards[i];
-				ret += "; " + (s.m_planted ? "planted" : "carried") + " " + s.m_left + " ms dr " + s.m_dr
+				ret += "; " + (s.m_planted ? "thrown" : "carried") + " " + s.m_left + " ms shield " + s.m_dr
 					+ " r " + s.m_radius;
 			}
 			if (plr !is null)
@@ -155,7 +155,8 @@ namespace HWP
 				charge = max(charge, Charge(g_brands[i]));
 			}
 			ret += "; brands " + g_brands.length() + " stored " + int(stored + 0.5f) + " brandcharge " + int(charge * 100 + 0.5f)
-				+ "; claws " + g_claws + " hits " + g_clawHits + " last " + g_lastClaw + " clawcharge " + g_lastCharge + "; transfers " + g_transfers + "; essence hits " + g_essenceHits + " twice " + g_essenceTwice + " released " + g_released;
+				+ "; claws " + g_claws + " hits " + g_clawHits + " last " + g_lastClaw + " clawcharge " + g_lastCharge + "; transfers " + g_transfers + "; essence hits " + g_essenceHits + " twice " + g_essenceTwice
+				+ "; shields standard " + g_standardShield + " soul " + g_soulShield + "; rallied " + (g_sharedSpree ? "yes" : "no");
 			ret += "; blinks " + g_blinks + " hits " + g_blinkHits + " blink px " + g_lastBlink + "; recasts " + g_recasts + " " + g_lastRecast
 				+ "; last spell " + LastSpellName(plr) + "; drained " + g_drained + " converted " + g_converted + " barrier saves " + g_barrierSaves
 				+ "; feedback " + int(g_feedback + 0.5f) + " used " + g_fbUsed + " mul " + int(g_fbMul * 1000 + 0.5f) + "; conduit sent " + g_conduitSent + "; floored " + g_floored;
@@ -222,6 +223,7 @@ namespace Modules
 			HWP::Specs::g_circuitBackHits = 0;
 			HWP::Specs::g_galeArrows = 0;
 			HWP::Specs::ClearBrands();
+			HWP::Specs::ClearSupport();
 			HWP::Specs::ClearArcane();
 			HWP::Specs::ClearForgemaster();
 			HWP::Specs::ClearGenerosity();
@@ -248,6 +250,7 @@ namespace Modules
 			HWP::Specs::FilterPicker(); // paused too: a shop window may pause the game
 			if (paused)
 				return;
+			HWP::Specs::UpdateSupport(ms);
 			HWP::Specs::UpdateStandards(ms);
 			HWP::Specs::UpdateProvisions(ms);
 			HWP::Specs::UpdateConduit(ms);

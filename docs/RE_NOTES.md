@@ -1,5 +1,100 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-05: Rework focused solo validation PASS
+
+`qa-specs-support-rework 20261105-200813` PASS on pinned build 25932569 / B176,
+111.8 seconds, all 16 declared behavior assertions true. Inspected outer run.json
+verdict/assertions/error/teardown/build drift, inner partial flag and completed bot
+result: clean teardown, no errors/failed assertions/drift, partial=false. Two actual
+gameplay trials total: the first observer/oracle FAIL retained below, then this PASS;
+two intervening launch attempts were refused for host runtime ownership before boot.
+The owners had exited when inspected; no other owner's process was reset or killed.
+
+Before/after source hash is unchanged:
+`58068f723d811e665fcfe549d964322e3c8c16239685bcfae5a9f75704b209c1`
+(`mods+gamelab+tools-v2`, 2,178 files, HEAD `9ef620b0` plus the new bot/scenario).
+Portable summary: [`qa/specs-support-rework.json`](qa/specs-support-rework.json).
+Observed thrown lifetime 18,680 ms; 222 HP at Essence gain yielded the expected
+22.2 shield cap. Shield absorption, Crusade shield duration, pulse renewal,
+Soul Stride effect/reversion, Soul Guard cap/spend persistence/expiry, and manual
+Pyrebrand proliferation/investment/bonus/expiry passed their declared checks.
+
+Scope is controlled solo, with forced character/rank/orb/Essence setup and controlled
+damage/casts. Shared Killing Spree is only checked as active on the source Warrior;
+remote inheritance, ally kill maintenance, multiple Bannerlords, Martyr ally values,
+and actual thrown-origin coverage still need co-op evidence. Weakness application
+and death-triggered proliferation are source-reviewed but not exercised by this new
+scenario. Pyrebrand amount/transfer checks use script telemetry rather than an
+independent native target-HP oracle. No ordinary-run balance claim is made.
+
+## 2026-11-05: Rebased rework native load checkpoint
+
+Linux GameLab doctor is green on build 25932569 / B176. Exported 326/326 datatables
+(`20261105-195835-export-datatables-lab`); smoke `20261105-200123-null-payload-lab`
+and full-mod compilation/load `20261105-200212-mod-all-lab` PASS. Inspected the
+full-mod outer verdict, assertions, error, build drift, teardown and inner partial
+flag: no failed assertion/error/drift, clean teardown, partial=false. End screenshots
+for smoke and mod-all were inspected (town). These establish setup/load, not combat.
+
+Source: HEAD `9ef620b0`, raw `mods+gamelab+tools-v2` fingerprint before mod-all
+`5ec43c8584d975009fb644b6fa1b8df66abc9f7f3775e9cbd3aa0086c03978ca`
+(2,176 files). The focused solo rework bot/scenario were promoted only after that
+run ended; gameplay run fingerprint is
+`18431efa66fbc8e61f9e325a025845ef3676be2682af731718c81f3a78509084`
+(2,178 files). Focused gameplay outcome pending at this checkpoint; remote-party
+behavior remains untested.
+
+Focused solo trial 1 (`20261105-200339-qa-specs-support-rework-lab`) FAIL,
+with clean teardown, no script errors/error/build drift, and 14/16 expected
+behavior assertions passing. Preserved its raw artifacts. The two failed checks
+were observer/oracle assumptions, not demonstrated gameplay defects:
+
+- The immediate status sample still said carried; the same captured log then
+  showed `standard: thrown, 19076 ms left`. `castat` acknowledges activation before
+  the 150 ms action. The corrected observer waits up to 2 seconds for fresh thrown
+  status and still requires over 10 seconds left from the 20-second Standard.
+- First Soul Guard increment was 4.36 from 218 HP; native Essence increased HP to
+  222 before the next gain. The observed cap was 22.2 (10% of that new gain's HP
+  snapshot), not 21.8 (five times the first increment). The corrected oracle samples
+  max HP immediately before the next gain and requires its 10% cap.
+
+Observed in trial 1: 412 HP produced a 20.6 Standard shield; a controlled 20-damage
+hit went from 20 HP lost without it to 0 with it; the shield had 5,934 ms left under
+rank-5 Crusade. Soul Stride changed native movement multiplier 1.0 -> 1.2 and expired
+back to 1.0. Pyrebrand carried 760 stored damage onto two targets (1,520 aggregate),
+retained charge, applied the manual 1.25x claw formula, and naturally ended with
+zero brands. These are forced solo measurements, not remote-ally or ordinary-play
+proof; brand damage formula checks use script telemetry, not an independent HP oracle.
+Only the test observer/oracle changed for trial 2; gameplay scripts were unchanged.
+Trial 2 source fingerprint:
+`58068f723d811e665fcfe549d964322e3c8c16239685bcfae5a9f75704b209c1`
+(2,178 files, same HEAD). Trial 2 outcome pending.
+
+Retained setup failures: first shell timeout left the worktree's export-datatables
+lock (PID 520, started 19:50:04, interrupted run `20261105-195005-export-datatables-lab`).
+Inspected its partial artifacts and dead owner; reset killed nothing. A later retry
+was refused while PID 38267 owned another worktree's lab runtime; it was not killed.
+Retried after that process ended. No isolation guard or gameplay assertion was bypassed.
+
+## 2026-11-05: Branding/Bannerlord Linux rebase checkpoint
+
+Rebased `feat/branding-bannerlord-rework` onto Linux GameLab adoption
+`196cf170` (`origin/feat/linux-gamelab`). The replayed gameplay implementation is
+`b5d3bddc`: baseline Pyrebrand proliferation with carried investment and native
+Weakness, Soul Guard/Soul Stride, dual-origin thrown Standard shields based on the
+Bannerlord's own maximum Health, improved shared Killing Spree and duration scaling.
+Preserved both branches' RE notes when resolving the documentation-only conflict.
+
+Local checks: 6 rework source/data contract tests and 24 Linux host unit tests pass.
+The fresh worktree's pinned Windows Python/dependencies were installed through
+`./gamelab.sh setup`. Doctor found build 25932569 and the installed games, but
+reported missing ignored SDK/runtime/content prerequisites. The first
+`doctor --fix` was interrupted by the outer shell's 120-second timeout before a
+scenario run.json appeared; no game processes remained in the process inspection.
+Setup was resumed with no outer shell timeout. Its outcome is pending at this
+checkpoint. Gameplay test drafts remain under ignored `gamelab/results/`, not in
+the active test sources. No native compilation, gameplay, or co-op pass is claimed.
+
 ## Current Linux PR integration checkpoint (2026-11-05)
 
 Rebased the Linux host onto main `e7d060f111adf3b043c8df96526b1d27b8a86e4b`.
@@ -43,6 +138,26 @@ does not replace the inspected outer verdicts. October and pre-rebase November
 results remain historical only. These are load/isolation checks, not gameplay proof.
 No player save restore or install launch was performed. Broader gameplay QA is
 still paused/incomplete. GitHub CLI authentication is needed to publish the PR.
+
+## 2026-11-05: Branding/Bannerlord source implementation (no runtime evidence)
+
+Implemented the agreed rework and recorded initial tuning in
+[`design/branding-bannerlord-rework.md`](design/branding-bannerlord-rework.md).
+Six source/data contract tests pass (`python -m unittest discover -s tests -p
+test_specs_support_rework.py`). These do not establish compilation or gameplay.
+`python -m gamelab doctor` failed before preflight on Linux: importing `winproc.py`
+calls unavailable `ctypes.WinDLL`. No game runs or engine measurements were performed.
+Read-only engine source from the original checkout informed modifier/stack APIs:
+PlayerBase.AddStacks emits StackGained even at cap; ApplyBuff scales duration on
+the recipient; Killing Spree uses native damage multipliers, native CriticalHit
+chance combination, and Killer Physique endpoint interpolation (not a flat additive
+crit/regen grant). Shared effects use those conventions with one native stack pool.
+Existing perk IDs are retained for purchased-rank compatibility; Soul Stride adds
+a third rank. Standard shields use the source Bannerlord's maximum Health on each
+pulse; Soul Guard retains the Warlock's own maximum Health basis.
+Native compilation, timer/HUD sync, multiplayer source arbitration,
+shield absorption ordering, collision behavior of the directional throw, and gameplay
+balance remain unverified. Historical QA evidence below does not validate this source.
 
 Current session status (2026-11-01): all214authored worktree files were saved in
 checkpoint293e5f73, then upstream e7d060f1 was merged while preserving both dated

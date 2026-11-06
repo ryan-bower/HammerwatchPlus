@@ -5,18 +5,18 @@
   "group": "warrior-spec4",
   "kind": "active",
   "levels": [
-    "DR: 2% Cooldown: 60s DURATION: 10s",
-    "DR: 4% Cooldown: 55s DURATION: 13s",
-    "DR: 6% Cooldown: 50s DURATION: 15s",
-    "DR: 8% Cooldown: 45s DURATION: 17s",
-    "DR: 10% Cooldown: 40s DURATION: 20s"
+    "Shield: 3% of Bannerlord max HP; cooldown 60s; duration 10s",
+    "Shield: 3.5% of Bannerlord max HP; cooldown 55s; duration 13s",
+    "Shield: 4% of Bannerlord max HP; cooldown 50s; duration 15s",
+    "Shield: 4.5% of Bannerlord max HP; cooldown 45s; duration 17s",
+    "Shield: 5% of Bannerlord max HP; cooldown 40s; duration 20s"
   ],
   "mana": "40",
   "name": "Battlefield Standard",
-  "notes": "In game (hwp_war_battlefield_standard, tested): the first cast raises the standard; a cast while it is carried plants it (free, during the cooldown too). Assumed: mana 40, radius 75 (the Holy Banner's). Allies' numbers are untested (needs a second player).",
+  "notes": "Reworked in source; runtime/co-op validation pending. Radius 120, throw distance 180, pulse interval 3s, shield base duration 4s. Duration scaling applies once to shields, not the Standard lifetime.",
   "order": 0,
   "role": "",
-  "status": "tested",
-  "summary": "Raise a Battlefield Standard. All allies (including yourself) within its radius gain damage reduction.\n\nTrigger the ability again to plant the Standard into the ground, doubling the effect but halving the remaining duration.",
+  "status": "built",
+  "summary": "Pulse temporary shields based on your own maximum Health around you. Recast for free to throw the Standard toward your aim, preserving remaining duration and pulsing around both you and the banner. Overlapping shields do not stack.",
   "unlock": "bought"
 }

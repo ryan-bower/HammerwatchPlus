@@ -1,24 +1,9 @@
-// Branding (Warlock): Pyrebrand and Essence Extraction.
-// - Pyrebrand (branding/pyrebrand.sval): the cast brands the enemy nearest the aim
-//   (HWPSpecsPyrebrand). While a brand is up pb-pct of the warlock's damage to the branded
-//   enemy is stored on it (HWPSpecsBrandFeed, on QuantityTrigger::Damage, which runs on the
-//   warlock's own client: CompositeActorBehavior calls the local player's DamagedActor), and the
-//   skill stays ready (UpdateBrands holds its cooldown at 0). A recast, or the brand running out,
-//   sets off the Hellfire Claw: fire for pb-base + the stored damage x the brand's charge (the
-//   part of its time it has burned, Charge) on every enemy within CLAW_RADIUS of the branded
-//   one; then the full cooldown. pb-pct is the payoff at full charge, 100-500% (issue #35: it
-//   was 10-50% whenever it went off, less than the damage that fed it, and the brand's time
-//   made no difference). A branded enemy that dies passes the brand, stored damage, time left
-//   and charge, to the nearest enemy within TRANSFER_RADIUS.
-//   Combustion (pb-combust): the claw spends every Essence stack for that much more damage and
-//   radius each. Proliferation (pb-spread): the brand lasts half as long and a dying brand goes
-//   to every enemy within pb-spread, each with the whole stored damage.
-// - Essence Extraction (branding/essence_extraction.sval): a magic weapon hit (arcane-tagged:
-//   staff, wand, tome, scepter, lantern) is an Essence gain too, once per ee-cd ms, and a gain from a Pyrebranded enemy runs
-//   twice: the magic one, and Drain Essence's own melee one (HWPSpecsEssenceHit). A gain is
-//   what Drain Essence's hit effects do (GainEssence). Essence Empowerment (ee-emp, HWPSpecsEssenceFire): + ee-emp x the physical damage
-//   multiplier to the fire damage multiplier per Essence stack. Released Essence (ee-released):
-//   an elite or boss killed by the claw gives that many stacks.
+// Branding: 6-second charging Pyrebrands burst on death, recast or expiry.
+// Death/recast spread all investment and remaining lifetime within 100; expiry ends
+// the chain. Claw damage cannot feed brands and a lineage cannot revisit victims.
+// Enfeeblement uses native Weakness; Combustion still spends Essence for claw power.
+// Essence Extraction retains magic-weapon gains and doubled branded gain effects.
+// Support.as handles Soul Guard and Soul Stride on all native Essence gain events.
 // The brands are the warlock's own client's; the other peers see the pyrebrand debuff (kept
 // on by UpdateBrands, the buff list syncs it) and the damage, not the claw's effect.
 namespace HWP
@@ -29,6 +14,9 @@ namespace HWP
 		const uint ESSENCE_EXTRACTION = HashString("hwp_wlk_essence_extraction");
 		const string ESSENCE = "players/warlock/stacks_warlock.sval:essence";
 		const uint DRAIN_ESSENCE = HashString("drain_essence");
+		// Native aura variants cannot shorten an ordinary timed Weakness from another source.
+		const array<string> BRAND_WEAKNESS = { "", "tweak/buffs/status_effects.sval:weakness_area_minor",
+			"tweak/buffs/status_effects.sval:weakness_area", "tweak/buffs/status_effects.sval:weakness_area_greater" };
 
 		// assumed numbers (not in the design): the brand's time, its search cone and range, the
 		// claw's radius, the transfer range and the most brands at once
@@ -39,7 +27,6 @@ namespace HWP
 		const float CLAW_RADIUS = 40;
 		const float TRANSFER_RADIUS = 100;
 		const uint MAX_BRANDS = 20;
-		const int CLAW_KILL_WINDOW = 1000; // a claw's elite victim dying this soon counts as its kill
 
 		class Brand
 		{
@@ -48,6 +35,7 @@ namespace HWP
 			float m_stored;
 			int m_left;
 			int m_full;   // the brand's whole time: the charge is the part of it gone by
+			array<Actor@> m_visited;
 		}
 
 		array<Brand@> g_brands;
@@ -58,8 +46,7 @@ namespace HWP
 		int g_refundC = 0;
 		bool g_resetPyre = false;
 		bool g_brandsUp = false;      // brands were up at the end of the last update
-		array<Actor@> g_clawVictims;  // elites and bosses the claw hit (Released Essence)
-		int g_clawVictimC = 0;
+		bool g_clawResolving = false;
 
 		// counters for `hwp specs`
 		int g_claws = 0;
@@ -69,7 +56,6 @@ namespace HWP
 		int g_transfers = 0;
 		int g_essenceHits = 0;
 		int g_essenceTwice = 0;
-		int g_released = 0;
 
 		void ClearBrands()
 		{
@@ -81,9 +67,8 @@ namespace HWP
 			g_refundC = 0;
 			g_resetPyre = false;
 			g_brandsUp = false;
-			g_clawVictims.removeRange(0, g_clawVictims.length());
-			g_clawVictimC = 0;
-			g_claws = g_clawHits = g_lastClaw = g_lastCharge = g_transfers = g_essenceHits = g_essenceTwice = g_released = 0;
+			g_clawResolving = false;
+			g_claws = g_clawHits = g_lastClaw = g_lastCharge = g_transfers = g_essenceHits = g_essenceTwice = 0;
 		}
 
 		Brand@ BrandOn(Actor@ a)
@@ -112,7 +97,7 @@ namespace HWP
 
 		int BrandTime(PlayerBase@ plr)
 		{
-			return BindF(plr, PYREBRAND, "pb-spread") > 0 ? BRAND_TIME / 2 : BRAND_TIME;
+			return BRAND_TIME;
 		}
 
 		// how far the brand has burned, 0 when cast to 1 when it runs out
@@ -124,7 +109,7 @@ namespace HWP
 		void FeedBrand(PlayerBase@ plr, Actor@ enemy, int value)
 		{
 			auto b = BrandOn(enemy);
-			if (b is null || plr is null)
+			if (b is null || plr is null || g_clawResolving)
 				return;
 			b.m_stored += value * BindF(plr, PYREBRAND, "pb-pct");
 		}
@@ -149,7 +134,7 @@ namespace HWP
 		{
 			if (plr is null || g_pyre is null)
 				return false;
-			vec2 at = (b.m_target !is null && !b.m_target.IsDead()) ? xy(b.m_target.m_unit.GetPosition()) : b.m_pos;
+			vec2 at = (b.m_target !is null && b.m_target.m_unit.IsValid() && !b.m_target.IsDead()) ? xy(b.m_target.m_unit.GetPosition()) : b.m_pos;
 			auto ess = Stack(ESSENCE);
 			int n = ess !is null ? plr.GetStacks(ess) : 0;
 			float combust = BindF(plr, PYREBRAND, "pb-combust");
@@ -157,26 +142,23 @@ namespace HWP
 			float radius = CLAW_RADIUS * mul;
 			float charge = Charge(b);
 			float amount = (BindF(plr, PYREBRAND, "pb-base") + b.m_stored * charge) * mul;
+			if (why == "recast") amount *= 1.25f;
 
 			PlayEffect("players/warlock/effects/demon_tail_impact.effect", at);
 			dictionary ps = { { "radius", radius } };
 			PlayEffect("players/warlock/effects/war_ritual.effect", at, ps);
 			PlaySound3D(Resources::GetSoundEvent("event:/sfx/actors/aberrations/wisps/wisp_fire/wisp_fire_explode"), xyz(at));
 
-			bool released = BindI(plr, ESSENCE_EXTRACTION, "ee-released") > 0;
 			auto enemies = EnemiesNear(at, radius, plr.Team);
 			for (uint i = 0; i < enemies.length(); i++)
 			{
 				auto a = enemies[i];
+				g_clawResolving = true;
 				ApplyEffects(g_pyre.m_claw, plr, a.m_unit, xy(a.m_unit.GetPosition()), vec2(0, -1), amount / 100.0f, false);
+				g_clawResolving = false;
 				g_clawHits++;
-				// the host decides the kill, so a client sees it frames later: watched in UpdateBrands
-				if (released && IsEliteOrBoss(a) && g_clawVictims.findByRef(a) < 0)
-					g_clawVictims.insertLast(a);
 			}
-			if (released && g_clawVictims.length() > 0)
-				g_clawVictimC = CLAW_KILL_WINDOW;
-			// the claw had Empowerment's fire from these stacks; now it spends them
+			// Combustion spends the Essence after resolving its bonus.
 			if (combust > 0 && n > 0 && ess !is null)
 			{
 				plr.AddStacks(plr, ess, -n);
@@ -199,37 +181,29 @@ namespace HWP
 			g_brandsUp = false;                // the recast's own cooldown is the skill's
 			for (uint i = 0; i < brands.length(); i++)
 				Claw(plr, brands[i], why);
+			for (uint i = 0; i < brands.length(); i++)
+			{
+				for (uint j = 0; j < brands.length(); j++)
+					if (brands[i].m_visited.findByRef(brands[j].m_target) < 0)
+						brands[i].m_visited.insertLast(brands[j].m_target);
+				PassOn(plr, brands[i]);
+			}
 		}
 
 		// a branded enemy died: the brand goes on (Proliferation: to all of them)
 		void PassOn(PlayerBase@ plr, Brand@ b)
 		{
-			float spread = BindF(plr, PYREBRAND, "pb-spread");
-			auto enemies = EnemiesNear(b.m_pos, spread > 0 ? spread : TRANSFER_RADIUS, plr.Team);
-			Actor@ best = null;
-			float bestD = 0;
+			if (b.m_left <= 0) return;
+			if (b.m_visited.findByRef(b.m_target) < 0) b.m_visited.insertLast(b.m_target);
+			auto enemies = EnemiesNear(b.m_pos, TRANSFER_RADIUS, plr.Team);
 			int passed = 0;
 			for (uint i = 0; i < enemies.length(); i++)
 			{
-				if (BrandOn(enemies[i]) !is null)
+				if (BrandOn(enemies[i]) !is null || b.m_visited.findByRef(enemies[i]) >= 0 || g_brands.length() >= MAX_BRANDS)
 					continue;
-				if (spread > 0)
-				{
-					AddBrand(plr, enemies[i], b.m_stored, BrandTime(plr), BrandTime(plr));
-					passed++;
-					continue;
-				}
-				float d = dist(b.m_pos, xy(enemies[i].m_unit.GetPosition()));
-				if (best is null || d < bestD)
-				{
-					@best = enemies[i];
-					bestD = d;
-				}
-			}
-			if (best !is null)
-			{
-				AddBrand(plr, best, b.m_stored, b.m_left, b.m_full);
-				passed++;
+				AddBrand(plr, enemies[i], b.m_stored, b.m_left, b.m_full);
+				auto child = BrandOn(enemies[i]);
+				if (child !is null) { child.m_visited = b.m_visited; passed++; }
 			}
 			g_transfers += passed;
 			Log("specs", "pyrebrand: target died, " + int(b.m_stored + 0.5f) + " stored passed to " + passed);
@@ -273,29 +247,7 @@ namespace HWP
 			if (plr is null || plr.IsDead())
 			{
 				g_brands.removeRange(0, g_brands.length());
-				g_clawVictims.removeRange(0, g_clawVictims.length());
 				return;
-			}
-
-			// Released Essence: a claw's elite or boss victim that has died since
-			if (g_clawVictims.length() > 0)
-			{
-				g_clawVictimC -= ms;
-				auto ess = Stack(ESSENCE);
-				int released = BindI(plr, ESSENCE_EXTRACTION, "ee-released");
-				for (int i = int(g_clawVictims.length()) - 1; i >= 0; i--)
-				{
-					if (!g_clawVictims[i].IsDead())
-						continue;
-					if (ess !is null && released > 0)
-					{
-						plr.AddStacks(plr, ess, released);
-						g_released += released;
-					}
-					g_clawVictims.removeAt(i);
-				}
-				if (g_clawVictimC <= 0)
-					g_clawVictims.removeRange(0, g_clawVictims.length());
 			}
 
 			auto sk = PyreSkill(plr);
@@ -311,14 +263,15 @@ namespace HWP
 			for (int i = int(g_brands.length()) - 1; i >= 0; i--)
 			{
 				auto b = g_brands[i];
+				b.m_left -= ms;
 				if (b.m_target is null || b.m_target.IsDead() || !b.m_target.m_unit.IsValid())
 				{
 					g_brands.removeAt(i);
+					Claw(plr, b, "death");
 					PassOn(plr, b);
 					continue;
 				}
 				b.m_pos = xy(b.m_target.m_unit.GetPosition());
-				b.m_left -= ms;
 				if (b.m_left <= 0)
 				{
 					g_brands.removeAt(i);
@@ -333,8 +286,12 @@ namespace HWP
 			{
 				g_brandFxC = 150;
 				auto def = Buff("pyrebrand");
+				int weakness = min(3, BindI(plr, PYREBRAND, "pb-weakness"));
 				for (uint i = 0; i < g_brands.length(); i++)
+				{
 					Give(plr, g_brands[i].m_target, def, 1, 400);
+					if (weakness > 0) Give(plr, g_brands[i].m_target, Buff(BRAND_WEAKNESS[weakness]), 1, 200);
+				}
 			}
 
 			if (sk is null || sk.m_castingT >= 0)
@@ -490,34 +447,5 @@ class HWPSpecsEssenceHit : IEffect
 		HWP::Specs::g_essenceC = HWP::Specs::BindI(plr, HWP::Specs::ESSENCE_EXTRACTION, "ee-cd", 2000);
 		HWP::Specs::g_essenceHits++;
 		return true;
-	}
-}
-
-// Essence Empowerment, put into the Essence stack (InjectModifiersIntoStack): the fire damage
-// multiplier + per-stack x the physical damage multiplier for each stack. The stack's own
-// intensity is (stacks - 1) / (max - 1), and Essence Harvester moves the max, so this counts
-// the stacks itself. The stack's DummyModifier refreshes the modifiers on every change.
-class HWPSpecsEssenceFire : Modifiers::ConvertStat
-{
-	float m_per;
-
-	HWPSpecsEssenceFire(UnitPtr unit, SValue& params)
-	{
-		super(unit, params);
-		m_per = GetParamFloat(unit, params, "per-stack", false, 0.0f);
-	}
-
-	int Stacks(PlayerRecord@ player)
-	{
-		auto plr = cast<PlayerBase>(player.actor);
-		auto def = HWP::Specs::Stack(HWP::Specs::ESSENCE);
-		return (plr is null || def is null) ? 0 : plr.GetStacks(def);
-	}
-
-	void ModifyDetail(PlayerRecord@ player, PlayerStatsDetail@ stats, float intensity) override { }
-
-	void Modify(PlayerRecord@ player, PlayerStats@ stats, float intensity) override
-	{
-		stats.FireDamageMul += stats.PhysicalDamageMul * m_per * Stacks(player);
 	}
 }

@@ -1,0 +1,53 @@
+{
+  "scenario": "qa-specs-support-rework",
+  "build_id": "25932569",
+  "build_label": "B176",
+  "source_head": "9ef620b0da9e96b1ba2eb5778404df3203584298",
+  "source_note": "HEAD plus new gameplay bot/scenario; no gameplay script changes between trials",
+  "fingerprint_scope": "mods+gamelab+tools-v2",
+  "trials": [
+    {
+      "run": "20261105-200339-qa-specs-support-rework-lab",
+      "verdict": "FAIL",
+      "source_sha256": "18431efa66fbc8e61f9e325a025845ef3676be2682af731718c81f3a78509084",
+      "assertions_passed": 14,
+      "assertions_total": 16,
+      "failed": ["banner_throw_preserves_lifetime", "soul_guard_cap"],
+      "diagnosis": "Throw observer sampled before cast point; cap oracle incorrectly assumed Essence did not change maximum HP.",
+      "teardown_clean": true,
+      "build_drift": false
+    },
+    {
+      "run": "20261105-200813-qa-specs-support-rework-lab",
+      "verdict": "PASS",
+      "source_sha256_before": "58068f723d811e665fcfe549d964322e3c8c16239685bcfae5a9f75704b209c1",
+      "source_sha256_after": "58068f723d811e665fcfe549d964322e3c8c16239685bcfae5a9f75704b209c1",
+      "source_files": 2178,
+      "assertions_passed": 16,
+      "assertions_total": 16,
+      "outer_error": null,
+      "inner_partial": false,
+      "teardown_clean": true,
+      "build_drift": false,
+      "observations": {
+        "banner_hp": 412,
+        "banner_shield": 20.6,
+        "throw_remaining_ms": 18680,
+        "soul_cap_hp_snapshot": 222,
+        "soul_cap_expected": 22.2,
+        "soul_cap_observed": 22.2
+      }
+    }
+  ],
+  "load_gate": "20261105-200212-mod-all-lab",
+  "smoke_gate": "20261105-200123-null-payload-lab",
+  "scope": "Controlled solo measurements; forced character/rank/orb/Essence setup and controlled damage/casts",
+  "untested": [
+    "remote ally Killing Spree inheritance and kill maintenance",
+    "multiple Bannerlords and native Warrior recipients",
+    "Martyr allied shield values and thrown-origin ally coverage",
+    "Weakness application and death-triggered proliferation",
+    "independent native target-HP oracle for brand damage",
+    "ordinary-run balance"
+  ]
+}

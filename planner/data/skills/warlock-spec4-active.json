@@ -5,18 +5,18 @@
   "group": "warlock-spec4",
   "kind": "active",
   "levels": [
-    "10% of damage dealt added to Hellfire Claw (20 base), 40 mana",
-    "15% of damage dealt added to Hellfire Claw (25 base), 40 mana",
-    "25% of damage dealt added to Hellfire Claw (30 base), 50 mana",
-    "35% of damage dealt added to Hellfire Claw (35 base), 50 mana",
-    "50% of damage dealt added to Hellfire Claw (40 base), 60 mana"
+    "100% stored payoff at full charge (20 base), 40 mana",
+    "150% stored payoff at full charge (25 base), 40 mana",
+    "250% stored payoff at full charge (30 base), 50 mana",
+    "350% stored payoff at full charge (35 base), 50 mana",
+    "500% stored payoff at full charge (40 base), 60 mana"
   ],
   "mana": "40/40/50/50/60",
   "name": "Pyrebrand",
-  "notes": "In game (hwp_wlk_pyrebrand, tested): brands the enemy nearest the aim; the recast (free while a brand is up) or the brand running out sets off the Hellfire Claw: base + the stored damage as fire within 40. A victim that dies passes the brand on within 100; with nobody there the brand is gone and the full cooldown starts. Assumed: the base 20-40, the brand's 6 s, the claw radius 40, the transfer range 100, the aim cone, the free recast.",
+  "notes": "Rework in source; runtime/co-op validation pending. Baseline 6-second brand, proliferation radius 100, full stored investment/charge/remaining duration transfer; 20-brand cap. Manual claw bonus 25%. Claws cannot feed brands or reset transfer lifetime.",
   "order": 0,
   "role": "",
-  "status": "tested",
-  "summary": "Brand an enemy with a demonic sigil. For a short duration, a portion of the damage you deal to that enemy feeds the brand. When you reactivate the ability or the brand expires, a Hellfire Claw tears up through the victim dealing fire damage based on the stored offering. If the victim dies before the brand is triggered, the brand transfers to a nearby enemy, carrying its stored damage.",
+  "status": "built",
+  "summary": "Feed a charging brand with damage. Recast, expiry or victim death unleashes Hellfire Claw. Manual detonation deals 25% more damage; manual detonation and death spread all investment to nearby enemies without resetting the brand lifetime.",
   "unlock": "free"
 }

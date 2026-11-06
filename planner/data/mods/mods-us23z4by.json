@@ -5,21 +5,21 @@
   "levels": [
     {
       "q": "uncommon",
-      "text": "+1% fire damage per stack"
+      "text": "1% max HP shield per Essence, capped at 5%"
     },
     {
       "q": "uncommon",
-      "text": "+2% fire damage per stack"
+      "text": "1.5% max HP shield per Essence, capped at 7.5%"
     },
     {
       "q": "rare",
-      "text": "+3% fire damage per stack"
+      "text": "2% max HP shield per Essence, capped at 10%"
     }
   ],
-  "name": "Essence Empowerment",
-  "notes": "Hellfire Claw will get this gain before the essence stacks reset with combustion orb mod.\n\nIn game (hwp_wlk_ee_essence_empowerment, tested): fire damage + 1/2/3% of the physical damage multiplier per Essence stack (assumed).",
+  "name": "Soul Guard",
+  "notes": "Source implementation; runtime validation pending. Old perk ID retained for purchased ranks.",
   "order": null,
   "skill": "warlock-spec4-passive",
-  "status": "tested",
-  "summary": "Deal increased Fire Damage based on a percentage of your physical damage per Essence stack. Applies to Hellfire Claw."
+  "status": "built",
+  "summary": "Gaining Essence replenishes a capped shield for 4 seconds, refreshed by further gains. Spending Essence does not remove the shield."
 }
