@@ -4,7 +4,7 @@
 
 ## Read the handoff first
 
-Use the [agent entry point](../AGENTS.md), [quickstart](../gamelab/README.md) and
+Use the [agent entry point](../CLAUDE.md), [quickstart](../gamelab/README.md) and
 [regression/known-failure map](qa/REGRESSIONS.md) for current operating instructions.
 The checkpoint linked above is authoritative. The run contract and chronological
 entries below are historical snapshots; their active/current wording describes the

@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-specs-deadeye-gale",
- "about": "qa-specs-deadeye-gale against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Ignored draft: two fixed trials perquality0/1/2, actual native25kills earn5Tailwind, native bow projectileangles and actualHP damage. No positive stack setter.",
+ "about": "qa-specs-deadeye-gale against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Ignored draft: two fixed trials perquality0/1/2, actual native25kills earn5Tailwind, native bow projectileangles and actualHP damage. No positive stack setter.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

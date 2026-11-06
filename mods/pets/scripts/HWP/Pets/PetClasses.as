@@ -1,4 +1,4 @@
-// The pet units name these classes themselves (tools/make_pet_dyes.py writes
+// The pet units name these classes themselves (tools/generate/make_pet_dyes.py writes
 // copies of the vanilla pet units and rewrites the HoH1 imports; the engine
 // ignores info.xml classmaps for unit behaviours), so every pet gets:
 //   - puzzle and trap room waiting (HWP::PetWait::Watcher, mods/petrooms; Owned, so
@@ -17,7 +17,7 @@ class HWPMiniPetWalking : MiniPetWalking, HWP::PetWait::Owned
 	HWP::PetWait::Watcher m_wait;
 	HWP::Pets::SkillRunner m_skills;
 	string m_petId;
-	string m_dyeVariant; // "p" / "s" / "ps" on a dye-ready copy (tools/make_pet_dyes.py)
+	string m_dyeVariant; // "p" / "s" / "ps" on a dye-ready copy (tools/generate/make_pet_dyes.py)
 
 	HWPMiniPetWalking(UnitPtr unit, SValue& params)
 	{
@@ -71,7 +71,7 @@ class HWPMiniPetFlying : MiniPetFlying, HWP::PetWait::Owned
 	HWP::PetWait::Watcher m_wait;
 	HWP::Pets::SkillRunner m_skills;
 	string m_petId;
-	string m_dyeVariant; // "p" / "s" / "ps" on a dye-ready copy (tools/make_pet_dyes.py)
+	string m_dyeVariant; // "p" / "s" / "ps" on a dye-ready copy (tools/generate/make_pet_dyes.py)
 
 	HWPMiniPetFlying(UnitPtr unit, SValue& params)
 	{

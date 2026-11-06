@@ -14,7 +14,7 @@
 // the rifle is the 2h crossbow set, the pistols the wand set) and the scripts reach no
 // bone, so a pose is the gun's own model turned about the hand: pre-rotated copies of each
 // gun model (players/models/equipment/pose_<gun>_<pose>.model, from the job script
-// make_pose_models.py through tools/make_gun_models.py's reader and writer: pistols up 90,
+// make_pose_models.py through tools/generate/make_gun_models.py's reader and writer: pistols up 90,
 // kick 40, down -75 degrees; rifles down -40, up 70, high 45) swapped into the item's
 // Equipment::m_modelTmp, the slot PlayerVisuals::GetModel draws in place of the item's own
 // model, the way the held guns do it (HeldModel.as). The arm itself still follows the

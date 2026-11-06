@@ -1,6 +1,6 @@
 {
  "name": "pf-plan-forgemaster-units",
- "about": "plan-forgemaster-units against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Devil Forgemaster: the raise table on a handful of units (plan_forgemaster bot, section raise_all with the units kwarg): the ones a full run flagged, re-tested after a fix without the 75 minutes of all 141. Each is raised, follows and leash-teleports, then attacks a bandit brute.",
+ "about": "plan-forgemaster-units against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Devil Forgemaster: the raise table on a handful of units (plan_forgemaster bot, section raise_all with the units kwarg): the ones a full run flagged, re-tested after a fix without the 75 minutes of all 141. Each is raised, follows and leash-teleports, then attacks a bandit brute.",
  "fixture": "town-paladin",
  "timeout": 700,
  "steps": [

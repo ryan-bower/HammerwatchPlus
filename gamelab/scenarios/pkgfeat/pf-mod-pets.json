@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-pets",
- "about": "mod-pets against the built package pets instead of the mods' source folders (tools/make_package_scenarios.py). mods/pets loads in town: the self-check lines from mods/pets/README.md Testing step 1, no script errors in our files.",
+ "about": "mod-pets against the built package pets instead of the mods' source folders (tools/generate/make_package_scenarios.py). mods/pets loads in town: the self-check lines from mods/pets/README.md Testing step 1, no script errors in our files.",
  "fixture": "town-paladin",
  "timeout": 120,
  "steps": [

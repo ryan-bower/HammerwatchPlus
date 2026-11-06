@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-keys",
- "about": "mod-keys against the built package keys instead of the mods' source folders (tools/make_package_scenarios.py). mods/keys loads in town: the self-check lines from mods/keys/README.md Testing step 1, no script errors in our files.",
+ "about": "mod-keys against the built package keys instead of the mods' source folders (tools/generate/make_package_scenarios.py). mods/keys loads in town: the self-check lines from mods/keys/README.md Testing step 1, no script errors in our files.",
  "fixture": "town-paladin",
  "timeout": 120,
  "steps": [

@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-classes-backstab",
- "about": "qa-classes-backstab against the built package classes instead of the mods' source folders (tools/make_package_scenarios.py). Backstab ranks0/1/5: one actual main-weapon activation each, independently confirmed by numeric ! critical text, exact target HP loss and bleeding stacks0/2/6. Expiring native skillcrit fixture set/rebuilt/restored; no direct damage or modifier callbacks.",
+ "about": "qa-classes-backstab against the built package classes instead of the mods' source folders (tools/generate/make_package_scenarios.py). Backstab ranks0/1/5: one actual main-weapon activation each, independently confirmed by numeric ! critical text, exact target HP loss and bleeding stacks0/2/6. Expiring native skillcrit fixture set/rebuilt/restored; no direct damage or modifier callbacks.",
  "fixture": "town-paladin",
  "timeout": 300,
  "steps": [

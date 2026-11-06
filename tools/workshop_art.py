@@ -11,7 +11,7 @@ draws its GUI, then scaled up SCALE times without smoothing:
   - every symbol is a game or module sprite (SYMBOLS), in the game's octagon icon frame;
   - the text is the game's own pixel font (empire, size 16 with a 1 px outline, as
     gui/fonts/*.fnt use it); the HammerwatchPlus wordmark is UnifrakturMaguntia
-    (tools/fonts/, SIL Open Font License), in the gold of the game's logo.
+    (tools/art/fonts/, SIL Open Font License), in the gold of the game's logo.
 
 The base game's art comes from gamecode/sdk/hoh2 (tools/bootstrap.py, never committed), so
 the cards are built on a machine with the game installed and are never committed either:
@@ -35,7 +35,7 @@ BASE = paths.BASE_HOH2
 MODS = REPO / "mods"
 OUT = REPO / "dist" / "workshop-art"
 FONTS = BASE / "gui" / "fonts"
-WORDMARK_FONT = REPO / "tools" / "fonts" / "UnifrakturMaguntia-Book.ttf"
+WORDMARK_FONT = REPO / "tools" / "art" / "fonts" / "UnifrakturMaguntia-Book.ttf"
 NATIVE = (480, 270)
 SCALE = 3
 

@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-classes-hidden",
- "about": "mod-classes-hidden against the built packages classes, firearms instead of the mods' source folders (tools/make_package_scenarios.py). Thief, Gladiator and Witch Hunter are parked: the create-character list leaves them out (core's HWP::HideClass), and the Firearms Specialist is still offered.",
+ "about": "mod-classes-hidden against the built packages classes, firearms instead of the mods' source folders (tools/generate/make_package_scenarios.py). Thief, Gladiator and Witch Hunter are parked: the create-character list leaves them out (core's HWP::HideClass), and the Firearms Specialist is still offered.",
  "fixture": "town-paladin",
  "timeout": 200,
  "steps": [

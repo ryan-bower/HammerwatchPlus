@@ -1,7 +1,7 @@
 {
  "name": "hoh1-installed",
  "needs_hoh1": true,
- "about": "With this machine's own HoH1 import (the mods' source folders carry the local content tools/import_hoh1.py wrote): the Forsaken Tower's HoH1 levels, the HoH1 pets and the HoH1 trinket icons report installed, and hwplib does not tell the player about stand-ins. The HoH1 class art is a packed-only overlay, so the classes mod is left out here.",
+ "about": "With this machine's own HoH1 import (the mods' source folders carry the local content tools/hoh1/import_hoh1.py wrote): the Forsaken Tower's HoH1 levels, the HoH1 pets and the HoH1 trinket icons report installed, and hwplib does not tell the player about stand-ins. The HoH1 class art is a packed-only overlay, so the classes mod is left out here.",
  "fixture": "town-paladin",
  "mods": [
   "campaign",

@@ -1,6 +1,6 @@
 {
  "name": "pf-fix-firearms-aim-diagonal",
- "about": "fix-firearms-aim-diagonal against the built package firearms instead of the mods' source folders (tools/make_package_scenarios.py). The rifle's rounds cross the crosshair at every angle (2026-10-22, the user's item 1): Combat.as AimAtCursor aims every local gun shot from the player's gun height (11 px up, the round's drawn height) at the world point under the cursor, instead of the engine's AimDir, whose anchor is off on the diagonals. Through the fix_firearms_feel bot: the cursor 120 px out at 8 compass points (gl cursor), a shot along each, the tracked round's path (gl track) within 5 px of the crosshair; `hwp firearms aim` counts the fixes.",
+ "about": "fix-firearms-aim-diagonal against the built package firearms instead of the mods' source folders (tools/generate/make_package_scenarios.py). The rifle's rounds cross the crosshair at every angle (2026-10-22, the user's item 1): Combat.as AimAtCursor aims every local gun shot from the player's gun height (11 px up, the round's drawn height) at the world point under the cursor, instead of the engine's AimDir, whose anchor is off on the diagonals. Through the fix_firearms_feel bot: the cursor 120 px out at 8 compass points (gl cursor), a shot along each, the tracked round's path (gl track) within 5 px of the crosshair; `hwp firearms aim` counts the fixes.",
  "fixture": "town-paladin",
  "timeout": 420,
  "steps": [

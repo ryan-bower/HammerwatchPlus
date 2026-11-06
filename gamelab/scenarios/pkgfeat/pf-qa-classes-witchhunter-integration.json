@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-classes-witchhunter-integration",
- "about": "qa-classes-witchhunter-integration against the built packages classes, qol instead of the mods' source folders (tools/make_package_scenarios.py). Parked HoH1 class: level5 base-kit lab setup, save/reload, two ordinary1x god-off HoH2 floor exits with real rewards, summon readback, then separately controlled lethal Player.Damage and real DeadMenu/town/save/reload. Does not prove boss/co-op.",
+ "about": "qa-classes-witchhunter-integration against the built packages classes, qol instead of the mods' source folders (tools/generate/make_package_scenarios.py). Parked HoH1 class: level5 base-kit lab setup, save/reload, two ordinary1x god-off HoH2 floor exits with real rewards, summon readback, then separately controlled lethal Player.Damage and real DeadMenu/town/save/reload. Does not prove boss/co-op.",
  "fixture": "town-paladin",
  "timeout": 1200,
  "steps": [

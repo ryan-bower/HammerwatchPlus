@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-specs-wizard-ranks",
- "about": "qa-specs-wizard-ranks against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Actual Thunder Orb/Static Charge damage at every skill rank and Lightning Rod target counts/radius at every orb rank. Source damage progression, earned release prerequisites, high-HP/maxHP readback, independent native crit controls and actual projectile geometry. Measurement-only, no co-op claims.",
+ "about": "qa-specs-wizard-ranks against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Actual Thunder Orb/Static Charge damage at every skill rank and Lightning Rod target counts/radius at every orb rank. Source damage progression, earned release prerequisites, high-HP/maxHP readback, independent native crit controls and actual projectile geometry. Measurement-only, no co-op claims.",
  "fixture": "town-paladin",
  "timeout": 900,
  "steps": [

@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-architect-challenges",
- "about": "mod-architect-challenges against the built package coop instead of the mods' source folders (tools/make_package_scenarios.py). mods/architect challenges: the seven HoH1 bad-wish challenges load as free architect alterations; each takes a fixed gold + material amount off the bill after vanilla's cost curve, and a material stops at 0 (never pays out). Picked for a run (hwp architect try, the loadout Play's effect), the generation ones reach the floor (Crowded Halls + Champions set on the enemy placer) and the picks are on the player record. Then no script errors in our files.",
+ "about": "mod-architect-challenges against the built package coop instead of the mods' source folders (tools/generate/make_package_scenarios.py). mods/architect challenges: the seven HoH1 bad-wish challenges load as free architect alterations; each takes a fixed gold + material amount off the bill after vanilla's cost curve, and a material stops at 0 (never pays out). Picked for a run (hwp architect try, the loadout Play's effect), the generation ones reach the floor (Crowded Halls + Champions set on the enemy placer) and the picks are on the player record. Then no script errors in our files.",
  "fixture": "town-paladin",
  "timeout": 240,
  "steps": [

@@ -9,7 +9,7 @@ namespace GameLab
 	//   (GameModes/MissionGameMode.as:424): srand(seed), a CPU-only spin, then randi() gives a
 	//   different value on every load (seed-repeat 20261018-162919), and the engine draws from it
 	//   every frame (rand-frames 20261018-161957). srand alone cannot replay a layout.
-	// - So tools/make_seeded_generators.py overrides every Generators/*.as that draws, routing
+	// - So tools/generate/make_seeded_generators.py overrides every Generators/*.as that draws, routing
 	//   randi/randf/randdir/roll_round through GenRandi/GenRandf/GenRandDir/GenRollRound below:
 	//   a private RandomSequence while g_genActive, the engine's own functions otherwise.
 	// - Activation: Generate loads the town (:434), which fires TownRecordLoad

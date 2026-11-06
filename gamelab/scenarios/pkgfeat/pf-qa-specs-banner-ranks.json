@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-specs-banner-ranks",
- "about": "qa-specs-banner-ranks against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Every Standard rank: real incoming damage before/carried/planted/expired, native cooldown and mana, free plant during cooldown. Controlled native activation with cooldown reset only for raises; solo, not teammate proof.",
+ "about": "qa-specs-banner-ranks against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Every Standard rank: real incoming damage before/carried/planted/expired, native cooldown and mana, free plant during cooldown. Controlled native activation with cooldown reset only for raises; solo, not teammate proof.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

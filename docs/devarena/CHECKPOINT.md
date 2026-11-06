@@ -44,7 +44,7 @@ The goal is `docs/devarena/GOAL.md` and the spec is `docs/devarena/SPEC.md` (bui
 - `uv run pytest`. One failure is pre-existing and not ours:
   `test_pilot_combat_loot.py::test_use_walks_straight_in_when_no_route_starts_near_the_target`.
 - `python tools/list_verbs.py --check` (regenerate it after adding verbs).
-- `python tools/make_presets.py --check` and `python tools/devarena/tooltip_lint.py`.
+- `python tools/generate/make_presets.py --check` and `python tools/devarena/tooltip_lint.py`.
 - AngelScript refuses `string &inout`; use `&in` + `&out`.
 - Heredocs eat backslashes. Write JSON with regex patterns using the Write tool.
 

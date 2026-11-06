@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-classes-cinders",
- "about": "qa-classes-cinders against the built package classes instead of the mods' source folders (tools/make_package_scenarios.py). Cinders triggers on spellhit, without requiring critical hits. Fixed8 rank0 controls and40 each rank1/max5 actual Ward hits on fresh unarmored debuffable targets; exact HP proves hits and native armor_break tags prove procs. Every trial retained; no rerun-until-success.",
+ "about": "qa-classes-cinders against the built package classes instead of the mods' source folders (tools/generate/make_package_scenarios.py). Cinders triggers on spellhit, without requiring critical hits. Fixed8 rank0 controls and40 each rank1/max5 actual Ward hits on fresh unarmored debuffable targets; exact HP proves hits and native armor_break tags prove procs. Every trial retained; no rerun-until-success.",
  "fixture": "town-paladin",
  "timeout": 900,
  "steps": [

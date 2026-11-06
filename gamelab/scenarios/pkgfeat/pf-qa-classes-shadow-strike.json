@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-classes-shadow-strike",
- "about": "qa-classes-shadow-strike against the built package classes instead of the mods' source folders (tools/make_package_scenarios.py). Controlled Thief Assassin Shadow Strike ranks1/5: land near a fresh frozen brute, verify movement plus actual HP loss and separate landing minor stun. Preserves parked class visibility.",
+ "about": "qa-classes-shadow-strike against the built package classes instead of the mods' source folders (tools/generate/make_package_scenarios.py). Controlled Thief Assassin Shadow Strike ranks1/5: land near a fresh frozen brute, verify movement plus actual HP loss and separate landing minor stun. Preserves parked class visibility.",
  "fixture": "town-paladin",
  "timeout": 240,
  "steps": [

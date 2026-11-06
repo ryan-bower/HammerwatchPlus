@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-specs",
- "about": "mod-specs against the built package specs instead of the mods' source folders (tools/make_package_scenarios.py). mods/specs loads in town: the self-check line (the seven 4th-spec subclasses registered), no script errors in our files.",
+ "about": "mod-specs against the built package specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). mods/specs loads in town: the self-check line (the seven 4th-spec subclasses registered), no script errors in our files.",
  "fixture": "town-paladin",
  "timeout": 120,
  "steps": [

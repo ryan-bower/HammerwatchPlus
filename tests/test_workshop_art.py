@@ -15,7 +15,7 @@ import workshop_art  # noqa: E402
 pytestmark = pytest.mark.skipif(
     not (workshop_art.BASE / "gui" / "gui.png").is_file()
     or not (workshop_art.MODS / "trinkets/gui/hwp/icons_trinkets_hoh1.png").is_file(),
-    reason="needs gamecode/ (python -m gamelab doctor --fix) and the HoH1 trinket icons (tools/import_hoh1.py)")
+    reason="needs gamecode/ (python -m gamelab doctor --fix) and the HoH1 trinket icons (tools/hoh1/import_hoh1.py)")
 
 
 def test_every_module_has_a_symbol():

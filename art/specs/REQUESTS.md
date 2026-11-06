@@ -1,15 +1,15 @@
 # Art requests: the six 4th specializations (mods/specs)
 
-Every icon below is wanted in the vanilla HoH2 skill-icon style (`tools/icon_art/vpaint.py`'s
+Every icon below is wanted in the vanilla HoH2 skill-icon style (`tools/art/icon_art/vpaint.py`'s
 docstring: no outlines, 4-6 step ramps lit from the upper left, bright rim, dark core shadow,
 big cropped subject, glowing energy with a white-hot core, near-black tinted ground).
 
 **Delivery:** one PNG per icon at `art/specs/override/<name>.png`, RGBA, exactly the size
-given. `tools/make_specs_icons.py` packs them into the game sheet
+given. `tools/generate/make_specs_icons.py` packs them into the game sheet
 `mods/specs/players/hwp/specs/icons.png`. An override always wins over the placeholder that
 tool makes (a tinted vanilla icon). Icon ideas for picking can go through the picker
-(`tools/icon_art/picker.py`) the way the Firearms ones did: three ideas each, written to
-`tools/icon_art/out/specs/`. Only the picked one goes to `override/`.
+(`tools/art/icon_art/picker.py`) the way the Firearms ones did: three ideas each, written to
+`tools/art/icon_art/out/specs/`. Only the picked one goes to `override/`.
 
 **Status (2026-10-21):** delivered. All 49 icons were picked over two rounds of the picker:
 round 1 was `sp.py`, round 2 (`sp_r2.py`) redid the noted picks and the Ranger and Wizard sets.
@@ -99,7 +99,7 @@ visible (a vanilla example: the Ranger's Marked Shot orbs).
 | `wlk_ee_released_essence` | 24 | Orb Released Essence: a slain elite bursting into essence wisps. |
 | `hud_pyrebrand` | 14 | Status Pyrebrand on an enemy: the branded sigil, small. |
 
-## World sprites (done 2026-10-21: art/specs/fx, drawn by tools/icon_art/sp_fx.py, packed into effects/fx.png by tools/make_specs_fx.py)
+## World sprites (done 2026-10-21: art/specs/fx, drawn by tools/art/icon_art/sp_fx.py, packed into effects/fx.png by tools/generate/make_specs_fx.py)
 
 | name | size | what it is |
 |---|---|---|

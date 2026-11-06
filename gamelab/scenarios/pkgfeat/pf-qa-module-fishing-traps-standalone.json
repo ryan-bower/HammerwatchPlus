@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-module-fishing-traps-standalone",
- "about": "qa-module-fishing-traps-standalone against the built package town instead of the mods' source folders (tools/make_package_scenarios.py). Standalone functional subset with only required modules. Actual native fish-trap purchase prices, fourth refusal and inventory count; no catch/minigame claim. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
+ "about": "qa-module-fishing-traps-standalone against the built package town instead of the mods' source folders (tools/generate/make_package_scenarios.py). Standalone functional subset with only required modules. Actual native fish-trap purchase prices, fourth refusal and inventory count; no catch/minigame claim. Every declared success flag, missing flag and extra failure/crash is checked; original source assertions unchanged.",
  "fixture": "town-paladin",
  "timeout": 300,
  "steps": [

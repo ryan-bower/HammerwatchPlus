@@ -1,6 +1,6 @@
 {
  "name": "pf-fix-penance-heresy",
- "about": "fix-penance-heresy against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Issue #68: Sacrificial Penance needs at least 1 Heresy (plan_forgemaster penance_heresy and penance_icon sections). At max Divine Favor with no Heresy the status says penance 0 and the skill shows the raise icon; 1 Heresy makes it the Penance icon, and 0 again takes it back. The cast at max Favor and 0 Heresy is a raise (a raise channel, +1 Heresy, one risen) and keeps the Favor; with 1 Heresy the next cast is a Penance (Heresy 0, the Favor spent). The icon section still swaps raise -> Penance -> raise with Heresy up.",
+ "about": "fix-penance-heresy against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Issue #68: Sacrificial Penance needs at least 1 Heresy (plan_forgemaster penance_heresy and penance_icon sections). At max Divine Favor with no Heresy the status says penance 0 and the skill shows the raise icon; 1 Heresy makes it the Penance icon, and 0 again takes it back. The cast at max Favor and 0 Heresy is a raise (a raise channel, +1 Heresy, one risen) and keeps the Favor; with 1 Heresy the next cast is a Penance (Heresy 0, the Favor spent). The icon section still swaps raise -> Penance -> raise with Heresy up.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

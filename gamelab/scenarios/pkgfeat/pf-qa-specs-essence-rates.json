@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-specs-essence-rates",
- "about": "qa-specs-essence-rates against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Every Essence Extraction rank: native per-frame real wand HP-hit and stack-gain timestamps, cooldown bounds at actual qualifying hits, repeated unbranded +1 and branded +2. Strict complete/nontruncated read-only observer; finer unobserved timing remains unproven.",
+ "about": "qa-specs-essence-rates against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Every Essence Extraction rank: native per-frame real wand HP-hit and stack-gain timestamps, cooldown bounds at actual qualifying hits, repeated unbranded +1 and branded +2. Strict complete/nontruncated read-only observer; finer unobserved timing remains unproven.",
  "fixture": "town-paladin",
  "timeout": 900,
  "steps": [

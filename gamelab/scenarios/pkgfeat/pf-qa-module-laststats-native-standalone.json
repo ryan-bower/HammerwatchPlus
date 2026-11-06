@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-module-laststats-native-standalone",
- "about": "qa-module-laststats-native-standalone against the built package qol instead of the mods' source folders (tools/make_package_scenarios.py). Actual native aborted and lethal-damage failed run: compare every visible native end-screen value with serialized LastStats, normal noticeboard interaction, one-player wrap, save/restart and two town rebuilds. Controlled1x walking/god fixture, no stat setters. No success/co-op/large-list/locales claim.",
+ "about": "qa-module-laststats-native-standalone against the built package qol instead of the mods' source folders (tools/generate/make_package_scenarios.py). Actual native aborted and lethal-damage failed run: compare every visible native end-screen value with serialized LastStats, normal noticeboard interaction, one-player wrap, save/restart and two town rebuilds. Controlled1x walking/god fixture, no stat setters. No success/co-op/large-list/locales claim.",
  "fixture": "town-paladin",
  "timeout": 900,
  "steps": [

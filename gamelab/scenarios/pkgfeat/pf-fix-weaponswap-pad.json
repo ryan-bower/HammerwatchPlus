@@ -1,6 +1,6 @@
 {
  "name": "pf-fix-weaponswap-pad",
- "about": "fix-weaponswap-pad against the built package qol instead of the mods' source folders (tools/make_package_scenarios.py). Weapon swap on a controller (issue #14, hwplib HWP::Input): D-pad left by default swaps in gameplay, not with the character menu open (MenuLeft there; X still swaps there), the hints show the button while a controller is in use, the Plus tab row captures a button (B ignored, Esc cancels), the old button stops and the new one swaps, a clash with Use is named. GameLab presses emulated buttons (gamelab-hands pad verb). hwp pad lists the button codes.",
+ "about": "fix-weaponswap-pad against the built package qol instead of the mods' source folders (tools/generate/make_package_scenarios.py). Weapon swap on a controller (issue #14, hwplib HWP::Input): D-pad left by default swaps in gameplay, not with the character menu open (MenuLeft there; X still swaps there), the hints show the button while a controller is in use, the Plus tab row captures a button (B ignored, Esc cancels), the old button stops and the new one swaps, a clash with Use is named. GameLab presses emulated buttons (gamelab-hands pad verb). hwp pad lists the button codes.",
  "fixture": "town-paladin",
  "timeout": 300,
  "steps": [

@@ -6,7 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from gamelab import launcher  # noqa: E402
-from tools import import_hoh1  # noqa: E402
+from tools.hoh1 import import_hoh1  # noqa: E402
 
 
 def test_only_marked_scenarios_check(monkeypatch):

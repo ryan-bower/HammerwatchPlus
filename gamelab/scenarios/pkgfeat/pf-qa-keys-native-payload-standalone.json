@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-keys-native-payload-standalone",
- "about": "qa-keys-native-payload-standalone against the built package keys instead of the mods' source folders (tools/make_package_scenarios.py). Controlled native CanUse false-to-true key gate, exact native key consumption, and independently observed legendary equipment / epic equipment / epic trinket payloads. Forced settings and spawn/teleport are fixtures. Does not prove negative button input, natural drop/lock chances, ordinary acquisition, co-op instancing or persistence.",
+ "about": "qa-keys-native-payload-standalone against the built package keys instead of the mods' source folders (tools/generate/make_package_scenarios.py). Controlled native CanUse false-to-true key gate, exact native key consumption, and independently observed legendary equipment / epic equipment / epic trinket payloads. Forced settings and spawn/teleport are fixtures. Does not prove negative button input, natural drop/lock chances, ordinary acquisition, co-op instancing or persistence.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

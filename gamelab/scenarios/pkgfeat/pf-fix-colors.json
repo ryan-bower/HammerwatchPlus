@@ -1,6 +1,6 @@
 {
  "name": "pf-fix-colors",
- "about": "fix-colors against the built package qol instead of the mods' source folders (tools/make_package_scenarios.py). probe",
+ "about": "fix-colors against the built package qol instead of the mods' source folders (tools/generate/make_package_scenarios.py). probe",
  "fixture": "town-paladin",
  "timeout": 300,
  "steps": [

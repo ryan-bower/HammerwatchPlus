@@ -7,7 +7,7 @@
 // id of the primary section, "pets.dye2.<petId>" the secondary one).
 //
 // Pets listed in PetDyeParts.as have two sections, like gear (body / eyes,
-// shell / legs, clothes / rucksack ...): tools/make_pet_dyes.py writes dye-ready
+// shell / legs, clothes / rucksack ...): tools/generate/make_pet_dyes.py writes dye-ready
 // copies of their units (<VariantDir>/<petId>_<p|s|ps>.unit) whose
 // textures index the dyed section's pixels for the engine's multicolour shader
 // (channel 0 = primary, 1 = secondary). A dyed pet is swapped for the copy that
@@ -24,7 +24,7 @@ namespace HWP
 	{
 		const string KEY = "pets.dye.";
 		const string KEY2 = "pets.dye2.";
-		// tools/make_pet_dyes.py: the vanilla pets' copies ship with the package, the HoH1
+		// tools/generate/make_pet_dyes.py: the vanilla pets' copies ship with the package, the HoH1
 		// pets' (ids hwp_pet_*) sit beside the rest of the local HoH1 import
 		const string VARIANTS = "players/pets/hwp_dye/";
 		const string VARIANTS_HOH1 = "players/pets/hwp/dye/";
@@ -208,7 +208,7 @@ namespace HWP
 					}
 					return false;
 				}
-				// no dye-ready copy (tools/make_pet_dyes.py not run): tint the whole pet
+				// no dye-ready copy (tools/generate/make_pet_dyes.py not run): tint the whole pet
 			}
 			auto c = Get(DyeId(rec, petId, 0));
 			if (c is null)

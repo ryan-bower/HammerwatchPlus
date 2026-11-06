@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-campaign",
- "about": "mod-campaign against the built package campaign instead of the mods' source folders (tools/make_package_scenarios.py). mods/campaign loads in town: the self-check lines from mods/campaign/README.md Testing step 1, the portal replaces the chapel campfire (step 2), no script errors in our files.",
+ "about": "mod-campaign against the built package campaign instead of the mods' source folders (tools/generate/make_package_scenarios.py). mods/campaign loads in town: the self-check lines from mods/campaign/README.md Testing step 1, the portal replaces the chapel campfire (step 2), no script errors in our files.",
  "fixture": "town-paladin",
  "timeout": 120,
  "steps": [

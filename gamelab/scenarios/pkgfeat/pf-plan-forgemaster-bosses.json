@@ -1,6 +1,6 @@
 {
  "name": "pf-plan-forgemaster-bosses",
- "about": "plan-forgemaster-bosses against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). The quick half of plan-forgemaster (the Devil Forgemaster, Priest 4th spec): the penance, heresy_rules, lunge and bosses sections of the plan_forgemaster bot, without the 141-unit raise_all table (that one takes over two hours). Same flags as plan-forgemaster's steps.",
+ "about": "plan-forgemaster-bosses against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). The quick half of plan-forgemaster (the Devil Forgemaster, Priest 4th spec): the penance, heresy_rules, lunge and bosses sections of the plan_forgemaster bot, without the 141-unit raise_all table (that one takes over two hours). Same flags as plan-forgemaster's steps.",
  "fixture": "town-paladin",
  "timeout": 1200,
  "steps": [

@@ -35,4 +35,4 @@ Commands: `hwp roulette` prints the round, phase, your bets, your bonus and the 
 (host, cheats) ends betting now and lands the ball on n.
 
 The wheel art (`doodads/hwp/roulette_wheel.png`) is original, drawn by
-`tools/make_roulette_art.py`.
+`tools/generate/make_roulette_art.py`.

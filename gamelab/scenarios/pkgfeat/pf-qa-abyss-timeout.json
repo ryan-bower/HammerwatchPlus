@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-abyss-timeout",
- "about": "qa-abyss-timeout against the built package dungeon instead of the mods' source folders (tools/make_package_scenarios.py). Standalone Abyss dependency closure: real first wave and living frozen pack, native two-minute timeout, actual crack disappearance and no new loot. Controlled god/cull/timescale measurement only.",
+ "about": "qa-abyss-timeout against the built package dungeon instead of the mods' source folders (tools/generate/make_package_scenarios.py). Standalone Abyss dependency closure: real first wave and living frozen pack, native two-minute timeout, actual crack disappearance and no new loot. Controlled god/cull/timescale measurement only.",
  "fixture": "town-paladin",
  "timeout": 300,
  "steps": [

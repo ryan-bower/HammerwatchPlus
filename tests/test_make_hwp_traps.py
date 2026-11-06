@@ -1,4 +1,4 @@
-"""tools/make_hwp_traps.py: the HoH1 trap units, prefabs and set block are current, and every
+"""tools/generate/make_hwp_traps.py: the HoH1 trap units, prefabs and set block are current, and every
 unit a hwp_traps prefab places is in Traps.as's UNITS (the module's load check) and every
 prefab family in its kind table."""
 import re
@@ -7,7 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from tools import make_hwp_traps  # noqa: E402
+from tools.generate import make_hwp_traps  # noqa: E402
 
 MOD = make_hwp_traps.MOD
 TRAPS_AS = MOD / "scripts" / "HWP" / "Campaign" / "Traps.as"

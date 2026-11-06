@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-classes-kill-procs",
- "about": "qa-classes-kill-procs against the built package classes instead of the mods' source folders (tools/make_package_scenarios.py). Bloodlust heal10..50 and Judgement mana3..7 at every rank via one same-frame real actor.Kill(localPlayer) event each, with raw before/after resources. Resource deficits and lethal kills are labeled lab fixtures; this does not prove ordinary combat kills.",
+ "about": "qa-classes-kill-procs against the built package classes instead of the mods' source folders (tools/generate/make_package_scenarios.py). Bloodlust heal10..50 and Judgement mana3..7 at every rank via one same-frame real actor.Kill(localPlayer) event each, with raw before/after resources. Resource deficits and lethal kills are labeled lab fixtures; this does not prove ordinary combat kills.",
  "fixture": "town-paladin",
  "timeout": 300,
  "steps": [

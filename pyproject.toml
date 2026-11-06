@@ -2,7 +2,7 @@
 name = "hammerwatchplus"
 version = "0.1.0"
 description = "HammerwatchPlus mods for Heroes of Hammerwatch II, and GameLab, its test harness"
-requires-python = ">=3.10"
+requires-python = ">=3.14"
 dependencies = [
     "lz4>=4.0",
     "pefile>=2023.2",
@@ -15,7 +15,18 @@ package = false
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
+    "ruff>=0.17.3",
 ]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+testpaths = ["tests"]
+markers = ["needs_gamecode: reads the local game dump in gamecode/ (skipped when it is missing)"]
+
+[tool.ruff]
+line-length = 120
+extend-exclude = ["gamecode", "docs/community", "hoh1_import"]
+
+[tool.ruff.lint]
+# syntax errors and undefined names (real bugs), plus unused imports and variables
+select = ["E9", "F63", "F7", "F82", "F401", "F841"]

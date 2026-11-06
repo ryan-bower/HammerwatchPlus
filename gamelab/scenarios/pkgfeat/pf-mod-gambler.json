@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-gambler",
- "about": "mod-gambler against the built package town instead of the mods' source folders (tools/make_package_scenarios.py). mods/gambler spawns its NPC once the tavern is built: fixture town-tavern builds it through the game's own builder path. The NPC is then found in the scene by the near probe (the log line alone only proves the code ran). No script errors in our files.",
+ "about": "mod-gambler against the built package town instead of the mods' source folders (tools/generate/make_package_scenarios.py). mods/gambler spawns its NPC once the tavern is built: fixture town-tavern builds it through the game's own builder path. The NPC is then found in the scene by the near probe (the log line alone only proves the code ran). No script errors in our files.",
  "fixture": "town-tavern",
  "timeout": 120,
  "steps": [

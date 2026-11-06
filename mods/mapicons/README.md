@@ -3,7 +3,7 @@
 Module id `mapicons` (Quality of Life package). A dye-pot marker on the minimap over every
 dye bucket of a floor. Setting `mapicons.dyes` (default on; `hwp set mapicons.dyes false`).
 Requires `hwplib`, whose `gui/hwp/map_icons.png` sheet holds the icon
-(`tools/make_map_icons.py`).
+(`tools/generate/make_map_icons.py`).
 
 | File | Provides |
 |---|---|

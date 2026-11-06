@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-firearms-sound",
- "about": "mod-firearms-sound against the built package firearms instead of the mods' source folders (tools/make_package_scenarios.py). hwp firearms sound (the firing-sound audition cheat): every candidate event resolves, and a pick plays as a burst; so does each event the guns, rockets and reload now use. Lab mode is muted, so this proves the events exist, not how they sound.",
+ "about": "mod-firearms-sound against the built package firearms instead of the mods' source folders (tools/generate/make_package_scenarios.py). hwp firearms sound (the firing-sound audition cheat): every candidate event resolves, and a pick plays as a burst; so does each event the guns, rockets and reload now use. Lab mode is muted, so this proves the events exist, not how they sound.",
  "fixture": "town-paladin",
  "timeout": 180,
  "steps": [

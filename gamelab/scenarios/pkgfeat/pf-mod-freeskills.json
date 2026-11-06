@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-freeskills",
- "about": "mod-freeskills against the built package qol instead of the mods' source folders (tools/make_package_scenarios.py). Issue #78, mods/freeskills: a respec at the Skill Trainer (class swap SkillTrainerContent -> HWPSkillTrainerContent) unlearns the skills the class starts with too (the Paladin's Blessed Strikes and its passive pal_armor, starting-level 1), saved as pick -1 = level 0; the trainer sells each back for 0 points and the free points don't move. The negative pick survives a save and load (PlayerRecordLoad hook; vanilla's Load clamps it to 0). Off: the vanilla respec, starting skills learned again.",
+ "about": "mod-freeskills against the built package qol instead of the mods' source folders (tools/generate/make_package_scenarios.py). Issue #78, mods/freeskills: a respec at the Skill Trainer (class swap SkillTrainerContent -> HWPSkillTrainerContent) unlearns the skills the class starts with too (the Paladin's Blessed Strikes and its passive pal_armor, starting-level 1), saved as pick -1 = level 0; the trainer sells each back for 0 points and the free points don't move. The negative pick survives a save and load (PlayerRecordLoad hook; vanilla's Load clamps it to 0). Off: the vanilla respec, starting skills learned again.",
  "fixture": "town-paladin",
  "timeout": 300,
  "steps": [
