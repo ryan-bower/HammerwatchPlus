@@ -199,25 +199,6 @@ namespace HWP
 			return true;
 		}
 
-		// a client that left the host's run-start setup (Back) picks any mission on the
-		// board: while the host's setup is still up (the mission is set), its own window
-		// comes back
-		bool RejoinLoadout()
-		{
-			if (Network::IsServer())
-				return false;
-			if (MissionManager::g_module is null || MissionManager::g_module.m_missionDefHash == 0)
-				return false;
-			if (OpenLoadoutMenu() !is null)
-				return false;
-			auto gm = cast<BaseGameMode>(g_gameMode);
-			if (gm is null || gm.m_windowManager is null)
-				return false;
-			gm.m_windowManager.AddWindowObject(MissionLoadoutMenu(gm.m_guiBuilder));
-			HWP::Log("architect", "client rejoined the host's run-start setup");
-			return true;
-		}
-
 		// hwp architect preset [list | save <n> [name...] | load <n> | clear <n>]
 		void CmdPreset(array<string>@ args)
 		{

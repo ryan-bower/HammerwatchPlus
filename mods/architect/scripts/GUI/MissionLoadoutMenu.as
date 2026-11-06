@@ -263,7 +263,17 @@ class MissionLoadoutMenu : AWindowObject
 				continue;
 			
 			if (loadoutStatus == int(MissionLoadoutStatus::None))
+			{
+				// HWP: a client that left the setup (Back) still counts, as not ready, so the
+				// host sees who is outside and Start asks before leaving them out of the picks
+				if (player.peer == 0 || !HWP::Architect::Enabled())
+					continue;
+				totalCount++;
+				notReadyCount++;
+				string leftName = Resources::GetString(".hwp.architect.left_name", {{ "name", player.GetName() }});
+				waitingFor += (waitingFor.isEmpty() ? "" : ", ") + leftName;
 				continue;
+			}
 			
 			totalCount++;
 			if (player.peer == 0)
@@ -469,9 +479,9 @@ class MissionLoadoutMenu : AWindowObject
 
 		// HWP: vanilla returned false here, which kept a client in the window until the
 		// host started or closed it. Now the client's own window closes (its status is
-		// None, so the host's ready count and start skip it) and the mission board opens
-		// it again while the host's setup is still up (MissionShopContent override).
-		HWP::Log("architect", "run-start setup left by a client (rejoin at the mission board)");
+		// None, so the host's start skips it and its list shows it as left) and the run's
+		// entrance opens it again while the host's setup is still up (HWP/Architect/Rejoin.as).
+		HWP::Log("architect", "run-start setup left by a client (rejoin: use the entrance again)");
 		HWP::Commands::Reply(Resources::GetString(".hwp.architect.client_left"));
 		return true;
 	}
