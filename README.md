@@ -208,6 +208,13 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-30, fishing's second check can be hit (#72). A click on Reel counted twice: once on
+the press and again on the release. The second count came the moment after the first hit,
+so with a 2-hit fish it was always a miss ("fought free"), and a landing click cast again
+straight away. Now a click is one reel, made on the press. Each check's time limit also
+covers the marker's way to the zone plus 1.5 s (2.5 s at least), and running out of time
+says "Too slow". Tested: `fix-fishing-reel-press`, `fix-fishing-reel-hits`.
+
 2026-10-30, no Sacrificial Penance without Heresy (#68). The Devil Forgemaster's Necrotic
 Resurrection only turns into Sacrificial Penance at max Divine Favor when there is at least 1
 Heresy to wash away. With none, the key stays a raise (its icon, its cost, +Heresy) and the
