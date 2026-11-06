@@ -15,8 +15,32 @@ Windows runtime and are excluded from that portable count. Unrestricted pytest
 collection traversed ignored assets and timed out; explicit source directories
 are required. Doctor regenerated the newer shim/class units/HoH1 art/pet dyes/
 Forgemaster units and passed smoke `null-payload 20261105-192126` on build 25932569.
-Final merged-source live checks and Windows-only tests are recorded below when
-complete; October and pre-rebase November results remain historical only.
+Final merged-source validation at `a6a4bad16406237a9eea70dde405265e0c6aac20`:
+
+- 36 focused host/export/runtime regressions pass; portable pytest 235 passed,
+  2 skipped, 345 subtests; the 7 Windows-dependent modules pass all 46 tests in
+  the private pinned Proton runtime. The initial offline Windows run lacked the
+  host provenance variable and failed 1 test; providing the same host facts as
+  the normal bridge yielded 46/46. Native Windows hardware was not tested.
+- Native `./build.sh` builds all 12 packages plus the All archive (1,355 entries).
+  `./build.sh --check`, verb reference and whitespace checks pass.
+- `null-payload 20261105-192739` PASS (18.5 s), including new `--wait` forwarding.
+- `mod-all 20261105-192812` FAIL: stale gitignored HoH1 mission import had 18
+  floors, current main expects 23. All outer isolation checks and teardown passed.
+  Regenerated only the marked campaign import with current `import_hoh1.py campaign`
+  (no --force); output is 23 floors. No authored gameplay or assertion changed.
+- `mod-all 20261105-192932` PASS (35 s): exact 46 content modules + 3 harness
+  modules, no duplicates/script errors, clean exit and unchanged saves/config/res.
+
+Both final passing outer run.json files were inspected: no error, failed assertion,
+partial result or build drift, clean teardown, job/desktop/focus containment intact.
+Town/end captures were inspected. Pinned build 25932569 / B176. Before/after raw
+`mods+gamelab+tools-v2` fingerprint was unchanged (2,175 files):
+`e1271e0526529739372fe87d8b4ae139b89d31416f640cfffe71ccf6419ae642`.
+Ignored generated imports are outside that hash; the regeneration is recorded
+separately above. The optional upstream `run_summary` module is absent; its warning
+does not replace the inspected outer verdicts. October and pre-rebase November
+results remain historical only. These are load/isolation checks, not gameplay proof.
 No player save restore or install launch was performed. Broader gameplay QA is
 still paused/incomplete. GitHub CLI authentication is needed to publish the PR.
 

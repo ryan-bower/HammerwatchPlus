@@ -691,6 +691,10 @@ locked Nix host environment. `python3 -m gamelab list` and help work natively,
 and `doctor` reports runtime/setup blockers rather than crashing on Win32 imports.
 Both `null-payload` and `mod-all` pass on the pinned Linux runtime; no isolation
 checks are bypassed. Windows keeps its native GameLab backend.
+Latest-main integration (`e7d060f1`) was revalidated on 2026-11-05: smoke and
+all-mod load checks pass, with upstream suite/input/build guards retained.
+See the current [integration checkpoint](docs/RE_NOTES.md#current-linux-pr-integration-checkpoint-2026-11-05)
+for source fingerprints, tests and the stale-import failure retained alongside its fix.
 HoH1 asset discovery accepts both Windows (`HWR.exe`) and native Linux (`HWR`)
 installs; its game archive is required in either case.
 

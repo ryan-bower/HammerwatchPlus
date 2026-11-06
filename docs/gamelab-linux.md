@@ -119,6 +119,20 @@ required by main; the earlier warning-only packaging behavior below is historica
 Pre-rebase October runs and the initial November smoke checks do not establish
 compatibility with this merged source. Current validation is recorded in RE_NOTES.
 
+On integrated source `a6a4bad1`, `null-payload 20261105-192739` and
+`mod-all 20261105-192932` pass on build 25932569 / B176, with unchanged user data
+and clean containment/teardown. 36 focused regressions, 235 portable pytest tests
+(2 skips), and 46 Windows-dependent tests under the private Proton runtime pass.
+Native Windows hardware and other Linux/GPU combinations were not tested.
+
+For an older prepared checkout, doctor may report an existing campaign import as
+present even though its generated mission predates current main. The first merged
+all-mod run (`20261105-192812`) caught 18 floors versus 23 expected. Regenerating
+the marked, gitignored import with current `tools/import_hoh1.py campaign` fixed
+the setup; no assertions or gameplay code were changed. Do not force-replace an
+unmarked directory. The optional upstream `run_summary` warning remains nonfatal;
+always inspect the outer `run.json` verdict rather than relying on that summary.
+
 ## Historical setup probes (2026-10-29; superseded)
 
 - `python3 -m unittest gamelab.test_linux -v`: host regressions, including an actual
