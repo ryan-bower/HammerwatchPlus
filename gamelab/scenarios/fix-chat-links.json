@@ -1,0 +1,52 @@
+{
+ "name": "fix-chat-links",
+ "about": "Issue #62: link an item in chat from the inventory and hover the link to see the item (fix_chat_links bot). A bag item's hint bar has [L] Link in chat; clicking it and pressing L link the item, and the chat line has no slot or item level; a right-click on the hovered main hand links it (hwp chatlinks rclick stands in for the button, which lab mode can't press); with the menu shut a HUD panel above the chat lists the links in their quality colours, the cursor pinned on one shows that item's tooltip, and off it the tooltip goes; the panel follows ui_chat_pos. Shot chat-link-tooltip: the item tooltip over the panel.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "chatlinks"
+ ],
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "fix_chat_links",
+   "name": "chat links",
+   "expect": {
+    "LabDrop_ready": true,
+    "char_ready": true,
+    "hint_shown": true,
+    "hint_click_links": true,
+    "key_links": true,
+    "chat_line_plain": true,
+    "right_click_links": true,
+    "panel_shown": true,
+    "hover_tooltip": true,
+    "hover_leaves": true,
+    "panel_follows_chat": true,
+    "shot_hover": true
+   }
+  },
+  {
+   "do": "shot",
+   "name": "chat-link-tooltip"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

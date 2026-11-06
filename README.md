@@ -107,7 +107,7 @@ does in game. The HoH1 classes' switch has no effect while those classes are par
 | `orbwarn` | The orb picker says which orbs a pick would make unavailable (mutually exclusive orbs such as the Firearms grenades), with their icons and names. |
 | `deathrecap` | Who killed you: the top damage sources of the last 10 s, on screen and in chat. After a boss fight, a recap of everyone's damage by skill and damage taken (one per fight, however many boss units it has). |
 | `bufftips` | Hover a buff icon to see what it does and how many seconds it has left. Class buffs the game leaves off the buff bar, like War Cry, get an icon. |
-| `chatlinks` | Linked items stay in chat with their slot and item level; `hwp link` links an equipped item. |
+| `chatlinks` | Link an item in chat with a right-click or its "Link in chat" hint; the links show above the chat, hover one for the item's tooltip; `hwp link` links an equipped item. |
 | `colors` | Colour-blind and high-contrast tints for enemy and friendly projectiles, with a ring in the team's colour around each (player menu > Plus tab), and each player in their own colour on the minimap and the overlay map, with names for players far away. |
 | `goldworth` | Gold on the floor shows what it is worth: 15 coin and pile looks, from a bronze coin to a big pile of gold. |
 | `mmhmm` | **Mm-hmm!** A quarter of rare and epic hats carry the Mm-hmm! bonus: the wearer says a village woman's "mm-hmm!", heard from where they stand and one at a time, on every crit, when the wearer revives someone or is revived, drinks from a pool, completes a trinket set, takes the last orb of an orb tree (trees with more than one orb), opens an Ace chest or opens a secret room. |
@@ -206,6 +206,13 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 
 ## Status
+
+2026-10-30, linking items in chat (#62). Right-click any item in the character screen, bag or
+worn, or use its new "[L] Link in chat" hint (click it or press L, rebindable on the
+HammerwatchPlus tab), to link it. The chat line is just your name and the item in its rarity
+colour. Mods can't reach the chat box itself, so the last five links also show in a small panel
+just above it for 30 s (`hwp links` brings it back); hover a link there for the item's full
+tooltip, picture and all, as when hovering it in the inventory. Tested: `fix-chat-links`.
 
 2026-10-30, Pelor's Fury on elites, and a death takes 5 Blessing stacks (#82). Pelor's Fury
 on an elite now needs and spends only 3 stacks of Pelor's Blessing and keeps the rest; on

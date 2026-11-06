@@ -5,10 +5,15 @@
   "exclude": [],
   "config": {
     "title": "Chat item links",
-    "about": "An item you link (hold the context key on it) is also posted in chat.",
+    "about": "Link an item in chat (right-click it, or its Link in chat hint); hover a link on the panel above the chat to see the item.",
     "toggle": "chatlinks.enabled",
     "scope": "local",
     "applies": "now",
-    "settings": []
+    "settings": [
+      {
+        "option": "linkkey",
+        "about": "Links the hovered bag item in chat."
+      }
+    ]
   }
 }
