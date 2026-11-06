@@ -56,6 +56,7 @@ TERSE = {
     "attrclick": "Shift+Click places 20 attribute points at the Attribute Trainer, Ctrl+Click 5.",
     "freeskills": "a Skill Trainer respec unlearns your starting skills too; learn them again for free.",
     "mapicons": "dye pots marked on the minimap.",
+    "salvage": "destroying gear salvages it into Crystals or Dust, more the higher its level.",
     "groupcombo": "a party combo bonus, and rare combo orbs from boxes and vases.",
     "architect": "every player can pick and pay for Architect alterations; three saved presets.",
     "droptrade": "drop gear for friends (Q in the inventory).",

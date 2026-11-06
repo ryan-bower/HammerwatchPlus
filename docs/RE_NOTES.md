@@ -7204,6 +7204,219 @@ Tests:
 - plan-generosity PASS 20261030-101332 (every section), mod-all PASS 20261030-102014,
   pytest 241 passed.
 
+## 2026-10-30: linking items in chat, and the chat is out of mod reach (issue #62, `chatlinks`)
+
+Asked for: a right-click "link in chat" on items, and hovering the linked item in chat to see
+its preview and description.
+
+- **The in-game chat can't be read or hovered from mods.** `GameChatWidget`
+  (`MainMenuGameMode.m_wChat`, `InGameChat`) lives in the main menu's script context, which
+  loads only the base scripts. In a level `g_gameMode` is a `TownGameMode` / `HWR2GameMode`,
+  so `cast<MainMenuGameMode>(g_gameMode)` is null (lab 20261030: "mode TownGameMode, no chat
+  widget"). Gameplay code can only add a line, with `SendSystemMessage("AddChat", text)`.
+  - Side note: hwplib `ItemActions::TypingInChat` casts the same way, so in a level it is
+    always false.
+- So the links show in a HUD panel instead (`HWPChatLinksHUD`, `[Hook] HUDConstructor`), just
+  above the chat box. The chat's box is placed by cvars (`InGameChat.Update`): `ui_chat_pos`
+  is its anchor (default 0.05 0.8), `ui_chat_width` its width as a share of the screen (0.35),
+  `ui_chat_scale` its scale. Its height is 190 (`gui/main_menu/chat.gui`, list 170 plus
+  input 20). Its top in UI units is `pos.y * (wndHeight - 190 * scale)`, the anchor maths of
+  `Widget.CalculateOrigin`.
+- **Tooltip placement:** `WindowManager.SetTooltip(tt, pos)` puts the tooltip exactly at
+  `pos`, clamped on screen (`CheckTooltipPos`). The loot log's `vec2(0)` (MouseOverTooltip)
+  means the top-left corner. The panel passes the hovered line's right edge instead, top-aligned
+  like inventory tooltips. A HUD component with `m_drawOnTop` draws over the tooltip, so the
+  panel leaves it off.
+- **Right-click:** the menu binds nothing to the right button. `Platform::ResolveInputKey(
+  "mouse_right", type)` gives key 3, type Mouse, and `Platform::IsKeyDown(ControllerType::Mouse,
+  0, 3)` reads it raw. It is only acted on while the character tab is on top. The worn item
+  under the cursor is `cast<EquipmentItemWidget>(tab.m_input.GetCurrentInteractable())` with
+  `m_type == ItemWidgetType::Equipped`.
+- GameLab lab mode can't press the mouse (posted mouse messages don't reach the game, see the
+  2026-10-21 notes), so `hwp chatlinks rclick` arms one stand-in press. It is taken on the
+  first frame within 3 s that the tab is back on top, through the same `PollRightClick` path.
+  The hover is the lab's real one (`gl hover mainhand`).
+- gamelab-hands `setvar` now sets vec2 cvars (type 4, two numbers). `cvar_type` has no script
+  name for it; `SetVar(name, vec2)` works.
+
+Tests: new scenario `fix-chat-links` (bot fix_chat_links) PASS 20261030-115030, covering:
+
+- the hint;
+- its click and the L key link;
+- the chat line has no slot or level;
+- the right-click path links the worn Long Sword;
+- the panel lists all 3 links;
+- the cursor on a line shows that item's tooltip, and off it the tooltip goes;
+- moving `ui_chat_pos` moves the panel.
+
+Also pf-fix-chat-links PASS 20261030-115115 and mod-all PASS 20261030-115219.
+
+## 2026-10-30: Destroy becomes Salvage (issue #66, `salvage`)
+
+The vanilla Destroy gives nothing. That holds both in the character screen's bag
+(`Character.as`, the "destroy yes" func) and in the town stash (`PlayerStashWindow.as`,
+`m_deletingEquipment`). The bigger issue behind this one: there was no single place where
+a mod could change what Destroy does. So hwplib now has one, and salvage fills it.
+
+- **hwplib `HWP::ItemActions::DestroyHandler`** (`ItemActions.as`) has three methods:
+  `Label(item)` is the hint text, `Confirm(item)` is the dialog text, and
+  `Destroyed(record, item)` runs after the item is gone. An empty string falls back to
+  vanilla (`.menu.nav.destroy`, and `destroy_confirm` with the item in its quality colour).
+  A module installs one with `SetDestroyHandler`. There is one handler, since one module
+  owns what Destroy means.
+  - `Character.as` (already overridden) calls `DestroyConfirm` and `Destroyed`.
+    `EquipmentItemWidget.as` calls `DestroyLabel`.
+  - **New overrides:** `GUI/PlayerStashWindow.as`, whose confirm and remove block call the
+    same two, and `GUI/Widgets/StashItemWidget.as`, whose five `.menu.nav.destroy` hints
+    become `DestroyLabel`. Each has its vanilla `.orig` twin.
+  - `Destroyed` only runs when the remove succeeded. In the bag that's
+    `equipInventory.Remove`. In the stash it's any of Unequip, Remove or the stash's own
+    remove.
+- **Yield.** The Enchanter (`EquipmentEnchantShopContent`) spends Crystals on Common gear
+  and Dust on everything above, so salvage gives Crystals for Common and Uncommon and Dust
+  for Rare and up.
+  - The base is the mission-end trinket conversion (`MissionEndMenu`): Common 1, Uncommon
+    3, Rare 1 Dust, Epic 3. Legendary and Unique give 5.
+  - The base is multiplied by `1 + max(1, ilvl)/10`. Legendaries carry a placeholder level
+    below 0, hence the max. It is then multiplied by `salvage.yield`%, rounded, minimum 1.
+    Rounding up made a Common ilvl 1 give 2 Crystals, which is why it rounds instead.
+  - For calibration: at ilvl 20 the Enchanter asks about 55 Crystals or 11 Dust to raise
+    one quality. A Rare ilvl 20 salvages into 3 Dust, so it takes about four salvages per
+    upgrade.
+- **Materials** go through `PlayerRecord.GiveMaterial(type, n, true)`, which skips the
+  gain modifiers. In town that's `g_myTownRecord`. In a run they are carried: banked at
+  the mission's end, with 40% lost on a failed run.
+- **GameLab findings:**
+  - `dbg_show_stash` opens the stash on its Withdraw tab. The bag is on Deposit
+    (`gl func set-mode deposit-content`).
+  - The stash's navigation hints aren't clickable (only hwplib's character tab makes them
+    buttons), so the bot presses E (MenuAdditional) there.
+  - The DialogWindow isn't in the widget dump, so `Confirm` logs
+    `[HWP:salvage] confirm: <name> into <yield>` and the bot reads the dialog's text from
+    the log.
+  - Affixed items carry their affix in the name ("Long Sword of ..."), so the bot matches
+    on a substring.
+
+Tests:
+
+- New scenario `fix-salvage` (bot `fix_salvage`, extending plan_gear) PASS
+  20261030-120849.
+  - The bag yields read 1 Crystal, 3 Dust and 12 Dust.
+  - E opens the confirm, and No keeps the item.
+  - The hint click and Yes give the Rare ilvl 20 as 3 Dust and the Common ilvl 1 as
+    1 Crystal, both to the town.
+  - Yield 200 shows 24 Dust. Off shows the Destroy hint and the vanilla confirm, and
+    gives nothing.
+  - In the stash's Deposit tab, the Epic ilvl 30 gives 12 Dust.
+- pf-fix-salvage PASS 20261030-121043, mod-all PASS 20261030-121123, pytest 245 passed,
+  `build.py --check` OK.
+
+## 2026-10-30: Sacrificial Penance needs Heresy (issue #68)
+
+At max Divine Favor, Necrotic Resurrection became Sacrificial Penance even with 0 Heresy. That
+cast spent the Favor and 50 mana and removed nothing.
+
+- Everything that decides "is this a Penance" goes through one function,
+  `HWP::Specs::PenanceReady` (`mods/specs/scripts/HWP/Specs/Forgemaster.as`):
+  - the HUD icon (`RefreshIcon` each frame in `UpdateForgemaster`),
+  - the cost (`GetCost`: 50 mana instead of the raise's),
+  - the cast's kind (`NetActivate` latches `m_penanceCast`, then `StartChannel(..., penance)`),
+  - the Heresy-5 block in `CanActivate`,
+  - `hwp forge`'s `penance 0/1`.
+  So the fix is one condition: `PenanceReady` also needs `Heresy(plr) > 0`. Every place
+  above follows it.
+- With max Favor and no Heresy the key is a plain raise: the raise icon, the raise channel
+  and cost, and +Heresy from the host's answer. The Favor isn't touched, so the cast after
+  that raise is a Penance. The Heresy-5 block is unchanged, because at 5 Heresy there is
+  always Heresy to remove.
+- Heresy is read on the caster's own client, which holds the authority over a player's
+  buff list. `NetActivate` latches the kind at the press, so a Heresy change mid-channel
+  (a pyre) doesn't flip it.
+- Tooltip and planner text now say "with at least 1 Heresy" (the
+  `hwp.specs.necrotic_resurrection.desc` string, and the `priest-spec4-active` and
+  `priest-spec4-penance` summaries).
+
+Tests:
+
+- New bot section `penance_heresy` (plan_forgemaster) and scenario `fix-penance-heresy`,
+  PASS 20261030-121805.
+  - At Favor 5 and Heresy 0: `penance 0` and the raise icon.
+  - At Heresy 1: `penance 1` and the Penance icon. Back to 0: the raise icon again.
+  - The cast at Favor 5 and Heresy 0 is a raise channel: Heresy 0 -> 1, one risen, the
+    Favor kept.
+  - With Heresy 1, once the shared cooldown is over, the cast is a Penance: Heresy 1 -> 0,
+    the Favor spent.
+- The `penance_icon` section now sets Heresy 1 first, since its max-Favor step expects the
+  Penance icon. It runs in fix-penance-heresy and in fix-forgemaster-channels.
+- pf-fix-penance-heresy PASS 20261030-132142, mod-all PASS 20261030-132406, pytest 245
+  passed, `build.py --check` OK.
+- plan-forgemaster 20261030-122035: every `pen_*` flag passes, including
+  `pen_needs_max_favor`. Two checks that don't touch Penance failed:
+  - `raise_all` `all_attack` is flaky; it already failed in 2 of the 4 earlier runs.
+  - `lunge` `lunge_lift` measured a 3 px bob. Rerun alone, the lunge section passes
+    (20261030-131908).
+
+## 2026-10-30: one click, one reel; a window that covers the marker's way (issue #72, fishing)
+
+The issue: since #32 (several hits per bite), "you never have time to hit the second check".
+
+- **The cause: a click on Reel reeled twice.**
+  - mouse_left is MenuForward (`res/controls_default.cfg:31`; Return is MenuForward and
+    MenuAccept).
+  - `HWPFishingMenu.Update` reeled on `menuInput.Forward.Pressed`.
+  - The same click also reaches the hovered Reel button through `AWindowObject::Update`
+    (`GUI/WindowObject.as`: ClickDown on the press, ClickUp on the release).
+    `ScalableSpriteButtonWidget` fires its func on ClickUp, so `OnFunc("cast")` reeled a
+    second time on the release.
+  - With one hit per fish (before #32) the second reel happened in the RESULT state. There
+    it was a new cast, which went unnoticed.
+  - Since #32, the first reel scores the hit, `Fight()` moves the zone at least 24 px clear of
+    the marker, and the release's reel is a miss: "It fought free and got away", on every
+    multi-hit fish, every time.
+  - GameLab never saw it. `sweepclick` calls the button's ClickDown/ClickUp directly, without
+    a MenuForward press, so only the func path ran.
+- **The fix:** `m_pressReeled`. The press reels in Update (the hit is judged at the press,
+  not the release), and the func skips a click whose press already reeled. That covers both
+  the second reel and the recast after a landing. The flag clears once Forward isn't down;
+  the release's func runs earlier in the same frame, inside `AWindowObject::Update`.
+- **The window, the issue's own words:** the bite window was a flat 2.5 s per check. After a
+  fight hit the new zone is often behind the marker.
+  - Worked out over every hit position, the marker needs up to 1.8 s (Driftwood rod, 1-star)
+    and up to 2.2 s (Captain's rod: better rods slow the marker by 10% each) to get there.
+    That left 0.3 to 0.7 s to react.
+  - Now `WindowMs()` = max(2500, `ReachMs()` + `REACT_MS` 1500), where `ReachPx` is the exact
+    bounce path from the marker's position and direction to the zone's overlap range. It
+    applies to the bite and to every fight.
+  - The hit log line adds `reach R ms, window W ms`.
+- **Too slow** now has its own text ("Too slow: it got away." / "... fought free and got
+  away."). Before, a timeout read the same as a miss, which is why the bug read as "out of
+  time".
+- **Debug** (with `fishing.debug 1`):
+  - `hwp fishing zone <px>` sets the zone's width; 240 makes every reel a hit, so a click's
+    reels can be counted.
+  - `hwp fishing fight worst|random`: worst puts the bite's zone at the far end and each
+    fight's zone where the marker gets last.
+  - The coast cast now logs `cast (coast)` (or `cast (run)`).
+
+Tests: new section `reel_press` (plan_fishing) and scenario `fix-fishing-reel-press`.
+
+- It clicks with `gl pointer <px> <py> click`, which writes MousePos and MenuInput.Forward
+  the way the mouse does (`HandsUi.as`).
+- Return didn't work as a stand-in: it is also MenuAccept, and pressing it closed the
+  fishing window (lab 20261030-133715).
+- Before the fix (lab 20261030-133911), one click in the bite gave
+  `['hit 1 of 2', 'landed at hit 2 of 2']`, and the next click cast again.
+- After the fix: PASS 20261030-134241.
+  - Cast: 1.
+  - The first click in the bite: `['hit 1 of 2']`.
+  - The second click: `['landed at hit 2 of 2']`, no cast, "Caught: Perch (1 star)!".
+  - A bite left alone: `too slow at hit 1 of 2` and "Too slow: it got away."
+  - Captain's rod, worst zones: reach 1121 ms, window 2621 ms (over the old 2500), landed.
+- pf-fix-fishing-reel-press PASS 20261030-135241.
+- Every other fishing scenario passes: fix-fishing-reel-hits, -smooth, -keys,
+  -personal-loot, -starter-rod, mod-fishing and mod-fishing-spots (20261030-1343 to -1352).
+- mod-all PASS 20261030-135331, pytest 245 passed, `build.py --check` OK.
+
 ## 2026-10-30: free skills after a respec (issue #78, `freeskills`)
 
 Issue: "When respecing at the skill trainer the free skills should not be bought by default

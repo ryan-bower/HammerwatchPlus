@@ -1310,6 +1310,79 @@ class Checks(Base):
         self.hwp("set fishing.bite_min 800")
         self.hwp("set fishing.bite_max 3000")
 
+    def reel_press(self):
+        """Issue #72: one click on Reel (MenuForward: mouse_left; gl pointer click writes it as the
+        mouse does) is one reel. The press reeled in the window's Update and the release reeled again through the
+        button's func, so the second check was always missed at once ("fought free") and the last
+        one's release cast again. A whole-bar zone (`hwp fishing zone 240`) makes every reel a hit,
+        so each press's reels can be counted. Also: a timeout says "too slow", and the reel window
+        covers the marker's way to the zone (`fishing fight worst`)."""
+        self.fresh("LabReel")
+        self.hwp("fishing bait squid 20", 0.4, until="[HWP]")
+        self.hwp("set fishing.bite_min 200")
+        self.hwp("set fishing.bite_max 300")
+        _, how = self.open_spot("doodads/hwp/fishing_spot.unit")
+        self.flag("press_window", "FishingMenu" in self.window(), how)
+        nodes = {n["id"]: n for n in self.gl("wchildren", "bar-group", 1).get("nodes", [])}
+        bar = nodes.get("bar")
+        if not bar:
+            self.flag("press_button", False, str(nodes)[:300])
+            return
+        # the 300x186 panel around the 240 px bar (30 px in, 54 down + 4); Reel: 136 wide, 10 px in
+        # from the bottom right corner; the pointer takes window pixels (UI units x the scale)
+        px, py = bar["x"] - 30, bar["y"] - 58
+        scale = self.gl("mouse").get("scale") or 1.0
+        bx, by = int((px + 300 - 10 - 68) * scale), int((py + 186 - 10 - 8) * scale)
+        self.hwp("fishing tier 1", 0.4, until="next coast bites")
+        self.hwp("fishing zone 240", 0.4, until="fishing: zone")
+        reel = r"reel: (hit \d of \d|landed at hit \d of \d|missed at hit \d of \d|too slow at hit \d of \d)"
+
+        def press():
+            mark = len(self.g.read_log())
+            r = self.gl("pointer", bx, by, "click")
+            time.sleep(0.5)
+            log = self.g.read_log()[mark:]
+            self.notes.append("click " + json.dumps({k: r.get(k) for k in ("hovered", "downSeen", "upSeen", "frames")}))
+            return re.findall(reel, log), len(re.findall(r"\[HWP:fishing\] cast \(coast\)", log))
+
+        _, casts = press()   # a click on Cast
+        self.flag("press_casts", casts == 1, f"{casts} casts from one press")
+        time.sleep(0.6)      # the bite (200-300 ms)
+        lines, casts = press()
+        self.flag("press_one_reel", lines == ["hit 1 of 2"] and casts == 0, f"first press in the bite: {lines}, casts {casts}")
+        lines, casts = press()
+        text = plain(self.widget("log").get("text", ""))
+        self.flag("press_lands_no_recast", lines == ["landed at hit 2 of 2"] and casts == 0 and "Caught" in text,
+                  f"second press: {lines}, casts {casts}; {text!r}")
+        # a bite left alone: too slow, said as such
+        self.hwp("fishing zone 0", 0.4, until="fishing: zone")
+        press()
+        time.sleep(0.6)
+        mark = len(self.g.read_log())
+        time.sleep(4.5)
+        lines = re.findall(reel, self.g.read_log()[mark:])
+        text = plain(self.widget("log").get("text", ""))
+        self.flag("press_too_slow_said", lines == ["too slow at hit 1 of 2"] and "Too slow" in text, f"{lines}; {text!r}")
+        # the window covers the marker's way to the zone: the slowest marker (Captain's rod, 1-star),
+        # the bite's zone at the far end and the fight's where the marker gets last, a way the old flat
+        # 2.5 s window left too little of
+        self.hwp("fishing rod 4", 0.4, until="rod: ")
+        self.hwp("fishing fight worst", 0.4, until="fight zones")
+        mark = len(self.g.read_log())
+        ev = self.reel(4, timeout_ms=20000)
+        time.sleep(0.4)
+        log = self.g.read_log()[mark:]
+        fights = [(int(r), int(w)) for r, w in re.findall(r"reel: hit \d of \d \(tier 1\).*?, reach (\d+) ms, window (\d+) ms", log)]
+        end = re.findall(reel, log)
+        self.flag("press_window_covers_reach", ev.get("result") == "clicked" and len(fights) == 1
+                  and all(w == max(2500, r + 1500) and w > 2500 for r, w in fights) and end[-1:] == ["landed at hit 2 of 2"],
+                  f"{ev.get('result')} clicks {ev.get('clicks')}; reach/window {fights}; end {end}")
+        self.hwp("fishing fight random", 0.4, until="fight zones")
+        self.hwp("fishing tier 0", 0.4)
+        self.close_windows()
+        self.hwp("set fishing.bite_min 800")
+        self.hwp("set fishing.bite_max 3000")
+
 
 def run(p, sections="fish_sword,fish_enchant,rod_slot", **_):
     c = Checks(p)

@@ -1,5 +1,7 @@
 <lang name="English" official="false">
-	<string name="hwp.chatlinks.ilvl">ilvl %level%</string>
+	<string name="hwp.chatlinks.none">No linked items yet (right-click an item, or its Link in chat hint).</string>
 	<string name="hwp.chatlinks.nothing">Nothing equipped in that slot (%slot%). Slots: main, off, head, chest, feet, hands, back.</string>
 	<string name="hwp.chatlinks.off">Chat links are off (HammerwatchPlus tab, Chat links).</string>
+	<string name="hwp.chatlinks.action">Link in chat</string>
+	<string name="hwp.chatlinks.key">Link in chat key</string>
 </lang>
