@@ -350,6 +350,27 @@ namespace HWP
 			return s == "" ? "none" : s;
 		}
 
+		// the rows this machine's open setup shows (for `hwp architect`, issue #64): the
+		// Magic Shop row with how many spheres this character may pick and the one picked
+		string OpenRows()
+		{
+			auto menu = OpenLoadoutMenu();
+			if (menu is null)
+				return "no setup open";
+			string s = "";
+			for (uint i = 0; i < menu.m_loadouts.length(); i++)
+			{
+				auto loadout = menu.m_loadouts[i];
+				if (loadout is null)
+					continue;
+				s += (s == "" ? "" : ", ") + loadout.m_id;
+				auto sphere = cast<SelectSkillSphereLoadout>(loadout);
+				if (sphere !is null)
+					s += " (" + sphere.m_possibleSkills.length() + " sphere(s), picked '" + sphere.m_selectedString + "')";
+			}
+			return s == "" ? "none" : s;
+		}
+
 		// hwp architect preset [list | save <n> [name...] | load <n> | clear <n>]
 		void CmdPreset(array<string>@ args)
 		{

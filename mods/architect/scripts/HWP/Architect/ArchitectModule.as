@@ -302,6 +302,7 @@ namespace HWP
 				names += (i > 0 ? ", " : "") + BuffName(last[i]);
 			HWP::Commands::Reply("remembered: " + last.length() + " pick(s) [" + names + "], NG+ " + LastNGP() + " (-1 = none yet)");
 			HWP::Commands::Reply("remembered rows: " + RememberedRows());
+			HWP::Commands::Reply("setup rows here: " + OpenRows());
 		}
 
 		// hwp architect challenges [id...]: every challenge with its discount,
