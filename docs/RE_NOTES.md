@@ -1,5 +1,24 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-05: Branding/Bannerlord Linux rebase checkpoint
+
+Rebased `feat/branding-bannerlord-rework` onto Linux GameLab adoption
+`196cf170` (`origin/feat/linux-gamelab`). The replayed gameplay implementation is
+`b5d3bddc`: baseline Pyrebrand proliferation with carried investment and native
+Weakness, Soul Guard/Soul Stride, dual-origin thrown Standard shields based on the
+Bannerlord's own maximum Health, improved shared Killing Spree and duration scaling.
+Preserved both branches' RE notes when resolving the documentation-only conflict.
+
+Local checks: 6 rework source/data contract tests and 24 Linux host unit tests pass.
+The fresh worktree's pinned Windows Python/dependencies were installed through
+`./gamelab.sh setup`. Doctor found build 25932569 and the installed games, but
+reported missing ignored SDK/runtime/content prerequisites. The first
+`doctor --fix` was interrupted by the outer shell's 120-second timeout before a
+scenario run.json appeared; no game processes remained in the process inspection.
+Setup was resumed with no outer shell timeout. Its outcome is pending at this
+checkpoint. Gameplay test drafts remain under ignored `gamelab/results/`, not in
+the active test sources. No native compilation, gameplay, or co-op pass is claimed.
+
 ## Current Linux PR integration checkpoint (2026-11-05)
 
 Rebased the Linux host onto main `e7d060f111adf3b043c8df96526b1d27b8a86e4b`.
