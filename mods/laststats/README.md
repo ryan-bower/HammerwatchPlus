@@ -41,6 +41,34 @@ everyone in the party, on a **notice board** next to the town fountain.
   player's name first, then "Sample 2".., the 2nd skipping every 5th stat), in
   memory only, synced to the party by the host.
 
+## Secrets found: the opener's (issue #98)
+
+Vanilla's `WorldScript/Player/SecretFound.as` runs on every machine and adds
+`secrets-found` to each machine's own player, so the whole party got every secret.
+The module overrides it (and `Behaviors/Objects/Breakable.as`, one line), so only the
+player who opened the secret counts it in their run and character stats:
+
+- A secret room (`prefabs/<theme>/secret_small_*.pfb`) opens when its breakable wall
+  (`doodads/walls/<theme>/_secret_dst_*.unit`) is destroyed; a host-only
+  `UnitDestroyedTrigger` then runs `SecretFound`. The host's `Breakable.DamageEffects`
+  knows who struck the breaking hit (its own player, or a client's through
+  `UnitDamagedByMe` / `UnitDamagedByPlayer`): `HWP::LastStats::NoteBreak` keeps that
+  player's peer for a secret wall (`_secret_dst_`, not `_corpse`) just before it is destroyed.
+- `SecretFound.ServerExecute` (host) takes that peer if the wall broke in the last 2 s;
+  a hit with no player behind it (a summon's) goes to the living player nearest the
+  wall, and without a wall to the one nearest the script. It logs
+  `[HWP:laststats] secret found: peer N (broke the wall | nearest the wall | nearest the secret)`
+  and returns `{peer}` to every client's `ClientExecute`.
+- Each machine: the opener's books `Stats::Add(secrets-found, 1, its record)` (town,
+  character and run, as vanilla); the others `Stats::Add(secrets-found, 1, null)`, which
+  counts only the town's total, so the guild's Secrets Found accomplishment (and its
+  attribute rewards) still counts every secret the party opens, as before. Peer -1 (no
+  living player) credits everyone, as vanilla did.
+- Every machine also counts the party's secrets in GlobalCache `hwp_secrets_opened`,
+  which `mods/mmhmm` reads so its secret-room moment stays a party moment.
+- Not tied to `laststats.enabled` (that switch is the board's): with the module loaded the
+  stat is always the opener's.
+
 Not in the snapshot: per-skill damage lines (they need the player actor, which
 does not exist at Load time) and the death recap (the `deathrecap` module keeps
 its own).
@@ -78,3 +106,7 @@ On the HammerwatchPlus tab of the player menu (Quality of Life > Last run stats)
    `search-clear` shows all again; the typed route (`gl press search`, then
    the `type` step's WM_CHARs) is recorded as `board_typed`, not asserted.
    Shots `board` (bars, by eye) and `board-search`.
+7. Co-op secrets (manual, not run yet): two players, one breaks a secret wall. The host log
+   shows `secret found: peer <opener> (broke the wall)`; after the run only the opener's
+   end-of-run stats and board bars list Secrets Found, the other player's guild statistics
+   still count it.
