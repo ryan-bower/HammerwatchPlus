@@ -171,6 +171,7 @@ class MissionLoadoutMenu : AWindowObject
 		auto plr = GetLocalPlayerRecord();
 		m_widget.GetWidgetById("pot-warning").m_visible = g_flags.IsSet("mission_story_intro_find_npcs") && plr.currStats.PotionCharges <= 0;
 		
+		auto hwpSpent = ShopCost(); // HWP: what the restored rows cost so far
 		for (uint i = 0; i < MissionLoadout::Instances.length(); i++)
 		{
 			auto loadout = MissionLoadout::Instances[i];
@@ -178,6 +179,9 @@ class MissionLoadoutMenu : AWindowObject
 			if (!CheckConditionals(loadout.m_conditionals, plr))
 				continue;
 			
+			// HWP: this character's picks from last time, what it may still pick and pay for
+			HWP::Architect::RestoreRow(loadout, plr, hwpSpent);
+
 			auto seg = m_segmentTemplate.Clone();
 			cast<TextWidget>(seg.GetWidgetById("name")).SetText(Resources::GetString(loadout.m_name));
 			seg.m_visible = true;
@@ -486,6 +490,14 @@ class MissionLoadoutMenu : AWindowObject
 		return true;
 	}
 
+	// HWP: the rows' picks are remembered for this character whenever the setup goes away
+	// (Back, the host closing it, a window close); restored when it opens (RestoreRow)
+	void OnClose() override
+	{
+		AWindowObject::OnClose();
+		HWP::Architect::RememberLoadout(m_loadouts);
+	}
+
 	void OnInteractableIndexChanged() override 
 	{
 		if (m_manager is null)
@@ -518,6 +530,7 @@ class MissionLoadoutMenu : AWindowObject
 		{
 			if (GetLoadoutStatus(plr) != status)
 			{
+				HWP::Architect::RememberLoadout(m_loadouts); // HWP: the rows this run starts with, for next time
 				for (uint i = 0; i < m_loadouts.length(); i++)
 					m_loadouts[i].OnPlay();
 			}
