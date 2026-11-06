@@ -863,6 +863,8 @@ namespace HWP
 					if (ray[i].fixture.IsSensor())
 						continue;
 					UnitPtr u = ray[i].FetchUnit(g_scene);
+					if (!u.IsValid())
+						return false; // level collision without a unit: a wall
 					if (u == body || cast<Actor>(u.GetScriptBehavior()) !is null)
 						continue;
 					return false;
@@ -872,6 +874,8 @@ namespace HWP
 			for (uint i = 0; i < hits.length(); i++)
 			{
 				UnitPtr u = hits[i];
+				if (!u.IsValid())
+					return false;
 				if (u == body || cast<Actor>(u.GetScriptBehavior()) !is null)
 					continue;
 				return false;

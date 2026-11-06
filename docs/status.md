@@ -32,6 +32,14 @@ tasks. Read the ledger for current counts and next actions.
 > **Historical QA checkpoint (2026-10-22): paused at the user-requested PR boundary.** The original sweep was incomplete. Recorded original-sweep passes: six original fourth specs60/60 rank cases and61/65 orb-quality cases; Firearms60/60 ranks and74/75 orb qualities; HoH1 imports29/39 skills and136/191 ranks;9/9 selected-mastery saves. Five orb cases need real co-op. The then-current 31 normal-release modules had load evidence, with broader feature/lifecycle work open. Earlier QA summaries below are historical snapshots. See [the historical checkpoint](generated/qa_pr_checkpoint.json) and [QA ledger](QA_OVERNIGHT.md).
 
 
+2026-11-06, the disappearing-player glitch (#71), suspected cause fixed. A player snapped into a wall
+or past a ledge rail by a collision-ignoring `SetPosition` sits hidden behind the wall sprites and boxed
+in, still connected. Two mod paths could do that: the Devil Forgemaster's Heresy lunge and Penance
+(the spot under a body across a wall or rail) and the Arcane Blink's no-room fallback (the spot it had
+just refused). Now the lunge waits until the body can be reached, the Penance channels in place, and
+Blink backs off or stays put. Source review only: the session log doesn't show who glitched, and the
+wall-side lunge, ledge Penance and corner Blink repros have not been run.
+
 2026-11-05, Branding and Bannerlord rework (#95). Warlock proliferation/support perks and
 Warrior shield/rally support, per [the design](design/branding-bannerlord-rework.md).
 Source/data checks, a Linux GameLab full-mod compile/load and 16 focused solo gameplay
