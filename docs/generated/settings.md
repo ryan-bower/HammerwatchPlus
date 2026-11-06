@@ -167,6 +167,8 @@ next level.
 | Valuables | Gold multiplier | `valuables.gold_mult` | 2x | 1x, 1.5x, 2x, 3x, 5x | host |
 | Extra affixes | On | `affixes.enabled` | on | on, off | host |
 | Extra affixes | Extra affix chance | `affixes.chance` | 25% | 10%, 25%, 50%, 75%, 100% | host |
+| Tougher bosses | On | `bosses.enabled` | on | on, off | host |
+| Tougher bosses | Armor and resistances | `bosses.toughness` | 25 % | 0 %, 10 %, 25 %, 50 %, 75 %, 100 % | host |
 
 ## Town Life
 
