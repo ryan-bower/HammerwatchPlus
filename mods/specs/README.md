@@ -94,6 +94,14 @@ checks every generated unit offline.
   crusaders have, not the enemies' red), the `npc_normal` minimap dot, and an elite's ring from
   `marker/` in the summon HP bar's orange (255 84 0: `GetHPBarColor` case 5 is vec4(1, 0.33, 0),
   the "yellow" the user sees on the bar; the enemies' ring is 255 37 37).
+- **A risen never blocks a player** (the owner, 2026-11-06): every collision shape of a risen
+  unit gets `ignore-player="true"`, the shape flag every vanilla player summon carries (the
+  Priest's crusaders, the Ranger's wolves, the Warlock's fiends, the mercenaries, the pets, the
+  heavy ballista); there is no script call for it. The risen still collides with walls and enemies
+  and is hit like any summon. A risen is a fresh unit from its generated file (not the enemy
+  unit turned), and every peer loads the same file, so it holds on the host and every client.
+  The HoH1 risen (`tools/hoh1/hoh1_risen.py` uses the same `risen_unit`) get it on their next
+  `import_hoh1.py campaign`. Unit test: `test_risen_never_block_players`.
 - **A body is dead:** grey (`BODY_TINT` 0.45), `npc-noxray` (no silhouette), no minimap dot,
   no ring, every sprite frozen on its first frame, no effects, lights or particles (a Dark
   Citadel wisp, effects only, shows the still grey `dead_core.png` orb), and every collision

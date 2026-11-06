@@ -48,6 +48,21 @@ class GeneratedUnits(unittest.TestCase):
         self.assertIn(gen.MARKER_REL + "elite_marker.unit:16", elite)
         self.assertIn(gen.RISEN_MINIMAP, elite)
 
+    def test_risen_never_block_players(self):
+        # every collision shape ignore-player, as the crusaders' and the wolves' (the owner, 2026-11-06)
+        for rel, t in self.risen.items():
+            with self.subTest(rel=rel):
+                blocks = gen.COLLISION_RE.findall(t)
+                self.assertTrue(blocks)
+                for block in blocks:
+                    for shape in gen.SHAPE_RE.findall(block):
+                        self.assertIn('ignore-player="true"', shape, shape)
+                        self.assertEqual(shape.count("ignore-player="), 1, shape)
+        self.assertEqual(gen.ignore_players('<collision static="false"><circle radius="4" ignore-player="false"/>'
+                                            '<rect size="2 2"></rect></collision>'),
+                         '<collision static="false"><circle radius="4" ignore-player="true"/>'
+                         '<rect size="2 2" ignore-player="true"></rect></collision>')
+
     def test_bodies_are_dead_dark_and_shot_through(self):
         for rel, t in self.bodies.items():
             with self.subTest(rel=rel):

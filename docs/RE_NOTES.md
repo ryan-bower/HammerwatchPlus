@@ -9805,3 +9805,17 @@ existing generated trees and smoke stamp. All 31 host regressions pass.
 the previous all-mod scenario's links and exact fixture-only mod verification.
 The final full-width timestamp implementation was verified again by
 `mod-all 20261031-152227` (PASS, 20.5 s); its end frame was inspected.
+
+## 2026-11-06: summons that never block a player (source review, no game run)
+- Every vanilla player summon keeps players from bumping into it with one collision-shape
+  flag in its unit file: `ignore-player="true"` on every shape of its `<collision>` (the
+  crusaders' solid circle and hit sensor alike): `players/priest/units/crusader_*.unit`,
+  `players/ranger/units/wolf.inc`, `players/warlock/units/fiend.inc`, the
+  `players/shared/units/mercenary_*.unit`, `ballista_heavy.unit` (a static collision),
+  `players/pets/*.unit`, `players/items/spider_hatchling_player.unit` and `trinket_punisher.unit`.
+  No enemy under `actors/` has it. "ignore-player" is one of HWR2.exe's strings.
+- No script call does the same: the decompiled scripts never call one; the only collision
+  setters they use are `UnitPtr.SetShouldCollide(bool)` (all collision, walls too). The engine
+  API lists `SetCollisionTeam(uint16 team)`, which no vanilla script or mod calls (its effect is
+  unmeasured). The Forgemaster's risen get the flag from their generator
+  (`tools/generate/make_forgemaster_risen.py`), not at raise time.
