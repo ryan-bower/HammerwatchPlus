@@ -46,6 +46,7 @@ next level.
 | Attribute point clicks | On | `attrclick.enabled` | on | on, off | local |
 | Salvage | On | `salvage.enabled` | on | on, off | host |
 | Salvage | Salvage yield | `salvage.yield` | 100% | 50%, 75%, 100%, 150%, 200% | host |
+| Free skills after a respec | On | `freeskills.enabled` | on | on, off | local |
 
 ## Co-op Play
 
