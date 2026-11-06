@@ -25,7 +25,10 @@
 //   dust and sound) to EAT_BELOW px under the body, faces up and eats it (devouring buff 3 s:
 //   rooted, rotation locked, a 1 px bob every EAT_BOB_MS, blood out of the body every
 //   EAT_BLOOD_MS; the body goes when the eating ends), and Ravenous Lunge hits the enemies
-//   around the body. A Penance channel dodges to the same spot, faces up and stands still while
+//   around the body. The spot must be reachable (EatSpotClear: no wall or rail on the Any ray
+//   from the priest, room at the spot), else the roll waits and the Penance channels in place:
+//   the landing's SetPosition ignores collision and could leave the priest inside a wall (the
+//   suspected cause of issue #71). A Penance channel dodges to the same spot, faces up and stands still while
 //   a golden light pulses out of the body (penance_light.effect every PEN_LIGHT_MS), brighter
 //   as the channel runs (the user, 2026-10-22).
 // - A channel locks the priest onto its body (the user, 2026-10-25): the raising buff locks the
@@ -75,6 +78,8 @@ namespace HWP
 		const int BAR_ABOVE = 34;        // px above the priest's origin
 		const string BEAM = "effects/generic/raycast/necrotic_beam_1.effect";
 		const int DODGE_MAX_MS = 600;    // a dodge to the body that takes longer is snapped there
+		const int EAT_RAY_N = 3;         // the reach check to the eating spot: the vanilla Teleport's
+		const int EAT_RAY_W = 9;         // ray-amount / ray-width, and the room asked at the spot
 		const uint DASH = HashString("dash_skill");
 		const int BLOOM_RADIUS = 60;
 		const int PENANCE_MANA = 50;
@@ -160,6 +165,8 @@ namespace HWP
 		int g_raises = 0;
 		int g_penances = 0;
 		int g_lunges = 0;
+		int g_lungesOutOfReach = 0;   // bodies not rolled yet: a wall or rail between, or no room at the spot
+		int g_penancesInPlace = 0;    // Penances channelled where the priest stood, the spot out of reach
 		int g_blooms = 0;
 		int g_capKills = 0;
 		int g_decayDeaths = 0;
@@ -518,6 +525,16 @@ namespace HWP
 			@c.m_cost = cost;
 			c.m_dodge = penance && duration > 0;
 			c.m_spot = EatSpot(body.m_unit);
+			// a body across a wall, a ledge's rail or in a wall (bodies fall where the enemy died, and
+			// RAISE_RANGE has no line of sight): the Penance stands where the priest is instead of
+			// snapping through (issue #71: SetPosition ignores collision, so the priest could end up
+			// stuck in the wall, hidden and unable to move)
+			if (c.m_dodge && !EatSpotClear(plr, body.m_unit, c.m_spot))
+			{
+				c.m_spot = xy(plr.m_unit.GetPosition());
+				g_penancesInPlace++;
+				Log("specs", "penance in place: the spot under body " + body.m_unit.GetId() + " is out of reach");
+			}
 			c.m_label = penance ? "Penance" : "Raising";
 			@g_channel = c;
 			g_chanPulses = 0;
@@ -830,6 +847,38 @@ namespace HWP
 			return vec2(p.x, p.y + EAT_BELOW);
 		}
 
+		// The eating spot can be reached from where the priest stands: no wall or shoot-through rail
+		// on the way (the Any ray, which rails stop) and room at the spot (the Any query, as the
+		// vanilla SpawnUnit safe-spawn asks), actors and the body itself ignored. The dodge (a dash)
+		// stops at a wall, and Land and the eating's bob then SetPosition onto the spot, which
+		// ignores collision: a spot behind a wall or rail could put the priest inside it (issue #71).
+		bool EatSpotClear(PlayerBase@ plr, UnitPtr body, vec2 spot)
+		{
+			vec2 from = xy(plr.m_unit.GetPosition());
+			if (distsq(from, spot) >= 1)
+			{
+				auto ray = g_scene.RaycastWide(EAT_RAY_N, EAT_RAY_W, from, spot, ~0, RaycastType::Any);
+				for (uint i = 0; i < ray.length(); i++)
+				{
+					if (ray[i].fixture.IsSensor())
+						continue;
+					UnitPtr u = ray[i].FetchUnit(g_scene);
+					if (u == body || cast<Actor>(u.GetScriptBehavior()) !is null)
+						continue;
+					return false;
+				}
+			}
+			auto hits = g_scene.QueryCircle(spot, EAT_RAY_W, ~0, RaycastType::Any, false);
+			for (uint i = 0; i < hits.length(); i++)
+			{
+				UnitPtr u = hits[i];
+				if (u == body || cast<Actor>(u.GetScriptBehavior()) !is null)
+					continue;
+				return false;
+			}
+			return true;
+		}
+
 		// the player's own Dash (Skills::Charge) for exactly the distance to the spot: the dodge
 		// animation, dust and sound, seen by every peer (Activate sends PlayerActiveSkillActivate).
 		// False, and the priest is put on the spot, when the dash can't go (no dash charge).
@@ -1002,6 +1051,18 @@ namespace HWP
 				auto b = g_bodies[i];
 				if (b.m_rolled || distsq(xy(b.m_unit.GetPosition()), pos) > LUNGE_RANGE * LUNGE_RANGE)
 					continue;
+				// a body across a wall or rail, or with no room under it, isn't rolled yet: the roll
+				// waits until the priest comes near it from a side it can be reached from (issue #71)
+				if (!EatSpotClear(plr, b.m_unit, EatSpot(b.m_unit)))
+				{
+					if (!b.m_outOfReach)
+					{
+						b.m_outOfReach = true;
+						g_lungesOutOfReach++;
+						Log("specs", "lunge waits on " + b.m_unit.GetId() + ": out of reach");
+					}
+					continue;
+				}
 				b.m_rolled = true;
 				float chance = heresy * per;
 				Log("specs", "lunge roll on " + b.m_unit.GetId() + " chance " + int(chance * 100 + 0.5f) + "%");
@@ -1527,7 +1588,7 @@ namespace HWP
 			string ret = "forge: heresy " + Heresy(plr) + "; favor " + (DivineFavorDef(plr) !is null ? plr.GetStacks(DivineFavorDef(plr)) : -1)
 				+ " penance " + (PenanceReady(plr) ? 1 : 0) + "; bodies " + g_bodies.length() + " spawned " + g_bodiesSpawned + " rolls " + g_bodyRolls
 				+ "; risen " + RisenCount(plr) + " cap " + BindI(plr, NR, "nr-count", 0) + "; raises " + g_raises + " last " + g_lastRaise
-				+ "; penances " + g_penances + "; lunges " + g_lunges + "; blooms " + g_blooms + "; cap kills " + g_capKills
+				+ "; penances " + g_penances + "; lunges " + g_lunges + "; outofreach " + g_lungesOutOfReach + " inplace " + g_penancesInPlace + "; blooms " + g_blooms + "; cap kills " + g_capKills
 				+ "; decay deaths " + g_decayDeaths + "; moves swapped " + g_movesSwapped + " actions stripped " + g_actionsStripped
 				+ "; channel " + (g_channel is null ? "none" : (g_channel.m_penance ? "penance " : "raise ") + g_channel.m_left + " ms")
 				+ " locked " + (g_channel !is null && g_channel.m_locked ? 1 : 0) + " beam " + (g_channel !is null && Alive(g_channel.m_beam) ? 1 : 0)
@@ -1568,6 +1629,7 @@ class HWPSpecsBody
 	bool m_boss;
 	int m_ttl;
 	bool m_rolled;
+	bool m_outOfReach;   // logged once: the lunge's roll waited, the spot under it out of reach
 	UnitPtr m_glow;
 
 	HWPSpecsBody(UnitPtr unit, SValue& params)
@@ -1578,6 +1640,7 @@ class HWPSpecsBody
 		m_boss = GetParamBool(unit, params, "boss", false, false);
 		m_ttl = HWP::Specs::BODY_TTL;
 		m_rolled = false;
+		m_outOfReach = false;
 		string idle = GetParamString(unit, params, "idle", false, "idle");
 		m_unit.SetUnitScene(AnimString(idle).GetSceneName(PI / 2), true);
 		m_unit.SetShouldCollide(false);
