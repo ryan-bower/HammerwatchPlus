@@ -1,0 +1,9 @@
+{
+  "name": "qa-runtime-slot-timeout",
+  "about": "Intentional owned outer-timeout, expected NONPASS. Uses FPS marker57 and publishes exact ready/armed identities only after paired survivor readiness; never an aggregate PASS.",
+  "fixture": "town-paladin",
+  "shim_input": true,
+  "timeout": 150,
+  "outer_timeout": 210,
+  "steps": [{"do": "bot", "bot": "qa_runtime_slots", "kwargs": {"role": "timeout", "deadline_s": 300}, "expect": {"ok": true}}]
+}

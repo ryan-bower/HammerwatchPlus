@@ -69,7 +69,10 @@ def _profile_records(data: bytes) -> tuple[dict | None, list[dict]]:
 
     if not hps.trailer_ok(data):
         raise ValueError("Native profile checksum does not match")
-    pos = hps.Header(data).body_offset
+    try:
+        pos = hps.Header(data).body_offset
+    except (IndexError, struct.error) as error:
+        raise ValueError("Truncated native profile header") from error
 
     def integer():
         nonlocal pos
@@ -106,6 +109,11 @@ def _profile_records(data: bytes) -> tuple[dict | None, list[dict]]:
         if key:
             if not isinstance(record, dict) or not all(k in record for k in ("class", "level", "name")):
                 raise ValueError("Incomplete native character record")
+            if (not isinstance(record["class"], str) or not record["class"]
+                    or not isinstance(record["name"], str) or not record["name"]
+                    or not isinstance(record["level"], int) or isinstance(record["level"], bool)
+                    or record["level"] < 1):
+                raise ValueError("Invalid native character identity")
             characters.append({k: record[k] for k in ("class", "level", "name")})
     if pos != len(data) - 4:
         raise ValueError("Unexpected native profile trailer position")
@@ -160,17 +168,20 @@ def create(install: Path, ids: list[str], backup_root: Path, name: str | None = 
     (backup / "profile.json").write_text(json.dumps(receipt, indent=2), encoding="utf-8")
     saves.mkdir(exist_ok=True)
     path = saves / f"{slot}.hps"
-    with path.open("xb") as file:
-        file.write(data)
     pending = None
+    created = False
     try:
+        with path.open("xb") as file:
+            created = True
+            file.write(data)
         with tempfile.NamedTemporaryFile(dir=install, prefix="HWR2.cfg-", delete=False) as file:
             pending = Path(file.name)
             file.write(selected)
         pending.replace(config_path)
     except OSError:
         # Only our new file is removed; an existing profile is never rewritten.
-        path.unlink()
+        if created:
+            path.unlink(missing_ok=True)
         raise
     finally:
         if pending is not None:

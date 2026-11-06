@@ -1,222 +1,283 @@
 {
- "name": "plan-farming-a",
- "about": "Test plan through the plan_farming bot (town grown to farm_2 with build + the Verbs_farming buildup verb; can slot read with the Verbs_farming tooltip verb): farming s8 the can slot before and after a can, watering lowers its water; s1 the onion/wheat crops hidden, grooves are plots, the apple tree above the wheat field; s2 the farmer between the fields, can and seed, sprouts along a whole groove; s7 Lucky Leaf planted, grown (hwp farm grow), harvested (one herb a plant drawn), rolled into a joint from the Plants & Herbs cell (Roll J? -> Huzzah!), held and puffed five times (a stage a puff, the buff for 10 floors), kept through the mission board's loadout, in the run, 9 floors left after it; a puff right before a level change still burns its stage. Shots: plants-herbs (the materials tab's Plants & Herbs section, 8 across), can-slot-dim (the bottom right gear slot greyed), fields (no vanilla crops, grooves, tree above the wheat), sprouts (one groove sprouted end to end).",
- "fixture": "town-paladin",
- "mods": [
-   "hwplib",
-   "hwplib-luck",
-   "hwplib-classui",
-   "abyss",
-   "architect",
-   "bufftips",
-   "campaign",
-   "chatlinks",
-   "classes",
-   "colors",
-   "deathrecap",
-   "droptrade",
-   "farming",
-   "firearms",
-   "fishing",
-   "gambler",
-   "groupcombo",
-   "keys",
-   "laststats",
-   "legacy",
-   "maps",
-   "mercenary",
-   "pets",
-   "puzzles",
-   "specs",
-   "stash",
-   "strongbox",
-   "summons",
-   "valuables",
-   "wavemode",
-   "weapons",
-   "weaponswap"
- ],
- "timeout": 600,
- "steps": [
-  {
-   "do": "console",
-   "line": "e_cheats 1"
-  },
-  {
-   "do": "console",
-   "line": "show_chat"
-  },
-  {
-   "do": "sleep",
-   "seconds": 1
-  },
-  {
-   "do": "bot",
-   "bot": "plan_farming",
-   "kwargs": {
-    "sections": "fa_char"
-   },
-   "name": "farming character",
-   "expect": {
-    "LabFarmer_ready": true
-   }
-  },
-  {
-   "do": "bot",
-   "bot": "plan_farming",
-   "kwargs": {
-    "sections": "can_slot_before"
-   },
-   "name": "s8 can slot before a can",
-   "expect": {
-    "s8_slot_shown": true,
-    "s8_slot_no_can": true,
-    "s8_slot_empty": true
-   }
-  },
-  {
-   "do": "shot",
-   "name": "can-slot-dim"
-  },
-  {
-   "do": "bot",
-   "bot": "plan_farming",
-   "kwargs": {
-    "sections": "farm_town"
-   },
-   "name": "farm_2 town",
-   "expect": {
-    "fa_town_farm2": true
-   }
-  },
-  {
-   "do": "bot",
-   "bot": "plan_farming",
-   "kwargs": {
-    "sections": "fields"
-   },
-   "name": "s1 fields",
-   "expect": {
-    "s1_fields": true,
-    "s1_crops_gone": true,
-    "s1_groove_is_plot": true,
-    "s1_apple_tree_above_wheat": true
-   }
-  },
-  {
-   "do": "shot",
-   "name": "fields"
-  },
-  {
-   "do": "bot",
-   "bot": "plan_farming",
-   "kwargs": {
-    "sections": "farmer_buy"
-   },
-   "name": "s2 farmer",
-   "expect": {
-    "s2_farmer_between_fields": true,
-    "s2_can_bought": true,
-    "s2_seed_bought": true
-   }
-  },
-  {
-   "do": "bot",
-   "bot": "plan_farming",
-   "kwargs": {
-    "sections": "groove_plant"
-   },
-   "name": "s2 plant a groove",
-   "expect": {
-    "s2_planted": true,
-    "s2_sprouts_whole_groove": true
-   }
-  },
-  {
-   "do": "shot",
-   "name": "sprouts"
-  },
-  {
-   "do": "bot",
-   "bot": "plan_farming",
-   "kwargs": {
-    "sections": "can_slot_after"
-   },
-   "name": "s8 can slot with a can",
-   "expect": {
-    "s8_slot_tier_water": true,
-    "s8_water_drops": true
-   }
-  },
-  {
-   "do": "bot",
-   "bot": "plan_farming",
-   "kwargs": {
-    "sections": "lucky_leaf"
-   },
-   "name": "s7 lucky leaf",
-   "expect": {
-    "s7_planted": true,
-    "s7_harvested": true
-   }
-  },
-  {
-   "do": "bot",
-   "bot": "plan_farming",
-   "kwargs": {
-    "sections": "joint"
-   },
-   "name": "s7 roll a joint and smoke it",
-   "expect": {
-    "s7_joint_rolled": true,
-    "s7_joint_held": true,
-    "s7_joint_puffs": true
-   }
-  },
-  {
-   "do": "gl",
-   "verb": "menu",
-   "args": [
-    "character",
-    "material-inventory",
-    "hwp-materials-b"
-   ],
-   "name": "Plants & Herbs section",
-   "expect": {
-    "shown": true
-   }
-  },
-  {
-   "do": "shot",
-   "name": "plants-herbs"
-  },
-  {
-   "do": "bot",
-   "bot": "plan_farming",
-   "kwargs": {
-    "sections": "herb_loadout"
-   },
-   "name": "s7 herb through the loadout and a run",
-   "expect": {
-    "s7_herb_survives_loadout": true,
-    "s7_herb_in_run": true,
-    "s7_herb_counts_floors": true,
-    "s7_loadout_lists_herb": true
-   }
-  },
-  {
-   "do": "bot",
-   "bot": "plan_farming",
-   "kwargs": {
-    "sections": "joint_level_burn"
-   },
-   "name": "s7 a puff just before a level change still burns",
-   "expect": {
-    "s7_joint_burns_across_levels": true
-   }
-  },
-  {
-   "do": "log_clean"
-  }
- ]
+  "name": "plan-farming-a",
+  "about": "Test plan through the plan_farming bot (town grown to farm_2 with build + the Verbs_farming buildup verb; can slot read with the Verbs_farming tooltip verb): farming s8 the can slot before and after a can, watering lowers its water; s1 the onion/wheat crops hidden, grooves are plots, the apple tree above the wheat field; s2 the farmer between the fields, can and seed, sprouts along a whole groove; s7 Lucky Leaf planted, grown (hwp farm grow), harvested (one herb a plant drawn), rolled into a joint from the Plants & Herbs cell (Roll J? -> Huzzah!), held and puffed five times (a stage a puff, the buff for 10 floors), kept through the mission board's loadout, in the run, 9 floors left after it; a puff right before a level change still burns its stage. Shots: plants-herbs (the materials tab's Plants & Herbs section, 8 across), can-slot-dim (the bottom right gear slot greyed), fields (no vanilla crops, grooves, tree above the wheat), sprouts (one groove sprouted end to end).",
+  "fixture": "town-paladin",
+  "mods": [
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
+    "abyss",
+    "architect",
+    "bufftips",
+    "campaign",
+    "chatlinks",
+    "classes",
+    "colors",
+    "deathrecap",
+    "droptrade",
+    "farming",
+    "firearms",
+    "fishing",
+    "gambler",
+    "groupcombo",
+    "keys",
+    "laststats",
+    "legacy",
+    "maps",
+    "mercenary",
+    "pets",
+    "puzzles",
+    "specs",
+    "stash",
+    "strongbox",
+    "summons",
+    "valuables",
+    "wavemode",
+    "weapons",
+    "weaponswap"
+  ],
+  "timeout": 600,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "sleep",
+      "seconds": 1
+    },
+    {
+      "do": "bot",
+      "bot": "plan_farming",
+      "kwargs": {
+        "sections": "fa_char",
+        "required_flags": [
+          "LabFarmer_ready"
+        ]
+      },
+      "name": "farming character",
+      "expect": {
+        "LabFarmer_ready": true,
+        "ok": true
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "plan_farming",
+      "kwargs": {
+        "sections": "can_slot_before",
+        "required_flags": [
+          "s8_slot_shown",
+          "s8_slot_no_can",
+          "s8_slot_empty"
+        ]
+      },
+      "name": "s8 can slot before a can",
+      "expect": {
+        "s8_slot_shown": true,
+        "s8_slot_no_can": true,
+        "s8_slot_empty": true,
+        "ok": true
+      }
+    },
+    {
+      "do": "shot",
+      "name": "can-slot-dim"
+    },
+    {
+      "do": "bot",
+      "bot": "plan_farming",
+      "kwargs": {
+        "sections": "farm_town",
+        "required_flags": [
+          "fa_town_farm2"
+        ]
+      },
+      "name": "farm_2 town",
+      "expect": {
+        "fa_town_farm2": true,
+        "ok": true
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "plan_farming",
+      "kwargs": {
+        "sections": "fields",
+        "required_flags": [
+          "s1_fields",
+          "s1_crops_gone",
+          "s1_groove_is_plot",
+          "s1_apple_tree_above_wheat"
+        ]
+      },
+      "name": "s1 fields",
+      "expect": {
+        "s1_fields": true,
+        "s1_crops_gone": true,
+        "s1_groove_is_plot": true,
+        "s1_apple_tree_above_wheat": true,
+        "ok": true
+      }
+    },
+    {
+      "do": "shot",
+      "name": "fields"
+    },
+    {
+      "do": "bot",
+      "bot": "plan_farming",
+      "kwargs": {
+        "sections": "farmer_buy",
+        "required_flags": [
+          "s2_farmer_between_fields",
+          "s2_can_bought",
+          "s2_seed_bought",
+          "s2_can_price_200"
+        ]
+      },
+      "name": "s2 farmer",
+      "expect": {
+        "s2_farmer_between_fields": true,
+        "s2_can_bought": true,
+        "s2_seed_bought": true,
+        "s2_can_price_200": true,
+        "ok": true
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "plan_farming",
+      "kwargs": {
+        "sections": "groove_plant",
+        "required_flags": [
+          "s2_planted",
+          "s2_sprouts_whole_groove"
+        ]
+      },
+      "name": "s2 plant a groove",
+      "expect": {
+        "s2_planted": true,
+        "s2_sprouts_whole_groove": true,
+        "ok": true
+      }
+    },
+    {
+      "do": "shot",
+      "name": "sprouts"
+    },
+    {
+      "do": "bot",
+      "bot": "plan_farming",
+      "kwargs": {
+        "sections": "can_slot_after",
+        "required_flags": [
+          "s8_slot_tier_water",
+          "s8_water_drops"
+        ]
+      },
+      "name": "s8 can slot with a can",
+      "expect": {
+        "s8_slot_tier_water": true,
+        "s8_water_drops": true,
+        "ok": true
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "plan_farming",
+      "kwargs": {
+        "sections": "lucky_leaf",
+        "required_flags": [
+          "s7_planted",
+          "s7_harvested"
+        ]
+      },
+      "name": "s7 lucky leaf",
+      "expect": {
+        "s7_planted": true,
+        "s7_harvested": true,
+        "ok": true
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "plan_farming",
+      "kwargs": {
+        "sections": "joint",
+        "required_flags": [
+          "s7_joint_rolled",
+          "s7_joint_held",
+          "s7_joint_puffs"
+        ]
+      },
+      "name": "s7 roll a joint and smoke it",
+      "expect": {
+        "s7_joint_rolled": true,
+        "s7_joint_held": true,
+        "s7_joint_puffs": true,
+        "ok": true
+      }
+    },
+    {
+      "do": "gl",
+      "verb": "menu",
+      "args": [
+        "character",
+        "material-inventory",
+        "hwp-materials-b"
+      ],
+      "name": "Plants & Herbs section",
+      "expect": {
+        "shown": true
+      }
+    },
+    {
+      "do": "shot",
+      "name": "plants-herbs"
+    },
+    {
+      "do": "bot",
+      "bot": "plan_farming",
+      "kwargs": {
+        "sections": "herb_loadout",
+        "required_flags": [
+          "s7_herb_survives_loadout",
+          "s7_herb_in_run",
+          "s7_herb_counts_floors",
+          "s7_loadout_lists_herb"
+        ]
+      },
+      "name": "s7 herb through the loadout and a run",
+      "expect": {
+        "s7_herb_survives_loadout": true,
+        "s7_herb_in_run": true,
+        "s7_herb_counts_floors": true,
+        "s7_loadout_lists_herb": true,
+        "ok": true
+      }
+    },
+    {
+      "do": "bot",
+      "bot": "plan_farming",
+      "kwargs": {
+        "sections": "joint_level_burn",
+        "required_flags": [
+          "s7_joint_burns_across_levels"
+        ]
+      },
+      "name": "s7 a puff just before a level change still burns",
+      "expect": {
+        "s7_joint_burns_across_levels": true,
+        "ok": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
 }

@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-settings-page",
- "about": "mod-settings-page against the built packages dungeon, qol, town instead of the mods' source folders (tools/make_package_scenarios.py). The HammerwatchPlus tab (hwplib Options.as + Config.as, docs/modules.md Settings): the top section, packages folded until clicked, a module's On/Off (valuables back to vanilla and on again), a choice row cycling (gold multiplier), hwp set showing on the page, the fuzzy search (fish, fsh) and Esc, and fishing turned off and on in town (its coast spots go and come back).",
+ "about": "mod-settings-page against the built packages dungeon, qol, town instead of the mods' source folders (tools/generate/make_package_scenarios.py). The HammerwatchPlus tab (hwplib Options.as + Config.as, docs/modules.md Settings): the top section, packages folded until clicked, a module's On/Off (valuables back to vanilla and on again), a choice row cycling (gold multiplier), hwp set showing on the page, the fuzzy search (fish, fsh) and Esc, and fishing turned off and on in town (its coast spots go and come back).",
  "fixture": "town-paladin",
  "timeout": 200,
  "steps": [

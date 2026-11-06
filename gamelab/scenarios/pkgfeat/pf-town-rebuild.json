@@ -1,6 +1,6 @@
 {
  "name": "pf-town-rebuild",
- "about": "town-rebuild against the built package town instead of the mods' source folders (tools/make_package_scenarios.py). A building upgrade's in-place town rebuild (TownRecord.Refresh via the townrefresh verb) destroys every unit without a new Start: farming lays its fields, plots and well out again (one set, not two: the fixture town has no crop fields, so 4 patch plots) and fishing puts the coast and the pirate back, with no script errors.",
+ "about": "town-rebuild against the built package town instead of the mods' source folders (tools/generate/make_package_scenarios.py). A building upgrade's in-place town rebuild (TownRecord.Refresh via the townrefresh verb) destroys every unit without a new Start: farming lays its fields, plots and well out again (one set, not two: the fixture town has no crop fields, so 4 patch plots) and fishing puts the coast and the pirate back, with no script errors.",
  "fixture": "town-paladin",
  "timeout": 150,
  "steps": [

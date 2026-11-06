@@ -85,7 +85,7 @@ def personal_default() -> bool:
         print(f"modded-prod: packing {len(found)} file(s) made from your own HoH1 install ({', '.join(mods)}); "
               "--no-local leaves them out")
     else:
-        print("modded-prod: nothing imported from HoH1 (tools/import_hoh1.py): a release build")
+        print("modded-prod: nothing imported from HoH1 (tools/hoh1/import_hoh1.py): a release build")
     return bool(found)
 
 

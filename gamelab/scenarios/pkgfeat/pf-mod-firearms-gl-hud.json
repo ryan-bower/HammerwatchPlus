@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-firearms-gl-hud",
- "about": "mod-firearms-gl-hud against the built package firearms instead of the mods' source folders (tools/make_package_scenarios.py). The rifle's off-hand slot on the skill bar shows the grenade launcher close-up of the rifle's tier (items/hwp/firearms_items.png row 1), unmirrored, instead of the rifle mirrored (LauncherHUD.as); the inventory keeps the rifle's own icon.",
+ "about": "mod-firearms-gl-hud against the built package firearms instead of the mods' source folders (tools/generate/make_package_scenarios.py). The rifle's off-hand slot on the skill bar shows the grenade launcher close-up of the rifle's tier (items/hwp/firearms_items.png row 1), unmirrored, instead of the rifle mirrored (LauncherHUD.as); the inventory keeps the rifle's own icon.",
  "fixture": "town-paladin",
  "timeout": 120,
  "steps": [

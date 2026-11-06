@@ -1,6 +1,6 @@
 {
  "name": "pf-fix-fury-elite",
- "about": "fix-fury-elite against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Issue #82: the Paladin of Generosity's Pelor's Fury on an elite (a bandit brute elite) needs and spends 3 Blessing stacks, a plain brute still all 10, and a party player's death takes 5 stacks instead of all of them (plan_generosity bot, section elite).",
+ "about": "fix-fury-elite against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Issue #82: the Paladin of Generosity's Pelor's Fury on an elite (a bandit brute elite) needs and spends 3 Blessing stacks, a plain brute still all 10, and a party player's death takes 5 stacks instead of all of them (plan_generosity bot, section elite).",
  "fixture": "town-paladin",
  "timeout": 400,
  "steps": [

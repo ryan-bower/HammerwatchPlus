@@ -1,5 +1,5 @@
 // HWP::HoH1 - the features that use the player's own Heroes of Hammerwatch 1 content.
-// HoH1 assets are never shipped: tools/import_hoh1.py cuts them from the player's own HoH1
+// HoH1 assets are never shipped: tools/hoh1/import_hoh1.py cuts them from the player's own HoH1
 // install and `build.py --with-local` packs them (README, Installing). Without them each
 // feature keeps a stand-in (HoH2 themes, placeholder icons), so no package needs HoH1 to run.
 // The player is told once which features are on stand-ins:

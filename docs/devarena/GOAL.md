@@ -19,7 +19,7 @@ stop to ask when a choice would contradict SPEC.md or is irreversible.
 - Work only in the `dev-arena` worktree, `C:\FastProjects\HammerwatchPlus-devarena`. Commit
   6ee00a1 is a snapshot of another agent's WIP. Don't edit their files beyond small additive hooks.
   Put our code in new files: `mods/devarena/`, `mods/spec-*/` (`mods/vanilla-tuning/` was removed 2026-10-26),
-  `tools/devarena/`, `tools/make_presets.py`, `gamelab/scenarios/devarena/`, `tests/`.
+  `tools/devarena/`, `tools/generate/make_presets.py`, `gamelab/scenarios/devarena/`, `tests/`.
 - Boot the game only via `python -m gamelab run <scenario> --mode lab --wait 1800`. Follow every
   CLAUDE.md hard rule: no real input, the exit codes are refusals, never touch the user's install,
   cfg or saves.
@@ -53,7 +53,7 @@ Do these in order. A milestone is not started until the previous gate is green.
 2. **Tuner:** override file as the source of truth, curve editor, versions + undo, A/B (F2),
    mini HUD, Tune tab.
 3. **Loadouts:**
-   - `tools/make_presets.py`: 24 vanilla subclasses x early/mid/end, trinkets tag-scored, combo
+   - `tools/generate/make_presets.py`: 24 vanilla subclasses x early/mid/end, trinkets tag-scored, combo
      by tag, named variants from the override file;
    - headless validation;
    - Loadout tab (favorites, browser, sheet, compare);

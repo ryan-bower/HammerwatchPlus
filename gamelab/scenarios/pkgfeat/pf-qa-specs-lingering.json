@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-specs-lingering",
- "about": "qa-specs-lingering against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Lingering Storm ranks1/2 and no-orb control: actual damage and natural projectile lifetime sampled every native gameplay frame at1x, with runtime15000maxHP readback and native crit setup/restoration. Does not claim other Wizard orbs.",
+ "about": "qa-specs-lingering against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Lingering Storm ranks1/2 and no-orb control: actual damage and natural projectile lifetime sampled every native gameplay frame at1x, with runtime15000maxHP readback and native crit setup/restoration. Does not claim other Wizard orbs.",
  "fixture": "town-paladin",
  "timeout": 300,
  "steps": [

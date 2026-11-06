@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-specs-banner-crest",
- "about": "qa-specs-banner-crest against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). All3 FearedCrest qualities:3 fixed natural main-attack baseline controls and3 fixed trials per quality, real HP per native hit, numeric critical evidence, actual Vulnerability aura and natural Standard expiry.",
+ "about": "qa-specs-banner-crest against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). All3 FearedCrest qualities:3 fixed natural main-attack baseline controls and3 fixed trials per quality, real HP per native hit, numeric critical evidence, actual Vulnerability aura and natural Standard expiry.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

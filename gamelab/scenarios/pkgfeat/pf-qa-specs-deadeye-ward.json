@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-specs-deadeye-ward",
- "about": "qa-specs-deadeye-ward against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Ignored draft: two fixed trials perquality0/1/2, actual native25kills earn5Tailwind, native hostilePure200 Player.Damage actualHP185/170 plus noorb200 and naturalexpiryreversion. No positive stack setter.",
+ "about": "qa-specs-deadeye-ward against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Ignored draft: two fixed trials perquality0/1/2, actual native25kills earn5Tailwind, native hostilePure200 Player.Damage actualHP185/170 plus noorb200 and naturalexpiryreversion. No positive stack setter.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

@@ -9,7 +9,7 @@ namespace HWP
 		const array<string> UNITS = {
 			"players/hwp/witchhunter/units/pyre.unit",
 			"players/rogue/projectiles/rog_throwing_knife.unit",
-			"players/warrior/projectiles/whirling_axe_right.unit",
+			"players/hwp/gladiator/projectiles/gladius.unit",
 			"players/ranger/units/wolf.unit",
 			"players/priest/units/crusader_pikeman.unit" };
 		bool g_checked = false;
@@ -69,7 +69,7 @@ namespace HWP
 			if (g_checked)
 				return;
 			g_checked = true;
-			// tools/import_hoh1.py classes writes this string beside the art it cuts
+			// tools/hoh1/import_hoh1.py classes writes this string beside the art it cuts
 			HWP::HoH1::Report("classes", Resources::HasString(".hwp.classes.hoh1art"), ".hwp.classes.hoh1");
 			int found = 0;
 			for (uint i = 0; i < IDS.length(); i++)

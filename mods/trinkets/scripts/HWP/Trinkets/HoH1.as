@@ -14,7 +14,7 @@
 // - HWPTrinketShopContent: the dungeon trinket shop (module.json class_swaps) with
 //   Fancy Plume's extra stock and purchase and Trader's Coin's discount.
 // - Key Ring is read by the keys mod (HWPGiveKey), by its custom stat name.
-// - ApplyArt (once, at the level start): the HoH1 icons. `tools/import_hoh1.py trinkets` cuts them
+// - ApplyArt (once, at the level start): the HoH1 icons. `tools/hoh1/import_hoh1.py trinkets` cuts them
 //   from the player's own HoH1 install into gui/hwp/icons_trinkets_hoh1.png (16x16 cells,
 //   ART_COLS a row) and lists the ids in sheet order in the string .hwp.trinkets.hoh1art.
 //   Without the import, or with hoh1.content off, the trinkets keep their placeholder icons
@@ -324,7 +324,7 @@ namespace HWP
 			HWP::HoH1::Report("trinkets", Resources::HasString(ART_IDS), ".hwp.trinkets.hoh1");
 			if (!Resources::HasString(ART_IDS))
 			{
-				HWP::Log("trinkets", "HoH1 icons not imported (tools/import_hoh1.py trinkets): placeholder icons");
+				HWP::Log("trinkets", "HoH1 icons not imported (tools/hoh1/import_hoh1.py trinkets): placeholder icons");
 				return;
 			}
 			if (!HWP::HoH1::Enabled())

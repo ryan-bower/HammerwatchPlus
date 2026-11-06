@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-supplies-tokens",
- "about": "mod-supplies-tokens against the built package town instead of the mods' source folders (tools/make_package_scenarios.py). Bet tokens show in the materials tab's Supplies section (mods/gambler HWPTokenMaterial, core Materials.as): 'hwp tokens 7' (cheat), then the player menu's materials sub-tab shows the hwp-mat-bet-tokens cell with count 7 (scrolled into view; the section sits below the tab's own rows).",
+ "about": "mod-supplies-tokens against the built package town instead of the mods' source folders (tools/generate/make_package_scenarios.py). Bet tokens show in the materials tab's Supplies section (mods/gambler HWPTokenMaterial, core Materials.as): 'hwp tokens 7' (cheat), then the player menu's materials sub-tab shows the hwp-mat-bet-tokens cell with count 7 (scrolled into view; the section sits below the tab's own rows).",
  "fixture": "town-paladin",
  "timeout": 120,
  "steps": [

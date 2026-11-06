@@ -20,9 +20,10 @@ Required tier, in order:
 The manifest records, per output tree and top-level subdirectory, a file count, byte
 count and a sha256 over the sorted (path, sha256) list. PACKAGER output is deterministic
 (measured: two unpacks hash identical), so these are output hashes. The shim DLL is not
-(the linker stamps it), so it is recorded by input: hwr2_capture.build.json holds the
-source sha256 and the gcc version. Both are left out of the hash (the gcc version differs
-per machine); --verify checks the stamp's source sha256 against tools/capture_shim/ instead.
+(the linker stamps it), so its machine-local hwr2_capture.build.json records the source
+and DLL sha256 plus the successful gcc version. Both local artifacts are excluded from
+the portable tree hash; --verify checks both hashes. Legacy source-only stamps need a
+rebuild at an authorized setup boundary; verification never upgrades them by assertion.
 """
 from __future__ import annotations
 
@@ -30,6 +31,8 @@ import argparse
 import hashlib
 import json
 import os
+import stat
+import tempfile
 import re
 import shutil
 import subprocess
@@ -60,10 +63,102 @@ def step(msg: str) -> None:
     print(f"[bootstrap] {msg}", flush=True)
 
 
+def _checked(path: Path) -> Path:
+    """Generated inputs/outputs remain ordinary paths beneath the repository."""
+    root, path = Path(REPO).absolute(), Path(path).absolute()
+    if not path.is_relative_to(root):
+        raise ValueError(f"path is outside the repository: {path}")
+    current = root
+    checks = [root]
+    for part in path.relative_to(root).parts:
+        current = current / part
+        checks.append(current)
+    for entry in checks:
+        try:
+            info = entry.lstat()
+        except FileNotFoundError:
+            continue
+        if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x400:
+            raise ValueError(f"linked generated path is not accepted: {entry}")
+    if not path.resolve().is_relative_to(root.resolve()):
+        raise ValueError(f"generated path escapes the repository: {path}")
+    return path
+
+
+def _files(root: Path):
+    root = _checked(root)
+    for entry in sorted(root.iterdir()):
+        safe = _checked(entry)
+        if safe.is_dir():
+            yield from _files(safe)
+        elif safe.is_file():
+            yield safe
+        else:
+            raise ValueError(f"unsupported generated entry: {safe}")
+
+
+def _shim_problems() -> list[str]:
+    try:
+        source = _checked(SHIM_SRC)
+        dll = _checked(SHIM_DLL)
+        stamp = _checked(gamepaths.TOOLS_BIN / "hwr2_capture.build.json")
+        if not (dll.is_file() and stamp.is_file()):
+            return ["tools/bin/hwr2_capture.dll: not built"]
+        value = json.loads(stamp.read_text(encoding="utf-8"))
+        if not isinstance(value, dict):
+            raise ValueError("shim build stamp must be an object")
+        for key in ("source_sha256", "dll_sha256"):
+            if not isinstance(value.get(key), str) or re.fullmatch(r"[0-9a-f]{64}", value[key]) is None:
+                raise ValueError(f"shim stamp needs {key}; rebuild with bootstrap.py")
+        if not isinstance(value.get("gcc"), str) or not value["gcc"].strip():
+            raise ValueError("shim stamp needs the successful compiler version")
+        if value["source_sha256"] != hashlib.sha256(source.read_bytes()).hexdigest():
+            raise ValueError("capture shim source changed; rebuild with bootstrap.py")
+        data = dll.read_bytes()
+        if not data or value["dll_sha256"] != hashlib.sha256(data).hexdigest():
+            raise ValueError("capture shim bytes differ from their successful build stamp")
+        return []
+    except (OSError, ValueError) as error:
+        return [f"tools/bin/hwr2_capture.dll: {error}"]
+
+
+def _manifest_shape(value: dict) -> dict:
+    if not isinstance(value, dict) or not isinstance(value.get("tiers"), dict):
+        raise ValueError("manifest must contain a tiers object")
+    tiers = value["tiers"]
+    if "required" not in tiers or set(tiers) - {"required", "optional"}:
+        raise ValueError("manifest tiers must be required and optional")
+    required = tiers["required"]
+    if not isinstance(required, dict) or not set(REQUIRED_TREES).issubset(required):
+        raise ValueError("manifest omits required generated trees")
+    allowed = {"required": set(REQUIRED_TREES + OPTIONAL_REQUIRED), "optional": set(COMMUNITY_TREES)}
+    for tier, trees in tiers.items():
+        if not isinstance(trees, dict) or set(trees) - allowed[tier]:
+            raise ValueError(f"unexpected generated tree in {tier} manifest")
+        for tree, groups in trees.items():
+            if not isinstance(groups, dict) or (tree in REQUIRED_TREES and not groups):
+                raise ValueError(f"missing hash groups for {tree}")
+            for group, metadata in groups.items():
+                if not isinstance(group, str) or not group or "/" in group or "\\" in group or group == "..":
+                    raise ValueError("manifest groups must be top-level names")
+                if not isinstance(metadata, dict) or set(metadata) != {"files", "bytes", "sha256"}:
+                    raise ValueError("manifest hash group has an invalid shape")
+                if type(metadata["files"]) is not int or metadata["files"] <= 0 \
+                        or type(metadata["bytes"]) is not int or metadata["bytes"] < 0 \
+                        or not isinstance(metadata["sha256"], str) \
+                        or re.fullmatch(r"[0-9a-f]{64}", metadata["sha256"]) is None:
+                    raise ValueError("manifest hash group has invalid counts or digest")
+    pinned = pin_build.pinned()
+    if not isinstance(pinned, dict) or not isinstance(pinned.get("build_id"), str) or not pinned["build_id"] \
+            or value.get("build_id") != pinned["build_id"]:
+        raise ValueError("generated manifest build does not match the current pin; do not re-pin automatically")
+    return tiers
+
+
 def tree_hash(root: Path) -> dict:
     """{subdir: {files, bytes, sha256}} for the top-level entries of root ('.' = loose files)."""
     groups: dict[str, list[tuple[str, str, int]]] = {}
-    for f in sorted(root.rglob("*")):
+    for f in _files(root):
         if not f.is_file() or f.name in NOT_HASHED:
             continue
         rel = f.relative_to(root).as_posix()
@@ -132,25 +227,77 @@ def ensure_packager(force: bool) -> None:
 
 
 def build_shim(force: bool) -> None:
-    """gcc (mingw-w64) builds the injected capture / known-folder shim; recorded by input."""
-    stamp = gamepaths.TOOLS_BIN / "hwr2_capture.build.json"
-    src_sha = hashlib.sha256(SHIM_SRC.read_bytes()).hexdigest()
-    if not force and SHIM_DLL.is_file() and stamp.is_file() and json.loads(stamp.read_text())["source_sha256"] == src_sha:
-        return
-    gcc = (shutil.which(os.environ.get("HWP_MINGW_CC", "x86_64-w64-mingw32-gcc"))
-           if sys.platform == "linux" else gamepaths.find_gcc())
-    if not gcc:
-        sys.exit("gcc (mingw-w64, x86_64) is required to build tools/bin/hwr2_capture.dll")
-    compiler_env = gamepaths.gcc_environment(gcc)
-    gamepaths.TOOLS_BIN.mkdir(parents=True, exist_ok=True)
-    r = subprocess.run([gcc, "-shared", "-O2", "-Wall", "-o", str(SHIM_DLL), str(SHIM_SRC),
-                        "-lgdi32", "-lopengl32", "-lole32"], env=compiler_env)
-    if r.returncode:
-        sys.exit("building hwr2_capture.dll failed")
-    version = subprocess.run([gcc, "-dumpfullversion"], env=compiler_env,
-                             capture_output=True, text=True).stdout.strip()
-    stamp.write_text(json.dumps({"source_sha256": src_sha, "gcc": version}, indent=1) + "\n")
-    step(f"built tools/bin/hwr2_capture.dll (gcc {version})")
+    """Publish a complete compiler-checked DLL/stamp pair or retain the prior pair."""
+    stage = None
+    retained = False
+    try:
+        source = _checked(SHIM_SRC)
+        dll = _checked(SHIM_DLL)
+        stamp = _checked(gamepaths.TOOLS_BIN / "hwr2_capture.build.json")
+        source_sha = hashlib.sha256(source.read_bytes()).hexdigest()
+        if not force and not _shim_problems():
+            return
+        gcc = (shutil.which(os.environ.get("HWP_MINGW_CC", "x86_64-w64-mingw32-gcc"))
+               if sys.platform == "linux" else gamepaths.find_gcc())
+        if not gcc:
+            raise ValueError("gcc (mingw-w64, x86_64) is required to build tools/bin/hwr2_capture.dll")
+        compiler_env = gamepaths.gcc_environment(gcc)
+        directory = _checked(gamepaths.TOOLS_BIN)
+        directory.mkdir(parents=True, exist_ok=True)
+        stage = Path(tempfile.mkdtemp(prefix=".shim-", dir=directory))
+        built = stage / dll.name
+        built_stamp = stage / stamp.name
+        previous = stage / "previous.dll"
+        had_dll = dll.is_file()
+        if had_dll:
+            shutil.copy2(dll, previous)
+        result = subprocess.run([gcc, "-shared", "-O2", "-Wall", "-o", str(built), str(source),
+                                 "-lgdi32", "-lopengl32", "-lole32"], env=compiler_env, timeout=120)
+        built = _checked(built)
+        if result.returncode or not built.is_file() or not built.stat().st_size:
+            raise ValueError("compiler did not produce a complete capture shim")
+        version_result = subprocess.run([gcc, "-dumpfullversion"], env=compiler_env,
+                                        capture_output=True, text=True, timeout=30)
+        if version_result.returncode or not isinstance(version_result.stdout, str) or not version_result.stdout.strip():
+            raise ValueError("compiler version probe failed")
+        version = version_result.stdout.strip()
+        expected_stamp = {"source_sha256": source_sha,
+                          "dll_sha256": hashlib.sha256(built.read_bytes()).hexdigest(),
+                          "gcc": version}
+        built_stamp.write_text(json.dumps(expected_stamp, indent=1) + "\n", encoding="utf-8")
+        if json.loads(_checked(built_stamp).read_text(encoding="utf-8")) != expected_stamp \
+                or hashlib.sha256(_checked(built).read_bytes()).hexdigest() != expected_stamp["dll_sha256"]:
+            raise ValueError("staged capture shim/stamp did not read back as the complete build pair")
+        if hashlib.sha256(source.read_bytes()).hexdigest() != source_sha:
+            raise ValueError("capture shim source changed during the build")
+        installed = False
+        try:
+            os.replace(built, dll)
+            installed = True
+            os.replace(built_stamp, stamp)
+        except OSError as error:
+            if installed:
+                try:
+                    if had_dll:
+                        os.replace(previous, dll)
+                    else:
+                        dll.unlink()
+                except OSError as rollback_error:
+                    retained = True
+                    raise ValueError(f"shim publication/rollback failed; recovery retained at {stage}: {rollback_error}") from error
+            raise
+        step(f"built tools/bin/hwr2_capture.dll (gcc {version})")
+    except (OSError, ValueError, subprocess.SubprocessError) as error:
+        sys.exit(f"capture shim build refused: {error}")
+    finally:
+        if stage is not None and not retained:
+            try:
+                safe = _checked(stage)
+                if safe.parent != Path(gamepaths.TOOLS_BIN).absolute() or not safe.name.startswith(".shim-"):
+                    raise ValueError("refusing cleanup outside this shim build's private staging")
+                shutil.rmtree(safe)
+            except (OSError, ValueError) as error:
+                sys.exit(f"capture shim staging retained at {stage}; inspect before setup retry: {error}")
 
 
 def extract_hoh2(force: bool) -> None:
@@ -202,39 +349,52 @@ def current_manifest(trees: list[str]) -> dict:
 
 
 def verify() -> int:
-    if not MANIFEST.is_file():
-        print("no gamelab/manifest.json; run bootstrap.py --record on the originating machine")
-        return 1
-    want = json.loads(MANIFEST.read_text(encoding="utf-8"))
     bad, have_optional = [], {}
-    for tier, trees in want["tiers"].items():
-        for tree, groups in trees.items():
-            root = REPO / tree
-            present = root.is_dir() and any(root.iterdir())
-            if tier != "required" or tree in OPTIONAL_REQUIRED:
-                have_optional[tree] = present
-                if not present:
+    try:
+        manifest = _checked(MANIFEST)
+        if not manifest.is_file():
+            raise ValueError("no gamelab/manifest.json; record only on the originating pinned machine")
+        tiers = _manifest_shape(json.loads(manifest.read_text(encoding="utf-8")))
+        for tier, trees in tiers.items():
+            for tree, groups in trees.items():
+                root = _checked(REPO / tree)
+                present = root.is_dir() and any(root.iterdir())
+                if tier != "required" or tree in OPTIONAL_REQUIRED:
+                    have_optional[tree] = present
+                    if not present:
+                        continue
+                elif not present:
+                    bad.append(f"{tree}: missing")
                     continue
-            elif not present:
-                bad.append(f"{tree}: missing")
-                continue
-            got = tree_hash(root)
-            for g in sorted(set(groups) | set(got)):
-                if groups.get(g) != got.get(g):
-                    bad.append(f"{tree}/{g}: want {groups.get(g, {}).get('files')} files "
-                               f"{str(groups.get(g, {}).get('sha256'))[:12]}, have {got.get(g, {}).get('files')} "
-                               f"{str(got.get(g, {}).get('sha256'))[:12]}")
-    stamp = gamepaths.TOOLS_BIN / "hwr2_capture.build.json"
-    if not (SHIM_DLL.is_file() and stamp.is_file()):
-        bad.append("tools/bin/hwr2_capture.dll: not built")
-    elif json.loads(stamp.read_text())["source_sha256"] != hashlib.sha256(SHIM_SRC.read_bytes()).hexdigest():
-        bad.append("tools/bin/hwr2_capture.dll: built from other source than tools/capture_shim/ (bootstrap.py rebuilds it)")
-    MANIFEST_LOCAL.write_text(json.dumps({"checked": time.strftime("%Y-%m-%dT%H:%M:%S"),
-                                          "optional_present": have_optional, "ok": not bad}, indent=1) + "\n")
-    for b in bad:
-        print("DIFF", b)
+                got = tree_hash(root)
+                for group in sorted(set(groups) | set(got)):
+                    if groups.get(group) != got.get(group):
+                        bad.append(f"{tree}/{group}: recorded hash/count differs from current generated data")
+    except (OSError, ValueError) as error:
+        bad.append(f"generated manifest: {error}")
+    bad.extend(_shim_problems())
+    temporary = None
+    try:
+        local = _checked(MANIFEST_LOCAL)
+        # Replace the diagnostic leaf so an existing hardlink cannot redirect writes.
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", prefix=".verify-",
+                                         dir=local.parent, delete=False) as output:
+            temporary = Path(output.name)
+            output.write(json.dumps({"checked": time.strftime("%Y-%m-%dT%H:%M:%S"),
+                                     "optional_present": have_optional, "ok": not bad}, indent=1) + "\n")
+        os.replace(temporary, local)
+    except (OSError, ValueError) as error:
+        bad.append(f"cannot record current verification: {error}")
+    finally:
+        if temporary is not None and temporary.exists():
+            try:
+                temporary.unlink()
+            except OSError as error:
+                bad.append(f"verification temporary retained at {temporary}: {error}")
+    for problem in bad:
+        print("DIFF", problem)
     print(f"verify: {'green' if not bad else f'{len(bad)} difference(s)'}; optional present: "
-          f"{[t for t, p in have_optional.items() if p] or 'none'}")
+          f"{[tree for tree, present in have_optional.items() if present] or 'none'}")
     return 1 if bad else 0
 
 

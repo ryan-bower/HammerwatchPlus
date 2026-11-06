@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-roulette",
- "about": "mod-roulette against the built package town instead of the mods' source folders (tools/make_package_scenarios.py). Roulette (mods/roulette: HWP/Roulette) through the fix_roulette bot, in town as the host, solo: the wheel sits on a table in the tavern's main hall, that table bare (its default scene); `hwp roulette` reports a betting round and 157 bets; using the wheel opens HWPRouletteMenu; with Luck 20, 1000 each on s:17, c:13, odd and red and a forced 17, the wheel shows its spin scene and the round pays the stakes back plus 35, 8 and 1 times 1000 raised by the bonus (red loses); chips cleared in the next round come back; the 1,000,000 limit refuses an eleventh 100K chip; after tavern upgrades to tiers 2 and 3 the one wheel is back on a main-hall table; 7000 left on black when a run starts goes back to the town's gold from the town's save (the run's gold stays 0), as the town shows after an abort. Shots: roulette-wheel, roulette-menu, roulette-spin, roulette-result, roulette-tier2, roulette-tier3.",
+ "about": "mod-roulette against the built package town instead of the mods' source folders (tools/generate/make_package_scenarios.py). Roulette (mods/roulette: HWP/Roulette) through the fix_roulette bot, in town as the host, solo: the wheel sits on a table in the tavern's main hall, that table bare (its default scene); `hwp roulette` reports a betting round and 157 bets; using the wheel opens HWPRouletteMenu; with Luck 20, 1000 each on s:17, c:13, odd and red and a forced 17, the wheel shows its spin scene and the round pays the stakes back plus 35, 8 and 1 times 1000 raised by the bonus (red loses); chips cleared in the next round come back; the 1,000,000 limit refuses an eleventh 100K chip; after tavern upgrades to tiers 2 and 3 the one wheel is back on a main-hall table; 7000 left on black when a run starts goes back to the town's gold from the town's save (the run's gold stays 0), as the town shows after an abort. Shots: roulette-wheel, roulette-menu, roulette-spin, roulette-result, roulette-tier2, roulette-tier3.",
  "fixture": "town-paladin",
  "timeout": 360,
  "steps": [
@@ -12,7 +12,23 @@
    "do": "bot",
    "bot": "fix_roulette",
    "kwargs": {
-    "sections": "roulette,tiers,leave"
+    "sections": "roulette,controls,zero,tiers,leave",
+    "required_flags": [
+     "rl_wheel",
+     "rl_table",
+     "rl_menu",
+     "rl_scene",
+     "rl_payout",
+     "rl_clear",
+     "rl_limit",
+     "rl_tiers",
+     "rl_leave",
+     "rl_limit_refund",
+     "rl_poor_preserved",
+     "rl_disable_refund",
+     "rl_reenable_no_double_refund",
+     "rl_zero_exact"
+    ]
    },
    "name": "roulette",
    "expect": {
@@ -24,7 +40,13 @@
     "rl_clear": true,
     "rl_limit": true,
     "rl_tiers": true,
-    "rl_leave": true
+    "rl_leave": true,
+    "rl_limit_refund": true,
+    "rl_poor_preserved": true,
+    "rl_disable_refund": true,
+    "rl_reenable_no_double_refund": true,
+    "rl_zero_exact": true,
+    "ok": true
    }
   },
   {

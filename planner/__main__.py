@@ -4,9 +4,11 @@ The class planner: a local web page for designing the HammerwatchPlus classes. I
 planner/web/ and keeps every record as planner/data/<collection>/<id>.json, so edits show
 up in git like any other change. Standard library only; binds to 127.0.0.1."""
 import argparse
+import hashlib
 import json
 import re
 import sys
+import tempfile
 import threading
 import webbrowser
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -21,7 +23,22 @@ LOCK = threading.Lock()
 
 
 def dump(record):
-    return json.dumps(record, indent=2, ensure_ascii=False, sort_keys=True) + "\n"
+    return json.dumps(record, indent=2, ensure_ascii=False, sort_keys=True, allow_nan=False) + "\n"
+
+
+def write_record(path, raw):
+    """Replace a record only after its complete UTF-8 JSON has closed successfully."""
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", newline="\n",
+                                         dir=path.parent, prefix=".planner-", suffix=".tmp",
+                                         delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(raw)
+        temporary.replace(path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 def load_all():
@@ -32,9 +49,15 @@ def load_all():
 
 
 def stamp():
-    """Changes whenever a record file is added, removed or rewritten (an edit, a git pull)."""
-    files = [p for c in COLLECTIONS for p in (DATA / c).glob("*.json")]
-    return f"{len(files)}-{max((p.stat().st_mtime_ns for p in files), default=0)}"
+    """Fingerprint record identities and contents, including external edits."""
+    digest = hashlib.sha256()
+    for collection in COLLECTIONS:
+        for path in sorted((DATA / collection).glob("*.json")):
+            raw = path.read_bytes()
+            digest.update((collection + "/" + path.name + "\0").encode("utf-8"))
+            digest.update(len(raw).to_bytes(8, "big"))
+            digest.update(raw)
+    return digest.hexdigest()
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -86,14 +109,19 @@ class Handler(SimpleHTTPRequestHandler):
             return self.reply(400, {"error": "bad_request"})
         try:
             record = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))))
+            if not isinstance(record, dict):
+                raise ValueError("record must be an object")
+            record.pop("_id", None)
+            raw = dump(record)   # reject NaN/Infinity before creating or replacing a file
+            raw.encode("utf-8")  # reject unpaired surrogates before entering the write path
         except ValueError:
             return self.reply(400, {"error": "bad_json"})
-        if not isinstance(record, dict):
-            return self.reply(400, {"error": "bad_json"})
-        record.pop("_id", None)
         with LOCK:
-            p.parent.mkdir(exist_ok=True)
-            p.write_text(dump(record), encoding="utf-8", newline="\n")
+            try:
+                p.parent.mkdir(exist_ok=True)
+                write_record(p, raw)
+            except OSError:
+                return self.reply(500, {"error": "write_failed"})
             return self.reply(200, {"stamp": stamp()})
 
     def do_DELETE(self):

@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-specs-banner-provisions",
- "about": "qa-specs-banner-provisions against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). All3 SharedProvisions qualities: actual native positive HUD count and zero-delta stack read, nonHUD and HUD-debuff exclusion controls, real Warcry cooldowns; quality3 cap30 and natural expiry/reversion. No positive stacks injected.",
+ "about": "qa-specs-banner-provisions against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). All3 SharedProvisions qualities: actual native positive HUD count and zero-delta stack read, nonHUD and HUD-debuff exclusion controls, real Warcry cooldowns; quality3 cap30 and natural expiry/reversion. No positive stacks injected.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

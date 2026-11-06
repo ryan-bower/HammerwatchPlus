@@ -1,7 +1,7 @@
 // Loadouts (docs/devarena/SPEC.md, "Loadout"): put the local player on a preset build in one
 // step: class, level, attribute points, skill and combo picks, gear and trinkets.
 //
-// The presets come from tools/make_presets.py, which writes tweak/hwp/devarena_presets.sval and
+// The presets come from tools/generate/make_presets.py, which writes tweak/hwp/devarena_presets.sval and
 // checks each one against the game tables (star and stat budgets, slots, sub-skill parents).
 // The file is read once, at boot. Rows are all strings:
 //   ["stat", attr, n]  ["skill", id, picks]  ["combo", id, picks]  ["equip", baseId]  ["trinket", id]

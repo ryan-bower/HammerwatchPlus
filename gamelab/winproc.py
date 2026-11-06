@@ -11,6 +11,7 @@ import subprocess
 import threading
 import time
 from ctypes import wintypes
+from pathlib import Path
 
 u32 = ctypes.WinDLL("user32", use_last_error=True)
 k32 = ctypes.WinDLL("kernel32", use_last_error=True)
@@ -318,11 +319,15 @@ def inject(proc: subprocess.Popen, dll: str, timeout_ms: int = 10000) -> bool:
     th = k32.CreateRemoteThread(h, None, 0, load, mem, 0, None)
     if not th:
         return False
-    k32.WaitForSingleObject(th, timeout_ms)
-    code = wintypes.DWORD()
-    k32.GetExitCodeThread(th, ctypes.byref(code))
-    k32.CloseHandle(th)
-    return code.value != 0
+    try:
+        if k32.WaitForSingleObject(th, timeout_ms) != 0:  # WAIT_OBJECT_0 only
+            return False
+        code = wintypes.DWORD()
+        if not k32.GetExitCodeThread(th, ctypes.byref(code)):
+            return False
+        return code.value not in (0, 259)  # NULL module or STILL_ACTIVE
+    finally:
+        k32.CloseHandle(th)
 
 
 def resume(proc: subprocess.Popen) -> bool:
@@ -457,7 +462,8 @@ class ForegroundSampler:
         for hwnd, pid in found:
             if pid not in self._images:
                 self._images[pid] = process_image(pid).lower()
-            if self._images[pid].startswith(self.game_dir):
+            image = self._images[pid]
+            if image and Path(self.game_dir).resolve() in Path(image).resolve().parents:
                 self.leaks.append({"t": round(time.time() - self.t0, 2), "pid": pid, "hwnd": hwnd})
 
     def __enter__(self):

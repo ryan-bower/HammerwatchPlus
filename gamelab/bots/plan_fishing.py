@@ -49,6 +49,7 @@ import time
 from pathlib import Path
 
 from gamelab.bots.plan_checks import Checks as Base
+from gamelab.bots.qa_town_economy_oracle import assess
 
 REPO = Path(__file__).resolve().parents[2]
 # mods/fishing/scripts/HWP/Fishing/FishingModule.as
@@ -656,20 +657,27 @@ class Checks(Base):
         run_min, rolls, caught = (int(x) for x in m[-1]) if m else (0, 0, 0)
         self.flag("traps_resolved", bool(m) and run_min >= 20 and rolls == run_min // 10,
                   f"{m[-1:] or 'no traps line'}; reply {filled[-1:]}")
-        if caught == 0:
-            # the step's quick test: 60 minutes of rolls (6 per trap)
-            q = self.hwp("fishing traps 60", 0.6, until="[HWP] Fish traps")
-            self.notes.append("traps: no fish from the run's rolls; quick test: "
-                              + " ".join(re.findall(r"traps: [^\n]*", q))[-160:])
-            time.sleep(1.5)
+        # Zero from6 natural Bernoulli(.5) rolls is valid (1/64), and retained.
+        # No debug-generated fish may replace this observed state.
+        c = self.out.setdefault("coverage", {})
+        c["natural_traps"] = {"run_minutes": run_min, "rolls_per_trap": rolls,
+                              "caught": caught, "positive_observed": caught > 0}
         st = self.hwp("fishing traps", 0.3, until="[HWP] Fish traps")
         lists = re.findall(r"Fish traps \d+/\d+: (.*?)\. This run", st)
         per = []
         for part in (lists[-1].split("; ") if lists else []):
             ids = part.split(": ", 1)[-1]
             per.append(0 if ids == "-" else len(ids.split(",")))
-        self.flag("traps_cap_3", len(per) == 3 and all(n <= 3 for n in per) and sum(per) > 0, f"fish per trap {per}")
+        self.flag("traps_cap_3", len(per) == 3 and all(0 <= n <= 3 for n in per), f"fish per trap {per}")
+        self.flag("traps_natural_conserved", len(per) == 3 and sum(per) == caught,
+                  f"natural reported{caught}, trap contents{per}")
         full = self.gl("near", 8000, "fish_trap_full").get("units") or []
+        if not full:
+            if caught > 0:
+                self.flag("traps_full_shown", False, "natural fish exist but no full-trap units")
+            self.out["coverage"]["trap_visual"] = {"observed": False, "reason": "natural sample empty"}
+            return
+        self.out["coverage"]["trap_visual"] = {"observed": True, "full_traps": len(full)}
         self.flag("traps_full_shown", len(full) == sum(1 for n in per if n), f"{len(full)} full trap units, {per}")
         src = (REPO / "mods/fishing/doodads/hwp/fish_trap_full.unit").read_text(encoding="utf-8")
         # the live unit's minimap icon (Verbs_farming mapicons: its scene draws a minimap
@@ -739,6 +747,21 @@ class Checks(Base):
                 continue
             return (cx, cy), "; ".join(tried[-4:]) or "first candidate"
         return None, "; ".join(tried[-6:])
+
+    def traps_walk_if_natural(self):
+        full = self.gl("near", 8000, TRAP_FULL).get("units") or []
+        if not full:
+            if sum(self.trap_counts()) > 0:
+                self.flag("trap_observation_accounted", False, "stored natural fish have no full trap")
+                return
+            self.out.setdefault("coverage", {})["trap_collection"] = {
+                "observed": False, "reason": "natural sample empty; no substitution"}
+            self.flag("trap_observation_accounted", True, "positive collection unobserved")
+            return
+        self.traps_walk()
+        self.out.setdefault("coverage", {})["trap_collection"] = {"observed": True}
+        self.flag("trap_observation_accounted",
+                  self.out.get("trap_collected") is True and self.out.get("trap_emptied") is True)
 
     def traps_walk(self):
         """fishing s9: walking up to a full trap empties it into the bag. traps_run left the player
@@ -1310,14 +1333,89 @@ class Checks(Base):
         self.hwp("set fishing.bite_min 800")
         self.hwp("set fishing.bite_max 3000")
 
+    def reel_press(self):
+        """Issue #72: one click on Reel (MenuForward: mouse_left; gl pointer click writes it as the
+        mouse does) is one reel. The press reeled in the window's Update and the release reeled again through the
+        button's func, so the second check was always missed at once ("fought free") and the last
+        one's release cast again. A whole-bar zone (`hwp fishing zone 240`) makes every reel a hit,
+        so each press's reels can be counted. Also: a timeout says "too slow", and the reel window
+        covers the marker's way to the zone (`fishing fight worst`)."""
+        self.fresh("LabReel")
+        self.hwp("fishing bait squid 20", 0.4, until="[HWP]")
+        self.hwp("set fishing.bite_min 200")
+        self.hwp("set fishing.bite_max 300")
+        _, how = self.open_spot("doodads/hwp/fishing_spot.unit")
+        self.flag("press_window", "FishingMenu" in self.window(), how)
+        nodes = {n["id"]: n for n in self.gl("wchildren", "bar-group", 1).get("nodes", [])}
+        bar = nodes.get("bar")
+        if not bar:
+            self.flag("press_button", False, str(nodes)[:300])
+            return
+        # the 300x186 panel around the 240 px bar (30 px in, 54 down + 4); Reel: 136 wide, 10 px in
+        # from the bottom right corner; the pointer takes window pixels (UI units x the scale)
+        px, py = bar["x"] - 30, bar["y"] - 58
+        scale = self.gl("mouse").get("scale") or 1.0
+        bx, by = int((px + 300 - 10 - 68) * scale), int((py + 186 - 10 - 8) * scale)
+        self.hwp("fishing tier 1", 0.4, until="next coast bites")
+        self.hwp("fishing zone 240", 0.4, until="fishing: zone")
+        reel = r"reel: (hit \d of \d|landed at hit \d of \d|missed at hit \d of \d|too slow at hit \d of \d)"
 
-def run(p, sections="fish_sword,fish_enchant,rod_slot", **_):
+        def press():
+            mark = len(self.g.read_log())
+            r = self.gl("pointer", bx, by, "click")
+            time.sleep(0.5)
+            log = self.g.read_log()[mark:]
+            self.notes.append("click " + json.dumps({k: r.get(k) for k in ("hovered", "downSeen", "upSeen", "frames")}))
+            return re.findall(reel, log), len(re.findall(r"\[HWP:fishing\] cast \(coast\)", log))
+
+        _, casts = press()   # a click on Cast
+        self.flag("press_casts", casts == 1, f"{casts} casts from one press")
+        time.sleep(0.6)      # the bite (200-300 ms)
+        lines, casts = press()
+        self.flag("press_one_reel", lines == ["hit 1 of 2"] and casts == 0, f"first press in the bite: {lines}, casts {casts}")
+        lines, casts = press()
+        text = plain(self.widget("log").get("text", ""))
+        self.flag("press_lands_no_recast", lines == ["landed at hit 2 of 2"] and casts == 0 and "Caught" in text,
+                  f"second press: {lines}, casts {casts}; {text!r}")
+        # a bite left alone: too slow, said as such
+        self.hwp("fishing zone 0", 0.4, until="fishing: zone")
+        press()
+        time.sleep(0.6)
+        mark = len(self.g.read_log())
+        time.sleep(4.5)
+        lines = re.findall(reel, self.g.read_log()[mark:])
+        text = plain(self.widget("log").get("text", ""))
+        self.flag("press_too_slow_said", lines == ["too slow at hit 1 of 2"] and "Too slow" in text, f"{lines}; {text!r}")
+        # the window covers the marker's way to the zone: the slowest marker (Captain's rod, 1-star),
+        # the bite's zone at the far end and the fight's where the marker gets last, a way the old flat
+        # 2.5 s window left too little of
+        self.hwp("fishing rod 4", 0.4, until="rod: ")
+        self.hwp("fishing fight worst", 0.4, until="fight zones")
+        mark = len(self.g.read_log())
+        ev = self.reel(4, timeout_ms=20000)
+        time.sleep(0.4)
+        log = self.g.read_log()[mark:]
+        fights = [(int(r), int(w)) for r, w in re.findall(r"reel: hit \d of \d \(tier 1\).*?, reach (\d+) ms, window (\d+) ms", log)]
+        end = re.findall(reel, log)
+        self.flag("press_window_covers_reach", ev.get("result") == "clicked" and len(fights) == 1
+                  and all(w == max(2500, r + 1500) and w > 2500 for r, w in fights) and end[-1:] == ["landed at hit 2 of 2"],
+                  f"{ev.get('result')} clicks {ev.get('clicks')}; reach/window {fights}; end {end}")
+        self.hwp("fishing fight random", 0.4, until="fight zones")
+        self.hwp("fishing tier 0", 0.4)
+        self.close_windows()
+        self.hwp("set fishing.bite_min 800")
+        self.hwp("set fishing.bite_max 3000")
+
+
+def run(p, sections="fish_sword,fish_enchant,rod_slot", required_flags=(), **_):
     c = Checks(p)
     for s in sections.split(","):
         try:
             getattr(c, s)()
         except Exception as e:  # a section's crash is its own failure, not the bot's
             c.flag(f"{s}_crashed", False, repr(e))
+    if required_flags:
+        c.out.update(assess(c.out, required_flags))
     c.out["notes"] = c.notes
     c.out["terminal"] = " | ".join(c.notes)[-3000:]
     return c.out

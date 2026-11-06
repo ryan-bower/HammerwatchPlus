@@ -1,11 +1,11 @@
-"""tools/hoh1_convert.py: HoH1 world-script params under HoH2's names, and HoH1's
+"""tools/hoh1/hoh1_convert.py: HoH1 world-script params under HoH2's names, and HoH1's
 "magical" damage as a HoH2 element."""
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 
-import hoh1_convert as hc  # noqa: E402
+from hoh1 import hoh1_convert as hc  # noqa: E402
 
 
 def rewriter():

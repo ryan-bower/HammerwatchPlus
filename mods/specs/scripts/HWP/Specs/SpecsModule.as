@@ -96,7 +96,7 @@ namespace HWP
 			}
 
 			// the Forgemaster's risen and body units are made from the game's own files by
-			// tools/make_forgemaster_risen.py, so a build made without them carries none: every body
+			// tools/generate/make_forgemaster_risen.py, so a build made without them carries none: every body
 			// roll then fails and Necrotic Resurrection never has a body to raise (issue #76, v0.3).
 			// A few raisable enemies stand for the set (looking all up loads them all).
 			if (RISEN_RELS.length() > 0)

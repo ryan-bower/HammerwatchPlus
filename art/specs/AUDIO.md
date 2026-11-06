@@ -2,10 +2,10 @@
 
 Every moment below plays (or could play) a sound. All options are vanilla FMOD events, so
 nothing new needs recording. **Now** is what the mod plays (the user's picks, 2026-10-21; none: silent).
-Pick in the audio picker: `python tools/audio_pick/build.py` renders every option with the
-game's own FMOD (read only, from the install) into `tools/audio_pick/out/picker.html`, which
+Pick in the audio picker: `python tools/art/audio_pick/build.py` renders every option with the
+game's own FMOD (read only, from the install) into `tools/art/audio_pick/out/picker.html`, which
 is published as an artifact with a shared store; the picks are read back from it and wired
-in at the hook named. Options are in `tools/audio_pick/slots.py`.
+in at the hook named. Options are in `tools/art/audio_pick/slots.py`.
 
 ## Deadeye
 

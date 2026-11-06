@@ -1,0 +1,101 @@
+{
+    "schema_version":  1,
+    "reviewer":  "M5",
+    "scope":  "SOURCE_ONLY_RUNTIME_ELIGIBILITY_AUDIT",
+    "case_consumer_verdict":  "accepted within explicit token-level fixture scope",
+    "overall_verdict":  "ACCEPTED_SOURCE_RUNTIME_ELIGIBILITY_WITH_ROOT_FINAL_SEAL_REQUIRED",
+    "closure_complete":  true,
+    "artifact_copy_target":  "docs/qa/swarm/catalogs/reviews/stash-v1.source-review.json",
+    "cases":  [
+                  "qa-content-stash-families",
+                  "qa-content-stash-neighbors"
+              ],
+    "task_mapping":  [
+                         {
+                             "task":  "ADMISSION-STASH-FAMILIES",
+                             "check":  "qa-content-stash-families",
+                             "scope":  "controlled-native"
+                         },
+                         {
+                             "task":  "ADMISSION-STASH-NEIGHBORS",
+                             "check":  "qa-content-stash-neighbors",
+                             "scope":  "controlled-native"
+                         }
+                     ],
+    "reviewed_source":  {
+                            "framework":  "Explicit reached APIs plus selected native GUI/item counterparts pinned; all enabled module leaves pinned. Root native-pool global source/input/build seal independently guards remaining shared framework/platform assets. Root must validate selected closure including ignored module leaves before AND after each actual case, beyond git/source fingerprint. Human semantic completeness is a scoped explicit assertion, not AST/hash inference.",
+                            "fixture":  "town-paladin literal recipe: fresh slot0 Paladin GameLab level1/alive/town; three QA provider modules; cold preparation can write fresh profile, enable QA mods, create character, cache; warm restores attested cache; all scenario extra modules enabled separately",
+                            "unreached":  "plan_newa trinket_data glob/shop/settings/travel branches not reached by these cases; no whole bot-tree obligation",
+                            "resource_closure":  "Stash GUI/comparator, selected custom weapons/firearms definitions and relevant authored/native GUI/item resources are raw-hash pinned, not copied; no SDK tree claim",
+                            "comparator":  "StashSort.as377ddf14 already applies typed hwp_mh/oh/2h token2 and ordinary rifle/autorifle token1; no product patch",
+                            "module_closure":  "All ordinary files in36 enabled/transitive module roots explicitly inventoried:6084module leaves. This identity/addition binding does not claim manual semantic review of all36module features; semantics reviewed for reached stash/helper/fixture/resource paths, with existing common full-mod load/platform/build contract.",
+                            "dynamic_loader":  "runner step3 -\u003e pilot.load_bot receives fixed catalog scenario bot stem; no wildcard or unknown case/helper imports",
+                            "imports":  "Literal own bot -\u003e plan_newa.Checks -\u003e plan_checks.Checks; stdlib only. All module-level statements inspected; imported modules define functions/classes/constants, no candidate execution during review.",
+                            "private_actions":  "Authenticated slot private clear/generate/UI/Sort/save, slot game/config/appdata/HPS backups, slot results/cache and private QA provider module/PlanData writes. Declared slot-game/results/cache/modules. No shared legacy backups under slot context; no scenario main-source/file-write/travel/attack/restart/real input/focus actions."
+                        },
+    "consumer_rows":  [
+                          {
+                              "top_level":  "ok true AND each of5 exact flag booleans true",
+                              "no_per_row_ok_field":  true,
+                              "rows":  "exact5 unique rows[].case keys, each runtime PASS; no missing/extra/duplicate/crash row",
+                              "limits":  "id@ilvl token multiset only, not full serialized/roll/modifier identity, inactive tab/restart/full-bag/ordinary/controller proof"
+                          },
+                          "custom_family_stash_fixture",
+                          "custom_family_stash_ui",
+                          "custom_weapons_group_by_actual_family",
+                          "custom_family_sort_preserves_all_items",
+                          "custom_family_second_press_idempotent"
+                      ],
+    "consumer_semantics":  {
+                               "custom_family_second_press_idempotent":  "second token vector equals first and postmark sort log contains already in order; second press ok is not separately asserted",
+                               "custom_family_stash_ui":  "actual state window PlayerStashWindow after debug open",
+                               "custom_family_sort_preserves_all_items":  "Counter(after_tokens)==Counter(before_tokens), not serialized item identity",
+                               "custom_weapons_group_by_actual_family":  "Sort press reply ok and actual tab0 tokens equal fixed family/class/slot/descending-ilvl expected vector",
+                               "custom_family_stash_fixture":  "all returned stashput replies ok and actual ordered id@ilvl before vector exactly matches4or8 requested entries"
+                           },
+    "proof_limits":  [
+                         "No test or native case executed for this audit",
+                         "No complete item serialization/modifier-roll/quality persistence proof",
+                         "No inactive-tab/full-bag/capacity/stale-hover/restart proof",
+                         "No ordinary equipment input/controller/co-op or universal log cleanliness proof",
+                         "Fixture source uses stashclear without separate clear-ack predicate; exact before vector is the consumer gate",
+                         "Native log_clean retains its current own-script error pattern; no new allowlist/assertion weakening"
+                     ],
+    "unknown_wildcard_imports":  [
+
+                                 ],
+    "pending_final_seal":  "Root only after all writers held and final helper/module inventory equality; this source review is not admission, a native PASS or a current fullmod feature claim.",
+    "file_hash_snapshot":  "gamelab\\results\\swarm\\swarm-20261029\\M5-STASH-CATALOG\\E018\\source-review-002\\module-inventory.expanded.json",
+    "family_boundary_design":  "gamelab/results/swarm/swarm-20261029/M5-STASH-CATALOG/E018/source-review-001/family-boundaries.json",
+    "root_copy_policy":  "Root copies exact accepted final JSON into docs/qa/swarm/catalogs/reviews/stash-v1.source-review.json before catalog seal; M5 has not written canonical files, imported candidates, tested or launched native cases.",
+    "resolved_hps_finding":  {
+                                 "source":  "gamelab/hps.py",
+                                 "sha256":  "1eebd45df903f54e1b3fcf8781cf528ff5daf32c9f88473284e2187f020774d9",
+                                 "test_source":  "gamelab/tests/test_hps_slots.py",
+                                 "test_sha256":  "11ee22aadcb731fc4de58ce521a7e17fb9e944d9817aa476bdb5add5525cb4e4",
+                                 "review":  "Root reported independent reviewer_host_contracts HPS/sourceinventory source-only acceptance; M5 read corrected slot binding/guard path",
+                                 "host_reported_controls":  21,
+                                 "M5_control_executions":  0,
+                                 "scope":  "Authenticated own-slot USERDATA/SAVES/BACKUP_DIR, backup inside game_dir/hps_backups; sibling/legacy/redirection/hardlink refusals; unique exclusive backups; legacy serial default preserved. No native execution inferred."
+                             },
+    "expanded_inventory":  {
+                               "path":  "gamelab\\results\\swarm\\swarm-20261029\\M5-STASH-CATALOG\\E018\\source-review-002\\module-inventory.expanded.json",
+                               "sha256":  "f69800f7d786c10bdf87cee3c9fc2db8cd7ee0ca38e5dccffc8cb09982813dfc",
+                               "module_roots":  36,
+                               "module_files":  6084,
+                               "shared_nonmodule_files":  35,
+                               "case_specific_files":  2,
+                               "per_case_files":  6121,
+                               "unresolved_entries":  0,
+                               "all_module_identity_scope":  "Complete ordinary subtree/addition binding only; bounded source semantic review remains distinct",
+                               "SDK":  "Selected explicit hashes only; no huge SDK or module asset contents copied",
+                               "global_platform":  "Preexisting capture DLL remains under root global platform/input trust; no invented per-case leaf hash"
+                           },
+    "private_writes":  [
+                           "slot-game",
+                           "slot-results",
+                           "slot-cache",
+                           "slot-modules"
+                       ],
+    "original_hold_preserved":  "gamelab\\results\\swarm\\swarm-20261029\\M5-STASH-CATALOG\\E018\\source-review-001/stash-v1.source-review.proposal.json"
+}

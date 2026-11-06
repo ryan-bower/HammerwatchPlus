@@ -1,13 +1,14 @@
 """Shared modules (module.json `shared: true`): listed in one package, carried by every package
 whose mods require them (tools/build.py), and listed by the settings page under each of those
-packages (tools/make_config.py). petrooms is Quality of Life's, and Pets carries it too."""
+packages (tools/generate/make_config.py). petrooms is Quality of Life's, and Pets carries it too."""
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 
-from tools import build, make_config  # noqa: E402
+from tools import build  # noqa: E402
+from tools.generate import make_config  # noqa: E402
 
 
 def closures():

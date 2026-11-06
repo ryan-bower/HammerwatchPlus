@@ -72,13 +72,13 @@ watered.
   The herb plants and buff icons are drawn as cannabis in each strain's colour.
 - **The strains.** Lucky Leaf: gold find +5 % and the Gambler's redraw. Ember Kush: +20 %
   fire damage. Saint's Sage: +1.0 health and +0.5 mana regeneration. Lightning Kush
-  (violet): +20 % lightning damage. One table makes them all: `tools/make_herbs.py`
+  (violet): +20 % lightning damage. One table makes them all: `tools/generate/make_herbs.py`
   `STRAINS` writes each strain's mission buff (`buffs_herbs.sval`), its 10 joint items
   (the `%block` lines of `equipment_joints.sval`), its names and buff text
   (`hwp_farming_herbs.lang`), its seed line (`Herbs.as` `DefineHerbs`, which `DefineSeeds`
   calls after the food crops), its crop and wild plot units, and its art, recoloured from
   Lucky Leaf's (`farm.png`, `gui/hwp_seeds.png`, `gui/hwp_harvest.png`, indexed by
-  `DefineSeeds` order). A new strain is one row there: `python tools/make_herbs.py`, and
+  `DefineSeeds` order). A new strain is one row there: `python tools/generate/make_herbs.py`, and
   `--check` (or `tests/test_make_herbs.py`) catches a file that is out of date. `farm.png`
   has room for four strains, and the generator stops at a fifth.
   A harvest yields one per plant drawn on the plot (`CropSpots`: what you see
@@ -135,7 +135,7 @@ watered.
   repeated on every spot of the groove; dark wet soil under watered plots.
 - **Wild plots in runs.** On `farm.run_chance` % of run floors (default 35;
   never a boss room) the host places one ripe plot (`doodads/hwp/wild/<seed>.unit`,
-  made by `tools/make_wild_plots.py`) a little way from a random pot, crate or
+  made by `tools/generate/make_wild_plots.py`) a little way from a random pot, crate or
   chest: 85 % a food crop, 15 % a Holy Herb. The unit is netsynced, but every
   player harvests it once for themselves (as the game's own ore and gold
   pickups), through the host: `HWPWildPlot.Interact` -> `farm.wild_pick`; the

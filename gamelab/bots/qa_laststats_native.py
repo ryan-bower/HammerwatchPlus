@@ -2,16 +2,19 @@
 
 No new AS, counter setters, snapshot calls, synthetic party data or result setters.
 Abandon uses the native pause-menu path. Failed uses native lethal damage/DeadMenu.
+Controlled intro-complete Town fixture; no natural intro/progression claim.
 Success, true co-op, large/scrolling lists and other locales remain separate.
 """
 import json
 import math
+import re
 import time
-from collections import Counter
 from dataclasses import asdict
 
 from gamelab.bots.plan_checks import Checks as Base
 from gamelab.bots.qa_firearms_input_sequence import sequence_protocol
+from gamelab.hps import hash_string
+from gamelab.bots.laststats_oracle import board_assertions, children as oracle_children, snapshot_assertions
 
 NAME = "QALastStats"
 KEY = "laststats.mine"  # literal dictionary key: never dotted inspect traversal
@@ -73,38 +76,11 @@ def parse_rows(reply, native):
 
 
 def snapshot_matches(snapshot, native, state, name=NAME):
-    if not isinstance(snapshot, dict) or type(snapshot.get("state")) is not int:
+    try:
+        snapshot_assertions(snapshot, native, state, name)
+    except (ValueError, KeyError, TypeError):
         return False
-    lines = snapshot.get("lines")
-    if (snapshot.get("state") != state or snapshot.get("player") != name
-            or type(snapshot.get("peer")) is not int
-            or type(snapshot.get("count")) is not int or not isinstance(lines, list)
-            or snapshot["count"] != len(lines) or len(lines) < 2
-            or not isinstance(snapshot.get("mission"), str) or not snapshot["mission"]):
-        return False
-    if any(not isinstance(line, dict) or set(line) != {"cat", "title", "text"}
-           or any(not isinstance(v, str) or not v for v in line.values()) for line in lines):
-        return False
-    # Per-skill damage is explicitly excluded by README; no other category ignored.
-    actual = Counter((r["cat"], r["title"], r["text"]) for r in native["rows"]
-                     if r["cat"] != "skill_dmg")
-    expected = Counter((r["cat"], r["title"], r["text"]) for r in lines)
-    return expected == actual
-
-
-def board_matches(snapshot, native, board):
-    titles = dict(native["headers"])
-    if any(line["cat"] not in titles for line in snapshot["lines"]):
-        return False
-    expected = Counter((titles[r["cat"]], r["title"], r["text"])
-                       for r in snapshot["lines"])
-    actual = Counter((r["category_text"], r["title"], r["text"]) for r in board["rows"])
-    expected_headers, previous = [], None
-    for line in snapshot["lines"]:
-        if line["cat"] != previous:
-            expected_headers.append(titles[line["cat"]])
-            previous = line["cat"]
-    return expected == actual and [h[1] for h in board["headers"]] == expected_headers
+    return True
 
 
 class Checks(Base):
@@ -200,7 +176,7 @@ class Checks(Base):
         # Walk normally, stop that writer, verify this exact top usable, then
         # use c657's real one-frame input. Observe release only after closing.
         for dx, dy in ((24, 0), (0, 24), (-24, 0), (0, -24)):
-            result = self.p.path_to(unit["x"] + dx, unit["y"] + dy, tol=4, timeout=15)
+            result = self.p.path_to(unit["x"] + dx, unit["y"] + dy, tol=4, timeout=45 if prefix == "fresh" else 15)
             self.p.stop()
             nearby = self.gl("usables")
             targets = [r for r in nearby.get("usables", [])
@@ -230,30 +206,103 @@ class Checks(Base):
         self.flag(prefix + "_normal_use", good, str(state))
         return good
 
+    def board_status(self):
+        # wtext cannot read TextInputWidget (it is not a TextWidget).
+        # Existing module status supplies query/input only; tree reads prove rows.
+        text = self.hwp("laststats board", .3, until="board open:")
+        matches = list(re.finditer(
+            r'board open: (?P<shown>\d+) of (?P<total>\d+) stats, (?P<players>\d+) players, '
+            r'(?P<bars>\d+) bars, filter "(?P<filter>[^"]*)", typing (?P<typing>[01]), '
+            r'input "(?P<input>[^"]*)", rows: (?P<titles>[^\r\n]*)', text))
+        if not matches:
+            raise ValueError("missing current board status")
+        status = matches[-1].groupdict()
+        for key in ("shown", "total", "players", "bars", "typing"):
+            status[key] = int(status[key])
+        return dict(raw=text, value=status)
+
+    def read_board(self, snap, query, prefix):
+        state_before, saved_before = self.gl("state"), self.snapshot()
+        raw = dict(header=self.gl("wtext", "subtitle"),
+                   legend=self.gl("wchildren", "legend", 1),
+                   list=self.gl("wchildren", "stat-group", 1),
+                   siblings=self.gl("wchildren", "^empty", 1), rows={})
+        receipt = dict(raw=raw, state_before=state_before, saved_before=saved_before,
+                       expected_input=query)
+        self.out.setdefault(prefix + "_board_reads", []).append(receipt)
+        roots = oracle_children(raw["list"], 1)  # refuse the silent60 cap before more calls
+        for n in roots:
+            if re.fullmatch(r"stat-\d+", n["id"]):
+                if n["id"] in raw["rows"]:
+                    raise ValueError("duplicate row read identity")
+                raw["rows"][n["id"]] = self.gl("wchildren", n["id"], 2)
+        receipt["status"] = self.board_status()
+        receipt["state_after"], receipt["saved_after"] = self.gl("state"), self.snapshot()
+        status = receipt["status"]["value"]
+        if (state_before.get("window") != "HWPLastStatsMenu"
+                or receipt["state_after"].get("window") != "HWPLastStatsMenu"
+                or saved_before != snap or receipt["saved_after"] != snap
+                or status["input"] != query or status["filter"] != query.lower().strip(" ")):
+            raise ValueError("board read crossed window/snapshot/query state")
+        return receipt
+
+    def assert_board(self, snap, native, query, prefix):
+        receipt = self.read_board(snap, query, prefix)
+        result = board_assertions([] if snap is None else [snap], NAME,
+                                  dict(native["headers"]), {2: "Defeated", 4: "Abandoned"},
+                                  receipt["raw"], query)
+        status = receipt["status"]["value"]
+        if (status["shown"], status["total"], status["players"], status["bars"]) != (
+                result["shown"], result["rows"], result["players"], result["visible_bar_lines"]):
+            raise ValueError("status/tree disagree")
+        receipt["oracle"] = result
+        return result
+
     def check_board(self, prefix, snap, native, label):
         if not self.open_board(prefix):
             return False
-        header = self.gl("wtext", "player", "player-index", "subtitle")
-        texts = header.get("texts", {})
-        valid = (header.get("window") == "HWPLastStatsMenu" and not header.get("missing")
-                 and header.get("truncated") is False and texts.get("player") == NAME
-                 and texts.get("player-index") == "1/1"
-                 and texts.get("subtitle") == snap["mission"] + " - " + label)
-        self.flag(prefix + "_metadata", valid, str(header))
-        raw = self.gl("wchildren", "stat-group", 2)
-        board = parse_rows(raw, native=False)
-        self.flag(prefix + "_all_values", board_matches(snap, native, board))
-        self.out[prefix + "_board"] = dict(header=header, raw=raw, parsed=board)
-        self.g.shot(prefix + "-board")
-        for direction in ("prev", "next"):
-            press = self.gl("press", direction)
-            after = parse_rows(self.gl("wchildren", "stat-group", 2), native=False)
-            reread = self.gl("wtext", "player", "player-index", "subtitle")
-            self.flag(prefix + "_" + direction + "_wrap", press.get("ok") is True
-                      and after == board and reread.get("texts") == texts)
-        self.flag(prefix + "_close_unpauses", self.close(board=True))
-        return all(self.out.get(prefix + "_" + k) for k in
-                   ("metadata", "all_values", "prev_wrap", "next_wrap", "close_unpauses", "input_release"))
+        required = ["metadata", "all_values", "close_unpauses", "input_release"]
+        for key in ("metadata", "all_values"):
+            self.flag(prefix + "_" + key, False)
+        if prefix == "aborted":
+            required += ["search_match", "search_nomatch", "search_clear"]
+            for key in required[-3:]:
+                self.flag(prefix + "_" + key, False)
+        try:
+            result = self.assert_board(snap, native, "", prefix)
+            self.flag(prefix + "_metadata", True)
+            self.flag(prefix + "_all_values", result["rows"] == len(snap["lines"]))
+            self.g.shot(prefix + "-board")
+            if prefix == "aborted":
+                # Choose a measured title token that yields a proper nonempty subset.
+                # If the controlled native data cannot provide one, stop as setup.
+                titles = [s["title"].lower() for s in snap["lines"]]
+                candidates = re.findall(r"[a-z]{3,12}", " ".join(titles))
+                token = next((t for t in candidates if 0 < sum(t in s for s in titles) < len(titles)), None)
+                sentinel = next(("qaxqznomatch" + str(i) for i in range(16)
+                                 if not any(("qaxqznomatch" + str(i)) in s for s in titles)), None)
+                if token is None or sentinel is None:
+                    raise ValueError("measured title search fixture unavailable")
+                sent = self.gl("func", "search", token.upper())
+                if sent.get("ok") is not True:
+                    raise ValueError("search OnFunc refused")
+                matched = self.assert_board(snap, native, token.upper(), prefix)
+                self.flag(prefix + "_search_match", 0 < matched["shown"] < result["rows"])
+                self.g.shot(prefix + "-board-search")
+                sent = self.gl("func", "search", sentinel)
+                if sent.get("ok") is not True:
+                    raise ValueError("nomatch OnFunc refused")
+                no = self.assert_board(snap, native, sentinel, prefix)
+                self.flag(prefix + "_search_nomatch", no["shown"] == 0)
+                sent = self.gl("press", "search-clear")
+                if sent.get("ok") is not True:
+                    raise ValueError("search-clear button refused")
+                cleared = self.assert_board(snap, native, "", prefix)
+                self.flag(prefix + "_search_clear", cleared == result)
+        finally:
+            self.flag(prefix + "_close_unpauses", self.close(board=True))
+        return all(self.out.get(prefix + "_" + key) is True for key in required)
+
 
     def capture(self, kind):
         prefix = kind
@@ -336,20 +385,35 @@ class Checks(Base):
         self.flag("fresh_character", made.get("ok") is True and town
                   and self.gl("state").get("player", {}).get("name") == NAME)
         self.flag("fresh_no_snapshot", self.snapshot() is None)
+        # A fresh record is on the story-intro island. The authored board spot
+        # belongs to the main Town, whose native prefab/road set is story-gated.
+        # Qualify this controlled Town fixture; do not relocate the board or
+        # write counters/snapshots. Keep the original intro-island FAIL evidence.
+        self.g.console("cht_set_flag mission_story_intro_find_npcs 1 1")
+        refresh = self.gl("townrefresh")
+        time.sleep(3)
+        flags = self.gl("inspect", "town", "flags")
+        values = flags.get("value")
+        qualified = (refresh.get("ok") is True and flags.get("ok") is True
+                     and flags.get("truncated") is False and isinstance(values, list)
+                     and all(type(x) is int for x in values)
+                     and hash_string("mission_story_intro_find_npcs")
+                         in [x & 0xffffffff for x in values])
+        self.out["main_town_fixture_receipt"] = dict(refresh=refresh, native_flags=flags,
+            scope="Controlled native intro-complete Town only; no natural story credit")
+        self.flag("main_town_fixture", qualified)
+        if not qualified:
+            return
         if not self.open_board("fresh"):
             return
-        header = self.gl("wtext", "empty", "player", "player-index", "subtitle")
-        visible = self.gl("wchildren", "^empty", 1)
-        nodes = visible.get("nodes", [])
-        empty = [n for n in nodes if n.get("id") == "empty"]
-        self.flag("fresh_empty_ui", header.get("window") == "HWPLastStatsMenu"
-                  and not header.get("missing") and header.get("truncated") is False
-                  and "No run recorded yet" in header.get("texts", {}).get("empty", "")
-                  and all(header.get("texts", {}).get(k) == "" for k in ("player", "player-index", "subtitle"))
-                  and visible.get("ok") is True and len(nodes) < 60
-                  and len(empty) == 1 and empty[0].get("visible") is True)
-        self.g.shot("fresh-laststats-board")
-        self.flag("fresh_close_unpauses", self.close(board=True))
+        self.flag("fresh_empty_ui", False)
+        try:
+            result = self.assert_board(None, dict(headers=[]), "", "fresh")
+            self.flag("fresh_empty_ui", result["players"] == 0 and result["rows"] == 0)
+            self.g.shot("fresh-laststats-board")
+        finally:
+            self.flag("fresh_close_unpauses", self.close(board=True))
+
         first = self.capture("aborted")
         second = self.capture("failed") if first and first.get("valid") else None
         self.flag("snapshot_replaced", bool(first and second and second.get("valid")

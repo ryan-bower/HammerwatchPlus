@@ -9,7 +9,7 @@
 // ForestBrush floors paint nothing from the cells and are skipped), the way the puzzles
 // module adds its rooms. It places small prefabs of the hwp_traps set (prefabs/hwp/traps/
 // *.pfb, defined in tweak/hwp/campaign_prefabs.sval; most of them written by
-// tools/make_hwp_traps.py, the HWPTrap units of TrapBehavior.as) on walkable cells and
+// tools/generate/make_hwp_traps.py, the HWPTrap units of TrapBehavior.as) on walkable cells and
 // walls, the kinds weighted by the floor's theme (WEIGHTS: stalactites in caves, shooters
 // and turrets in barracks and dungeons, drain plates and curse glyphs in crypts and halls,
 // as HoH1's acts had them), and then one teleporter pad (Teleporters.as) with a destination

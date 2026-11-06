@@ -1,0 +1,72 @@
+{
+ "name": "pf-qa-town-roulette-restart",
+ "about": "qa-town-roulette-restart against the built package town instead of the mods' source folders (tools/generate/make_package_scenarios.py). Pending7000 stake at50000 town gold survives actual lab WM_CLOSE restart: first entry50000 and owed0 before any setter; second real restart still50000/owed0. Controlled lifecycle only.",
+ "fixture": "town-tavern",
+ "timeout": 480,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_town_roulette_restart",
+   "kwargs": {
+    "stage": "prepare",
+    "required_flags": [
+     "restart_pending_stake",
+     "restart_saved"
+    ]
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "log_clean"
+  },
+  {
+   "do": "restart",
+   "choice": "town"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_town_roulette_restart",
+   "kwargs": {
+    "stage": "verify",
+    "required_flags": [
+     "restart_refund_once"
+    ]
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "log_clean"
+  },
+  {
+   "do": "restart",
+   "choice": "town"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_town_roulette_restart",
+   "kwargs": {
+    "stage": "verify",
+    "required_flags": [
+     "restart_refund_once"
+    ]
+   },
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "town"
+ ]
+}

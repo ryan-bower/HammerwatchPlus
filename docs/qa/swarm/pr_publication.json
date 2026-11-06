@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-11-01T17:46:58.121996+00:00",
+  "branch": "codex/run-save-builder-followup",
+  "target_repository": "ryan-bower/HammerwatchPlus",
+  "target_branch": "main",
+  "worktree_checkpoint": "293e5f73",
+  "upstream_integrated": "e7d060f1",
+  "authored_files_checkpointed": 214,
+  "host_tests": {
+    "passed": 1244,
+    "skipped": 3,
+    "subtests_passed": 1269,
+    "seconds": 116.93,
+    "report": "gamelab/results/pr-20261101-host-tests-001.txt",
+    "report_sha256": "413f15c0034b9308fe5b8f80e03549942a1afeb856b988cc50e839f2f147bad5",
+    "command": "python -B -m pytest gamelab/tests tools tests planner -q --tb=short -rs --basetemp=gamelab/results/pytest-pr-20261101-001",
+    "scope": "Merged worktree host tests. Publication prose and eight EOF-only blank-line cleanups add no executable changes. No new native game run.",
+    "skips": "Three unavailable Windows symlink controls."
+  },
+  "source_at_publication": {
+    "head": "293e5f7344f1b7ec88b79eab026e78b51bf8304e",
+    "source_sha256": "d6456923de66e6ac801bb073fe0229b7181f6e362aada070612c035e66b9441c",
+    "files": 2256,
+    "fingerprint_scope": "mods+gamelab+tools-v2"
+  },
+  "integration": {
+    "notes_conflict": "Preserved both complete dated histories; no source conflict.",
+    "upstream_retained": [
+      "party exit majority changes (PR84)",
+      "Forgemaster required base/build generation and no trailing comma (PR85)",
+      "Pelor elite stack cost and death stack loss (PR86)"
+    ],
+    "local_retained": [
+      "package cycle/dev/local-only dependency guards",
+      "strict generator CLI parsing",
+      "Generosity requested/held identity and non-vacuous consumer checks"
+    ],
+    "whitespace_cleanup": "Removed extra final blank lines in eight added Python/AS files only."
+  },
+  "publication_boundary": {
+    "portable_authored_text_included": true,
+    "raw_lab_results_personal_saves_imported_assets_machine_config_excluded": true,
+    "credential_pattern_scan_hits": 0,
+    "binary_files_in_authored_delta": 0,
+    "files_over_20MiB_in_authored_delta": 0
+  },
+  "historical_native": {
+    "references": [
+      "docs/qa/swarm/multi_run_validation.json",
+      "docs/qa/swarm/admission_pipeline_validation.json"
+    ],
+    "retagged": false,
+    "current_integration_native_pass_claimed": false,
+    "admission_catalog_after_integration": {
+      "exit": 2,
+      "error": {
+        "code": "stale-hash",
+        "message": "reviewed source/input leaf changed",
+        "case": "qa-content-stash-families",
+        "path": "mods/hwplib/tweak/hwp/config.sval"
+      },
+      "pin_renewed": false
+    },
+    "requirement": "Review changed inputs and renew reviewed admission before the next native campaign run; no automatic re-pin."
+  },
+  "campaign": {
+    "status": "paused",
+    "revision": 4847,
+    "epoch": "E018",
+    "state_sha256": "b0df114da53662bb5972099a2241d88b5334099d0a1c351633056e5a09e1d770",
+    "genuine_coop": "user-deferred"
+  }
+}

@@ -11,10 +11,18 @@ namespace HWP
 	{
 		bool g_enabled = true;
 
+		// The host reads its own setting; clients wait for this level's host sync.
+		bool Enabled()
+		{
+			return HWP::Settings::RemoteReady() && HWP::Settings::GetBool("gambler.enabled", true);
+		}
+
 		void RefreshSettings()
 		{
 			bool was = g_enabled;
 			g_enabled = HWP::Settings::GetBool("gambler.enabled", true);
+			if (!Enabled())
+				CloseOpenMenu(); // UI owns the paused interaction; do not wait for the NPC tick
 			if (was == g_enabled)
 				return;
 			if (g_enabled)

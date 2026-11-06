@@ -1,7 +1,7 @@
 // The Devil Forgemaster (Priest 4th spec, mods/specs): Necrotic Resurrection raises the intact
 // bodies that Call of Heresy leaves, as summons made from the enemy's own unit.
 // - HWPSpecsBody: an intact body (players/hwp/specs/forgemaster/bodies/<unit>, written by
-//   tools/make_forgemaster_risen.py): the enemy's scenes, gray, on its side (a boss upright), no
+//   tools/generate/make_forgemaster_risen.py): the enemy's scenes, gray, on its side (a boss upright), no
 //   collision, 60 s. The host rolls one on every enemy death while a Forgemaster is on the
 //   floor (OnActorDestroyed). The glow effect is played on the Forgemaster's own screen only.
 // - HWPSpecsRisen / HWPSpecsRisenState: the summon (.../risen/<unit>), a PlayerOwnedActor over
@@ -17,8 +17,8 @@
 //   cancelled channel costs nothing) and the host raises the body (specs.raise request) and
 //   answers specs.raised, which adds Heresy +1/+2/+3 on the caster's client; a body that was
 //   gone when the host looked (another Forgemaster's raise, its time up) answers
-//   specs.raise_denied: no Heresy, the cooldown given back. At max Divine Favor it is
-//   Sacrificial Penance: 3 s, 50 mana, Heresy -(nr-penance + 1 elite + 2 boss), Divine Favor
+//   specs.raise_denied: no Heresy, the cooldown given back. At max Divine Favor with at least
+//   1 Heresy (issue #68; with none it stays a raise) it is Sacrificial Penance: 3 s, 50 mana, Heresy -(nr-penance + 1 elite + 2 boss), Divine Favor
 //   spent, no cooldown.
 // - The Heresy lunge: once per body, the first time the Forgemaster is within LUNGE_RANGE,
 //   chance Heresy x coh-lunge: the priest dodges (its own Dash skill, so the dodge animation,
@@ -55,7 +55,7 @@ namespace HWP
 		const string RISEN_DIR = "players/hwp/specs/forgemaster/risen/";
 		const string BODIES_DIR = "players/hwp/specs/forgemaster/bodies/";
 		// the HoH1 enemies' risen and bodies: written with the player's own HoH1 import into the
-		// campaign module (tools/import_hoh1.py campaign) under RISEN_DIR/BODIES_DIR + their full
+		// campaign module (tools/hoh1/import_hoh1.py campaign) under RISEN_DIR/BODIES_DIR + their full
 		// "hoh1/actors/..." path, listed in this file (absent without the import)
 		const string HOH1_RISEN_LIST = "players/hwp/specs/forgemaster/hoh1_risen.sval";
 		const string HOH1_ACTORS = "hoh1/actors/";
@@ -269,10 +269,12 @@ namespace HWP
 			return path.isEmpty() ? null : ActorBuffStackDef::Get(path);
 		}
 
+		// Penance: max Divine Favor and at least 1 Heresy to wash away (issue #68); with none the
+		// skill stays a raise (its icon, cost and channel) and the Favor is kept for later
 		bool PenanceReady(PlayerBase@ plr)
 		{
 			auto def = DivineFavorDef(plr);
-			return def !is null && def.m_maxStacks > 0 && plr.GetStacks(def) >= def.m_maxStacks;
+			return def !is null && def.m_maxStacks > 0 && plr.GetStacks(def) >= def.m_maxStacks && Heresy(plr) > 0;
 		}
 
 		// the sum of the main hand's damage: the lunge's and the bloom's "weapon damage"
@@ -668,8 +670,8 @@ namespace HWP
 			if (body is null || plr is null || plr.IsDead())
 				return;
 			// the skill's cost and cooldown, now that the channel has run its course
-			if (c.m_cost !is null)
-				plr.UsePoints(true, true, c.m_cost);
+			if (c.m_cost !is null && !plr.UsePoints(true, true, c.m_cost))
+				return;
 			if (!c.m_penance && c.m_skill !is null)
 				c.m_skill.StartRaiseCooldown();
 			if (c.m_penance)

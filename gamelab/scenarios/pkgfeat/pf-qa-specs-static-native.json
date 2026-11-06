@@ -1,6 +1,6 @@
 {
  "name": "pf-qa-specs-static-native",
- "about": "qa-specs-static-native against the built packages classes, specs instead of the mods' source folders (tools/make_package_scenarios.py). Three fixed1x native-input Static Charge observations. Requires actual native targetHP/maxHP, newly created numeric critical text, real TT/MM cooldown activation, same old live orb, and per-frame stack history. No damage/event hooks; bounded crit setup outside observation.",
+ "about": "qa-specs-static-native against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Three fixed1x native-input Static Charge observations. Requires actual native targetHP/maxHP, newly created numeric critical text, real TT/MM cooldown activation, same old live orb, and per-frame stack history. No damage/event hooks; bounded crit setup outside observation.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [

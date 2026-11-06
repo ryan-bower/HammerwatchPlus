@@ -12,7 +12,7 @@
 - `hwp trinkets ng 0`: "+30 Health" and the max health back.
 
 HoH1 trinkets (HWP/Trinkets/HoH1.as), section hoh1:
-- `hwp trinkets hoh1`: all 37 loaded, with their HoH1 icons when `tools/import_hoh1.py
+- `hwp trinkets hoh1`: all 37 loaded, with their HoH1 icons when `tools/hoh1/import_hoh1.py
   trinkets` has run here (placeholders otherwise); the vanilla changes applied (Apothecary's Supplies 7
   pieces and 5 tiers, Emblems of Hermes 5 pieces and 4 tiers, Trader's Coin +1 modifier).
 - `hwp trinkets set <id>`: Spheres of Power has 6 pieces and tiers 2-6; Apothecary's 4-piece
@@ -104,7 +104,7 @@ class Checks(Base):
         self.g.console("e_cheats 1")
         log = self.hwp("trinkets hoh1", 0.6, until="hoh1 trinkets:")
         self.flag("h1_loaded", "hoh1 trinkets: 37 loaded" in log, log[-400:])
-        # the HoH1 icons when tools/import_hoh1.py trinkets has run on this machine, else the placeholders
+        # the HoH1 icons when tools/hoh1/import_hoh1.py trinkets has run on this machine, else the placeholders
         imported = (REPO / "mods/trinkets/res/language/english/hwp_trinkets_hoh1art.lang").is_file()
         self.flag("h1_icons", ("icons: 37 from HoH1" if imported else "icons: placeholders") in log, log[-400:])
         self.flag("h1_vanilla", "apothecarys +3 piece(s) (7), 5 tier(s)" in log and "emblems_of_hermes +2 piece(s) (5), 4 tier(s)" in log

@@ -78,11 +78,14 @@ def verified_export(result: Path, plan: Plan) -> bytes:
     from tools.play_profile import characters_in, gold_in
 
     run = json.loads((result / "run.json").read_text(encoding="utf-8"))
-    failed = [row for row in run.get("assertions", []) if not row.get("ok")]
-    if (run.get("verdict") != "PASS" or failed or run.get("error") or run.get("partial")
-            or run.get("build_drift") or not run.get("teardown", {}).get("clean")):
-        raise RuntimeError(f"Character preparation refused: {result}; verdict={run.get('verdict')}, "
-                           f"error={run.get('error')}, failed={failed[:2]}")
+    assertions = run.get("assertions") if isinstance(run, dict) else None
+    teardown = run.get("teardown") if isinstance(run, dict) else None
+    if (not isinstance(run, dict) or run.get("verdict") != "PASS" or run.get("error")
+            or run.get("partial") is not False or run.get("build_drift") is not False
+            or not isinstance(teardown, dict) or teardown.get("clean") is not True
+            or not isinstance(assertions, list) or not assertions
+            or not all(isinstance(row, dict) and row.get("ok") is True for row in assertions)):
+        raise RuntimeError(f"Character preparation refused: {result}; incomplete or unsafe outer result")
     data = (result / "profile.hps").read_bytes()
     wanted = sorted((c.class_id, c.level, c.name) for c in plan.characters)
     observed = sorted((c["class"], c["level"], c["name"]) for c in characters_in(data))

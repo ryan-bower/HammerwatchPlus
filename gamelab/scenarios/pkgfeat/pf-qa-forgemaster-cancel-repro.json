@@ -1,0 +1,50 @@
+{
+ "name": "pf-qa-forgemaster-cancel-repro",
+ "about": "qa-forgemaster-cancel-repro against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Original-product controlled native cancel consumer rows; preserve every row, original failure, exact source and teardown. Requires current cursor projection/native contracts and generated family before root execution.",
+ "fixture": "town-paladin",
+ "timeout": 240,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",
+   "timeout": 30
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "show_chat"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "bot",
+   "bot": "qa_forgemaster_channel_repro",
+   "name": "cancel",
+   "kwargs": {
+    "mode": "cancel"
+   },
+   "expect": {
+    "C0_contract": true,
+    "C0_healthy": true,
+    "C1_contract": true,
+    "C1_healthy": true,
+    "all_rows": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)(-gamelab)?\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

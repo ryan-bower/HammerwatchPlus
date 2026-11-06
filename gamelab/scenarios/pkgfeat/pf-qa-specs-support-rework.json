@@ -1,0 +1,44 @@
+{
+ "name": "pf-qa-specs-support-rework",
+ "about": "qa-specs-support-rework against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Controlled solo checks for Bannerlord shields, own-HP scaling, duration, throw and pulse renewal; Soul Guard/Stride and baseline Pyrebrand manual proliferation, investment carry, bonus and chain expiry. Forced setup is not ordinary play or remote-party proof.",
+ "fixture": "town-paladin",
+ "timeout": 600,
+ "steps": [
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "bot",
+   "bot": "qa_specs_support_rework",
+   "expect": {
+    "banner_shield_active": true,
+    "banner_shield_own_hp": true,
+    "banner_absorbs_damage": true,
+    "banner_duration_scaled": true,
+    "banner_rallied": true,
+    "banner_throw_preserves_lifetime": true,
+    "banner_pulse_replenishes": true,
+    "soul_guard_active": true,
+    "soul_stride_speed": true,
+    "soul_guard_cap": true,
+    "soul_spend_keeps_shield": true,
+    "soul_effects_expire": true,
+    "brand_manual_proliferates": true,
+    "brand_carries_investment": true,
+    "brand_manual_bonus": true,
+    "brand_chain_expires": true
+   }
+  },
+  {
+   "do": "log_clean",
+   "allow": [
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)(-gamelab)?\\.bin' for file "
+   ]
+  }
+ ],
+ "packages": [
+  "classes",
+  "specs"
+ ]
+}

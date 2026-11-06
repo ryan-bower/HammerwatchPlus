@@ -42,7 +42,7 @@
 		Buffs of the 4th specializations (mods/specs). A buff def never sees skill binds, so
 		the strength of a scripted buff is its intensity: the scripts read the skill's binds
 		and pass them in (scripts/HWP/Specs). HUD icons: players/hwp/specs/icons.png, 14x14
-		at x 192+ on the spec's row (tools/make_specs_icons.py).
+		at x 192+ on the spec's row (tools/generate/make_specs_icons.py).
 	-->
 
 	<!-- Bannerlord: Battlefield Standard. damage taken x (1 - intensity); the standard

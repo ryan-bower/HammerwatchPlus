@@ -4,7 +4,7 @@
 %// keeps them out of random drops and shops); the item level is set when caught (the floor's
 %// drop level, NG+ included). 1-star fish are common, 2-star uncommon, 3-star rare (they
 %// get that quality's modifiers when caught, like dropped gear), and they sell for
-%// 1 / 3 / 5 bet tokens while nobody enchanted, upgraded or rerolled them. Icons: items/hwp/fish.png (tools/make_fish_icons.py).
+%// 1 / 3 / 5 bet tokens while nobody enchanted, upgraded or rerolled them. Icons: items/hwp/fish.png (tools/generate/make_fish_icons.py).
 <array>
 	<dict>
 		<string name="id">hwp_fish_perch</string>

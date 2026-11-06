@@ -11,7 +11,7 @@ draws its GUI, then scaled up SCALE times without smoothing:
   - every symbol is a game or module sprite (SYMBOLS), in the game's octagon icon frame;
   - the text is the game's own pixel font (empire, size 16 with a 1 px outline, as
     gui/fonts/*.fnt use it); the HammerwatchPlus wordmark is UnifrakturMaguntia
-    (tools/fonts/, SIL Open Font License), in the gold of the game's logo.
+    (tools/art/fonts/, SIL Open Font License), in the gold of the game's logo.
 
 The base game's art comes from gamecode/sdk/hoh2 (tools/bootstrap.py, never committed), so
 the cards are built on a machine with the game installed and are never committed either:
@@ -35,7 +35,7 @@ BASE = paths.BASE_HOH2
 MODS = REPO / "mods"
 OUT = REPO / "dist" / "workshop-art"
 FONTS = BASE / "gui" / "fonts"
-WORDMARK_FONT = REPO / "tools" / "fonts" / "UnifrakturMaguntia-Book.ttf"
+WORDMARK_FONT = REPO / "tools" / "art" / "fonts" / "UnifrakturMaguntia-Book.ttf"
 NATIVE = (480, 270)
 SCALE = 3
 
@@ -103,6 +103,8 @@ SYMBOLS = {
     "orbwarn": [px("doodads/generic/skill_sphere.png", 0, 0, 10, 10)],
     "mapicons": [px("mods/hwplib/gui/hwp/map_icons.png", 12, 0, 11, 11)],
     "attrclick": [px("gui/icons_lang.png", 196, 61, 13, 13)],  # the attribute point (icn-attrpt)
+    "salvage": [px("gui/icons.png", 65, 128, 13, 13)],  # the Dust material icon (icons.inc icon-dust)
+    "freeskills": [px("gui/icons_lang.png", 1, 46, 13, 13)],  # the skill point (icn-skillpt)
     # Co-op Play
     "groupcombo": [cell("combo", 0, 0)],
     "architect": [cell("town", 0, 0)],
@@ -683,7 +685,7 @@ def prereq(pids) -> str:
     return ", ".join(f"{card}: {dlc} DLC" for dlc, _, card in (workshop.DLC[p] for p in pids if p in workshop.DLC))
 # the All pack's cover: a short name and what the package is, in a few words
 SHORT = {
-    "qol": ("Quality of Life", "16 helpers"), "coop": ("Co-op Play", "4 party features"),
+    "qol": ("Quality of Life", "18 helpers"), "coop": ("Co-op Play", "4 party features"),
     "autoaim": ("Auto Aim", "aim assist"), "firearms": ("Firearms", "a new class"),
     "specs": ("4th Specs", "8 new specializations"),
     "keys": ("Keys & Chests", "locked loot, ace chests"), "campaign": ("Forsaken Tower", "18-floor campaign"),

@@ -27,7 +27,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
-from gamelab import env, winproc  # noqa: E402
+from gamelab import env, winproc, runtime  # noqa: E402
 
 SHIM = REPO / "tools" / "bin" / "hwr2_capture.dll"
 GL_LINE = re.compile(r"\[GL\] (\{.*\})\s*$")
@@ -99,12 +99,23 @@ class Game:
     # ---- lifecycle --------------------------------------------------------
 
     def start(self) -> None:
+        # A sibling's admission scan must never observe the interval between
+        # creating our suspended game and publishing its exact ownership.
+        with runtime.preparation_guard():
+            self._start()
+
+    def _start(self) -> None:
+        appdata = self.game_dir / "appdata"
+        redirect = str(appdata.resolve())
+        # The shim's WCHAR[MAX_PATH] environment buffer must contain the entire
+        # absolute path; overflow would make its hook fall through to real saves.
+        if len(redirect.encode("utf-16-le")) // 2 >= 260:
+            raise GameError("isolated LocalAppData path exceeds the capture shim buffer")
         env.write_profile(self.mode)
         for f in (self.log_path, self.game_dir / "gamelab_capture.log", self.game_dir / "gamelab_capture.req"):
             f.unlink(missing_ok=True)
-        appdata = self.game_dir / "appdata"
         appdata.mkdir(exist_ok=True)
-        child_env = dict(os.environ, GAMELAB_LOCALAPPDATA=str(appdata))
+        child_env = dict(os.environ, GAMELAB_LOCALAPPDATA=redirect)
         if self.mode == "watch":
             # the shim makes SDL's window non-activating until the first frame, and refuses
             # SDL's activating calls whenever another process owns the foreground (focus gate:
@@ -120,11 +131,25 @@ class Game:
         self.shim_input = child_env.get("GAMELAB_SHIM_INPUT") == "1"
         self.proc = subprocess.Popen([str(self.game_dir / "HWR2.exe")], cwd=str(self.game_dir),
                                      env=child_env, creationflags=winproc.CREATE_SUSPENDED)
-        injected = winproc.inject(self.proc, str(SHIM))
-        winproc.resume(self.proc)
+        try:
+            if runtime.current():
+                runtime.register_game(self.proc.pid)
+            injected = winproc.inject(self.proc, str(SHIM))
+            if not injected:
+                raise GameError("could not inject tools/bin/hwr2_capture.dll")
+            # DllMain logs this synchronously: a loaded DLL alone does not prove
+            # the mandatory save-backup redirection hook was installed.
+            if "SHGetKnownFolderPath hooked" not in self.shim_log():
+                raise GameError("capture shim did not establish LocalAppData isolation")
+            if not winproc.resume(self.proc):
+                raise GameError("could not resume the isolated game process")
+        except BaseException:
+            # Never run an unhooked game, including when injection is cancelled.
+            if self.proc.poll() is None:
+                self.proc.kill()
+                self.proc.wait(10)
+            raise
         self.note("start", pid=self.proc.pid, injected=injected)
-        if not injected:
-            raise GameError("could not inject tools/bin/hwr2_capture.dll")
 
     def verify_live(self) -> dict:
         """Preflight 4, read off the running process rather than the intent: the image it
@@ -139,6 +164,15 @@ class Game:
                # child of this runner, so closing the job kills it whatever happens
                "in_job": in_job(self.proc.pid),
                "child_of_runner": os.getpid() in winproc.ancestors(self.proc.pid)}
+        slot = runtime.current()
+        if slot:
+            sys.path.insert(0, str(REPO / "tools"))
+            from hidden_desktop import process_in_job
+            out["owned_job"] = process_in_job(self.proc.pid, slot.job_name)
+            out["registered_slot"] = runtime.owned_game(self.proc.pid, Path(image))
+            out["pool_id"], out["slot_id"] = slot.pool_id, slot.slot_id
+            out["process_creation"] = runtime.process_creation(self.proc.pid)
+            out["observed_at"] = time.time()
         launch = re.search(r"Launch options: 1: (.+)", self.read_log())
         out["log_launch_path"] = launch.group(1).strip() if launch else None
         self.note("verify_live", **out)

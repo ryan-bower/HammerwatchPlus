@@ -20,9 +20,10 @@ Sections:
   damage-taken multiplier of the level, the strike, the end after the stun; solo free, party
   (`gen solo off`) locked: a walk moves nothing while the light burns.
 - bosses: every boss of BOSSES spawned live 110 px east, let fight for a few seconds, then the
-  Fury: held (or refused with the stacks, mana and cooldown kept), its attack cut (casting 0
-  while held), it stays put, the 60 s cooldown, the beams (4 at least), no script error. The
-  per-boss table is in the notes.
+  Fury: exact requested/picked/held/log identity, nonempty expected roster, held (or refused
+  with resources kept), pre-active and later sampled casting 0, actual-held motion, the
+  60 s cooldown, beams (4 at least), no script error. Sampled suppression does not establish
+  causal interruption: the skill may finish before the Fury lands. Raw rows retain attempts.
 - hoh1: the HoH1 tower's bosses (mods/campaign, needs the HoH1 import): each boss floor of
   hwp_forsaken_tower_hoh1 loaded and its fight started the way the level does
   (tower_bosses.TowerBoss), then the Fury on every boss unit of it in turn, checked as in
@@ -38,6 +39,10 @@ import time
 
 from gamelab.bots.plan_specs import Checks as Base, DUMMY, TARGET
 from gamelab.bots.tower_bosses import RECIPES, TowerBoss, level_name
+from gamelab.bots.qa_generosity_boss_oracle import (
+    held_fraction_ok, precast_active_observed, pre_active_then_suppressed,
+    motion_distance, roster_matches, stays, target_matches,
+)
 
 PF = "hwp_pal_pelors_fury"
 PB = "hwp_pal_pelors_blessing"
@@ -426,7 +431,7 @@ class Checks(Base, TowerBoss):
 
     # --- every boss
     def one_boss(self, rel):
-        row = {"boss": rel.split("/")[-1].replace(".unit", ""), "spawned": False, "held": False, "refused": "", "cut": None,
+        row = {"boss": rel.split("/")[-1].replace(".unit", ""), "spawned": False, "held": False, "refused": "", "post_suppressed": None,
                "moved": None, "cd": None, "beams": None, "kept": None, "errors": []}
         mark = len(self.g.read_log())
         self.clear()
@@ -444,31 +449,58 @@ class Checks(Base, TowerBoss):
 
     def fury_unit(self, row, u, name, mark, wait_solid=0.0):
         """The Fury on the live boss unit u (a `near`/`unitsof` entry) and what it did: held or
-        refused, the attack cut, standing still, the cooldown, the cost, armor 0, the beams,
+        refused, pre-active then later suppressed, actual-held motion, cooldown, cost, armor 0, beams,
         errors since mark; filled into row. wait_solid: seconds to keep trying a boss refused as
         "untargetable" (HoH1's Councilors and Vampire Lord drift untouchable between casts and
         stand solid only while casting)."""
+        row["requested_id"] = u["unit"]
+        row["attempts"] = []
         self.ready(10)
         # the boss may have moved off (a flying spirit, plan-generosity-bosses 20261027-013012: four
         # spirits out of the 250 range read "no target"): stand 100 px from it and aim at it
         def aim_at():
             v = self.unit(u["unit"], 3000, name)
             if not v or v.get("dead"):
-                return None, "fury"
+                return None, None, None
             x, y = self.pos()
             d = max(1.0, ((v["x"] - x) ** 2 + (v["y"] - y) ** 2) ** 0.5)
             if d > 160:
                 self.gl("teleport", round(v["x"] - (v["x"] - x) / d * 100, 1), round(v["y"] - (v["y"] - y) / d * 100, 1))
                 time.sleep(0.3)
-                v = self.unit(u["unit"], 3000, name) or v
+                v = self.unit(u["unit"], 3000, name)
+                if not v or v.get("dead"):
+                    return None, None, None
             x, y = self.pos()
-            return round(d), f"fury {round(v['x'] - x)} {round(v['y'] - y)}"
+            return round(d), f"fury {round(v['x'] - x)} {round(v['y'] - y)}", v
 
-        row["dist"], aim = aim_at()
-        b = self.st()
-        r = self.gen(aim)
-        time.sleep(0.5)
-        a = self.st()
+        def attempt():
+            row["dist"], aim, target = aim_at()
+            if target is None:
+                row["setup_error"] = "requested boss disappeared before targeting"
+                return None
+            pick = self.pick_at(target)
+            actors = self.gl("actors", 3000, name)
+            # This verb caps at32 without a truncation flag. A full reply cannot
+            # establish that all matching units were present.
+            matching = [actor for actor in actors.get("actors", []) if actor.get("unit") == u["unit"]]
+            pre_actor = matching[0] if actors.get("ok") and len(actors.get("actors", [])) < 32 and len(matching) == 1 else {}
+            b = self.st()
+            attempt_mark = len(self.g.read_log())
+            r = self.gen(aim)
+            time.sleep(0.5)
+            a = self.st()
+            cast_log = self.g.read_log()[attempt_mark:]
+            cast_rows = re.findall(r"pelor's fury on (\d+) \((\S+)\)", cast_log)
+            trial = {"aim": aim, "pick": pick, "pre_actor": pre_actor, "before": b, "after": a,
+                     "reply": r, "cast_ids": [int(uid) for uid, _ in cast_rows],
+                     "cast_names": [path for _, path in cast_rows], "log_mark": attempt_mark}
+            row["attempts"].append(trial)
+            return b, r, a, trial
+
+        result = attempt()
+        if result is None:
+            return
+        b, r, a, trial = result
         for _ in range(5):
             if a["holding"] is not None or not any(k in (a["last"] or "") for k in ("before the castpoint", "out of reach", "no target")):
                 break
@@ -478,11 +510,10 @@ class Checks(Base, TowerBoss):
             row.setdefault("retried", []).append(a["last"])
             time.sleep(0.8)
             self.ready(10)
-            _, aim = aim_at()
-            b = self.st()
-            r = self.gen(aim)
-            time.sleep(0.5)
-            a = self.st()
+            result = attempt()
+            if result is None:
+                return
+            b, r, a, trial = result
         end = time.time() + wait_solid
         # the command's own reply: "cast refused ... untargetable". The status line's last refusal
         # stays "untargetable" after a cast that started and lands at its cast point, and a retry
@@ -492,11 +523,12 @@ class Checks(Base, TowerBoss):
             row["solid_tries"] = row.get("solid_tries", 0) + 1
             time.sleep(0.4)
             self.ready(10)
-            _, aim = aim_at()
-            b = self.st()
-            r = self.gen(aim)
-            time.sleep(0.5)
-            a = self.st()
+            result = attempt()
+            if result is None:
+                return
+            b, r, a, trial = result
+        row.update(pick=trial["pick"], pre_actor=trial["pre_actor"], cast_ids=trial["cast_ids"],
+                   held_id=a["holding"], hold_samples=[], positions=[])
         row["held"] = a["holding"] is not None
         if not row["held"]:
             row["refused"] = a["last"] or r
@@ -505,27 +537,34 @@ class Checks(Base, TowerBoss):
             row["cd"] = a["cd"]
             row["boss_cd"] = a["cdmax"] == 60000 and 55000 <= (a["cd"] or 0) <= 60000
             row["spent"] = a["stacks"] == 0 and b["mana"] - a["mana"] >= 60
-            p0 = self.unit(u["unit"], 1500, name)
-            casting, moved = [], 0.0
+            held_id = a["holding"]
+            # Always observe the actor actually held. A sibling selection fails
+            # target_identity separately; it cannot become a requested-boss motion bug.
+            held_name = trial["cast_names"][0].rsplit("/", 1)[-1].removesuffix(".unit") if len(trial["cast_names"]) == 1 else ""
+            row["positions"].append(self.unit(held_id, 1500, held_name))
+            casting = []
             for _ in range(5):
                 time.sleep(0.45)
                 s = self.st()
                 if s["holding"] is None:
                     break
+                row["hold_samples"].append({"holding": s["holding"], "casting": s["casting"], "bodiless": s["bodiless"]})
                 casting.append(None if s["bodiless"] else s["casting"])
                 if s["casting_names"]:
                     row.setdefault("casting_names", []).append(s["casting_names"])
-                p1 = self.unit(u["unit"], 1500, name)
-                if p0 and p1:
-                    moved = max(moved, abs(p1["x"] - p0["x"]) + abs(p1["y"] - p0["y"]))
+                row["positions"].append(self.unit(held_id, 1500, held_name))
             row["casting"] = casting
-            row["cut"] = any(c is not None for c in casting) and all(c == 0 for c in casting if c is not None)
-            row["moved"] = round(moved, 1)
+            # The skill observed before the cast may already have ended naturally.
+            # This proves later sampled suppression, not a causal interruption.
+            row["post_suppressed"] = any(c is not None for c in casting) and all(c == 0 for c in casting if c is not None)
+            moved = motion_distance(row)
+            row["moved"] = round(moved, 1) if moved is not None else None
             row["armor0"] = a["armormul"] == 0 and a["resmul"] == 0
             self.wait_hold_end(6)
-        log = self.g.read_log()[mark:]
-        beams = re.findall(r"fury strikes on \d+: (\d+) beam", log)
+        beams = re.findall(rf"fury strikes on {a['holding']}: (\d+) beam", self.g.read_log()[trial["log_mark"]:]) if row["held"] else []
         row["beams"] = int(beams[0]) if beams else None
+        row["identity_ok"] = target_matches(row)
+        row["precast_active"] = precast_active_observed(row)
         row["errors"] = self.errors_since(mark)[:3]
 
     # --- Pelor's favour (mods/farming): crops grow twice as fast, wild plots twice as often
@@ -570,26 +609,35 @@ class Checks(Base, TowerBoss):
             except Exception as e:
                 rows.append({"boss": rel, "errors": [repr(e)]})
             self.notes.append(f"boss {rows[-1]}")
-        self.boss_flags("boss", rows)
+        self.boss_flags("boss", rows, [rel.rsplit("/", 1)[-1].removesuffix(".unit") for rel in rels])
 
-    def boss_flags(self, k, rows):
+    def boss_flags(self, k, rows, expected):
+        self.out[k + "_rows"] = rows
         held = [r for r in rows if r.get("held")]
         refused = [r for r in rows if r.get("spawned") and not r.get("held")]
-        self.flag(k + "_spawned", all(r.get("spawned") for r in rows), str([r["boss"] for r in rows if not r.get("spawned")]))
-        self.flag(k + "_held_most", len(held) >= len(rows) * 2 // 3, f"held {len(held)} of {len(rows)}; refused {[(r['boss'], r['refused']) for r in refused]}")
+        roster = roster_matches(rows, expected)
+        self.flag(k + "_roster", roster, f"expected {expected}; observed {[r.get('boss') for r in rows]}")
+        self.flag(k + "_spawned", roster and all(r.get("spawned") for r in rows), str([r["boss"] for r in rows if not r.get("spawned")]))
+        self.flag(k + "_held_most", roster and held_fraction_ok(rows), f"held {len(held)} of {len(rows)}; refused {[(r['boss'], r.get('refused')) for r in refused]}")
+        self.flag(k + "_target_identity", roster and all(target_matches(r) for r in rows),
+                  str([(r.get("boss"), r.get("requested_id"), r.get("pick"), r.get("held_id"), r.get("cast_ids")) for r in rows]))
+        self.flag(k + "_precast_active", bool(held) and all(precast_active_observed(r) for r in held),
+                  str([(r["boss"], r.get("pre_actor")) for r in held if not precast_active_observed(r)]))
+        self.flag(k + "_motion_observed", bool(held) and all(motion_distance(r) is not None for r in held),
+                  str([(r["boss"], r.get("positions")) for r in held if motion_distance(r) is None]))
         # a refusal is by design only for a boss that can't be targeted or buffed right then (the
         # burrowed Serpent, the Shadow Face): every other boss is held
         design = ("untargetable", "immune to buffs", "invulnerable", "out of reach")
-        self.flag(k + "_refused_by_design", all(any(k in (r.get("refused") or "") for k in design) for r in refused),
+        self.flag(k + "_refused_by_design", roster and all(any(k in (r.get("refused") or "") for k in design) for r in refused),
                   str([(r["boss"], r["refused"]) for r in refused if not any(k in (r.get("refused") or "") for k in design)]))
-        self.flag(k + "_refusal_keeps", all(r.get("kept") for r in refused), str([(r["boss"], r.get("kept")) for r in refused]))
-        self.flag(k + "_attack_cut", all(r.get("cut") for r in held), str([(r["boss"], r.get("casting")) for r in held if not r.get("cut")]))
-        self.flag(k + "_stays", all((r.get("moved") or 0) < 4 for r in held), str([(r["boss"], r.get("moved")) for r in held if (r.get("moved") or 0) >= 4]))
-        self.flag(k + "_cooldown_60", all(r.get("boss_cd") for r in held), str([(r["boss"], r.get("cd")) for r in held if not r.get("boss_cd")]))
-        self.flag(k + "_spent", all(r.get("spent") for r in held), str([r["boss"] for r in held if not r.get("spent")]))
-        self.flag(k + "_armor_0", all(r.get("armor0") for r in held), str([r["boss"] for r in held if not r.get("armor0")]))
-        self.flag(k + "_beams", all((r.get("beams") or 0) >= 4 for r in held), str([(r["boss"], r.get("beams")) for r in held]))
-        self.flag(k + "_no_errors", not any(r.get("errors") for r in rows), str([(r["boss"], r["errors"]) for r in rows if r.get("errors")]))
+        self.flag(k + "_refusal_keeps", roster and all(r.get("kept") for r in refused), str([(r["boss"], r.get("kept")) for r in refused]))
+        self.flag(k + "_pre_active_then_suppressed", bool(held) and all(pre_active_then_suppressed(r) for r in held), str([(r["boss"], r.get("casting")) for r in held if not pre_active_then_suppressed(r)]))
+        self.flag(k + "_stays", bool(held) and all(stays(r) for r in held), str([(r["boss"], r.get("moved")) for r in held if not stays(r)]))
+        self.flag(k + "_cooldown_60", bool(held) and all(target_matches(r) and r.get("boss_cd") for r in held), str([(r["boss"], r.get("cd")) for r in held if not r.get("boss_cd")]))
+        self.flag(k + "_spent", bool(held) and all(target_matches(r) and r.get("spent") for r in held), str([r["boss"] for r in held if not r.get("spent")]))
+        self.flag(k + "_armor_0", bool(held) and all(target_matches(r) and r.get("armor0") for r in held), str([r["boss"] for r in held if not r.get("armor0")]))
+        self.flag(k + "_beams", bool(held) and all(target_matches(r) and (r.get("beams") or 0) >= 4 for r in held), str([(r["boss"], r.get("beams")) for r in held]))
+        self.flag(k + "_no_errors", roster and not any(r.get("errors") or r.get("setup_error") for r in rows), str([(r["boss"], r.get("errors"), r.get("setup_error")) for r in rows if r.get("errors") or r.get("setup_error")]))
 
     # --- the Serpents of Demise on their own floor (issue #34)
     def serpent_floor(self):
@@ -729,9 +777,14 @@ class Checks(Base, TowerBoss):
     # --- the HoH1 tower's bosses
     def hoh1(self, only=""):
         self.setup_gen("h1")
+        selected = only.split(",") if only else list(RECIPES)
         floors = [(i, lvl) for i, _, lvl in self.levels() if level_name(lvl) in RECIPES
                   and (not only or level_name(lvl) in only.split(","))]
-        self.flag("hoh1_floors", bool(floors), str(floors))
+        names = [level_name(lvl) for _, lvl in floors]
+        self.flag("hoh1_floors", bool(selected) and len(set(selected)) == len(selected)
+                  and set(names) == set(selected) and len(names) == len(selected), str(floors))
+        expected = [f"{level_name(lvl)}:{path.rsplit('/', 1)[-1].removesuffix('.unit')}"
+                    for _, lvl in floors for path in RECIPES[level_name(lvl)][1]]
         rows = []
         for i, lvl in floors:
             name = level_name(lvl)
@@ -751,7 +804,7 @@ class Checks(Base, TowerBoss):
             r = self.gl("unitsof", *files)
             for f, u in [(f, u) for f in files for u in (r.get(f) or {}).get("units") or []]:
                 unit = f.rsplit("/", 1)[-1].replace(".unit", "")
-                row = {"boss": f"{name}:{unit}", "spawned": True, "held": False, "refused": "", "cut": None,
+                row = {"boss": f"{name}:{unit}", "spawned": True, "held": False, "refused": "", "post_suppressed": None,
                        "moved": None, "cd": None, "beams": None, "kept": None, "errors": []}
                 try:
                     self.fury_unit(row, u, unit, mark, wait_solid=20.0)
@@ -761,7 +814,7 @@ class Checks(Base, TowerBoss):
                 self.notes.append(f"hoh1 {row}")
                 mark = len(self.g.read_log())
             self.g.shot(f"hoh1-{name}")
-        self.boss_flags("hoh1", rows)
+        self.boss_flags("hoh1", rows, expected)
 
     # --- stacks
     def stacks_section(self):

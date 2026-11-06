@@ -13,7 +13,7 @@
 // favorites are log lines (the game cannot write files):
 //   [HWP:devarena] loadout-variant {"id":"<preset>+e1","from":"<preset>","level":12,"rows":[...]}
 //   [HWP:devarena] loadout-favorites ["ranger_nature/mid",...]
-// and `python tools/make_presets.py --import-log` folds them into tools/devarena/presets_hand.json.
+// and `python tools/generate/make_presets.py --import-log` folds them into tools/devarena/presets_hand.json.
 namespace HWP
 {
 namespace DevArena
@@ -154,7 +154,7 @@ namespace DevArena
 		float row = RowH();
 		if (g_presets.length() == 0)
 		{
-			ui.Text(x, y, "no presets: python tools/make_presets.py", COL_ERR);
+			ui.Text(x, y, "no presets: python tools/generate/make_presets.py", COL_ERR);
 			return y + row;
 		}
 

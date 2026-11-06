@@ -46,6 +46,60 @@ namespace GameLab
         array<string> m_cursorRows, m_restoreRows;
         int m_cursorSeen = 0, m_cursorDropped = 0;
         bool m_cursorRestored = false;
+        array<string> m_projectionFailures;
+        int m_projectionFailureSeen = 0;
+        // A projection is valid only during this exact UpdateFrame invocation.
+        GameInput@ m_guardInput;
+        vec2 m_guardScreen;
+        uint m_cursorFrame = 0, m_guardFrame = 0, m_guardWrites = 0;
+        int m_guardTime = -1;
+
+        string ProjectionFloat(float value)
+        {
+            if (!(value == value) || value < -100000000.0f || value > 100000000.0f) return "null";
+            return formatFloat(double(value), "", 0, 9);
+        }
+
+        string Projection2(vec2 value)
+        {
+            return "[" + ProjectionFloat(value.x) + "," + ProjectionFloat(value.y) + "]";
+        }
+
+        string Projection3(vec3 value)
+        {
+            return "[" + ProjectionFloat(value.x) + "," + ProjectionFloat(value.y) + "," + ProjectionFloat(value.z) + "]";
+        }
+
+        void FailedProjection(GameInput@ input, vec2 screen, vec3 world)
+        {
+            // Read-only first-failure facts. Never adjust the target, camera,
+            // cursor, guard tolerance or input schedule from these diagnostics.
+            m_projectionFailureSeen++;
+            if (m_projectionFailures.length() >= 1) return;
+            vec3 plusX = ToWorldspace(screen + vec2(1, 0));
+            vec3 plusY = ToWorldspace(screen + vec2(0, 1));
+            vec2 screenBack = ToScreenspace(world);
+            auto player = cast<PlayerBase>(GetLocalPlayer());
+            Json row;
+            row.Int("now", int(g_scene.GetTime())).Bool("gameplay_focus", Focus::Has(Focus::GAMEPLAY))
+                .Raw("target", Projection3(xyz(m_world))).Raw("screen", Projection2(screen))
+                .Raw("world", Projection3(world)).Raw("round_error", ProjectionFloat(dist(xy(world), m_world)))
+                .Raw("guard_limit", ProjectionFloat(0.1f))
+                .Raw("world_at_screen_plus_x", Projection3(plusX)).Raw("world_at_screen_plus_y", Projection3(plusY))
+                .Raw("screen_back", Projection2(screenBack))
+                .Int("wnd_width", m_mode.m_wndWidth).Int("wnd_height", m_mode.m_wndHeight)
+                .Raw("wnd_scale", ProjectionFloat(m_mode.m_wndScale))
+                .Raw("raw_width", ProjectionFloat(m_mode.m_wndWidth * m_mode.m_wndScale))
+                .Raw("raw_height", ProjectionFloat(m_mode.m_wndHeight * m_mode.m_wndScale))
+                .Raw("camera_pos", Projection2(m_mode.m_camPos))
+                .Raw("camera_prev", Projection2(m_mode.m_gameCam.m_prevPos))
+                .Raw("camera_current", Projection2(m_mode.m_gameCam.m_pos))
+                .Raw("camera_next", Projection2(m_mode.m_gameCam.m_nextPos))
+                .Raw("camera_target", Projection2(m_mode.m_gameCam.m_target))
+                .Raw("actor", player is null ? "null" : Projection3(player.m_unit.GetPosition()))
+                .Raw("input_mouse", input is null ? "null" : Projection2(input.MousePos));
+            m_projectionFailures.insertLast(row.Close());
+        }
 
         bool SoleOwner()
         {
@@ -67,28 +121,103 @@ namespace GameLab
             return -1;
         }
 
+        bool CursorFinite(float value)
+        {
+            return value == value && value >= -100000000.0f && value <= 100000000.0f;
+        }
+
+        bool CursorFinite2(vec2 value)
+        {
+            return CursorFinite(value.x) && CursorFinite(value.y);
+        }
+
+        bool CursorFinite3(vec3 value)
+        {
+            return CursorFinite(value.x) && CursorFinite(value.y) && CursorFinite(value.z);
+        }
+
+        bool CursorViewport(vec2 screen)
+        {
+            float width = m_mode.m_wndWidth * m_mode.m_wndScale;
+            float height = m_mode.m_wndHeight * m_mode.m_wndScale;
+            return CursorFinite2(screen) && CursorFinite(width) && CursorFinite(height)
+                && width > 0 && height > 0 && screen.x >= 0 && screen.y >= 0
+                && screen.x < width && screen.y < height;
+        }
+
+        bool CursorProjection(vec2 &out screen)
+        {
+            screen = ToScreenspace(xyz(m_world));
+            if (!CursorViewport(screen)) return false;
+            vec3 world = ToWorldspace(screen);
+            if (!CursorFinite3(world)) return false;
+            float error = dist(xy(world), m_world);
+            if (!CursorFinite(error)) return false;
+            if (error > 0.1f)
+            {
+                // One measured local inverse proposal, never an iterative or
+                // global affine assumption. Both basis probes stay in viewport.
+                if (!CursorViewport(screen + vec2(1, 0)) || !CursorViewport(screen + vec2(0, 1))) return false;
+                vec3 plusX = ToWorldspace(screen + vec2(1, 0));
+                vec3 plusY = ToWorldspace(screen + vec2(0, 1));
+                if (!CursorFinite3(plusX) || !CursorFinite3(plusY)) return false;
+                vec2 x = xy(plusX - world), y = xy(plusY - world);
+                float determinant = x.x * y.y - x.y * y.x;
+                float metric = dot(x, x) + dot(y, y);
+                // The Frobenius/determinant bound also rejects a nearly
+                // singular or severely anisotropic basis (condition ~100).
+                if (!CursorFinite(determinant) || !CursorFinite(metric)
+                    || !(metric > 0 && abs(determinant) >= 0.01f * metric)) return false;
+                vec2 residual = m_world - xy(world);
+                vec2 delta = vec2((residual.x * y.y - residual.y * y.x) / determinant,
+                                  (x.x * residual.y - x.y * residual.x) / determinant);
+                // Bound the proposal to the one-pixel local neighborhood.
+                if (!CursorFinite2(delta) || abs(delta.x) > 1 || abs(delta.y) > 1) return false;
+                vec2 candidate = screen + delta;
+                if (!CursorViewport(candidate)) return false;
+                // The actual native inverse, not the local prediction, is the
+                // final authority. No second candidate or tolerance change.
+                vec3 actual = ToWorldspace(candidate);
+                if (!CursorFinite3(actual) || !(dist(xy(actual), m_world) <= 0.1f)) return false;
+                screen = candidate;
+            }
+            return true;
+        }
+
+        bool CursorCacheCurrent(GameInput@ input, uint writes)
+        {
+            return input !is null && m_guardInput is input && GetInput() is input
+                && m_guardFrame == m_cursorFrame && m_guardTime == int(g_scene.GetTime())
+                && m_guardWrites == writes;
+        }
+
         string CursorGuard(GameInput@ input)
         {
             if (!SoleOwner()) return "cursor requires unchanged sole local actor/record/mode";
             if (input is null || input.UsingGamepad) return "cursor requires current native mouse input";
             if (m_skillName != "-" && QATargetSkill(cast<PlayerBase>(GetLocalPlayer()), m_skillName) !is m_skill)
                 return "selected native skill identity changed";
-            vec2 screen = ToScreenspace(xyz(m_world));
-            float width = m_mode.m_wndWidth * m_mode.m_wndScale;
-            float height = m_mode.m_wndHeight * m_mode.m_wndScale;
-            if (!(width > 0 && height > 0 && screen.x >= 0 && screen.y >= 0
-                  && screen.x < width && screen.y < height)) return "world cursor is outside native viewport";
-            if (dist(xy(ToWorldspace(screen)), m_world) > 0.1f) return "world screen roundtrip failed";
+            vec2 screen;
+            if (!CursorProjection(screen))
+            {
+                vec2 original = ToScreenspace(xyz(m_world));
+                if (!CursorViewport(original)) return "world cursor is outside native viewport";
+                FailedProjection(input, original, ToWorldspace(original));
+                return "world screen roundtrip failed";
+            }
             int slot = CursorIndex(input);
             if (slot < 0 && m_cursorInputs.length() >= 8) return "cursor input handle cap";
             if (slot >= 0 && dist(input.MousePos, m_cursorLast[slot]) > 0.01f
                 && dist(input.MousePos, m_cursorOriginal[slot]) > 0.01f)
                 return "cursor changed outside the owned point or original neutral point";
+            @m_guardInput = input; m_guardScreen = screen;
+            m_guardFrame = m_cursorFrame; m_guardTime = int(g_scene.GetTime()); m_guardWrites = g_inputFrames;
             return "";
         }
 
-        void PinAndRead(GameInput@ input, int ms, bool releaseFrame, int stepIndex)
+        bool PinAndRead(GameInput@ input, int ms, bool releaseFrame, int stepIndex, uint writes)
         {
+            if (!CursorCacheCurrent(input, writes) || g_inputFrames != writes + 1) return false;
             int slot = CursorIndex(input);
             if (slot < 0)
             {
@@ -97,9 +226,10 @@ namespace GameLab
                 m_cursorOriginal.insertLast(input.MousePos);
                 m_cursorLast.insertLast(input.MousePos);
             }
-            // Only this current local input handle is touched, never the global
-            // g_inputs history. The native projection is recomputed each frame.
-            input.MousePos = ToScreenspace(xyz(m_world));
+            // Consume the exact point validated before this frame's input write;
+            // recomputing ToScreenspace here would discard the local correction.
+            input.MousePos = m_guardScreen;
+            @m_guardInput = null;
             m_cursorLast[slot] = input.MousePos;
             auto player = cast<PlayerBase>(GetLocalPlayer());
             vec2 at = xy(player.m_unit.GetPosition()), aim = player.GetDirection();
@@ -135,6 +265,7 @@ namespace GameLab
             m_cursorSeen++;
             if (m_cursorRows.length() >= 256 || sample.length() > 1400) m_cursorDropped++;
             else m_cursorRows.insertLast(sample);
+            return true;
         }
 
         bool RestoreCursor()
@@ -178,6 +309,9 @@ namespace GameLab
                     .Int("frames", m_frames).Str("skill", m_skillName).Int("player", m_playerId)
                     .Num("target_x", m_world.x).Num("target_y", m_world.y)
                     .Bool("cursor_restored", m_cursorRestored).Raw("restore", RawArray(m_restoreRows))
+                    .Int("projection_failures_seen", m_projectionFailureSeen)
+                    .Int("projection_failures_dropped", m_projectionFailureSeen - int(m_projectionFailures.length()))
+                    .Raw("projection_failures", RawArray(m_projectionFailures))
                     .Str("phase", "post_input_write_before_player_update; final neutral release restores cursor")
                     .Raw("samples", RawArray(rows)));
             }
@@ -186,11 +320,14 @@ namespace GameLab
 
         bool UpdateFrame(int ms) override
         {
+            m_cursorFrame++; @m_guardInput = null;
             auto input = GetInput();
             if (m_error.isEmpty())
             {
                 string error = CursorGuard(input);
                 if (!error.isEmpty()) return Abort(error);
+                // A stale/foreign projection cannot authorize even a button write.
+                if (!CursorCacheCurrent(input, g_inputFrames)) return Abort("cursor projection cache changed before write");
             }
             uint writes = g_inputFrames;
             bool releaseFrame = m_tail > 0;
@@ -199,7 +336,8 @@ namespace GameLab
             // Finish restored the cursor on the final neutral release frame.
             // Step frames plus the first neutral release are sampled here.
             if (!finished && m_error.isEmpty() && g_inputFrames == writes + 1)
-                PinAndRead(input, ms, releaseFrame, index);
+                if (!PinAndRead(input, ms, releaseFrame, index, writes)) return Abort("cursor projection cache changed after write");
+            @m_guardInput = null;
             return finished;
         }
     }

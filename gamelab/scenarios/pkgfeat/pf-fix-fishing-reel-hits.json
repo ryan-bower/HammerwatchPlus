@@ -1,6 +1,6 @@
 {
  "name": "pf-fix-fishing-reel-hits",
- "about": "fix-fishing-reel-hits against the built packages keys, town instead of the mods' source folders (tools/make_package_scenarios.py). Issue #32, fishing needs to be harder: a bite takes several hits in the green to land, 2 / 2 / 3 / 4 by fish tier (fishing.reel_hits 0). At the coast with forced tiers (`hwp fishing tier N`, squid bait) the window's own bar is reeled by gl sweepclick reading the marker widget: a 3-star (tier 4) fish takes 4 clicks, tier 1 takes 2 and tier 3 takes 3, each hit logged with the zone's new spot and the marker's speed-up (rising for tier 3; capped for the 3-star fish so a tick's step can't skip its 10 px zone). A miss at the 2nd of 3 hits loses the fish (\"fought free\"). fishing.reel_hits 1 brings back the single press.",
+ "about": "fix-fishing-reel-hits against the built packages keys, town instead of the mods' source folders (tools/generate/make_package_scenarios.py). Issue #32, fishing needs to be harder: a bite takes several hits in the green to land, 2 / 2 / 3 / 4 by fish tier (fishing.reel_hits 0). At the coast with forced tiers (`hwp fishing tier N`, squid bait) the window's own bar is reeled by gl sweepclick reading the marker widget: a 3-star (tier 4) fish takes 4 clicks, tier 1 takes 2 and tier 3 takes 3, each hit logged with the zone's new spot and the marker's speed-up (rising for tier 3; capped for the 3-star fish so a tick's step can't skip its 10 px zone). A miss at the 2nd of 3 hits loses the fish (\"fought free\"). fishing.reel_hits 1 brings back the single press.",
  "fixture": "town-paladin",
  "timeout": 600,
  "steps": [
@@ -42,7 +42,7 @@
   {
    "do": "log_clean",
    "allow": [
-    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)\\.bin' for file "
+    "Resource name hash conflict in package 'mods/(HWP-[a-z0-9]+|HammerwatchPlus-All)(-gamelab)?\\.bin' for file "
    ]
   }
  ],

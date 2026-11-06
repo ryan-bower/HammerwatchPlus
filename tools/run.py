@@ -77,20 +77,8 @@ def runtime_lock(dry_run: bool):
     if dry_run:
         yield
         return
-    lock.LOCK.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        fd = os.open(lock.LOCK, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-    except FileExistsError:
-        raise RuntimeError(f"runtime lock held: {lock.LOCK.read_text()}; diagnose the owner before retrying")
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as file:
-            json.dump({"pid": os.getpid(), "scenario": "player-run", "mode": "play"}, file)
-        last = json.loads(lock.TEARDOWN.read_text()) if lock.TEARDOWN.exists() else {"clean": True}
-        if not last.get("clean"):
-            raise RuntimeError(f"previous GameLab teardown is dirty: {last}; diagnose before retrying")
+    with lock.play_lease():
         yield
-    finally:
-        lock.LOCK.unlink()
 
 
 def prepare_profile(install: Path, packages: list[str], dry_run: bool, name: str | None,

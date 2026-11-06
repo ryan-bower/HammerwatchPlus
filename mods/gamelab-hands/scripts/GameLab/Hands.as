@@ -9,7 +9,7 @@ namespace GameLab
 	//   (GameModes/MissionGameMode.as:424): srand(seed), a CPU-only spin, then randi() gives a
 	//   different value on every load (seed-repeat 20261018-162919), and the engine draws from it
 	//   every frame (rand-frames 20261018-161957). srand alone cannot replay a layout.
-	// - So tools/make_seeded_generators.py overrides every Generators/*.as that draws, routing
+	// - So tools/generate/make_seeded_generators.py overrides every Generators/*.as that draws, routing
 	//   randi/randf/randdir/roll_round through GenRandi/GenRandf/GenRandDir/GenRollRound below:
 	//   a private RandomSequence while g_genActive, the engine's own functions otherwise.
 	// - Activation: Generate loads the town (:434), which fires TownRecordLoad
@@ -660,11 +660,14 @@ namespace Modules
 			GameLab::Register_qa_routeleg();
 			GameLab::Register_qa_input_sequence();
 			GameLab::Register_qa_input_target();
+			GameLab::Register_qa_pose_frame();
 			GameLab::Register_qa_spheres();
 			GameLab::Register_qa_damage_fields();
 			GameLab::Register_qa_trigger_payload();
 			GameLab::Register_qa_class_projectile();
 			GameLab::Register_qa_skill_cost();
+			GameLab::Register_qa_item_identity_calibration();
+			GameLab::Register_qa_forgemaster_channel();
 			GameLab::Register_ui();
 			GameLab::RegisterVerb("assign", "<str|dex|int|foc|vit> <n|all>", GameLab::Verb(GameLab::VerbAssign));
 			GameLab::RegisterVerb("upgrade", "<shopId> <upgradeId> <step>", GameLab::Verb(GameLab::VerbUpgrade));
