@@ -208,6 +208,12 @@ Edits are saved as JSON files under `planner/data/`; commit and push them. More 
 
 ## Status
 
+2026-10-30, no Sacrificial Penance without Heresy (#68). The Devil Forgemaster's Necrotic
+Resurrection only turns into Sacrificial Penance at max Divine Favor when there is at least 1
+Heresy to wash away. With none, the key stays a raise (its icon, its cost, +Heresy) and the
+Favor is kept, so the next cast after that raise is the Penance. Tested: `fix-penance-heresy`,
+`plan-forgemaster`.
+
 2026-10-30, gear salvages into materials (#66, new `salvage` module in Quality of Life). Destroy
 in the bag and in the town stash is now Salvage: the item becomes Crystals (Common, Uncommon) or
 Dust (Rare and up), more the higher its level, and the confirm names the amount. A Rare ilvl 20

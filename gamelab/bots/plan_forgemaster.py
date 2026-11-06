@@ -22,7 +22,9 @@ Sections:
 - channel_lock (fix-forgemaster-channels): the Penance first, then a boss raise (10 s): the facing
   holds against a turned aim, a dash press is refused (and logged) and moves nothing, the beam
   and the pulses run, the bar is drawn; the dash is free again after; the same for a Penance.
-- penance_icon: the skill's icon is the Penance one at max Divine Favor, the raise one below.
+- penance_icon: the skill's icon is the Penance one at max Divine Favor (with Heresy), the raise one below.
+- penance_heresy (issue #68): no Penance without Heresy; at max Favor and 0 Heresy the key raises
+  and keeps the Favor, and 1 Heresy brings the Penance back.
 - pyre_heresy: a brazier is usable (CanUse) with Heresy and no curse and removes ps-reduce
   Heresy; not usable with neither; the large WorldScript pyre does the same when the floor (or
   a fabricated pyre prefab) has one.
@@ -821,6 +823,7 @@ class Checks(Base, TowerBoss):
         if not self.to_arena("icon"):
             return
         fav = self.favor_path()
+        self.set_heresy(1)   # a Penance needs Heresy to wash away (issue #68)
         self.set_stacks(fav, 0)
         time.sleep(0.4)
         low = self.icon_name()
@@ -835,6 +838,60 @@ class Checks(Base, TowerBoss):
         self.flag("icon_raise_below_max", low == "raise", f"icon at 0 Favor: {low}")
         self.flag("icon_penance_at_max", high == "penance" and "resurrection icon -> penance" in log, f"icon at 5 Favor: {high}, log swap {'resurrection icon -> penance' in log}")
         self.flag("icon_back_to_raise", back == "raise", f"icon at 2 Favor: {back}")
+
+    def penance_heresy(self):
+        """Issue #68: Penance needs at least 1 Heresy. At max Divine Favor with none, the key stays
+        a raise (its icon, its channel, +1 Heresy) and the Favor is kept; 1 Heresy brings it back."""
+        self.setup_forge("phr")
+        if not self.to_arena("phr"):
+            return
+        fav = self.favor_path()
+        self.set_heresy(0)
+        self.set_stacks(fav, 5)
+        time.sleep(0.5)
+        st = self.forge_status()
+        self.flag("phr_none_not_ready", "penance 0" in st and self.icon_name() == "raise",
+                  f"Favor 5, Heresy 0: {st[:200]} icon {self.icon_name()}")
+        self.set_heresy(1)
+        time.sleep(0.5)
+        st = self.forge_status()
+        self.flag("phr_one_ready", "penance 1" in st and self.icon_name() == "penance",
+                  f"Favor 5, Heresy 1: {st[:200]} icon {self.icon_name()}")
+        self.set_heresy(0)
+        time.sleep(0.5)
+        self.flag("phr_none_icon_back", self.icon_name() == "raise", f"icon at Heresy 0: {self.icon_name()}")
+        # the cast at max Favor and no Heresy: a raise, the Favor kept
+        self.gl("cheat", "cht_give_mana", 500)
+        self.body("humans/bandits/bandit_brute.unit")
+        time.sleep(0.4)
+        mark = len(self.g.read_log())
+        self.set_stacks(fav, 5)   # last: Divine Favor loses a stack every 5 s
+        presses, spent, button = self.cast_skill("phr_raise", NR, 70, done=lambda: self.has("raising")["raising"].get("on"))
+        time.sleep(3.8)
+        joined = self.g.read_log()[mark:]
+        favor = self.fnum(self.forge_status(), "favor")
+        self.flag("phr_none_raises", presses > 0 and "raise channel" in joined and "penance channel" not in joined
+                  and self.heresy() == 1 and len(self.risen()) == 1 and (favor or 0) > 0,
+                  f"heresy -> {self.heresy()}, risen {len(self.risen())}, favor {favor} (kept), "
+                  f"raise channel {'raise channel' in joined}, penance channel {'penance channel' in joined}, presses {presses}")
+        self.cull()
+        # now with 1 Heresy and the Favor still up (topped back to max): a Penance, once the raise's
+        # cooldown (which the Penance shares) is over
+        end = time.time() + 30
+        while time.time() < end and (self.skill_cd(NR) or 0) > 0:
+            time.sleep(0.5)
+        self.set_heresy(1)
+        self.body("humans/bandits/bandit_brute.unit", 70)
+        time.sleep(0.4)
+        mark = len(self.g.read_log())
+        self.set_stacks(fav, 5)
+        presses, spent, button = self.cast_skill("phr_pen", NR, 50, done=lambda: self.has("raising")["raising"].get("on"))
+        time.sleep(3.8)
+        joined = self.g.read_log()[mark:]
+        favor = self.fnum(self.forge_status(), "favor")
+        self.flag("phr_one_penance", presses > 0 and "penance channel" in joined and self.heresy() == 0 and (favor or 0) == 0,
+                  f"heresy 1 -> {self.heresy()}, favor {favor}, penance channel {'penance channel' in joined}, presses {presses}")
+        self.cull()
 
     # --- pyres with Heresy and no curse; the large pyre
     def usable(self, text):
