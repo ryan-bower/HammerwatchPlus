@@ -4,6 +4,8 @@ Running project status: the newest entries first, then the QA checkpoints and hi
 sweeps. The engine and reverse-engineering notes behind each change are in
 [RE_NOTES.md](RE_NOTES.md).
 
+> **Run copy flag (2026-11-05).** `tools/run.py --copy-slot N` copies a local profile into the new play profile, bypassing the save builder; it refuses an active dungeon run and never writes the source. Host tests only (`scripts/test.py`: 1246 passed, 28 skipped); no native GameLab run. Source at base `4cfbb3bf`.
+
 > **PR publication checkpoint (2026-11-01).** The complete QA worktree is checkpointed on `codex/run-save-builder-followup` and integrated with upstream `e7d060f1` (including merged PRs83?86). The merged host suite passed **1,244 tests**, with three unavailable-symlink skips and1,269 subtests. See [the publication record](qa/swarm/pr_publication.json). Earlier native results below retain their exact execution revisions; no new native pass is claimed for this upstream integration. The broader campaign remains paused at r4847/E018. Historical scenario/catalog pins require current review before further native admission.
 
 The [admission pipeline validation](qa/swarm/admission_pipeline_validation.json)
