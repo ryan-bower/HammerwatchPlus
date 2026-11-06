@@ -1,0 +1,2 @@
+%define WALL_W
+%include "doodads/hwp/objective_lever_wall.inc"
