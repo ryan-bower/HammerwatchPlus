@@ -58,7 +58,8 @@
     "cls": "hwp_witch_hunter",
     "section": "ordinary",
     "floors": 2,
-    "budget_s": 180
+    "budget_s": 180,
+    "combat_before_travel": true
    },
    "expect": {
     "ordinary_god_off": true,

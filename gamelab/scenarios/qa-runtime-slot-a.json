@@ -1,0 +1,9 @@
+{
+  "name": "qa-runtime-slot-a",
+  "about": "Two-slot routing A: v_fps_limit marker57, tagged readbacks, asymmetric menu/posted escape and same capture basenames. Requires paired B; no movement/account/gameplay proof.",
+  "fixture": "town-paladin",
+  "shim_input": true,
+  "timeout": 150,
+  "outer_timeout": 450,
+  "steps": [{"do": "bot", "bot": "qa_runtime_slots", "kwargs": {"role": "a", "deadline_s": 120}, "expect": {"ok": true, "restored_marker": true}}]
+}

@@ -130,9 +130,13 @@ Send one as `gl <id> <verb> args` (a `{"do": "gl", "verb": ...}` scenario step, 
 | `qa_class_projectile` | `<tag> <500..5000ms> <producer> <1..4 targetUnitIDs>` |  |
 | `skillcrit` | `<skillId> [0..1\|restore]` | skillcrit <skillId> [0..1/restore]: without the second argument, reports fields and cleans any expired override or override belonging to a previous local actor. At most one local skill may be overridden at once; every set expires in 60 s of scene time. Restore uses the current native modifiers, not a stale field snapshot. |
 | `damagefields` | `<skillId> <targetUnitId>` | damagefields <skillId> <targetUnitId>: exact live owned skill and Composite target fields. No modifier.Crit sampling. Max128 owned skills, radius1000. |
+| `forgechannel` | `<tag> <P0\|P1\|P2\|P3\|C0\|C1\|CAL> <bodyId> <targetId\|-1> <recoverX> <recoverY> <favorPath>` | forgechannel <tag> <P0/P1/P2/P3/C0/C1/CAL> <bodyId> <targetId/-1> <recoverX> <recoverY> <favorPath>. Fixed durations/actions; no arbitrary writer. |
 | `inputsequence` | `<tag> <ms/mx/my/ax/ay/buttons> ...` | inputsequence <tag> <ms/mx/my/ax/ay/buttons> ... (1..8 steps). Axes are finite decimal values in[-1,1], move length<=1; '-' is no buttons. A button must be released by a separate step before it can be pressed again. |
 | `inputtarget` | `<tag> <skillId\|-> <worldX> <worldY> <ms/mx/my/ax/ay/buttons> ...` | Same bounded step language as inputsequence; the original controller is unchanged. A selected native active skill is optional read-only telemetry. |
+| `qa_item_identity` | `<exact expected mainhand base id>` |  |
+| `qa_item_transport_calibrate` | `<exact calibration case>` |  |
 | `buffobserve` | `<tag> <ms> <buffPath\|-> [stackPath\|-] [targetUnitId]` | buffobserve <tag> <ms> <buffPath/-> [stackPath/-] [targetUnitId]: observe the local player's buff/stack and native buff factors, plus optional nearby Actor HP. Initial/final and semantic transitions only, not duration countdown every frame. Bounded100..60000ms;64events total,16 per part, explicit dropped/truncation. |
+| `qa_poseframe` | `<tag>` |  |
 | `meleerays` | `<dx> <dy>` | meleerays <dx> <dy>: exactly the trident MeleeSwing's native Shot query: 3 parallel rays across16px,40px reach, origin -Tweak::PlayerCameraHeight. Unlike rayhit, actors and the owner's own fixtures remain visible. |
 | `summonmove` | `<ownedUnitId>` | summonmove <ownedUnitId>: only a local player's live owned actor within1200px. The instantiated MeleeFollowerMovement values reveal producer overrides as well as native defaults. This never orders the summon or writes movement state. |
 | `resourceobserve` | `<tag> <ms>` | resourceobserve <tag> <ms>: native frame mana/HP and the current stats used by Player.Update regeneration. Read-only;100..6000ms,256 samples, 16 samples per part, explicit truncation. Does not read Living Mana binds. |
@@ -143,6 +147,7 @@ Send one as `gl <id> <verb> args` (a `{"do": "gl", "verb": ...}` scenario step, 
 | `qa_static_mm` | `<tag> <aimX> <aimY>` |  |
 | `qa_static_observe` | `<tag> <aimX> <aimY>` | qa_static_observe <tag> <aimX> <aimY>: fixed 2500 scene-ms native observation. Preconditions are deliberately strict; setup stays outside the measurement. |
 | `qa_static_overlap` | `<tag> <aimX> <aimY>` |  |
+| `economyinputs` |  |  |
 | `qa_trigger_payload` | `[native source id]` |  |
 | `pressfunc` | `<func...>` | pressfunc <func...>: click the first visible, enabled interactable widget of the top window whose func is that |
 | `wsexec` | `<type> <comment>` | wsexec <type> <comment>: Execute() the first world script of that type with that comment (host only) |

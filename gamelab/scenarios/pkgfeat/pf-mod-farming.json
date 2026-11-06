@@ -18,6 +18,11 @@
    "name": "still in town"
   },
   {
+   "do": "log_lacks",
+   "pattern": "not netsynced",
+   "name": "game night 10.28.26: town NPCs target locally, no UnitTarget for a local unit"
+  },
+  {
    "do": "log_clean"
   }
  ],

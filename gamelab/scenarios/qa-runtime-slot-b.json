@@ -1,0 +1,9 @@
+{
+  "name": "qa-runtime-slot-b",
+  "about": "Two-slot routing B: v_fps_limit marker59, paired asymmetric UI/readbacks/posted escape and own captures. Requires paired A; images need actual independent inspection.",
+  "fixture": "town-paladin",
+  "shim_input": true,
+  "timeout": 150,
+  "outer_timeout": 450,
+  "steps": [{"do": "bot", "bot": "qa_runtime_slots", "kwargs": {"role": "b", "deadline_s": 120}, "expect": {"ok": true, "restored_marker": true}}]
+}

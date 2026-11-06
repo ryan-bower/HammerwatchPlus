@@ -7,9 +7,16 @@ import math
 import time
 
 from gamelab.bots.qa_firearms_passives import Checks as Base
+from gamelab.bots.qa_firearms_magazine_fixture import measured_cycle
 
 
 class Checks(Base):
+    def fixture_loadout(self, main, off=None, quality="common", reset=True):
+        ok, row = super().fixture_loadout(main, off, quality, reset)
+        self._magazine_loadout_failed = not ok
+        self._magazine_expected = (main, off or "")
+        return ok, row
+
     def fan(self, d):
         self.clear_dummies()
         dd, _ = self.clear_dir(d, 65)
@@ -19,26 +26,7 @@ class Checks(Base):
         return dd, targets
 
     def cycle(self, d, button="main", duration=320, refill=False):
-        dd, targets = self.fan(d)
-        if refill:
-            self.top_up()
-        hp0 = self.hps(targets)
-        before = self.clip()
-        self.gl("input", duration, 0, 0, dd[0], dd[1], button)
-        time.sleep(duration / 1000 + 0.2)
-        # One native batch keeps the empty-magazine crit observation ahead of
-        # the automatic reload, even when console round trips are relatively slow.
-        reads = self.g.gl_multi([["givestacks", self.CLIP, 0], ["critprobe", 1, 400, "target_dummy"],
-                                 ["near", 600, "target_dummy"]])
-        after = reads[0].get("stacks", -1)
-        stats = reads[1]
-        live = {u["unit"]: 0.0 if u.get("dead") else
-                u["hpExact"] / u["hpMax"] if u.get("hpExact") is not None and u.get("hpMax", 0) > 0
-                else u.get("hp", 1.0) for u in reads[2].get("units", [])}
-        hp1 = {unit: live.get(unit, 0.0) for unit in targets}
-        return {"clip": [before, after], "hp_before": hp0, "hp_after": hp1,
-                "actual_damage": sum((hp0[x] - hp1[x]) * 500 for x in targets),
-                "stats": stats, "button": button, "duration_ms": duration}
+        return measured_cycle(self, d, button, duration, refill)
 
     def bonuses(self, row):
         s = row["stats"]

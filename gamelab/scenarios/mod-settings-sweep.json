@@ -1,6 +1,6 @@
 {
  "name": "mod-settings-sweep",
- "about": "Every row of the settings page (hwplib Options.as + Config.as) with every module loaded, through the settings_sweep bot: every module switched off (row and log say Off) and on again, every list setting walked through all its values back to the first, every range setting one step and back with hwp set, every on/off setting both ways, every preset option cycled back to its first value, every key bind rebound to K and back; hwp settings shows every switch false and every setting moved, then every one at its default again; no script errors from HWP files. Shots: sweep_all_off, sweep_restored.",
+ "about": "All 42 current feature modules and 3 required libraries loaded: manifest-derived shared-row ownership, every feature/settings row, 41 toggle UI/store off/on, explicit Goldworth/library toggle N/A, keyboard capture including Eat/Courier and controller capture including reserved/cancel/release. The 25 GameKeys rows are presence-only; binding effects remain mod-keys-layout/play/persist. Restores initial effective scalar values. This is settings UI/store/capture evidence, not every feature's functional off/on behavior or physical controller proof. Owned initial snapshots restore from a sweep-level finally after failures; original and cleanup errors are retained independently.",
  "fixture": "town-paladin",
  "mods": [
   "hwplib",
@@ -44,7 +44,10 @@
   "goldworth",
   "mmhmm",
   "orbwarn",
-  "mapicons"
+  "mapicons",
+  "petrooms",
+  "attrclick",
+  "affixes"
  ],
  "timeout": 900,
  "steps": [
@@ -75,7 +78,12 @@
     "sweep_keys": true,
     "sweep_stored_changed": true,
     "sweep_restored": true,
-    "sweep_no_errors": true
+    "sweep_no_errors": true,
+    "sweep_initial_enabled": true,
+    "sweep_not_applicable": true,
+    "sweep_gamekey_rows": true,
+    "sweep_pads": true,
+    "sweep_cleanup": true
    }
   },
   {

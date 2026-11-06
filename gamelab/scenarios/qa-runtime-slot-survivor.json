@@ -1,0 +1,9 @@
+{
+  "name": "qa-runtime-slot-survivor",
+  "about": "Paired survivor retains own FPS marker59/state/tag/capture while exact timeout game identity disappears, then proves own posted-menu actions and restore. No movement/account-isolation proof.",
+  "fixture": "town-paladin",
+  "shim_input": true,
+  "timeout": 360,
+  "outer_timeout": 450,
+  "steps": [{"do": "bot", "bot": "qa_runtime_slots", "kwargs": {"role": "survivor", "deadline_s": 300}, "expect": {"ok": true, "restored_marker": true}}]
+}

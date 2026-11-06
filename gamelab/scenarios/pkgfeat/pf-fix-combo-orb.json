@@ -36,6 +36,11 @@
    }
   },
   {
+   "do": "log_lacks",
+   "pattern": "should not automatically respawn",
+   "name": "game night 10.28.26: the orb never asks to respawn (not netsynced)"
+  },
+  {
    "do": "log_clean"
   }
  ],

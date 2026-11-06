@@ -33,9 +33,9 @@
   },
   {
    "do": "log_has",
-   "pattern": "\\[HWP:bufftips\\] skill buff icons on: 31 of 31 buff\\(s\\) given an icon, 0 with their own, 0 missing",
+   "pattern": "\\[HWP:bufftips\\] skill buff metadata: 31 of 31 raw definitions available, 0 invalid",
    "timeout": 5,
-   "name": "every listed buff def found and given an icon"
+   "name": "all 31 raw display definitions available without eager gameplay parsing"
   },
   {
    "do": "log_lacks",

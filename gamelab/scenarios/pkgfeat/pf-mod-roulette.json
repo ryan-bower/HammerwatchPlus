@@ -12,7 +12,23 @@
    "do": "bot",
    "bot": "fix_roulette",
    "kwargs": {
-    "sections": "roulette,tiers,leave"
+    "sections": "roulette,controls,zero,tiers,leave",
+    "required_flags": [
+     "rl_wheel",
+     "rl_table",
+     "rl_menu",
+     "rl_scene",
+     "rl_payout",
+     "rl_clear",
+     "rl_limit",
+     "rl_tiers",
+     "rl_leave",
+     "rl_limit_refund",
+     "rl_poor_preserved",
+     "rl_disable_refund",
+     "rl_reenable_no_double_refund",
+     "rl_zero_exact"
+    ]
    },
    "name": "roulette",
    "expect": {
@@ -24,7 +40,13 @@
     "rl_clear": true,
     "rl_limit": true,
     "rl_tiers": true,
-    "rl_leave": true
+    "rl_leave": true,
+    "rl_limit_refund": true,
+    "rl_poor_preserved": true,
+    "rl_disable_refund": true,
+    "rl_reenable_no_double_refund": true,
+    "rl_zero_exact": true,
+    "ok": true
    }
   },
   {

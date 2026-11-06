@@ -14,6 +14,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import sys
 import time
 import traceback
@@ -22,18 +23,81 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(REPO / "tools"))
-from gamelab import env, hps, logparse, loot, winproc  # noqa: E402
+from gamelab import env, hps, logparse, loot, winproc, runtime  # noqa: E402
 from gamelab.session import CONSOLE_ECHO, Game, GameError  # noqa: E402
 from gamelab import pilot as pilotlib  # noqa: E402
 from gamelab import ui  # noqa: E402
 import pin_build  # noqa: E402
 
 FIXTURES = REPO / "gamelab" / "fixtures"
-CACHE = FIXTURES / "cache"
+CACHE = runtime.current().cache_dir if runtime.current() else FIXTURES / "cache"
+FIXTURE_CACHE_VERSION = 2
+FIXTURE_CACHE_META = ".gamelab-fixture.json"
+
+
+def fixture_cache_present(cache: Path) -> bool:
+    """Check every cache ancestor without following links, before lab mutation/boot."""
+    base, cache = REPO.absolute(), cache.absolute()
+    if not cache.is_relative_to(base):
+        raise GameError("fixture cache is outside the repository")
+    directory, present = base, False
+    for part in (None, *cache.relative_to(base).parts):
+        if part is not None:
+            directory = directory / part
+        try:
+            info = directory.lstat()
+        except FileNotFoundError:
+            present = False
+            continue
+        except OSError as error:
+            raise GameError(f"cannot inspect fixture cache path {directory}: {error}") from error
+        if not stat.S_ISDIR(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x400:
+            raise GameError(f"fixture cache path is not an ordinary directory: {directory}")
+        present = True
+    return present
+
+
+def fixture_cache_files(root: Path) -> dict[str, str]:
+    """Only ordinary, nonempty HPS leaves belong to a prepared fixture cache."""
+    # Validate the actual tree and all its ancestors. A coordinator can inspect
+    # a private worker/cache snapshot without depending on the default CACHE.
+    if not fixture_cache_present(root):
+        raise GameError(f"fixture cache directory does not exist: {root}")
+    files = {}
+    for entry in sorted(root.iterdir()):
+        if entry.is_symlink() or getattr(entry.lstat(), "st_file_attributes", 0) & 0x400 or not entry.is_file():
+            raise GameError(f"fixture cache entry is not an ordinary file: {entry}")
+        if entry.name in (FIXTURE_CACHE_META, FIXTURE_CACHE_META + ".tmp"):
+            continue
+        if entry.suffix.lower() != ".hps" or not entry.stat().st_size:
+            raise GameError(f"unexpected or empty fixture cache file: {entry}")
+        files[entry.name] = hashlib.sha256(entry.read_bytes()).hexdigest()
+    if not files or hps.current_save(0, root) is None:
+        raise GameError("fixture cache has no readable slot-0 profile")
+    return files
+
+
+def verified_fixture_cache(cache: Path, identity: str) -> dict:
+    """An interrupted/unattested cache is a refusal, never a cache hit."""
+    try:
+        files = fixture_cache_files(cache)
+        if (cache / (FIXTURE_CACHE_META + ".tmp")).exists():
+            raise ValueError("cache publication is incomplete")
+        value = json.loads((cache / FIXTURE_CACHE_META).read_text(encoding="utf-8"))
+        if not isinstance(value, dict) or set(value) != {"version", "cache_key", "input_sha256", "creator_run", "clean_passes", "files"} \
+                or type(value["version"]) is not int or value["version"] != FIXTURE_CACHE_VERSION \
+                or value["cache_key"] != cache.name or value["input_sha256"] != identity \
+                or not isinstance(value["creator_run"], str) or not value["creator_run"] \
+                or value["clean_passes"] != [1, 2] or any(type(item) is not int for item in value["clean_passes"]) \
+                or value["files"] != files:
+            raise ValueError("cache provenance or saved bytes differ")
+        return value
+    except (OSError, ValueError) as error:
+        raise GameError(f"fixture cache {cache.name} is untrusted; preserve it before rebuilding: {error}") from error
 
 # a plan scenario's steps, run in-engine by gamelab-pilot Plan.as: written before the boot,
 # emptied before every fixture build and after the run (an empty plan runs nothing)
-PLAN_FILE = REPO / "mods" / "gamelab-pilot" / "scripts" / "GameLab" / "PlanData.as"
+PLAN_FILE = env.module_source("gamelab-pilot") / "scripts" / "GameLab" / "PlanData.as"
 PLAN_HEAD = ("// The plan a GameLab plan scenario runs (Plan.as). gamelab/runner.py writes this file before\n"
              "// the scenario's boot and empties it again after the run; empty, no plan runs.\n"
              "namespace GameLab\n{\n")
@@ -191,6 +255,8 @@ class Run:
             if not (live["image_in_gamelab"] and live["known_folder_hooked"]
                     and (self.mode != "lab" or (live["in_job"] and live["child_of_runner"]))):
                 raise GameError(f"live process not isolated: {live}")
+            if runtime.current() and not (live.get("owned_job") and live.get("registered_slot")):
+                raise GameError(f"live process not owned by its runtime slot: {live}")
             time.sleep(1.0)
             if probe_menu:
                 # the menu side of the menu -> session boundary: does the probe answer here?
@@ -292,7 +358,8 @@ class Run:
                                      "alive": game.alive()}
         self.compile_measured = True
 
-    def finish(self, game: Game) -> None:
+    def finish(self, game: Game) -> bool:
+        first_assertion = len(self.assertions)
         code = game.stop()
         logs = self.results / "logs"
         logs.mkdir(exist_ok=True)
@@ -307,8 +374,9 @@ class Run:
             # nothing compiled, so nothing ran that could save or leave state behind
             self.assert_(f"pass {self.passes} exited cleanly", code is not None,
                          f"exit code {code} (killed after the measured compile error)")
-            return
+            return all(a["ok"] is True for a in self.assertions[first_assertion:])
         self.assert_(f"pass {self.passes} exited cleanly", code == 0, f"exit code {code}")
+        return all(a["ok"] is True for a in self.assertions[first_assertion:])
 
     def check_console(self, game: Game) -> None:
         """Every pass: nothing typed into the console once the session started. An open
@@ -352,22 +420,33 @@ class Run:
             for f in sorted(p for p in root.rglob("*") if p.is_file()) if root.is_dir() else []:
                 h.update(f.relative_to(REPO).as_posix().encode())
                 h.update(f.read_bytes())
-        digest = h.hexdigest()[:8]
-        cache = CACHE / f"{name}.{build}.{digest}"
+        identity = h.hexdigest()
+        digest = identity[:8]
+        legacy = CACHE / f"{name}.{build}.{digest}"
+        cache = CACHE / f"{name}.{build}.v{FIXTURE_CACHE_VERSION}.{digest}"
         saves = env.GAME / "saves"
         info = {"name": name, "cache_key": cache.name, "recipe": recipe}
         if recipe.get("slot", 0) != 0:
             raise GameError("lab profile uses g_save_slot 0; fixture slots other than 0 are not supported")
-        if saves.exists():
-            shutil.rmtree(saves)
-        if cache.is_dir() and any(cache.glob("*.hps")):
-            shutil.copytree(cache, saves)
+        if fixture_cache_present(cache):
+            provenance = verified_fixture_cache(cache, identity)  # Before replacing current lab saves.
+            if saves.exists():
+                shutil.rmtree(saves)
+            shutil.copytree(cache, saves, ignore=shutil.ignore_patterns(FIXTURE_CACHE_META))
+            if fixture_cache_files(saves) != provenance["files"]:
+                raise GameError("restored fixture cache bytes differ; no game may boot")
             info["cache"] = "hit"
             return info
+        if legacy.exists():
+            print(f"legacy fixture cache {legacy.name} is not attested; preserving it and preparing v{FIXTURE_CACHE_VERSION}", flush=True)
+        if saves.exists():
+            shutil.rmtree(saves)
         info["cache"] = "miss"
+        first_assertion = len(self.assertions)
         # pass 1: the game writes a fresh, empty profile (null-save session, then a clean quit)
         game = self.boot(expect_mods=False)
-        self.finish(game)
+        if not self.finish(game) or any(a["ok"] is not True for a in self.assertions[first_assertion:]):
+            raise GameError("fixture pass 1 failed; no mod enable, later pass or cache publication")
         save = hps.current_save(0, saves)
         if save is None:
             raise GameError("pass 1 wrote no profile")
@@ -397,10 +476,23 @@ class Run:
         if recipe.get("setup") or recipe.get("save_town"):
             if not game.gl_cmd("save").get("ok"):
                 raise GameError("fixture save failed")
-        self.finish(game)
-        if cache.exists():
-            shutil.rmtree(cache)
-        shutil.copytree(saves, cache)
+        if not self.finish(game) or any(a["ok"] is not True for a in self.assertions[first_assertion:]):
+            raise GameError("fixture preparation failed; no cache publication")
+        try:
+            CACHE.mkdir(parents=True, exist_ok=True)
+            files = fixture_cache_files(saves)
+            shutil.copytree(saves, cache)  # No existing cache is overwritten or removed.
+            value = {"version": FIXTURE_CACHE_VERSION, "cache_key": cache.name, "input_sha256": identity,
+                     "creator_run": self.results.name, "clean_passes": [1, 2], "files": files}
+            pending = cache / (FIXTURE_CACHE_META + ".tmp")
+            pending.write_text(json.dumps(value, indent=1) + "\n", encoding="utf-8")
+            if json.loads(pending.read_text(encoding="utf-8")) != value \
+                    or fixture_cache_files(cache) != files or fixture_cache_files(saves) != files:
+                raise ValueError("fixture cache copy or metadata did not read back unchanged")
+            pending.replace(cache / FIXTURE_CACHE_META)
+            verified_fixture_cache(cache, identity)
+        except (OSError, ValueError) as error:
+            raise GameError(f"fixture cache publication failed; partial files retained at {cache}: {error}") from error
         return info
 
     def enter_fixture(self, recipe: dict, extra_mods: list[str], *,
@@ -1140,7 +1232,9 @@ def remember_written(results: Path, f: Path) -> None:
         orig = str(results / f"written-{len(entries)}.orig")
         Path(orig).write_bytes(f.read_bytes())
     entries.append({"path": str(f), "orig": orig})
-    journal.write_text(json.dumps(entries, indent=1), encoding="utf-8")
+    temporary = journal.with_suffix(journal.suffix + ".tmp")
+    temporary.write_text(json.dumps(entries, indent=1), encoding="utf-8")
+    temporary.replace(journal)
 
 
 def restore_written(results: Path) -> list[str]:
@@ -1150,15 +1244,21 @@ def restore_written(results: Path) -> list[str]:
     if not journal.is_file():
         return []
     done = []
-    for e in json.loads(journal.read_text(encoding="utf-8")):
+    entries = json.loads(journal.read_text(encoding="utf-8"))
+    for e in entries:
         f = Path(e["path"])
         if e["orig"] is None:
             f.unlink(missing_ok=True)
         else:
             f.write_bytes(Path(e["orig"]).read_bytes())
-            Path(e["orig"]).unlink()
         done.append(str(f))
+    # Keep every original until all source writes finish, so an interrupted
+    # restore can repeat the complete journal. After publication, leftover
+    # backup files are harmless; never leave a journal pointing at deleted data.
     journal.unlink()
+    for e in entries:
+        if e["orig"] is not None:
+            Path(e["orig"]).unlink(missing_ok=True)
     return done
 
 

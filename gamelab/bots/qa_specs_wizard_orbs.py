@@ -5,11 +5,12 @@ uses the pinned two-stage damage_round pipeline, including integer quantization.
 Prerequisite casts may reset cooldowns; measured positive stacks are never set.
 """
 import json
+import math
 import time
 
 from gamelab.bots.plan_specs import Checks
 from gamelab.bots.qa_observe import collect
-from gamelab.bots.qa_specs_wizard_ranks import TT, SC, MM, STACK, PROJECTILE, spawn, wait_ready
+from gamelab.bots.qa_specs_wizard_ranks import TT, SC, MM, STACK, PROJECTILE, spawn, targets, target_ok, wait_ready
 
 FOCAL = "hwp_wiz_tt_overcharge"
 CLAP = "hwp_wiz_tt_thunderclap"
@@ -58,10 +59,51 @@ def orb_off(c, skill):
         c.gl("orb", skill, "down")
 
 
-def pulse_trial(c, direction, tag):
+def expiry_geometry(before, after, primary, outside, trajectory, direction):
+    """Bind the burst fixture to measured live endpoint and an untouched circle5 control."""
+    result = {"valid": False}
+    tracks = trajectory.get("tracks", [])
+    if (set(before) != set(after) or set(before) != {primary, outside}
+            or primary == outside or not target_ok(before, 2) or not target_ok(after, 2)
+            or trajectory.get("most") != 1 or trajectory.get("truncated") != 0 or len(tracks) != 1):
+        return result
+    track = tracks[0]
+    numbers = [track.get(key) for key in ("t0", "t1", "x0", "y0", "x1", "y1")]
+    numbers += list(direction)
+    numbers += [row.get(key) for rows in (before, after) for row in rows.values()
+                for key in ("x", "y", "hpExact")]
+    if any(type(value) not in (int, float) or not math.isfinite(value) for value in numbers):
+        return result
+    duration = track["t1"] - track["t0"]
+    dx, dy = direction
+    moved = (track["x1"] - track["x0"], track["y1"] - track["y0"])
+    forward, lateral = moved[0] * dx + moved[1] * dy, -moved[0] * dy + moved[1] * dx
+    endpoint = (track["x1"], track["y1"])
+    distance = {uid: math.dist(endpoint, (row["x"], row["y"])) for uid, row in before.items()}
+    stable = all(math.dist((before[uid]["x"], before[uid]["y"]),
+                          (after[uid]["x"], after[uid]["y"])) <= .1 for uid in before)
+    expected = 2.0 * duration / 33.0  # NewProjectile.Update, authored speed2.0
+    untouched = abs(before[outside]["hpExact"] - after[outside]["hpExact"]) <= .01
+    valid = (2900 <= duration <= 3100 and track.get("n", 0) >= 2
+             and abs(math.hypot(dx, dy) - 1) <= .001 and abs(lateral) <= .1
+             and abs(forward - expected) <= 2.5 and stable
+             and distance[primary] < 70 and distance[outside] > 75 and untouched)
+    result.update(valid=bool(valid), endpoint=endpoint, duration_ms=duration,
+                  measured_forward=forward, expected_forward=expected, lateral=lateral,
+                  inside_distance=distance[primary], outside_distance=distance[outside],
+                  outside_hp_before=before[outside]["hpExact"], outside_hp_after=after[outside]["hpExact"])
+    return result
+
+
+def pulse_trial(c, direction, tag, *, clap=False):
     ready = wait_ready(c)
-    before = spawn(c, direction, [(85, 0)])
-    uid = next(iter(before), None)
+    origin = c.pos() if clap else None
+    # At speed2.0 the free-flight3s endpoint is near190px. Target85 is out of range.
+    # The lateral160 control stays outside radius70+circle5 for the entire flight.
+    before = spawn(c, direction, [(130, 0), (130, 160)] if clap else [(85, 0)])
+    wanted = (origin[0] + direction[0] * 130, origin[1] + direction[1] * 130) if clap else None
+    uid = min(before, key=lambda key: math.dist((before[key]["x"], before[key]["y"]), wanted)) if clap and before else next(iter(before), None)
+    outside = next((key for key in before if key != uid), None) if clap else None
     c.set_stacks(STACK, 0)
     c.gl("mana", 250)
     crit = c.gl("skillcrit", TT, 0)
@@ -73,7 +115,7 @@ def pulse_trial(c, direction, tag):
         ["track", tag + ".orb", 4200, 300, "invocation/torrent.unit"],
         ["input", 600, 0, 0, *direction, c.qa_tt_button],
     ])
-    observation = collect(c.g, tag, 10)
+    observation = collect(c.g, tag, 10, expected={"buff": "-", "stack": STACK, "target_unit": uid})
     trajectory = c.g.wait_gl(lambda row: row.get("ev") == "track" and row.get("tag") == tag + ".orb", 3) or {}
     remaining = c.gl("unitsof", PROJECTILE).get(PROJECTILE, {}).get("units", [])
     final_crit = c.gl("skillcrit", TT)
@@ -81,7 +123,9 @@ def pulse_trial(c, direction, tag):
     tracks = trajectory.get("tracks", [])
     initial = (observation.get("events") or [{}])[0]
     final = (observation.get("events") or [{}])[-1]
-    valid = (ready and len(before) == 1 and before[uid].get("hpMax") == 15000
+    after = targets(c) if clap else {}
+    geometry = expiry_geometry(before, after, uid, outside, trajectory, direction) if clap else None
+    valid = (ready and len(before) == (2 if clap else 1) and before[uid].get("hpMax") == 15000
              and before[uid].get("hpExact") == 15000 and not old and not remaining
              and queued.get("ok") and track.get("ok") and fired.get("ok") and observation.get("usable")
              and initial.get("target_hpMax") == final.get("target_hpMax") == 15000
@@ -90,10 +134,11 @@ def pulse_trial(c, direction, tag):
              and crit.get("spell_crit_chance") == final_crit.get("spell_crit_chance") == 0
              and trajectory.get("most") == 1 and not trajectory.get("truncated") and len(tracks) == 1
              and 2900 <= tracks[0].get("t1", 0) - tracks[0].get("t0", 0) <= 3100
-             and len(pulses) >= 6)
+             and len(pulses) >= 6 and (not clap or geometry["valid"]))
     return {"tag": tag, "valid": bool(valid), "before": before, "crit": crit, "final_crit": final_crit,
             "observer_queue": queued, "track_queue": track, "input": fired, "observation": observation,
-            "trajectory": trajectory, "pulses": pulses, "total_damage": sum(row["damage"] for row in pulses)}
+            "trajectory": trajectory, "expiry_geometry": geometry, "outside_after": after,
+            "pulses": pulses, "total_damage": sum(row["damage"] for row in pulses)}
 
 
 def charged(c, direction, tag, prerequisite_skill=TT):
@@ -218,7 +263,7 @@ def run(p, section="orb_damage", **_):
             plain = controls[0]["pulses"][0]["damage"] if controls and controls[0]["pulses"] else 0
             extras = sorted({rounded(rounded(10 * 1.5) * coefficient) for coefficient in coefficients})
             for trial in range(1, 4):
-                row = pulse_trial(c, direction, f"clap_{trial}")
+                row = pulse_trial(c, direction, f"clap_{trial}", clap=True)
                 fits = [(count, extra) for count in range(6, 15) for extra in extras
                         if abs(row.get("total_damage", 0) - count * plain - extra) <= .04]
                 last = row["pulses"][-1] if row["pulses"] else {}

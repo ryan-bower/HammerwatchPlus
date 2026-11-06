@@ -1,5 +1,15 @@
 # RE notes: Heroes of Hammerwatch II
 
+Current session status (2026-11-01): all214authored worktree files were saved in
+checkpoint293e5f73, then upstream e7d060f1 was merged while preserving both dated
+note histories and the upstream party-exit/Forgemaster/Pelor changes. The merged
+host suite passed1244tests/three unavailable-symlink skips/1269subtests. Publication
+preserves the paused r4847/E018 ledger and prior execution pins; it neither renews
+native admission nor declares broader QA completion. Historical catalog/scenario
+pins can refuse changed inputs and require fresh review. See the
+[publication record](qa/swarm/pr_publication.json). Historical findings below
+remain separate from this current checkpoint.
+
 Dated findings log. Each entry says how it was measured; "assumed" marks anything not yet
 measured. Newest entries at the bottom of each date.
 
@@ -7110,6 +7120,1992 @@ not ordinary acquisition/spending or two-machine multiplayer performance. No rea
 profile was imported or play session launched for PR validation. The earlier
 stutter investigation remains unresolved and the broader QA sweep remains paused.
 
+## 2026-10-29: swarm verification and repair planning
+
+Created the [swarm plan](qa/SWARM_VERIFICATION_PLAN.md) on
+`codex/run-save-builder-followup`, starting at PR #83 head
+`964e1b7e16d6221a1bdfd70fdb181f1f8a360446`. Five planning subagents reviewed
+host tooling, combat, other modules, orchestration and release/planner surfaces.
+The proposed execution roster is 32 total: 24 domain owners, four independent
+reviewers, coordinator, runtime owner, integrator and evidence steward. Expand
+toward 48 only for concrete independent tasks; the session maximum is 100.
+
+The plan serializes native GameLab runs and installed-source integration, while
+parallelizing read-only review, audited sandbox checks, isolated patch drafts and
+completed-result analysis. It defines source epochs, reproduction/fix/neighbor
+checks, packed-artifact gates, evidence scopes and bounded failure handling.
+Current manifests contain 42 feature modules across 12 packages plus three library
+parts; historical module/spec matrices remain historical. The settings sweeps
+omit affixes, attrclick and petrooms, and the old regression guide names moved
+restart/resource unittest modules. These are execution tasks, not fixes or test
+results from this planning session.
+
+Only planning documentation changed. No tests, doctor, builds, game launches or
+real profile/deployment operations ran. Campaign execution has not started; the
+historical sweep and unresolved multiplayer/stutter work remain paused.
+
+## 2026-10-29: persistent agent swarm tracker
+
+Added `tools/qa_swarm.py`, the [agent protocol](qa/SWARM_TRACKER.md), and a portable
+JSON seed/ledger under `docs/qa/swarm/`. AGENTS and README now direct resumed
+agents to `resume --owner <alias>`. The initial 27 bootstrap tasks are all queued:
+baseline, 24 domain inventories, smoke and native prerequisite contracts. Owners
+will add bounded feature, reproduction and repair tasks during actual execution.
+
+The standard-library CLI returns versioned JSON, requires task revisions/claim
+tokens, serializes atomic writes and preserves events with state in one file.
+Leases, saved next actions, dependencies, immutable source epochs, explicit reopen
+and advisory freeze state support compaction and handoff without chat history.
+Released fixes remain discoverable; old attempts/prerequisite revisions cannot
+supply new verification. Native journal imports recheck raw outer/inner results,
+source fingerprints and the epoch's pinned build ID/executable hash. Failed trials
+remain, and later failed checks cannot hide behind earlier passes.
+
+Only the designated runtime/integration aliases can record their respective
+operations. Expiry never releases a native freeze or touches GameLab locks. The
+tracker launches no game, applies no patches, resets nothing and does not infer
+whole-campaign coverage or sign-off from task counts. Metadata updates occur
+outside installed source; Git staging/checkpoints still wait for idle boundaries.
+
+Validation: 31 temporary-fixture checks passed with
+`python -m unittest tools.test_qa_swarm tools.test_qa_batch -q`, using the existing
+project environment from the main checkout. Coverage includes actual concurrent
+CLI claims, lost-update protection, replacement failure, stale tokens/epochs,
+dependency changes, handoffs, evidence guards and freeze preservation. A separate
+ignored CLI ledger exercised init, real Git source capture and owner resume.
+Whitespace checks passed. No doctor, build, native scenario, real profile or
+deployment operation ran; no new gameplay coverage is claimed. The verification
+campaign remains unstarted and the historical sweep remains paused.
+
+## 2026-10-30: swarm execution initial source and offline epoch
+
+The user activated the full testing, verification and repair goal. The original
+scope remains open, including native consumers, ordinary lifecycle, packed
+runtime, visuals and real co-op. The tracker is authoritative; README now shows
+the active campaign separately from the historical paused PR checkpoint.
+
+Pinned E001 at HEAD `964e1b7e16d6221a1bdfd70fdb181f1f8a360446` plus the
+tracker/documentation worktree. Its `mods+gamelab+tools-v2` fingerprint is
+`2fdb695d1d25653e6616239ce2962d261dace1dfd3d7acc5e5dbba6eb87904a0`
+(2,154 files). Twenty-four domain owners inventoried source/scenarios; four
+independent reviewers check those inventories before child execution. The
+portable `qa_swarm_inventory`, `qa_swarm_coverage` and `qa_swarm_findings` reports
+cover 42 release features, three libraries, optional/developer surfaces and 82
+plan closeout gates. Source inventory acceptance is not behavior coverage.
+
+Read-only doctor with normal process visibility confirmed Steam and pinned build
+25932569 / B176. Copied only the prior checkout's gamecode SDKs/assets/datatables
+and tools/bin into this worktree; current bootstrap verification is green.
+No save, confirmation, smoke or fixture stamps were copied. The prior portable
+compiler works through session PATH. `uv sync --dev` created a local CPython
+3.14.2 environment with the locked pytest dependencies. Save confirmation,
+environment links and generated module/import outputs still need documented
+setup; no launch-capable doctor fix has run.
+
+Native execution is held pending independently reviewed safety repairs. H2
+reproduced startup failure handling with mocked processes: the original 13-case
+suite had ten failures, and the first draft passed all 13; a further long-path
+redirect boundary identified by review is being added before integration. H1
+reproduced orphan partial new profiles in two of eight transaction fault cases;
+its unapplied draft passed those eight plus five existing checks. The original
+failures and draft results are retained under ignored task artifacts. No installed
+product/harness fixes or native behavior passes are claimed by those drafts.
+
+Existing isolated checks recorded so far: H1's 16 save/profile tests passed;
+H2's 41 unittest cases passed with two permission-dependent skips and its separate
+19 pytest cases passed after local environment setup; H3's 65 batch/tracker/oracle
+checks passed with no skips. Before/after E001 fingerprints remained unchanged.
+Missing-pytest/temp-permission trials remain retained. H4 selftests and further
+reproductions are still in progress; consult the tracker for later results.
+
+Corrected the moved restart/resource unittest imports and current 42-feature
+denominator in the regression entry point. No game, real profile import,
+deployment, restore, build or publishing operation has run in this campaign.
+The goal is active and incomplete. Next: finish safety reproductions/review,
+integrate at an acknowledged idle boundary, validate a new epoch, then complete
+isolated setup and current smoke before dependent gameplay cases.
+
+## 2026-10-30: E002 installed safety and data-integrity integration
+
+After all 24 source inventories had independent acceptance, paused all offline
+test runners and installed 11 reviewed patch bundles across 26 files. The root
+integrator rehearsed the union in ignored staging, verified every installed base
+byte against E001 and parsed each revised Python file before mutation. Rehearsal
+failures exposed directory-prefixed Git excludes and CRLF patch artifacts; both
+stages are retained. Only patch line endings were normalized for application;
+the guarded original files and final installed hashes are in
+`control/e002-integration.json` under ignored campaign results.
+
+Installed changes cover fail-closed suspended startup and mandatory redirect
+handshake/path bounds; exact process identity and nonce/lifecycle-fenced
+acquire/release/reset/result output; retryable written-file recovery; profile
+transaction cleanup, strict export/record validation and bot readiness; shared
+outer/inner result agreement; coordinator-only idle task deferral; doctor smoke
+proof/build/stamp validation; and atomic planner writes with finite JSON.
+Archive/package-graph and gameplay/oracle proposals remain unapplied.
+
+E002 is HEAD `964e1b7e16d6221a1bdfd70fdb181f1f8a360446` plus the installed
+patch, fingerprint `a61260681fd0800fd440fd9257f3c3bab6dcd799ca9e52bfef48500a29990bff`
+(2,159 files, unchanged `mods+gamelab+tools-v2` scope). Planner/test hashes are
+separately recorded in its supplementary epoch manifest. Installed validation:
+
+- `unittest discover -s gamelab/tests -q`: 98 cases, OK with two privilege-related
+  symlink skips. Process creation/input/reset calls used fake processes and paths.
+- Focused profile, runtime caller, QA batch/tracker, doctor smoke and planner
+  unittest set: 117 cases, OK. One injected-close test emitted a retained
+  TemporaryFileWrapper ResourceWarning; no production leak was established.
+- Isolation pytest set: 19 passed, no skips.
+
+All three processes exited 0, with identical E002 source fingerprints before and
+after; raw commands/stdout/stderr/results live in `control/e002-validation/`.
+These are installed offline proofs, not native gameplay or a full final suite.
+Independent installed-merge/result audit is in progress before launch readiness.
+
+The new `.lifecycle` sidecar must never be deleted/reset automatically. Inspect
+its owner and cause, prove the owned process state with adequate visibility, and
+respect any live/unknown owner. The documented `--wait` path conservatively refuses
+some transient lifecycle contention; the campaign continues through one serial
+runtime owner rather than weakening that refusal. This remains a bounded
+follow-up. No native scenario or launch-capable doctor has run yet. Next: refresh
+source inventory dependencies honestly for E002, finish isolation audit, then
+perform documented isolated setup and current native smoke/consumer gates.
+
+## 2026-10-30: E002 isolated setup and current load gates
+
+Independent installed-source review accepted the E002 repair bundle and its
+recorded offline results. Compiler, save and doctor selftests also completed
+with 7, 14 and 78 checks respectively; save operations in these selftests used
+fake trees. All 24 lane inventories received fresh E002 source-delta review.
+This establishes source continuity, not new gameplay coverage.
+
+The runtime owner then ran documented `doctor --fix --no-smoke` setup with full
+process visibility. A new automatic backup confirmed all 72 actual save files
+under worktree `saves-backup/2026-10-30T01-10-00`; independent review compared
+backup and then-current live hashes. No save restore ran. Setup created isolated
+environment links, generated class units and Forgemaster inputs, and imported
+required HoH1 assets. Doctor is green on pinned build 25932569 / B176, executable
+SHA256 `232cfb7a784c4851618afae1f9b7481deb60e1b46e7e4fcae79c4b4c35751100`.
+
+With sources frozen, serial batch `swarm-e002-smoke-001` completed one trial each:
+
+- `20261030-102942-null-payload-lab`: PASS, 20 outer assertions; three hooked
+  process starts include cold-fixture work. Independently inspected town render.
+- `20261030-103025-mod-all-lab`: PASS, 17 outer assertions; 42 feature modules,
+  three libraries and three GameLab developer modules loaded once each.
+
+Independent review checked final inner/outer assertion prefixes and copied
+metadata, build/source identity, process hooks/job/parent, clean teardown and
+save/config/resource/focus isolation. Raw records and reviewed evidence remain
+under ignored results; the portable tracker records exact run IDs and scope.
+Both runs establish load scope only. The full-stack raw log additionally exposes
+three priest Holy Flames `SValue::GetArray` errors and paladin Fuel the Flames
+class warnings; `M5-BUFFTIPS-LOAD-DIAGNOSTIC` retains that differential. Passing
+the existing narrow authored-script filter does not establish an error-free log
+or correct skill behavior.
+
+Source fingerprint remained E002 `a61260681fd0800fd440fd9257f3c3bab6dcd799ca9e52bfef48500a29990bff`
+(2,159 files). The separate manifest of 6,288 regular module/tool/lab-setting
+inputs remained `9e702ad0e1d96f8d959238a6604d0b2ca5725234b29c410f3dabce8d08e6af68`
+before and after smoke. The campaign remains active: native input/observer
+contracts are running next, with temp-only offline repair work in parallel.
+Ordinary gameplay, complete ranks/orbs, persistence, packed, visuals and real
+co-op remain separate open gates in the original plan.
+
+The first prerequisite queue stopped on
+`20261030-104053-qa-firearms-input-sequence-lab` (one trial, outer FAIL).
+Independent review found three successful setup rows followed by corridor
+certification failure: 110 native route queries returned no routed leg. The
+movement/shot sequences, CLIP/HP observations and release checks were never
+reached. This is a harness setup blocker, not evidence of a firearm defect.
+`F1-DASH-NAVIGATION-REPAIR` records the investigation; no unchanged retry ran.
+
+The separate crit-helper contract then passed in one trial,
+`20261030-104516-qa-specs-crit-contract-lab`. Independent review checked all seven
+flags and actual replies: native skill/spell crit `0/0.05` changed to `1/0`,
+survived the native orb modifier rebuild with independent zero-roll readback,
+then restored to `0/0.05`. `contract_only=true`, with no combat trials. This is
+one accepted native-contract check; the combined prerequisite task remains
+harness-blocked. Both queues ended with clean teardown and unchanged E002 source
+and 6,288-input manifests. With no game process or GameLab lock/lifecycle fence
+remaining, the runtime owner released its claim and returned the tracker to idle
+for the next reviewed integration. All workers retain ignored-draft-only scope.
+
+## 2026-10-30: E003 navigation, oracle and tooling integration
+
+At the next clean boundary, installed eight independently reviewed bundles across
+24 files: archive extraction containment, package dependency validation, planner
+polling tokens, Blink geometry oracles, boss identity/cohort oracles, observer
+clock/identity validation with local consumer bindings, DevArena ship verdict
+guards and navigation guide selection. Every staged file matched its reviewed
+candidate hash; all original bytes and required new-file absences were checked
+before installation. The merged Python/JSON rehearsal passed before mutation.
+No module source, engine verb, authored balance or generated module input changed.
+H2 wait, H4 save safety, M5 bufftips metadata and tracker response drafts remain
+uninstalled pending their own review; earlier failures are retained.
+
+E003 is HEAD `964e1b7e16d6221a1bdfd70fdb181f1f8a360446` plus these patches,
+fingerprint `63d6b4a16df4d75e07c9bbdf7eb43788d470e907efd02e5fd3ace788cd832e83`
+(2,164 files, `mods+gamelab+tools-v2`), with 269 supplementary paths. The separate
+6,288-input manifest remains `9e702ad0e1d96f8d959238a6604d0b2ca5725234b29c410f3dabce8d08e6af68`.
+Installed checks completed in five terminal processes, each with identical E003
+before/after fingerprints:
+
+- GameLab unittest discovery: 147 cases, OK with two privilege-related skips.
+- Profile, QA, planner and build-update unittest shard: 134 cases, OK.
+- Isolation pytest shard: 19 passed.
+- Archive, package graph and ship-report pytest shard: 104 passed, one unavailable
+  file-symlink setup skip. Junction and hardlink controls ran.
+- Release pytest shard: 16 passed.
+
+These are 418 passes and three skips, not a coverage percentage. The existing
+planner injected-close ResourceWarning is retained. No game process or real
+save operation ran in these mocked/temp-only shards. Raw commands, outputs and
+results are under ignored `control/e003-validation/`; integration guards/backups
+are under `control/e003-integration.json` and `control/e003-originals/`.
+Read-only `doctor --no-smoke` also exited 0/green at E003, without setup fixes,
+save restores or a game launch. Independent installed-source/result audit and
+fresh lane inventory attestations are in progress before the next native freeze.
+
+The repaired navigation selector now considers nearby departures while retaining
+all final native walking, body/ray and corridor certification gates. Its fake
+regressions include multiple walks to a farther corridor. Live nearby route
+availability remains unproved until the changed-source prerequisite trial.
+E002 smoke/crit passes stay historical E002 evidence; none is relabeled E003.
+All broader original-plan gates, including ordinary and real co-op consumers,
+remain open in the tracker.
+
+Independent review subsequently accepted the E003 installed merge, all five
+terminal shards, BASELINE and all 24 fresh source inventories. Current smoke:
+`20261030-111720-null-payload-lab` passed with 16 outer assertions and one warm
+hooked start. The following `20261030-111733-mod-all-lab` stopped before any game
+launch: `real_config` could not read Steam's app manifest, raising PermissionError
+before snapshots/runner construction. No run/inner result exists for that trial;
+it is retained as NO_RESULT, not a module failure or pass.
+
+Read-only failure accounting proved no game, lock or lifecycle owner, recorded
+the dirty teardown, then observed the manifest readable again with no build
+mismatch. The exact OS denial cause is unknown. Root used the documented
+isolated-lab reset, which killed nothing and cleared only scratch saves/appdata;
+no user save restore ran. One explicit recovery trial,
+`20261030-112415-mod-all-lab`, passed with 17 outer assertions. Independent review
+accepted its inner/outer agreement, screenshots, isolation and unchanged E003
+source/6,288-input map. Both mod-all attempts remain in evidence, and the raw
+Holy Flames/Fuel the Flames diagnostics remain unresolved. SMOKE r12 is verified
+for load only. The subsequent input trial and helper contract are recorded below;
+no E003 input/critical damage/ordinary gameplay pass is implied.
+
+### Swarm E004/E005 integration checkpoint — 2026-10-30
+
+E003 input run `20261030-112817-qa-firearms-input-sequence-lab` failed after
+movement and release gates passed: ammo decreased twice, but target HP did not.
+Native logs showed the firearm aimed at a stale mouse cursor. This identifies a
+fixture prerequisite; it does not establish a weapon damage defect. Crit helper
+run `20261030-113135-qa-specs-crit-contract-lab` passed its 15 outer assertions
+and seven contract flags with rebuild/readback/restore. Its `contract_only=true`
+and empty trials provide no gameplay damage proof. Both runs tore down cleanly;
+the failed input trial remains retained.
+
+E004 installed eight independently reviewed patch layers across 34 files:
+save metadata/transaction safety, bounded lifecycle waiting, prelaunch baseline
+read refusals, bounded agent tracker responses, metadata-only bufftips ownership,
+cursor-pinned input fixtures, per-boss/healing oracle rows, and generated wrapper
+alignment. The five installed offline groups completed with 527 passes and three
+skips. Separate compiler/save/doctor selftests passed 7/14/78 checks. Independent
+review accepted this scoped evidence and all 24 source inventories. These results
+do not prove AS compilation, HUD rendering, hits, real save restoration or co-op.
+
+Cross-layer review then found that a save path refusal can arrive as the actual
+`saves.MetadataError`, rather than `OSError`, before the runner starts. E005 adds
+that specific type to the prelaunch catch and seven regression cases, preserving
+unrelated errors, postlaunch dirty handling and foreign ownership fences.
+E005 is HEAD `964e1b7e16d6221a1bdfd70fdb181f1f8a360446` plus working patches,
+fingerprint `48f4945aa8bdb571812bd8a5bc43969d98d17cc67e9b739a5c3814907f1c14e3`
+(2,173 files, `mods+gamelab+tools-v2`; 269 supplementary paths).
+
+E005's five terminal offline groups have identical before/after source hashes:
+218 GameLab unittest cases (two skips), 179 focused unittest cases, 19 isolation
+pytest passes, 104 archive/graph/ship passes (one symlink setup skip), and 16
+release passes: 534 passes and three skips. Verbose per-case logs and pytest
+JUnit reports are retained in ignored `control/e005-validation/`. Independent
+installed-source review and read-only readiness checks were pending at this
+integration checkpoint. No native E004/E005 run had yet occurred. All original-plan behavior gates and unresolved
+findings remain separately tracked; historical results keep their original epoch.
+
+Independent audit subsequently accepted E005 integration, BASELINE and all 24
+current source inventories. Read-only doctor `--no-smoke`, package-scenario
+`--check` and verb `--check` each exited 0 with unchanged source. The separate
+6,288-input map is `4b8a0192abac14010eaa3c4d6106bd4c4a16c1341d8e4137d38dae41134cbdcc`.
+Fresh planner API evidence is separate: all 34 controls passed against an owned
+temporary data/web copy on loopback; independent review accepted API/disk scope.
+The server was shut down, joined and closed; its temporary tree was removed.
+This adds no browser/UI or native gameplay evidence.
+
+E005 `20261030-130243-null-payload-lab` passed 16 outer assertions and
+`20261030-130320-mod-all-lab` passed 17. Independent review accepted load scope,
+actual screenshots, inner/outer agreement, all isolation/build guards and clean
+teardown. Full-stack enabled all 42 features, three libraries and three lab
+modules exactly once. Raw logs retain 11/15 ERR and 96/102 WRN lines respectively;
+they are not universally clean. Prior Holy/Fuel startup parser messages are absent
+on this boot. Bufftips reported 31 raw definitions, zero invalid, and zero loaded
+definitions given icons; this aggregate is not individual HUD/render proof.
+
+Changed-source input run `20261030-130850-qa-firearms-input-sequence-lab` failed.
+Navigation, native movement/return, body fixture and both idle-release checks
+passed. Accepted request `c74` then refused at the existing world/screen roundtrip
+guard before the first shot write: start -1, zero frames/steps/completions and
+no cursor samples. Valid observer endpoints retained target 27476 at 10,000,000 HP
+and CLIP 10 unchanged. The empty restoration list does not prove cursor cleanup;
+no cursor had been pinned. This is a projection prerequisite failure, not a
+weapon damage defect or observer-retention failure. No unchanged retry is queued.
+
+Separate `20261030-131136-qa-specs-crit-contract-lab` passed 15 outer assertions
+and seven helper flags. Independent raw replies show baseline 0/.05, forced
+1/0 readback, orb 1-to-2 rebuild preserving the override, then restore/query
+0/.05. `contract_only=true`, empty trials and zero rolls provide no critical
+combat-damage proof. Both input and crit sessions ended cleanly with no game,
+lock or lifecycle owner and identical E005/source-input maps. Both outcomes are
+retained; `NATIVE-CONTRACTS` remains harness-blocked, claim released, phase idle.
+
+Exact composed-tooltip and current-speed Thunder Orb oracle drafts have
+independent source/isolated-test acceptance for a future epoch, not installation.
+Town oracle review found that the existing native item JSON rounds floats/vectors
+and can hide nested truncation; its full-identity claim needs a real transport
+repair and is not accepted. H3 is reconciling a bounded projection diagnostic
+without changing the strict guard or inventing a mapping correction. All broader
+plan requirements remain open in their respective tasks.
+
+E005's separately admitted bufftips diagnostic subsequently passed:
+`20261030-132119-fix-bufftips-skill-icons-lab`, 18 outer assertions and all nine
+original bot flags. Independent source review first traced direct activation,
+givebuff, native HUD-widget hover/settings and capture APIs, establishing no
+dependency on the refused world-projection path. The plan records this limited
+diagnostic exception; broader native-contract and M5 UI dependencies remain open.
+
+Independent terminal review accepted actual War Cry buff/name/description,
+hovered tooltip, off/on HUD false-to-true controls and 13 distinct selected
+family keys with shown names/descriptions. All three actual captures were
+inspected. The raw 31-definition metadata predicate also passed, providing no
+31-rank/native-effect or all-lifetime proof. This is controlled direct-API/HUD
+evidence, not natural combat-input or ordinary-play evidence.
+
+Retain the case's raw 29 ERR lines: repeated baseline widget/Weather/layout
+signatures plus two keep_secrets generation lines. Direct Fuel givebuff emitted
+three missing-class/caller/empty-class WRN lines; its shown icon does not prove
+the missing gameplay effect works. The selected log predicates passed, not
+universal log cleanliness or an upstream gameplay-data repair. All guards,
+inner/outer agreement, source/input maps and teardown were clean. The admitted
+task is verified E005/r4, runtime claim cleared and phase idle. Independent
+local review is under `reviews/release-modules/E005/m5-native-icons/` in the
+ignored campaign artifacts. Other native, visual, lifecycle, save and co-op
+requirements remain separate.
+
+### Swarm E006 checkpoint — 2026-10-30
+
+E006 installs nine exact independently reviewed files: composed tooltip row
+identity/slot binding and regressions, current-speed Thunder Orb phase/endpoint
+oracles, and one bounded first-refusal projection diagnostic. No authored
+product/balance files changed. Source is HEAD
+`964e1b7e16d6221a1bdfd70fdb181f1f8a360446` plus working patches,
+`342a7d6bd8feee73035147f1f5f18144ec2f104d3d38013a2c24d4d33f020fd0`
+(2,174 files; `mods+gamelab+tools-v2`), with 270 supplementary paths.
+The 6,288 consumed regular inputs hash to
+`61b284dc6be107f96f13747769a82b157ba909907621e2af7db7b3b6d92d7a1f`;
+only the two reviewed QA AS files changed in that map. Independent stage and
+installed reviews reconstructed E005 exactly by reversing the nine guarded files.
+
+Installed checks, each with unchanged E006 before/after source, completed:
+GameLab 236 cases (two privilege skips), focused host/profile/planner 179 cases,
+isolation pytest 19 passes, archive/graph/ship 114 passes (one symlink skip),
+and release 16 passes: 562 passes and three skips. The new source/model controls
+are not AS/native effect evidence. Verb and package-scenario generation plus
+`--check` each exited 0; catalogs/wrappers had no derived delta. Report-only
+doctor `--no-smoke` was green without setup fixes or a game launch. Independent
+review accepted integration and all 24 current source inventories.
+
+Current load-only evidence: `20261030-135211-null-payload-lab` passed 20 outer
+assertions over three hooked starts for a cold fixture cache, and
+`20261030-135345-mod-all-lab` passed 17 over one warm start. Independent review
+inspected actual images, exact inner/outer agreement, all 48 enabled modules
+once, build/isolation/finality guards, empty postrun process/lock state and stable
+input maps. Raw minimal-pass ERR counts are 11 each (WRN 50/116/96); full-stack
+retains 15 ERR/102 WRN. An optional missing `run_summary` helper warning is a
+separate reporting defect; primary verdict and teardown stayed clean.
+
+The sole instrumented input trial,
+`20261030-135859-qa-firearms-input-sequence-lab`, remains FAIL. Movement, body
+fixture and idle-release checks passed; c68/player 29241 refused before the
+first shot write, start -1 and zero frames/steps. A complete finite diagnostic
+row was delivered (seen 1, dropped 0, not truncated): requested world
+(-367.416992188, -10.649999619), native inverse
+(-368.000396729, -11.000045776), round error 0.680362523 versus the unchanged
+0.1 guard. One-screen-pixel native probes measured approximately 1.2 world
+units per axis. Every recorded camera state equaled the stationary actor.
+These are one-point observations, not an established global mapping or rounding
+mechanism. Target 27528 remained at 10,000,000 HP and CLIP at 10. No cursor pin,
+owned restoration, weapon defect or action success is inferred. All final
+guards/teardown/source/input maps were clean; no further observability retry.
+
+Review also found that the test-only diagnostic helper's Python-double
+dimension check rejects this real float32-produced row: native width 640 versus
+768 * serialized scale 0.833333313 = 639.999984384. The diagnostic producer
+delivered its facts; this is a distinct oracle precision defect. Its task remains
+harness-blocked pending the coordinated F1 calibration/oracle draft. That draft
+must validate the actual native inverse within the existing 0.1 bound before
+writing input; no relaxed tolerance or guessed mapping is installed.
+
+D1 composed-tooltip and S2 geometry tasks are independently verified for current
+source/offline scope. NATIVE-CONTRACTS remains harness-blocked (E006/r26), runtime
+claim released, phase idle. Reviewed future town transport, bootstrap publication
+and missing-summary bundles remain uninstalled. Native typed-item calibration,
+original-product town/channel reproductions and the bootstrap shim rebuild are
+still required after their eventual integration. All ordinary, broader visual,
+packed and real-co-op requirements remain separately tracked.
+
+### Swarm E007 installed checkpoint - 2026-10-30
+
+The root integrator installed 28 exact independently reviewed outputs at a
+physically idle, pinned boundary: 24 source files from four accepted bundles,
+three generated town PF wrappers, and the verb catalog (205 to 207 entries).
+The source fingerprint is
+`9f74fe3a54704917fad1eeb80d58ceca9a1dc254c20f05546590574bd85464c5`
+(2,189 files, `mods+gamelab+tools-v2`) at unchanged HEAD `964e1b7e...` plus
+working patches. The stage and installed hashes agree. Source epochs and prior
+failed trials remain distinct in the tracker.
+
+The projection change proposes one bounded local correction from actual inverse
+probes, requires the actual candidate inverse within the existing 0.1 of the
+original requested world point before normal input, and consumes an exact
+same-frame cursor cache. The test-only dimension validator now reconstructs the
+native float32 multiplication. M3's typed item transport refuses incomplete/lossy
+snapshots and separates town economy checks from weaker acknowledgements.
+Native numeric/recursive-refusal/real-item calibration remains mandatory before
+item-preservation claims. No product or balance repair was applied here.
+
+The corrected summary writer uses exclusive sibling temporaries and replaces
+derived leaves. The rejected original proposal really corrupted two hardlinked
+fake primaries; that trial and its old acceptance are retained and explicitly
+barred. The corrected candidate's 11 controls cover primary preservation and
+first/second publication failure, with per-leaf rather than two-report atomicity.
+
+The new bootstrap integrity check intentionally rejects the old source-only shim
+stamp. Root retained the prior owned DLL/stamp pair and performed an actual
+`bootstrap.build_shim(False)` using the existing portable gcc 16.2.0. The build
+exited 0, readback verified the persisted source/DLL/compiler stamp, and
+`bootstrap.py --verify` exited 0. Actual DLL SHA is
+`022f0c242afb3ceb881a7a30e15798b5fe08a8461595e5acbe2c46d353d1eb81`;
+shim source SHA is
+`9953b9bfa5f01581743b85cc35d61ff1d545e59d8fc2594a543f824fa8a8a136`.
+The 6,290 consumed regular inputs hash to
+`7fe1b1ac82f4afde3927e258729f95d121b7964b7cc575f9c7b337128645b4ef`.
+No extraction, repinning, real-save restore or game launch occurred in setup.
+
+Five installed groups completed with stable E007 source: GameLab 287 cases
+(two skips), focused host/profile/planner 221 passes, isolation 19 passes,
+archive/graph/ship 114 passes (one skip), and release 16 passes. Total: 655 passes
+and three named privilege/symlink gaps. The added groups explicitly include
+16 calibration and eight diagnostic controls, 35 town oracle/transport controls,
+24 bootstrap cases, seven compiler fixtures and 11 summary cases. These are
+Python/fake/source controls, not AS execution or native mechanics. Four installed
+generation/check commands and report-only doctor `--no-smoke` plus PF/verb checks
+all exited 0 without source/input drift.
+
+At this checkpoint independent installed receipt/source attestations and the
+fresh native load/input/critical gates remain pending. S4 channel fixtures remain
+excluded after review caught a caller that discarded the corrected cursor point,
+plus timing/deadline/body/nullable-class/size gaps; its owner is amending a distinct
+ignored candidate. The tracker amendment CLI and M3 native calibration are also
+uninstalled drafts. Full ordinary gameplay, lifecycle, packed release and real
+co-op verification is unfinished; no campaign signoff is implied.
+
+### Swarm E007 native prerequisites accepted - 2026-10-30
+
+All 24 source inventories, the installed integration checks and source baseline
+were independently accepted. On unchanged E007 `9f74fe3a...` / 2,189 files and
+6,290 inputs `7fe1b1ac...`, the root runtime owner completed four serial lab
+singletons on build 25932569 / Build176:
+
+- `20261030-151359-null-payload-lab`: PASS, 20 outer / 14 inner assertions,
+  three hooked cold starts.
+- `20261030-151515-mod-all-lab`: PASS, 17 / 11 assertions, one start and all
+  48 enabled modules found once.
+- `20261030-151749-qa-firearms-input-sequence-lab`: PASS, 15 / 9 assertions,
+  all setup/movement/body/action/release flags true.
+- `20261030-152002-qa-specs-crit-contract-lab`: PASS, 15 / 9 assertions,
+  all seven helper-contract flags true.
+
+Independent review reconciled actual inner/outer prefixes, raw bot/command
+parts, build, hooks, isolation/focus/desktop guards, complete teardown, empty
+postrun process/lock state and stable source/input maps for each. Actual minimal
+town and full-stack end captures were inspected. Baseline engine diagnostics
+remain: null has 11 ERR per pass (WRN 50/116/96), full has 15 ERR / 102 WRN.
+The corrected summary helper produced matching JSON and Markdown reports; the
+old optional import warning is absent. This remains bounded compile/load proof,
+not a clean-log or all-feature behavior claim.
+
+The actual input consumer is Service Pistol, target 27766, shooter 30383,
+at an 80-pixel body fixture with the authored 11-pixel source-height offset.
+Command c68 wrote 31 normal frames across four steps with four matching done
+events. Four complete cursor parts retained 32 rows, no drops or projection
+failure. The source still requires the native inverse within 0.1 of the original
+world point before normal writes. Emitted round errors are `0.000` at display
+precision; that does not prove exact zero or expose whether the fallback branch
+was needed. One genuinely owned buffer-0 cursor was restored from the last pin
+to its original (0,0), rather than receiving vacuous already-neutral credit.
+
+The bound observer retained six events: ammo 10 to 9 to 8, with target HP
+10,000,000 to 9,999,976.158 to 9,999,952.316. Each observed HP decrease followed
+its ammo debit by 66 ms. Both release pairs remained neutral and stationary.
+This proves the declared protocol/consumer effects at this fixture and point.
+It does not establish a global coordinate mapping, causal replay at the old
+failed point, exact weapon balance/chance or repair other unbound input helpers.
+All previous E002/E003/E005/E006 failures remain in the ledger.
+
+The critical helper is contract-only: nine raw replies show skill/spell baseline
+0 / .05, forced 1 / 0, retained override after orb rank 1 to 2 rebuild, and
+restore/query back to 0 / .05. Independent readbacks, finally restore and scene
+timescale restoration passed. `trials=[]`, with zero rolls/crits; no combat
+critical effect or probability is inferred.
+
+SMOKE is verified E007/r28; NATIVE-CONTRACTS is verified E007/r31. The runtime
+claim is cleared and phase idle. Next queues are the separately reviewed bounded
+Firearms state/visual cases and four save-builder export-only cases, after every
+declared current prerequisite is accepted. No ordinary, packed, real-co-op or
+typed-item native calibration signoff is implied.
+
+### Swarm E007 Firearms states and save exports - 2026-10-30
+
+The later queue retained exactly the same source `9f74fe3a...` / 2,189 files,
+270 supplementary paths and 6,290 inputs `7fe1b1ac...`, pinned build
+25932569 / Build176. All seven additional native scenario trials completed
+with outer PASS, matching final inner assertions, no partial/error/build drift,
+recorded user-save/config/res/focus/desktop preservation, clean teardown and
+empty postrun owned game/lock state. Each scenario ran once. Independent
+reviewers read the actual raw artifacts; primary PASS does not establish every
+consumer scope below.
+
+`20261030-153036-qa-firearms-hoarder-unequip-lab` passed 15 outer / nine inner
+assertions. Existing GL bank/count state was 1/2, became 1/0 with a Flamethrower
+Rifle lacking the GL skill, and returned to 1/2 on GL re-equip. This is native
+bank preservation and shown-count state, not rendered HUD pixels. The first
+bank observation was already positive with one immediate sample: the flag named
+`gl_naturally_banked` does not prove natural production/rate. The bounded child
+is verified E007/r4.
+
+`20261030-153959-plan-firearms-reload-cut-lab` passed 15 / nine assertions and
+nine bot flags. Raw state confirms manual ability cancellation held clip 20,
+retry reached 30, held-trigger checks were 20/20/30, and forced-empty automatic
+reloads were held by ability/cancelled-swap activity and refilled later. Native
+start callbacks retained/clamped the authored rank triples. These use forced
+ranks/ammo, `castat`, host/RPC wall-time observations and cancelled swap channels;
+they do not prove exact timing, a completed equipment swap, damage, all ranks,
+ordinary continuity or real-save migration. The manual-ability `logged cut False`
+is retained; acceptance uses observed no-refill/cooldown state, not a specific
+internal callback path. The bounded child is verified E007/r4.
+
+`20261030-154955-fix-firearms-poses-lab` passed 18 / 12 assertions, 15 desired-pose
+flags and three log patterns. Root and reviewer inspected all eight original
+named captures. The first two show the central actor; six later frames do not
+establish readable weapon/per-hand orientation after a four-frame downward dash
+moved the actor from (-240,-48) to (-240,58.34). Desired-enum logs precede Apply
+and do not prove a rendered model. A controlled-native pass and a separate
+visual evidence failure are retained; F1-NATIVE-POSES is harness-blocked E007/r5,
+claim released. This is a capture/fixture evidence gap, not a proven product
+render defect. No unchanged native retry occurred.
+
+The four save-builder requests were generated once under ignored results and
+independently compared byte-for-byte with canonical plans. All 13 declared
+current prerequisites were accepted before launch. Direct `python -m gamelab
+run <request.json> --mode lab` was used, with actual request/source/input hashes
+and receipts; no synthetic batch journal was made. Each run passed 18 outer /
+12 inner assertions and used three captured game boot passes:
+
+| Run ID | Final selectable roster | Gold | Export bytes |
+| --- | --- | ---: | ---: |
+| `20261030-160214-h1-e007-empty-zero-001-lab` | empty | 0 | 5,095 |
+| `20261030-161311-h1-e007-empty-max-001-lab` | empty | 2,147,483,647 | 5,101 |
+| `20261030-161709-h1-e007-mixed-levels-001-lab` | `warrior/H1Warrior1/1`, `sorcerer/H1Sorcerer20/20` | 1,000,000 | 9,403 |
+| `20261030-162122-h1-e007-firearms-001-lab` | `hwp_firearms/H1Firearms20/20` | 2,500,000 | 6,486 |
+
+Production export validation and independently decoded native bytes agree on
+names/classes/levels, signed integer gold, exact section/trailer boundaries,
+MD5-prefix checksum and no active dungeon runs. Raw slot counts are 1/1/3/2,
+because a classless local PlayerRecord under key zero remains in each file.
+SDK `GUI/PickCharacterWindow.as::RefreshSlots` explicitly skips key zero; actual
+empty-case logs say Listing 1 / Skipping 0 char, and state/screenshots show no
+selectable character. The key-zero record has level/unique-key zero and no
+class/nonempty name; it is not asserted to have a dedicated global/account role.
+Raw slots must not be confused with selectable roster size.
+
+The standalone Firearms case enabled exactly the three GameLab modules plus
+`hwplib`, `hwplib-classui`, and `firearms`; it did not use the All closure or
+packed archives. Initial fixture save/reopen readback and per-character bot
+creation/level readbacks are distinct from the final full-roster disk proof.
+No post-bot full-roster in-engine reopen, ordinary earning/XP progression, real
+profile creation/import/restore or Steam play workflow was performed. The four
+evidence rows are individually indexed under `reviews/profiles/E007/` in local
+campaign artifacts. H1-NATIVE-PREPARATION-GATED is verified E007/r12; runtime
+claim cleared and phase idle.
+
+Audit failures are preserved rather than counted as extra native trials: root
+first assumed all request budgets were 240 (actual 240/240/300/270), a dependent
+helper call then refused for lack of a runtime claim, an extra raw-count auditor
+wrongly assumed raw slots equal live characters, and a close controller expected
+a batch-only optional field on manual evidence. None changed requests/profile
+bytes or native assertions. A reviewer read-only event selector also initially
+mixed reused command IDs across the three passes, then bounded its selection by
+the final harness segment. Original code/refusals and corrected read-only
+observations remain cited. The corrected receipt runner has separate actual
+child and wrapper exit values, per-observation refusal receipts and unchanged
+launcher caps plus 240 seconds of parent cleanup margin; its nine simulated
+flow controls are separate from the 655 installed-test result.
+
+Five future bundles are independently reviewed and remain uninstalled: tracker
+amendment `3187cd71...`, typed-item calibration `7c19ee2b...` (49 native cases
+plus three real-item reads still unproved), S4 channel fixture `d8e66cfa...`,
+pose capture repair `45a2ceaf...` (sole 14 fake controls), and compiler-target
+refusal slice `89681733...` (10 candidate controls, broader H4 discovery still
+open). Shared Hands registration and generated outputs require root composition
+and independent review before a new source epoch/native queue.
+
+### Source-intent corrections - 2026-10-30
+
+M2's original incomplete-affix-sample finding overstated the authored promise.
+The producer makes 200 attempts, skips unavailable low-level bases, and checks
+extras against actual `made`. The author explicitly accepted 175 Epic items at
+item level 1; 175 is neither a new fixed threshold nor a 200-success guarantee.
+Independent current/historical source review supports no `made == 200` repair.
+Broader affix consumer/invariant/persistence work remains unverified.
+
+M1's definite instant-cancel Confusion defect is withdrawn: authored history
+checks disable at the off-to-warning cycle boundary and again at the next off
+cycle, without promising to abort a committed warning/active cycle. Boss-key
+source does allow distinct-killer attempts with at most one successful party
+payout; history does not conclusively require globally consuming a failed first
+attempt. An owner policy question is pending; current rate, killer Luck and
+payout authority remain unchanged. These source assessments do not pass the
+original unimplemented repair/oracle checklists.
+
+### E008 installed checkpoint - 2026-10-30
+
+On the same PR #83 follow-up branch/HEAD `964e1b7e...`, root installed the five
+reviewed bundles listed above at an idle boundary. The independent composed-stage
+review accepted manifest `ae261667...391422`: 21 unique reviewed files plus
+the verb catalog and two generated S4 PF companions. M3's calibration scenario
+declares no feature mods and is ineligible for a PF companion. Three independent
+Hands registration insertions compose to `e9427831...`; removing those exact
+lines restores the original bytes. Native source is now
+`b0ef7db153786f92b4ecc0112932fd2329e30e4b0a7e1bc216bcdbb147516b1e`
+(2,205 files); all 270 supplementary hashes are unchanged.
+
+Root freshly rehashed all 6,290 E007 consumed inputs before any source write,
+then measured the exact 6,294-file mod overlay after installation:
+`b201ef4718d100964f273cebe9a49026bb053e593054e43ab3a25c680422af95`.
+The owned shim DLL/stamp remain unchanged; no rebuild or re-pin was needed.
+Actual verb generation/check, package-scenario generation/check and
+`bootstrap.py --verify` all returned zero without changing the rehearsed source.
+The pin remains 25932569 / Build176, executable SHA `232cfb7a...`.
+
+First installed regressions passed: GameLab 350 cases (348 pass, two named
+symlink skips), focused tools/planner 242 pass, isolation 19 pass,
+archive/graph/ship 114 pass plus one named symlink skip, release 16 pass.
+The unchanged audited doctor self-test also passed its 78 outer checks in
+15.097 seconds using unique fake-save fixtures under `C:\tmp\claude`, with
+source, consumed inputs and checked real metadata unchanged. These total
+817 passes and three skips. Four nested fake-save self-test invocations are
+not added to that total; the outer green result does not independently prove
+the two quiet generated-content verifier children returned zero.
+Report-only `doctor --no-smoke` separately returned green in 28.799 seconds,
+with source/inputs and physical teardown clean. No E008 native launch has occurred
+at this checkpoint. No line-execution metric was collected: the optional
+collector had no reviewed implementation ready, so it was omitted.
+
+Raw receipts are under `gamelab/results/swarm/swarm-20261029/control/`:
+`e008-install-receipt.json`, `e008-validation/results.json`,
+`e008-doctor-selftest/receipt.json` and `e008-readiness/receipt.json`.
+Independent inventory/component reviews are under `reviews/*/E008/`.
+The stage preserves an initial Windows command-format guard refusal and a
+later protected-stamp read refusal. The retained second stage was finalized
+without replaying it or claiming a worker protected-input measurement; root's
+actual before/after maps supply that condition. Neither refusal was a game trial.
+
+The exact courier source proposal is reviewed for a later boundary, with its
+disk adapter and forced empty-town fixture still absent. A separate settings
+coverage draft remains unapplied; independent review found teleport/stationary
+pet false-pass risks and restoration/cleanup gaps, which must be corrected in
+an immutable follow-up. E007 native results and the pose visual failure keep
+their actual source epoch and limitations. New AS compilation, 49-case typed
+calibration plus three real-item reads, original-product channel baselines,
+eight corrected pose images, broader product/ordinary/packed/co-op work and
+the final campaign closeout remain unfinished.
+
+The installed tracker amendment command has now strengthened the native
+transport task with its explicit preparation dependency and producer/consumer
+paths, and made that native contract a prerequisite of Gambler lifecycle tests.
+Both changes used public task-revision CAS, preserved the original checks/scopes
+and recorded before/after definitions. No canonical task definition was edited
+by hand, and the new prerequisites are not passes.
+
+### E008 first native failure and owned cleanup - 2026-10-30
+
+The sole E008 native trial `20261030-171920-null-payload-lab` failed during
+fixture materialization, before scenario/gameplay assertions. On pin
+25932569 / Build176, the engine rejects primitive `bool &inout` at calibration
+source lines 5:52, 13:50 and 18:49. Pass 1 exited zero and supplied the sole
+completed live verification; pass 2 logged shim hooks but did not complete live
+verification, then the owned harness killed it after 30 seconds and recorded
+exit 1. Outer 10/inner 4 assertions agree on the failed clean-exit assertion;
+the final result is FAIL, not partial, with dirty teardown for that exit.
+No screenshot was produced. No `mod-all` or downstream E008 case started.
+
+Source `b0ef7db1...` and all 6,294 inputs `b201ef47...` stayed unchanged.
+User config, saves, install resources, build, focus and input-desktop checks
+passed. Root independently confirmed no live game, lock or lifecycle owner,
+the exact owned dirty run and cause, unchanged pin/source/inputs, and resolved
+only lab scratch targets within this worktree. After retaining the raw failure
+and peer review, root recorded it once through `record-batch`, blocked SMOKE,
+and ran the documented `python -m gamelab reset`. It returned zero in 2.928
+seconds, killed nothing, wiped only lab saves/appdata, and preserved the failed
+run's raw hashes and all frozen source/input hashes. The claim was released
+and phase returned to idle; SMOKE remains harness-blocked and calibration
+preparation was reopened. This cleanup neither repairs source nor passes a gate.
+
+Failure review: `reviews/host/E008/SMOKE.null-payload.failure.review.json`;
+actual cleanup receipt: `control/e008-owned-reset/receipt.json`, both under
+`gamelab/results/swarm/swarm-20261029/`. A new one-file source proposal
+`df484ff1...` replaces the rejected primitive references with a local shared
+parse-state handle, preserving cumulative parse failure across vectors and all
+49 construction bodies byte for byte. Independent source/API review accepts
+the proposal; engine compilation/load and 49-case/three-real-item calibration
+remain unproved. The E008 offline passes keep their declared scope.
+
+### Boss-key owner decision - 2026-10-30
+
+The user selected **preserve current per-killer attempts**: each distinct killer
+keeps its first attempt, with at most one successful party payout. Current drop
+rate, killer Luck and payout authority remain unchanged. The proposed global
+first-failed-roll consumption repair is not the intended behavior. Its old
+premise/history must receive an explicit tracker disposition, with bounded
+verification of the selected policy and genuine co-op limits kept separate.
+
+### E009 minimal compiler repair and current load gates - 2026-10-30
+
+Root installed only the independently reviewed calibration AS change
+`80a6eb0a...` to `7aff086d...`; no case body, primary codec, consumer, fixture,
+registry or product file changed. The one-file stage `23bc427e...` and root
+guard were independently reviewed. A rehearsal tail-normalization refusal was
+retained; the approved local declaration was then included in the read-only
+equivalence proof without replaying the patch. Actual first redirected verb
+generation produced the same 210-entry catalog and no derived delta.
+
+Native source is now
+`d3cc76078448da621a73ad33e5cc1d1899943c349d8b31897d1c399cf0177144`
+(2,205 paths); all 270 supplementary hashes remain unchanged. Root freshly
+matched the full 6,294 E008 inputs before writing, then measured the exact
+one-file overlay:
+`ab179e961bf8d6a3e00149c4450e1bfd50d37ea5fb6bb025415ce23804249153`.
+The shim source/DLL/stamp, pin 25932569 / Build176 and executable remain
+unchanged. Actual verb generation/check and PF check returned zero with no
+source drift; no new bootstrap rebuild/verification is claimed.
+
+The actual E009 matrix passed 739 cases with three named skips: GameLab
+348 pass/two skips, focused tools/planner 242 pass, isolation 19 pass,
+archive/graph/ship 114 pass/one skip and release 16 pass. The separate 78-check
+doctor self-test was not rerun and keeps E008. Report-only
+`doctor --no-smoke` separately returned green in 91.329 seconds with actual
+source/inputs and physical state stable.
+
+The corrected-source minimal trial `20261030-174942-null-payload-lab` passed
+20 outer/14 inner assertions across three clean verified boots in 31.3 seconds.
+The full-stack trial `20261030-175248-mod-all-lab` passed 17/11 across one
+verified boot in 15.4 seconds, with 42 features, three libraries and three lab
+modules enabled exactly once, unpacked, and no Workshop duplicates. Both are
+on the pin above, with source/input maps unchanged, no final error/partial/drift,
+and clean teardown/user config/save/res/focus/input-desktop guards. Root and an
+independent reviewer inspected actual screenshots and summary identities.
+Primitive-reference compiler diagnostics are absent. Raw baseline diagnostics
+remain: minimal logs 11 ERR each with 50/116/96 warnings; full-stack 15 ERR and
+102 warnings in widget/AddChild/weather/layout families. These are scoped load
+passes, not error-free engine or feature-mechanic proof.
+
+Both load rows were recorded once and SMOKE verified at E009 revision 40;
+the runtime claim was released and phase returned to idle without a reset.
+The original E008 failure remains FAIL. Compilation of the fixed helper is now
+established; 49 numeric/refusal cases plus three real-item reads, current input
+and crit-helper contracts, channel/payment/cancellation, all eight pose images,
+ordinary/packed/co-op and final campaign closeout remain unfinished. Raw
+receipts/reviews are under the campaign's `control/` and `reviews/host/E009/`.
+
+### E009 host completeness, prerequisite contracts and nonfinite failure - 2026-10-30
+
+The current host total is **832 passes and three named Windows symlink skips**.
+After the initial 739/3 matrix, root executed six generated Forgemaster
+invariants and 87 cases from 13 previously omitted test files: 48 developer-tool,
+33 build/import/art and six guard/HPS cases. Fresh owned scratch directories and
+source/input guards were used. Independent H3 revision-02 reconciliation maps
+all 754 static definitions in 72 test files plus compiler tests to current IDs;
+16 parametrized definitions produce 97 IDs. This establishes receipt
+completeness, not branch, AngelScript or native gameplay coverage. Separate
+doctor/saves CLI evidence remains at its recorded E008 epoch.
+
+On unchanged E009 source `d3cc7607...` / 2,205 files and consumed inputs
+`ab179e96...` / 6,294 files, input trial
+`20261030-181757-qa-firearms-input-sequence-lab` passed 15 outer/9 inner checks
+in 45.7 seconds. Its explicit 36-module forced fixture produced 31 normal input
+writes, four completions and 32 cursor rows, with owned cursor restoration and
+releases. Clip 10→9→8 and two target HP drops establish the declared one-point
+posted-input contract; no global projection, fallback branch or exact balance
+claim follows. Crit trial `20261030-182225-qa-specs-crit-contract-lab` passed
+15/9 in 32.6 seconds with eight modules: set/readback, rank rebuild retention,
+restore/readback and timescale restoration. Zero rolls/crits and empty trials
+make this a helper contract only. Both were independently audited and recorded
+once; NATIVE-CONTRACTS is verified at E009 revision 38.
+
+Numeric trial `20261030-183206-qa-item-identity-contract-lab` then **FAILED**:
+44 of 49 calibration cases passed; Float NaN/infinity and Double
+NaN/positive/negative infinity were incorrectly accepted as complete typed
+payloads. The seven structural/ByteArray refusal controls passed. All 49 bot
+observations match actual GL replies. The precise engine comparison/literal
+mechanism is unproved. The gate correctly prevented item equip and all real-item
+reads, so this is not evidence of an item-stability defect. Fixture/cheat setup
+is a separate declared intervention.
+
+The failed trial exited 1 with clean teardown and stable pin/source/inputs/user
+guards. Root attached two failed and one blocked named checks, marked the task
+reproduced at revision 8, released ownership and returned to idle after fresh
+process/lock/build checks. No reset or unchanged retry occurred. Exact failure
+review: `reviews/release-modules/E009/m3-native-item-failure/review-index.json`
+(`db291745...`). Reviewed, uninstalled patch `3b79c9f8...` validates existing
+native formatter text with a bounded ASCII grammar, preserving all 49 cases and
+finite formatting. Its source acceptance does not establish compilation or
+runtime correctness; the unchanged 49-case/three-item contract remains required
+after integration. Gambler item-preservation consumers stay blocked.
+
+The selected boss-key policy is also dispositioned through the public tracker:
+old global-first-failure premise deferred, current per-killer policy CONTRACT
+verified, with separate source-design/local/real-co-op tasks. Each distinct
+killer retains one attempt and successful party payout remains capped at one;
+no balance/source change was made. Original-product Forgemaster baselines and
+corrected pose visuals remain separately admitted work. Broad ordinary,
+lifecycle, packed, real-co-op and final closeout gates remain unfinished.
+
+### E009 channel setup and corrected pose failures - 2026-10-30
+
+Original payment trial `20261030-185007-qa-forgemaster-payment-repro-lab`
+returned raw FAIL/exit1 with 16 outer/10 inner checks and clean teardown on
+unchanged `d3cc7607...` source / `ab179e96...` inputs and build 25932569/B176.
+P0 character/rank2 setup succeeded, but its four observed cardinal clearances
+were 30/40/100/30px against the unchanged 200px gate. The 240/10 terrain request
+was capped at 48 cells and marked truncated; this observation cannot establish
+global absence of a suitable lane. No body/native channel request or effect
+occurred. P1–P3 remained explicit causal unrun rows. Root recorded independently
+reviewed controlled-native blocked evidence, preserved raw FAIL, released clean
+ownership and did not reset/retry. Payment is harness-blocked; cancel was not
+run because it shares the failed setup. New lane repair/integration dependencies
+were added to both tasks without removing any original obligation.
+
+Corrected pose trial `20261030-185659-fix-firearms-poses-lab` also returned
+FAIL/exit1 with clean source/input/build/user/finality/teardown guards. Its legal
+navigation anchor and settled camera bound correctly. The idle rifle image had
+a valid bracket with model token2; the firing bracket c37/c38 changed cached
+model3→4 across five frames/165ms, with the same rifle item token2, actor,
+world, position and camera. The strict guard aborted; six later images stayed
+unrun and 14 expected flags were absent. Root and reviewer viewed both actual
+original PNGs: the central actor is visible without the previous roof cover,
+but this does not certify exact pose angles or the required eight images.
+Controlled-native and visual failures were both retained; task revision11 is
+harness-blocked, ownership released, no reset or unchanged retry. A nullable
+original model followed by native lazy model creation is a source explanation
+under review, not a directly observed full runtime mechanism or established
+product defect. Binding guards remain intact.
+
+Exact reviews: `reviews/specs-modules/E009/S4-CHANNEL-PAYMENT-NATIVE/`
+(`e03880c4...`) and `reviews/combat/E009/F1-NATIVE-POSES-20261030-185659/`
+(`d5280b35...`), under the swarm results directory. E009 now has seven distinct
+native trials: four narrow accepted prerequisites and the three retained
+nonpasses (numeric, channel setup, pose binding). E007/E008 trials keep their
+own epochs.
+
+The source-only boss-key ORACLE is verified with its additive enabled/pool-add
+amendment; LOCAL now explicitly depends on new observer and driver integration
+tasks. The unrelated instant trap-cancellation premise was independently
+withdrawn and its original task deferred without passing either original check;
+a distinct cycle-start activation source contract is verified. Actual traps,
+key effects and real-peer behavior remain separately open.
+
+Uninstalled source-reviewed M3 numeric and L1 settings drafts passed one ignored
+five-file source-stage rehearsal: exact reconstruction, two Python AST parses,
+two scenario parses, unchanged installed source and 270 supplementary hashes.
+This prospective stage is not an installed E010 epoch. Redirected metadata,
+actual integration and affected runtime checks remain required. The separate
+three-reference Gladius identity correction is source-reviewed and released;
+its previously installed custom damage producer is unchanged. Broader current
+gameplay, ordinary/lifecycle, packed, real-co-op and final sign-off remain open.
+
+### E009 magazine aim mismatch and fixed E010 scope - 2026-10-30
+
+`20261030-191430-qa-firearms-magazine-edges-lab` returned FAIL/exit1 on unchanged
+E009 source `d3cc7607...` (2,205 paths), inputs `ab179e96...` (6,294 paths),
+and build 25932569/B176. All 23 rows were retained: 14 positive and nine nonpass.
+All 16 firing cycles reached expected ammo/static-modifier endpoints, including
+the borrowed-ammo intermediates, but all 80 birth-correlated dummy instances
+stayed live at 500/500 HP in 32 complete snapshots. The 21 reused native IDs
+were correlated by birth and cycle; no disappearance-to-zero damage credit was
+accepted. Eighteen input completions and 51 clear wall/tile rays were retained.
+
+Sixteen native LogAim rows, each bound between its cycle's HP reads, show
+engine direction 45° versus gun −151.9° and cursor offset (−384,−216); the fans
+span 25–65°. Combat's KBM path intentionally uses the distant cursor instead of
+the supplied AimDir, and this case made no cursor/inputtarget binding. This is
+a demonstrated fixture aim mismatch. It does not prove a product damage defect
+or the exact projectile collision path. Prior `181757` input-release evidence
+was mapped to its named check without rerunning or widening its scope.
+
+The exact-case receipt wrapper was independently reviewed before use: only
+this task/scenario/path/SHA may use the scenario's existing 4,500-second launcher
+budget plus 240-second parent cleanup margin. No scenario or GameLab safety gate
+changed. Actual finality/source/input/scenario/pin/user/isolation guards were
+clean; root retained the controlled-native FAIL, marked the task harness-blocked
+at revision5, released ownership and returned to idle after fresh physical
+checks. No reset or unchanged retry occurred. Review index:
+`reviews/specs-modules/E009/F1-MAGAZINE-BOUNDARIES/20261030-191430-qa-firearms-magazine-edges-lab/index.json`
+(`2032299e...`). E009 now has eight distinct native trials: four narrow accepted
+prerequisites and four retained nonpasses. The portable metadata snapshot at
+E009/r2282 predates this eighth trial and remains explicitly dated.
+
+Two separate ignored candidates have accepted actual pure-test receipts:
+12 cache/restoration model controls and 20 LastStats readback controls. These
+are not new installed-E009 host coverage or AS/native/visual proof. The first
+S4 lane overlay recorded all 50 individual controls OK (13 navigation, nine new
+lane, 28 S4), with exact origins/input hashes stable, but its parent captured a
+null OS child exit code. Full offline acceptance is withheld. The first run and
+that finality gap are retained; a distinct capture-only recovery is under review.
+
+The next E010 source integration is fixed at five bundles: M3 finite numeric
+refusal, L1 settings oracle corrections, C2 Gladius identity references, S4 legal
+lane navigation and F1 stable base-model cache. Its separate proposal has 14
+disjoint paths, three new files, and explicit cross-context composition checks.
+It is unexecuted and blocked on accepted S4 offline finality. The earlier exact
+two-bundle rehearsal completed with zero generated delta; that result is not
+promoted to the combined proposal. Root installer guards remain unexecuted and
+require final pins, a clean idle boundary and fresh full input equality.
+LastStats plus explicit magazine cursor-fixture work are reserved for the next
+cycle. No E010 source has been installed. Broader gameplay/lifecycle, packed,
+genuine co-op and final campaign completion remain open.
+
+### Genuine co-op tests explicitly deferred - 2026-10-30
+
+The user selected **Explicitly defer genuine co-op tests** in response to the
+second-machine/player prerequisite. This changes execution scope without granting
+multiplayer coverage. Original co-op checks/history remain retained with explicit
+deferred dispositions; mixed tasks retain their solo obligations. Source and
+network-contract review, all solo controlled/ordinary/lifecycle/packed work, and
+the fixed E010 repairs continue. No simulated peer or source-only result may be
+promoted to a genuine co-op pass.
+
+Root applied all eight reviewed pure remote-test deferrals through public CAS,
+seven leaves before their M6 provider. Original definitions/checks/scopes/evidence
+were preserved; no source/offline/solo dependent was retired. The reviewed
+decision is `evidence/coop-deferral.E009.r2336/user-decision.json`; the terminal
+execution record is `control/genuine-coop-deferral-receipt.E009.json` under swarm
+results. These are explicit exceptions, not multiplayer passes or campaign
+completion. All other unfinished obligations remain.
+
+### E010 actual integration and installed host gate - 2026-10-30
+
+Root installed the exact independently reviewed five-bundle stage: 14 disjoint
+paths, 11 preserved originals and three new Python files. M3 finite numeric
+refusal, L1 settings oracles, C2 Gladius identity, S4 legal lane navigation and
+F1 stable base-model cache are now installed. No original Forgemaster product
+repair, LastStats or magazine cursor candidate was included. Final stage
+`238119c0...` and root guards `23d6c358...` were reviewed before use; actual
+registration and installation returned zero, with no reset/re-pin/rebuild/native
+launch or user-data modification.
+
+Fresh actual root input equality preceded all writes. Native source is now
+`46bf627498aa14b70d2fc0bad191714a6fe549d0493cae69f49426d9959d9951`
+(2,208 paths), with all 270 supplementary hashes unchanged. Full consumed input
+map is `5cd369daaa4de3cfdc56753f26ba4ac368829bed684c35e21ec0ba15901082b7`
+(6,294 files), exactly the three declared AS deltas; the protected shim DLL/stamp
+pair is unchanged. Actual verb generation/check and PF check returned zero,
+210 verbs and no generated delta. Root install receipt `2453469b...`; actual
+input record `f7618b4e...`. E010 was captured through public CAS.
+
+Nine installed host processes returned OS exit0 and produced 853 passes plus
+three named Windows symlink skips: 856 unique IDs. The new pose-cache 12 and
+navigation nine methods are included once. Independent H3 reconciliation maps
+all 775 static definitions in 74 test files plus three CLI sources, with all 77
+source hashes matching; 16 parametrized definitions account for 81 extra IDs.
+Doctor/saves standalone self-test evidence remains historical E008.
+
+The original matrix parent exited1 because its CRLF-sensitive unittest summary
+reader marked three successful groups nonpass. Original receipts, flags, raw
+logs and exit1 remain immutable. A separately source-reviewed read-only analysis
+ran once, exit0/0.564 seconds, reconciled all raw/JUnit IDs, nine child exits and
+20 captured source/input/supplementary/physical guards, and reran zero tests.
+It does not convert the original matrix to exit0. Independent host acceptance
+`62f32193...` records that distinction; ROOT-INTEGRATION-E010 is verified at
+revision11. These are host checks, not AS/native or complete-code coverage.
+
+Actual report-only `doctor --no-smoke` returned green in 154.543 seconds with
+source/input maps stable, no game process/lock/lifecycle, clean teardown and no
+build mismatch. All 24 source inventories and BASELINE have current E010
+source-only attestations. Current native compilation/load, 49 numeric cases plus
+three real-item reads, original channel consumers, full pose images and broader
+ordinary/lifecycle/packed tests remain separate unfinished gates. Eight genuine
+co-op execution tasks are explicitly user-deferred with no multiplayer credit.
+
+### E010 first minimal native failure and fixture-cache trust - 2026-10-30
+
+The sole E010 native trial `20261030-203231-null-payload-lab` returned exit1/FAIL
+on source `46bf6274...` (2,208 paths), consumed inputs `5cd369da...` (6,294 files)
+and pinned build 25932569/B176. Fresh-profile pass1 exited `3221225477`
+(`0xC0000005`) during shutdown after initial profile creation, before any GL
+boot. Pass2 and pass3 exited zero and the final pass rendered isolated town;
+they do not clear the first failed exit or dirty teardown. All 20 outer and
+14 inner assertions are retained. Full-stack was not started.
+
+The preserved 1,978,340-byte dump (`386d4987...`) reports a read fault at address
+`0x28`, instruction `HWR2.exe+0x15D4B`. Bounds-checked dump metadata establishes
+that address interval, not an originating cause or a product defect. Actual logs
+show no compiler fatal; baseline errors and warnings remain retained. Independent
+failure index `reviews/host/E010/SMOKE.null-payload.failure.index.json`
+(`039eb5ed...`) records these limits.
+
+Source review found a separate harness defect: `finish` records a failed exit
+without aborting `materialize`, which continued and published cache
+`town-paladin.25932569.bb126ec9`. Reset preserves fixture caches, so a later
+unchanged cache hit would skip the failed stage. Copy-only forensics preserved
+all three cache HPS files and isolated saves/appdata (eight files, 20,032 bytes),
+rehashing unchanged originals and copies; index `d0b2f9b6...`. A fail-closed
+materialization/cache-trust repair is being drafted. This does not fix or explain
+the native AV.
+
+Root freshly observed no game processes or runtime/lifecycle lock, with matching
+pin and this exact owned dirty teardown. The independent failure was attached,
+SMOKE marked harness-blocked at revision45 and released, and source coordination
+returned to idle. No reset, retry, cache deletion or full-stack admission occurred.
+Current native numeric/item/channel/pose and broader solo/lifecycle/packed work
+remain unfinished; genuine co-op execution retains the user's explicit deferral.
+
+After preservation, root ran the documented owned `python -m gamelab reset`
+once (exit0). Fresh full-visibility checks again established no game, runtime or
+lifecycle owner, the exact failed run/reason, matching build and unchanged source
+and consumed inputs. Reset killed nothing, cleared isolated saves/appdata and
+recorded clean teardown; all three cache files remained byte-identical. Receipt:
+`control/e010-owned-reset/receipt.json`. The original run remains FAIL with dirty
+teardown, and no retry, current native pass or AV resolution is inferred.
+
+### Candidate E011 combined rehearsal - 2026-10-30
+
+Three reviewed QA repairs were composed in one ignored normal repository layout:
+H4 failed-pass/cache trust, F1 magazine cursor fixture with a portable test
+binding, and M5 LastStats oracle/route prerequisites. Source review rejected the
+first H4 draft's dangling-junction dispatch before execution; a distinct amended
+draft adds no-follow ancestor checks and two refusal controls. The rejected
+packet remains immutable and unexecuted.
+
+Root ran the final selection once: 13 cache controls, 24 magazine controls,
+20 durable LastStats controls and 11 existing restart neighbors, all 68 passing
+without skips. Syntax/JSON and scoped package metadata generation/check also
+returned zero. Actual parent exit0 (`70bbed`), four original child streams,
+stage-local origins and complete receipts are retained. The sole generated
+delta is the mapped LastStats standalone PF scenario (`ac472e08...` to
+`0ed8863e...`). There was no bytecode or installed source change. This candidate
+result is distinct from E010's 853 installed host passes and historical pure
+trials; it supplies no native board, aiming, cache reuse or AV-resolution proof.
+
+Independent final preinstall acceptance (`bbdf210a...`) binds exactly 11 paths,
+six originals and five new files, to prospective source `23501a56...` (2,213
+paths). Actual source remains E010 `46bf6274...` (2,208 paths); consumed inputs
+are expected unchanged but require a fresh full root measurement before writes.
+ROOT-INTEGRATION-E011 is registered/claimed for the guarded installation and
+subsequent installed checks. No new epoch or native trial has been recorded.
+
+Separately, 42 existing component tasks received independently mapped current
+source/retained host evidence through public CLI: eight release/combat, 27 host
+and seven specs/settings tasks. No tests were repeated for these closures.
+Original parser nonpass, Windows skips, partial tasks and native gaps remain.
+The accepted portable metadata snapshot is explicitly E010/r2451; these later
+closures do not rewrite that snapshot. H4 cache draft and M5 LastStats draft are
+now verified for their declared source/pure scopes only.
+
+### E011 installed checks and current load gates - 2026-10-30
+
+Root installed the reviewed 11-file proposal after fresh source, supplementary,
+build, full consumed-input, process/lock and clean owned-teardown checks. All six
+originals were backed up before atomic replacements; five files are new. The
+unexecuted first installer draft's helper-pinning and rollback-publication
+findings were corrected in a separately reviewed guard. Actual installation
+returned zero and captured E011 through public CLI. Source is
+`23501a56ba4dde910117d1380766f7cda640d8965b410f18ca911627ec7be421`
+(2,213 paths), all 270 supplementary hashes unchanged. Full consumed inputs were
+freshly measured before and after: `5cd369da...`, all 6,294 files unchanged,
+including the protected shim pair. Actual install receipt: `e6d3e327...`.
+
+One installed affected GameLab suite returned zero: 428 unique methods,
+426 passes and the two named Windows symlink-privilege skips. This includes all
+prior 371 methods and exactly 57 new controls (13 cache, 24 magazine, 20
+LastStats). Both verb and package-scenario metadata checks returned zero; no
+default regeneration was performed. Source, supplementary, build, inputs and
+physical guards remained stable/clean. Independent installed acceptance is
+`fb92bf50...`; ROOT-INTEGRATION-E011 is verified at revision10, and all 24 source
+inventories plus BASELINE have E011 source-only attestations. Other E010 host
+executions retain their actual epoch. The same-session E010 doctor remains its
+historical setup result; no E011 doctor rerun is claimed.
+
+The first E011 minimal trial `20261030-213147-null-payload-lab` passed with
+20 outer/14 inner assertions and three clean process exits. The v2 fixture cache
+was absent at admission and was created by clean preparation passes 1 and 2;
+the measurement pass rendered isolated intro town. Full-stack trial
+`20261030-213439-mod-all-lab` then passed with 17 outer/11 inner assertions,
+one clean exit and a verified cache hit. Native readback lists exactly 48
+enabled unpacked modules: 42 release features, three libraries and three lab
+mods. All three original images were inspected. Retained baseline diagnostics
+are not described as universally clean logs.
+
+The v2 cache marker and three HPS files were copied and rehashed after both
+terminal trials, explicitly not reconstructed as a pre-full-stack snapshot.
+Their creator/clean-pass fields and byte map match; the three original legacy
+cache hashes remain unchanged. Independent load acceptance `33ed4935...`
+verifies SMOKE at revision50. Fresh full-visibility ownership checks found no
+game/locks/build drift and the exact clean full-stack teardown; tracker returned
+to idle without source edits, retry or reset. The original E010 AV remains
+unresolved and retained. Input/critical-helper, numeric49+3, actual feature,
+ordinary/lifecycle, packed and all other unfinished scopes remain separate;
+the eight genuine co-op tasks retain explicit user deferral.
+
+### E011 primitive contracts and bounded consumer failures - 2026-10-30
+
+Current E011 source remains `23501a56...`/2,213 paths and inputs
+`5cd369da...`/6,294 files, build 25932569/B176. The E010 bootstrap AV cause
+remains unresolved; current cold/load success does not explain it.
+
+- Native input `20261030-214443-qa-firearms-input-sequence-lab` and helper
+  `20261030-214729-qa-specs-crit-contract-lab` passed with stable source/inputs
+  and clean teardown. Scope is one legal-point movement/ammo/HP/input-release/
+  cursor-restoration contract, and one wizard skill's zero-roll query/set,
+  unrelated-orb rebuild/readback and restore. No global projection, exact damage,
+  chance, pose, ordinary or co-op proof follows.
+- `20261030-215459-qa-item-identity-contract-lab` failed real-item setup after
+  all 49 calibration expectations passed: 37 accepted payloads and 12 expected
+  refusals. Ordinary `equip ... rare 1` returned actual quality 2; strict setup
+  required quality 4/ilvl 1. No item-identity request/read occurred, and teardown
+  was clean. Real-item stability/preservation remains blocked. An existing-kit
+  setup correction plus three driver controls is an uninstalled draft: pair002
+  retained one old failure and 18 candidate pure passes; independent review is
+  pending. Optional Gambler kit setup and its fake adaptation remain pending.
+- `20261030-222443-fix-firearms-poses-lab` terminated FAIL/OS1 with clean
+  teardown and stable source/inputs. Five rifle flags and two bound captures
+  succeeded, then anchor return failed; ten later flags and six images were
+  unrun. Root inspected the two captures and end frame; all-eight/angle/per-hand
+  proof is absent. Independent review retained controlled-native and visual nonpasses. Root
+  accounted clean physical ownership, released the claim and thawed without reset.
+  The return reported arrival inside tolerance, then settled 2.234px from the
+  anchor against the unchanged 2px guard; a separate input-release repair is
+  being drafted. A separately admitted standalone farming baseline is running. Retain the
+  earlier E009 model-binding failure separately.
+
+Actual feature, lifecycle/ordinary, packed and other unfinished scopes remain
+open. Eight genuine co-op tasks retain explicit user deferral. No draft/fake
+result is promoted to installed or native evidence.
+
+### E011 controlled farming, magazine geometry and helper recovery - 2026-10-30
+
+Source remains `23501a56...`/2,213 paths, input map `5cd369da...`/6,294,
+build 25932569/B176. Farming standalone `20261030-222936` passed 15 outer/
+9 inner assertions and all 12 declared predicates. Controlled setup spawned an
+absent farmer and used gold/teleports; actual can purchase cost 200, seed 20,
+water changed 4->3->4, and already-watered refusal was observed. Debug visual
+handle counts 0->3->6 are not rendered-stage proof. Cycle `20261030-223602`
+passed the same assertion prefix and six predicates: abort preserved runs0 and
+crop0/2; forced Failed endings counted1 then2, producing dry and watered ready
+crops. Neither is natural death, successful ordinary play, harvest, reload,
+Generosity or packed proof. Both supplemental reviews are attached to
+M3-FARM-LIFECYCLE, which remains reviewing/unverified with its four checks open.
+Root inspected both end images; no full farm-art claim follows.
+
+Magazine dispatch001 failed before launching a child while hashing frozen
+inputs: `MemoryError`. Windows showed an abandoned campaign-owned historical
+E009 read-only PowerShell extractor, PID20568, using about96GB private memory.
+Root preserved PID/creation/parent/full command and owner acknowledgement.
+`Stop-Process` raised NullReference and left it present; a separately recorded
+.NET exact-PID termination verified it absent. No other process or game reset
+was targeted. The exact internal allocation mechanism remains unproved. Full
+6,294-file fingerprint and physical/build gates then passed unchanged. The
+tracker protocol now requires retaining launcher handles and reconciling empty
+output/unfinished helpers across compactions. Dispatch001 is not a native trial.
+
+The one new native magazine trial `20261030-224547` (dispatch002) ended FAIL/OS1
+with clean teardown and all source/input/ownership guards true. It retained
+three setup PASS rows and one fixture error; its first five-ray certification
+found a wall at47.437px on one ray. Input was not dispatched and measurement
+remained UNRUN. This grants no new shot, damage or cursor-binding evidence;
+the historical 191430 sixteen zero-HP-delta cycles remain distinct. Root viewed
+the actual end image. Keep the ray guard and repair legal anchor selection;
+no unchanged native retry or product damage defect is inferred.
+
+The exact four-file town fixture composition passed syntax and 18 pure controls
+and independent review. The reviewed159-line installer is placed but unexecuted;
+E012 and native49+3 proof do not yet exist. E013 Pilot release and fan geometry
+work remains ignored draft work, outside the town composition. All unfinished
+feature, ordinary/lifecycle and packed work remains open; eight real co-op tasks
+retain explicit user deferral.
+
+### E012 town fixture install and installed regression gate - 2026-10-30
+
+The exact reviewed four-file composition is now installed: both numeric/item
+and disabled-window Gambler setup use the existing deterministic `kit` path;
+three orchestration controls are new, and the existing typed-routing fake now
+acknowledges that setup path. Strict Rare4/ilvl1, all49 calibrations, three item
+reads and all transaction predicates remain unchanged. No product, AngelScript,
+verb or scenario data changed. Three originals were backed up, one file is new.
+Root's admitted159-line guard returned OS0, captured E012 via public CLI and
+matched prospective source `a0f59a36e1a46d60ac0c0d77718b64e9ae05f59e3aebb04564bebd4191888ba1`
+(2,214 paths). Receipt `fcb6ad5d...`; actual outer install `b9d34f`/0.
+All270 supplementary hashes and all6,294 consumed inputs remained unchanged
+(`5cd369da...`). The new input sidecar is byte-identical to E011 (`1f6a7892...`).
+Physical checks pinned the last clean224547 teardown; no reset was needed.
+
+One fresh installed GameLab discovery ran431 unique methods:429PASS and the
+same two named WinError1314 symlink-privilege skips. Verbs and package-scenario
+`--check` each returned zero; no default regeneration or test repeat occurred.
+Actual parent terminal104565/0 after initial44239a/session57429; full source,
+supplementary/build, input and physical checks remained stable/clean. The18
+composed candidate controls are a separate earlier execution, not extra installed
+coverage. Current source/provider attestations and independent installed result
+review are pending. E012 native load/input/helper/49+3 and consumer scopes remain
+unproved. All E011 runs and the E011/r2866 portable snapshot retain their own
+actual epoch/date; the original AV, failed pose/fan cases and co-op deferrals
+remain open at their stated scopes.
+
+### E012 five native gates accepted and immutable checkpoint - 2026-10-30
+
+All five actual current-source trials passed: warm minimal225912 (16outer/
+10inner), warm full230012 (17/11, exactly42features+3libraries+3lab), input230614
+(15/9 and9bodyrows), helper-only crit230832 (15/9 and7flags), and corrected item
+contract231341 (15/9 and52flags). Sourcea0f59/2214, input5cd/6294 and scenario/
+build/isolation guards were stable, with clean native teardown each. These are
+separate scopes, not five whole-feature passes. Existing v2 cache provenance
+remains E011213147; both new load cases were warm. Vanilla baseline ERR/WRN
+families remain; no original AV cause or new cold-bootstrap cure is claimed.
+
+The input contract observed one legal point, two actual HP drops/clip10->9->8,
+stationary release pairs and31 actionframes plus1neutral/32 owned cursor samples
+with original buffer0 restored. Critical helper independently read forced and
+rebuilt1/0 and restored0/.05; both probes used zero rolls and trials remained
+empty. No chance/damage/StaticCharge/global-projection proof follows.
+
+The item run's49cases contained37 accepted payloads and12 exact refusals. The
+existing kit created actual Rare4/ilvl1 mainhand_mace_01 with two modifiers;
+reads c57/c58/c59 were complete, untruncated,10nodes/depth1 and identical typed
+payloadSHA06c1891b815dbce5e96dfbf62101ba8b606fa1d9b082f9611f8d5193170fade3.
+Final metadata stayed unchanged. Independent all-three-check acceptance3e53269f
+verifies M3-ITEM-TRANSPORT-CONTRACT at revision18; SMOKE55 and NATIVE-CONTRACTS50
+are current. This proves one real item, not all slots/bag/stash, transactions,
+persistence, ordinary acquisition or co-op. Historical E009/E011 failures remain.
+
+After fresh physical accounting/thaw, root copied canonical state unchanged to
+an immutable E012/r3112 snapshot (SHA0a3b96d1...). That idle snapshot has358tasks;
+counts are bookkeeping, not coverage/completion. Portable metadata assembly uses
+that snapshot and excludes later work. The next initial controlled Gambler
+consumer is running under a fresh source freeze. All unfinished work and eight
+genuine co-op deferrals remain explicit. No test or successful native retry was
+run solely for counts.
+
+### Later E012 consumer failures and six-source repair preparation - 2026-10-30
+
+The dated E012/r3112 portable snapshot excludes these later trials. Current
+E012 source/input remains a0f59/2214 and5cd/6294; no E013 installation yet.
+
+Gambler232222 was a valid controlled product reproduction, not setup failure:
+Rare4/ilvl1, openHWPGamblerMenu and disabled-setting readback0 passed. Three UI
+callbacks were each acknowledged once; their aggregate changed gold100000 to
+97900, tokens3 to2 and two exact typed modifier IDs, with the menu still open.
+This is not per-action atomic attribution. Later zero reenable charge followed
+an explicit no-open-window response after Use closed the stale interaction;
+it is not a second pricing defect. Native19outer/13inner had only the bot
+assertion false, no error/partial/drift/timeout, all guards true and clean exit.
+Independent controlled failure1c56e2c4 was recorded; no unchanged retry/reset.
+Shared source audit correctly treats integer0 as false and finds synchronous
+host notification; no Core settings patch is justified. Gambler cleanup skips
+paused frames while its menu pauses play, and stale actions lacked live guards.
+The cached enabled value was not sampled natively. Reviewed two-file repair
+05cff822 closes only the owned menu and gates new actions; seventeen authored
+methods including FinalizeGame/cost/RNG/settlement stay unchanged. Source policy
+has no upfront escrow: ordinary close already abandons the unpaid timer owner.
+Pending-hand native timing/conservation remains unproved.
+
+Witch Hunter shortpilot233149 ended ordinaryFAIL: no floor exit before natural
+death, HP145 to-2 after one fight, XP+145 and zero gold. Source/31outer/25inner
+and teardown guards were stable/clean; only ordinary bot expectations failed.
+Setup/ranks/starter, selected reload and later separate435damage/town-return
+checks passed at their own scopes. Wolf-after data was a no-spawned-player
+refusal converted by the bot to[], not a valid empty census or summon defect.
+The exit path was accepted; the controller walked through threats until low HP
+and then died during kiting. Physical retreat blockage and any class/input bug
+remain unproved. The failed trial is retained once; long boss route is held.
+An opt-in Python early-combat/dead/census strategy is an ignored E014 proposal,
+not a balance buff, new native pass or part of E013.
+
+Current E013 preparation selects six files: immediate Pilot arrival neutral,
+three fan-navigation Python/test files, and two Gambler product scripts. Seven
+bounded pipeline tasks and three additive consumer dependencies are registered;
+source-only Pilot/Gambler draft review and source/offline fan review are verified.
+One actual staged38-control run passed (14new+24existing), with all imported
+Python leaves stage-local; it does not execute AS or eight excluded model/text
+designs. A distinct11-leaf copy retained those nine bytes and added GamblerAS,
+without repeating38. Hypothetical six-source projection is a65ff651.../2216;
+full6294input projection0494f0ee... changes exactly3namedAS leaves and preserves
+all6291others. These are projections pending guarded actual before/after capture.
+Original four-file attempt/38receipt/one-AS projection remain immutable. No
+source integration, AS compile/load, fixed native replay, pose readability or
+fan damage success is inferred. Eight co-op deferrals and all unfinished work
+remain open. The original AV cause stays unresolved.
+
+### E013 installed source, host checks and current load trials - 2026-10-31
+
+Root installed the six-file composition: Pilot arrival neutral input, three
+magazine fixture/navigation/test files and two Gambler scripts. Four originals
+were backed up; two files are new. Actual source is
+`a65ff6516786b43af6d571536b518678dc900f46f0198cfbc44c26f5e6d90505`
+(2,216 paths). Consumed inputs are
+`0494f0eec7c5c685890a1175352709d23b345680b1b4ccbea9f5b448c1917c8f`:
+the Pilot and two Gambler AS inputs changed; all 6,291 other inputs, including
+the protected shim pair, matched root's actual before/after maps.
+
+The one installed affected suite returned OS0: 445 unique methods, 443 passes
+and two named WinError 1314 resource-symlink skips. All prior 431 IDs remain,
+with 14 new magazine navigation controls. Both metadata `--check` commands
+returned zero; no default generation was run. Independent ROOT-INTEGRATION,
+BASELINE and source-inventory acceptance is current for these declared scopes.
+The old staged 38 controls are not added to installed execution counts. These host checks alone establish no native consumer, doctor rerun or AV resolution.
+
+Actual cold minimal `20261031-002112-null-payload-lab` passed 20 outer/14
+inner assertions with all three boots exiting zero. Full-stack
+`20261031-002215-mod-all-lab` passed 17 outer/11 inner assertions, one boot
+exiting zero and readback of 48 enabled modules: 42 release features, three
+libraries and three lab mods. Both receipts have all guards true, stable a65ff
+source/0494 inputs and clean teardown. Root inspected the three original PNGs;
+forest-intro/tutorial context is not ordinary progression or feature proof.
+The `1beb99cb` namespace was absent at root's readiness measurement and was
+created by the cold trial; exact cache provenance is independently accepted. The prior caches remain retained.
+
+Raw root receipts are `control/swarm-e013-smoke-null-001/receipt.json` and
+`control/swarm-e013-smoke-all-001/receipt.json`, under
+`gamelab/results/swarm/swarm-20261029/`. These establish compilation/load only.
+Current input `002655` and critical helper `002853` each passed 15 outer/9 inner assertions and independent review. Input passed all nine rows (two HP drops, clip10to9to8, neutral console pairs, 32 cursor samples/restoration); critical helper passed seven flags with zero-roll readbacks and restored baseline. These do not prove strict pose return, chance/damage behavior or general geometry. Current 49+3 item, Gambler replay, pose and magazine gates remain pending.
+
+Later E012 Gambler `232222` remains a genuine controlled disabled-menu mutation
+reproduction. E013 now installs owned-close and new-action guards; fixed native
+replay, pending-hand ordering and exact conservation remain unproved. Short
+Witch Hunter pilot `233149` died before an exit; wolf-after was a refused query,
+not a valid empty census or summon-loss finding. Its separate ignored E014
+strategy remains uninstalled. The E012/r3112 portable snapshot predates these
+later events and is not an E013 snapshot. The old AV cause remains unresolved;
+eight genuine co-op tasks stay deferred and other feature, ordinary/lifecycle,
+UI, packed and final obligations remain open.
+
+### E013 current native outcomes and proposed C3 strategy - 2026-10-31
+
+Source remains `a65ff651...`/2,216 and inputs `0494f0ee...`/6,294. The six-file
+installation and affected 445-method/443-pass/two-WinError1314-skip suite retain
+their independent source/offline acceptance; both metadata checks passed. Cold
+`002112`, full `002215`, bounded input `002655`, helper-only critical `002853`
+and corrected item `003657` 49+3 gates are independently accepted. These remain
+load, one-point input/helper and one-item transport scopes, not broad gameplay.
+
+Gambler `20261031-004047-qa-gambler-disabled-window-lab` passed all seven flags,
+19 outer/13 inner assertions, with stable source/inputs and clean teardown.
+Disable closed the owned menu and native heartbeats showed unpaused play;
+gold100000/tokens3 and the complete typed item payload stayed equal. All three
+conditional stale functions were SKIPPED because the window was already closed:
+no disabled-backend dispatch/refusal proof follows. Re-enable reopened the one
+NPC and one actual reroll cost exactly2000. Only
+`disabled-open-window-zero-mutation` is recorded; lifecycle task r12 remains
+queued for its other three checks and packed obligations. The earlier E012
+mutation failure remains retained.
+
+Pose `20261031-005000-fix-firearms-poses-lab` failed again at strict anchor
+return: settled displacement2.234px exceeds2px. Five rifle flags and two bound
+small images preceded ten missing flags and six unrun images. Independent
+controlled/visual failure evidence is attached; no complete eight-image,
+weapon-angle/per-hand or product-rendering-defect claim exists. Clean teardown,
+all receipt guards and stable bytes do not turn this into a pass. The parent
+remains harness-blocked; terminal-versus-next-callback cause is unresolved.
+
+Magazine `20261031-005421-qa-firearms-magazine-edges-lab` returned OS0/PASS,
+15 outer/9 inner assertions,23 exact passing rows and16 complete target-input
+receipts. Eight natural cycles plus eight fixed cycles nested in the mixed row
+must not be confused with the eight forced external-total/stat rows. Independent
+review accepted native input-release and controlled uneven-hand-boundary scopes.
+All16 receipts/80birthACKs and168cursor samples (152action+16neutral) reconcile
+with released input, owned restoration and cleanup. Initial origin(−528,−48) passed the fan certificate,
+so the newly installed blocked-fan navigation branch was native UNRUN. This is
+no general route, exact damage/chance, other-gun, ordinary or packed proof.
+
+C3’s corrected short-root pure15 attempt003 passed all15 controls and independent
+source/offline review. `C3-ORDINARY-STRATEGY-DRAFT` is verified at r4 for that
+proposed composition only; it is uninstalled future E014 work. Attempt001’s
+pre-worker WinError206/zero tests and attempt002’s12PASS/three fake errors remain
+separate failures. No corrected ordinary native pilot has passed; the earlier
+death/refused wolf-after observation remains unchanged.
+
+Root records clean005421 as the last actual game trial; use the canonical tracker
+for live phase and claims. F1-MAGAZINE-NAVIGATION-NATIVE separately tracks the
+unexercised blocked-fan branch; no repeated16cycle trial is implied.
+The portable E012/r3112 snapshot remains dated history until an explicit E013
+snapshot. The old AV cause remains unresolved; eight genuine co-op tasks remain
+deferred and other feature, ordinary/lifecycle, UI, packed and final gates are
+unfinished. No draft/pure result is added to installed or native counts.
+
+### E013 later courier/payment limits and proposed work - 2026-10-31
+
+Source remains a65ff/2,216 and inputs0494/6,294. The portable E013/r3400
+snapshot is independently accepted (index64996ac...), but excludes later work.
+At dated checkpoint r3482 root was idle after clean `20261031-020718`; use
+resume for live phase/claims. The later singleton keys trial is not scored here;
+no later keys/M1 verdict is claimed. Earlier epochs and actual current gates
+keep their own scopes.
+
+Courier `20261031-011917-fix-pets-courier-lab` returned raw PASS,21outer/15inner
+and14botflags, with stable guards and clean teardown. Native evidence supports
+one actionable hint/H send, bag1→0, delivery-tab item and local pet leave/back
+trip. Capacity suppression was vacuous: the emptied bag chose botline95's
+literal `nav=[]`, so no second hover exercised a full satchel. Native menu state
+was `paused=false`. Independent evidence accepts supplemental transfer/local
+trip and separately blocks the complete declared check; M4 parent is
+harness-blocked r5. No capacity defect, exact timer/global absence, full typed
+identity, disk/restart atomicity or client behavior is established.
+
+Payment `20261031-020718-qa-forgemaster-payment-repro-lab` returned native
+FAIL16outer/10inner solely at trace consumption. The current Python parser
+rejected149of161chunks whose host receipt `_t` varied38.768–38.786; native
+headers matched. P0 had a valid220px lane,321samples/native completion and raw
+body-consumption/owned-raise observations. Payment and consumer effects remain
+UNSCORED; P1–P3 were causal UNRUN. This is not payment success or a product
+payment defect. Parent r11 is harness-blocked; a two-file/ten-control parser
+correction now has source acceptance only (index967b5ab5...); its new10/
+candidate31 controls remain UNRUN and the repair is uninstalled. Retain thisFAIL,
+the prior lane failure and the prohibition on unchanged retries/cancel work
+before a valid bounded parser review/reanalysis.
+
+Read-only generated verification002 returned six namedPASS/zero skips plus
+stock `make_forgemaster_risen.py --check` exit0. Before/after manifests retained
+the same1,885SDK and290generated files and equal6,294consumed inputs; no default
+generation was invoked. This supports data/source scope, not native effects.
+
+Proposed-only work has separate accepted controls: C3strategy15purePASS,
+F1arrival14modelPASS and M2observer43hostPASS. All remain uninstalled; M2 C43–C44
+are native UNRUN. Their controls do not add to the installed445 or establish
+ordinary, endpoint/cause, typed native observer or gameplay proof. H4's six
+CLI methods/11 subtests passed one staged trial and independent source/offline
+review (completed-stage-001/evidence-index.json, a467d644...). This proposed
+repair has no installed, SDK/native build/load or readiness credit; its six
+controls are separate from the installed generator's six invariant checks.
+Preserve C3's
+earlier zero-test staging failure and12PASS/three fake errors, pose005000's
+failed2px guard and magazine's unexercised blocked-fan navigation branch.
+
+The AV cause remains unresolved; eight genuine co-op tasks stay deferred. All
+remaining feature, ordinary/lifecycle, UI, packed and final obligations remain
+open. The dated portable snapshot is not a claim that this full goal is done.
+
+### E014 installed host checkpoint; native gates pending - 2026-10-31
+
+Actual E014 installation applied13 files, retaining nine backups and adding four
+files. Current source is
+`979025244a8061cae9ce31b978f20274cee3e89fc2a7a7ad809ed6faa91f260f`/2,220;
+consumed inputs are
+`dc60a85c530918ab10edff4d040f1221a76a666a14ca3ad353dbaa00e9fd28e8`/6,294.
+Only `mods/gamelab-pilot/scripts/GameLab/Pilot.as` changed in that input map,
+to9a67b588...;6,293 inputs remained fixed. Installed-source peer index6b325d24...
+accepts the exact13 composition only. Actual host acceptance is separate,
+index6bda6b62.... At dated state r3606 ROOT integration was verified r9 and
+released; phase was idle without native/integration claims. Use resume for
+subsequent live phase/revisions.
+
+The installed selected host run returned503 methods:501PASS/two named
+WinError1314 symlink skips. GameLab491 returned489PASS/twoSKIP; the six CLI and
+six SDK invariants all passed. The skipped methods were
+`ResourceSnapshotTests.test_directory_symlink_target_and_cycle` and
+`ResourceSnapshotTests.test_link_retarget_is_detected`. All three `--check`
+commands (verbs, package scenarios and Forgemaster generated data) exited zero.
+Before/after source/build,270supplementary paths,1,885SDK files,290generated
+files,6,294inputs, claim and physical records stayed equal. Actual receipt
+`gamelab/results/e014c-run-001/receipt.json` is5d5cf2a9...; the original144b91
+tool/session98418 completed in c4e352 with OS0. This is host execution evidence,
+not code/branch/AS/native coverage. Independent source and actual offline
+acceptances are separate; neither supplies game readiness or runtime proof.
+
+E014 installs C3 strategy plus the PF scenario mirror, F1 arrival-motion
+observation, the courier two-items-to-one capacity fixture, H4 early CLI argument
+parsing and S4 host receipt `_t` parsing. The F1 instrumentation is not a motion
+controller fix. Gambler product source790d... and its financial behavior are
+unchanged. All24 inventory attestations now target E014 source-only. BASELINE
+peer indexc0a7823e... accepts only the source/setup checkpoint; BASELINE is now
+current at r44. No E014 AS compilation, cold/full load, native
+prerequisite contract or mechanics trial has yet established a pass here.
+
+E013 remains historical:11 raw native trials comprise9PASS/twoFAIL, not11
+complete feature passes. Courier011917 retains accepted transfer/local-trip
+scope and a capacity-vacuous rawPASS; its full case remains harness-blocked.
+Key024153 payload-minimum was independently accepted and recorded at task r6;
+payload-full/pool-first remain UNRUN. Preserve every earlier failed trial and
+bounded scope, including strict pose return and the unexercised magazine
+blocked-fan branch.
+
+One guarded offline interpretation of saved historical payment P0 was accepted
+at indexd96bbde7.... It returned valid/healthy/payment/consumer-effect true with
+no errors on the unchanged161 chunks/321 samples, with one computed spend of
+66.499994874. This historical derivative cannot rewrite native020718FAIL,
+complete P1–P3 (causal UNRUN), or establish a current E014 payment/native pass.
+It remains distinct from the installed parser's fresh host checks and future
+engine observations.
+
+M2's five-file observer/evaluator with43 historical host controls and M3's
+eleven-output pending observer with22 synthetic methods/29subtests remain
+uninstalled and excluded from E014. B1's18 collector controls are source-only
+and UNRUN. The accepted portable E013/r3400 snapshot covers its first eight
+trials and excludes later work; it is not an E014 publication or full-goal
+claim. The old AV cause remains unresolved, eight genuine co-op tasks remain
+deferred, and other feature, ordinary/lifecycle, UI, packed and final gates are
+unfinished. Prior ledger entries retain their dated scopes.
+
+### E014 load and prerequisite contracts; snapshot caption follow-up - 2026-10-31
+
+On unchanged source97902524.../2,220, inputsdc60a85c.../6,294 and
+build25932569/B176, four actual E014 case trials passed independent review.
+Cold `20261031-035726-null-payload-lab` passed20outer/14inner and three zero-exit
+boots, creating the trusted b702 fixture cache. Full
+`20261031-040205-mod-all-lab` passed17outer/11inner and one zero-exit boot with
+48mods. Peer load index0cefa1e7... accepts load/preparation only; four boots
+belong to two case trials, not four independent load cases.
+
+Input `20261031-042402-qa-firearms-input-sequence-lab` passed15outer/9inner and
+all nine rows: one legal-point movement/return, two button presses, clip10→8,
+two actual target HP changes, release and cursor restoration. Critical helper
+`20261031-042925-qa-specs-crit-contract-lab` passed15outer/9inner and seven flags;
+`trials=[]` means no chance/damage rolls. Contract peer index48c70a4c... accepts
+the bounded input and one local skill's query/set/independent zero-roll
+readback/rebuild/restore only. No pose, payment, global geometry, ordinary,
+packed/co-op mechanic or AV-cause conclusion follows.
+
+Root recorded NATIVE-CONTRACTS verified r62/released via d9d39a, dated state
+r3634 idle without native/integration claims; use resume for later live state.
+The public snapshot caption now names the independently accepted E014/r3606
+publication (index9b8ac491...). That immutable snapshot captured zero current
+native trials and excludes these four later trials. The old E013/r3400 snapshot
+and the earlier native-zero r3606 checkpoint remain historical; neither is
+silently promoted. Other unfinished gates, uninstalled observers and eight
+genuine co-op deferrals remain open; provider-alias work is separate/pending.
+
+### E014 item/courier acceptance and retained pose/payment failures - 2026-10-31
+
+Source97902524.../2,220 and consumed inputsdc60a85c.../6,294 remain unchanged;
+no staged fix was installed. Eight actual E014 trials now account for six raw
+PASS/twoFAIL, retaining the prior four load/input/helper trials at their narrow
+scopes. At dated state r3832 root was idle without native/integration claims,
+last clean `20261031-054611`; use resume for live state.
+
+Pose `20261031-043812-fix-firearms-poses-lab` failed strict return again:
+2.234px>2px. Five flags and two inspected bound images preceded ten missing
+flags/six unrun images. Independent controlled/visual failure indexda9cb538...
+is retained; parent is harness-blocked r34. This is no complete pose/angle or
+controller-fix proof. The source-accepted F1 settled-arrival amendment7b918...
+remains uninstalled and all24 model methods are UNRUN.
+
+Payment `20261031-045403-qa-forgemaster-payment-repro-lab` is an independently
+accepted valid controlled productFAIL (indexe55215b5...), not a parser/setup
+failure. All four row contracts passed; P0/P2 healthy consumers passed while
+P1/P3 produced unpaid effects. Root recorded reproduced r18 and released the
+task. Source-accepted S4a179... is uninstalled; no repair/native pass is implied.
+Original E013020718FAIL and its accepted historical offline P0 derivative stay
+separate and immutable.
+
+Item `20261031-053121-qa-item-identity-contract-lab` passed15outer/9inner and
+all49+3:37 accepted calibrations,12 expected refusals and three real-item
+snapshots. Independent index5796d985... supports the three declared transport
+contracts; task is verified r32. It does not prove arbitrary item transforms,
+trades, equipment lifecycle or later save/restart preservation.
+
+Courier `20261031-054611-fix-pets-courier-lab` passed21outer/15inner/all14flags.
+The current fixture genuinely had bag2→1 plus a remaining-item native hover
+showing Drop/no Send home. Independent index6dc76cbf... and canonical
+controlled-native evidence8c5c199a... accept only `fix-pets-courier`. Rootb720ee
+attached that evidence, explicitly released the parent to queued r10 and thawed;
+`fix-pets-merchant`/`fix-pets-inventory-level` remain UNRUN. This single positive
+case cannot verify the three-check parent. Historical capacity-vacuous courier
+proof remains scoped separately.
+
+Original installed host checks remain503 methods/501PASS/two named WinError1314
+skips. Separate actual Planner14PASS/seven subtests and staged F2sevenPASS/
+87subtests are not added as extra installed methods; F2 remains uninstalled.
+B1's18 planned controls stopped at a lineage guard before any method ran,
+not18 semantic failures. Root post-accounting2f0293 recorded all15 tracked or
+matching PIDs absent and270supplementary paths, including231records, unchanged.
+It does not reconstruct the unobserved historical redirected worker PID/base
+OS exit; the failed attempt and hold remain retained without an unchanged retry.
+P1Unicode four controls and F1's24 models remain UNRUN, and M2/M3 observer
+proposals remain uninstalled.
+
+Portable E014/r3606 remains immutable with zero current native trials at capture,
+excluding all eight later trials; prior r3634/r3606 and E013 checkpoints remain
+historical. The AV cause is unresolved, eight genuine co-op tasks are deferred,
+and other feature, ordinary/lifecycle, UI, packed and final obligations remain
+unfinished. Tracker operational clarification is staged separately from these
+gameplay dispositions; bookkeeping corrections add no test or runtime credit.
+
+### E015 payment repair verified; strict pose guard failure retained - 2026-10-31 (r4165)
+
+Current source0bd0450a.../2,223 and inputsb682b2d2.../6,294, build25932569/B176.
+ROOT15 r9 and BASELINE r47 are verified; all24 source inventories and25 selected
+source/host provider tasks are current. Host527=525PASS/two named Win1314 skips
+and three metadata exits0 are independently accepted at9f870055...; the24 new
+controller methods are reference/model scope, not native arrival proof.
+
+Actual E015 native trials:073335minimalPASS20/14 (three boots),073526fullPASS17/11
+(one boot/48enabled),075327inputPASS15/9,075719critical-helperPASS15/9,
+082037poseFAIL18/12,084030payment-candidatePASS16/10. All game lifetimes/source/
+inputs/build were clean. Load peer8ceda04b... retains trustedb3e6/threeHPS and27
+old files; baseline GUI ERR11perminimalboot/15full match priorE014, so this is
+scoped own-script compile/load success rather than error-free logging or AV cure.
+Primitive peer031f23a2... covers one legal movement/button/hit/release point and
+zero-roll helper readback/rebuild/restore, with no chance/damage trials.
+
+Installed Forgea179 fixed payment behavior in four controlled rows: peer608465e3...
+and scalare17c93e2... independently join434parts/864samples/860frames. P0 paid
+66.499994874 once and raised one owned unit; P2 paid49.999995053 once and applied
+one Penance. P1/P3 actual271to0 drains occurred with9472/2472ms left; maximum
+later mana28.997024439/8.708702736 stayed below66.5/50. Bodies remained, with no
+extra debit/effect/counter or cooldown change. All four validity and healthy
+contracts passed. Canonical legacy-check mapping records actual candidate scenario
+and sourcea179 honestly; the original0e/E014 validFAIL is immutable. Native task
+r23 closes only this focused repair, not cancellation/ordinary/packed/co-op or
+direct observation of the internal UsePoints return.
+
+Installed Pilot7b918 has model/load evidence but failed strict pose return:
+peer90f8d714.../accounta7252a28... bind082037's combined input-ownership abort,
+one observation/frame, no settling/final-five-probe branch and99.572px error.
+Five pose flags/two actual captures precede ten flags/six images UNRUN. Three
+original images were inspected for context, not full per-hand/angle proof.
+Real foreign writer, precise subcondition and first-write/native phase remain
+unknown; E014's2.234px settled failure is distinct. Parent r41 is released and
+harness-blocked. New diagnostics are staged work, with strict2px/ownership intact.
+
+Unicode staged887/9df passes18 methods/seven subtests after original4 reproduced
+two literal failures/two passes (peer92c3541c...); draft r15 is verified, actual
+mainC1 unchanged. Original001 zero-method refusal is retained. B1 staged18 passed
+strict208-origin/160-file equality and finite payload/finality checks (f23a351d...);
+support task r4 is verified while real archive/build/resource/release gates remain
+open. Earlier003 overallFAIL and001/002zero remain recorded; redirected base OS
+exits and missing historical raw teardown bytes are not invented. These cohorts,
+88 provider records and repeated historical IDs add no new executions to527.
+
+Checkpoint r4165 is idle without native/integration claims, last clean084030.
+Portable E014/r3606 stays frozen/native0 at capture. M2/M3/F2/UI drafts remain
+uninstalled, eight genuine co-op tasks are explicitly user-deferred, authored
+costs/boss-key policy are preserved and other plan gates/AV cause remain open.
+
+
+## 2026-10-31 — E016 installed, fresh verification pending (r4196)
+
+Four reviewed files installed with three backups/one addition: Pilot diagnostics7b5b, new ten-design4cc9 tests, Unicode backend887/server9df. Actualsource864ce/2224, consumed655a/6294 (one AS leaf), supplementarycfc2/270 (two Planner leaves) equal independently accepted uniond221. Original installer04819c OS1 is a retained ledger-transition refusal after writes/capture; no-write continuationd3056b OS0 made legal reviewed->integrated transitions. Reconciledreceipt031be224 and rootaccount3b49 record exact bytes/backups, all four known process IDs absent and cleanlast092626. ROOT16 integratedr5/currenthost/core537/Planner18/server8+stamp10/metadata/AS/load/native/pose are still UNRUN. Prior staged Planner18/seven-subtest success remains E015; no current pass inferred.
+
+E015 later class trials are independent narrow passes: Backstab09211714rows (six actualcrit63HP withbleed0,2,3,4,5,6; eight actualnoncrit40HP/0bleed), complete raw joins/truncation0/restoration; Gladius092626five-rank HP26/30/35/39/44 within0.003, localfirstcontact/untouchedtarget/completeobserver/restores/abort-town. Explicit32mods resolves36enabled with petrooms+three lab modules. C1/C2parents remainqueuedr6, other checksUNRUN. E015 actualnative total8=7PASS/1poseFAIL, historicalonly. F2normal001 two rawmethodPASS/ten subtests neverthelessoverallFAIL31unexpectedopen events/no retainedpaths; taskHB3 released. No unchangedretry or inferredcause promotion. Genuine co-op8 userdeferred; policy/balance, historicalproduct/native/AV failures and broader ordinary/UI/packed/final obligations persist.
+
+
+Portable metadata publication: exact accepted E015/r4165 three-file snapshot d065f50b published after steward66 and independent33 METADATA checks. These are not project tests. Prior E014/r3606 raw copies remain immutable; all original failure values and record IDs stay traceable. Published snapshot excludes later E015 class/native and all E016 activity; live status remains canonical tracker/resume. Root applies reviewed local artifacts, no external publication or execution.
+
+
+## 2026-10-31: E016 final scopes and E017 precision installation
+
+Build25932569/B176, source864ce413.../2,224, inputs655a7aac.../6,294 and
+supplementarycfc2c4db.../270 were stable. ROOT16 verifiedr10, all24 source
+inventories and25 selected providers were current. One actual core537 cohort
+returned535PASS and two named WinError1314 skips; three metadata commands
+exited0. Separate installed Planner18 (server8+stamp10) passed, seven subtests/
+34HTTP. API34 passed34 ordered assertions/59 source-derived HTTP calls, not
+34methods or59 raw request captures. Aliases/providers add no executions.
+
+E016 native trials: null102640 (three clean boots/trusted v2cache), full103004
+(48enabled), input104506 and helper-only zero-roll crit104733 passed their
+bounded contracts. SMOKE80 and NativeContracts77 were verified. Baseline GUI
+errors/warnings remain retained; no AV-cause cure or general mechanics claim.
+Pose110413 failed18outer/12inner/three predicates with clean gameexit0. Eight
+valid ordered probes isolate first move_x: expected-0.99999994, actual-1.0,
+after completed own-write/tracker93/93. LaterY was not evaluated. Actual point
+was103.488px from anchor; five flags/two inspected images leave ten flags/six
+images UNRUN. Native normalization/foreign writer/physics cause are unproved.
+F1 remains harness-blocked48/released; strict2/full15flags/eightimages persist.
+
+Planner first hidden-IAB call failed before a tab binding, DOM or screenshot:
+browser access host unavailable. ROOT read-only inventory also failed; unknown
+tab creation/closure remains UNPROVEN. An attempted seq1 checkpoint publication
+failed File.Replace; pending bytes remain, seq0/noack, no stop/closed assertion.
+A naturally reached120.407s and cleaned server/socket/threads/fake34 data with
+zeroHTTP/allrecords unchanged; parent and held host exited1, four known PIDs
+were absent. B/gate/completion never existed. Independent blocked visual review
+6cd58295... leaves all six cases UNRUN; both original tasks are HB3/released.
+This is setup failure, not a Planner product verdict. Frontend b494 is uninstalled.
+
+Portable E015/r4165 publication remains unchanged; it excludes later class/E016
+activity. Prior failures and eight genuine co-op deferrals retain their scopes.
+
+At dated r4496, E017 installed exactly Pilot5c3afb69... and new precision
+testd4c0b42a..., onebackup. Sourcea6871cdf.../2,225, inputs7da6c002.../6,294,
+supplementarycfc2c4db.../270 match accepted source unionae0b9edd...; direct
+receiptc67c49ab.../toolbda430 OS0/root accountf5bb82e4... retain actual pins.
+ROOT17 integratedr5, idle; twelve pure controls/core549 and native gates remain
+UNRUN. Other owner guards and strict2px stay exact. No native cause, laterY or
+pose repair claim; source approval and installation are distinct from execution.
+Use `python tools/qa_swarm.py resume --owner <alias>` for continuing work.
+
+
+## 2026-10-31: E017 actual core, direct selftests, native contracts and later pose refusal
+
+Current Build25932569/B176 sourcea6871cdf.../2,225, inputs7da6c002.../6,294
+and supplementarycfc2c4db.../270 are stable. ROOT17 is verified15/released,
+BASELINE53 and all24 source inventories are current. Same-execution provider
+bindings cover25 selected tasks/88scope records; these add no executions.
+ROOT13r33/ROOT15r21/ROOT16r17 are scoped continuity aliases. Planner18's actual
+execution remains E016 through identical239Planner leaves/four reached modules/
+interpreter, with no replay or new HTTP count. Counts are not code coverage.
+
+Actual core549=547PASS/two named WinError1314 skips, all original537 IDs retained
+plus12precision controls; three metadata checks exited0. Independent6a34abef...
+accepts the actual run. One supplemental artifact string joining eight paths was
+corrected metadata-only at691d2ee7...; originals remain, all27 corrected paths
+resolve, no source writes/test replay. A fresh public claim restored ROOT17
+verificationr15. Separate H4 direct cohort is verified11:10compiler unittest
+methods+14save custom assertions+78doctor outer assertions=102mixed. Four nested
+save returns remain subordinate; two quiet metadata child statuses unobserved.
+Full source/6294inputs/supp/build/four real oracles/Ctmp names were unchanged,
+ownedTEMPempty, five known PID/markers absent; base OS exits not independently
+observed. This is no real-save restoration or broad discovery completion.
+
+E017 native trials (all source/input guards and actual teardown clean):
+
+| Run | Actual scope |
+| --- | --- |
+|121202 null-payload|PASS20outer/14inner;3boot exits0, trusted newv2c02cc06d creator121202/[1,2]/3HPS+meta;35oldercachefiles retained.|
+|121447 mod-all|PASS17/11;actual48enabled/oneboot0. run.mods3 is Git provenance, not enabled count.|
+|123431 input-sequence|PASS15/9/all9rows;21.536forward/back/exactreturn, clip10to8/twoHPintervals/release-cursor restoration at one legal point.|
+|123632 crit-contract|PASS15/9/sevenflags, nine raw helper records query/set/zero-roll/rebuild/restore;trials=[]/contractonly.|
+|124559 fix-firearms-poses|FAIL18/12/threepredicates;fiveflags/twonamedimages,tenflags/siximagesUNRUN;gameexit0.|
+
+SMOKE87/load index243a8f18... and NativeContracts85/index8b8abee5... are accepted.
+Baseline GUI ERR11/11/11/15 and warnings50/120/100/106 remain; no globally clean
+log or AV-cause cure. Helper base PIDs/OS exits were unrecorded independently;
+toolterminal/exact-marker absence and actual game exits are separate evidence.
+
+Pose failure index86cbe194.../root accountf34bc87e... isolates first move_x at
+entry27/callback574:actual-0.99999994 vs expected-0.857337415, counters116/116,
+preceding owner/handle/pad/button guards pass. Fifteen valid probes/drop0/
+truncfalse/invalidfalse;26frames/observations, no hold/correction/finalprobe.
+Only first3postwrites logged;4..26remain unobserved. Terminal(-297.031,-14.729)
+was9.512px from goal; later query(-304.303,-14.729) was2.240px away. LaterY,
+native normalization/foreignwriter/physics cause remain unproved. Two original
+640x360pose PNGs plusend were inspected; smallactor/floor context does not
+establish all8angles/perhand. F1HB56/released retains the material refusal;
+future pulse/control source work must preserve strict2/all15flags/eightimages
+and the tiny numerical budget, with fresh tests/native gates before a trial.
+
+PB and two pet case readiness packets do not establish new runtime results.
+M2/M3observer context amendments and pulse drafts remain uninstalled/unrun.
+E16browser access refusal leaves all6UI casesUNRUN, both original tasksHB3,
+unknown tab closureUNPROVEN/no frontend installation. Portable E15/r4165,
+all prior failures and eight genuine co-op user deferrals remain unchanged.
+Use tracker resume for live state; no campaign completion is declared.
+
+
+
+## 2026-10-31: E017 pet subchecks and E018 pulse models before native validation
+
+ROOT18 is integratedr6, not verified. Source26acb452.../2,226, full consumed
+inputsfeb56819.../6,294 and supplementarycfc2c4db.../270 match exact2 reviewed
+files/onebackup on Build25932569/B176: Pilotf42c3f7a... and new12-model test
+6b2fec65... . Receipt1456a5dd.../source capture32444dad.../root account63455b45...
+bind actual installation8f4142/session9472->97aeccOS0, two known PIDs absent.
+Old23c666 was missing-script prelaunchOS1 with zero source writes, not a failed
+installation or reconciliation. Current pure suite561=559PASS/two namedWin1314
+skips preserves all549 prior IDs plus12pulse methods; three metadata checks0.
+Actual run3141d7/session12093->c65977OS0/rootaccount80adcf35... records nine
+known processes/markers absent and current fullmaps. Independent actual review
+is pending. No E018 AS/native/cause/arrival/visual result follows from models.
+
+The pulse policy changes the old fractional-amplitude cap into callback duty:
+fresh legal full direction or zero through the same guarded writer, bounded
+private credit/reset at hold/repath/newintent, no readback adoption. Existing
+ownership/tiny numerical consistency/strict2px/hold12/correction4/deadlines/
+route/final5probe stay. Neutral callbacks may affect stuck/progress/repath;
+scalar queued models omit full AS integration and prove no native availability.
+No M2/M3/F2/UI/route/Fury or optional8-module scenario is installed.
+
+Core packet001 wrong-union reference was caught statically before execution;
+distinct002 fixes only pack routing/metadata and preserves001. A wrong command
+checksum342411 refused before OUT/collector/anytest; actual source-recorded
+admission116b8a1e... then launched the one completed suite. All refusals are
+retained; no test replay or weakened comparison occurred. Host source6 and
+BASELINE are current; other source/provider/H4/Planner scoped renewals are in
+progress, with original execution epochs preserved and no mandatory replay.
+Fresh E018 compile/load, input/helper contracts and one changed pose trial are
+still gated on independent actual core acceptance. Use tracker resume.
+
+### Historical E017 pet subchecks (final dated r4800)
+
+Merchant130213 PASS17outer/11inner/all7booleans (sixoriginal plusSkillRow) and
+inventory130734 PASS19/13/all5original flags were independently accepted at
+index4187f31a.../root accountf0dc3e9c... . Distinct fresh injected gamePIDs2224/
+40616, not priorpose29987, matched live isolated image/knownfolder/swap/job/
+runner and fixture-readback guards; onecleanexit0each, no selectedPilotintents.
+Trustedc02cache creator121202/[1,2]/3HPS+meta and35olderfiles unchanged; E017
+source/input/supp/build guards clean. Helper basePID/OSexits were unrecorded
+independently, while tool0/markerabsence/gameexits remain separate evidence.
+
+Merchant proves bought/menu/choice/row/refusal observations only; no actual
+training-rank/payment/conservation/ordinary oracle. Inventory's actual UI text
+went1(0%)to3(42%) after debugXP500 acknowledgement. Second-read predicate's
+missing-own-shown limitation remains despite actual secondreplyok/showntrue.
+Source inquiry p17-pet-alias01/manifest31560414... establishes tiny_maltese as
+the authored internal ID/localized Curiosity name, not a concrete selector bug;
+no native actor/skin/per-pet XP accounting or persistence oracle was added.
+M4 parent16 is queued/released with only these2current subchecks, not verified;
+Courier E014 history remains separate/unreplayed. E017 total7actual native
+trials=6PASS/1poseFAIL; this count is not broad feature coverage. All prior
+failures, browser refusal, eight user co-op deferrals and remaining gates persist.
+
+
+## 2026-10-31: two isolated GameLab workers and bounded native acceptance
+
+The user requested resolving the single runtime bottleneck before resuming the
+broader campaign. One coordinator retains the machine lease while two workers
+use private executable/config/save/AppData/log/capture/harness-plan/cache trees,
+unique hidden desktops, disjoint CPU masks and exact non-breakaway process jobs.
+Cleanup authenticates PID creation, executable and lease, then uses a held
+process handle; unknown identity remains a refusal. Shared preparation/cache
+publication stays between live waves or under the preparation guard.
+
+On pinned Build25932569/B176/exe232cfb7a..., source64f39ca5.../2,238: doctor
+smoke144053 passed20outer/14inner with3cleanboots. Four stock cases passed on
+one private worker and in paired waves: null-payload17/10, mod-all18/11,
+input-sequence16/9 and crit-contract16/9. Every run used a verified cache hit,
+original assertions and clean teardown. Direct sample002 observed PIDs22524/
+38556 simultaneously in distinct exact jobs; sample001's zero between waves
+remains retained. Recorded native lifetimes overlapped25.83s and34.30s.
+The matched warm four-case comparison took149.6819s serial and94.6389s paired:
+1.5816x throughput,36.7733% less wall time. This is one preliminary comparison,
+not a capacity or broad feature-coverage measurement.
+
+Routing001 failed2/2 before barriers/captures: requested clock11/17 returned14
+in the immediate setter reply and independent readback; own tags/state matched.
+A reviewed8-file inverse-exact repair selected writable FPS57/59 with immediate
+AND independent readback and original60 restoration, plus exact-pair admission.
+No AS/core-ownership/stock algorithms changed. Current source12dae302.../2,238
+passed725 automated tests,718subtests and two named Windows symlink skips.
+Routing002 then passed2/2 with10barrier records and8owned same-basename captures
+under distinct roots. Root viewed all8; an independent reviewer viewed the4
+asymmetric menu frames and reconciled raw commands, input mailslots and hashes.
+
+Fault001 intentionally retained childTIMEOUT6/partial/dirty and coordinator
+NONPASS4/dirty. Its sibling passed with92observations, own marker intact and
+post-peer menu/Escape/final captures; root and reviewer viewed those3frames.
+Both exact jobs were empty, all game identities absent, source stable and leases
+released. Root's separately retained finality audit accounted the two exact
+process births before public reset; reset killed nothing and retained all private
+worker evidence. Fresh recovery through qa_batch --workers2 passed both load
+cases, with clean final coordinator teardown and unchanged12dae source.
+
+The public record-pool command reread actual paired raw results into an isolated
+demonstration ledger, verifying LOADS and CONTRACTS. The broad campaign ledger
+remainsr4847 and paused. Parallel admission currently covers four audited stock
+scenarios and four dedicated probe roles; wider eligibility and higher worker
+counts remain future work. Local solo workers do not replace deferred genuine
+co-op. All original failures, including routing001 and the expected timeout,
+remain distinct. See docs/qa/swarm/multi_run_validation.json for the portable
+checkpoint and ignored raw artifact paths.
+
+## 2026-10-31: review of the next throughput bottleneck
+
+Read-only review combined the paused r4847/E018 ledger, retained native receipts,
+current pool/source and three independent workload/operations/throughput audits.
+No project tests, native launches, runtime implementation or canonical mutations
+were performed. The source remains12dae302.../2,238 and ledger remainsr4847.
+
+The next priority is executable feature-test admission and lower evidence/
+currentness overhead, before increasing workers. Of102nativecards,82arequeued,
+9verified,9deferred and2harnessblocked. None of82queuedcards maps to the pool's
+4stockcases plus4dedicatedprobes. Only13queuedcards have structured case/evidence
+bindings; broader prose references are not ready cases. First proposed eligibility
+audits are the installed stash-families/neighbors pair, then Poisoned Blades.
+Restart-dependent LastStats and uninstalled M2/M3/F2 observer work need additional
+contracts/integration, not merely runtime slots. No admission is granted here.
+
+Across18sourceepochs/37.8hours,24inventorytasks generated1,271of4,847ledger
+mutations; BASELINE adds56, giving27.4%. Mutation counts do not measure time or
+executions. The paused mid-refresh frontier has146verifiedcards but13fresh;
+133stale cards are not133failures. Scoped unchanged-dependency proofs and generated
+review/import bundles should retain actual execution epochs and semantic review.
+
+The warm matched gate suite's149.7s-to94.6s result remains the only measured
+capacity comparison. Aggregate child time rose14.3% at two workers, localized
+before fixture entry; CPU/GPU/disk/guard-wait causes remain unmeasured. Whole-pool
+idle was4.2s, and fixed-duration optimal two-slot packing saves only~0.68s on that
+queue; the16.7s final single-slot tail had no waiting work. All16foundation pool
+children were cache hits. A fixed-duration four-slot model of~61.1s is optimistic
+and unmeasured, not a benchmark or forecast.
+
+Recommended order: a versioned machine-readable case/admission catalog using the
+existing pool/tracker; generated mechanical evidence/currentness reconciliation;
+a small useful two-worker feature batch with ready/wait/startup/review timing;
+then a controlled four-worker comparison if two remain fed. Preserve build/input
+pinning, owned cleanup, failure retention, consumer predicates and screenshot
+review. See docs/qa/swarm/bottleneck_review.json and its cited raw audit artifacts.
+
+
+## 2026-10-31: reviewed case catalog and atomic pool evidence
+
+Added an explicit reviewed data catalog for two controlled stash-family cases.
+Each binds36module roots/6121files, exact scenario predicates and five consumer
+rows. New/deleted module files and changed ignored consumed inputs refuse before
+or after a wave; the pool freezes catalog/scenario bytes and raw result hashes.
+This is reviewed input identity and bounded stash semantics, not semantics proof
+for every module. Existing StashSort377ddf14 was already correct and was unchanged.
+
+Fixed an actual shared-write defect: hps.py backed up both private slot saves to
+the legacy lab directory with second-resolution names. Authenticated slot saves
+and unique exclusive backups now stay inside each private game root. Pure path,
+collision, restore and fault controls pass. During the actual feature pair each
+worker made one private backup, while all94legacy lab backups stayed identical.
+
+Build25932569/B176, exe232cfb7a...51100. Current-at-execution prerequisite pair
+admission-prereqs-001 passed mod-all(18outer/11inner) and the crit helper contract
+(16/9), query/set/rebuild/restore only, zero damage trials. Feature pair
+admission-feature-001 passed both16outer/9inner and all10consumer rows: four/eight
+item fixtures, native stash UI/Sort replies, family order, id@ilvl multiset and
+second-press vector/log. Two exact distinct owned game jobs overlapped. Both end
+frames were inspected: town, stash closed; no intermediate UI visual claim.
+All owned jobs ended, games/leases are absent and final teardown is clean.
+
+The first actual direct-script import plan exposed ModuleNotFoundError before
+any ledger change. A two-line repo import bootstrap fixed it; real subprocess
+regressions reproduced failure then passed. Exact byte inverse and full-source
+hash reconstruction preserve native9884dd30 separately from final9e92c11a. Final
+installed suite1240PASS/three unavailable-symlink skips/1269subtests. An earlier
+unrestricted pytest discovery entered ignored historical drafts and failed449
+collection checks; that setup error is retained, not a gameplay failure.
+
+The public read-only planner produced both bindings. Actual stale-second-CAS and
+missing-second-raw bundles each refused with identical ledger bytes. The valid
+bundle imported and verified both native leaves in one revision(r7to8,0.72s).
+The independent source gate stayed unchanged; public idle closeout is r9. The
+canonical385-task ledger remains exactly r4847/E018. Raw files stay ignored;
+portable facts and hashes are in admission_pipeline_validation.json. Native
+scope excludes full serialization, inactive tabs, restart, ordinary play and co-op.
+
+One87.20s feature wave spent40.66s rechecking selected closures. This measured
+repeated-input cost merits optimization before more workers; no four-worker or
+hardware saturation result is claimed.
+
 ## 2026-10-30: floor exits with most of the party (issue #75, `partyexit`)
 
 A floor's exit is `WorldScript::LevelExitAreaNext` (`LevelExitAreaJump` inherits its `Use`).
@@ -7501,3 +9497,23 @@ Tests:
   graphics, sound, window and intro cvars, and every lab run opens the console with VK 0xC0
   (the backtick key on US layouts). `hwp` commands are not cheats.
 - Unmeasured: whether the engine reads the key by position or by character on non-US layouts.
+
+## 2026-11-01: publish complete worktree as a follow-up PR
+
+Saved all214authored changes in293e5f73 before integrating origin/main e7d060f1.
+PR83 had already merged. Upstream PRs84?86 are preserved; package dependency
+cycle/dev-module guards coexist with the new required-base build/generation gate,
+strict generator CLI parsing coexists with upstream trailing-comma fixes, and
+Generosity's identity/oracle improvements coexist with upstream elite/death rules.
+Only the append-only RE_NOTES histories conflicted; both complete sides survived.
+Eight added files received EOF-only whitespace cleanup; no behavior changed there.
+
+The fresh merged installed suite passed1244tests, skipped the same three Windows
+symlink controls, and passed1269subtests. Verb reference is current and the PR diff
+passes whitespace checks. No game was launched for publication. Prior native
+runs remain at their recorded revisions; neither upstream integration nor new
+commit IDs retag those results. Source-bound builtin audits and stash-v1 catalog
+must be reviewed before renewing any stale input pins. The canonical385-task
+ledger stays byte-for-byte unchanged at r4847/E018; genuine co-op remains deferred.
+Raw lab artifacts, saves, imported game assets and machine-local caches remain
+ignored. The authored portable tracker and evidence summaries are included.

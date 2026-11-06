@@ -1,6 +1,7 @@
 """Every module's switch (module.json config.toggle, the settings page's module rows), turned off
-and on again with every package installed, each checked by something the module itself does
-in game, not by the stored value. The switch goes through `hwp set <key> false|true`, the same
+and on again with every current feature and required library loaded. Results explicitly
+separate native effects/UI/unit counts from status-only and authored parked-policy checks.
+Goldworth and libraries have no toggle and receive N/A, never an invented off-effect pass. The switch goes through `hwp set <key> false|true`, the same
 HWP::Settings write and OnSettingChanged event as the page's row (settings_sweep clicks the
 rows themselves).
 
@@ -22,15 +23,18 @@ What each one shows, off then on:
 - classes: parked (ClassesModule PARKED), so its switch has nothing to show: only the stored value
   and "parked" are checked.
 
-Flags: off_<module> for each of the 38 (both halves held), off_<module>_run for the run
-modules, off_restored (every switch back on, the chances back at their defaults), off_no_errors."""
+Flags: scoped off_<module> or off_<module>_run rows, plus source applicability accounting.
+The returned applicability table records each row's exact evidence kind and remaining limits.
+No aggregate complete-functionality claim is supplied."""
 import json
+import math
 import re
 import time
 
 from gamelab.bots.plan_runs import Checks as Base
 from gamelab.bots.plan_ui import PRESETS, TRAP_RAY, near_color
-from gamelab.bots.settings_sweep import load
+from gamelab.bots.settings_sweep import load, same, OPTION_SETTINGS
+from gamelab.bots.plan_pets import Checks as PetChecks, TRAP_UNIT, FLOOR_TRAPS
 
 SHRINE = "tweak/buffs/shrine_buffs.sval:damage"
 LEGACY = "tweak/hwp/buffs_legacy.sval:hwp_legacy"
@@ -38,8 +42,128 @@ DRINKS = re.compile(r"(\d+)/(\d+)")
 # a floor's chances, at 100 so the off run's absence means something
 CHANCES = {"abyss.chance": 100, "strongbox.chance": 100, "puzzles.room_chance": 100}
 
+# Pin one base-game producer, not the MiniPet default: the generated Dog unit
+# explicitly sets range-idle=90 and leash-range=100. A frozen-source producer/type
+# readback is required before this contract applies; other pets refuse setup.
+PETROOMS_PET = {"title": "Dog", "resource": "players/pets/pet_dog.unit",
+                "behavior": "HWPMiniPetWalking", "idle_range": 90,
+                "leash_range": 100, "on_margin": 30}
+
+# This is evidence applicability, not a declaration that every module is functionally tested.
+FEATURE_CONTRACTS = {'abyss': {'kind': 'status-and-floor-log',
+           'limit': 'Existing status plus off/on generated-floor log; not clear/reward or exact payload proof.'},
+ 'affixes': {'kind': 'controlled-generator',
+             'limit': '24 generated Epic items at forced 100% chance off/on; saved-item extras and acquisition '
+                      'remain separate.'},
+ 'architect': {'kind': 'status-only',
+               'limit': 'Command refusal/status changes only; functional off/on consumers remain unverified '
+                        'here.'},
+ 'attrclick': {'kind': 'controlled-assignment',
+               'limit': 'Forced Shift plus native trainer Buy; actual pickedStr/free-point delta 1 off versus 20 '
+                        'on, not physical modifier input proof.'},
+ 'autoaim': {'kind': 'status-only',
+             'limit': 'Command refusal/status changes only; functional off/on consumers remain unverified here.'},
+ 'bufftips': {'kind': 'ui-or-native-effect',
+              'limit': 'Checks the existing named UI/effect consumer only; not complete feature functionality.'},
+ 'campaign': {'kind': 'town-unit-count',
+              'limit': 'Counts the named spawned units only; provider UI, payment and ordinary lifecycle remain '
+                       'separate.'},
+ 'chatlinks': {'kind': 'status-only',
+               'limit': 'Command refusal/status changes only; functional off/on consumers remain unverified '
+                        'here.'},
+ 'classes': {'kind': 'parked-policy',
+             'limit': 'Authored Classes::PARKED=true keeps new class offers hidden on both switch values; this is '
+                      'stored value/parked-policy evidence, not an on-effect pass.'},
+ 'colors': {'kind': 'ui-or-native-effect',
+            'limit': 'Checks the existing named UI/effect consumer only; not complete feature functionality.'},
+ 'deathrecap': {'kind': 'floor-log',
+                'limit': 'Existing generated-floor/death log; not every lifecycle/reward/UI consumer.'},
+ 'droptrade': {'kind': 'ui-or-native-effect',
+               'limit': 'Checks the existing named UI/effect consumer only; not complete feature functionality.'},
+ 'farming': {'kind': 'town-unit-count',
+             'limit': 'Counts the named spawned units only; provider UI, payment and ordinary lifecycle remain '
+                      'separate.'},
+ 'firearms': {'kind': 'ui-or-native-effect',
+              'limit': 'Checks the existing named UI/effect consumer only; not complete feature functionality.'},
+ 'fishing': {'kind': 'town-unit-count',
+             'limit': 'Counts the named spawned units only; provider UI, payment and ordinary lifecycle remain '
+                      'separate.'},
+ 'gambler': {'kind': 'town-unit-count',
+             'limit': 'Counts the named spawned units only; provider UI, payment and ordinary lifecycle remain '
+                      'separate.'},
+ 'goldworth': {'kind': 'not-applicable',
+               'limit': 'Data only; config.toggle is null and always_on supplies the authored reason.'},
+ 'groupcombo': {'kind': 'status-only',
+                'limit': 'Command refusal/status changes only; functional off/on consumers remain unverified '
+                         'here.'},
+ 'keys': {'kind': 'status-and-floor-log',
+          'limit': 'Existing status plus off/on generated-floor log; not clear/reward or exact payload proof.'},
+ 'laststats': {'kind': 'town-unit-count',
+               'limit': 'Counts the named spawned units only; provider UI, payment and ordinary lifecycle remain '
+                        'separate.'},
+ 'legacy': {'kind': 'ui-or-native-effect',
+            'limit': 'Checks the existing named UI/effect consumer only; not complete feature functionality.'},
+ 'mapicons': {'kind': 'town-unit-count',
+              'limit': 'Counts the named spawned units only; provider UI, payment and ordinary lifecycle remain '
+                       'separate.'},
+ 'maps': {'kind': 'status-only',
+          'limit': 'Command refusal/status changes only; functional off/on consumers remain unverified here.'},
+ 'mercenary': {'kind': 'status-only',
+               'limit': 'Command refusal/status changes only; functional off/on consumers remain unverified '
+                        'here.'},
+ 'mmhmm': {'kind': 'status-only',
+           'limit': 'Command refusal/status changes only; functional off/on consumers remain unverified here.'},
+ 'objectives': {'kind': 'floor-log',
+                'limit': 'Existing generated-floor/death log; not every lifecycle/reward/UI consumer.'},
+ 'orbwarn': {'kind': 'ui-or-native-effect',
+             'limit': 'Checks the existing named UI/effect consumer only; not complete feature functionality.'},
+ 'petrooms': {'kind': 'controlled-pet-movement',
+              'limit': 'Checked trap-room route, actual pet follows off and parks on; controlled setup, not '
+                       'standalone vanilla-pet/coop/ordinary proof.'},
+ 'pets': {'kind': 'status-only',
+          'limit': 'Command refusal/status changes only; functional off/on consumers remain unverified here.'},
+ 'puzzles': {'kind': 'floor-log',
+             'limit': 'Existing generated-floor/death log; not every lifecycle/reward/UI consumer.'},
+ 'roulette': {'kind': 'town-unit-count',
+              'limit': 'Counts the named spawned units only; provider UI, payment and ordinary lifecycle remain '
+                       'separate.'},
+ 'specs': {'kind': 'status-only',
+           'limit': 'Command refusal/status changes only; functional off/on consumers remain unverified here.'},
+ 'stash': {'kind': 'ui-or-native-effect',
+           'limit': 'Checks the existing named UI/effect consumer only; not complete feature functionality.'},
+ 'strongbox': {'kind': 'status-and-floor-log',
+               'limit': 'Existing status plus off/on generated-floor log; not clear/reward or exact payload '
+                        'proof.'},
+ 'summons': {'kind': 'status-only',
+             'limit': 'Command refusal/status changes only; functional off/on consumers remain unverified here.'},
+ 'tavern': {'kind': 'ui-or-native-effect',
+            'limit': 'Checks the existing named UI/effect consumer only; not complete feature functionality.'},
+ 'trinkets': {'kind': 'ui-or-native-effect',
+              'limit': 'Checks the existing named UI/effect consumer only; not complete feature functionality.'},
+ 'valuables': {'kind': 'status-only',
+               'limit': 'Command refusal/status changes only; functional off/on consumers remain unverified '
+                        'here.'},
+ 'wavemode': {'kind': 'town-unit-count',
+              'limit': 'Counts the named spawned units only; provider UI, payment and ordinary lifecycle remain '
+                       'separate.'},
+ 'waygates': {'kind': 'town-unit-count',
+              'limit': 'Counts the named spawned units only; provider UI, payment and ordinary lifecycle remain '
+                       'separate.'},
+ 'weapons': {'kind': 'status-only',
+             'limit': 'Command refusal/status changes only; functional off/on consumers remain unverified here.'},
+ 'weaponswap': {'kind': 'status-only',
+                'limit': 'Command refusal/status changes only; functional off/on consumers remain unverified '
+                         'here.'}}
+
 
 class Checks(Base):
+    def __init__(self, p):
+        super().__init__(p)
+        self._owned_settings = {}
+        self._owned_defaults = {}
+        self._cleanup_errors = []
+        self._original_errors = []
+
     # --- plumbing
     def mark(self):
         return len(self.g.read_log())
@@ -51,7 +175,69 @@ class Checks(Base):
         if bool(self.gl("cvars", "cht_god").get("cvars", {}).get("cht_god")) != on:
             self.hwp("god", 0.4)
 
+    def prepare_owned_settings(self):
+        _, pkgs = load()
+        toggles = []
+        for _, mods in pkgs:
+            for mod, cfg in mods:
+                if cfg.get("toggle"):
+                    toggles.append(cfg["toggle"])
+                    self._owned_defaults[cfg["toggle"]] = True
+                for setting in cfg.get("settings", []):
+                    if "key" in setting:
+                        self._owned_defaults[setting["key"]] = setting["default"]
+        # Existing colors_test changes the source preset; own its effective values.
+        self._owned_defaults.update(OPTION_SETTINGS["colors"])
+        for key, default in self._owned_defaults.items():
+            initial = self.setting_value(key, default)
+            self._owned_settings[key] = {"initial": initial, "default": default}
+            if isinstance(initial, str) and any(c.isspace() for c in initial):
+                raise RuntimeError(f"unrestorable one-token setting fixture: {key}={initial!r}")
+        initial_off = [key for key in toggles if not self.same_setting(self._owned_settings[key]["initial"], True)]
+        self.flag("off_initial_enabled", not initial_off, f"fresh-On precondition: {initial_off}")
+        if initial_off:
+            raise RuntimeError("fixture has authored off choices; refuse mutation")
+
+    @staticmethod
+    def same_setting(actual, expected):
+        text = str(actual).lower() if isinstance(actual, bool) else str(actual)
+        return same(text, expected)
+
+    def cleanup_step(self, label, action):
+        try:
+            action()
+            return True
+        except Exception as exc:
+            row = {"operation": label, "error": repr(exc)}
+            self._cleanup_errors.append(row)
+            self.notes.append(f"cleanup failed: {row}")
+            return False
+
+    def restore_owned_setting(self, key):
+        snapshot = self._owned_settings[key]
+        initial, default = snapshot["initial"], snapshot["default"]
+        current = self.setting_value(key, default)  # reconcile any uncertain earlier dispatch
+        if self.same_setting(current, initial):
+            return
+        if initial == "":
+            raise RuntimeError(f"cannot restore empty {key!r} through CmdSet; no guessed reset")
+        text = str(initial).lower() if isinstance(initial, bool) else str(initial)
+        self.hwp(f"set {key} {text}", 0.2, until=f"] {key} = ")  # one dispatch only
+        after = self.setting_value(key, default)
+        if not self.same_setting(after, initial):
+            raise RuntimeError(f"restore differs for {key}: {after!r}, initial {initial!r}")
+
+    def cleanup_owned_settings(self):
+        self.cleanup_step("close owned lab windows", self.close_all)
+        for key in reversed(self._owned_settings):
+            self.cleanup_step(f"restore {key}", lambda key=key: self.restore_owned_setting(key))
+        self.out["owned_initial_settings"] = self._owned_settings
+        self.out["cleanup_failures"] = self._cleanup_errors
+        self.out["original_failures"] = self._original_errors
+
     def set(self, key, value):
+        if key not in self._owned_settings:
+            raise RuntimeError(f"setting was not snapshotted before mutation: {key}")
         out = self.hwp(f"set {key} {value}", 0.3, until=f"] {key} = ")
         return f"] {key} = {value}" in out
 
@@ -77,18 +263,34 @@ class Checks(Base):
                 if "Script exception" in ln or ("[ERR]" in ln and "HWP" in ln)]
 
     def toggle(self, mod, key, test, settle=0.6):
-        """Off, test("off"), on, test("on"): off_<mod> holds when both halves do."""
-        mark = self.mark()
-        s_off = self.set(key, "false")
-        time.sleep(settle)
-        off, n_off = test("off", mark)
-        mark = self.mark()
-        s_on = self.set(key, "true")
-        time.sleep(settle)
-        on, n_on = test("on", mark)
-        self.flag(f"off_{mod}", s_off and s_on and off and on,
-                  f"set {s_off}/{s_on}; off {off}: {n_off} | on {on}: {n_on}")
-        return off and on
+        """Both halves plus unconditional restoration; original exceptions stay primary."""
+        current = self.setting_value(key, self._owned_settings[key]["default"])
+        if not self.same_setting(current, True):
+            self.flag(f"off_{mod}", False, f"toggle did not start On: {current!r}; no mutation")
+            return False
+        s_off = s_on = off = on = False
+        n_off = n_on = "not attempted"
+        clean = False
+        try:
+            mark = self.mark()
+            s_off = self.set(key, "false")
+            time.sleep(settle)
+            off, n_off = test("off", mark)
+            mark = self.mark()
+            s_on = self.set(key, "true")
+            time.sleep(settle)
+            on, n_on = test("on", mark)
+        except Exception as exc:
+            self._original_errors.append({"stage": f"toggle:{mod}", "error": repr(exc)})
+            self.flag(f"off_{mod}", False, f"original failure: {exc!r}")
+            raise
+        finally:
+            clean = self.cleanup_step(f"{mod} restore enabled", lambda: self.restore_owned_setting(key))
+            self.flag(f"off_{mod}_cleanup", clean, "independent read before any restore write")
+        passed = s_off and s_on and off and on and clean
+        self.flag(f"off_{mod}", passed,
+                  f"set {s_off}/{s_on}; off {off}: {n_off} | on {on}: {n_on}; cleanup {clean}")
+        return passed
 
     # --- the kinds of test
     def status(self, cmd, off_pat, on_pat=None, until="[HWP]"):
@@ -183,7 +385,395 @@ class Checks(Base):
         self.toggle("firearms", "firearms.enabled", self.firearms_test())
         self.close_all()
         self.toggle("droptrade", "droptrade.enabled", self.droptrade_test())
+        self.affixes()
+        self.attrclick()
         self.gl("kill", 300, "npc_skill_trainer")
+
+    def setting_value(self, key, default):
+        log = self.hwp(f"get {key}", 0.15, until=f"] {key} = ")
+        rows = re.findall(r"\[HWP\] " + re.escape(key) + r" = ([^\r\n]*)", log)
+        if not rows:
+            raise RuntimeError(f"missing setting readback: {key}")
+        return default if rows[-1].strip() == "(unset)" else rows[-1].strip()
+
+    def affixes(self):
+        # Actual generator results, fixed bounded trial count, no probabilistic rates.
+        _, pkgs = load()
+        default = next(s["default"] for _, mods in pkgs for mod, cfg in mods if mod == "affixes"
+                       for s in cfg["settings"] if s.get("key") == "affixes.chance")
+        original = self.setting_value("affixes.chance", default)
+        pattern = re.compile(r"roll: (\d+) epic at ilvl 1 \(chance ([^)]*)\): second suffix (\d+), "
+                             r"second prefix (\d+), max mods (\d+), over two (\d+), duplicates (\d+), two skills (\d+)")
+        def check(phase, mark):
+            out = self.hwp("affixes roll 24 epic 1", 0.3, until="[HWP] roll:")
+            rows = pattern.findall(out)
+            if not rows:
+                return False, "no generator result; no consumer credit"
+            made, chance, suffixes, prefixes, max_mods, over, duplicates, skills = rows[-1]
+            made, suffixes, prefixes, max_mods, over, duplicates, skills = map(int,
+                (made, suffixes, prefixes, max_mods, over, duplicates, skills))
+            if phase == "off":
+                effect = chance == "off" and suffixes == prefixes == 0 and max_mods == 3
+            else:
+                effect = chance == "100%" and suffixes == prefixes == made and max_mods == 5
+            return made == 24 and effect and over == duplicates == skills == 0, str(rows[-1])
+        try:
+            self.set("affixes.chance", 100)
+            self.toggle("affixes", "affixes.enabled", check)
+        finally:
+            self.cleanup_step("affixes restore chance", lambda: self.restore_owned_setting("affixes.chance"))
+
+    def attr_state(self):
+        out = self.hwp("attrclick", 0.2, until="[HWP] attribute clicks")
+        rows = re.findall(r"a click places (\d+) \((keys|shift|ctrl|none)\); (\d+) point\(s\) to place, "
+                          r"picked str (\d+), dex (\d+), int (\d+), foc (\d+), vit (\d+)", out)
+        if not rows:
+            raise RuntimeError("attribute record readback missing")
+        n, force, free, *picked = rows[-1]
+        return {"per_click": int(n), "force": force, "free": int(free), "picked": list(map(int, picked))}
+
+    def attrclick(self):
+        self.close_all()
+        original_force = self.attr_state()["force"]
+        self.hwp("statpoints 40", 0.2, until="attribute points")
+        spawn = self.gl("spawn", "actors/npcs/town/npc_attrib_trainer.unit", 0, -40)
+        opened = self.gl("use", "npc_attrib_trainer") if spawn.get("ok") else {}
+        setup = opened.get("window") == "HWPAttributeAssignerWindow"
+        self.flag("off_attrclick_setup", setup, f"spawn {spawn}; opened {opened}")
+        if not setup:
+            self.flag("off_attrclick", False, "no swapped trainer window; no assignment consumer credit")
+            return
+        def check(phase, mark):
+            before = self.attr_state()
+            press = self.gl("press", "strength")
+            time.sleep(0.3)
+            after = self.attr_state()
+            want = 1 if phase == "off" else 20
+            other_same = before["picked"][1:] == after["picked"][1:]
+            effect = (press.get("window") == "HWPAttributeAssignerWindow" and before["free"] >= want
+                      and before["free"] - after["free"] == want
+                      and after["picked"][0] - before["picked"][0] == want and other_same)
+            return effect, f"forced Shift/native Buy: {before} -> {after}"
+        try:
+            self.hwp("attrclick force shift", 0.2, until="[HWP] attribute clicks")
+            self.toggle("attrclick", "attrclick.enabled", check)
+        finally:
+            self.cleanup_step("attrclick restore force", lambda: self.hwp(
+                f"attrclick force {original_force}", 0.2, until="[HWP] attribute clicks"))
+            self.cleanup_step("attrclick close owned window", self.close_all)
+
+    def petrooms(self):
+        """One bound pet, explicit native routes and a disposable owned fixture floor."""
+        self.close_all()
+        c = PetChecks(self.p)
+        trace = {"candidate_paths": [], "routes": [], "pet_samples": [], "spawns": [],
+                 "owned_trap_ids": [], "preexisting_pressure_ids": [], "cleanup": {}}
+        self.out["petrooms_trace"] = trace
+        setup = off_effect = on_effect = off_set = on_set = False
+        dog_ready = on_geometry = False
+        minimum_on_gap = max(PETROOMS_PET["idle_range"], PETROOMS_PET["leash_range"]) + PETROOMS_PET["on_margin"]
+        trace["pet_source_contract"] = dict(PETROOMS_PET, minimum_on_gap=minimum_on_gap)
+        pet_id = pet_name = None
+        preexisting_ids = set()
+        fixture_started = False
+
+        def pressure_snapshot():
+            raw = self.gl("unitsof", TRAP_UNIT)
+            row = raw.get(TRAP_UNIT) or {}
+            units = row.get("units") or []
+            if not raw.get("ok") or not row.get("found") or row.get("count") != len(units):
+                raise RuntimeError(f"pressure-unit readback missing or capped: {raw}")
+            return raw, units
+
+        def bound_pet(stage):
+            raw = self.gl("near", 1200, "pets/")
+            matches = [u for u in raw.get("units") or [] if u.get("unit") == pet_id]
+            if (not raw.get("ok") or raw.get("truncated") or len(matches) != 1
+                    or matches[0].get("name") != pet_name
+                    or matches[0].get("behavior") != PETROOMS_PET["behavior"]):
+                raise RuntimeError(f"bound pet missing/changed/capped at {stage}: unit {pet_id}, reply {raw}")
+            sample = dict(matches[0], stage=stage, observed_at=time.time(), player=c.player())
+            trace["pet_samples"].append(sample)
+            return sample
+
+        def samples(stage, count=5):
+            rows = []
+            for i in range(count):
+                rows.append(bound_pet(f"{stage}:{i}"))
+                time.sleep(0.4)
+            movement = max(math.hypot(u["x"] - rows[0]["x"], u["y"] - rows[0]["y"]) for u in rows)
+            return rows[-1], movement, rows
+
+        def route(label, x, y, tol=8):
+            # These are native Pilot intents only. No plan_pets.walk_in/puzzle_spot/
+            # pet_beside fallback is used: each of those can teleport the player.
+            attempts = []
+            before = c.player()
+            for method, timeout in (("path_to", 12), ("move", 10)):
+                result = getattr(self.p, method)(x, y, tol=tol, timeout=timeout)
+                state_after = self.gl("state")
+                after = state_after.get("player") or {}
+                attempts.append({"method": method, "result": result.result, "reason": result.reason,
+                                 "intent": result.intent, "id": result.id, "tick": result.tick,
+                                 "event": dict(result.event), "player_after": after})
+                settled = math.hypot(after.get("x", 1e9) - x, after.get("y", 1e9) - y) <= tol
+                if result.ok and settled and state_after.get("phase") == "mission":
+                    trace["routes"].append({"label": label, "target": [x, y], "player_before": before,
+                                            "attempts": attempts, "ok": True})
+                    return True
+                if result.result == "interrupted" or state_after.get("phase") != "mission":
+                    break  # do not issue a fallback movement after context interruption
+            trace["routes"].append({"label": label, "target": [x, y], "player_before": before,
+                                    "attempts": attempts, "ok": False})
+            return False
+
+        def choose_local_route():
+            # Eight fixed near-straight candidates from the ACTUAL current origin.
+            # This selector only reads path/scene data; it never repositions a player.
+            pl = c.player()
+            sx, sy = pl.get("x"), pl.get("y")
+            if sx is None or sy is None:
+                return None
+            trap_reply = self.gl("unitsof", *FLOOR_TRAPS)
+            if not trap_reply.get("ok"):
+                raise RuntimeError(f"authored trap readback refused: {trap_reply}")
+            c.traps = []
+            for path in FLOOR_TRAPS:
+                row = trap_reply.get(path) or {}
+                units = row.get("units") or []
+                if row.get("count") != len(units):
+                    raise RuntimeError(f"authored trap readback missing/capped: {path}: {row}")
+                c.traps.extend((u["x"], u["y"]) for u in units
+                               if math.hypot(u["x"] - sx, u["y"] - sy) < 1500)
+            trace["authored_trap_snapshot"] = trap_reply
+            for dx, dy in ((240, 0), (0, 240), (-240, 0), (0, -240),
+                           (170, 170), (-170, 170), (-170, -170), (170, -170)):
+                distance = math.hypot(dx, dy)
+                if c.by_traps(sx, sy, sx + dx, sy + dy):
+                    trace["candidate_paths"].append({"offset": [dx, dy], "refused": "authored trap corridor"})
+                    continue
+                raw = self.gl("pathfind", round(sx + dx), round(sy + dy), 12, -1, -1, round(sx), round(sy))
+                trace["candidate_paths"].append({"offset": [dx, dy], "reply": raw})
+                if raw.get("ok") and raw.get("nodes", 0) > 0 and raw.get("length", 1e9) <= distance * 1.25:
+                    return sx, sy, dx, dy, distance
+            return None
+
+        def setup_dog():
+            created = self.gl("char", "paladin", "LabSettingsPetRooms")
+            trace["dog_setup"] = {"character_reply": created}
+            if not created.get("ok") or not self.wait_phase("town", 60):
+                return False
+            time.sleep(2)
+            c.set_gold(60000)  # isolated controlled purchase fixture; no economy credit
+            c.npc("npc_pets", "actors/npcs/town/npc_pets.unit")
+            opened = self.gl("use", "npc_pets")
+            time.sleep(0.6)
+            shop = self.gl("shop")
+            entries = shop.get("items") or []
+            matches = [i for i, item in enumerate(entries) if item.get("title", "").strip() == PETROOMS_PET["title"]
+                       and item.get("available", True)]
+            trace["dog_setup"].update(open_reply=opened, shop_reply=shop, matching_rows=matches)
+            if opened.get("window") != "PetsShopWindow" or len(matches) != 1:
+                return False  # English lab title must be unambiguous; never pick an unknown pet
+            bought = self.gl("shop", "buy", matches[0])
+            trace["dog_setup"]["buy_reply"] = bought
+            if not bought.get("ok"):
+                return False
+            time.sleep(1.5)
+            self.close_all()
+            started = self.gl("mission", "bandit_keep", 0)
+            trace["dog_setup"]["mission_reply"] = started
+            if not started.get("ok") or not self.wait_phase("mission", 120):
+                return False
+            self.god(True)
+            trace["dog_setup"]["controlled_cull"] = self.gl("cull")
+            time.sleep(2)
+            return True
+
+        def actual_gaps(rows):
+            gaps = []
+            for sample in rows:
+                player = sample.get("player") or {}
+                if any(key not in player for key in ("x", "y")):
+                    raise RuntimeError(f"missing player pose in same-pet sample: {sample}")
+                gaps.append(math.hypot(sample["x"] - player["x"], sample["y"] - player["y"]))
+            return gaps
+
+        def preserve_unrelated_before_exit():
+            if not fixture_started or self.gl("state").get("phase") != "mission":
+                return
+            raw, units = pressure_snapshot()
+            trace["cleanup"]["pressure_before_abort"] = raw
+            now = {u["unit"] for u in units}
+            trace["cleanup"]["unrelated_preserved_before_abort"] = preexisting_ids <= now
+            if not preexisting_ids <= now:
+                raise RuntimeError(f"unrelated pressure IDs disappeared before cleanup: {sorted(preexisting_ids - now)}")
+
+        def dispose_owned_floor():
+            # No exact-ID destroy verb exists. Do not use radius/name unitdestroy.
+            # End this controlled disposable floor through the game's abort boundary;
+            # ordinary scene disposal removes the owned fixtures, not a broad trap edit.
+            state = self.gl("state")
+            if fixture_started and state.get("phase") == "mission":
+                raw = self.gl("abort")
+                trace["cleanup"]["abort_reply"] = raw
+                if not raw.get("ok") or not self.wait_phase("town", 120):
+                    raise RuntimeError("owned fixture floor did not return to town after one abort")
+            if self.gl("state").get("phase") != "town":
+                raise RuntimeError("owned fixture cleanup did not end in town")
+            raw, units = pressure_snapshot()
+            trace["cleanup"]["town_pressure_snapshot"] = raw
+            # The precondition below requires this disposable fixture's town to start
+            # without pressure units; producer absence also handles numeric ID reuse.
+            if units:
+                raise RuntimeError("pressure fixture producer still present after abort-to-town")
+
+        try:
+            town_raw, town_units = pressure_snapshot()
+            trace["town_before"] = town_raw
+            if town_units:
+                return  # do not disturb an authored town pressure fixture
+            fixture_started = True  # setup_dog may fail after it has started its owned run
+            dog_ready = setup_dog()
+            if not dog_ready:
+                return
+            self.set("petwait.radius", 120)
+            initial_pets = self.gl("near", 1200, "pets/")
+            candidates = initial_pets.get("units") or []
+            if (self.gl("state").get("phase") != "mission" or not initial_pets.get("ok")
+                    or initial_pets.get("truncated") or len(candidates) != 1):
+                return
+            pet_id, pet_name = candidates[0].get("unit"), candidates[0].get("name")
+            if (not isinstance(pet_id, int) or pet_id <= 0 or pet_name != PETROOMS_PET["resource"]
+                    or candidates[0].get("behavior") != PETROOMS_PET["behavior"]):
+                trace["setup_refusal"] = "selected runtime pet does not match the pinned Dog producer/type"
+                return
+            trace["bound_pet"] = {"unit": pet_id, "name": pet_name, "initial_reply": initial_pets}
+            selected = choose_local_route()
+            if selected is None:
+                return
+            sx, sy, dx, dy, distance = selected
+            if not route("certified origin", sx, sy, tol=3):
+                return
+            end = time.time() + 8
+            first = bound_pet("before-room")
+            while time.time() < end and first.get("dist", 1e9) >= 60:
+                time.sleep(0.4)
+                first = bound_pet("wait-at-origin")
+            target = (sx + dx, sy + dy)
+            # A stationary pet cannot be admitted as a valid off control merely
+            # because the player endpoint happens to be within the idle radius.
+            if (first.get("dist", 1e9) >= 60
+                    or math.hypot(first["x"] - target[0], first["y"] - target[1]) < 160):
+                return
+            raw, units = pressure_snapshot()
+            preexisting_ids = {u["unit"] for u in units}
+            trace["preexisting_pressure_ids"] = sorted(preexisting_ids)
+            trace["pressure_before_spawn"] = raw
+            for ox, oy in ((0, 0), (14, 10), (-14, 10)):
+                pl = c.player()
+                raw = self.gl("spawn", TRAP_UNIT, round(target[0] + ox - pl["x"]), round(target[1] + oy - pl["y"]))
+                trace["spawns"].append(raw)
+                if not raw.get("ok") or not isinstance(raw.get("unit"), int) or raw["unit"] in preexisting_ids:
+                    return
+                trace["owned_trap_ids"].append(raw["unit"])
+            raw, units = pressure_snapshot()
+            trace["pressure_after_spawn"] = raw
+            owned = [u for u in units if u["unit"] in trace["owned_trap_ids"]]
+            if len(set(trace["owned_trap_ids"])) != 3 or len(owned) != 3:
+                return
+            if any(math.hypot(u["x"] - target[0], u["y"] - target[1]) > 25 for u in owned):
+                return
+            if any(math.hypot(owned[i]["x"] - owned[j]["x"], owned[i]["y"] - owned[j]["y"]) < 12
+                   for i in range(3) for j in range(i)):
+                return
+            off_set = self.set("petwait.enabled", "false")
+            off_start = bound_pet("off-before-walk")
+            if not route("off entry", *target):
+                return
+            time.sleep(3)
+            off_end, _, _ = samples("off-after-walk")
+            off_displacement = math.hypot(off_end["x"] - off_start["x"], off_end["y"] - off_start["y"])
+            off_effect = off_end.get("dist", 1e9) < 110 and off_displacement >= 30
+            trace["off_motion"] = {"start": off_start, "end": off_end, "displacement": off_displacement}
+            if not route("off return to origin", sx, sy, tol=6):
+                return
+            time.sleep(3)
+            on_set = self.set("petwait.enabled", "true")
+            if not route("on entry", *target):
+                return
+            time.sleep(2.5)
+            p1, moved1, on_rows1 = samples("on-before-side-step")
+            gaps1 = actual_gaps(on_rows1)
+            trace["on_geometry"] = {"required_gap": minimum_on_gap, "first_window_gaps": gaps1}
+            if not all(gap >= minimum_on_gap for gap in gaps1):
+                trace["setup_refusal"] = "first on window overlaps the selected pet's idle/follow bound plus margin"
+                return
+            if not route("on same-room side step", target[0] - dy / distance * 30,
+                         target[1] + dx / distance * 30, tol=6):
+                return
+            time.sleep(1)
+            p2, moved2, on_rows2 = samples("on-after-side-step")
+            gaps2 = actual_gaps(on_rows2)
+            trace["on_geometry"]["second_window_gaps"] = gaps2
+            on_geometry = all(gap >= minimum_on_gap for gap in gaps1 + gaps2)
+            if not on_geometry:
+                trace["setup_refusal"] = "second on window overlaps the selected pet's idle/follow bound plus margin"
+                return
+            shift = math.hypot(p2["x"] - p1["x"], p2["y"] - p1["y"])
+            on_effect = moved1 < 10 and moved2 < 10 and shift < 10
+            trace["on_motion"] = {"first": p1, "last": p2, "movement": [moved1, moved2], "shift": shift}
+            setup = True  # every certified non-teleport route and bound observation completed
+        except Exception as exc:
+            self._original_errors.append({"stage": "petrooms", "error": repr(exc)})
+            raise
+        finally:
+            self.flag("off_petrooms_pet_setup", dog_ready and bool(trace.get("bound_pet")),
+                      "native base Dog purchase plus exact resource/type readback; no imported pet requirement")
+            self.flag("off_petrooms_on_geometry", on_geometry,
+                      f"every same-Dog/player pose sample must be >= {minimum_on_gap}px apart")
+            self.flag("off_petrooms_setup", setup and on_geometry,
+                      "pinned same pet + non-teleport routes + owned traps + both on-window idle/follow separation")
+            clean_before = len(self._cleanup_errors)
+            self.cleanup_step("petrooms unrelated pressure preservation", preserve_unrelated_before_exit)
+            self.cleanup_step("petrooms owned floor abort/fixture absence", dispose_owned_floor)
+            self.cleanup_step("petrooms restore radius", lambda: self.restore_owned_setting("petwait.radius"))
+            self.cleanup_step("petrooms restore toggle", lambda: self.restore_owned_setting("petwait.enabled"))
+            self.cleanup_step("petrooms close owned UI", self.close_all)
+            clean = len(self._cleanup_errors) == clean_before
+            self.flag("off_petrooms_returned_town", bool(trace["cleanup"].get("town_pressure_snapshot")),
+                      "explicit disposable-floor abort, no radius/name destroy")
+            self.flag("off_petrooms_cleanup", clean, str(trace["cleanup"]))
+            self.flag("off_petrooms", setup and on_geometry and off_set and on_set and off_effect and on_effect and clean,
+                      f"set {off_set}/{on_set}; same-pet off motion {off_effect}; same-pet on stationarity {on_effect}; cleanup {clean}")
+
+    def applicability(self):
+        pk, pkgs = load()
+        configs = {mod: cfg for _, mods in pkgs for mod, cfg in mods}
+        missing = sorted(set(configs) - set(FEATURE_CONTRACTS))
+        stale = sorted(set(FEATURE_CONTRACTS) - set(configs))
+        rows = []
+        for mod, cfg in configs.items():
+            disposition = FEATURE_CONTRACTS.get(mod, {"kind": "unassigned", "limit": "No consumer disposition"})
+            kind = disposition["kind"]
+            flag = None if not cfg.get("toggle") else f"off_{mod}"
+            if mod in ("objectives", "puzzles", "deathrecap"):
+                flag += "_run"
+            rows.append({"module": mod, "toggle": cfg.get("toggle"), "scope": cfg.get("scope", "host"),
+                         "applies": cfg.get("applies", "now"), "kind": kind, "flag": flag,
+                         "observed": self.out.get(flag) if flag else None,
+                         "limit": disposition["limit"], "always_on": cfg.get("always_on")})
+        invalid_na = [r["module"] for r in rows if not r["toggle"]
+                      and (r["kind"] != "not-applicable" or not r["always_on"])]
+        unattempted = [r["module"] for r in rows if r["flag"] and r["flag"] not in self.out]
+        self.out["applicability"] = rows
+        self.out["libraries_not_applicable"] = pk["libraries"]
+        self.out["coverage_scope"] = "Scoped effect/UI/status/parked-policy checks; not exhaustive feature off/on, persistence or co-op proof."
+        self.out["functional_gaps"] = [r["module"] for r in rows if r["kind"] in ("status-only", "parked-policy")]
+        self.flag("off_contract_inventory", not missing and not stale and not invalid_na and not unattempted,
+                  f"{len(rows)} features, {len(pk['libraries'])} libraries; missing {missing}, stale {stale}, invalid N/A {invalid_na}, no result {unattempted}")
+        self.flag("off_not_applicable", not invalid_na and bool(pk["libraries"]),
+                  "goldworth data-only and library toggles N/A; no off-effect pass awarded")
 
     def keys_test(self):
         def t(phase, mark):
@@ -411,27 +1001,42 @@ class Checks(Base):
 
     # --- after: every switch on, the chances at their defaults
     def restore(self):
-        _, pkgs = load()
-        defaults = {s["key"]: s["default"] for _, mods in pkgs for _, cfg in mods for s in cfg.get("settings", [])
-                    if "key" in s}
-        for k in CHANCES:
-            self.set(k, defaults[k])
-        st = dict(re.findall(r"\[HWP\] ([\w.]+) = (\S+)", self.hwp("settings", 1.0, until="] ")))
-        toggles = [cfg["toggle"] for _, mods in pkgs for _, cfg in mods if cfg.get("toggle")]
-        off = [k for k in toggles if st.get(k, "true") != "true"]
-        moved = [k for k in CHANCES if k in st and float(st[k]) != float(defaults[k])]
-        self.flag("off_restored", not off and not moved, f"still off {off}, chances moved {moved}")
+        # Audit the initial effective snapshots after cleanup, not assumed defaults.
+        changed = []
+        for key, snapshot in self._owned_settings.items():
+            try:
+                value = self.setting_value(key, snapshot["default"])
+                if not self.same_setting(value, snapshot["initial"]):
+                    changed.append({"key": key, "initial": snapshot["initial"], "observed": value})
+            except Exception as exc:
+                self._cleanup_errors.append({"operation": f"audit {key}", "error": repr(exc)})
+        self.flag("off_restored", not changed and not self._cleanup_errors,
+                  f"initial effective settings; changed {changed}, cleanup errors {self._cleanup_errors}")
         errs = self.errors_since(getattr(self, "mark0", 0))
         self.flag("off_no_errors", not errs, "; ".join(errs[:8]))
 
 
-def run(p, sections="town,tavern,run_floors,orbwarn,restore", **_):
+def run(p, sections="town,tavern,run_floors,petrooms,orbwarn,restore", **_):
     c = Checks(p)
-    for s in sections.split(","):
-        try:
-            getattr(c, s)()
-        except Exception as e:  # a section's crash is its own failure, not the bot's
-            c.flag(f"{s}_crashed", False, repr(e))
+    try:
+        c.prepare_owned_settings()
+        for section in sections.split(","):
+            if section == "restore":
+                continue  # unconditional finally performs cleanup and audit
+            try:
+                getattr(c, section)()
+            except Exception as exc:
+                c._original_errors.append({"stage": section, "error": repr(exc)})
+                c.flag(f"{section}_crashed", False, repr(exc))
+                break  # no dependent mutations after an uncertain/failed section
+    except Exception as exc:
+        c._original_errors.append({"stage": "initial snapshot", "error": repr(exc)})
+        c.flag("off_initial_snapshot", False, repr(exc))
+    finally:
+        c.cleanup_owned_settings()
+        c.cleanup_step("final owned-setting audit", c.restore)
+        c.flag("off_cleanup", not c._cleanup_errors, str(c._cleanup_errors))
+        c.applicability()
     c.out["notes"] = c.notes
     c.out["terminal"] = " | ".join(c.notes)[-3000:]
     return c.out

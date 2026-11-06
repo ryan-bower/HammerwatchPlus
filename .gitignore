@@ -2,6 +2,9 @@
 gamecode/
 .screenshots/
 gamelab/results/
+# QA tracker transaction debris is transient; state.json itself is portable/committed.
+docs/qa/swarm/state.json.lock
+docs/qa/swarm/state.json.*.tmp
 gamelab/env/userdata/
 gamelab/fixtures/cache/
 gamelab/manifest.local.json

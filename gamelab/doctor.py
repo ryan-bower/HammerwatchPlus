@@ -55,6 +55,7 @@ sys.path.insert(0, str(REPO / "tools"))
 import gamepaths  # noqa: E402
 import pin_build  # noqa: E402
 import saves  # noqa: E402
+import qa_batch  # noqa: E402
 
 VENV_PY = REPO / ".venv" / "Scripts" / "python.exe"
 PY_DEPS = ("lz4", "pefile", "PIL")        # pyproject.toml dependencies, by import name
@@ -104,8 +105,12 @@ def gcc_target() -> str | None:
     gcc = gamepaths.find_gcc()
     if not gcc:
         return None
-    return subprocess.run([gcc, "-dumpmachine"], env=gamepaths.gcc_environment(gcc),
-                          capture_output=True, text=True).stdout.strip() or None
+    try:
+        result = subprocess.run([gcc, "-dumpmachine"], env=gamepaths.gcc_environment(gcc),
+                                capture_output=True, text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return (result.stdout.strip() or None) if result.returncode == 0 else None
 
 
 def other_steam_accounts() -> list[str]:
@@ -459,7 +464,8 @@ def smoke_key() -> dict:
     """What a smoke result depends on; any change means the machine has to prove itself again."""
     shim = REPO / "tools" / "capture_shim" / "hwr2_capture.c"
     import hashlib
-    return {"build": (pin_build.pinned() or {}).get("build_id"), "cores": os.cpu_count(), "gpus": gpus(),
+    return {"result_guard_version": 1, "build": (pin_build.pinned() or {}).get("build_id"),
+            "cores": os.cpu_count(), "gpus": gpus(),
             "shim_source_sha256": hashlib.sha256(shim.read_bytes()).hexdigest() if shim.is_file() else None}
 
 
@@ -476,11 +482,28 @@ def smoke_stamp_problems() -> list[str]:
     return [f"passed before, but {', '.join(changed)} changed since"] if changed else []
 
 
-def explain_smoke(code: int, run: dict | None, game_log: str, out: str) -> tuple[str, str]:
-    """A failed smoke boot as (plain cause, what to do). ("", "") for a pass. Pure, so
-    tools/doctor_selftest.py covers every branch without needing a broken machine."""
+def smoke_records_safe(run: dict | None, inner: dict | None, scenario: str) -> bool:
+    """Use the batch/importer's artifact rules, plus this machine's pinned build."""
+    if not isinstance(run, dict):
+        return False
+    build, pinned = run.get("build"), pin_build.pinned() or {}
+    return (qa_batch.successful(run, scenario)
+            and qa_batch.inner_matches_outer(run, inner, scenario)
+            and isinstance(build, dict)
+            and all(pinned.get(key) and build.get(key) == pinned[key]
+                    for key in ("build_id", "exe_sha256")))
+
+
+def explain_smoke(code: int, run: dict | None, game_log: str, out: str,
+                  inner: dict | None = None, scenario: str = "null-payload") -> tuple[str, str]:
+    """A smoke outcome as (plain cause, next action); only guarded artifacts pass.
+    The checks are read-only and covered with fake results in doctor selftests."""
     if code == 0:
-        return "", ""
+        if smoke_records_safe(run, inner, scenario):
+            return "", ""
+        return ("the smoke result is missing, malformed or unsafe",
+                "inspect run.json and inner.json: require matching final lab results, successful assertions, "
+                "clean teardown and the pinned build; exit 0 alone is not setup evidence")
     lab, total = lab_cores()
     tail = " | ".join(out.strip().splitlines()[-3:])
     if code == 2:
@@ -491,11 +514,13 @@ def explain_smoke(code: int, run: dict | None, game_log: str, out: str) -> tuple
     if code == 4:
         return ("another GameLab run holds the lock, or the last one left a dirty teardown",
                 "find out why (gamelab/results/, the lock's reasons), then `python -m gamelab reset`")
-    if run is None:
-        return "the launcher stopped before writing run.json", tail
-    err = run.get("error") or ""
-    failed = [a for a in run.get("assertions", []) if not a["ok"]]
-    names = {a["name"] for a in failed}
+    if not isinstance(run, dict):
+        return "the launcher stopped before writing run.json (or wrote invalid JSON)", tail
+    err = str(run.get("error") or "")
+    assertions = run.get("assertions")
+    failed = [a for a in assertions if isinstance(a, dict) and a.get("ok") is not True] \
+        if isinstance(assertions, list) else []
+    names = {str(a.get("name", "")) for a in failed}
     if "could not inject" in err:
         return ("Windows refused to load the capture shim into the game",
                 "almost always antivirus or EDR blocking DLL injection (CreateRemoteThread + LoadLibraryW): "
@@ -530,7 +555,7 @@ def explain_smoke(code: int, run: dict | None, game_log: str, out: str) -> tuple
     if "not isolated" in err:
         return ("the game started but the isolation checks failed (shim hooks or job object)",
                 f"{err[:300]}; antivirus that hooks processes can stop the shim's hooks")
-    detail = err or "; ".join(f"{a['name']}: {str(a.get('detail', ''))[:80]}" for a in failed[:3])
+    detail = err or "; ".join(f"{a.get('name', '')}: {str(a.get('detail', ''))[:80]}" for a in failed[:3])
     return f"{run.get('verdict', 'FAIL')} for another reason", detail or tail
 
 
@@ -588,22 +613,36 @@ def smoke(r: Report, fix: bool, force: bool) -> None:
     except subprocess.TimeoutExpired as e:
         code, out = 6, f"{e.stdout or ''}\ndoctor gave up after {SMOKE_TIMEOUT}s"
     new = sorted(set(results.glob(f"*-{stem}-lab")) - before) if results.is_dir() else []
-    run_json = new[-1] / "run.json" if new else None
-    run = json.loads(run_json.read_text(encoding="utf-8")) if run_json and run_json.is_file() else None
-    logs = sorted(new[-1].glob("logs/pass*.HWR2.exe.log")) if new else []
-    game_log = logs[-1].read_text(encoding="utf-8", errors="replace") if logs else ""
-    cause, hint = explain_smoke(code, run, game_log, out)
-    where = f" ({new[-1].relative_to(REPO)})" if new else ""
+    directory = new[0] if len(new) == 1 else None
+    run, inner = None, None
+    if directory is not None:
+        try:
+            run = json.loads((directory / "run.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            pass
+        try:
+            inner = json.loads((directory / "inner.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            pass
+    logs = sorted(directory.glob("logs/pass*.HWR2.exe.log")) if directory is not None else []
+    try:
+        game_log = logs[-1].read_text(encoding="utf-8", errors="replace") if logs else ""
+    except OSError:
+        game_log = ""
+    cause, hint = explain_smoke(code, run, game_log, out, inner, stem)
+    where = f" ({directory.relative_to(REPO)})" if directory is not None else ""
+    owned_run = (directory.name if directory is not None and isinstance(run, dict)
+                 and run.get("scenario") == stem and run.get("mode") == "lab" else None)
     if cause:
         # remembered, so plain doctor repeats the cause and the next boot can clear the dirty
         # teardown this run may leave (own_dirty_teardown); never a pass
-        SMOKE_STAMP.write_text(json.dumps({"failed": {"run": new[-1].name if new else None, "cause": cause,
+        SMOKE_STAMP.write_text(json.dumps({"failed": {"run": owned_run, "cause": cause,
                                                       "exit": code, "at": time.strftime("%Y-%m-%d %H:%M")}},
                                           indent=1) + "\n", encoding="utf-8")
         r.check(label, False, hint=f"exit {code}: {cause}{where}. {hint}")
         return
     SMOKE_STAMP.write_text(json.dumps({"key": smoke_key(), "at": time.strftime("%Y-%m-%d %H:%M"),
-                                       "run": new[-1].name if new else None,
+                                       "run": directory.name,
                                        "seconds": round(time.time() - t0, 1)}, indent=1) + "\n", encoding="utf-8")
     r.check(label, True, f"PASS in {time.time() - t0:.0f}s{where}")
 

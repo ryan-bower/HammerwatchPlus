@@ -670,8 +670,8 @@ namespace HWP
 			if (body is null || plr is null || plr.IsDead())
 				return;
 			// the skill's cost and cooldown, now that the channel has run its course
-			if (c.m_cost !is null)
-				plr.UsePoints(true, true, c.m_cost);
+			if (c.m_cost !is null && !plr.UsePoints(true, true, c.m_cost))
+				return;
 			if (!c.m_penance && c.m_skill !is null)
 				c.m_skill.StartRaiseCooldown();
 			if (c.m_penance)

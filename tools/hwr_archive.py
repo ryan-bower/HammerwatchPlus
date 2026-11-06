@@ -48,13 +48,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import ntpath
 import os
 import re
 import struct
 import sys
 import zlib
 from dataclasses import dataclass, field
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 try:
     import lz4.block as _lz4
@@ -579,21 +580,69 @@ def cmd_list(args):
         print(f"{e.type:3d} {e.raw_size:10d} {e.comp_size:10d}  {e.path}")
 
 
+def extraction_paths(out: Path, names: list[str]) -> dict[str, Path]:
+    """Validate all selected destinations before extraction can write any file.
+
+    Resource paths may use either separator, but must be relative and cannot
+    traverse upward, name Windows devices/streams, alias another destination,
+    or resolve through an existing symlink/junction outside the output root.
+    The tool's own manifest is validated by the same rules.
+    """
+    root = out.resolve()
+    reserved = getattr(ntpath, "isreserved", None)
+    destinations = {}
+    seen = set()
+    for name in names:
+        normalized = name.replace("\\", "/")
+        windows = PureWindowsPath(normalized)
+        parts = PurePosixPath(normalized).parts
+        if (not normalized or not parts or windows.drive or windows.root
+                or ":" in normalized or "\0" in normalized
+                or any(part == ".." or part.endswith((".", " "))
+                       or (reserved(part) if reserved else PureWindowsPath(part).is_reserved())
+                       for part in parts)):
+            raise ValueError(f"unsafe archive extraction path: {name!r}")
+        destination = root.joinpath(*parts).resolve()
+        if not destination.is_relative_to(root):
+            raise ValueError(f"archive extraction path escapes output: {name!r}")
+        identity = os.path.normcase(str(destination))
+        if identity in seen:
+            raise ValueError(f"duplicate archive extraction destination: {name!r}")
+        seen.add(identity)
+        destinations[name] = destination
+    for name, destination in destinations.items():
+        if destination.exists():
+            if not destination.is_file():
+                raise ValueError(f"archive extraction destination is not a regular file: {name!r}")
+            if destination.stat().st_nlink > 1:
+                raise ValueError(f"archive extraction destination is hardlinked: {name!r}")
+        for ancestor in destination.parents:
+            if ancestor == root:
+                break
+            if (os.path.normcase(str(ancestor)) in seen
+                    or (ancestor.exists() and not ancestor.is_dir())):
+                raise ValueError(f"archive extraction file ancestor conflict: {name!r}")
+    return destinations
+
+
 def cmd_extract(args):
     a = Archive.read(args.archive)
     rx = _compile(args.filter)
     out = Path(args.outdir)
+    selected = [e for e in a.entries if not rx or rx.search(e.path)]
+    names = [e.path for e in selected if not e.is_bank]
+    if not args.no_manifest:
+        names.append(MANIFEST)
+    destinations = extraction_paths(out, names)
     out.mkdir(parents=True, exist_ok=True)
     files = {}
     banks = []
     n = 0
-    for e in a.entries:
-        if rx and not rx.search(e.path):
-            continue
+    for e in selected:
         if e.is_bank:
             banks.append(e.path)
             continue
-        dest = out / e.path
+        dest = destinations[e.path]
         dest.parent.mkdir(parents=True, exist_ok=True)
         data = e.data()
         if getattr(args, "png", False) and e.path.lower().endswith(".png") and is_texture(data):
@@ -610,7 +659,7 @@ def cmd_extract(args):
             "banks": banks,
             "files": files,
         }
-        (out / MANIFEST).write_text(json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8")
+        destinations[MANIFEST].write_text(json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"extracted {n} files to {out}")
 
 

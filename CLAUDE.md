@@ -12,7 +12,11 @@ that boots the real game to test them. Current status is in `docs/status.md`.
   launcher isolation check on.
 - No real input or focus changes: no `SendInput`, `keybd_event`, `mouse_event`, `SetCursorPos`,
   `SetForegroundWindow` or `bring_to_front`. Use GameLab's posted input and in-engine commands.
-- One GameLab run at a time, machine-wide. Don't edit `mods/`, `gamelab/` or `tools/` during a
+- One GameLab runtime coordinator, machine-wide. Ordinary runs are serial. The user authorized
+  two isolated workers on 2026-10-31: concurrent acceptance runs must use `uv run python -m
+  gamelab pool ... --mode lab --workers 2 --label ...`, which keeps the coordinator's machine
+  lease and authenticated private slots. Never start independent ordinary runs concurrently or
+  disable ownership or isolation gates. Don't edit `mods/`, `gamelab/` or `tools/` during a
   run or batch; stage drafts in the ignored `gamelab/results/`. Scenario-owned `write_*_file`
   steps are the one exception, and they restore what they change.
 - A non-zero exit is a refusal to diagnose, not to work around: 2 preflight, 3 build mismatch,
@@ -27,6 +31,13 @@ that boots the real game to test them. Current status is in `docs/status.md`.
   flaky trials.
 - Label the evidence: source review, setup, forced-state measurement or ordinary gameplay.
 - Cite the pinned build, run ID and source revision. A past pass is not a pass on current source.
+
+## QA swarm
+Start or resume with `python tools/qa_swarm.py resume --owner <alias>` and read the
+[tracker protocol](docs/qa/SWARM_TRACKER.md). The versioned ledger `docs/qa/swarm/state.json`
+carries task ownership, dependencies, next actions and evidence across compactions: don't
+reconstruct status from chat or edit it by hand. Checkpoint progress through the CLI before a
+handoff. Tracker claims are bookkeeping and never replace the hard rules above.
 
 ## Where things are
 - Game scripts: `gamecode/sdk/hoh2/scripts/` (AngelScript). Data: `gamecode/datatables/*.sval.json`.

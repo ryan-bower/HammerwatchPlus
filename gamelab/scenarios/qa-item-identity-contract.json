@@ -1,0 +1,28 @@
+{
+  "name": "qa-item-identity-contract",
+  "about": "Bounded actual AngelScript typed item transport calibration:49 fixed ephemeral SValue cases including Float/Double bit identity, negativezero/subnormals/extrema/adjacent values, types/vectors/byte strings and exact recursive refusal with no partial payload; explicit seeded node budget is isolated, not a natural512-node tree. Only after all49 cases pass, equip one native rare ilvl1 mace then require3 complete stable actual Item::SaveItem snapshots. Read-only calibration diagnostic; isolated native equip is declared setup. No fullidentity/ordinary/restart proof from Python fakes.",
+  "fixture": "town-paladin",
+  "mods": [],
+  "timeout": 300,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "bot",
+      "bot": "qa_item_transport_contract",
+      "expect": {
+        "ok": true,
+        "observed_case_count": 49,
+        "real_item_read_count": 3,
+        "numeric_cases_ok": true,
+        "refusal_cases_ok": true,
+        "real_item_stable": true
+      }
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}
