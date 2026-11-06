@@ -147,6 +147,44 @@ class RunPlan(unittest.TestCase):
         generate.assert_called_once_with(plan, ["all"])
         self.assertEqual(profile.call_args.args[4:], (b"native", "seed-run"))
 
+    def copy_install(self, root: Path, data: bytes | None = None) -> Path:
+        (root / "saves").mkdir()
+        if data is not None:
+            (root / "saves" / "0.hps").write_bytes(data)
+        return root
+
+    def test_copy_slot_uses_the_profile_and_skips_builder_and_seeding(self):
+        source = run.play_profile.empty_profile(["HammerwatchPlus-All"], "Mine")
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch.object(run, "game_running", return_value=False), \
+                mock.patch.object(run, "build_and_deploy", return_value=0), \
+                mock.patch.object(run, "choose_save") as chooser, \
+                mock.patch.object(run.profile_seed, "generate") as generate, \
+                mock.patch.object(run, "prepare_profile", return_value=0) as profile, \
+                redirect_stdout(io.StringIO()):
+            install = self.copy_install(Path(tmp), source)
+            with mock.patch.object(run.gamepaths, "hoh2_dir", return_value=install):
+                self.assertEqual(run.main(["--no-setup", "--no-launch", "--copy-slot", "0"]), 0)
+            self.assertEqual((install / "saves" / "0.hps").read_bytes(), source)
+        chooser.assert_not_called()
+        generate.assert_not_called()
+        self.assertEqual(profile.call_args.args[4], source)
+
+    def test_copy_slot_refuses_a_missing_slot(self):
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch.object(run, "game_running", return_value=False), \
+                mock.patch.object(run, "build_and_deploy", return_value=0), \
+                mock.patch.object(run, "prepare_profile") as profile, redirect_stdout(io.StringIO()):
+            install = self.copy_install(Path(tmp))
+            with mock.patch.object(run.gamepaths, "hoh2_dir", return_value=install):
+                self.assertEqual(run.main(["--no-setup", "--copy-slot", "3"]), 2)
+        profile.assert_not_called()
+
+    def test_copy_slot_rejects_builder_options(self):
+        for extra in (["--gold", "5"], ["--character", "sorc:15:TestSorc"]):
+            with self.assertRaises(SystemExit), mock.patch("sys.stderr", io.StringIO()):
+                run.main(["--copy-slot", "0", *extra])
+
     def test_deployed_ids_are_the_package_file_stems(self):
         import tempfile
         with tempfile.TemporaryDirectory() as d:
