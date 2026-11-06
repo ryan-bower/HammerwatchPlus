@@ -31,6 +31,11 @@ and fast while the ball runs. Use it, or the dealer, to open the table.
   2.7%, so a bonus of about 3% makes straight bets even, and one smoked herb (+10% Luck)
   already favours the player.
 - The table limit is `roulette.max_stake` per player per round.
+- **Winner winner chicken dinner!** When a round pays you anything, your screen shows
+  "Winner winner chicken dinner!" in large gold letters with the quest-complete sound (announce style
+  `hwp_roulette_win`, `tweak/hwp/announce_roulette.sval`), once per round however many of
+  your bets won. The whole lobby gets "<name>: Winner winner chicken dinner!" in the chat, and
+  the line floats over the winner's head (issue #96).
 
 | Setting | Default | |
 |---|---|---|

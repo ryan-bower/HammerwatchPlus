@@ -162,6 +162,8 @@ namespace Modules
 			HWP::Net::OnRequest("roulette.stake", HWP::Net::RequestHandler(HWP::Roulette::OnStake));
 			HWP::Net::OnRequest("roulette.hello", HWP::Net::RequestHandler(HWP::Roulette::OnHello));
 			HWP::Net::OnRequest("roulette.spin", HWP::Net::RequestHandler(HWP::Roulette::OnSpinNow));
+			HWP::Net::OnRequest("roulette.won", HWP::Net::RequestHandler(HWP::Roulette::OnWon));
+			HWP::Net::OnEvent("roulette.winner", HWP::Net::EventHandler(HWP::Roulette::OnWinner));
 			HWP::Commands::Register("roulette", "the roulette table: [bet <key> <gold> | clear | spin <n>]",
 				HWP::Commands::Handler(HWP::Roulette::Cmd));
 		}
