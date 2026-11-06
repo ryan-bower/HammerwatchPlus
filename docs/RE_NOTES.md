@@ -9832,3 +9832,15 @@ The final full-width timestamp implementation was verified again by
 - `laststats` now overrides `SecretFound.as` (host names the opener: the breaking hit's
   player, else the nearest living player; the peer travels in the return value) and one
   line of `Breakable.as` (`HWP::LastStats::NoteBreak`). Untested in game.
+
+## 2026-11-06: tabs built at run time (issue #98, `laststats` board; source review, no game run)
+
+- `MenuTabGroupWidget.AddChild` registers a `MenuTabWidget` child as a tab; `SetChecked(int)`
+  marks one by index (-1 marks none), `StepChecked` moves it. A `MenuTabWidget` click runs
+  `m_tabGroup.SetChecked(this)` then `m_host.OnFunc(this, m_func)`; `m_func` and `m_value`
+  are plain script fields, and `Widget.CloneInto` (`w = this`) copies them into the clone.
+- `AWindowObject`'s constructor runs `RefreshInteractableWidgets` once, so tabs cloned into
+  a window afterwards need another `RefreshInteractableWidgets(m_widget)` to take clicks.
+- The vanilla tab marker is `gui/gui.png` `0 424 11 6` (the guild hall's player menu); the
+  previous / next tab bindings are `MenuPreviousTab` / `MenuNextTab`, shown by
+  `binding-display` widgets that need `SetBinding` again in `RefreshKeybinds`.

@@ -133,8 +133,12 @@ def split_row(reply):
     return unique(direct), {k: unique(v) for k, v in nested.items()}
 
 
-def board_assertions(party, local_name, category_text, labels, observed, query="", legacy=False):
+def board_assertions(party, local_name, category_text, labels, observed, query="", legacy=False, tab=None):
     """Raise on any missing/mismatched consumer; return a concise data-only receipt.
+
+    Tabs (issue #98): one per category in row order; `tab` is the open one (default:
+    the first). An empty query shows the open tab's rows and no category header or
+    separator; a query shows every tab's matching rows under their headers.
 
     observed: header=wtext(subtitle), legend=wchildren(legend,1),
     list=wchildren(stat-group,1), siblings=wchildren(^empty,1),
@@ -145,7 +149,14 @@ def board_assertions(party, local_name, category_text, labels, observed, query="
     require(isinstance(query, str) and query.isascii(), "unsupported query")
     ordered, rows = union_of(party, local_name, legacy)
     normalized = query.lower().strip(" ")
-    shown = [normalized in r["title"].lower() for r in rows]
+    tabs = list(dict.fromkeys(r["cat"] for r in rows))
+    if tab is None:
+        tab = tabs[0] if tabs else ""
+    require(tab in tabs or (not tabs and tab == ""), "unknown open tab")
+    if normalized:
+        shown = [normalized in r["title"].lower() for r in rows]
+    else:
+        shown = [r["cat"] == tab for r in rows]
     header = observed["header"]
     expected_subtitle = (ordered[0]["mission"] + " - " + str(len(ordered)) + " player(s)") if ordered else ""
     require(header.get("ok") is True and header.get("window") == "HWPLastStatsMenu"
@@ -171,7 +182,7 @@ def board_assertions(party, local_name, category_text, labels, observed, query="
     unique(roots)
     expected_roots = []
     previous = None
-    cats_shown = {r["cat"] for r, show in zip(rows, shown) if show}
+    cats_shown = {r["cat"] for r, show in zip(rows, shown) if show} if normalized else set()
     for i, row in enumerate(rows):
         if row["cat"] != previous:
             if previous is not None:
@@ -220,6 +231,6 @@ def board_assertions(party, local_name, category_text, labels, observed, query="
             require(bar["type"] == "RectWidget" and bar["w"] == width
                     and bar["h"] == 8 and bar["visible"] is (value > 0), "bar width/visibility")
             positive += int(shown[i] and value > 0)
-    return {"rows": len(rows), "shown": sum(shown), "players": len(ordered),
+    return {"rows": len(rows), "shown": sum(shown), "players": len(ordered), "tab": tab, "tabs": len(tabs),
             "visible_bar_lines": sum(shown) * len(ordered), "positive_rectangles": positive,
             "query": normalized, "scope": "local-widget-state/geometry, not rendered pixels or raw producer correctness"}
