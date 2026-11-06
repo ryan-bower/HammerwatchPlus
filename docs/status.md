@@ -32,6 +32,14 @@ tasks. Read the ledger for current counts and next actions.
 > **Historical QA checkpoint (2026-10-22): paused at the user-requested PR boundary.** The original sweep was incomplete. Recorded original-sweep passes: six original fourth specs60/60 rank cases and61/65 orb-quality cases; Firearms60/60 ranks and74/75 orb qualities; HoH1 imports29/39 skills and136/191 ranks;9/9 selected-mastery saves. Five orb cases need real co-op. The then-current 31 normal-release modules had load evidence, with broader feature/lifecycle work open. Earlier QA summaries below are historical snapshots. See [the historical checkpoint](generated/qa_pr_checkpoint.json) and [QA ledger](QA_OVERNIGHT.md).
 
 
+2026-11-06, strongbox and abyss enemies no longer spawn inside walls (#80). The spawn check's
+line of sight started a few pixels out from the box or crack, so beside a wall it began past the wall
+and let enemies appear behind it, and the free-space check was smaller than most enemies' bodies. Now
+a spot must fit the enemy's whole body and have a clear line from the box or crack and back; a box or
+crack beside a wall spawns its pack on its open side or closer in, a member with no safe spot is
+skipped, and an abyss wave with no room at its spread spot erupts at the crack. Source review and
+offline tests only, not yet run in game.
+
 2026-11-05, Branding and Bannerlord rework (#95). Warlock proliferation/support perks and
 Warrior shield/rally support, per [the design](design/branding-bannerlord-rework.md).
 Source/data checks, a Linux GameLab full-mod compile/load and 16 focused solo gameplay
