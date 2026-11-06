@@ -7250,6 +7250,7 @@ Tests: new scenario `fix-chat-links` (bot fix_chat_links) PASS 20261030-115030, 
 - moving `ui_chat_pos` moves the panel.
 
 Also pf-fix-chat-links PASS 20261030-115115 and mod-all PASS 20261030-115219.
+
 ## 2026-10-30: Destroy becomes Salvage (issue #66, `salvage`)
 
 The vanilla Destroy gives nothing. That holds both in the character screen's bag
@@ -7309,6 +7310,7 @@ Tests:
   - In the stash's Deposit tab, the Epic ilvl 30 gives 12 Dust.
 - pf-fix-salvage PASS 20261030-121043, mod-all PASS 20261030-121123, pytest 245 passed,
   `build.py --check` OK.
+
 ## 2026-10-30: Sacrificial Penance needs Heresy (issue #68)
 
 At max Divine Favor, Necrotic Resurrection became Sacrificial Penance even with 0 Heresy. That
@@ -7353,6 +7355,7 @@ Tests:
   - `raise_all` `all_attack` is flaky; it already failed in 2 of the 4 earlier runs.
   - `lunge` `lunge_lift` measured a 3 px bob. Rerun alone, the lunge section passes
     (20261030-131908).
+
 ## 2026-10-30: one click, one reel; a window that covers the marker's way (issue #72, fishing)
 
 The issue: since #32 (several hits per bite), "you never have time to hit the second check".
@@ -7413,6 +7416,7 @@ Tests: new section `reel_press` (plan_fishing) and scenario `fix-fishing-reel-pr
 - Every other fishing scenario passes: fix-fishing-reel-hits, -smooth, -keys,
   -personal-loot, -starter-rod, mod-fishing and mod-fishing-spots (20261030-1343 to -1352).
 - mod-all PASS 20261030-135331, pytest 245 passed, `build.py --check` OK.
+
 ## 2026-10-30: free skills after a respec (issue #78, `freeskills`)
 
 Issue: "When respecing at the skill trainer the free skills should not be bought by default
