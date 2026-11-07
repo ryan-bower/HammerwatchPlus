@@ -3,6 +3,7 @@
   "requires": ["hwplib"],
   "overrides": [
     "scripts/Missions/MissionArchitect.as",
+    "scripts/Missions/MissionSkillSphere.as",
     "scripts/GUI/MissionLoadoutMenu.as",
     "scripts/Town/MissionShopContent.as",
     "gui/mission_loadout.gui"
