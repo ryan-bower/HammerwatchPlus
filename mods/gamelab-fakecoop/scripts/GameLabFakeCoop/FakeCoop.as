@@ -29,6 +29,7 @@ namespace GameLabFakeCoop
 		int left, total;
 		vec2 offset;
 		bool living;           // Living Mana: the one pool is HP and mana
+		bool wired = false;    // its status comes from `wire`, not this file
 		int hitC, healC, shieldC, potionC;
 		int deadC = 0;
 	}
@@ -118,6 +119,8 @@ namespace GameLabFakeCoop
 
 	void ReportOne(Ally@ a)
 	{
+		if (a.wired)
+			return;
 		HWP::AllyStatus::OnState(HWP::AllyStatus::Payload(a.record.peer, a.shield, a.left, a.total));
 	}
 
@@ -377,6 +380,20 @@ namespace GameLabFakeCoop
 		HWP::Log("fakecoop", "tutorial: no module here");
 	}
 
+	// what a client's report does on the host, with values another game really sent: the harness
+	// carries them, so this is the host's handler and the frames, not Steam or the engine's transport
+	void Wire(array<string>@ args)
+	{
+		int n = parseInt(args[1]);
+		if (n < 1 || n > int(g_allies.length()))
+			return;
+		auto a = g_allies[n - 1];
+		a.wired = true;
+		auto data = HWP::AllyStatus::Payload(-1, parseFloat(args[2]), parseInt(args[3]), parseInt(args[4]));
+		HWP::AllyStatus::OnReport(a.record.peer, data);
+		data.Delete();
+	}
+
 	void Cmd(array<string>@ args)
 	{
 		if (args.length() > 0)
@@ -387,6 +404,8 @@ namespace GameLabFakeCoop
 				ListEnd();
 			else if (args[0] == "tutorial" && args.length() > 1)
 				ForceTutorial(args[1]);
+			else if (args[0] == "wire" && args.length() > 4)
+				Wire(args);
 			else if (args[0] == "sim")
 				g_sim = args.length() < 2 || args[1] != "off";
 			else if (args[0] == "hit" || args[0] == "heal" || args[0] == "shield" || args[0] == "kill")
@@ -420,7 +439,7 @@ namespace GameLabFakeCoop
 		GameLabFakeCoopModule()
 		{
 			super("gamelab-fakecoop");
-			HWP::Commands::Register("fakecoop", "[count | off | hop <dx> <dy> | tutorial <id | off> | sim on/off | hit, heal, shield or kill <n | all> [percent]]  stand-in allies that follow you (dev only)", HWP::Commands::Handler(GameLabFakeCoop::Cmd));
+			HWP::Commands::Register("fakecoop", "[count | off | hop <dx> <dy> | tutorial <id | off> | sim on/off | hit, heal, shield or kill <n | all> [percent] | wire <n> <shield> <left> <total>]  stand-in allies that follow you (dev only)", HWP::Commands::Handler(GameLabFakeCoop::Cmd));
 		}
 
 		HWP::Guard m_guardUpdateFrame;
