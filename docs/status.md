@@ -32,6 +32,12 @@ tasks. Read the ledger for current counts and next actions.
 > **Historical QA checkpoint (2026-10-22): paused at the user-requested PR boundary.** The original sweep was incomplete. Recorded original-sweep passes: six original fourth specs60/60 rank cases and61/65 orb-quality cases; Firearms60/60 ranks and74/75 orb qualities; HoH1 imports29/39 skills and136/191 ranks;9/9 selected-mastery saves. Five orb cases need real co-op. The then-current 31 normal-release modules had load evidence, with broader feature/lifecycle work open. Earlier QA summaries below are historical snapshots. See [the historical checkpoint](generated/qa_pr_checkpoint.json) and [QA ledger](QA_OVERNIGHT.md).
 
 
+2026-11-06, Magic Shop sphere picker takes E (#64). In the run-start Magic Shop picker,
+pressing E over a sphere now picks it before the window closes; vanilla closed the window and
+kept the old pick, for host and client alike. The fix is an architect override of
+`MissionSkillSphere.as`. Source review, pytest and the override check only, not tested in game
+(architect README item 9: host, client and gamepad).
+
 2026-11-05, Branding and Bannerlord rework (#95). Warlock proliferation/support perks and
 Warrior shield/rally support, per [the design](design/branding-bannerlord-rework.md).
 Source/data checks, a Linux GameLab full-mod compile/load and 16 focused solo gameplay
