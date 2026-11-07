@@ -1,7 +1,10 @@
 {
   "id": "laststats",
   "requires": ["hwplib"],
-  "overrides": [],
+  "overrides": [
+    "scripts/WorldScript/Player/SecretFound.as",
+    "scripts/Behaviors/Objects/Breakable.as"
+  ],
   "exclude": [],
   "config": {
     "title": "Last run stats",

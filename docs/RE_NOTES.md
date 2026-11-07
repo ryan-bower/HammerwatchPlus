@@ -9805,3 +9805,42 @@ existing generated trees and smoke stamp. All 31 host regressions pass.
 the previous all-mod scenario's links and exact fixture-only mod verification.
 The final full-width timestamp implementation was verified again by
 `mod-all 20261031-152227` (PASS, 20.5 s); its end frame was inspected.
+
+## 2026-11-06: who opened a secret (issue #98, `laststats`; source review, no game run)
+
+- `WorldScript/Player/SecretFound.as` is the only place `secrets-found` is added
+  (`%STAT Add secrets-found 1 GetLocalPlayerRecord()`, in `ServerExecute`, and
+  `ClientExecute` calls `ServerExecute`): every machine credits its own player, so a party
+  shares every secret. It is used only by the 44 `prefabs/<theme>/secret_small_*.pfb`
+  (no level file names it), each wired the same way: a `UnitDestroyedTrigger` on the
+  breakable wall `doodads/walls/<theme>/_secret_dst_*.unit` (class `Breakable`, scene
+  switching per hit) runs `SetLight`, `RewardSpot` (Secret), `DestroyUnits`, `PlaySound`,
+  `PlayPlayerVoice` (radius 32 at the wall: vanilla's own "who found it") and `SecretFound`.
+- `UnitDestroyedTrigger` registers its callback on the host only and sets `Instigator` to
+  the destroyed wall, not the attacker; the Destroyed event carries no attacker either.
+  The attacker is known in `Breakable.DamageEffects(dmg, pos, dir, attacker)` on every
+  machine: the hitter's own machine calls it from `Damage` (`dmg.Attacker`), the others
+  from `NetDamage` after `UnitHandler::UnitDamagedByMe/ByPlayer` resolved
+  `PlayerHandler::GetPlayer(peer)` (a summon's hit is sent as plain `UnitDamaged`: no
+  attacker).
+- A world script's `ServerExecute` return value reaches each client's
+  `ClientExecute(SValue@)` (vanilla `DestroyUnitChance` sends unit ids that way); with a
+  null return the clients still run `ClientExecute(null)`.
+- `Stats::Add(hash, n, null)` adds only to `g_myTownRecord.statsTown` (and checks the
+  stat's accomplishments); with a record it also adds to `statsChar` and `statsRun`.
+  `secrets-found` has accomplishments (10 .. 4000, attribute rewards).
+- `laststats` now overrides `SecretFound.as` (host names the opener: the breaking hit's
+  player, else the nearest living player; the peer travels in the return value) and one
+  line of `Breakable.as` (`HWP::LastStats::NoteBreak`). Untested in game.
+
+## 2026-11-06: tabs built at run time (issue #98, `laststats` board; source review, no game run)
+
+- `MenuTabGroupWidget.AddChild` registers a `MenuTabWidget` child as a tab; `SetChecked(int)`
+  marks one by index (-1 marks none), `StepChecked` moves it. A `MenuTabWidget` click runs
+  `m_tabGroup.SetChecked(this)` then `m_host.OnFunc(this, m_func)`; `m_func` and `m_value`
+  are plain script fields, and `Widget.CloneInto` (`w = this`) copies them into the clone.
+- `AWindowObject`'s constructor runs `RefreshInteractableWidgets` once, so tabs cloned into
+  a window afterwards need another `RefreshInteractableWidgets(m_widget)` to take clicks.
+- The vanilla tab marker is `gui/gui.png` `0 424 11 6` (the guild hall's player menu); the
+  previous / next tab bindings are `MenuPreviousTab` / `MenuNextTab`, shown by
+  `binding-display` widgets that need `SetBinding` again in `RefreshKeybinds`.
