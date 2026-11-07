@@ -199,6 +199,18 @@
 					<array name="settings">
 					</array>
 				</dict>
+				<dict>
+					<string name="id">outofcombat</string>
+					<bool name="shared">false</bool>
+					<string name="toggle">outofcombat.enabled</string>
+					<bool name="host">true</bool>
+					<bool name="level">false</bool>
+					<array name="settings">
+						<dict><string name="key">outofcombat.speed</string><string name="type">float</string><bool name="host">true</bool><bool name="level">false</bool><float name="default">2</float><array name="values"><f>1.25</f><f>1.5</f><f>2</f><f>2.5</f><f>3</f></array><int name="labels">0</int><string name="suffix">x</string></dict>
+						<dict><string name="key">outofcombat.delay</string><string name="type">int</string><bool name="host">true</bool><bool name="level">false</bool><int name="default">10</int><array name="values"><i>3</i><i>5</i><i>10</i><i>15</i><i>20</i><i>30</i></array><int name="labels">0</int><string name="suffix"> s</string></dict>
+						<dict><string name="key">outofcombat.town</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">false</bool><bool name="default">false</bool></dict>
+					</array>
+				</dict>
 			</array>
 		</dict>
 		<dict>

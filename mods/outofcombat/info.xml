@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">HammerwatchPlus Out of Combat Speed</string>
+	<string name="author">Ryan Bower</string>
+	<string name="description">Move twice as fast in a run when you have not hit an enemy for 10 seconds; hitting one ends it. Part of HammerwatchPlus.</string>
+</dict>
