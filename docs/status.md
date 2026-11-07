@@ -32,6 +32,13 @@ tasks. Read the ledger for current counts and next actions.
 > **Historical QA checkpoint (2026-10-22): paused at the user-requested PR boundary.** The original sweep was incomplete. Recorded original-sweep passes: six original fourth specs60/60 rank cases and61/65 orb-quality cases; Firearms60/60 ranks and74/75 orb qualities; HoH1 imports29/39 skills and136/191 ranks;9/9 selected-mastery saves. Five orb cases need real co-op. The then-current 31 normal-release modules had load evidence, with broader feature/lifecycle work open. Earlier QA summaries below are historical snapshots. See [the historical checkpoint](generated/qa_pr_checkpoint.json) and [QA ledger](QA_OVERNIGHT.md).
 
 
+2026-11-06, Magic Shop for a joined client (#64), diagnostics only. Source review found no
+client-only block: the town Magic Shop NPCs and the run-start Magic Shop row have no host-only
+check. The likeliest cause is the vanilla keys: on the run-start screen E is Ready for a
+client, and in the sphere picker E applies without selecting the hovered sphere (open the row
+with a click or Return, pick with a click). The run-start screen now logs which side opens a
+row and when E is ignored. #64 stays open until a 2-player test (architect README check 8).
+
 2026-11-05, Branding and Bannerlord rework (#95). Warlock proliferation/support perks and
 Warrior shield/rally support, per [the design](design/branding-bannerlord-rework.md).
 Source/data checks, a Linux GameLab full-mod compile/load and 16 focused solo gameplay
