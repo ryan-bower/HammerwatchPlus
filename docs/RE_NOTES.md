@@ -39,6 +39,15 @@ review.
   window is open. `tweak/tutorials` has no `levelup` or `death` entry, so those `ShowTutorial` calls do nothing;
   only a level's `TutorialArea` raises one. Nothing gates them on co-op. The frames start below it
   (`TutorialBottom`), which moved them from 5 to 128 for `intro_attack` (`mod-partyframes-tutorial` 20261106-220546).
+- WoW's frames draw a shield only in missing health; at 100% it's a glow at the bar's end (reference shot, not a game fact here).
+  `DrawHealth` clamps to `w - fill` and returns -1 when nothing was drawn, so Thin leaves the % where it is.
+- `hw8.fnt` is about 5 px a character. Thin's row has 96 px, which a 12-letter name, two tags and the % overflow, so Thin stacks its
+  tags in a column left of the potion instead of sharing the row. Thick has the corners beside the % free.
+- WoW's raid frame green, from `Gethe/wow-ui-source` (live) and `Gethe/wow-ui-textures` (live), read 2026-11-07. `CompactUnitFrame.xml`
+  uses atlas `RaidFrame-Hp-Fill` over `raidframe-hp-bg-white`, tinted by `COMPACT_UNIT_FRAME_FRIENDLY_HEALTH_COLOR` and `_BG`. Those two
+  are not defined in the published Lua, so their values are unknown. Used instead: the `CreateColor(0, 1, 0)` of
+  `CompactUnitFrameOptions.lua`, the older `Raid-Bar-Hp-Fill` texture (grey, 128 at the edges and 180 mid-bar), giving (0, 128, 0)
+  to (0, 180, 0), and the older `Raid-Bar-Hp-Bg` (about 21 grey). Assumed: the current atlas matches those older textures.
 - **`ScrollbarWidget` scrolls short of its last rows.** `Widget::DoLayout` puts `m_spacing` between
   children and `ScrollbarWidget::DoLayout` leaves it out of `m_childrenHeight`, so the list stops
   rows - 2 pixels short (measured: 13 rows, 11 px, 20261106-211338). The Plus list now has no

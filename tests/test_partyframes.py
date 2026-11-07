@@ -56,7 +56,7 @@ def test_defaults_are_thick_leading_edge_in_a_local_scope_package():
     assert {k: s["labels"][s["default"]] for k, s in settings.items() if "labels" in s} == {
         "partyframes.size": "Thick", "partyframes.shield": "Leading edge"}
     assert {k: s["default"] for k, s in settings.items() if s["type"] == "bool"} == {
-        "partyframes.level": False, "partyframes.class": False}
+        "partyframes.level": False, "partyframes.class": False, "partyframes.green": False}
     packages = json.loads((ROOT / "packages.json").read_text(encoding="utf-8"))["packages"]
     assert [p["mods"] for p in packages if p["id"] == "interface"] == [["partyframes"]]
 
@@ -71,6 +71,34 @@ def test_a_living_mana_ally_is_one_solid_blue_pool():
     assert "return f.pool ? HWP::PartyFrames::Rgb(40, 130, 235) : f.color;" in frames
     assert frames.count("f.pool ? h - 2 :") == 2  # the bar takes the whole block on both sizes
     assert frames.count("if (!f.pool)") == 2      # and neither size draws the strip
+
+
+def test_class_colours_are_wows():
+    frames = (ROOT / "mods/partyframes/scripts/HWP/PartyFrames/PartyFrames.as").read_text(encoding="utf-8")
+    wow = {"paladin": "F48CBA", "priest": "FFFFFF", "ranger": "AAD372", "rogue": "FFF468", "warlock": "8788EE",
+           "warrior": "C69B6D", "wizard": "3FC7EB", "sorcerer": "33937F", "hwp_gladiator": "C41E3A",
+           "hwp_thief": "00FF98", "hwp_witch_hunter": "A330C9", "hwp_firearms": "FF7C0A"}
+    for cls, hex_colour in wow.items():
+        r, g, b = bytes.fromhex(hex_colour)
+        assert f'cls.m_id == "{cls}") return Rgb({r}, {g}, {b});' in frames
+
+
+def test_green_health_leaves_a_living_mana_pool_blue():
+    frames = (ROOT / "mods/partyframes/scripts/HWP/PartyFrames/PartyFrames.as").read_text(encoding="utf-8")
+    assert "bool green = HWP::PartyFrames::g_greenHealth && !f.pool;" in frames
+
+
+def test_a_shield_only_fills_missing_health():
+    frames = (ROOT / "mods/partyframes/scripts/HWP/PartyFrames/PartyFrames.as").read_text(encoding="utf-8")
+    assert "sw = min(sw, w - fill);" in frames
+    assert "int sx = x + fill;" in frames
+    assert "x + w - sw" not in frames
+
+
+def test_the_tag_toggles_never_resize_a_bar():
+    frames = (ROOT / "mods/partyframes/scripts/HWP/PartyFrames/PartyFrames.as").read_text(encoding="utf-8")
+    assert "const int w = HWP::PartyFrames::THICK_W, h = HWP::PartyFrames::THICK_H;" in frames
+    assert "const int w = HWP::PartyFrames::THIN_W, h = HWP::PartyFrames::THIN_H;" in frames
 
 
 def test_the_frames_start_below_the_tutorial_panel():

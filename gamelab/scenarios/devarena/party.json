@@ -1,6 +1,6 @@
 {
  "name": "devarena-party",
- "about": "Dev Arena for a human, with three fake allies following: python -m gamelab run devarena/party --mode watch. A lab copy of the game (the fixture ranger, never the user's saves or install). hwp fakecoop [count|off] in the console changes them.",
+ "about": "Dev Arena for a human, with five fake allies following and fighting: python -m gamelab run devarena/party --mode watch. A lab copy of the game (the fixture ranger, never the user's saves or install). hwp fakecoop [count|off] in the console changes them.",
  "fixture": "mission-ranger",
  "mods": [
   "hwplib",
@@ -51,7 +51,11 @@
   },
   {
    "do": "console",
-   "line": "hwp fakecoop 3"
+   "line": "hwp fakecoop 6"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop sim on"
   },
   {
    "do": "sleep",
@@ -67,7 +71,7 @@
   },
   {
    "do": "log_has",
-   "pattern": "fakecoop: 3 allies",
+   "pattern": "fakecoop: 6 allies",
    "since": "ready",
    "timeout": 5,
    "name": "ready"

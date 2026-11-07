@@ -11,7 +11,9 @@
 	<string name="hwp.cfg.s.partyframes.shield.v0">Leading edge</string>
 	<string name="hwp.cfg.s.partyframes.shield.v1">Striped edge</string>
 	<string name="hwp.cfg.s.partyframes.level">Show level</string>
-	<string name="hwp.cfg.s.partyframes.level.about">Each ally's level beside their name. The bars grow to fit.</string>
+	<string name="hwp.cfg.s.partyframes.level.about">A small level tag on each ally's frame. The bars stay the same size.</string>
 	<string name="hwp.cfg.s.partyframes.class">Show class</string>
-	<string name="hwp.cfg.s.partyframes.class.about">Each ally's class beside their name. The bars grow to fit.</string>
+	<string name="hwp.cfg.s.partyframes.class.about">A three-letter class tag on each ally's frame. The bars stay the same size.</string>
+	<string name="hwp.cfg.s.partyframes.green">Green health</string>
+	<string name="hwp.cfg.s.partyframes.green.about">Every ally's health bar is green, as in WoW, instead of their class colour.</string>
 </lang>

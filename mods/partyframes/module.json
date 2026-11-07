@@ -47,14 +47,21 @@
         "type": "bool",
         "default": false,
         "title": "Show level",
-        "about": "Each ally's level beside their name. The bars grow to fit."
+        "about": "A small level tag on each ally's frame. The bars stay the same size."
       },
       {
         "key": "partyframes.class",
         "type": "bool",
         "default": false,
         "title": "Show class",
-        "about": "Each ally's class beside their name. The bars grow to fit."
+        "about": "A three-letter class tag on each ally's frame. The bars stay the same size."
+      },
+      {
+        "key": "partyframes.green",
+        "type": "bool",
+        "default": false,
+        "title": "Green health",
+        "about": "Every ally's health bar is green, as in WoW, instead of their class colour."
       }
     ]
   }

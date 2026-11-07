@@ -73,6 +73,7 @@ next level.
 | Party frames | Shield style | `partyframes.shield` | 0 | Leading edge (0), Striped edge (1) | local |
 | Party frames | Show level | `partyframes.level` | off | on, off | local |
 | Party frames | Show class | `partyframes.class` | off | on, off | local |
+| Party frames | Green health | `partyframes.green` | off | on, off | local |
 
 ## Auto Aim
 

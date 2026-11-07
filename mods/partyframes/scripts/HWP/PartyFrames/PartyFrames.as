@@ -17,7 +17,7 @@ namespace HWP
 		const int THICK_W = 100, THICK_H = 34, THICK_HP = 28, THICK_MANA_Y = 30, THICK_MANA = 3;
 		const int THIN_W = 104, THIN_H = 22, THIN_HP = 14, THIN_MANA_Y = 16, THIN_MANA = 5;
 		const int GAP = 2;
-		const int LEVEL_W = 28, CLASS_W = 50; // what each tag adds to a bar
+		const int THIN_TAGS_W = 20;           // the column of tags between a Thin bar and its potion
 		const int STRIPE_W = 102;             // the strip's width in the sheet
 		const int MAX_NAME = 12;
 		const float LOW = 0.3f;
@@ -29,6 +29,7 @@ namespace HWP
 		bool g_striped = false;
 		bool g_showLevel = false;
 		bool g_showClass = false;
+		bool g_greenHealth = false;
 
 		void Reload()
 		{
@@ -37,9 +38,8 @@ namespace HWP
 			g_striped = HWP::Settings::GetInt("partyframes.shield", 0) == 1;
 			g_showLevel = HWP::Settings::GetBool("partyframes.level", false);
 			g_showClass = HWP::Settings::GetBool("partyframes.class", false);
+			g_greenHealth = HWP::Settings::GetBool("partyframes.green", false);
 		}
-
-		int TagW() { return (g_showLevel ? LEVEL_W : 0) + (g_showClass ? CLASS_W : 0); }
 
 		void OnSettingChanged(const string &in key)
 		{
@@ -50,7 +50,7 @@ namespace HWP
 		class FrameData
 		{
 			string name;
-			string title;          // the root class's name
+			string code;           // the root class, in three letters
 			int level = 0;
 			vec4 color = vec4(0.5f, 0.5f, 0.54f, 1);
 			float hp = 1;
@@ -85,7 +85,7 @@ namespace HWP
 
 		class RowCache
 		{
-			TextCache name, tag, status, potions;
+			TextCache name, level, code, status, potions;
 		}
 
 		// the batch's colours are linear (ParseColorRGBA decodes its sRGB hex the same way), so a
@@ -111,32 +111,48 @@ namespace HWP
 			return cls;
 		}
 
-		// what the toggles add after the name, or nothing
-		string Tag(FrameData@ f)
+		// the toggles add these inside the bar, which never changes size for them; empty when off
+		string LevelTag(FrameData@ f) { return g_showLevel && f.level > 0 ? "" + f.level : ""; }
+		string CodeTag(FrameData@ f) { return g_showClass ? f.code : ""; }
+
+		// the bar's colour already says the class, so three letters are enough to name it
+		string ClassCode(PlayerClass@ cls)
 		{
-			string tag = g_showLevel && f.level > 0 ? "Lv " + f.level : "";
-			if (g_showClass && f.title.length() > 0)
-				tag += (tag.length() > 0 ? " " : "") + f.title;
-			return tag;
+			if (cls is null) return "";
+			if (cls.m_id == "paladin") return "PAL";
+			if (cls.m_id == "priest") return "PRI";
+			if (cls.m_id == "ranger") return "RNG";
+			if (cls.m_id == "rogue") return "ROG";
+			if (cls.m_id == "sorcerer") return "SOR";
+			if (cls.m_id == "warlock") return "WLK";
+			if (cls.m_id == "warrior") return "WAR";
+			if (cls.m_id == "wizard") return "WIZ";
+			if (cls.m_id == "hwp_gladiator") return "GLA";
+			if (cls.m_id == "hwp_thief") return "THF";
+			if (cls.m_id == "hwp_witch_hunter") return "WHT";
+			if (cls.m_id == "hwp_firearms") return "GUN";
+			return utf8string(cls.m_id.substr(0, 3)).toUpper().plain(); // another mod's class
 		}
 
+		// WoW's retail class colours. HoH's own classes borrow the colour of a WoW class:
+		// sorcerer evoker, gladiator death knight, thief monk, witch hunter demon hunter, firearms druid
 		vec4 ClassColor(PlayerRecord@ record)
 		{
 			auto cls = RootClass(record);
 			if (cls !is null)
 			{
-				if (cls.m_id == "paladin") return Rgb(232, 186, 74);
-				if (cls.m_id == "priest") return Rgb(226, 226, 232);
-				if (cls.m_id == "ranger") return Rgb(112, 196, 74);
-				if (cls.m_id == "rogue") return Rgb(214, 74, 104);
-				if (cls.m_id == "sorcerer") return Rgb(64, 196, 214);
-				if (cls.m_id == "warlock") return Rgb(154, 110, 214);
-				if (cls.m_id == "warrior") return Rgb(196, 140, 92);
-				if (cls.m_id == "wizard") return Rgb(120, 150, 255);
-				if (cls.m_id == "hwp_gladiator") return Rgb(216, 96, 56);
-				if (cls.m_id == "hwp_thief") return Rgb(168, 180, 92);
-				if (cls.m_id == "hwp_witch_hunter") return Rgb(176, 64, 156);
-				if (cls.m_id == "hwp_firearms") return Rgb(232, 138, 52);
+				if (cls.m_id == "paladin") return Rgb(244, 140, 186);
+				if (cls.m_id == "priest") return Rgb(255, 255, 255);
+				if (cls.m_id == "ranger") return Rgb(170, 211, 114);
+				if (cls.m_id == "rogue") return Rgb(255, 244, 104);
+				if (cls.m_id == "sorcerer") return Rgb(51, 147, 127);
+				if (cls.m_id == "warlock") return Rgb(135, 136, 238);
+				if (cls.m_id == "warrior") return Rgb(198, 155, 109);
+				if (cls.m_id == "wizard") return Rgb(63, 199, 235);
+				if (cls.m_id == "hwp_gladiator") return Rgb(196, 30, 58);
+				if (cls.m_id == "hwp_thief") return Rgb(0, 255, 152);
+				if (cls.m_id == "hwp_witch_hunter") return Rgb(163, 48, 201);
+				if (cls.m_id == "hwp_firearms") return Rgb(255, 124, 10);
 			}
 			return ParseColorRGBA("#" + GetPlayerColor(record.peer) + "ff");
 		}
@@ -176,8 +192,7 @@ namespace HWP
 			f.name = strTruncate(record.name, MAX_NAME);
 			f.color = ClassColor(record);
 			f.level = record.level;
-			auto root = RootClass(record);
-			f.title = root is null ? "" : Resources::GetString(root.m_name);
+			f.code = ClassCode(RootClass(record));
 			f.dead = record.IsDead();
 			f.loading = record.actor is null && !f.dead;
 			f.hp = clamp(float(record.hp), 0.0f, 1.0f);
@@ -209,19 +224,19 @@ namespace HWP
 		void DemoParty(int count)
 		{
 			g_demo.removeRange(0, g_demo.length());
-			g_demo.insertLast(Demo("Aldric", Rgb(232, 186, 74), 0.23f, 0.62f, 0.25f, 3, 3));
-			g_demo.insertLast(Demo("Mira", Rgb(112, 196, 74), 0.50f, 0.38f, 0.25f, 1, 3));
-			g_demo.insertLast(Demo("Zev", Rgb(120, 150, 255), 1.00f, 0.75f, 0.25f, 0, 3));
-			g_demo.insertLast(Demo("Dorn", Rgb(196, 140, 92), 0.00f, 0.00f, 0.00f, 2, 3));
-			auto pool = Demo("Sable", Rgb(64, 196, 214), 0.70f, 0.70f, 0.10f, 2, 4);
+			g_demo.insertLast(Demo("Aldric", Rgb(244, 140, 186), 0.23f, 0.62f, 0.25f, 3, 3));
+			g_demo.insertLast(Demo("Mira", Rgb(170, 211, 114), 0.50f, 0.38f, 0.25f, 1, 3));
+			g_demo.insertLast(Demo("Zev", Rgb(63, 199, 235), 1.00f, 0.75f, 0.25f, 0, 3));
+			g_demo.insertLast(Demo("Dorn", Rgb(198, 155, 109), 0.00f, 0.00f, 0.00f, 2, 3));
+			auto pool = Demo("Sable", Rgb(51, 147, 127), 0.70f, 0.70f, 0.10f, 2, 4);
 			pool.pool = true;
 			g_demo.insertLast(pool);
-			g_demo.insertLast(Demo("Longnamedhero", Rgb(214, 74, 104), 0.82f, 0.50f, 0.00f, 3, 4));
-			g_demo.insertLast(Demo("Wren", Rgb(232, 138, 52), 0.40f, 1.00f, 1.50f, 4, 4));
-			string[] titles = { "Paladin", "Ranger", "Wizard", "Warrior", "Sorcerer", "Witch Hunter", "Gunslinger" };
+			g_demo.insertLast(Demo("Longnamedhero", Rgb(255, 244, 104), 0.82f, 0.50f, 0.00f, 3, 4));
+			g_demo.insertLast(Demo("Wren", Rgb(255, 124, 10), 0.40f, 1.00f, 1.50f, 4, 4));
+			string[] codes = { "PAL", "RNG", "WIZ", "WAR", "SOR", "ROG", "GUN" };
 			for (uint i = 0; i < g_demo.length(); i++)
 			{
-				g_demo[i].title = titles[i];
+				g_demo[i].code = codes[i];
 				g_demo[i].level = 8 + 2 * i;
 			}
 			g_demo.resize(clamp(count, 0, int(g_demo.length())));
@@ -370,22 +385,36 @@ class HWPPartyFramesHUD : HUDCoop
 			Rect(sb, x, y, w, h, HWP::PartyFrames::Rgb(52, 52, 58));
 			return -1;
 		}
-		Rect(sb, x, y, w, h, HWP::PartyFrames::Shade(color, 0.24f));
+		bool green = HWP::PartyFrames::g_greenHealth && !f.pool; // a pool is mana, so it stays blue
+		Rect(sb, x, y, w, h, green ? HWP::PartyFrames::Rgb(21, 21, 21) : HWP::PartyFrames::Shade(color, 0.24f));
 		int fill = int(w * f.hp);
-		if (fill > 0)
+		if (fill > 0 && green)
+		{
+			// Blizzard's raid frame: pure green through Raid-Bar-Hp-Fill, 128 at the edges and 180 mid-bar
+			vec4 edge = HWP::PartyFrames::Rgb(0, 128, 0), middle = HWP::PartyFrames::Rgb(0, 180, 0);
+			FadeDown(sb, x, y, fill, h / 2, edge, middle);
+			FadeDown(sb, x, y + h / 2, fill, h - h / 2, middle, edge);
+		}
+		else if (fill > 0)
 			FadeDown(sb, x, y, fill, h, HWP::PartyFrames::Shade(color, 0.62f), HWP::PartyFrames::Shade(color, 1.07f));
 		if (f.shield <= 0)
 			return -1;
-		int sw = clamp(int(w * f.shield), 1, w);
-		bool over = fill + sw > w;
-		int sx = over ? x + w - sw : x + fill;
-		if (HWP::PartyFrames::g_striped)
-			DrawStriped(sb, sx, y, sw, h, thin);
-		else
-			DrawLeadingEdge(sb, sx, y, sw, h);
+		// As WoW's frames: a shield only fills the health that's missing, never over what's left,
+		// and whatever doesn't fit shows as the glow at the end of the bar
+		int sw = max(1, int(w * f.shield));
+		bool over = fill + sw >= w;
+		sw = min(sw, w - fill);
+		int sx = x + fill;
+		if (sw > 0)
+		{
+			if (HWP::PartyFrames::g_striped)
+				DrawStriped(sb, sx, y, sw, h, thin);
+			else
+				DrawLeadingEdge(sb, sx, y, sw, h);
+		}
 		if (over)
 			DrawGlow(sb, x + w - 1, y, h);
-		return sx;
+		return sw > 0 ? sx : -1;
 	}
 
 	void DrawMana(SpriteBatch& sb, HWP::PartyFrames::FrameData@ f, int x, int y, int w, int h)
@@ -444,6 +473,12 @@ class HWPPartyFramesHUD : HUDCoop
 		return f.dead ? HWP::PartyFrames::Rgb(205, 205, 212) : vec4(1, 1, 1, 1);
 	}
 
+	// quieter than the name, so the name stays what you read first
+	vec4 TagColor(HWP::PartyFrames::FrameData@ f)
+	{
+		return f.dead ? NameColor(f) : HWP::PartyFrames::Rgb(205, 208, 216);
+	}
+
 	vec4 BarColor(HWP::PartyFrames::FrameData@ f)
 	{
 		return f.pool ? HWP::PartyFrames::Rgb(40, 130, 235) : f.color;
@@ -451,21 +486,25 @@ class HWPPartyFramesHUD : HUDCoop
 
 	void DrawThick(SpriteBatch& sb, HWP::PartyFrames::FrameData@ f, HWP::PartyFrames::RowCache@ row, int x, int y)
 	{
-		const int w = HWP::PartyFrames::THICK_W + HWP::PartyFrames::TagW(), h = HWP::PartyFrames::THICK_H;
+		const int w = HWP::PartyFrames::THICK_W, h = HWP::PartyFrames::THICK_H;
 		Rect(sb, x, y, w, h, vec4(0, 0, 0, 1));
 		DrawHealth(sb, f, BarColor(f), x + 1, y + 1, w - 2, f.pool ? h - 2 : HWP::PartyFrames::THICK_HP, false);
 		if (!f.pool)
 			DrawMana(sb, f, x + 1, y + HWP::PartyFrames::THICK_MANA_Y, w - 2, HWP::PartyFrames::THICK_MANA);
 		auto name = row.name.Get(m_font, f.name, NameColor(f));
 		auto status = row.status.Get(m_font, Status(f), StatusColor(f));
-		string tagText = HWP::PartyFrames::Tag(f);
-		auto tag = row.tag.Get(m_font, tagText, NameColor(f));
-		int tagW = tagText.length() > 0 ? tag.GetWidth() + 4 : 0;
-		int nameX = x + (w - name.GetWidth() - tagW) / 2;
-		sb.DrawString(vec2(nameX, y + 4), name);
-		if (tagW > 0)
-			sb.DrawString(vec2(nameX + name.GetWidth() + 4, y + 4), tag);
+		sb.DrawString(vec2(x + (w - name.GetWidth()) / 2, y + 4), name);
 		sb.DrawString(vec2(x + (w - status.GetWidth()) / 2, y + 15), status);
+		// the corners either side of the %, which nothing else uses
+		string levelText = HWP::PartyFrames::LevelTag(f);
+		string codeText = HWP::PartyFrames::CodeTag(f);
+		if (levelText.length() > 0)
+			sb.DrawString(vec2(x + 4, y + 15), row.level.Get(m_font, levelText, TagColor(f)));
+		if (codeText.length() > 0)
+		{
+			auto code = row.code.Get(m_font, codeText, TagColor(f));
+			sb.DrawString(vec2(x + w - code.GetWidth() - 4, y + 15), code);
+		}
 		if (f.dead)
 			m_skull.Draw(sb, vec2(x + 4, y + 3), g_menuTime);
 		DrawLow(sb, f, x, y, w, h);
@@ -476,14 +515,13 @@ class HWPPartyFramesHUD : HUDCoop
 	void DrawTile(SpriteBatch& sb, HWP::PartyFrames::FrameData@ f, HWP::PartyFrames::RowCache@ row, int x, int y, int h)
 	{
 		const int w = HWP::PartyFrames::THIN_H;
-		Rect(sb, x, y, w, h, vec4(0, 0, 0, 0.75f));
 		DrawPotions(sb, f, row, x + 2, y + (h - 14) / 2);
 		DrawDebuff(sb, f, x + w + 2, y);
 	}
 
 	void DrawThin(SpriteBatch& sb, HWP::PartyFrames::FrameData@ f, HWP::PartyFrames::RowCache@ row, int x, int y)
 	{
-		const int w = HWP::PartyFrames::THIN_W + HWP::PartyFrames::TagW(), h = HWP::PartyFrames::THIN_H;
+		const int w = HWP::PartyFrames::THIN_W, h = HWP::PartyFrames::THIN_H;
 		Rect(sb, x, y, w, h, vec4(0, 0, 0, 1));
 		int sx = DrawHealth(sb, f, BarColor(f), x + 1, y + 1, w - 2, f.pool ? h - 2 : HWP::PartyFrames::THIN_HP, true);
 		if (!f.pool)
@@ -491,22 +529,37 @@ class HWPPartyFramesHUD : HUDCoop
 		auto name = row.name.Get(m_font, f.name, NameColor(f));
 		auto status = row.status.Get(m_font, Status(f), StatusColor(f));
 		int nameX = x + (f.dead ? 15 : 4);
-		string tagText = HWP::PartyFrames::Tag(f);
-		auto tag = row.tag.Get(m_font, tagText, NameColor(f));
-		int nameEnd = nameX + name.GetWidth();
-		if (tagText.length() > 0)
-			nameEnd += tag.GetWidth() + 4;
 		int statusX = x + w - status.GetWidth() - 4;
 		if (sx >= 0 && !f.dead && sx < statusX + status.GetWidth())
-			statusX = max(nameEnd + 2, sx - status.GetWidth() - 2); // tuck it left of the shield
+			statusX = max(nameX + name.GetWidth() + 2, sx - status.GetWidth() - 2); // tuck it left of the shield
 		sb.DrawString(vec2(nameX, y + 4), name);
-		if (tagText.length() > 0)
-			sb.DrawString(vec2(nameX + name.GetWidth() + 4, y + 4), tag);
 		sb.DrawString(vec2(statusX, y + 4), status);
 		if (f.dead)
 			m_skull.Draw(sb, vec2(x + 3, y + 3), g_menuTime);
 		DrawLow(sb, f, x, y, w, h);
-		DrawTile(sb, f, row, x + w + 2, y, h);
+		int tagsW = DrawThinTags(sb, f, row, x + w + 2, y);
+		DrawTile(sb, f, row, x + w + 2 + tagsW, y, h);
+	}
+
+	// the bar has no room for these on one row, so they stack beside it. Every row in the party
+	// takes the same width, which keeps the potions in a line. Returns that width.
+	int DrawThinTags(SpriteBatch& sb, HWP::PartyFrames::FrameData@ f, HWP::PartyFrames::RowCache@ row, int x, int y)
+	{
+		string levelText = HWP::PartyFrames::LevelTag(f);
+		string codeText = HWP::PartyFrames::CodeTag(f);
+		bool both = levelText.length() > 0 && codeText.length() > 0;
+		const int w = HWP::PartyFrames::THIN_TAGS_W;
+		if (levelText.length() > 0)
+		{
+			auto level = row.level.Get(m_font, levelText, TagColor(f));
+			sb.DrawString(vec2(x + (w - level.GetWidth()) / 2, y + (both ? 2 : 7)), level);
+		}
+		if (codeText.length() > 0)
+		{
+			auto code = row.code.Get(m_font, codeText, TagColor(f));
+			sb.DrawString(vec2(x + (w - code.GetWidth()) / 2, y + (both ? 12 : 7)), code);
+		}
+		return HWP::PartyFrames::g_showLevel || HWP::PartyFrames::g_showClass ? w : 0;
 	}
 
 	void Draw(SpriteBatch& sb, int idt) override
