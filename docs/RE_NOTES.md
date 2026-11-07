@@ -1,5 +1,27 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-06: E picks the hovered sphere in the Magic Shop picker (issue #64, source only)
+
+Source review and a code change on `origin/main` 4cfbb3bf; no game run, no GameLab run.
+- **The trap** (vanilla, every machine): in `SelectSkillSphereSelector`
+  (`Missions/MissionSkillSphere.as`) E is both gameplay Use and MenuAdditional.
+  `AWindowObject.Update` runs `IWidgetHoster::Update` first, so `ScrollbarWidget.Update`
+  (`ScrollbarWidget.as:369-386`) sends ClickDown to the hovered (mouse) or focused (pad)
+  sphere on `GetInput().Use.Pressed || GetMenuInput().Forward.Pressed`; then
+  `WindowObject.as:155` calls the window's `m_menuAdditionalOnPressed` (`Apply`, bound at
+  `MissionSkillSphere.as:268`), which closes the window. A `ButtonWidget` fires its func
+  (`select`, `skills_picker.gui` template) only on ClickUp (`ButtonWidget.as:266-272`), so
+  the press never picks and E applies the old pick.
+- **Fix** (architect override of `MissionSkillSphere.as`, `.orig` kept): MenuAdditional
+  calls `ApplyFromKey`. When the same frame is also a Use/Forward press, and the scroll area
+  is active (`m_hovering`, visible, button inputs on), it takes the target exactly as
+  `ScrollbarWidget.Update` does (`m_scroll.m_input.m_hovering` with the mouse, else
+  `GetCurrentInteractable()`), checks it is one of the picker's sphere buttons, sends
+  `select` unless it is already the pick, then `Apply()`. Otherwise it is vanilla `Apply()`.
+  The hint bar's Apply entry still calls `Apply` directly.
+- **Unverified:** whether a gamepad binds Use and MenuAdditional to the same button (if not,
+  the gamepad path is unchanged); the change itself in game (host and client).
+
 ## 2026-11-05: Rework focused solo validation PASS
 
 `qa-specs-support-rework 20261105-200813` PASS on pinned build 25932569 / B176,
