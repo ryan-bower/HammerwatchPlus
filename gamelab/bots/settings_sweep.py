@@ -39,6 +39,7 @@ KEY_CAPTURES = {
     "dropkey": ("droptrade.key", 20, "droptrade.keyname"),
     "eatkey": ("fishing.eat_key", 9, None),
     "courierkey": ("pets.courier_key", 11, None),
+    "linkkey": ("chatlinks.key", 15, None),
     "skill4": ("skillkeys.skill4", 33, None),
     "skill5": ("skillkeys.skill5", 34, None),
     "skill6": ("skillkeys.skill6", 35, None),

@@ -1,5 +1,79 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-06: party frames, HUD drawing and ally data
+
+Measured in GameLab on build 25932569 (`mod-partyframes` 20261106-195712, `mod-partyframes-data`
+20261106-200035, branched from `4cfbb3bf`), solo and with forced setup. Marked lines are source
+review.
+
+- `SpriteBatch` colours are linear. An sRGB `(51,18,25)` passed straight to `FillRectangle` came
+  out as `(123,76,89)`, which is 1/2.2 gamma. `ParseColorRGBA` decodes its hex, so hand-written
+  `vec4`s need `pow(c, 2.2)`.
+- `TextureLoader` refuses a texture that isn't a power of two, and the game then quits before
+  the main menu with exit 1. That leaves a dirty teardown, cleared with `gamelab reset`.
+- `ui_scale 1.2` set from the console takes effect at once and gives the 640x360 lab window
+  1:1 UI pixels, so hw8 text is readable in shots. At the default 0.833 scale it isn't.
+- `HUDTutorials` draws above `HUDCoop`, so a new character's panel covers the same corner in
+  vanilla too. It has no cvar: `ui_hud_visible_tutorials` doesn't exist.
+- Source review: a potion refill doesn't sync. `PlayerSyncPotion` is sent only from `DrinkPotion`
+  (`Player.as:922`), `PlayerPotionCharged` carries no count (`PlayerHandler.as:715`), and
+  `RefillPotion` and `WorldScript::PotionRefill` refill only the local `Player`. Other peers keep
+  the old `potionChargesUsed` until that player's next drink.
+- `GetPlayerRecord(peer)` lives in the `PlayerHandler` namespace, so a mod can't call it bare.
+  `GetPlayerRecordByPeer` is global (`main.as:608`).
+- A Bannerlord standard's pulses keep renewing the shield, so it doesn't run out while the
+  standard is up. A check for zero has to hit it down.
+- The sprite batch has no blend mode exposed to script, so the mockup's additive glow is
+  approximated with alpha columns.
+- **A shutdown crash, cause unknown, this branch suspect.** `mod-all` 20261106-200219 and
+  `mod-settings-sweep` 20261106-211620 passed every check, saved, then exited with 0xC0000005,
+  leaving a dirty teardown. Each passed on repeat (`mod-all` 7 of 7, sweep 212346). Retained runs:
+  2 of 35 with `partyframes` loaded, 3 of 1,248 without. Both crashes were full-stack scenarios,
+  which were rare before today, and 7 `mod-partyframes` runs, which fill the frames' text cache,
+  were clean, so the rates are confounded. Intermittent shutdown crashes predate this branch
+  (2026-10-19, 2026-10-30), but no dump was kept and the Windows event log has no entry, so the
+  fault address can't be compared with `HWR2.exe+0x15D4B`. Open: repeat `mod-all` with and without
+  `partyframes`.
+- **The tutorial panel covers the party corner in vanilla.** `HUDTutorials` is `m_drawOnTop`, at (8, 8) and
+  226 wide, and `HUDCoop` starts at (0, 5) with no code to move (source review). The panel hides whenever a
+  window is open. `tweak/tutorials` has no `levelup` or `death` entry, so those `ShowTutorial` calls do nothing;
+  only a level's `TutorialArea` raises one. Nothing gates them on co-op. The frames start below it
+  (`TutorialBottom`), which moved them from 5 to 128 for `intro_attack` (`mod-partyframes-tutorial` 20261106-220546).
+- WoW's frames draw a shield only in missing health; at 100% it's a glow at the bar's end (reference shot, not a game fact here).
+  `DrawHealth` clamps to `w - fill` and returns -1 when nothing was drawn, so Thin leaves the % where it is.
+- `hw8.fnt` is about 5 px a character. Thin's row has 96 px, which a 12-letter name, two tags and the % overflow, so Thin stacks its
+  tags in a column left of the potion instead of sharing the row. Thick has the corners beside the % free.
+- WoW's raid frame green, from `Gethe/wow-ui-source` (live) and `Gethe/wow-ui-textures` (live), read 2026-11-07. `CompactUnitFrame.xml`
+  uses atlas `RaidFrame-Hp-Fill` over `raidframe-hp-bg-white`, tinted by `COMPACT_UNIT_FRAME_FRIENDLY_HEALTH_COLOR` and `_BG`. Those two
+  are not defined in the published Lua, so their values are unknown. Used instead: the `CreateColor(0, 1, 0)` of
+  `CompactUnitFrameOptions.lua`, the older `Raid-Bar-Hp-Fill` texture (grey, 128 at the edges and 180 mid-bar), giving (0, 128, 0)
+  to (0, 180, 0), and the older `Raid-Bar-Hp-Bg` (about 21 grey). Assumed: the current atlas matches those older textures.
+- **`ScrollbarWidget` scrolls short of its last rows.** `Widget::DoLayout` puts `m_spacing` between
+  children and `ScrollbarWidget::DoLayout` leaves it out of `m_childrenHeight`, so the list stops
+  rows - 2 pixels short (measured: 13 rows, 11 px, 20261106-211338). The Plus list now has no
+  spacing and each row is a pixel taller: 0 px at 15 rows, 20261106-211446.
+- **A fake ally can be a real record.** `PlayerRecord()`, `peer` set to an unused id, `local` false,
+  `CreateCharacter`, then `g_gameMode.SpawnPlayer` gives a real husk that `MovePlayer` walks, and
+  HUDCoop lists it (`gamelab-fakecoop`, 20261106-210331). No peer stands behind it.
+- **Every Arcane Sorcerer has Living Mana.** `living_mana.sval` sets `starting-level` 1, and
+  `GetSkillLevel` adds it, so a husk has the skill in `m_skills` with nothing picked. The frames'
+  check reads that list, so an Arcane ally is always the blue pool (20261106-213408).
+- **`mod-settings-off` and `mod-settings-sweep` had drifted on `main`.** Neither loaded `salvage`,
+  `freeskills` or `partyexit`, so the sweep stopped before changing a setting and the off bot's
+  inventory failed. Later blockers: `hwp link` now answers `[HWP:chatlinks]`, not `[HWP]`; the
+  `linkkey` row wasn't in `KEY_CAPTURES`; `levelup` needs `e_cheats 1`, which the scenario never
+  set. All fixed in the scenarios and bots, adding status-only contracts for the three modules.
+  Sweep 20261106-202656 then passed.
+- **`mod-settings-off` failed on its own test code, not on the mods.** It passes twice on the same
+  seed (20261106-232113, 20261106-232722). `off_affixes`: the Back slot has no base item below
+  level 10, so 24 rolls at level 1 can only make 21; it now rolls at level 10. `off_droptrade`: a
+  drop lands a random few pixels from the point asked for, so a fixed walk could miss it; the NPC
+  now goes where the item landed (6 of 6 fresh boots). `off_petrooms*` had three causes: the shop
+  calls `pet_dog` "Dungeoneer's Mutt", a pet is a local unit with a negative id, and spikes block
+  the pathfinder, so the walk could never end on them. It now stops 32 px short with
+  `petwait.radius` 180, and steps back 15 px. The gap to the parked pet changes with the floor
+  (129 to 184 px against a 130 px floor), so the floor seed is pinned.
+
 ## 2026-11-05: Rework focused solo validation PASS
 
 `qa-specs-support-rework 20261105-200813` PASS on pinned build 25932569 / B176,
@@ -9805,3 +9879,7 @@ existing generated trees and smoke stamp. All 31 host regressions pass.
 the previous all-mod scenario's links and exact fixture-only mod verification.
 The final full-width timestamp implementation was verified again by
 `mod-all 20261031-152227` (PASS, 20.5 s); its end frame was inspected.
+
+## 2026-11-07: where potion charges come from (source review)
+
+`PlayerStats.PotionCharges` starts at 0 and only `Modifiers::Potion` adds to it. The apothecary's `potion-charges` upgrade has 5 steps, each 1 more charge. Uncommon trinkets add 2 and 1, an epic trinket 1, a rare equipment modifier 1, so one of each reaches 9. `tweak/town/hero_titles.sval.json` also has `Modifiers::Potion`: its charge values weren't read. The party frames' column is sized for this: 1 to 5 is the normal case.

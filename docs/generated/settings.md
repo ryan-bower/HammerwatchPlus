@@ -64,6 +64,18 @@ next level.
 | Party exit | On | `partyexit.enabled` | on | on, off | host |
 | Party exit | Party at the exit | `partyexit.share` | 66 | Half (50), Two thirds (66), Three quarters (75) | host |
 
+## Interface
+
+| Module | Setting | Key | Default | Choices | Scope |
+|---|---|---|---|---|---|
+| Party frames | On | `partyframes.enabled` | on | on, off | local |
+| Party frames | Bar size | `partyframes.size` | 0 | Thick (0), Thin (1) | local |
+| Party frames | Shield style | `partyframes.shield` | 0 | Leading edge (0), Striped edge (1) | local |
+| Party frames | Potion style | `partyframes.potions` | 0 | Cut gems (0), Hollow bars (1) | local |
+| Party frames | Show level | `partyframes.level` | off | on, off | local |
+| Party frames | Show class | `partyframes.class` | off | on, off | local |
+| Party frames | Green health | `partyframes.green` | off | on, off | local |
+
 ## Auto Aim
 
 | Module | Setting | Key | Default | Choices | Scope |

@@ -1,0 +1,96 @@
+{
+ "name": "devarena-options-list",
+ "about": "The Plus tab's list reaches its last row: with Interface open and the list scrolled to its end, no row sits past the list's bottom (hwp fakecoop listend). The engine's ScrollbarWidget leaves its children's spacing out of the height it scrolls over.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "hwplib",
+  "devarena",
+  "spec-ranger-test",
+  "partyframes",
+  "gamelab-fakecoop"
+ ],
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ],
+   "name": "open the Plus tab"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-pkg-interface",
+    "hwp-open",
+    "interface"
+   ],
+   "name": "open Interface"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "mark",
+   "name": "open"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop listend"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "list-end"
+  },
+  {
+   "do": "log_has",
+   "pattern": "listend: rows \\d+, children height \\d+, list \\d+, past the bottom -?\\d+",
+   "since": "open",
+   "timeout": 5,
+   "name": "measured"
+  },
+  {
+   "do": "log_has",
+   "pattern": "past the bottom (-\\d+|0)\\b",
+   "since": "open",
+   "timeout": 3,
+   "name": "every row can be reached"
+  }
+ ]
+}

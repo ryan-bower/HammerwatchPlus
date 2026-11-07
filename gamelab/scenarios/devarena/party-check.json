@@ -1,0 +1,172 @@
+{
+ "name": "devarena-party-check",
+ "about": "Lab check for devarena/party: hwp fakecoop's three stand-in allies appear in the party frames, stay near the player, and leave cleanly. Solo, forced setup: a fake ally is no proof of a client's path.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "classes",
+  "specs",
+  "devarena",
+  "spec-ranger-test",
+  "partyframes",
+  "gamelab-fakecoop"
+ ],
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop 3"
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "mark",
+   "name": "near"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop"
+  },
+  {
+   "do": "log_has",
+   "pattern": "fakecoop: 3 allies; Brakka warrior peer 1 dist [0-9]{1,2};",
+   "since": "near",
+   "timeout": 5,
+   "name": "allies stand near the player"
+  },
+  {
+   "do": "shot",
+   "name": "three"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop hop 150 0"
+  },
+  {
+   "do": "mark",
+   "name": "left"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop"
+  },
+  {
+   "do": "log_has",
+   "pattern": "Brakka warrior peer 1 dist 1[0-9][0-9];",
+   "since": "left",
+   "timeout": 5,
+   "name": "the player moved away"
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "mark",
+   "name": "caught"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop"
+  },
+  {
+   "do": "log_has",
+   "pattern": "Brakka warrior peer 1 dist [0-9]{1,2};",
+   "since": "caught",
+   "timeout": 5,
+   "name": "allies walked after the player"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop hop -600 0"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "mark",
+   "name": "warped"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop"
+  },
+  {
+   "do": "log_has",
+   "pattern": "Brakka warrior peer 1 dist [0-9]{1,2};",
+   "since": "warped",
+   "timeout": 5,
+   "name": "allies warped after a long jump"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop hop 450 0"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop 7"
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "shot",
+   "name": "seven"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "off"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

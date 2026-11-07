@@ -1,6 +1,6 @@
 {
  "name": "mod-settings-sweep",
- "about": "All 42 current feature modules and 3 required libraries loaded: manifest-derived shared-row ownership, every feature/settings row, 41 toggle UI/store off/on, explicit Goldworth/library toggle N/A, keyboard capture including Eat/Courier and controller capture including reserved/cancel/release. The 25 GameKeys rows are presence-only; binding effects remain mod-keys-layout/play/persist. Restores initial effective scalar values. This is settings UI/store/capture evidence, not every feature's functional off/on behavior or physical controller proof. Owned initial snapshots restore from a sweep-level finally after failures; original and cleanup errors are retained independently.",
+ "about": "All 46 current feature modules and 3 required libraries loaded: manifest-derived shared-row ownership, every feature/settings row, 42 toggle UI/store off/on, explicit Goldworth/library toggle N/A, keyboard capture including Eat/Courier and controller capture including reserved/cancel/release. The 25 GameKeys rows are presence-only; binding effects remain mod-keys-layout/play/persist. Restores initial effective scalar values. This is settings UI/store/capture evidence, not every feature's functional off/on behavior or physical controller proof. Owned initial snapshots restore from a sweep-level finally after failures; original and cleanup errors are retained independently.",
  "fixture": "town-paladin",
  "mods": [
   "hwplib",
@@ -36,6 +36,10 @@
   "waygates",
   "roulette",
   "autoaim",
+  "partyframes",
+  "salvage",
+  "freeskills",
+  "partyexit",
   "summons",
   "valuables",
   "wavemode",

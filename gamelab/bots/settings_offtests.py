@@ -45,9 +45,15 @@ CHANCES = {"abyss.chance": 100, "strongbox.chance": 100, "puzzles.room_chance": 
 # Pin one base-game producer, not the MiniPet default: the generated Dog unit
 # explicitly sets range-idle=90 and leash-range=100. A frozen-source producer/type
 # readback is required before this contract applies; other pets refuse setup.
-PETROOMS_PET = {"title": "Dog", "resource": "players/pets/pet_dog.unit",
+PETROOMS_PET = {"title": "Dungeoneer's Mutt", "resource": "players/pets/pet_dog.unit",
                 "behavior": "HWPMiniPetWalking", "idle_range": 90,
                 "leash_range": 100, "on_margin": 30}
+# The pet parks a radius short of the spikes and the player stops this far short of them, so
+# the gap between them is the difference, which the 130 px on-window needs to clear.
+PETROOMS_RADIUS = 180  # one of the setting's values
+PETROOMS_SHORT = 32
+PETROOMS_STEP_BACK = 15  # a small step, or the player closes on the parked pet
+PETROOMS_SEED = 2463240320  # a floor with a straight corridor from the start
 
 # This is evidence applicability, not a declaration that every module is functionally tested.
 FEATURE_CONTRACTS = {'abyss': {'kind': 'status-and-floor-log',
@@ -117,6 +123,14 @@ FEATURE_CONTRACTS = {'abyss': {'kind': 'status-and-floor-log',
                 'limit': 'Existing generated-floor/death log; not every lifecycle/reward/UI consumer.'},
  'orbwarn': {'kind': 'ui-or-native-effect',
              'limit': 'Checks the existing named UI/effect consumer only; not complete feature functionality.'},
+ 'salvage': {'kind': 'status-only',
+  'limit': 'Status line only here; the item action is not exercised by this toggle.'},
+ 'freeskills': {'kind': 'status-only',
+  'limit': 'Status line only here; the respec refund is not exercised by this toggle.'},
+ 'partyexit': {'kind': 'status-only',
+  'limit': 'Status line only here; the floor exit vote is not exercised by this toggle.'},
+ 'partyframes': {'kind': 'status-only',
+                 'limit': 'Status line only here; the drawing is checked by the mod-partyframes screenshots.'},
  'petrooms': {'kind': 'controlled-pet-movement',
               'limit': 'Checked trap-room route, actual pet follows off and parks on; controlled setup, not '
                        'standalone vanilla-pet/coop/ordinary proof.'},
@@ -355,9 +369,14 @@ class Checks(Base):
 
         self.toggle("abyss", "abyss.enabled", self.status("abyss", r"Abyss cracks off:", r"Abyss cracks on:"))
         self.toggle("architect", "architect.enabled", self.status("architect", r"split host cost off", r"split host cost on"))
+        self.toggle("partyframes", "partyframes.enabled", self.status("partyframes", r"partyframes\] off, ",
+                                                                      r"partyframes\] on, ", until="partyframes] o"))
+        self.toggle("salvage", "salvage.enabled", self.status("salvage", r"salvage: off", r"salvage: on", until="salvage: o"))
+        self.toggle("freeskills", "freeskills.enabled", self.status("freeskills", r"free skills off;", r"free skills on;", until="free skills o"))
+        self.toggle("partyexit", "partyexit.enabled", self.status("partyexit", r"party exit off,", r"party exit on,", until="party exit o"))
         self.toggle("autoaim", "autoaim.enabled", self.status("autoaim", r"autoaim: off \(autoaim\.enabled\)",
                                                               r"autoaim: on, mode", until="] autoaim: "))
-        self.toggle("chatlinks", "chatlinks.enabled", self.status("link", r"Chat links are off \(HammerwatchPlus tab, Chat links\)\."))
+        self.toggle("chatlinks", "chatlinks.enabled", self.status("link", r"Chat links are off \(HammerwatchPlus tab, Chat links\)\.", until="[HWP"))
         self.toggle("groupcombo", "groupcombo.enabled", self.status("groupcombo", r"enabled no", r"enabled yes", until="Group combo"))
         self.toggle("keys", "keys.enabled", self.keys_test())
         self.toggle("maps", "maps.enabled", self.status("maps", r"Maps are off: new map drops roll only the vanilla maps\."))
@@ -384,7 +403,7 @@ class Checks(Base):
         self.close_all()
         self.toggle("firearms", "firearms.enabled", self.firearms_test())
         self.close_all()
-        self.toggle("droptrade", "droptrade.enabled", self.droptrade_test())
+        self.droptrade()
         self.affixes()
         self.attrclick()
         self.gl("kill", 300, "npc_skill_trainer")
@@ -397,15 +416,16 @@ class Checks(Base):
         return default if rows[-1].strip() == "(unset)" else rows[-1].strip()
 
     def affixes(self):
-        # Actual generator results, fixed bounded trial count, no probabilistic rates.
+        # Actual generator results, fixed bounded trial count, no probabilistic rates. Level 10
+        # because the Back slot has no base item below it, so level 1 can only make 21 of 24.
         _, pkgs = load()
         default = next(s["default"] for _, mods in pkgs for mod, cfg in mods if mod == "affixes"
                        for s in cfg["settings"] if s.get("key") == "affixes.chance")
         original = self.setting_value("affixes.chance", default)
-        pattern = re.compile(r"roll: (\d+) epic at ilvl 1 \(chance ([^)]*)\): second suffix (\d+), "
+        pattern = re.compile(r"roll: (\d+) epic at ilvl 10 \(chance ([^)]*)\): second suffix (\d+), "
                              r"second prefix (\d+), max mods (\d+), over two (\d+), duplicates (\d+), two skills (\d+)")
         def check(phase, mark):
-            out = self.hwp("affixes roll 24 epic 1", 0.3, until="[HWP] roll:")
+            out = self.hwp("affixes roll 24 epic 10", 0.3, until="[HWP] roll:")
             rows = pattern.findall(out)
             if not rows:
                 return False, "no generator result; no consumer credit"
@@ -581,7 +601,7 @@ class Checks(Base):
                 return False
             time.sleep(1.5)
             self.close_all()
-            started = self.gl("mission", "bandit_keep", 0)
+            started = self.gl("mission", "bandit_keep", 0, f"seed={PETROOMS_SEED}", "ngp=0")
             trace["dog_setup"]["mission_reply"] = started
             if not started.get("ok") or not self.wait_phase("mission", 120):
                 return False
@@ -637,14 +657,15 @@ class Checks(Base):
             dog_ready = setup_dog()
             if not dog_ready:
                 return
-            self.set("petwait.radius", 120)
+            self.set("petwait.radius", PETROOMS_RADIUS)
             initial_pets = self.gl("near", 1200, "pets/")
             candidates = initial_pets.get("units") or []
             if (self.gl("state").get("phase") != "mission" or not initial_pets.get("ok")
                     or initial_pets.get("truncated") or len(candidates) != 1):
                 return
+            # a pet is a local, unsynced unit, so its id is negative
             pet_id, pet_name = candidates[0].get("unit"), candidates[0].get("name")
-            if (not isinstance(pet_id, int) or pet_id <= 0 or pet_name != PETROOMS_PET["resource"]
+            if (not isinstance(pet_id, int) or pet_id == 0 or pet_name != PETROOMS_PET["resource"]
                     or candidates[0].get("behavior") != PETROOMS_PET["behavior"]):
                 trace["setup_refusal"] = "selected runtime pet does not match the pinned Dog producer/type"
                 return
@@ -661,6 +682,8 @@ class Checks(Base):
                 time.sleep(0.4)
                 first = bound_pet("wait-at-origin")
             target = (sx + dx, sy + dy)
+            # Spikes block the pathfinder, so the walks stop short of them, still in the room
+            stop = (sx + dx * (1 - PETROOMS_SHORT / distance), sy + dy * (1 - PETROOMS_SHORT / distance))
             # A stationary pet cannot be admitted as a valid off control merely
             # because the player endpoint happens to be within the idle radius.
             if (first.get("dist", 1e9) >= 60
@@ -689,7 +712,7 @@ class Checks(Base):
                 return
             off_set = self.set("petwait.enabled", "false")
             off_start = bound_pet("off-before-walk")
-            if not route("off entry", *target):
+            if not route("off entry", *stop):
                 return
             time.sleep(3)
             off_end, _, _ = samples("off-after-walk")
@@ -700,20 +723,21 @@ class Checks(Base):
                 return
             time.sleep(3)
             on_set = self.set("petwait.enabled", "true")
-            if not route("on entry", *target):
+            if not route("on entry", *stop):
                 return
             time.sleep(2.5)
-            p1, moved1, on_rows1 = samples("on-before-side-step")
+            p1, moved1, on_rows1 = samples("on-before-step-back")
             gaps1 = actual_gaps(on_rows1)
             trace["on_geometry"] = {"required_gap": minimum_on_gap, "first_window_gaps": gaps1}
             if not all(gap >= minimum_on_gap for gap in gaps1):
                 trace["setup_refusal"] = "first on window overlaps the selected pet's idle/follow bound plus margin"
                 return
-            if not route("on same-room side step", target[0] - dy / distance * 30,
-                         target[1] + dx / distance * 30, tol=6):
+            # back along the walk, the one direction a corridor is sure to allow
+            if not route("on same-room step back", stop[0] - dx / distance * PETROOMS_STEP_BACK,
+                         stop[1] - dy / distance * PETROOMS_STEP_BACK, tol=6):
                 return
             time.sleep(1)
-            p2, moved2, on_rows2 = samples("on-after-side-step")
+            p2, moved2, on_rows2 = samples("on-after-step-back")
             gaps2 = actual_gaps(on_rows2)
             trace["on_geometry"]["second_window_gaps"] = gaps2
             on_geometry = all(gap >= minimum_on_gap for gap in gaps1 + gaps2)
@@ -874,23 +898,40 @@ class Checks(Base):
             return not ok and not hid, f"{said}; hid {hid}"
         return t
 
+    def droptrade(self):
+        self.toggle("droptrade", "droptrade.enabled", self.droptrade_test())
+
     def droptrade_test(self):
-        self.gl("spawn", "actors/npcs/town/npc_skill_trainer.unit", 0, -40)
+        # A drop lands a random few pixels from where it was asked for, and a fixed walk can
+        # miss it. So read where it landed, and put the NPC there.
+        ids = lambda: {u.get("unit"): u for u in self.gl("near", 200, "items/").get("units") or []}
+        before = ids()
         self.gl("dropitem", "hwp_rifle_02", "common", 0, -40)
         time.sleep(1)
+        new = [u for unit, u in ids().items() if unit not in before]
+        pl = self.gl("state").get("player") or {}
+        if len(new) != 1 or "x" not in pl:
+            return lambda phase, mark: (False, f"no single new drop: {new}; player {pl}")
+        dx, dy = new[0]["x"] - pl["x"], new[0]["y"] - pl["y"]
+        distance = math.hypot(dx, dy)
+        self.gl("spawn", "actors/npcs/town/npc_skill_trainer.unit", round(dx), round(dy))
+        ms = max(50, round(300 * (distance - 9) / 31))  # 300 ms covers 31 px; stop inside both
+        mx, my = round(dx / distance, 3), round(dy / distance, 3)
 
         def t(phase, mark):
             # walk onto them (a unit spawned on a standing player is no usable until a collision
             # starts: mod-droptrade-pickup), read the top usable, walk back off
-            self.gl("input", 300, 0, -1, 0, 1)
+            self.gl("input", ms, mx, my, 0, 1)
             time.sleep(1.5)
             u = self.gl("usables").get("usables") or []
             top = ((u[0].get("unit") or {}).get("name") if u else None)
             first = "[HWP:droptrade] pickup first" in self.since(mark)
-            self.gl("input", 300, 0, 1, 0, 1)
+            self.gl("input", ms, -mx, -my, 0, 1)
             time.sleep(1.0)
             item = top == "items/base.unit"
-            ok = (item and first) if phase == "on" else (not item and not first)
+            names = {(row.get("unit") or {}).get("name") for row in u}
+            both = {"items/base.unit", "actors/npcs/town/npc_skill_trainer.unit"} <= names
+            ok = both and ((item and first) if phase == "on" else (not item and not first))
             return ok, f"top {top}, pickup-first log {first}, {len(u)} usable(s)"
         return t
 

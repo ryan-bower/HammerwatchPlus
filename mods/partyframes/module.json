@@ -1,0 +1,83 @@
+{
+  "id": "partyframes",
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [],
+  "exclude": [],
+  "config": {
+    "title": "Party frames",
+    "about": "Raid-style frames for your allies: health, mana, shields and potions at a glance.",
+    "toggle": "partyframes.enabled",
+    "scope": "local",
+    "applies": "now",
+    "settings": [
+      {
+        "key": "partyframes.size",
+        "type": "int",
+        "default": 0,
+        "values": [
+          0,
+          1
+        ],
+        "labels": [
+          "Thick",
+          "Thin"
+        ],
+        "title": "Bar size",
+        "about": "Tall blocks or slim bars, each with the potion charges beside them."
+      },
+      {
+        "key": "partyframes.shield",
+        "type": "int",
+        "default": 0,
+        "values": [
+          0,
+          1
+        ],
+        "labels": [
+          "Leading edge",
+          "Striped edge"
+        ],
+        "title": "Shield style",
+        "about": "How an ally's shield is drawn at the end of their health."
+      },
+      {
+        "key": "partyframes.potions",
+        "type": "int",
+        "default": 0,
+        "values": [
+          0,
+          1
+        ],
+        "labels": [
+          "Cut gems",
+          "Hollow bars"
+        ],
+        "title": "Potion style",
+        "about": "How each ally's potion charges look. Gems go dark when spent, bars become empty outlines."
+      },
+      {
+        "key": "partyframes.level",
+        "type": "bool",
+        "default": false,
+        "title": "Show level",
+        "about": "A small level tag on each ally's frame. The bars stay the same size."
+      },
+      {
+        "key": "partyframes.class",
+        "type": "bool",
+        "default": false,
+        "title": "Show class",
+        "about": "A three-letter class tag on each ally's frame. The bars stay the same size."
+      },
+      {
+        "key": "partyframes.green",
+        "type": "bool",
+        "default": false,
+        "title": "Green health",
+        "about": "Every ally's health bar is green, as in WoW, instead of their class colour."
+      }
+    ]
+  }
+}

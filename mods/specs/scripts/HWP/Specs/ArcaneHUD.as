@@ -5,9 +5,10 @@
 // shows one big blue bar with the pool's numbers where the health and mana bars were, and
 // hides those two bars and their texts, for the local player while they have Living Mana;
 // everyone else keeps the vanilla bars. Teammates' clients get hp and mana through the vanilla
-// PlayerSyncStats (Player.as: any change over 0.001), so their co-op list (HUDCoop) shows the
-// pool twice, as a full-looking health bar at the mana fraction and the mana bar: nothing to
-// send. A spectated Arcane keeps the vanilla bars (the spectator's own HUD is not pooled).
+// PlayerSyncStats (Player.as: any change over 0.001), so the vanilla co-op list (HUDCoop) shows
+// the pool twice, as a full-looking health bar at the mana fraction and the mana bar, and
+// mods/partyframes draws it once. A spectated Arcane keeps the vanilla bars (the spectator's
+// own HUD is not pooled).
 //
 // Drawn by a HUDComponent added after HUDPlayer (HUDConstructor hook, docs/hooks.md), not from
 // HWPSpecsModule.RenderFrame: a module's RenderFrame draws before the HUD

@@ -38,6 +38,14 @@
       ]
     },
     {
+      "id": "interface",
+      "name": "HammerwatchPlus: Interface",
+      "description": "Raid-style party frames: class-coloured health, mana, shields and potion counts for every ally, as thick or thin bars.",
+      "mods": [
+        "partyframes"
+      ]
+    },
+    {
       "id": "autoaim",
       "name": "HammerwatchPlus: Auto Aim",
       "description": "Auto aim for area skills: the targeting reticle snaps to a nearby enemy and ready skills can cast themselves. On for controllers by default, an option for mouse players.",
