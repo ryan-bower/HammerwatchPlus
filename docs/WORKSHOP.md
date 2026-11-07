@@ -1,6 +1,6 @@
 # Publishing to the Steam Workshop
 
-HammerwatchPlus ships as twelve packages that each work alone, plus the all-in-one pack
+HammerwatchPlus ships as thirteen packages that each work alone, plus the all-in-one pack
 **HammerwatchPlus: All** (`HammerwatchPlus-All`), which holds every package. A player
 subscribes to the ones they want. A player who already has some single packages can keep them
 enabled beside the All pack, because every package of one build carries the same library

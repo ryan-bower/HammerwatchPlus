@@ -117,6 +117,14 @@ FEATURE_CONTRACTS = {'abyss': {'kind': 'status-and-floor-log',
                 'limit': 'Existing generated-floor/death log; not every lifecycle/reward/UI consumer.'},
  'orbwarn': {'kind': 'ui-or-native-effect',
              'limit': 'Checks the existing named UI/effect consumer only; not complete feature functionality.'},
+ 'salvage': {'kind': 'status-only',
+  'limit': 'Status line only here; the item action is not exercised by this toggle.'},
+ 'freeskills': {'kind': 'status-only',
+  'limit': 'Status line only here; the respec refund is not exercised by this toggle.'},
+ 'partyexit': {'kind': 'status-only',
+  'limit': 'Status line only here; the floor exit vote is not exercised by this toggle.'},
+ 'partyframes': {'kind': 'status-only',
+                 'limit': 'Status line only here; the drawing is checked by the mod-partyframes screenshots.'},
  'petrooms': {'kind': 'controlled-pet-movement',
               'limit': 'Checked trap-room route, actual pet follows off and parks on; controlled setup, not '
                        'standalone vanilla-pet/coop/ordinary proof.'},
@@ -355,9 +363,14 @@ class Checks(Base):
 
         self.toggle("abyss", "abyss.enabled", self.status("abyss", r"Abyss cracks off:", r"Abyss cracks on:"))
         self.toggle("architect", "architect.enabled", self.status("architect", r"split host cost off", r"split host cost on"))
+        self.toggle("partyframes", "partyframes.enabled", self.status("partyframes", r"partyframes\] off, ",
+                                                                      r"partyframes\] on, ", until="partyframes] o"))
+        self.toggle("salvage", "salvage.enabled", self.status("salvage", r"salvage: off", r"salvage: on", until="salvage: o"))
+        self.toggle("freeskills", "freeskills.enabled", self.status("freeskills", r"free skills off;", r"free skills on;", until="free skills o"))
+        self.toggle("partyexit", "partyexit.enabled", self.status("partyexit", r"party exit off,", r"party exit on,", until="party exit o"))
         self.toggle("autoaim", "autoaim.enabled", self.status("autoaim", r"autoaim: off \(autoaim\.enabled\)",
                                                               r"autoaim: on, mode", until="] autoaim: "))
-        self.toggle("chatlinks", "chatlinks.enabled", self.status("link", r"Chat links are off \(HammerwatchPlus tab, Chat links\)\."))
+        self.toggle("chatlinks", "chatlinks.enabled", self.status("link", r"Chat links are off \(HammerwatchPlus tab, Chat links\)\.", until="[HWP"))
         self.toggle("groupcombo", "groupcombo.enabled", self.status("groupcombo", r"enabled no", r"enabled yes", until="Group combo"))
         self.toggle("keys", "keys.enabled", self.keys_test())
         self.toggle("maps", "maps.enabled", self.status("maps", r"Maps are off: new map drops roll only the vanilla maps\."))

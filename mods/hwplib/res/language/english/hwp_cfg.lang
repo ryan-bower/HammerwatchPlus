@@ -2,6 +2,7 @@
 <lang name="English" official="false">
 	<string name="hwp.cfg.pkg.qol">Quality of Life</string>
 	<string name="hwp.cfg.pkg.coop">Co-op Play</string>
+	<string name="hwp.cfg.pkg.interface">Interface</string>
 	<string name="hwp.cfg.pkg.autoaim">Auto Aim</string>
 	<string name="hwp.cfg.pkg.firearms">Firearms Specialist</string>
 	<string name="hwp.cfg.pkg.specs">Fourth Specializations</string>

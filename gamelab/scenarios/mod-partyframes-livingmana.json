@@ -1,0 +1,79 @@
+{
+ "name": "mod-partyframes-livingmana",
+ "about": "A Living Mana ally is one solid blue pool. Two fake allies on real husks: Sable is Arcane, which starts with Living Mana; Morrow is a Warlock. Forced setup, solo: no client's path.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "classes",
+  "specs",
+  "partyframes",
+  "gamelab-fakecoop"
+ ],
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:specs\\] 8 of 8 subclasses registered",
+   "timeout": 30
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop 6"
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "mark",
+   "name": "both"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes"
+  },
+  {
+   "do": "log_has",
+   "pattern": "peer 5: .*living mana pool",
+   "since": "both",
+   "timeout": 5,
+   "name": "Sable draws the pool"
+  },
+  {
+   "do": "log_has",
+   "pattern": "peer 6: [^\\n]*relayed shield \\S+, potions \\d+/\\d+[\\r\\n]",
+   "since": "both",
+   "timeout": 5,
+   "name": "Morrow does not"
+  },
+  {
+   "do": "shot",
+   "name": "thick"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.size 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "thin"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.size 0"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop off"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

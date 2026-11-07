@@ -250,6 +250,24 @@
 			</array>
 		</dict>
 		<dict>
+			<string name="id">interface</string>
+			<array name="mods">
+				<dict>
+					<string name="id">partyframes</string>
+					<bool name="shared">false</bool>
+					<string name="toggle">partyframes.enabled</string>
+					<bool name="host">false</bool>
+					<bool name="level">false</bool>
+					<array name="settings">
+						<dict><string name="key">partyframes.size</string><string name="type">int</string><bool name="host">false</bool><bool name="level">false</bool><int name="default">0</int><array name="values"><i>0</i><i>1</i></array><int name="labels">2</int><string name="suffix"></string></dict>
+						<dict><string name="key">partyframes.shield</string><string name="type">int</string><bool name="host">false</bool><bool name="level">false</bool><int name="default">0</int><array name="values"><i>0</i><i>1</i></array><int name="labels">2</int><string name="suffix"></string></dict>
+						<dict><string name="key">partyframes.level</string><string name="type">bool</string><bool name="host">false</bool><bool name="level">false</bool><bool name="default">false</bool></dict>
+						<dict><string name="key">partyframes.class</string><string name="type">bool</string><bool name="host">false</bool><bool name="level">false</bool><bool name="default">false</bool></dict>
+					</array>
+				</dict>
+			</array>
+		</dict>
+		<dict>
 			<string name="id">autoaim</string>
 			<array name="mods">
 				<dict>

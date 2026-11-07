@@ -1,0 +1,80 @@
+{
+ "name": "devarena-party",
+ "about": "Dev Arena for a human, with three fake allies following: python -m gamelab run devarena/party --mode watch. A lab copy of the game (the fixture ranger, never the user's saves or install). hwp fakecoop [count|off] in the console changes them.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "classes",
+  "specs",
+  "devarena",
+  "spec-ranger-test",
+  "partyframes",
+  "gamelab-fakecoop"
+ ],
+ "timeout": 4800,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop 3"
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "mark",
+   "name": "ready"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop"
+  },
+  {
+   "do": "log_has",
+   "pattern": "fakecoop: 3 allies",
+   "since": "ready",
+   "timeout": 5,
+   "name": "ready"
+  },
+  {
+   "do": "play",
+   "name": "play until the window is closed"
+  }
+ ]
+}

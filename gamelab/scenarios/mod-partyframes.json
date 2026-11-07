@@ -1,0 +1,195 @@
+{
+ "name": "mod-partyframes",
+ "about": "mods/partyframes draws: five and seven stub allies (hwp partyframes demo, never g_players or the net) through both bar sizes and both shield styles, the toggle back to vanilla, and HWP::AllyStatus reading the local player. Forced-state screenshots for layout, not co-op proof: GameLab can't run two clients.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "partyframes"
+ ],
+ "timeout": 180,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:partyframes\\] ready",
+   "timeout": 30,
+   "name": "module ready"
+  },
+  {
+   "do": "console",
+   "line": "ui_scale 1.2"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes demo 5"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "thick leading"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.shield 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "thick striped"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes demo 7"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "thick setting seven allies drops to thin"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.size 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "thin striped"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.shield 0"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "thin leading"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.size 0"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.enabled false"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "disabled vanilla"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.enabled true"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes demo 7"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.level true"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "tag-level-thin"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.class true"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "tag-both-thin"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes demo 5"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.level false"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "tag-class-thick"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.level true"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.shield 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "tag-both-thick-striped"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.shield 0"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.level false"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.class false"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes demo off"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:partyframes\\] on, thick, leading edge, demo allies 0",
+   "timeout": 10,
+   "name": "settings restored, demo off"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:partyframes\\] peer \\d+ \\(local\\): shield 0, potions \\d+/\\d+",
+   "timeout": 10,
+   "name": "status reads the local player"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

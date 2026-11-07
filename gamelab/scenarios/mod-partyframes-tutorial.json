@@ -1,0 +1,198 @@
+{
+ "name": "mod-partyframes-tutorial",
+ "about": "The frames start below the game's tutorial panel while one is up and return when it closes. The panel draws over this corner in vanilla too. Fake allies on real husks, the real panel raised through the game's TutorialModule. Forced setup, solo.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "partyframes",
+  "gamelab-fakecoop"
+ ],
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:partyframes\\] ready",
+   "timeout": 30,
+   "name": "module ready"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop 3"
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop tutorial off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "mark",
+   "name": "clear"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes"
+  },
+  {
+   "do": "log_has",
+   "pattern": "frames start at 5, tutorial panel ends at 0",
+   "since": "clear",
+   "timeout": 5,
+   "name": "no panel: the frames sit at the top"
+  },
+  {
+   "do": "shot",
+   "name": "1 no panel"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop tutorial intro_attack"
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "mark",
+   "name": "up"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes"
+  },
+  {
+   "do": "log_has",
+   "pattern": "fakecoop\\] tutorial intro_attack: showing",
+   "timeout": 5,
+   "name": "setup: the game raised its panel"
+  },
+  {
+   "do": "log_has",
+   "pattern": "frames start at [3-9]\\d, tutorial panel ends at [3-9]\\d|frames start at \\d{3}, tutorial panel ends at \\d{3}",
+   "since": "up",
+   "timeout": 5,
+   "name": "panel: the frames start below it"
+  },
+  {
+   "do": "shot",
+   "name": "2 thick below panel"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.size 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "3 thin below panel"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.size 0"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop 7"
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "shot",
+   "name": "4 seven below panel"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop 3"
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop tutorial off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "mark",
+   "name": "gone"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes"
+  },
+  {
+   "do": "log_has",
+   "pattern": "frames start at 5, tutorial panel ends at 0",
+   "since": "gone",
+   "timeout": 5,
+   "name": "panel closed: the frames go back up"
+  },
+  {
+   "do": "shot",
+   "name": "5 panel closed"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop tutorial intro_attack"
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options"
+   ],
+   "name": "open a window over the panel"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "mark",
+   "name": "window"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes"
+  },
+  {
+   "do": "log_has",
+   "pattern": "tutorial panel ends at 0",
+   "since": "window",
+   "timeout": 5,
+   "name": "a window hides the panel, so the frames do not stay down"
+  },
+  {
+   "do": "shot",
+   "name": "6 window open"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop off"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

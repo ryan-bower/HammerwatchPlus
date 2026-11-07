@@ -10,6 +10,7 @@ create-character class list and the Subclass Picker's skill row).
 |---|---|
 | `scripts/HWP/Core/Log.as` | `HWP::Log(module, msg)` / `HWP::LogError`, `HWP::VERSION` |
 | `scripts/HWP/Core/Net.as` | `HWP::Net` request/event bus (`OnRequest`, `OnEvent`, `Request`, `Broadcast`, `Send`) |
+| `scripts/HWP/Core/AllyStatus.as` | `HWP::AllyStatus`: each player's shield (`ReportShield`, from any provider) and potion count, sent through the host (`allystatus.report` / `allystatus.state`) because neither syncs in vanilla; read with `Shield`, `PotionsLeft`, `PotionsMax`, `HasReport`. Its own module, `hwp-allystatus` |
 | `scripts/HWP/Core/SaveData.as` | `HWP::SaveData::Player/Local/Town/MyTown()` data bags saved under the record's `hwp` key; a bag lives in the record's `userdata`, so it dies with the record |
 | `scripts/HWP/Core/Settings.as` | `HWP::Settings::Get*/Set*` local preferences, stored in `g_myTownRecord` (the only town record the game saves; clients only get a copy of the host's `g_currTownRecord`) |
 | `scripts/HWP/Core/Commands.as` | `HWP::Commands`: the `hwp` console command. `hwp help`, `hwp version`, `hwp settings`, `hwp get <key>`, `hwp set <key> <value>`; modules add their own with `Register(name, help, handler)` and listen for setting changes with `OnSettingChanged` |

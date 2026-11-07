@@ -1,0 +1,61 @@
+{
+  "id": "partyframes",
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [],
+  "exclude": [],
+  "config": {
+    "title": "Party frames",
+    "about": "Raid-style frames for your allies: health, mana, shields and potions at a glance.",
+    "toggle": "partyframes.enabled",
+    "scope": "local",
+    "applies": "now",
+    "settings": [
+      {
+        "key": "partyframes.size",
+        "type": "int",
+        "default": 0,
+        "values": [
+          0,
+          1
+        ],
+        "labels": [
+          "Thick",
+          "Thin"
+        ],
+        "title": "Bar size",
+        "about": "Tall blocks or slim bars, each with the potion count beside them."
+      },
+      {
+        "key": "partyframes.shield",
+        "type": "int",
+        "default": 0,
+        "values": [
+          0,
+          1
+        ],
+        "labels": [
+          "Leading edge",
+          "Striped edge"
+        ],
+        "title": "Shield style",
+        "about": "How an ally's shield is drawn at the end of their health."
+      },
+      {
+        "key": "partyframes.level",
+        "type": "bool",
+        "default": false,
+        "title": "Show level",
+        "about": "Each ally's level beside their name. The bars grow to fit."
+      },
+      {
+        "key": "partyframes.class",
+        "type": "bool",
+        "default": false,
+        "title": "Show class",
+        "about": "Each ally's class beside their name. The bars grow to fit."
+      }
+    ]
+  }
+}

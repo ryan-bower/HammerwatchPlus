@@ -5,8 +5,8 @@ Heroes of Hammerwatch 1 content (the Forsaken Tower
 campaign, keys and ace chests, legendaries, mercenaries, titles, pets), new things to find in
 the dungeons, fishing and farming in town, and co-op and quality-of-life fixes.
 
-The modules ship as twelve packages, each of which works alone, plus an all-in-one pack. Eleven
-are on the Steam Workshop; The Forsaken Tower is local-build only.
+The modules ship as thirteen packages, each of which works alone, plus an all-in-one pack. Eleven
+are on the Steam Workshop; The Forsaken Tower is local-build only, and Interface isn't published yet.
 
 | Package | Modules |
 |---|---|
