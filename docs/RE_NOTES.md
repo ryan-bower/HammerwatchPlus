@@ -54,9 +54,16 @@ review.
   inventory failed. Later blockers: `hwp link` now answers `[HWP:chatlinks]`, not `[HWP]`; the
   `linkkey` row wasn't in `KEY_CAPTURES`; `levelup` needs `e_cheats 1`, which the scenario never
   set. All fixed in the scenarios and bots, adding status-only contracts for the three modules.
-  Sweep 20261106-202656 then passed. `mod-settings-off` 20261106-202128 still fails
-  `off_droptrade`, `off_affixes` and `off_petrooms*`. Those are undiagnosed, with no baseline on
-  `main`, and the cheats now on could affect them. `off_partyframes` passes.
+  Sweep 20261106-202656 then passed.
+- **`mod-settings-off` failed on its own test code, not on the mods.** It passes twice on the same
+  seed (20261106-232113, 20261106-232722). `off_affixes`: the Back slot has no base item below
+  level 10, so 24 rolls at level 1 can only make 21; it now rolls at level 10. `off_droptrade`: a
+  drop lands a random few pixels from the point asked for, so a fixed walk could miss it; the NPC
+  now goes where the item landed (6 of 6 fresh boots). `off_petrooms*` had three causes: the shop
+  calls `pet_dog` "Dungeoneer's Mutt", a pet is a local unit with a negative id, and spikes block
+  the pathfinder, so the walk could never end on them. It now stops 32 px short with
+  `petwait.radius` 180, and steps back 15 px. The gap to the parked pet changes with the floor
+  (129 to 184 px against a 130 px floor), so the floor seed is pinned.
 
 ## 2026-11-05: Rework focused solo validation PASS
 
