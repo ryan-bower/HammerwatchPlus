@@ -194,6 +194,73 @@
   },
   {
    "do": "console",
+   "line": "hwp partyframes demo 6"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "potions-gems-thick"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.size 1"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "potions-gems-thin"
+  },
+  {
+   "do": "mark",
+   "name": "hollow"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.potions 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes"
+  },
+  {
+   "do": "log_has",
+   "pattern": "partyframes\\] on, thin, .*, potions hollow",
+   "since": "hollow",
+   "timeout": 10,
+   "name": "the potion style setting reaches the frames"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "potions-hollow-thin"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.size 0"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "potions-hollow-thick"
+  },
+  {
+   "do": "console",
+   "line": "hwp set partyframes.potions 0"
+  },
+  {
+   "do": "console",
    "line": "hwp partyframes demo off"
   },
   {

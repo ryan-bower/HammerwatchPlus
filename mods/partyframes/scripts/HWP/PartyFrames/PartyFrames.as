@@ -1,6 +1,7 @@
 // Party frames: the top-left co-op list as raid frames. The bar is the frame: class-coloured
-// health, a % readout, a mana strip, a shield at the end of the health, the ally's potion count.
-// Two sizes (partyframes.size) and two shield styles (partyframes.shield), per machine.
+// health, a % readout, a mana strip, a shield at the end of the health, the ally's potion charges.
+// Two sizes (partyframes.size), two shield styles (partyframes.shield) and two potion styles
+// (partyframes.potions), per machine.
 //
 // HWPPartyFramesHUD replaces HUDCoop in place and overrides Draw only, so vanilla's Update and
 // Refresh keep picking the records (peer 255, spectating, level 0, RefreshPortrait) and turning
@@ -20,6 +21,8 @@ namespace HWP
 		const int THIN_TAGS_W = 20;           // the column of tags between a Thin bar and its potion
 		const int STRIPE_W = 102;             // the strip's width in the sheet
 		const int MAX_NAME = 12;
+		const int COLUMN_W = 7;               // what a potion column may take, either style
+		const int GEM_MAX = 8;                // a gem stays gem-shaped, however few charges
 		const float LOW = 0.3f;
 
 		const uint LIVING_MANA = HashString("hwp_sor_living_mana");
@@ -30,6 +33,7 @@ namespace HWP
 		bool g_showLevel = false;
 		bool g_showClass = false;
 		bool g_greenHealth = false;
+		bool g_hollowPotions = false;
 
 		void Reload()
 		{
@@ -39,6 +43,7 @@ namespace HWP
 			g_showLevel = HWP::Settings::GetBool("partyframes.level", false);
 			g_showClass = HWP::Settings::GetBool("partyframes.class", false);
 			g_greenHealth = HWP::Settings::GetBool("partyframes.green", false);
+			g_hollowPotions = HWP::Settings::GetInt("partyframes.potions", 0) == 1;
 		}
 
 		void OnSettingChanged(const string &in key)
@@ -85,7 +90,7 @@ namespace HWP
 
 		class RowCache
 		{
-			TextCache name, level, code, status, potions;
+			TextCache name, level, code, status;
 		}
 
 		// the batch's colours are linear (ParseColorRGBA decodes its sRGB hex the same way), so a
@@ -224,15 +229,15 @@ namespace HWP
 		void DemoParty(int count)
 		{
 			g_demo.removeRange(0, g_demo.length());
-			g_demo.insertLast(Demo("Aldric", Rgb(244, 140, 186), 0.23f, 0.62f, 0.25f, 3, 3));
+			g_demo.insertLast(Demo("Aldric", Rgb(244, 140, 186), 0.23f, 0.62f, 0.25f, 5, 5));
 			g_demo.insertLast(Demo("Mira", Rgb(170, 211, 114), 0.50f, 0.38f, 0.25f, 1, 3));
 			g_demo.insertLast(Demo("Zev", Rgb(63, 199, 235), 1.00f, 0.75f, 0.25f, 0, 3));
 			g_demo.insertLast(Demo("Dorn", Rgb(198, 155, 109), 0.00f, 0.00f, 0.00f, 2, 3));
 			auto pool = Demo("Sable", Rgb(51, 147, 127), 0.70f, 0.70f, 0.10f, 2, 4);
 			pool.pool = true;
 			g_demo.insertLast(pool);
-			g_demo.insertLast(Demo("Longnamedhero", Rgb(255, 244, 104), 0.82f, 0.50f, 0.00f, 3, 4));
-			g_demo.insertLast(Demo("Wren", Rgb(255, 124, 10), 0.40f, 1.00f, 1.50f, 4, 4));
+			g_demo.insertLast(Demo("Longnamedhero", Rgb(255, 244, 104), 0.82f, 0.50f, 0.00f, 2, 6));
+			g_demo.insertLast(Demo("Wren", Rgb(255, 124, 10), 0.40f, 1.00f, 1.50f, 4, 5));
 			string[] codes = { "PAL", "RNG", "WIZ", "WAR", "SOR", "ROG", "GUN" };
 			for (uint i = 0; i < g_demo.length(); i++)
 			{
@@ -240,6 +245,37 @@ namespace HWP
 				g_demo[i].level = 8 + 2 * i;
 			}
 			g_demo.resize(clamp(count, 0, int(g_demo.length())));
+		}
+
+		// Every charge in a column is the same height and every gap the same: rows that don't divide
+		// go to the margins, never to one charge. Two rows between charges while each stays 3 tall.
+		class PotionColumn
+		{
+			int count;   // charges drawn, fewer only past what the rows can hold
+			int height;
+			int step;    // height + gap
+			int bottom;  // last row of the lowest charge, which is the first to fill
+
+			PotionColumn(int top, int rows, int total, int maxHeight)
+			{
+				count = min(total, (rows + 1) / 2);
+				int gap = (rows - (count - 1) * 2) / count >= 3 ? 2 : 1;
+				height = min((rows - (count - 1) * gap) / count, maxHeight);
+				step = height + gap;
+				int used = count * height + (count - 1) * gap;
+				bottom = top + rows - 1 - (rows - used) / 2;
+			}
+
+			int Top(int i) { return bottom - i * step - height + 1; }
+			int Bottom(int i) { return bottom - i * step; }
+		}
+
+		// the cut corners of one row of a 5 wide gem: short gems are hexagons, tall ones pointed
+		int GemCut(int top, int bottom, int row)
+		{
+			int k = min(row - top, bottom - row);
+			int height = bottom - top + 1;
+			return height >= 5 ? max(0, 2 - k) : (height >= 3 ? max(0, 1 - k) : 0);
 		}
 
 		// Where the tutorial panel ends, or 0 with none on screen. It draws over this corner, and
@@ -283,7 +319,8 @@ namespace HWP
 			}
 			HWP::Log("partyframes", (g_enabled ? "on" : "off") + ", " + (g_thin ? "thin" : "thick") + ", "
 				+ (g_striped ? "striped edge" : "leading edge") + ", demo allies " + g_demo.length()
-				+ ", frames start at " + g_top + ", tutorial panel ends at " + TutorialBottom());
+				+ ", frames start at " + g_top + ", tutorial panel ends at " + TutorialBottom()
+				+ ", potions " + (g_hollowPotions ? "hollow" : "gems"));
 			for (uint i = 0; i < g_players.length(); i++)
 			{
 				auto r = g_players[i];
@@ -305,8 +342,6 @@ class HWPPartyFramesHUD : HUDCoop
 {
 	BitmapFont@ m_font;
 	ScriptSprite@ m_skull;
-	ScriptSprite@ m_potion;
-	ScriptSprite@ m_potionEmpty;
 	Texture2D@ m_stripes;
 	array<HWP::PartyFrames::FrameData@> m_frames;
 	array<HWP::PartyFrames::RowCache@> m_rows;
@@ -317,8 +352,6 @@ class HWPPartyFramesHUD : HUDCoop
 		@m_font = Resources::GetBitmapFont("gui/fonts/hw8.fnt");
 		auto hud = Resources::GetTexture2D("gui/hud.png");
 		@m_skull = ScriptSprite(hud, vec4(34, 257, 9, 10));
-		@m_potion = ScriptSprite(hud, vec4(316, 32, 10, 14));
-		@m_potionEmpty = ScriptSprite(hud, vec4(316, 46, 10, 14));
 		@m_stripes = Resources::GetTexture2D("gui/hwp_partyframes_stripes.png");
 	}
 
@@ -426,17 +459,79 @@ class HWPPartyFramesHUD : HUDCoop
 		Rect(sb, x, y, fill, 1, HWP::PartyFrames::Shade(mana, 1.3f));
 	}
 
-	// the player UI's count: green untouched, gold part used; none is grey, as its near-black reads
-	// as nothing on these bars
-	void DrawPotions(SpriteBatch& sb, HWP::PartyFrames::FrameData@ f, HWP::PartyFrames::RowCache@ row, int x, int y)
+	// one rectangle per charge, a full one red and a spent one an empty ring so they differ by shape
+	void DrawHollowCharges(SpriteBatch& sb, HWP::PartyFrames::FrameData@ f, int x, int y, int h, bool docked)
+	{
+		const int w = 4;
+		Rect(sb, x, y + 1, w + 1, h - 2, vec4(0, 0, 0, 1));
+		Rect(sb, docked ? x : x - 1, y, docked ? w : w + 1, 1, vec4(0, 0, 0, 1));
+		Rect(sb, docked ? x : x - 1, y + h - 1, docked ? w : w + 1, 1, vec4(0, 0, 0, 1));
+		if (!docked)
+			Rect(sb, x - 1, y + 1, 1, h - 2, vec4(0, 0, 0, 1));
+		HWP::PartyFrames::PotionColumn col(y + 1, h - 2, f.potionsMax, 99);
+		for (int i = 0; i < col.count; i++)
+		{
+			int top = col.Top(i);
+			if (i < f.potionsLeft)
+			{
+				Rect(sb, x, top, w, col.height, HWP::PartyFrames::Rgb(226, 36, 58));
+				if (col.height >= 4)
+				{
+					Rect(sb, x, top, w, 1, HWP::PartyFrames::Rgb(246, 58, 72));
+					Rect(sb, x, col.Bottom(i), w, 1, HWP::PartyFrames::Rgb(168, 20, 44));
+				}
+			}
+			else if (col.height >= 3)
+				Outline(sb, x, top, w, col.height, HWP::PartyFrames::Rgb(96, 100, 120));
+			else
+				Rect(sb, x, top, w, col.height, HWP::PartyFrames::Rgb(48, 50, 60)); // too short to be a ring
+		}
+	}
+
+	// cut rubies, each with its own black edge. The edges go down first, as neighbours share theirs
+	void DrawGemCharges(SpriteBatch& sb, HWP::PartyFrames::FrameData@ f, int x, int y, int h, bool docked)
+	{
+		const int w = 5;
+		HWP::PartyFrames::PotionColumn col(y + 1, h - 2, f.potionsMax, HWP::PartyFrames::GEM_MAX);
+		int left = docked ? 0 : -1; // a docked gem's left edge is the bar's own
+		for (int i = 0; i < col.count; i++)
+			for (int row = col.Top(i); row <= col.Bottom(i); row++)
+			{
+				int cut = HWP::PartyFrames::GemCut(col.Top(i), col.Bottom(i), row);
+				int from = max(cut - 1, left);
+				Rect(sb, x + from, row - 1, w + 1 - cut - from, 3, vec4(0, 0, 0, 1));
+			}
+		for (int i = 0; i < col.count; i++)
+		{
+			int top = col.Top(i), bottom = col.Bottom(i);
+			for (int row = top; row <= bottom; row++)
+			{
+				int cut = HWP::PartyFrames::GemCut(top, bottom, row);
+				if (i >= f.potionsLeft)
+				{
+					Rect(sb, x + cut, row, w - 2 * cut, 1, HWP::PartyFrames::Rgb(44, 46, 58));
+					continue;
+				}
+				Rect(sb, x + cut, row, w - 2 * cut, 1, HWP::PartyFrames::Rgb(226, 36, 58));
+				if (row * 2 < top + bottom)
+					Rect(sb, x + cut, row, 3 - cut, 1, HWP::PartyFrames::Rgb(246, 58, 72));
+				else if (row * 2 > top + bottom)
+				{
+					int from = max(2, cut);
+					Rect(sb, x + from, row, w - cut - from, 1, HWP::PartyFrames::Rgb(168, 20, 44));
+				}
+			}
+		}
+	}
+
+	void DrawPotions(SpriteBatch& sb, HWP::PartyFrames::FrameData@ f, int x, int y, int h, bool docked)
 	{
 		if (f.potionsMax <= 0)
 			return;
-		auto col = f.potionsLeft <= 0 ? HWP::PartyFrames::Rgb(150, 150, 160)
-			: (f.potionsLeft >= f.potionsMax ? ParseColorRGBA("#00ff00ff") : ParseColorRGBA("#ffd700ff"));
-		ScriptSprite@ icon = f.potionsLeft > 0 ? m_potion : m_potionEmpty;
-		icon.Draw(sb, vec2(x, y), g_menuTime);
-		sb.DrawString(vec2(x + 11, y + 4), row.potions.Get(m_font, "" + f.potionsLeft, col));
+		if (HWP::PartyFrames::g_hollowPotions)
+			DrawHollowCharges(sb, f, x, y, h, docked);
+		else
+			DrawGemCharges(sb, f, x, y, h, docked);
 	}
 
 	void DrawDebuff(SpriteBatch& sb, HWP::PartyFrames::FrameData@ f, int x, int y)
@@ -508,15 +603,15 @@ class HWPPartyFramesHUD : HUDCoop
 		if (f.dead)
 			m_skull.Draw(sb, vec2(x + 4, y + 3), g_menuTime);
 		DrawLow(sb, f, x, y, w, h);
-		DrawTile(sb, f, row, x + w + 2, y, h);
+		DrawTile(sb, f, x + w, y, h, true);
 	}
 
-	// the potion tile beside a bar, and the debuff beside that
-	void DrawTile(SpriteBatch& sb, HWP::PartyFrames::FrameData@ f, HWP::PartyFrames::RowCache@ row, int x, int y, int h)
+	// the potion column, and the debuff beside that. Docked, the column starts where the bar ends
+	// and uses the bar's edge as its own, so it never paints over a low-health border.
+	void DrawTile(SpriteBatch& sb, HWP::PartyFrames::FrameData@ f, int x, int y, int h, bool docked)
 	{
-		const int w = HWP::PartyFrames::THIN_H;
-		DrawPotions(sb, f, row, x + 2, y + (h - 14) / 2);
-		DrawDebuff(sb, f, x + w + 2, y);
+		DrawPotions(sb, f, x, y, h, docked);
+		DrawDebuff(sb, f, x + HWP::PartyFrames::COLUMN_W, y);
 	}
 
 	void DrawThin(SpriteBatch& sb, HWP::PartyFrames::FrameData@ f, HWP::PartyFrames::RowCache@ row, int x, int y)
@@ -538,7 +633,10 @@ class HWPPartyFramesHUD : HUDCoop
 			m_skull.Draw(sb, vec2(x + 3, y + 3), g_menuTime);
 		DrawLow(sb, f, x, y, w, h);
 		int tagsW = DrawThinTags(sb, f, row, x + w + 2, y);
-		DrawTile(sb, f, row, x + w + 2 + tagsW, y, h);
+		if (tagsW > 0)
+			DrawTile(sb, f, x + w + 2 + tagsW + 1, y, h, false);
+		else
+			DrawTile(sb, f, x + w, y, h, true);
 	}
 
 	// the bar has no room for these on one row, so they stack beside it. Every row in the party

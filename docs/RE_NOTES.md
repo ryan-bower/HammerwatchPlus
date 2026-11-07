@@ -9879,3 +9879,7 @@ existing generated trees and smoke stamp. All 31 host regressions pass.
 the previous all-mod scenario's links and exact fixture-only mod verification.
 The final full-width timestamp implementation was verified again by
 `mod-all 20261031-152227` (PASS, 20.5 s); its end frame was inspected.
+
+## 2026-11-07: where potion charges come from (source review)
+
+`PlayerStats.PotionCharges` starts at 0 and only `Modifiers::Potion` adds to it. The apothecary's `potion-charges` upgrade has 5 steps, each 1 more charge. Uncommon trinkets add 2 and 1, an epic trinket 1, a rare equipment modifier 1, so one of each reaches 9. `tweak/town/hero_titles.sval.json` also has `Modifiers::Potion`: its charge values weren't read. The party frames' column is sized for this: 1 to 5 is the normal case.

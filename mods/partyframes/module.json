@@ -25,7 +25,7 @@
           "Thin"
         ],
         "title": "Bar size",
-        "about": "Tall blocks or slim bars, each with the potion count beside them."
+        "about": "Tall blocks or slim bars, each with the potion charges beside them."
       },
       {
         "key": "partyframes.shield",
@@ -41,6 +41,21 @@
         ],
         "title": "Shield style",
         "about": "How an ally's shield is drawn at the end of their health."
+      },
+      {
+        "key": "partyframes.potions",
+        "type": "int",
+        "default": 0,
+        "values": [
+          0,
+          1
+        ],
+        "labels": [
+          "Cut gems",
+          "Hollow bars"
+        ],
+        "title": "Potion style",
+        "about": "How each ally's potion charges look. Gems go dark when spent, bars become empty outlines."
       },
       {
         "key": "partyframes.level",

@@ -54,7 +54,7 @@ def test_defaults_are_thick_leading_edge_in_a_local_scope_package():
     assert config["scope"] == "local" and config["applies"] == "now"
     settings = {s["key"]: s for s in config["settings"]}
     assert {k: s["labels"][s["default"]] for k, s in settings.items() if "labels" in s} == {
-        "partyframes.size": "Thick", "partyframes.shield": "Leading edge"}
+        "partyframes.size": "Thick", "partyframes.shield": "Leading edge", "partyframes.potions": "Cut gems"}
     assert {k: s["default"] for k, s in settings.items() if s["type"] == "bool"} == {
         "partyframes.level": False, "partyframes.class": False, "partyframes.green": False}
     packages = json.loads((ROOT / "packages.json").read_text(encoding="utf-8"))["packages"]
@@ -114,3 +114,15 @@ def test_the_options_list_has_no_spacing_so_its_scroll_reaches_the_last_row():
     rows = next(line for line in gui.splitlines() if 'id="rows"' in line)
     assert "spacing" not in rows
 
+
+def test_both_potion_styles_are_red_with_no_glint():
+    hud = FRAMES[FRAMES.index("void DrawHollowCharges"):FRAMES.index("void DrawDebuff")]
+    colours = {tuple(int(n) for n in m) for m in re.findall(r"Rgb\((\d+), (\d+), (\d+)\)", hud)}
+    spent = {(96, 100, 120), (48, 50, 60), (44, 46, 58)}
+    assert colours - spent == {(226, 36, 58), (246, 58, 72), (168, 20, 44)}
+
+
+def test_a_docked_potion_column_leaves_the_low_health_border_alone():
+    assert FRAMES.count("DrawTile(sb, f, x + w, y, h, true);") == 2
+    tile = FRAMES[FRAMES.index("void DrawThick"):FRAMES.index("void Draw(SpriteBatch& sb, int idt)")]
+    assert tile.index("DrawLow(sb, f, x, y, w, h);") < tile.index("DrawTile(sb, f, x + w, y, h, true);")

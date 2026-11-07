@@ -1,13 +1,13 @@
 # Party frames
 
 Replaces the top-left co-op list with raid frames: class-coloured health, % readout, mana strip,
-a shield in the health that's missing (as WoW's frames, with a glow when it doesn't fit), and each ally's potion count. Allies under 30% health get
+a shield in the health that's missing (as WoW's frames, with a glow when it doesn't fit), and each ally's potion charges. Allies under 30% health get
 a red border. An Arcane Sorcerer, who has Living Mana, is one solid blue pool with no mana strip.
 
 Settings (Plus tab, Interface): on or off, Thick or Thin bars, Leading edge or Striped edge
-shields, Green health in place of class colours, and Show level and Show class (all off by default). The tags sit inside the bar, which
+shields, Cut gems or Hollow bars for potion charges, Green health in place of class colours, and Show level and Show class (all off by default). The tags sit inside the bar, which
 never changes size for them: on Thick in the corners beside the %, on Thin stacked between the
-bar and the potion. All per machine. A party too tall for Thick bars drops to Thin on its own.
+bar and the potions. All per machine. A party too tall for Thick bars drops to Thin on its own.
 
 Shields and potion counts arrive through `HWP::AllyStatus` in hwplib. Any shield mod reports with
 `HWP::AllyStatus::ReportShield(fraction)`, as `mods/specs/scripts/HWP/Specs/Support.as` does. The

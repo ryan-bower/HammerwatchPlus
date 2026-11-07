@@ -71,6 +71,7 @@ next level.
 | Party frames | On | `partyframes.enabled` | on | on, off | local |
 | Party frames | Bar size | `partyframes.size` | 0 | Thick (0), Thin (1) | local |
 | Party frames | Shield style | `partyframes.shield` | 0 | Leading edge (0), Striped edge (1) | local |
+| Party frames | Potion style | `partyframes.potions` | 0 | Cut gems (0), Hollow bars (1) | local |
 | Party frames | Show level | `partyframes.level` | off | on, off | local |
 | Party frames | Show class | `partyframes.class` | off | on, off | local |
 | Party frames | Green health | `partyframes.green` | off | on, off | local |
