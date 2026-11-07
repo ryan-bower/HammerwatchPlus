@@ -9805,3 +9805,26 @@ existing generated trees and smoke stamp. All 31 host regressions pass.
 the previous all-mod scenario's links and exact fixture-only mod verification.
 The final full-width timestamp implementation was verified again by
 `mod-all 20261031-152227` (PASS, 20.5 s); its end frame was inspected.
+
+## 2026-11-06: the Magic Shop in a joined co-op game (issue #64, source review, no game run)
+- **No client-only failure found in source.** Town Magic Shop NPCs (mystic, apothecary,
+  enchanter, spell mastery trainer in `prefabs/town/buildings/magic_shop/magic_shop_tier_1.pfb`)
+  use the vanilla client path: `Player.as:1341-1357` sends `UseUnitSecure`, the host checks
+  `CanUse(husk)` and sends `UseUnit` back (`PlayerHandler.as:500-536`), and the client's
+  `Use` opens the shop window locally (`AShopContent.Interact`). No mod overrides, swaps or
+  outranks them. No mod adds a "magic shop" option of its own.
+- **Run-start Magic Shop row** (`SelectSkillSphereLoadout`, `Missions/MissionSkillSphere.as`):
+  the row's func is `magic_shop open` (line 25) with no `IsServer` gate; the row is left out
+  when the character has no sphere to pick (`BuildGUI` returns false at line 56, so it is
+  hidden, not greyed). The picked sphere is applied on each machine at Started
+  (`NetSetStatus` -> `OnPlay` -> `SkillTempUp`).
+- **E in the sphere picker** (`SelectSkillSphereSelector`): E is both gameplay Use and
+  MenuAdditional. `BaseGameMode` hands the live `gameInput` to the window manager, so the
+  picker's `ScrollbarWidget.Update` (`ScrollbarWidget.as:369`) sends ClickDown to the hovered
+  sphere on `gameInput.Use.Pressed`, while the window's MenuAdditional calls `Apply()`
+  (line 268) and closes it in the same frame. "select" fires on ClickUp, so E applies the old
+  pick and never selects the hovered one. Host and client alike.
+- **E on the setup screen** does nothing at all, silently, when the rows cost more than the
+  player has (`MissionLoadoutMenu.Play`, `if (!m_canAfford) return;`; the hint is dropped too).
+- The architect `MissionLoadoutMenu.as` override now logs `run-start: row '<id>' opened on the
+  host | client (peer N), status S`, the clicks ignored after Start and E ignored for the cost.

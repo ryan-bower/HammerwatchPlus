@@ -85,6 +85,14 @@ Architect alterations for the whole party.
     bridges when the window would not leave 22 px above and below, then moves the window
     to the top edge when it still would not; the `[HWP:architect] run-start layout:`
     line says what it did. Farming's herb line is a 14 px row for the same reason.
+  - **Diagnostics (issue #64).** `[HWP:architect] run-start: row '<id>' opened on the
+    host | client (peer N), status S` is logged when any row (Magic Shop, Architect, ...)
+    is clicked open; `... ignored, the run is already starting` when a click lands after
+    Start; `Start/Ready ignored, the rows cost more than this player has (...)` when E
+    does nothing because of the cost. Keys on this screen (vanilla, host and client the
+    same): E is Start on the host and Ready / Unready on a client, never "open this row";
+    a row opens with a click or Return. In the Magic Shop's sphere picker a click (or
+    Return) selects a sphere and E applies and closes, so E alone keeps the old pick.
 
 ## Settings
 
@@ -135,5 +143,9 @@ Morning decisions:
 7. Co-op (manual): a client presses Escape in the run-start setup: its window closes, the
    host's ready count drops it; the client picks any mission on the board: its window is
    back with the party's picks. The host's remembered NG+ comes back on the next setup.
-8. By eye: with a smoked herb, the herb line is one text row and Start plus the key hints
+8. Co-op (manual, issue #64): on the client, click (or Return) the Magic Shop row: the
+   sphere picker opens and the log has `run-start: row 'magic_shop' opened on the client`;
+   click a sphere, press E: the row shows it, and the run starts with it. E on the setup
+   screen toggles Ready / Unready.
+9. By eye: with a smoked herb, the herb line is one text row and Start plus the key hints
    stay on screen at the default resolution.
