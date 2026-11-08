@@ -247,6 +247,7 @@ def main(argv=None) -> int:
             say("build", "REFUSED: choose all OR individual packages; all already includes them")
             return 2
         if a.copy_slot is not None:
+            read_copy_source(install, a.copy_slot)  # fail before the build; read again under the lock
             plan = save_builder.Plan(a.profile_name, [], 0)
         else:
             plan = choose_save(a, packages)

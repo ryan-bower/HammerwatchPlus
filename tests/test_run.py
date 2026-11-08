@@ -173,11 +173,12 @@ class RunPlan(unittest.TestCase):
     def test_copy_slot_refuses_a_missing_slot(self):
         with tempfile.TemporaryDirectory() as tmp, \
                 mock.patch.object(run, "game_running", return_value=False), \
-                mock.patch.object(run, "build_and_deploy", return_value=0), \
+                mock.patch.object(run, "build_and_deploy", return_value=0) as build, \
                 mock.patch.object(run, "prepare_profile") as profile, redirect_stdout(io.StringIO()):
             install = self.copy_install(Path(tmp))
             with mock.patch.object(run.gamepaths, "hoh2_dir", return_value=install):
                 self.assertEqual(run.main(["--no-setup", "--copy-slot", "3"]), 2)
+        build.assert_not_called()
         profile.assert_not_called()
 
     def test_copy_slot_rejects_builder_options(self):
