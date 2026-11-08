@@ -1049,6 +1049,7 @@ namespace HWP
 				return;
 			int heresy = Heresy(plr);
 			float per = BindF(plr, COH, "coh-lunge", 0);
+			float chance = heresy * per;
 			vec2 pos = xy(plr.m_unit.GetPosition());
 			for (uint i = 0; i < g_bodies.length(); i++)
 			{
@@ -1056,8 +1057,9 @@ namespace HWP
 				if (b.m_rolled || distsq(xy(b.m_unit.GetPosition()), pos) > LUNGE_RANGE * LUNGE_RANGE)
 					continue;
 				// a body across a wall or rail, or with no room under it, isn't rolled yet: the roll
-				// waits until the priest comes near it from a side it can be reached from (issue #71)
-				if (!EatSpotClear(plr, b.m_unit, EatSpot(b.m_unit)))
+				// waits until the priest comes near it from a side it can be reached from (issue #71).
+				// With no chance there is nothing to reach, so no per-frame ray for a waiting body.
+				if (chance > 0 && !EatSpotClear(plr, b.m_unit, EatSpot(b.m_unit)))
 				{
 					if (!b.m_outOfReach)
 					{
@@ -1068,7 +1070,6 @@ namespace HWP
 					continue;
 				}
 				b.m_rolled = true;
-				float chance = heresy * per;
 				Log("specs", "lunge roll on " + b.m_unit.GetId() + " chance " + int(chance * 100 + 0.5f) + "%");
 				if (chance > 0 && randf() < chance)
 				{
