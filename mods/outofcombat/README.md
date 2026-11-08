@@ -16,8 +16,12 @@ says the speed and the wait, with no countdown).
   `ActorBuffList.MoveSpeedMul` (`Player.as`, the Moving block), the way every vanilla speed
   buff works (the combo's bursting speed, Apothecary's Tincture), so it stacks with them and
   stops when the buff goes. The buff is added locally (husk, not networked), like
-  `legacy`'s Title Bonuses buff. Its timer is reset every frame while the boost is on. When
-  the boost ends, the timer is set to 0 and the buff list drops the buff on its next update.
+  `legacy`'s Title Bonuses buff. Its timer is reset to 5 seconds every frame while the boost
+  is on. When the boost ends, the timer is set to 0 and the buff list drops the buff on its
+  next update. The timer stays short because a player's buffs are saved with the record
+  (`PlayerRecord.Save`, `actor-save`): they carry over a level change and into a saved
+  character, and the host reloads them as networked buffs, so a long timer would outlive
+  the boost on the other players' copy of the host.
 - **Hits: the `PlayerDamagedActor` hook.** It fires on the attacker's own machine
   (`CompositeActorBehavior.Damage` calls `DamagedActor` on the local attacker), for a hit
   that did damage. It counts the local player's hits on an actor of another team. A summon's

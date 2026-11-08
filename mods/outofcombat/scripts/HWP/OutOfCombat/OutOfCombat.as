@@ -9,8 +9,13 @@
 // buff does. The buff is added locally (husk, not networked, as legacy's Title
 // Bonuses buff): each machine moves its own player and the others see the position,
 // so each machine boosts its own local player and a client gets it as the host does.
-// Its timer is reset every frame while the boost is on; when it ends, the timer is
-// set to 0 and the buff list drops it on its next update. The HUD shows the vanilla
+// Its timer is reset to KEEP_MS every frame while the boost is on; when it ends, the
+// timer is set to 0 and the buff list drops it on its next update. The timer stays
+// short because the player's buffs go into the record's actor-save (PlayerRecord.Save):
+// they carry over a level change and into a saved character, and the host reloads them
+// as networked buffs (ActorBuffList.Load), so a long one would outlive the boost on the
+// clients' copy of the host. The tooltip and HUD read the def's duration (display-timer-
+// radius off), so the short timer shows no countdown. The HUD shows the vanilla
 // shrine speed blessing's icon; every tick hides any of ours that is not the current
 // actor's buff (a respawn that keeps the old actor's buffs left legacy's behind).
 //
@@ -32,6 +37,7 @@ namespace HWP
 	{
 		const string BUFF = "tweak/hwp/buffs_outofcombat.sval:hwp_outofcombat";
 		const int NEVER = 1 << 30; // ms since the last hit when there was none this level
+		const int KEEP_MS = 5000;  // the buff's timer, reset every frame; outlasts a long frame
 
 		ActorBuffDef@ g_def;
 		int g_sinceHitMs = NEVER;
@@ -156,12 +162,12 @@ namespace HWP
 			auto buff = Find(pb);
 			if (buff is null)
 			{
-				@buff = ActorBuff(pb, g_def, 1.0f, true);
+				@buff = ActorBuff(pb, g_def, 1.0f, true, 0, KEEP_MS);
 				pb.m_buffs.Add(buff);
 				HWP::Log("outofcombat", "boost on: " + Num(mult) + "x");
 			}
 			else
-				buff.m_duration = g_def.m_duration;
+				buff.m_duration = KEEP_MS;
 			PruneHUD(buff);
 		}
 

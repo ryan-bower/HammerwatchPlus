@@ -1,8 +1,9 @@
 <!-- The out of combat speed boost. The outofcombat module adds it locally (husk, not
      networked) to the local player while they have not hit an enemy for a while, sets
      its speed-mul from outofcombat.speed and its description in code, and resets its
-     timer every frame, so the long duration never runs out (and bufftips shows no
-     countdown); a hit sets the timer to 0. The icon is the vanilla shrine speed
+     timer to a few seconds every frame, so it never runs out while the boost is on; a
+     hit sets the timer to 0. The long duration here is only what the HUD and bufftips
+     read (display-timer-radius off), so they show no countdown. The icon is the vanilla shrine speed
      blessing's (tweak/buffs/shrine_buffs.sval, speed). -->
 <svals>
 	<dict name="hwp_outofcombat">
