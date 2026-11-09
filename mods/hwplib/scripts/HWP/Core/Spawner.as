@@ -58,8 +58,150 @@ namespace HWP
 					continue;
 				names.insertLast(name);
 				ret.insertLast(prod);
+				RememberBody(name, units[i]);
 			}
 			return ret;
+		}
+
+		// ---- spawn placement (issue #80) ---------------------------------------------------
+		// A pack member needs room for its body and a clear line back to the spawner. Body
+		// sizes come from live units: SampleProducers records each sampled kind's radius, and
+		// an _elite twin shares its base's collision (the same .inc), so it shares the entry.
+
+		const int DEFAULT_BODY = 8;  // most enemies' solid circle is 7-8 px
+		const int MIN_BODY = 4;
+		const int MAX_BODY = 20;     // trolls and boars are 18
+		array<string> g_bodyNames;   // parallel arrays: a float round trip through a
+		array<int> g_bodyRadii;      // dictionary is not reliable (RE_NOTES)
+
+		// actors/x/foo_elite.unit -> actors/x/foo.unit
+		string BodyKey(const string &in name)
+		{
+			int e = name.findFirst("_elite");
+			if (e < 0)
+				return name;
+			return name.substr(0, e) + name.substr(e + 6);
+		}
+
+		void RememberBody(const string &in name, UnitPtr u)
+		{
+			string key = BodyKey(name);
+			if (g_bodyNames.find(key) >= 0 || !u.IsValid())
+				return;
+			auto body = u.GetPhysicsBody();
+			if (body is null)
+				return;
+			int r = body.GetEstimatedRadius();
+			if (r <= 1)
+				return;
+			// vanilla PathFollower.Initialize paths with the estimate less 3 px
+			if (r > 3)
+				r = max(3, r - 3);
+			g_bodyNames.insertLast(key);
+			g_bodyRadii.insertLast(clamp(r, MIN_BODY, MAX_BODY));
+		}
+
+		// The radius a unit of this kind needs to stand somewhere (DEFAULT_BODY when no
+		// unit of the kind was sampled yet).
+		int BodyRadius(UnitProducer@ prod)
+		{
+			if (prod is null)
+				return DEFAULT_BODY;
+			int k = g_bodyNames.find(BodyKey(prod.GetResourceName()));
+			return k >= 0 ? g_bodyRadii[k] : DEFAULT_BODY;
+		}
+
+		// No solid body overlaps a circle of radius at p: no wall, level collision, doodad or
+		// impenetrable actor. Another actor only blocks the spot when it stands within
+		// radius of p (it moves, it is no wall).
+		bool HasRoom(vec2 p, int radius)
+		{
+			auto hits = g_scene.QueryCircle(p, radius, ~0, RaycastType::Any, false);
+			for (uint i = 0; i < hits.length(); i++)
+			{
+				UnitPtr u = hits[i];
+				if (!u.IsValid())
+					return false; // level collision without a unit
+				auto actor = cast<Actor>(u.GetScriptBehavior());
+				if (actor is null || actor.Impenetrable())
+					return false;
+				if (distsq(p, xy(u.GetPosition())) < float(radius * radius))
+					return false;
+			}
+			return true;
+		}
+
+		// A solid body on the line a -> b, like the vanilla safe-spawn and Teleport checks:
+		// sensors and penetrable actors are skipped, and so is the unit standing at home (the
+		// strongbox or well the search runs around), found by its position.
+		bool RayBlocked(vec2 a, vec2 b, vec2 home)
+		{
+			auto res = g_scene.Raycast(a, b, ~0, RaycastType::Any);
+			for (uint i = 0; i < res.length(); i++)
+			{
+				if (res[i].fixture.IsSensor())
+					continue;
+				UnitPtr u = res[i].FetchUnit(g_scene);
+				if (!u.IsValid())
+					return true;
+				if (distsq(xy(u.GetPosition()), home) < 1.0f)
+					continue;
+				auto actor = cast<Actor>(u.GetScriptBehavior());
+				if (actor !is null && !actor.Impenetrable())
+					continue;
+				return true;
+			}
+			return false;
+		}
+
+		// to is in line of reach of from: no wall between them. The ray runs from from
+		// itself (not a few px out, which near a wall started past it) and back again, since
+		// a ray that starts inside a body does not report that body.
+		bool Reachable(vec2 from, vec2 to)
+		{
+			return !RayBlocked(from, to, from) && !RayBlocked(to, from, from);
+		}
+
+		// A spot up to spread px from center where a body of radius fits and that is in line
+		// of reach of center. inner is the radius of whatever stands at center (0 for
+		// nothing); spots stay inner + radius + 2 px out so the body does not overlap it.
+		// Random spots over the outer band first (a pack spreads out), then a sweep of 12
+		// directions on rings from spread in to the closest spot, so a spawner beside a wall
+		// or in a corridor still finds its open side. False when nothing fits: the caller
+		// skips the unit rather than put it in a wall.
+		bool SpawnSpot(vec3 center, float spread, int radius, vec3 &out pos, float inner = 14.0f)
+		{
+			vec2 c = xy(center);
+			radius = clamp(radius, 1, MAX_BODY);
+			float lo = inner + float(radius) + 2.0f;
+			if (spread < lo)
+				spread = lo;
+			float band = max(lo, spread * 0.4f);
+			for (int t = 0; t < 10; t++)
+			{
+				vec2 p = c + randdir() * (band + (spread - band) * randf());
+				if (HasRoom(p, radius) && Reachable(c, p))
+				{
+					pos = vec3(p.x, p.y, center.z);
+					return true;
+				}
+			}
+			float a0 = randf() * 6.2831853f;
+			for (int ring = 0; ring < 4; ring++)
+			{
+				float d = spread - (spread - lo) * float(ring) / 3.0f;
+				for (int k = 0; k < 12; k++)
+				{
+					float a = a0 + float(k) * 0.5235988f;
+					vec2 p = c + vec2(cos(a), sin(a)) * d;
+					if (HasRoom(p, radius) && Reachable(c, p))
+					{
+						pos = vec3(p.x, p.y, center.z);
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 
 		// The vanilla enemies that have an _elite.unit twin (resource lookups of
@@ -132,7 +274,9 @@ namespace HWP
 
 		// Host only. Spawns up to count units on free spots around center and
 		// returns their ids; members with no free spot are skipped rather than
-		// put inside a wall.
+		// put inside a wall. Each spot fits the member's body (BodyRadius) and is
+		// in line of reach of center (SpawnSpot); what stands at center (a
+		// strongbox, a crack) may be up to 14 px wide.
 		array<uint>@ SpawnPack(array<UnitProducer@>@ prods, vec3 center, int count, float spread, bool loot)
 		{
 			array<uint> ids;
@@ -142,10 +286,11 @@ namespace HWP
 			for (int i = 0; i < count; i++)
 			{
 				auto prod = prods[randi(prods.length())];
+				int radius = BodyRadius(prod);
 				if (!loot)
 					@prod = prod.WithProperties("Loot=false");
 				vec3 at;
-				if (!FreeSpot(center, spread, at))
+				if (!SpawnSpot(center, spread, radius, at))
 				{
 					skipped++;
 					continue;

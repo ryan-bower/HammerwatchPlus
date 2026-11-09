@@ -1,0 +1,422 @@
+mixin class TriPicker
+{
+	float m_origNameOffset;
+	int m_origNameWidth;
+	
+	void InitTriPicker()
+	{
+		auto nameW = cast<TextWidget>(m_widget.GetWidgetById("name"));
+		m_origNameOffset = nameW.m_offset.x;
+		m_origNameWidth = nameW.m_textWidth;
+	}
+	
+	void SetPickTitleIcon(Widget@ widget, const string &in title, vec4 titleColor, ScriptSprite@ icon)
+	{
+		auto nameW = cast<TextWidget>(widget.GetWidgetById("name"));
+		auto iconW = cast<SpriteWidget>(widget.GetWidgetById("icon"));
+		
+		if (icon !is null)
+		{
+			iconW.m_visible = true;
+			iconW.SetSprite(icon);
+			nameW.m_offset.x = m_origNameOffset + icon.GetWidth() / 2;
+			nameW.m_textWidth = m_origNameWidth - icon.GetWidth();
+		}
+		else
+		{
+			iconW.m_visible = false;
+			nameW.m_offset.x = m_origNameOffset;
+			nameW.m_textWidth = m_origNameWidth;
+		}
+		
+		nameW.SetText(title);
+		if (titleColor.a != 0.0f)
+			nameW.SetColor(titleColor);
+	}
+}
+
+void FillPossibleSkills(array<PlayerSkillDef@>@ possibleSkills, PlayerSkillDef@ skill, bool modSkill)
+{
+	if (skill is null)
+		return;
+	
+	auto ply = GetLocalPlayerRecord();
+	for (uint i = 0; i < skill.m_reqSkills.length(); i++)
+	{
+		auto sDefB = ply.playerClass.GetSkillDef(HashString(skill.m_reqSkills[i]));
+		if (sDefB !is null && ply.GetSkillLevel(sDefB) <= 0)
+			return;
+	}
+	
+	for (uint i = 0; i < skill.m_blockerSkills.length(); i++)
+	{
+		auto sDefB = ply.playerClass.GetSkillDef(HashString(skill.m_blockerSkills[i]));
+		if (sDefB !is null && ply.GetSkillLevel(sDefB) > 0)
+			return;
+	}
+	
+	int skillLvl = ply.GetSkillLevel(skill);
+	if (modSkill && skillLvl < int(skill.m_levelSkillCost.length()))
+		possibleSkills.insertLast(skill);
+	
+	if (skillLvl > 0)
+	{
+		for (uint i = 0; i < skill.m_modSkills.length(); i++)
+			FillPossibleSkills(possibleSkills, skill.m_modSkills[i], true);
+	}
+}
+
+array<PlayerSkillDef@>@ GetAllSkillSpheres(PlayerRecord@ ply)
+{
+	array<PlayerSkillDef@> possibleSkills;
+	
+	for (uint i = 0; i < ply.playerClass.m_skillDefs.length(); i++)
+		FillPossibleSkills(possibleSkills, ply.playerClass.m_skillDefs[i], false);
+	
+	if (ply.librarySkill !is null && ply.librarySkill.m_plrSkill !is null)
+		FillPossibleSkills(possibleSkills, ply.librarySkill.m_plrSkill, false);
+	
+	return possibleSkills;
+}
+
+
+
+class GiveSkillSphereMenu : AWindowObject, TriPicker
+{
+	SkillSphere@ m_skillSphereItem;
+
+	PlayerSkillDef@ m_skill1;
+	PlayerSkillDef@ m_skill2;
+	PlayerSkillDef@ m_skill3;
+
+	array<string> m_icons;
+
+	GiveSkillSphereMenu(GUIBuilder@ b, SkillSphere@ skillSphereItem)
+	{
+		super(b, "gui/skill_spheres.gui");
+
+		PauseGame(true, true);
+
+		InitTriPicker();
+
+		@m_skillSphereItem = skillSphereItem;
+		@m_input.m_menuAdditionalOnPressed = WindowInput::OnFunc(this.MenuAdditional);
+
+		if (GetLocalPlayerRecord() !is null)
+		{
+			if (skillSphereItem.skillPicks.length() <= 0)
+				ResetPicks();
+			else
+			{
+				for (uint i = 0; i < 3; i++)
+					SetPerk(i, i < skillSphereItem.skillPicks.length() ? skillSphereItem.skillPicks[i] : null);
+			}
+		}
+		else
+			m_manager.CloseWindow(this);
+	}
+
+	void ResetPicks()
+	{
+		auto ply = GetLocalPlayerRecord();
+		if (ply is null)
+			return;
+		
+		m_skillSphereItem.skillPicks.removeRange(0, m_skillSphereItem.skillPicks.length());
+		
+		auto possibleSkills = GetAllSkillSpheres(ply);
+		for (int i = 0; i < 3; i++)
+			m_skillSphereItem.skillPicks.insertLast(PickSkill(possibleSkills));
+		
+		for (uint i = 0; i < 3; i++)
+			SetPerk(i, i < m_skillSphereItem.skillPicks.length() ? m_skillSphereItem.skillPicks[i] : null);
+	}
+
+	void OnClose() override
+	{
+		PauseGame(false, true);
+	}
+
+	void RefreshNavigationBar() override
+	{
+		if (m_navigationBar is null)
+			return;
+
+		auto currInteractable = m_input.GetCurrentInteractable();
+		if (currInteractable is null)
+			return;
+
+		array<string>@ rawTexts = currInteractable.NavigationBarText();
+		array<KeyNavigationText@> navTexts;
+		for (uint i = 0; i < rawTexts.length(); i++)
+			navTexts.insertLast(KeyNavigationText(m_navigationBar.m_font.BuildText(rawTexts[i])));
+		
+		//if (m_skillSphereItem is null || !m_skillSphereItem.m_rerolled)
+		{
+			auto reroll = HWPRerollCharges(); // HWP (orbreroll): this orb's charges
+			if (reroll.x < reroll.y)
+				navTexts.insertLast(KeyNavigationText(m_navigationBar.m_font.BuildText(FormatKeyName(GetActionBinding("MenuAdditional")) + " " + HWPRerollNavText()), WindowInput::OnFunc(this.MenuAdditional)));
+		}
+		
+		m_navigationBar.BuildBar(navTexts, this);
+	}
+
+	array<string>@ GetShownIcons() override { return m_icons; }
+	void MenuAdditional() { OnFunc(null, "reroll"); }
+
+	// HWP (orbreroll): rerolls per orb, not per run. x is how many this orb has had,
+	// y the run's allowance (the accomplishment rewards), so every orb gets all of them
+	// and the cost starts over on each orb. Module off: vanilla's run-wide charges.
+	ivec2 HWPRerollCharges()
+	{
+		auto charges = GetRerollCharges();
+		if (HWP::OrbReroll::Enabled())
+			charges.x = HWP::OrbReroll::Used(m_skillSphereItem);
+		return charges;
+	}
+
+	int HWPRerollCost()
+	{
+		return min(100, int(GetLocalPlayerRecord().ScaleShadowCurse(12 + 7 * HWPRerollCharges().x)));
+	}
+
+	string HWPRerollNavText()
+	{
+		auto cost = HWPRerollCost();
+		if (cost == 0)
+			return Resources::GetString(".menu.nav.reroll");
+		return Resources::GetString(".menu.nav.reroll") + " (" + Resources::GetString(".tab.overlay.player.shadow", {{"amount", cost}}) + ")";
+	}
+
+	PlayerSkillDef@ PickSkill(array<PlayerSkillDef@>@ possibleSkills)
+	{
+		if (possibleSkills.length() < 1)
+			return null;
+		
+		int totChance = 0;
+		for (uint i = 0; i < possibleSkills.length(); i++)
+		{
+			bool blocked = false;
+			for (uint j = 0; j < m_skillSphereItem.skillPicks.length(); j++)
+			{
+				if (possibleSkills[i].m_parentSkill is m_skillSphereItem.skillPicks[j].m_parentSkill)
+					blocked = true;
+			}
+			
+			if (blocked)
+				possibleSkills[i]._m_tmpChanceCounter = 0;
+			else
+				possibleSkills[i]._m_tmpChanceCounter = GetSkillDropRateChance(possibleSkills[i]);
+			
+			totChance += possibleSkills[i]._m_tmpChanceCounter;
+		}
+		
+		int r = randi(totChance);
+		for (uint i = 0; i < possibleSkills.length(); i++)
+		{
+			r -= possibleSkills[i]._m_tmpChanceCounter;
+			if (r < 0)
+			{
+				auto skill = possibleSkills[i];
+				possibleSkills.removeAt(i);
+				return skill;
+			}
+		}
+		
+		int idx = randi(possibleSkills.length());
+		auto skill = possibleSkills[idx];
+		possibleSkills.removeAt(idx);
+		return skill;
+	}
+
+
+	void SetSkillUI(Widget@ widget, PlayerSkillDef@ skill)
+	{
+		if (skill is null)
+		{
+			widget.m_visible = false;
+			return;
+		}
+		
+		auto ply = GetLocalPlayerRecord();
+		int skillLvl = min(ply.GetSkillLevel(skill), skill.m_levelParams.length() - 1);
+		
+		auto skillName = Resources::GetString(skill.m_name) + " " + (skillLvl + 1);
+		if (skill.m_parentSkill !is null)
+			skillName = Resources::GetString(skill.m_parentSkill.m_name) + " - " + skillName;
+		
+		SetPickTitleIcon(widget, skillName, Item::QualityColor(skill.m_levelQualities[skillLvl]), skill.m_icon);
+		
+		
+		StringBuilder paramsStr;
+		dictionary descParams;
+		
+		GetSkillDescriptionParams(ply, skill, skillLvl + 1, paramsStr, descParams);
+		
+		UnitPtr unit;
+		if (ply.actor !is null)
+			unit = ply.actor.m_unit;
+		
+		StringBuilder descB;
+		descB.Append(Resources::GetString(unit, skill.m_description, g_bookColors, descParams));
+		descB.Append(Resources::GetString(unit, paramsStr.String()));
+		
+		cast<TextWidget>(widget.GetWidgetById("desc")).SetText(descB.String());
+		
+		if (skill.m_descicons !is null)
+		{
+			for (uint i = 0; i < skill.m_descicons.length(); i++)
+				m_icons.insertLast(skill.m_descicons[i]);
+		}
+	}
+
+	void SetPerk(int idx, PlayerSkillDef@ skill)
+	{
+		if (idx == 0)
+			@m_skill1 = skill;
+		else if (idx == 1)
+			@m_skill2 = skill;
+		else if (idx == 2)
+			@m_skill3 = skill;
+		
+		SetSkillUI(m_widget.GetWidgetById("perk" + (idx + 1)), skill);
+	}
+
+	void OnFunc(Widget@ sender, const string &in name) override
+	{
+		if (name == "pick 1")
+		{
+			if (m_skillSphereItem.PickedSkill())
+			{
+				auto ply = GetLocalPlayerRecord();
+				ply.SkillTempUp(m_skill1);
+			}
+			m_manager.CloseWindow(this);
+		}
+		else if (name == "pick 2")
+		{
+			if (m_skillSphereItem.PickedSkill())
+			{
+				auto ply = GetLocalPlayerRecord();
+				ply.SkillTempUp(m_skill2);
+			}
+			m_manager.CloseWindow(this);
+		}
+		else if (name == "pick 3")
+		{
+			if (m_skillSphereItem.PickedSkill())
+			{
+				auto ply = GetLocalPlayerRecord();
+				ply.SkillTempUp(m_skill3);
+			}
+			m_manager.CloseWindow(this);
+		}
+		else if (name == "reroll")
+		{
+			auto charges = HWPRerollCharges(); // HWP (orbreroll)
+			if (charges.x < charges.y)
+			{
+				string message = Resources::GetString(".menu.reroll.question", {
+					{ "cost", HWPRerollCost() }, // HWP (orbreroll)
+					{ "chrg-used", charges.x },
+					{ "chrg-max", charges.y }
+				
+				});
+				
+				g_gameMode.ShowDialog("reroll", message, Resources::GetString(".menu.yes"), Resources::GetString(".menu.no"), this);
+			}
+		}
+		if (name == "reroll yes")
+		{
+			// HWP (orbreroll): with the module on, the reroll is this orb's (cost from this
+			// orb's count) and the run's pool, which the trinket picker shares, is left alone
+			auto plr = GetLocalPlayerRecord();
+			plr.GiveShadowCurse(null, HWPRerollCost(), true);
+			if (HWP::OrbReroll::Enabled())
+				HWP::OrbReroll::Spend(m_skillSphereItem);
+			else
+				plr.rerollsUsed++;
+
+			auto@ oldSkill1 = m_skill1;
+			auto@ oldSkill2 = m_skill2;
+			auto@ oldSkill3 = m_skill3;
+			
+			for (uint i = 0; i < 10; i++)
+			{
+				ResetPicks();
+				
+				if (oldSkill1 !is m_skill1 || oldSkill2 !is m_skill2 || oldSkill3 !is m_skill3)
+					break;
+			}
+			
+			m_skillSphereItem.m_rerolled = true;
+			RefreshNavigationBar();
+		}
+	}
+}
+
+string GetRerollNavText()
+{
+	auto cost = GetRerollShadowCurseCost();
+	if (cost == 0)
+		return Resources::GetString(".menu.nav.reroll");
+	return Resources::GetString(".menu.nav.reroll") + " (" + Resources::GetString(".tab.overlay.player.shadow", {{"amount", cost}}) + ")";
+}
+
+int GetRerollShadowCurseCost()
+{
+	return min(100, int(GetLocalPlayerRecord().ScaleShadowCurse(12 + 7 * GetRerollCharges().x)));
+}
+
+ivec2 GetRerollCharges()
+{
+	int maxRerolls = 0;
+	if (g_myTownRecord !is null && g_myTownRecord.m_accomplishmentRewards !is null)
+		maxRerolls = g_myTownRecord.m_accomplishmentRewards.m_rRerolls;
+	return ivec2(GetLocalPlayerRecord().rerollsUsed, maxRerolls);
+}
+
+void GetSkillDescriptionParams(PlayerRecord@ ply, PlayerSkillDef@ skill, int lvl, StringBuilder@ paramsStr, dictionary@ descParams)
+{
+	if (ply.actor !is null)
+	{
+		auto plr = cast<PlayerBase>(ply.actor);
+		if (plr !is null)
+			plr.PrepareSkillFetchData(skill.m_idHash);
+	}
+	
+	if (skill.m_descParams.length() > 0)
+		paramsStr.Append("\n");
+	
+	for (uint s = 0; s < skill.m_descParams.length(); s++)
+	{
+		auto@ dp = skill.m_descParams[s];
+		paramsStr.Append("\n");
+		paramsStr.Append(dp.m_levels[0]);
+		paramsStr.Append(" ");
+		
+		int numDPLvls = dp.m_levels.length();
+		int cl = min(lvl, numDPLvls -1);
+		for (int i = 1; i < numDPLvls; i++)
+		{
+			if (i != 1)
+				paramsStr.Append(Tweak::Book_SkillLevelDelim);
+			
+			if (i == cl)
+				paramsStr.Append(Tweak::Book_SkillLevelCurrColor);
+			else
+				paramsStr.Append(Tweak::Book_SkillLevelColor);
+			
+			paramsStr.Append(Resources::GetString(dp.m_levels[i]));
+			paramsStr.Append("\\d");
+		}
+		
+		StringBuilder sb;
+		sb.Append(Tweak::Book_SkillLevelCurrColor);
+		sb.Append(Resources::GetString(dp.m_levels[min(max(1, lvl), numDPLvls -1)]));
+		sb.Append("\\d");
+		
+		
+		descParams.set(dp.m_name, sb.String());
+	}
+}

@@ -1,14 +1,26 @@
 {
   "id": "laststats",
   "requires": ["hwplib"],
-  "overrides": [],
+  "overrides": [
+    "scripts/WorldScript/Player/SecretFound.as",
+    "scripts/Behaviors/Objects/Breakable.as"
+  ],
   "exclude": [],
   "config": {
     "title": "Last run stats",
-    "about": "A notice board by the town fountain shows the party's last run statistics.",
+    "about": "A notice board by the town fountain shows the party's last run statistics; a won run gets a winner's banner.",
     "toggle": "laststats.enabled",
     "scope": "host",
     "applies": "now",
-    "settings": []
+    "settings": [
+      {
+        "key": "laststats.winner",
+        "type": "bool",
+        "default": true,
+        "scope": "local",
+        "title": "Win banner",
+        "about": "\"Winner winner chicken dinner!\" on screen and in chat when your party completes a run (not the Wave Arena)."
+      }
+    ]
   }
 }

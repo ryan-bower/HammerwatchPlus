@@ -30,6 +30,14 @@ Spec (the numbers are the planner's, `planner/data/skills/priest-spec4-*.json`):
 - **Necrotic Resurrection**: a channel (3 s, elite 5 s, boss 10 s) under the `raising` buff
   (silence, disarm, lock-movement, lock-rotation) on a body within 150, then the host raises
   it. Mana and cooldown are spent when the channel completes. Heresy +1/+2/+3.
+- **Which body** (issue #98, 2026-11-06): the cast (a raise or a Penance) takes the body within
+  150 of the priest that is nearest the cursor's world point (`PickBody`, the cursor read as a
+  targeted skill reads it: `xy(ToWorldspace(GetInput().MousePos))`). With a gamepad, or the
+  mouse off the window, it is the body nearest the aim line, as before. The pick runs on the
+  caster's client and the host gets the body's unit id (`specs.raise`, `specs.body_gone`).
+  Each cast logs `pick <id> nearest the cursor at X Y (N px off)` or `pick <id> along the aim
+  (no cursor)`; `hwp forge` counts them (`pickcursor`, `pickaim`). `hwp forge raise|penance`
+  still takes the body nearest the priest.
 - **Sacrificial Penance** (the same key at max Divine Favor with at least 1 Heresy): the
   priest dodges to under the body, faces up and channels 3 s; Heresy -(rank table + 1 elite +
   2 boss), Divine Favor spent, 50 mana, no cooldown. The skill's HUD icon is the Penance icon
@@ -94,6 +102,14 @@ checks every generated unit offline.
   crusaders have, not the enemies' red), the `npc_normal` minimap dot, and an elite's ring from
   `marker/` in the summon HP bar's orange (255 84 0: `GetHPBarColor` case 5 is vec4(1, 0.33, 0),
   the "yellow" the user sees on the bar; the enemies' ring is 255 37 37).
+- **A risen never blocks a player** (the owner, 2026-11-06): every collision shape of a risen
+  unit gets `ignore-player="true"`, the shape flag every vanilla player summon carries (the
+  Priest's crusaders, the Ranger's wolves, the Warlock's fiends, the mercenaries, the pets, the
+  heavy ballista); there is no script call for it. The risen still collides with walls and enemies
+  and is hit like any summon. A risen is a fresh unit from its generated file (not the enemy
+  unit turned), and every peer loads the same file, so it holds on the host and every client.
+  The HoH1 risen (`tools/hoh1/hoh1_risen.py` uses the same `risen_unit`) get it on their next
+  `import_hoh1.py campaign`. Unit test: `test_risen_never_block_players`.
 - **A body is dead:** grey (`BODY_TINT` 0.45), `npc-noxray` (no silhouette), no minimap dot,
   no ring, every sprite frozen on its first frame, no effects, lights or particles (a Dark
   Citadel wisp, effects only, shows the still grey `dead_core.png` orb), and every collision

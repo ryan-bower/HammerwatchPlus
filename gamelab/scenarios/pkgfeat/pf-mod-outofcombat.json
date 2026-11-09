@@ -1,0 +1,190 @@
+{
+ "name": "pf-mod-outofcombat",
+ "about": "mod-outofcombat against the built package qol instead of the mods' source folders (tools/generate/make_package_scenarios.py). mods/outofcombat (#99): no boost in town by default; on a run floor the speed buff is on with no hit yet, a hit (hwp outofcombat hit) ends it, it comes back after the delay (set to 3 s), and the switch takes it off; README Test checklist 1-2.",
+ "fixture": "town-paladin",
+ "timeout": 240,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:outofcombat\\] ready: buff loaded, 2x after 10 s",
+   "timeout": 20,
+   "name": "module up, buff loaded"
+  },
+  {
+   "do": "console",
+   "line": "hwp outofcombat"
+  },
+  {
+   "do": "log_has",
+   "pattern": "Out of combat speed on: 2x after 10 s without a hit, in town: no\\..*boosted now: no\\.",
+   "timeout": 10,
+   "name": "town: not boosted"
+  },
+  {
+   "do": "gl",
+   "verb": "hasbuff",
+   "args": [
+    "tweak/hwp/buffs_outofcombat.sval:hwp_outofcombat"
+   ],
+   "expect": {
+    "buffs.0.def": true,
+    "buffs.0.on": false
+   },
+   "name": "town: no buff"
+  },
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "bandit_keep",
+    0
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 150
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp god"
+  },
+  {
+   "do": "gl",
+   "verb": "cull"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "gl",
+   "verb": "hasbuff",
+   "args": [
+    "tweak/hwp/buffs_outofcombat.sval:hwp_outofcombat"
+   ],
+   "expect": {
+    "buffs.0.on": true,
+    "buffs.0.hud": true
+   },
+   "name": "run floor, no hit yet: boosted"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:outofcombat\\] boost on: 2x",
+   "timeout": 5,
+   "name": "boost on logged"
+  },
+  {
+   "do": "shot",
+   "name": "outofcombat-boosted"
+  },
+  {
+   "do": "console",
+   "line": "hwp outofcombat hit"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:outofcombat\\] boost off: hit \\(command\\)",
+   "timeout": 5,
+   "name": "a hit ends it"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "gl",
+   "verb": "hasbuff",
+   "args": [
+    "tweak/hwp/buffs_outofcombat.sval:hwp_outofcombat"
+   ],
+   "expect": {
+    "buffs.0.on": false
+   },
+   "name": "after the hit: no buff"
+  },
+  {
+   "do": "console",
+   "line": "hwp set outofcombat.delay 3"
+  },
+  {
+   "do": "console",
+   "line": "hwp outofcombat hit"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1.5
+  },
+  {
+   "do": "gl",
+   "verb": "hasbuff",
+   "args": [
+    "tweak/hwp/buffs_outofcombat.sval:hwp_outofcombat"
+   ],
+   "expect": {
+    "buffs.0.on": false
+   },
+   "name": "1.5 s after a hit, delay 3: still no buff"
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "hasbuff",
+   "args": [
+    "tweak/hwp/buffs_outofcombat.sval:hwp_outofcombat"
+   ],
+   "expect": {
+    "buffs.0.on": true
+   },
+   "name": "4.5 s after a hit, delay 3: boosted again"
+  },
+  {
+   "do": "console",
+   "line": "hwp set outofcombat.enabled 0"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "gl",
+   "verb": "hasbuff",
+   "args": [
+    "tweak/hwp/buffs_outofcombat.sval:hwp_outofcombat"
+   ],
+   "expect": {
+    "buffs.0.on": false
+   },
+   "name": "switched off: no buff"
+  },
+  {
+   "do": "console",
+   "line": "hwp set outofcombat.enabled 1"
+  },
+  {
+   "do": "console",
+   "line": "hwp set outofcombat.delay 10"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "qol"
+ ]
+}

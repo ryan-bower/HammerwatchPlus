@@ -30,7 +30,7 @@ All of them only while the hat is on (`HWP::MmHmm::Wearing`).
 | Every critical hit | the modifier's own crit `TriggerEffect` (`tweak/hwp/modifiers_mmhmm.sval`), net-synced; its effect `HWPMmHmmVoice` says it through `Voice` (held back while the last one plays) |
 | You revive someone, or someone revives you | class swap `PlayerCorpse` -> `HWPMmHmmCorpse` (`Corpse.as`): `NetRevive` runs on every peer with both records; the machine of whichever wears the hat says it, once per revive when both do. Not `cht_revive` (no other reviver) |
 | You drink from a well or fountain | run stat `wells-used` rose (`WorldScript/Well.as` Use) |
-| A secret room opens | run stat `secrets-found` rose (`SecretFound.as`, on every peer: one voice for the party however many wear it). The few secret prefabs without `SecretFound` are missed |
+| A secret room opens | run stat `secrets-found` rose (`SecretFound.as`, on every peer: one voice for the party however many wear it), or with `laststats` (which counts the stat for the opener only) its party count, GlobalCache `hwp_secrets_opened`, rose. The few secret prefabs without `SecretFound` are missed |
 | You complete a trinket set | the trinkets you own of a set reach its `m_totItems` (owning counts, as `PlayerRecord.RefreshModifiers` counts them) |
 | You take the last orb of an orb tree | a `pickedTempSkills` entry reaches the tree's size; trees of one orb do not count |
 | You open an Ace chest | `mods/keys` counts the local player's in GlobalCache `hwp_keys_aces_opened` (vanilla's `chest-unlocked-<key>` stat is not defined for "ace"); without keys there are no Ace chests |
