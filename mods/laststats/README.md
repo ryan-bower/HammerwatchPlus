@@ -84,6 +84,19 @@ Not in the snapshot: per-skill damage lines (they need the player actor, which
 does not exist at Load time) and the death recap (the `deathrecap` module keeps
 its own).
 
+- **Winner winner chicken dinner** (issue #96). A run that ends *Succeeded* (the last
+  floor's exit: `MissionModule.NextLevel` finds no next level and calls
+  `AbortMission(Succeeded)`; every machine gets `SetMissionState` before the town loads) is
+  seen by the same `PlayerRecordLoad` hook, on every machine for its own local player, so the
+  whole party gets it with no message of ours. Once the vanilla summary window
+  (`MissionEndMenu`) is closed, plus 0.6 s, a big gold "Winner winner chicken dinner!" with
+  "<mission> completed" under it (announce style `hwp_winner`,
+  `tweak/hwp/announce_laststats.sval`: arial24, 5 s, the quest-complete fanfare, drawn over
+  windows) and the same as a gold chat line. Once per run: the summary window clears the
+  state. Vanilla runs, the trials, map runs and the Forsaken Tower all end this way; the Wave
+  Arena (`hwp_wave_arena`) is left out (its champion's exit portal ends it Succeeded too, but
+  the arena has no win). Logs `[HWP:laststats] won <mission>: banner after the summary`, then
+  `winner banner: <mission>`. `hwp laststats winner` shows the banner now (test aid).
 - The board comes back after a building upgrade, which rebuilds the town and
   destroys it; the host notices within a second and spawns it again
   (`HWP::Town::Kept`; test: `mod-town-rebuild`).
@@ -95,6 +108,8 @@ On the HammerwatchPlus tab of the player menu (Quality of Life > Last run stats)
 - `laststats.enabled` (on): off, the host places no notice board, and one that
   stands is taken away within a second (turned back on, it comes back the same
   way). Snapshots are still taken and kept, so the board shows the last run again.
+- `laststats.winner` (on, each player's own): the win banner and chat line. The module's
+  switch turns it off too.
 - `laststats.board_x` / `board_y` (above) are for placing the board, not on the tab.
 
 ## Test checklist
@@ -108,7 +123,10 @@ On the HammerwatchPlus tab of the player menu (Quality of Life > Last run stats)
 4. Co-op: after a run both players appear on the board on both machines; a
    player joining later gets the list once their own report triggers a sync.
 5. Fresh save: the board shows the "No run recorded yet" text.
-6. `python -m gamelab run fix-recaps --mode lab` (section `board` of
+6. Win a run (or `hwp laststats winner`): the banner and the gold chat line show after the
+   summary window closes, once, on every machine in a lobby; not after a failed, abandoned or
+   Wave Arena run.
+7. `python -m gamelab run fix-recaps --mode lab` (section `board` of
    `gamelab/bots/fix_recaps.py`): after a failed run, `hwp laststats sample 2`,
    `gl use laststats_board`; `hwp laststats board` and `gl wtext` prove 2
    players in the legend and on row 0 (`bar-name-0-0` "Pilot", `bar-name-0-1`

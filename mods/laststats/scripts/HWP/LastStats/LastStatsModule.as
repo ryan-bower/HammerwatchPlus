@@ -10,6 +10,17 @@
 // Setting laststats.enabled (host): off, the host places no board (and takes away
 // one that stands); snapshots are still taken and kept, so the board has the last
 // run when it is turned back on.
+//
+// Winner winner chicken dinner (issue #96): a run that ends Succeeded (the last floor's
+// exit: MissionModule.NextLevel finds no next level and calls AbortMission(Succeeded),
+// which every machine gets as SetMissionState before the town loads) shows a big banner
+// to every player once they are back in town. The same PlayerRecordLoad hook sees it (the
+// state is gone by Start, see above); each machine checks its own local player, so the
+// whole party gets it without a message of ours. The banner waits until the run's summary
+// window (MissionEndMenu) is closed, then shows the hwp_winner announce
+// (tweak/hwp/announce_laststats.sval) and a chat line. The Wave Arena is left out: its
+// champion's exit portal ends it Succeeded too, but the arena has no win. Setting
+// laststats.winner (local, on).
 namespace HWP
 {
 	namespace LastStats
@@ -41,6 +52,80 @@ namespace HWP
 				|| st == MissionManager::MissionState::Aborted;
 		}
 
+		string MissionName(uint missionHash)
+		{
+			string name = "?";
+			auto def = MissionDef::Get(missionHash);
+			if (def !is null)
+				name = def.m_name;
+			if (name.findFirst(".") == 0)
+				name = Resources::GetString(name);
+			return name;
+		}
+
+		// ---- winner winner chicken dinner ---------------------------------------
+
+		const string WIN_STYLE = "hwp_winner";
+		const int WIN_DELAY_MS = 600; // after the summary window closes
+		// the mission the local player just won (PlayerRecordLoad, town only); empty: none
+		string g_winMission;
+		bool g_winStyleLogged = false;
+
+		bool WinnerOn() { return Enabled() && HWP::Settings::GetBool("laststats.winner", true); }
+
+		// a finished run that counts as a win: Succeeded, and not the Wave Arena (wavemode's
+		// survival mission, which its champion's exit portal ends Succeeded too)
+		bool IsWin(PlayerRecord@ rec)
+		{
+			if (rec is null || rec.currMissionState != MissionManager::MissionState::Succeeded)
+				return false;
+			auto def = MissionDef::Get(rec.currMission);
+			if (def is null)
+				return false;
+			return def.m_id != "hwp_wave_arena";
+		}
+
+		// true while the run's summary window (vanilla MissionEndMenu) is open
+		bool SummaryOpen()
+		{
+			auto gm = cast<BaseGameMode>(g_gameMode);
+			if (gm is null || gm.m_windowManager is null)
+				return false;
+			for (uint i = 0; i < gm.m_windowManager.m_objects.length(); i++)
+			{
+				if (cast<MissionEndMenu>(gm.m_windowManager.m_objects[i]) !is null)
+					return true;
+			}
+			return false;
+		}
+
+		// the banner and the chat line, on this machine
+		bool ShowWinner(const string &in mission)
+		{
+			auto hud = GetHUD();
+			if (hud is null)
+				return false;
+			string title = Resources::GetString(".hwp.laststats.winner");
+			string sub = Resources::GetString(".hwp.laststats.winner.sub", { { "mission", mission } });
+			if (HUDAnnounceStyle::Get(WIN_STYLE) !is null)
+				hud.AddAnnounce(title, sub, WIN_STYLE);
+			else
+			{
+				// the style sval did not load: the floor-name banner is the closest vanilla look
+				if (!g_winStyleLogged)
+				{
+					g_winStyleLogged = true;
+					HWP::LogError("laststats", "announce style " + WIN_STYLE + " missing (tweak/hwp/announce_laststats.sval); using region_enter");
+				}
+				hud.AddAnnounce(title, sub, "region_enter");
+			}
+			SValueBuilder b;
+			b.PushString("\\cffd700" + title + "\\d " + sub);
+			SendSystemMessage("AddChat", b.Build());
+			HWP::Log("laststats", "winner banner: " + mission);
+			return true;
+		}
+
 		// ---- snapshot ---------------------------------------------------------
 
 		// Same selection as MissionEndMenu: every visible, categorised stat that
@@ -54,13 +139,7 @@ namespace HWP
 			b.PushString("player", plr.GetName());
 			b.PushInteger("peer", plr.peer);
 
-			string missionName = "?";
-			auto def = MissionDef::Get(plr.currMission);
-			if (def !is null)
-				missionName = def.m_name;
-			if (missionName.findFirst(".") == 0)
-				missionName = Resources::GetString(missionName);
-			b.PushString("mission", missionName);
+			b.PushString("mission", MissionName(plr.currMission));
 			b.PushInteger("state", int(plr.currMissionState));
 
 			int n = 0;
@@ -96,7 +175,11 @@ namespace HWP
 
 		void OnRecordLoad(PlayerRecord@ rec)
 		{
-			if (rec is null || !rec.local || rec.statsRun is null || !IsFinishedState(rec.currMissionState))
+			if (rec is null || !rec.local)
+				return;
+			if (IsWin(rec))
+				g_winMission = MissionName(rec.currMission);
+			if (rec.statsRun is null || !IsFinishedState(rec.currMissionState))
 				return;
 			if (g_pending !is null)
 				g_pending.Delete();
@@ -253,6 +336,13 @@ namespace HWP
 				HWP::Commands::Reply("laststats: " + g_party.length() + " snapshots on the board");
 				return;
 			}
+			if (args.length() > 0 && args[0] == "winner")
+			{
+				// test aid: the win banner now, as after a won run (ignores laststats.winner)
+				bool shown = ShowWinner(MissionName(MissionManager::g_module.m_missionDefHash));
+				HWP::Commands::Reply(shown ? "laststats: winner banner shown" : "laststats: no HUD");
+				return;
+			}
 			if (args.length() > 0 && args[0] == "board")
 			{
 				string status = g_openMenu is null ? "board closed" : g_openMenu.Status();
@@ -277,6 +367,7 @@ namespace Modules
 	class HWPLastStatsModule : Module, HWP::ModuleStart
 	{
 		int m_reportDelay = -1;
+		int m_winDelay = -1; // >= 0: the win banner is due (counts down once the summary is closed)
 		// false: the town starts with a null save, so Load never runs there and the
 		// board must spawn from the constructor's state (docs/RE_NOTES.md, mod lifecycle)
 		bool m_boardDone = false;
@@ -288,7 +379,7 @@ namespace Modules
 			super("hwp-laststats");
 			HWP::Net::OnRequest(HWP::LastStats::REPORT, HWP::Net::RequestHandler(HWP::LastStats::OnReport));
 			HWP::Net::OnEvent(HWP::LastStats::SYNC, HWP::Net::EventHandler(HWP::LastStats::OnSync));
-			HWP::Commands::Register("laststats", " [sample [n] | board]: what the notice board knows; sample makes test snapshots, board logs the open window", HWP::Commands::Handler(HWP::LastStats::CmdLastStats));
+			HWP::Commands::Register("laststats", " [sample [n] | board | winner]: what the notice board knows; sample makes test snapshots, board logs the open window, winner shows the win banner", HWP::Commands::Handler(HWP::LastStats::CmdLastStats));
 			TakeSnapshot();
 		}
 
@@ -301,6 +392,16 @@ namespace Modules
 			m_boardDelay = 0;
 			m_board.Reset();
 			m_reportDelay = 2000; // (re)send whatever we have so late joiners get it too
+			// a won run: the banner once the summary window is closed (town only; the
+			// mission state is the one the town loaded the character with)
+			m_winDelay = -1;
+			if (!g_inTown)
+				HWP::LastStats::g_winMission = "";
+			else if (!HWP::LastStats::g_winMission.isEmpty())
+			{
+				m_winDelay = HWP::LastStats::WIN_DELAY_MS;
+				HWP::Log("laststats", "won " + HWP::LastStats::g_winMission + ": banner after the summary");
+			}
 		}
 
 		// Stores the run's snapshot. The town's MissionEndMenu clears the finished
@@ -356,6 +457,26 @@ namespace Modules
 					auto mine = HWP::LastStats::Mine();
 					if (mine !is null)
 						HWP::Net::Request(HWP::LastStats::REPORT, mine.Copy()); // the bag keeps its own
+				}
+			}
+
+			if (m_winDelay >= 0)
+			{
+				if (HWP::LastStats::SummaryOpen())
+					m_winDelay = HWP::LastStats::WIN_DELAY_MS;
+				else
+				{
+					m_winDelay -= ms;
+					if (m_winDelay < 0)
+					{
+						m_winDelay = -1;
+						string mission = HWP::LastStats::g_winMission;
+						HWP::LastStats::g_winMission = "";
+						if (HWP::LastStats::WinnerOn())
+							HWP::LastStats::ShowWinner(mission);
+						else
+							HWP::Log("laststats", "won " + mission + ": banner off (laststats.winner / laststats.enabled)");
+					}
 				}
 			}
 

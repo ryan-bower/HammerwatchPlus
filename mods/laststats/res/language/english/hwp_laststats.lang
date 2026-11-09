@@ -13,4 +13,6 @@
 	<string name="hwp.laststats.search">Search all tabs...</string>
 	<string name="hwp.laststats.nomatch">No stat matches the search.</string>
 	<string name="hwp.laststats.players">%count% player(s)</string>
+	<string name="hwp.laststats.winner">Winner winner chicken dinner!</string>
+	<string name="hwp.laststats.winner.sub">%mission% completed</string>
 </lang>
