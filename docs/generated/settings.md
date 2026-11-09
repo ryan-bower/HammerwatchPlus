@@ -69,6 +69,7 @@ next level.
 | Drop trade | Pickup first | `droptrade.pickup_first` | on | on, off | local |
 | Party exit | On | `partyexit.enabled` | on | on, off | host |
 | Party exit | Party at the exit | `partyexit.share` | 66 | Half (50), Two thirds (66), Three quarters (75) | host |
+| Catch-up experience | On | `catchup.enabled` | on | on, off | host |
 
 ## Interface
 
