@@ -109,7 +109,9 @@ namespace HWP
 		// nudged on along the aim up to BLINK_NUDGE, then back toward the start. A landing past
 		// a rail (beyond where the Any ray stopped) must also be over a floor tileset: the Shot ray
 		// ignores every shoot-through fixture, so without that a rail on the level's edge could be
-		// crossed into the void. With no such spot the Blink stops where the vanilla Teleport would.
+		// crossed into the void. With no such spot the Blink stops where the vanilla Teleport would
+		// if that has room, else at the first spot with room back toward the start, else not at all
+		// (issue #71: never on a spot already refused).
 		class BlinkPath
 		{
 			vec2 m_at;
@@ -149,7 +151,27 @@ namespace HWP
 						}
 					}
 					if (!found)
-						at = from + dir * (dist * min(shotFrac, anyFrac) * BLINK_WALL_MARGIN);
+					{
+						// the vanilla Teleport's spot only with room: with no rail it is between the
+						// nudges just refused, and with a wall it is d itself, the spot HasRoom refused
+						// first; SetPosition ignores collision, so that could leave the sorcerer inside
+						// the wall (issue #71). Else back toward the start; with no room anywhere, stay.
+						float vanilla = dist * min(shotFrac, anyFrac) * BLINK_WALL_MARGIN;
+						at = from;
+						if (HasRoom(from + dir * vanilla, vanilla > railAt))
+							at = from + dir * vanilla;
+						else
+						{
+							for (float back = d - BLINK_NUDGE - BLINK_NUDGE_STEP; back > 0; back -= BLINK_NUDGE_STEP)
+							{
+								if (HasRoom(from + dir * back, back > railAt))
+								{
+									at = from + dir * back;
+									break;
+								}
+							}
+						}
+					}
 					m_nudged = true;
 				}
 				m_at = at;
