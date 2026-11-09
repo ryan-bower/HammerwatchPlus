@@ -37,7 +37,8 @@ namespace HWP
 				RefreshSettings();
 		}
 
-		// pos is an enemy's position; the box goes on a free spot next to it.
+		// pos is an enemy's position; the box goes on a free spot next to it, with
+		// room around it and in line of reach of the enemy (not behind a wall).
 		UnitPtr Spawn(vec3 pos)
 		{
 			auto prod = Resources::GetUnitProducer(UNIT);
@@ -47,7 +48,7 @@ namespace HWP
 				return UnitPtr();
 			}
 			vec3 at;
-			if (HWP::Spawner::FreeSpot(pos, 40.0f, at))
+			if (HWP::Spawner::SpawnSpot(pos, 40.0f, 12, at, 0.0f))
 				pos = at;
 			auto u = prod.Produce(g_scene, pos);
 			if (u.IsValid())

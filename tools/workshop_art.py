@@ -101,6 +101,7 @@ SYMBOLS = {
     "goldworth": [px("gui/icons.png", 0, 128, 13, 13)],
     "mmhmm": [cell("equip", 4, 11)],
     "orbwarn": [px("doodads/generic/skill_sphere.png", 0, 0, 10, 10)],
+    "orbreroll": [px("doodads/generic/skill_sphere.png", 0, 0, 10, 10)],
     "mapicons": [px("mods/hwplib/gui/hwp/map_icons.png", 12, 0, 11, 11)],
     "attrclick": [px("gui/icons_lang.png", 196, 61, 13, 13)],  # the attribute point (icn-attrpt)
     "salvage": [px("gui/icons.png", 65, 128, 13, 13)],  # the Dust material icon (icons.inc icon-dust)
@@ -685,7 +686,7 @@ def prereq(pids) -> str:
     return ", ".join(f"{card}: {dlc} DLC" for dlc, _, card in (workshop.DLC[p] for p in pids if p in workshop.DLC))
 # the All pack's cover: a short name and what the package is, in a few words
 SHORT = {
-    "qol": ("Quality of Life", "18 helpers"), "coop": ("Co-op Play", "4 party features"),
+    "qol": ("Quality of Life", "19 helpers"), "coop": ("Co-op Play", "4 party features"),
     "autoaim": ("Auto Aim", "aim assist"), "firearms": ("Firearms", "a new class"),
     "specs": ("4th Specs", "8 new specializations"),
     "keys": ("Keys & Chests", "locked loot, ace chests"), "campaign": ("Forsaken Tower", "18-floor campaign"),

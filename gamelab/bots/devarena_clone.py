@@ -13,7 +13,6 @@ clones to, so the cold relaunch that follows boots this session's spec.
 Returns terminal ("done", "clone_failed"), code (clone_spec's exit), identical, files, differ
 (relative paths that differ or exist on one side only), out.
 """
-import filecmp
 import io
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -42,6 +41,8 @@ def run(p, src, id, name, version="live", results=None):
     if code != 0 or not made.is_dir():
         return {"terminal": "clone_failed", "code": code, "out": buf.getvalue()[-600:]}
     a, b = tree(made), tree(mod) if mod.is_dir() else set()
-    differ = sorted((a ^ b) | {f for f in a & b if not filecmp.cmp(made / f, mod / f, shallow=False)})
+    # bytes, not filecmp.cmp: its cache keys on size and mtime, so a same-size rewrite within
+    # one mtime tick (two clones in a row) came back as unchanged
+    differ = sorted((a ^ b) | {f for f in a & b if (made / f).read_bytes() != (mod / f).read_bytes()})
     return {"terminal": "done", "code": code, "identical": not differ, "files": len(a), "differ": differ[:20],
             "out": str(made)}
