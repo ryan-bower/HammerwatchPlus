@@ -181,6 +181,7 @@ next level.
 | Fishing | Casts per hole | `fishing.run_casts` | 3 | 1, 2, 3, 5, 8 | host |
 | Fishing | Hits to land | `fishing.reel_hits` | 0 | By fish (2-4) (0), 1 (1), 2 (2), 3 (3), 4 (4) | host |
 | Fishing | Keys from catches | `fishing.keys` | on | on, off | host |
+| Fishing | Twinkling spots | `fishing.twinkle` | on | on, off | local |
 | Fishing | (option `eatkey`) | | | | local |
 | Farming | On | `farm.enabled` | on | on, off | host |
 | Farming | Plant in town fields | `farm.fields` | on | on, off | host |
