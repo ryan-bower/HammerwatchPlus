@@ -8,7 +8,7 @@
  ],
  "timeout": 360,
  "steps": [
-  {"do": "log_has", "pattern": "\[HWP:catchup\] ready: buff loaded, thresholds NG\+1 20, NG\+2 25", "timeout": 30},
+  {"do": "log_has", "pattern": "\\[HWP:catchup\\] ready: buff loaded, thresholds NG\\+1 20, NG\\+2 25", "timeout": 30},
   {"do": "console", "line": "e_cheats 1"},
   {"do": "bot", "bot": "fix_catchup", "name": "catchup-on", "kwargs": {"sections": "town,run"},
    "expect": {"LabCatch_ready": true, "catch_town_off": true, "catch_mission": true, "catch_on_ngp1": true, "catch_xp_150": true}},
