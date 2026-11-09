@@ -10,7 +10,7 @@ are on the Steam Workshop; The Forsaken Tower is local-build only.
 
 | Package | Modules |
 |---|---|
-| `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, petrooms, legacy, goldworth, mmhmm, orbwarn, mapicons, attrclick, salvage, freeskills, outofcombat |
+| `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, petrooms, legacy, goldworth, mmhmm, orbwarn, orbreroll, mapicons, attrclick, salvage, freeskills, outofcombat |
 | `HWP-coop` Co-op Play | groupcombo, architect, droptrade, partyexit |
 | `HWP-autoaim` Auto Aim | autoaim |
 | `HWP-firearms` Firearms Specialist | firearms |
@@ -19,7 +19,7 @@ are on the Steam Workshop; The Forsaken Tower is local-build only.
 | `HWP-keys` Keys and Ace Chests | keys |
 | `HWP-campaign` The Forsaken Tower | campaign |
 | `HWP-modes` Challenge Modes | mercenary, wavemode |
-| `HWP-dungeon` Dungeon Loot and Encounters | puzzles, objectives, strongbox, abyss, maps, weapons, trinkets, valuables, affixes |
+| `HWP-dungeon` Dungeon Loot and Encounters | puzzles, objectives, strongbox, abyss, maps, weapons, trinkets, valuables, affixes, bosses |
 | `HWP-town` Town Life | fishing, farming, gambler, roulette, tavern |
 | `HWP-pets` Pets | pets (and petrooms, shared with Quality of Life) |
 | `HammerwatchPlus-All` | every package |

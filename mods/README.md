@@ -37,6 +37,7 @@ Each module's full spec and test checklist is in its own `README.md`.
 | `maps` | Three new layouts for the equipment-map drops: Goblin Warrens, Sunken Dungeon, The High Court. |
 | `affixes` | Rare and Epic items can roll a second suffix, and Epic items a second prefix: 25% each, so a few items carry five modifiers instead of three. |
 | `valuables` | Valuables (vases, chalices, gems, furs, scales: the pickups that turn straight into gold) are worth twice their vanilla gold. |
+| `bosses` | **Tougher bosses**: every boss (vanilla, the Forsaken Tower's, the Wave Arena champion) has 25% more armor and 25% more of each resistance; health stays as it is. The host can pick 0 to 100% or turn it off. Pelor's Fury still strips it all to 0. |
 | `trinkets` | Trinkets keep up in NG+: flat bonuses (health, mana, armor, power, regen, resistances, thorns, proc damage) grow by a fixed amount per NG+ level, twice as much on an attuned trinket when attuning doubles the number. Tooltips show the scaled numbers. Also 37 trinkets from Heroes of Hammerwatch (Lucky Hat, the spheres, the seals, Golden Lamp, Judgement and more), eight new trinket sets (Spheres of Power, Charms of Fortune, Disarmament, Plague Doctor, Pyromancer, Seals of Torment, Arcanist's Regalia, Conjurer's Relics), Emblems of Hermes and Apothecary's Supplies with more pieces and tiers, and a Trader's Coin that also discounts the dungeon trinket shop. |
 | `wavemode` | **Wave Arena**: a survival arena started from a statue in town; every boss kill raises your arena rank, which is the arena's NG+ level next time. |
 
@@ -51,7 +52,7 @@ Each module's full spec and test checklist is in its own `README.md`.
 | `waygates` | Way Gates: teleport gates in the town square and at every building you have built. Use one and pick where to go (a remake of Tyraen's Teleport in City). |
 | `roulette` | A roulette wheel on a table in the tavern: one single-zero table for the whole lobby with all 157 bets at true odds (click near an edge or a corner for splits and corners), a remake of the Workshop roulette table. Luck and gold find raise the winnings by their percentage, so a smoked herb tips the odds your way. |
 | `stash` | A Sort button on the town stash: by class, then weapon type, then item level. |
-| `laststats` | The last run's stats for the whole party, on a notice board by the town fountain: every player on one page as bars per stat, with a search field. |
+| `laststats` | The last run's stats for the whole party, on a notice board by the town fountain: every player on one page as bars per stat, with a search field. Win a run (not the Wave Arena) and everyone gets a big **Winner winner chicken dinner!** on screen and in chat once the summary closes. |
 
 ## Co-op and quality of life
 
@@ -65,6 +66,7 @@ Each module's full spec and test checklist is in its own `README.md`.
 | `freeskills` | A respec at the Skill Trainer unlearns the skills your class starts with too (the first skill and passive, a specialization's two), so you can put those points elsewhere; the trainer teaches them again for no skill points. |
 | `outofcombat` | Out of combat speed: in a run, once you have not hit an enemy for 10 seconds you move twice as fast (a speed blessing icon in the buff bar), until you hit one again. Taking damage does not end it. The host sets the speed (1.25x to 3x), the wait (3 to 30 s) and whether it works in town too (off by default). |
 | `orbwarn` | The orb picker says which orbs a pick would make unavailable (mutually exclusive orbs such as the Firearms grenades), with their icons and names. |
+| `orbreroll` | Orb rerolls are per orb, not per run: every orb you pick up can be rerolled as often as your rerolls allow, and the shadow curse cost starts over on each orb. The trinket picker keeps the run's pool. |
 | `deathrecap` | Who killed you: the top damage sources of the last 10 s, on screen and in chat. After a boss fight, a recap of everyone's damage by skill and damage taken (one per fight, however many boss units it has). |
 | `bufftips` | Hover a buff icon to see what it does and how many seconds it has left. Class buffs the game leaves off the buff bar, like War Cry, get an icon. |
 | `chatlinks` | Link an item in chat with a right-click or its "Link in chat" hint; the links show above the chat, hover one for the item's tooltip; `hwp link` links an equipped item. |

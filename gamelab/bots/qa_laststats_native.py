@@ -212,12 +212,13 @@ class Checks(Base):
         text = self.hwp("laststats board", .3, until="board open:")
         matches = list(re.finditer(
             r'board open: (?P<shown>\d+) of (?P<total>\d+) stats, (?P<players>\d+) players, '
-            r'(?P<bars>\d+) bars, filter "(?P<filter>[^"]*)", typing (?P<typing>[01]), '
+            r'(?P<bars>\d+) bars, tab "(?P<tab>[^"]*)" (?P<tabi>\d+)/(?P<tabs>\d+), '
+            r'filter "(?P<filter>[^"]*)", typing (?P<typing>[01]), '
             r'input "(?P<input>[^"]*)", rows: (?P<titles>[^\r\n]*)', text))
         if not matches:
             raise ValueError("missing current board status")
         status = matches[-1].groupdict()
-        for key in ("shown", "total", "players", "bars", "typing"):
+        for key in ("shown", "total", "players", "bars", "typing", "tabi", "tabs"):
             status[key] = int(status[key])
         return dict(raw=text, value=status)
 
@@ -252,8 +253,9 @@ class Checks(Base):
                                   dict(native["headers"]), {2: "Defeated", 4: "Abandoned"},
                                   receipt["raw"], query)
         status = receipt["status"]["value"]
-        if (status["shown"], status["total"], status["players"], status["bars"]) != (
-                result["shown"], result["rows"], result["players"], result["visible_bar_lines"]):
+        if (status["shown"], status["total"], status["players"], status["bars"], status["tab"], status["tabs"]) != (
+                result["shown"], result["rows"], result["players"], result["visible_bar_lines"],
+                result["tab"], result["tabs"]):
             raise ValueError("status/tree disagree")
         receipt["oracle"] = result
         return result

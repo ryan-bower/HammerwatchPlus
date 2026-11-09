@@ -54,6 +54,11 @@ On the HammerwatchPlus tab of the player menu (host, host-synced; next level), o
 
 Timeout: if the pack is still alive 3 minutes after arming (kited, stuck,
 left behind) the box seals itself and disappears without loot. Pack members
-are only spawned on free spots (collision query + line of sight from the box,
-like the vanilla `safe-spawn`); members with no free spot are skipped and
-logged.
+are only spawned on free spots (hwplib `HWP::Spawner::SpawnSpot`, issue #80):
+a collision query the size of the member's body (`BodyRadius`, read from a live
+unit of the kind; an elite shares its base's) and a clear line from the box
+itself to the spot and back, like the vanilla `safe-spawn`. Random spots come
+first, then a sweep of 12 directions on rings closing in on the box, so a box
+beside a wall still finds its open side. Members with no free spot are skipped
+and logged, never put in a wall. The box itself goes on a spot with room
+around it and in line of reach of the enemy it replaces.
