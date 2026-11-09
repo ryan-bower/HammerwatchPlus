@@ -164,7 +164,9 @@ next level.
 | Puzzle rooms | Hold distance | `puzzles.summon_hold_radius` | 120 px | 80 px, 120 px, 160 px, 200 px, 300 px | host |
 | Floor objectives | On | `objectives.enabled` | on | on, off | host, level |
 | Floor objectives | Vaults per floor | `objectives.vaults` | 1 | 0, 1, 2 | host, level |
+| Floor objectives | Vault chance | `objectives.vault_chance` | 25% | 0%, 10%, 15%, 25%, 50%, 75%, 100% | host, level |
 | Floor objectives | Exit switch | `objectives.exit` | on | on, off | host, level |
+| Floor objectives | Exit switch chance | `objectives.exit_chance` | 15% | 0%, 10%, 15%, 25%, 50%, 75%, 100% | host, level |
 | Strongboxes | On | `strongbox.enabled` | on | on, off | host, level |
 | Strongboxes | Strongbox chance | `strongbox.chance` | 40% | 0 to 100, step 10% | host, level |
 | Strongboxes | Pack size | `strongbox.pack` | 4 | 2, 3, 4, 6, 8 | host, level |

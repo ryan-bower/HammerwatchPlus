@@ -450,7 +450,9 @@
 					<bool name="level">true</bool>
 					<array name="settings">
 						<dict><string name="key">objectives.vaults</string><string name="type">int</string><bool name="host">true</bool><bool name="level">true</bool><int name="default">1</int><array name="values"><i>0</i><i>1</i><i>2</i></array><int name="labels">0</int><string name="suffix"></string></dict>
+						<dict><string name="key">objectives.vault_chance</string><string name="type">int</string><bool name="host">true</bool><bool name="level">true</bool><int name="default">25</int><array name="values"><i>0</i><i>10</i><i>15</i><i>25</i><i>50</i><i>75</i><i>100</i></array><int name="labels">0</int><string name="suffix">%</string></dict>
 						<dict><string name="key">objectives.exit</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">true</bool><bool name="default">true</bool></dict>
+						<dict><string name="key">objectives.exit_chance</string><string name="type">int</string><bool name="host">true</bool><bool name="level">true</bool><int name="default">15</int><array name="values"><i>0</i><i>10</i><i>15</i><i>25</i><i>50</i><i>75</i><i>100</i></array><int name="labels">0</int><string name="suffix">%</string></dict>
 					</array>
 				</dict>
 				<dict>

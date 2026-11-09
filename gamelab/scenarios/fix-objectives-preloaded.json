@@ -30,6 +30,14 @@
    "line": "hwp set objectives.exit 1"
   },
   {
+   "do": "console",
+   "line": "hwp set objectives.vault_chance 100"
+  },
+  {
+   "do": "console",
+   "line": "hwp set objectives.exit_chance 100"
+  },
+  {
    "do": "gl",
    "verb": "mission",
    "args": [
