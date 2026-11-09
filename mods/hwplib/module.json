@@ -10,6 +10,7 @@
     "scripts/GUI/PlayerStashWindow.as",
     "scripts/GUI/Widgets/StashItemWidget.as",
     "scripts/GUI/PlayerMenu/Modifications.as",
+    "scripts/ShopContent/ShadyTrader.as",
     "system/messages.net",
     "tweak/missions/themes_forest.sval",
     "tweak/missions/themes_heaven.inc",

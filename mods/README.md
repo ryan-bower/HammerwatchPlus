@@ -65,6 +65,7 @@ Each module's full spec and test checklist is in its own `README.md`.
 | `attrclick` | At the Attribute Trainer, Shift+Click places 20 attribute points and Ctrl+Click 5 (never more than you have); the costs show the amount while the key is held. |
 | `freeskills` | A respec at the Skill Trainer unlearns the skills your class starts with too (the first skill and passive, a specialization's two), so you can put those points elsewhere; the trainer teaches them again for no skill points. |
 | `orbwarn` | The orb picker says which orbs a pick would make unavailable (mutually exclusive orbs such as the Firearms grenades), with their icons and names. |
+| `orbreroll` | Orb rerolls are per orb, not per run: every orb you pick up can be rerolled as often as your rerolls allow, and the shadow curse cost starts over on each orb. The trinket picker keeps the run's pool. |
 | `deathrecap` | Who killed you: the top damage sources of the last 10 s, on screen and in chat. After a boss fight, a recap of everyone's damage by skill and damage taken (one per fight, however many boss units it has). |
 | `bufftips` | Hover a buff icon to see what it does and how many seconds it has left. Class buffs the game leaves off the buff bar, like War Cry, get an icon. |
 | `chatlinks` | Link an item in chat with a right-click or its "Link in chat" hint; the links show above the chat, hover one for the item's tooltip; `hwp link` links an equipped item. |

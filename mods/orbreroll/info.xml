@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">HammerwatchPlus Orb Rerolls Per Orb</string>
+	<string name="author">Ryan Bower</string>
+	<string name="description">Orb rerolls count per orb instead of per run: every orb you pick up can be rerolled as many times as your rerolls allow, and the shadow curse cost starts over on each orb. Part of HammerwatchPlus.</string>
+</dict>

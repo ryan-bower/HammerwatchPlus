@@ -4,8 +4,8 @@
 //
 // - Vault: a small room sealed by a door nothing passes or shoots through
 //   (doodads/hwp/objective_door.unit, "locked": solid, nav-blocking), with two
-//   chests inside; a lever elsewhere on the floor (objective_switch.unit)
-//   opens it. Both carry the map's info_poi icon until used. Setting
+//   chests inside; a lever elsewhere on the floor (objective_switch_<n|e|w>.unit
+//   on a wall, objective_switch.unit on a floor with no wall that fits) opens it. Both carry the map's info_poi icon until used. Setting
 //   objectives.vaults 0-2 (default 1).
 // - Exit: the floor's exits (WorldScript LevelExitAreaNext / AreaJump, LevelExitNext / Jump) are
 //   disabled until the exit switch (objective_exit_switch.unit) is pressed.
@@ -108,9 +108,11 @@ namespace HWP
 		// lever matched nothing and the exit was never sealed. A floor brought back from a
 		// save is the same. So the records are rebuilt from the units: each door is a
 		// vault (vault_s.pfb puts it at Gen::DOOR_IN_PFB from the room's corner), each
-		// vault lever goes to the vault farthest from it of those left (generation puts a
-		// lever as far from its vault as the floor allows), and the exit lever is the exit
-		// switch. A used lever or an open door counts as opened.
+		// vault lever goes to the vault farthest from it of those left, and the exit lever
+		// is the exit switch. A used lever or an open door counts as opened. Generation puts
+		// a lever on a random spot in the far half of the floor from its vault (issue #74),
+		// so with two vaults the pairs may differ from the generation's; each lever still
+		// opens one vault, and only this context's pairs are ever used.
 		void AdoptFromUnits()
 		{
 			ivec2 size = ivec2(9, 8);

@@ -1,0 +1,707 @@
+interface IShadyDealComponent
+{
+	void Save(SValueBuilder& builder);
+	ScriptSprite@ GetIcon();
+	Item::Quality GetQuality();
+	string GetName();
+	string GetDescription();
+	array<string>@ GetDescriptionIcons();
+	bool PayCost(PlayerRecord@ player);
+	void GainOffer(PlayerRecord@ player);
+	bool IsEqual(IShadyDealComponent@ other);
+}
+
+// HWP (hwplib, issue #70): `offer` says the component is what the trader gives, not what he
+// takes; a skill offer then shows the rank the trade grants (ShadyDealSkill). Vanilla's
+// callers (the cost list) leave it false.
+IShadyDealComponent@ LoadIShadyDealComponent(const string &in type, SValue@ data, bool offer = false)
+{
+	if (type == "item")
+		return ShadyDealItem(Item::LoadItem(data));
+	if (type == "skill")
+		return ShadyDealSkill(GetLocalPlayerRecord().playerClass.GetSkillDef(data.GetInteger()), offer);
+	if (type == "mat-wood")
+		return ShadyDealMaterial(MaterialType::Wood, data.GetInteger());
+	if (type == "mat-stone")
+		return ShadyDealMaterial(MaterialType::Stone, data.GetInteger());
+	if (type == "mat-iron")
+		return ShadyDealMaterial(MaterialType::Iron, data.GetInteger());
+	if (type == "nothing")
+		return ShadyDealNothing();
+	
+	return ShadyDealNothing();
+}
+
+const int numTrades = 3;
+class ShadyDealSkill : IShadyDealComponent
+{
+	PlayerSkillDef@ m_skill;
+	int m_skillLevel;
+	bool m_offer; // HWP (hwplib, issue #70): the trader gives this skill (a rank up), not takes it
+	
+	ShadyDealSkill(PlayerSkillDef@ skill, bool offer = false)
+	{
+		@m_skill = skill;
+		m_skillLevel = 0;
+		m_offer = offer;
+		RefreshLevel();
+	}
+	
+	// HWP (hwplib, issue #70): vanilla showed the rank the player has on both sides of a
+	// trade, so an orb offer read one rank low (name colour, values, highlighted rank). A cost
+	// still shows the rank the player has; an offer shows the rank the trade grants, one up and
+	// capped at the last, as the orb picker (GiveSkillSphereMenu.SetSkillUI) does. Read again on
+	// every use, so a rank gained after the trader rolled its deals shows too.
+	void RefreshLevel()
+	{
+		auto record = GetLocalPlayerRecord();
+		if (record is null || m_skill is null)
+			return;
+	
+		int lvl = record.GetSkillLevel(m_skill);
+		int numLvls = m_skill.m_levelParams.length();
+		if (m_offer)
+			m_skillLevel = max(0, min(lvl, numLvls - 1));
+		else
+			m_skillLevel = max(0, min(lvl, numLvls) - 1);
+	}
+	
+	void Save(SValueBuilder& builder)
+	{
+		builder.PushString("skill");
+		builder.PushInteger(m_skill.m_idHash);
+	}
+	
+	ScriptSprite@ GetIcon() { return m_skill.m_icon; }
+	Item::Quality GetQuality()
+	{
+		RefreshLevel(); // HWP
+		return m_skill.m_levelQualities[m_skillLevel];
+	}
+	string GetName() 
+	{
+		// HWP (hwplib, issue #70): an offer names the rank it grants, as the orb picker does
+		string name = Resources::GetString(m_skill.m_name);
+		if (m_offer)
+		{
+			RefreshLevel();
+			name += " " + (m_skillLevel + 1);
+		}
+		if (m_skill.m_parentSkill !is null)
+			return Resources::GetString(m_skill.m_parentSkill.m_name) + " - " + name;
+		return name;
+	}
+	
+	string GetDescription()
+	{
+		RefreshLevel(); // HWP
+		StringBuilder paramsStr;
+		dictionary descParams;
+		
+		auto ply = GetLocalPlayerRecord();
+		GetSkillDescriptionParams(ply, m_skill, m_skillLevel + 1, paramsStr, descParams);
+		
+		UnitPtr unit;
+		if (ply.actor !is null)
+			unit = ply.actor.m_unit;
+		
+		StringBuilder descB;
+		descB.Append(Resources::GetString(unit, m_skill.m_description, g_bookColors, descParams));
+		descB.Append(Resources::GetString(unit, paramsStr.String()));
+		
+		return descB.String();
+	}
+	
+	array<string>@ GetDescriptionIcons() { return m_skill.m_descicons; }
+	
+	bool PayCost(PlayerRecord@ player)
+	{
+		return player.SkillTempDown(m_skill);
+	}
+	
+	void GainOffer(PlayerRecord@ player)
+	{
+		player.SkillTempUp(m_skill);
+	}
+	
+	bool IsEqual(IShadyDealComponent@ other)
+	{
+		auto o = cast<ShadyDealSkill>(other);
+		if (o is null)
+			return false;
+		return o.m_skill is m_skill;
+	}
+}
+
+
+class ShadyDealMaterial : IShadyDealComponent
+{
+	MaterialType m_mat;
+	int m_amount;
+	
+	ShadyDealMaterial(MaterialType mat, int amount)
+	{
+		m_mat = mat;
+		m_amount = amount;
+	}
+	
+	void Save(SValueBuilder& builder)
+	{
+		switch(m_mat)
+		{
+		case MaterialType::Wood:
+			builder.PushString("mat-wood");
+			break;
+		case MaterialType::Stone:
+			builder.PushString("mat-stone");
+			break;
+		case MaterialType::Iron:
+			builder.PushString("mat-iron");
+			break;
+		default:
+			return;
+		}
+		builder.PushInteger(m_amount);
+	}
+	
+	ScriptSprite@ GetIcon() { return null; }
+	Item::Quality GetQuality() { return Item::Quality::None; }
+	string GetName() { return Resources::GetString(".material.name." + MaterialToString(m_mat)); }
+	string GetDescription()
+	{
+		auto matStr = Resources::GetString(".hud.pickup." + MaterialToString(m_mat), {{ "amount", abs(m_amount > 0 ? int(ceil(m_amount * GetLocalPlayerRecord().GetMaterialModifier(m_mat))) : m_amount) }});
+		return Resources::GetString(".menu.shady_trader." + (m_amount > 0 ? "get" : "lose"), {{ "amount", matStr }});
+	}
+	
+	array<string>@ GetDescriptionIcons()
+	{
+		array<string> icons;
+		switch(m_mat)
+		{
+		case MaterialType::Wood:
+			icons.insertLast("wood");
+			break;
+		case MaterialType::Stone:
+			icons.insertLast("stone");
+			break;
+		case MaterialType::Iron:
+			icons.insertLast("iron");
+			break;
+		}
+		return icons;
+	}
+	
+	bool PayCost(PlayerRecord@ player)
+	{
+		if (-m_amount > player.GetMaterial(m_mat))
+			return false;
+		
+		int taken = player.GiveMaterial(m_mat, m_amount, true);
+		LootLog::PresentMaterial(player, m_mat, taken);
+		return true;
+	}
+	
+	void GainOffer(PlayerRecord@ player)
+	{
+		int given = player.GiveMaterial(m_mat, int(ceil(m_amount * player.GetMaterialModifier(m_mat))), true);
+		LootLog::PresentMaterial(player, m_mat, given);
+	}
+	
+	bool IsEqual(IShadyDealComponent@ other)
+	{
+		auto o = cast<ShadyDealMaterial>(other);
+		if (o is null)
+			return false;
+		return o.m_mat == m_mat;
+	}
+}
+
+
+class ShadyDealItem : IShadyDealComponent
+{
+	Item::Item@ m_item;
+	
+	ShadyDealItem(Item::Item@ item)
+	{
+		@m_item = item;
+	}
+	
+	void Save(SValueBuilder& builder)
+	{
+		builder.PushString("item");
+		Item::SaveItem(builder, m_item);
+	}
+	
+	ScriptSprite@ GetIcon() { return m_item.GetIcon(); }
+	Item::Quality GetQuality() { return m_item.GetQuality(); }
+	string GetName() { return m_item.GetName(); }
+	string GetDescription()
+	{
+		auto ply = GetLocalPlayerRecord();
+		
+		StringBuilder descB;
+		descB.Append(m_item.GetDescription(ply));
+		
+		auto trinketItem = cast<Item::Trinket>(m_item);
+		if (trinketItem !is null)
+		{
+			if (trinketItem.m_set !is null)
+			{
+				descB.Append("\n\n");
+				
+				auto set = trinketItem.m_set;
+				int setCount = 0;
+				
+				for (uint i = 0; i < ply.trinketInventory.m_items.length(); i++)
+				{
+					if (set is ply.trinketInventory.m_items[i].m_set)
+						setCount++;
+				}
+				
+				descB.Append(set.m_name + " (" + setCount + "/" + set.m_totItems  + "):\n");
+				
+				for (uint i = 0; i < set.m_bonuses.length(); i++)
+				{
+					auto bonus = set.m_bonuses[i];
+					descB.Append((setCount >= bonus.m_num) ? "\\cffffff" :  "\\c7f7f7f");
+					descB.Append("  " + bonus.m_num + ": " + bonus.m_desc);
+					descB.Append("\\d\n");
+				}
+			}
+		}
+		return descB.String();
+	}
+	
+	array<string>@ GetDescriptionIcons()
+	{
+		auto trinketItem = cast<Item::Trinket>(m_item);
+		if (trinketItem !is null)
+			return trinketItem.m_descicons;
+		return null;
+	}
+	
+	bool PayCost(PlayerRecord@ player)
+	{
+		auto trinket = cast<Item::Trinket>(m_item);
+		if (trinket !is null)
+			return player.trinketInventory.Remove(trinket);
+		
+		PrintError("ShadyDealItem::PayCost Only implemented for Trinkets");
+		return false;
+	}
+	
+	void GainOffer(PlayerRecord@ player)
+	{
+		player.GiveItem(m_item);
+	}
+	
+	bool IsEqual(IShadyDealComponent@ other)
+	{
+		auto o = cast<ShadyDealItem>(other);
+		if (o is null)
+			return false;
+		return o.m_item is m_item;
+	}
+}
+
+class ShadyDealNothing : IShadyDealComponent
+{
+	ShadyDealNothing() { }
+	
+	void Save(SValueBuilder& builder)
+	{
+		builder.PushString("nothing");
+	}
+	
+	ScriptSprite@ GetIcon() { return null; }
+	Item::Quality GetQuality() { return Item::Quality::Common; }
+	string GetName() { return Resources::GetString(".menu.shady_trader.nothing"); }
+	string GetDescription() { return ""; }
+	array<string>@ GetDescriptionIcons() { return null; }
+	
+	bool PayCost(PlayerRecord@ player) { return true; }
+	void GainOffer(PlayerRecord@ player) { }
+	bool IsEqual(IShadyDealComponent@ other) { return false; }
+}
+
+
+MaterialType RandomMaterial()
+{
+	int r = randi(100);
+	if (r < 45) // 45%
+		return MaterialType::Wood;
+	if (r < 80) // 35%
+		return MaterialType::Stone;
+	
+	return MaterialType::Iron; // 20%
+}
+
+
+int GetSkillDropRateChance(PlayerSkillDef@ skillDef)
+{
+	auto ply = GetLocalPlayerRecord();
+	int skillLvl = min(ply.GetSkillLevel(skillDef) + 1, skillDef.m_levelParams.length() - 1);
+	
+	switch (skillDef.m_levelQualities[skillLvl])
+	{
+	case Item::Quality::Unique: return 1;
+	case Item::Quality::Quest: return 1;
+	case Item::Quality::Legendary: return 1;
+	case Item::Quality::Epic: return 2;
+	case Item::Quality::Rare: return 4;
+	case Item::Quality::Uncommon: return 8;
+	case Item::Quality::Common:
+	default: return 16;
+	}
+}
+
+PlayerSkillDef@ PickRandomSkill(array<PlayerSkillDef@>@ possibleSkills)
+{
+	if (possibleSkills.length() < 1)
+		return null;
+	
+	int totChance = 0;
+	for (uint i = 0; i < possibleSkills.length(); i++)
+	{
+		possibleSkills[i]._m_tmpChanceCounter = GetSkillDropRateChance(possibleSkills[i]);
+		totChance += possibleSkills[i]._m_tmpChanceCounter;
+	}
+	
+	int r = randi(totChance);
+	for (uint i = 0; i < possibleSkills.length(); i++)
+	{
+		r -= possibleSkills[i]._m_tmpChanceCounter;
+		if (r < 0)
+		{
+			auto skill = possibleSkills[i];
+			possibleSkills.removeAt(i);
+			return skill;
+		}
+	}
+	
+	int idx = randi(possibleSkills.length());
+	auto skill = possibleSkills[idx];
+	possibleSkills.removeAt(idx);
+	return skill;
+}
+
+
+
+
+IShadyDealComponent@ GenerateShadyDealCost(PlayerRecord@ player)
+{
+	for (uint i = 0; i < 100; i++)
+	{
+		auto r = randi(1000);
+		if (r < 500) // 50%
+		{
+			if (player.trinketInventory.m_items.length() > 0)
+				return ShadyDealItem(player.trinketInventory.m_items[randi(player.trinketInventory.m_items.length())]);
+		}
+		else if (r < 750) // 25%
+		{
+			auto skillTmpKeys = player.pickedTempSkills.getKeys();
+			if (skillTmpKeys.length() <= 0)
+				continue;
+			
+			auto skillKey = skillTmpKeys[randi(skillTmpKeys.length())];
+			int skillLvl = 0;
+			if (!player.pickedTempSkills.get(skillKey, skillLvl))
+				skillLvl = 0;
+			
+			if (skillLvl <= 0)
+				continue;
+			
+			auto skill = player.playerClass.GetSkillDef(HashString(skillKey));
+			if (skill is null)
+				continue;
+			
+			return ShadyDealSkill(skill);
+		}
+		else // 25%
+		{
+			auto matType = RandomMaterial();
+			int minCost = 1;
+			switch (matType)
+			{
+			case MaterialType::Wood:
+				minCost = 6;
+				break;
+			case MaterialType::Stone:
+				minCost = 5;
+				break;
+			case MaterialType::Iron:
+				minCost = 3;
+				break;
+			}
+			
+			auto maxCost = player.GetMaterial(matType);
+			auto matCost = max(minCost, maxCost / 2 + 1);
+			
+			if (matCost > maxCost || matCost < 2)
+				continue;
+			
+			return ShadyDealMaterial(matType, -matCost);
+		}
+	}
+	
+	return ShadyDealNothing();
+}
+
+IShadyDealComponent@ GenerateShadyDealOffer(PlayerRecord@ player, IShadyDealComponent@ cost)
+{
+	for (uint i = 0; i < 100; i++)
+	{
+		auto r = randi(1000);
+		if (r < 300) // 30%
+			return ShadyDealItem(Item::GetRandomTrinket(player, Item::Quality::Uncommon));
+		else if (r < 480) // 18%
+			return ShadyDealItem(Item::GetRandomTrinket(player, Item::Quality::Rare));
+		else if (r < 500 && g_diffLevel > 12) // 2%
+			return ShadyDealItem(Item::GetRandomTrinket(player, Item::Quality::Epic));
+		else if (r < 750) // 25%
+		{
+			auto possibleSkills = GetAllSkillSpheres(player);
+			auto skill = PickRandomSkill(possibleSkills);
+			
+			auto skillCost = cast<ShadyDealSkill>(cost);
+			if (skillCost !is null && skillCost.m_skill is skill)
+				continue;
+			
+			if (skill !is null)
+				return ShadyDealSkill(skill, true); // HWP: an offer
+		}
+		else // 25%
+		{
+			auto matType = RandomMaterial();
+			float amntMul = 0.0f;
+			float amntAdd = 0.0f;
+			
+			switch (matType)
+			{
+			case MaterialType::Wood:
+				amntMul = 6.0f;
+				break;
+			case MaterialType::Stone:
+				amntMul = 3.0f;
+				amntAdd = 2.0f;
+				break;
+			case MaterialType::Iron:
+				amntMul = 2.0f;
+				amntAdd = 1.0f;
+				break;
+			}
+			
+			auto matsCost = cast<ShadyDealMaterial>(cost);
+			if (matsCost !is null && matsCost.m_mat == matType)
+				continue;
+			
+			int matGive = int(pow(g_diffLevel, 0.75f) * amntMul + amntAdd);
+			if (matGive > 0)
+				return ShadyDealMaterial(matType, matGive);
+		}
+	}
+	
+	return ShadyDealNothing();
+}
+
+class ShadyTraderShopContent : AShopContent
+{
+	bool m_used;
+	array<IShadyDealComponent@> m_cost;
+	array<IShadyDealComponent@> m_offer;
+
+	ShadyTraderShopContent() {}
+	ShadyTraderShopContent(UnitPtr u, SValue& params) { super(u, params); }
+
+	bool CanInteract(PlayerRecord@ player) override
+	{
+		if (!player.local) // Early-out for non-local players, they have their own checks
+			return true;
+		return !m_used && CheckConditionals(m_conditionals, player);
+	}
+
+	AWindowObject@ MakeShopWindow(GUIBuilder@ guiBuilder) override
+	{
+		if (m_cost.length() < numTrades || m_offer.length() < numTrades)
+		{
+			m_cost.removeRange(0, m_cost.length());
+			m_offer.removeRange(0, m_offer.length());
+			
+			auto plr = GetLocalPlayerRecord();
+			for (int i = 0; i < int(numTrades); i++)
+			{
+				IShadyDealComponent@ cost = null;
+				
+				for (int attempts = 0; attempts < 10; attempts++)
+				{
+					@cost = GenerateShadyDealCost(plr);
+					
+					bool valid = true;
+					for (uint j = 0; j < m_cost.length(); j++)
+					{
+						if (m_cost[j].IsEqual(cost))
+						{
+							valid = false;
+							break;
+						}
+					}
+					
+					if (valid)
+						break;
+				}
+				
+				if (cost is null)
+					continue;
+				
+				m_cost.insertLast(cost);
+				m_offer.insertLast(GenerateShadyDealOffer(plr, cost));
+			}
+		}
+		
+		@m_window = ShadyTraderMenu(guiBuilder, this);
+		return m_window; 
+	}
+
+	string GetName() override { return "trinket picker"; }
+
+	bool PickTrade(int trade)
+	{
+		if (m_used)
+			return false;
+		
+		auto plr = GetLocalPlayerRecord();
+		if (!m_cost[trade].PayCost(plr))
+			return false;
+		
+		m_offer[trade].GainOffer(plr);
+		%STAT Add shady-trades 1 plr
+		m_used = true;
+		m_unit.SetMinimapFaded(true);
+		
+		return true;
+	}
+
+	void Save(SValueBuilder& builder) override
+	{
+		builder.PushBoolean("used", m_used);
+		
+		builder.PushArray("cost");
+		for (uint i = 0; i < m_cost.length(); i++)
+			m_cost[i].Save(builder);
+		builder.PopArray();
+		
+		builder.PushArray("offer");
+		for (uint i = 0; i < m_offer.length(); i++)
+			m_offer[i].Save(builder);
+		builder.PopArray();
+	}
+	
+	void Load(SValue@ sval) override
+	{
+		UnitPtr u;
+		m_used = GetParamBool(u, sval, "used", false);
+		if (m_used)
+			m_unit.SetMinimapFaded(true);
+		
+		auto costArr = GetParamArray(u, sval, "cost", false);
+		if (costArr !is null)
+		{
+			m_cost.removeRange(0, m_cost.length());
+			for (uint i = 0; i < costArr.length(); i += 2)
+			{
+				auto comp = LoadIShadyDealComponent(costArr[i].GetString(), costArr[i + 1]);
+				if (comp !is null)
+					m_cost.insertLast(comp);
+			}
+		}
+		
+		auto offerArr = GetParamArray(u, sval, "offer", false);
+		if (offerArr !is null)
+		{
+			m_offer.removeRange(0, m_offer.length());
+			for (uint i = 0; i < offerArr.length(); i += 2)
+			{
+				auto comp = LoadIShadyDealComponent(offerArr[i].GetString(), offerArr[i + 1], true); // HWP: an offer
+				if (comp !is null)
+					m_offer.insertLast(comp);
+			}
+		}
+	}
+}
+
+class ShadyTraderMenu : AWindowObject, TriPicker
+{
+	ShadyTraderShopContent@ m_shadyTrader;
+
+	array<string> m_icons;
+
+	ShadyTraderMenu(GUIBuilder@ b, ShadyTraderShopContent@ shadyTrader)
+	{
+		super(b, "gui/shady_trader.gui");
+
+		PauseGame(true, true);
+
+		InitTriPicker();
+
+		@m_shadyTrader = shadyTrader;
+
+		int num = min(numTrades, min(m_shadyTrader.m_cost.length(), m_shadyTrader.m_offer.length()));
+		for (int i = 0; i < num; i++)
+		{
+			SetDealUI(m_widget.GetWidgetById("perk" + (i + 1)), m_shadyTrader.m_cost[i]);
+			SetDealUI(m_widget.GetWidgetById("perk" + (i + 1) + "-to"), m_shadyTrader.m_offer[i]);
+		}
+	}
+
+	void OnClose() override
+	{
+		PauseGame(false, true);
+	}
+
+	array<string>@ GetShownIcons() override { return m_icons; }
+
+	void SetDealUI(Widget@ widget, IShadyDealComponent@ comp)
+	{
+		if (comp is null)
+		{
+			widget.m_visible = false;
+			return;
+		}
+		
+		vec4 titleColor(0.0f);
+		auto quality = comp.GetQuality();
+		
+		if (quality != Item::Quality::None)
+			titleColor = Item::QualityColor(quality);
+		
+		SetPickTitleIcon(widget, comp.GetName(), titleColor, comp.GetIcon());
+		cast<TextWidget>(widget.GetWidgetById("desc")).SetText(comp.GetDescription());
+		
+		auto descIcons = comp.GetDescriptionIcons();
+		if (descIcons !is null)
+		{
+			for (uint i = 0; i < descIcons.length(); i++)
+				m_icons.insertLast(descIcons[i]);
+		}
+	}
+
+	void OnFunc(Widget@ sender, const string &in name) override
+	{
+		if (name == "pick 1")
+		{
+			if (m_shadyTrader.PickTrade(0))
+				m_manager.CloseWindow(this);
+		}
+		else if (name == "pick 2")
+		{
+			if (m_shadyTrader.PickTrade(1))
+				m_manager.CloseWindow(this);
+		}
+		else if (name == "pick 3")
+		{
+			if (m_shadyTrader.PickTrade(2))
+				m_manager.CloseWindow(this);
+		}
+	}
+}

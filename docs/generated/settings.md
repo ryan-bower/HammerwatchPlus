@@ -42,6 +42,7 @@ next level.
 | Mm-hmm! hats | Hats with it | `mmhmm.chance` | 25% | 10%, 25%, 50%, 75%, 100% | host |
 | Mm-hmm! hats | On every crit | `mmhmm.crits` | on | on, off | host |
 | Orb warnings | On | `orbwarn.enabled` | on | on, off | local |
+| Orb rerolls per orb | On | `orbreroll.enabled` | on | on, off | host |
 | Map icons | On | `mapicons.enabled` | on | on, off | local |
 | Map icons | Dye pots | `mapicons.dyes` | on | on, off | local |
 | Attribute point clicks | On | `attrclick.enabled` | on | on, off | local |
