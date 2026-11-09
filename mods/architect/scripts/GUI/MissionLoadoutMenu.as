@@ -465,9 +465,14 @@ class MissionLoadoutMenu : AWindowObject
 	void Play() 
 	{ 
 		if (!m_canAfford)
+		{
+			// HWP (issue #64): vanilla ignores E (Start / Ready) silently when the rows cost
+			// more than this player has; the log says so
+			HWP::Log("architect", "run-start: Start/Ready ignored, the rows cost more than this player has (" + m_totCost.GetText(GetLocalPlayerRecord()) + ")");
 			return;
+		}
 
-		OnFunc(null, "play"); 
+		OnFunc(null, "play");
 	}
 
 	bool Back() override
@@ -613,7 +618,10 @@ class MissionLoadoutMenu : AWindowObject
 		auto loadoutStatus = GetLoadoutStatus();
 		
 		if (loadoutStatus == MissionLoadoutStatus::Started)
+		{
+			HWP::Log("architect", "run-start: '" + name + "' ignored, the run is already starting"); // HWP (issue #64)
 			return;
+		}
 
 		if (name == "ngminus" && m_ngp)
 		{
@@ -659,6 +667,18 @@ class MissionLoadoutMenu : AWindowObject
 		else
 		{
 			auto loadout = MissionLoadout::Get(parse[0]);
+			// HWP (issue #64): which side opened a row (Magic Shop, Architect, ...) and from
+			// which status, so a co-op log shows whether a client's click reached the row
+			if (parse.length() > 1 && parse[1] == "open")
+			{
+				string side = "host";
+				if (!Network::IsServer())
+					side = "client (peer " + int(GetLocalPlayerRecord().peer) + ")";
+				string found = "";
+				if (loadout is null)
+					found = ", no such row";
+				HWP::Log("architect", "run-start: row '" + parse[0] + "' opened on the " + side + ", status " + int(loadoutStatus) + found);
+			}
 			if (loadout !is null)
 				loadout.OnFunc(sender, name);
 		}

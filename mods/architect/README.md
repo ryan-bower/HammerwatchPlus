@@ -106,6 +106,14 @@ Architect alterations for the whole party.
     bridges when the window would not leave 22 px above and below, then moves the window
     to the top edge when it still would not; the `[HWP:architect] run-start layout:`
     line says what it did. Farming's herb line is a 14 px row for the same reason.
+  - **Diagnostics (issue #64).** `[HWP:architect] run-start: row '<id>' opened on the
+    host | client (peer N), status S` is logged when any row (Magic Shop, Architect, ...)
+    is clicked open; `... ignored, the run is already starting` when a click lands after
+    Start; `Start/Ready ignored, the rows cost more than this player has (...)` when E
+    does nothing because of the cost. Keys on this screen (vanilla, host and client the
+    same): E is Start on the host and Ready / Unready on a client, never "open this row";
+    a row opens with a click or Return. In the Magic Shop's sphere picker a click (or
+    Return) selects a sphere and E applies and closes, so E alone keeps the old pick.
 
 ## Settings
 
@@ -162,7 +170,8 @@ Morning decisions:
 8. By eye: with a smoked herb, the herb line is one text row and Start plus the key hints
    stay on screen at the default resolution.
 9. Co-op (manual, issue #64): a client opens the Magic Shop row (mouse click or Return;
-   E is Ready in the setup and Apply in the picker), picks a sphere and applies it; the
+   E is Ready in the setup and Apply in the picker; the log has
+   `run-start: row 'magic_shop' opened on the client`), picks a sphere and applies it; the
    row shows it and the run starts with the sphere. If the row cannot be opened,
    `hwp architect` on the client shows the rows its setup has and how many spheres it
    may pick.
