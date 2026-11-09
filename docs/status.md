@@ -34,6 +34,12 @@ tasks. Read the ledger for current counts and next actions.
 > **Historical QA checkpoint (2026-10-22): paused at the user-requested PR boundary.** The original sweep was incomplete. Recorded original-sweep passes: six original fourth specs60/60 rank cases and61/65 orb-quality cases; Firearms60/60 ranks and74/75 orb qualities; HoH1 imports29/39 skills and136/191 ranks;9/9 selected-mastery saves. Five orb cases need real co-op. The then-current 31 normal-release modules had load evidence, with broader feature/lifecycle work open. Earlier QA summaries below are historical snapshots. See [the historical checkpoint](generated/qa_pr_checkpoint.json) and [QA ledger](QA_OVERNIGHT.md).
 
 
+2026-11-06, orb rerolls per orb (new `orbreroll` module, Quality of Life). Every orb you pick up
+can be rerolled as many times as your reroll accomplishments allow, instead of one pool for the
+whole run, and the shadow curse cost starts over on each orb. Orb rerolls no longer spend the run's
+pool, so the trinket picker keeps all of it. Host setting `orbreroll.enabled` (off: vanilla).
+Overrides `GUI/Menus/GiveSkillSphereMenu.as`. Source review and offline tests only, not yet run in game.
+
 2026-11-06, the disappearing-player glitch (#71), suspected cause fixed. A player snapped into a wall
 or past a ledge rail by a collision-ignoring `SetPosition` sits hidden behind the wall sprites and boxed
 in, still connected. Two mod paths could do that: the Devil Forgemaster's Heresy lunge and Penance
