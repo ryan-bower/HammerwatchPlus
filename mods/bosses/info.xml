@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">HammerwatchPlus Tougher Bosses</string>
+	<string name="author">Ryan Bower</string>
+	<string name="description">Bosses have 25% more armor and 25% more of each resistance (the host can change the percentage or turn it off); their health stays as it is. Part of HammerwatchPlus.</string>
+</dict>

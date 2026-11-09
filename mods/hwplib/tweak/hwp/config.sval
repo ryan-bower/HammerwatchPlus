@@ -66,6 +66,7 @@
 					<bool name="host">true</bool>
 					<bool name="level">false</bool>
 					<array name="settings">
+						<dict><string name="key">laststats.winner</string><string name="type">bool</string><bool name="host">false</bool><bool name="level">false</bool><bool name="default">true</bool></dict>
 					</array>
 				</dict>
 				<dict>
@@ -157,6 +158,15 @@
 					<bool name="shared">false</bool>
 					<string name="toggle">orbwarn.enabled</string>
 					<bool name="host">false</bool>
+					<bool name="level">false</bool>
+					<array name="settings">
+					</array>
+				</dict>
+				<dict>
+					<string name="id">orbreroll</string>
+					<bool name="shared">false</bool>
+					<string name="toggle">orbreroll.enabled</string>
+					<bool name="host">true</bool>
 					<bool name="level">false</bool>
 					<array name="settings">
 					</array>
@@ -486,6 +496,16 @@
 						<dict><string name="key">affixes.chance</string><string name="type">int</string><bool name="host">true</bool><bool name="level">false</bool><int name="default">25</int><array name="values"><i>10</i><i>25</i><i>50</i><i>75</i><i>100</i></array><int name="labels">0</int><string name="suffix">%</string></dict>
 					</array>
 				</dict>
+				<dict>
+					<string name="id">bosses</string>
+					<bool name="shared">false</bool>
+					<string name="toggle">bosses.enabled</string>
+					<bool name="host">true</bool>
+					<bool name="level">false</bool>
+					<array name="settings">
+						<dict><string name="key">bosses.toughness</string><string name="type">int</string><bool name="host">true</bool><bool name="level">false</bool><int name="default">25</int><array name="values"><i>0</i><i>10</i><i>25</i><i>50</i><i>75</i><i>100</i></array><int name="labels">0</int><string name="suffix"> %</string></dict>
+					</array>
+				</dict>
 			</array>
 		</dict>
 		<dict>
@@ -503,6 +523,7 @@
 						<dict><string name="key">fishing.run_casts</string><string name="type">int</string><bool name="host">true</bool><bool name="level">false</bool><int name="default">3</int><array name="values"><i>1</i><i>2</i><i>3</i><i>5</i><i>8</i></array><int name="labels">0</int><string name="suffix"></string></dict>
 						<dict><string name="key">fishing.reel_hits</string><string name="type">int</string><bool name="host">true</bool><bool name="level">false</bool><int name="default">0</int><array name="values"><i>0</i><i>1</i><i>2</i><i>3</i><i>4</i></array><int name="labels">5</int><string name="suffix"></string></dict>
 						<dict><string name="key">fishing.keys</string><string name="type">bool</string><bool name="host">true</bool><bool name="level">false</bool><bool name="default">true</bool></dict>
+						<dict><string name="key">fishing.twinkle</string><string name="type">bool</string><bool name="host">false</bool><bool name="level">false</bool><bool name="default">true</bool></dict>
 						<dict><string name="option">eatkey</string></dict>
 					</array>
 				</dict>

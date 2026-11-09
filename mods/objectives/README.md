@@ -18,13 +18,35 @@ skipped).
     (9x8 cells: a walled room, two chests, `doodads/hwp/objective_door.unit`
     in the south doorway) is placed on an unconsumed wall block on the
     floor's outskirts with a straight corridor carved to the nearest floor
-    (the puzzles module's spot search, copied). Its lever
-    (`vault_switch.pfb`, `objective_switch.unit`, kind `vault`) goes on a 3x3
-    floor block far from the vault. If no floor block is left, the vault
+    (the puzzles module's spot search, copied). Its lever (kind `vault`)
+    goes on a wall far from the vault (below). If no spot is left, the vault
     opens from the start (logged as an error line).
-  - `objectives.exit` (default on): the exit lever (`exit_switch.pfb`,
-    `objective_exit_switch.unit`, kind `exit`) on a 3x3 floor block far from
-    the floor's exit prefab.
+  - `objectives.exit` (default on): the exit lever (kind `exit`) on a wall
+    far from the floor's exit prefab.
+  - **Where a lever goes** (issue #74). On a 3-cell run of plain wall
+    (unconsumed, so no prefab's own art) beside a 3x3 floor patch the
+    players reach: on the north, east or west side of the patch
+    (`vault_switch_<n|e|w>.pfb` / `exit_switch_<n|e|w>.pfb`, units
+    `objective_switch_<n|e|w>.unit` / `objective_exit_switch_<n|e|w>.unit`,
+    one include `objective_lever_wall.inc` with the vanilla wall pull lever's
+    art). "Reach" is the floor's largest connected walkable area (a prefab's
+    cells connect it too), so no lever lands on floor cut off by a pit. Every
+    spot at least half as far from what the lever opens as the farthest spot
+    counts, and when some are, 12 cells from the floor's other lever; a side
+    is picked at random among those with a spot, then a spot on it, so levers
+    spread over the floor instead of the farthest corner (which, with the
+    vault on the top edge, was always a bottom corner by the bottom wall).
+    There is no south side: a wall south of the floor shows only its top,
+    drawn two cells up over the floor in front of it, so a lever there would
+    be hidden (vanilla has no south wall buttons either). The wall run is
+    PlaceWall, so the brush paints it as the floor's own wall, and a
+    north-wall run gets no torch (`HWPObjectivePainter` sets the patch row
+    against it back to PlaceFloor before the walls are filled; vanilla puts a
+    torch only on a wall with open floor below). A floor where no wall run
+    fits gets the old floor lever (`vault_switch.pfb` / `exit_switch.pfb`) on
+    a 3x3 patch with floor below it. Logged as `vault 0 lever: on the east
+    wall, picked from N far spot(s) of M (north wall A, east wall B, west wall
+    C)` and `exit lever: ...`.
   - Every placement is logged with cell and world positions
     (`vault 0 at cell x,y of WxH, corridor N, world x,y 144x128, door x,y,
     switch x,y`, `exit switch at cell x,y world x,y`, `placed N vault(s), exit
@@ -74,7 +96,9 @@ skipped).
   the floor is played in. The units do. So on a floor its own context didn't
   generate (also a floor loaded from a save), the host rebuilds the records
   from the units at Start (`AdoptFromUnits`): each door is a vault, each vault
-  gets the farthest lever left, and the exit lever is the exit switch. It logs
+  gets the farthest lever left, and the exit lever is the exit switch (with
+  two vaults the pairs may differ from the generation's, since a lever is no
+  longer the farthest spot; each lever still opens one vault). It logs
   `floor not generated here (preloaded or from a save): N vault(s) and exit
   switch yes ... taken from the units, vault 0 door x,y switch x,y`.
 - **HUD** (`gui/hwp_objectives.gui`, `HWPObjectivesHUD`): a line under the
@@ -118,7 +142,13 @@ Known limits (lab run `fix-objectives`, 2026-10-26, keep floor 1):
 - Chests inside a vault are ordinary reward chests: with the keys module
   they also need a key. The vault has no light of its own.
 - On a floor without a free wall block the vault is skipped (logged); a
-  floor without a 3x3 floor block gets no exit switch and stays open.
+  floor without a 3x3 floor block (with floor below it, for the floor lever)
+  gets no exit switch and stays open.
+- The wall levers (issue #74, 2026-11-06) are from source review and offline
+  tests only (`tests/test_objectives_levers.py`): not yet seen in game. To
+  check in the lab: the art sits on the wall on all three sides, no torch on
+  a north-wall lever, and the bots' teleport next to the lever
+  (`switch y + 20`) lands on the patch for an east or west lever.
 
 ## Test checklist
 
@@ -139,8 +169,10 @@ Known limits (lab run `fix-objectives`, 2026-10-26, keep floor 1):
    on the map, and shots from the door, inside and inside unlit; then with
    `hwp architect try hwp_objectives_marked_switches` both levers are.
 3. By hand: walk to the vault; the door blocks you and your shots; find the
-   lever (no map icon), press it: sound, "A vault opened", the door animates
-   open. The vault's floor, walls and torches look like the rest of the floor.
+   lever (no map icon), on a wall, press it: sound, "A vault opened", the
+   pull animation, the door animates open. Over a few floors the levers sit
+   on north, east and west walls all over the floor, never hidden behind a
+   bottom wall. The vault's floor, walls and torches look like the rest of the floor.
    With Marked Switches picked at the Architect, both levers show on the map. Walk onto the exit before the exit switch: no use prompt. Press the
    exit switch: the exit works.
 4. `hwp set objectives.vaults 2`, new floor: two vaults, each with its own

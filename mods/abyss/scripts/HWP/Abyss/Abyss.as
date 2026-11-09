@@ -52,11 +52,12 @@ namespace HWP
 			return prod.Produce(g_scene, pos);
 		}
 
-		// pos is an enemy's position; the crack goes on a free spot next to it.
+		// pos is an enemy's position; the crack goes on a free spot next to it, with
+		// room around it and in line of reach of the enemy (not behind a wall).
 		void Place(vec3 pos)
 		{
 			vec3 at;
-			if (HWP::Spawner::FreeSpot(pos, 40.0f, at))
+			if (HWP::Spawner::SpawnSpot(pos, 40.0f, 12, at, 0.0f))
 				pos = at;
 			auto u = Spawn(UNIT, pos);
 			if (!u.IsValid())
@@ -151,9 +152,10 @@ class HWPAbyssCrack
 	}
 
 	// Where wave n spawns: the crack spreads 70 px per wave along m_dir. A
-	// spread into or behind a wall left every pack spot blocked, so a blocked
-	// direction is re-rolled (and kept for later waves); after 8 tries the
-	// wave spawns at the crack itself.
+	// spread into or behind a wall left every pack spot blocked (or, with the
+	// old ray that started 20 px out, put the whole wave behind a wall next to
+	// the crack: issue #80), so a blocked direction is re-rolled (and kept for
+	// later waves); after 8 tries the wave spawns at the crack itself.
 	vec3 SpreadSpot(vec3 pos, int n)
 	{
 		if (n <= 1)
@@ -162,8 +164,7 @@ class HWPAbyssCrack
 		for (int t = 0; t < 8; t++)
 		{
 			vec2 p = c + m_dir * float(70 * (n - 1));
-			if (!g_scene.RaycastQuick(c + m_dir * 20.0f, p, ~0, RaycastType::Any)
-				&& g_scene.QueryRect(p, 16, 16, ~0, RaycastType::Any).length() == 0)
+			if (HWP::Spawner::HasRoom(p, 12) && HWP::Spawner::Reachable(c, p))
 				return vec3(p.x, p.y, pos.z);
 			m_dir = randdir();
 		}
@@ -175,20 +176,26 @@ class HWPAbyssCrack
 		m_wave = n;
 		vec3 pos = m_unit.GetPosition();
 		vec3 at = SpreadSpot(pos, n);
-		if (n > 1 && distsq(xy(at), xy(pos)) > 1.0f)
-		{
-			auto f = HWP::Abyss::Spawn(HWP::Abyss::FISSURE_UNIT, at);
-			if (f.IsValid())
-				m_fissures.insertLast(f);
-		}
 		int players = HWP::Spawner::PlayerCount();
 		int count = HWP::Abyss::g_waveBase + HWP::Abyss::g_wavePerPlayer * players + (n - 1);
 		m_pack = HWP::Spawner::SpawnPack(m_prods, at, count, 60.0f, true);
+		if (m_pack.length() == 0 && distsq(xy(at), xy(pos)) > 1.0f)
+		{
+			// the spread spot fits nobody: the wave erupts at the crack instead
+			at = pos;
+			m_pack = HWP::Spawner::SpawnPack(m_prods, at, count, 60.0f, true);
+		}
 		if (m_pack.length() == 0)
 		{
 			HWP::Log("abyss", "no free spot for wave " + n + "; the crack closes");
 			Finish(false);
 			return;
+		}
+		if (n > 1 && distsq(xy(at), xy(pos)) > 1.0f)
+		{
+			auto f = HWP::Abyss::Spawn(HWP::Abyss::FISSURE_UNIT, at);
+			if (f.IsValid())
+				m_fissures.insertLast(f);
 		}
 		string extraDesc;
 		int elites = HWP::Abyss::Elites(n, players);
