@@ -34,6 +34,14 @@ tasks. Read the ledger for current counts and next actions.
 > **Historical QA checkpoint (2026-10-22): paused at the user-requested PR boundary.** The original sweep was incomplete. Recorded original-sweep passes: six original fourth specs60/60 rank cases and61/65 orb-quality cases; Firearms60/60 ranks and74/75 orb qualities; HoH1 imports29/39 skills and136/191 ranks;9/9 selected-mastery saves. Five orb cases need real co-op. The then-current 31 normal-release modules had load evidence, with broader feature/lifecycle work open. Earlier QA summaries below are historical snapshots. See [the historical checkpoint](generated/qa_pr_checkpoint.json) and [QA ledger](QA_OVERNIGHT.md).
 
 
+2026-11-06, Out of combat speed (`outofcombat`, #99). In a run, a player who hasn't hit an
+enemy for 10 seconds moves twice as fast, with the shrine speed blessing icon in the buff bar,
+until they hit one again. Taking damage doesn't end it, and it is off in town unless the host
+turns that on. The host sets the speed (1.25x to 3x) and the wait (3 to 30 s); each machine
+boosts its own player, so clients get it as the host does. Source review and pytest only,
+not tested in game (`mod-outofcombat`, `pf-mod-outofcombat` and the README's two-player
+checklist are still to run).
+
 2026-11-06, Secrets Found per opener and recap board tabs (#98). Secrets Found now counts
 only for the player who broke the secret wall (the nearest living player if a summon broke
 it). The guild's town accomplishment still counts every secret, and mmhmm's secret-room line

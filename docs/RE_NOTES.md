@@ -1,5 +1,28 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-06: player move speed and hit detection (issue #99, `outofcombat`)
+
+Source review of the decompiled scripts (`gamecode/sdk/hoh2/scripts`), for the out of
+combat speed boost. Not measured in game yet.
+
+- **Move speed** (`Player.as`, the `Moving` block of `Update`, local player only): 1 x
+  `currStats.MoveSpeed` (gear and stats) x `m_buffs.MoveSpeedMul(slowScale * comboSlowScale)`
+  x `CVars::ChtSpeed` x each skill's `GetMoveSpeedMul()` x a tileset's `walk-speed`, then
+  times `Tweak::PlayerSpeedBase` (3.6) and clamped to `[PlayerSpeedMin, PlayerSpeedMax]` =
+  `[1, 8]` (`Data/Player.as`). So no player moves faster than 2.22 times the base, whatever
+  the buffs. In combo the result is then x1.2 (after the clamp).
+- `ActorBuffList.MoveSpeedMul(slowScale)` multiplies `lerp(1, buff speed-mul, slowScale)` per
+  buff: the slow-resistance scale (`Modifiers::BuffScaling` `SlowScale`) shrinks speed
+  *boosts* too, and so does combo (`comboSlowScale` 0.5).
+- `speed-mul` is `ActorBuffDef.m_mulSpeed`, a vec2 lerped by the buff's intensity; the def is
+  cached per path in `g_actorBuffDefs`, so a module that owns a buff path can set the field
+  at runtime (as `legacy` sets `m_description`).
+- **Hits:** `CompositeActorBehavior.Damage` calls `DamagedActor` on the attacker only when
+  `!dmg.DoT` and the attacker is an `IPlayerActorDamager`; `Player.DamagedActor` calls the
+  `PlayerDamagedActor` hook only when `di.Damage > 0`. Summons and trip mines pass their hits
+  to the owner's `DamagedActor` (`PlayerOwnedActor.as`, `TripMine.as`), so the hook sees them.
+  `Breakable` is an `IDamageTaker`, not an `Actor`: no hook for pots and crates.
+
 ## 2026-11-06: Run-start setup in co-op (source review only, issues #64, #65, #96)
 
 Read from the decompiled scripts on build 25932569. No game boot, GameLab run or co-op

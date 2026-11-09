@@ -49,6 +49,10 @@ next level.
 | Salvage | On | `salvage.enabled` | on | on, off | host |
 | Salvage | Salvage yield | `salvage.yield` | 100% | 50%, 75%, 100%, 150%, 200% | host |
 | Free skills after a respec | On | `freeskills.enabled` | on | on, off | local |
+| Out of combat speed | On | `outofcombat.enabled` | on | on, off | host |
+| Out of combat speed | Speed | `outofcombat.speed` | 2x | 1.25x, 1.5x, 2x, 2.5x, 3x | host |
+| Out of combat speed | Time without a hit | `outofcombat.delay` | 10 s | 3 s, 5 s, 10 s, 15 s, 20 s, 30 s | host |
+| Out of combat speed | In town too | `outofcombat.town` | off | on, off | host |
 
 ## Co-op Play
 
