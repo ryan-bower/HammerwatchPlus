@@ -1,0 +1,20 @@
+{
+ "name": "fix-catchup",
+ "about": "Issue #73: catch-up experience (fix_catchup bot). A fresh level 1 paladin has no bonus in town. Bandit Keep at NG+1 shows the Late Bloomer buff and hwp xp 40 gives 60; checked against NG+0 the buff ends and 40 gives 40; NG+2 turns it on with threshold 25; catchup.enabled off ends it; levelling to 20 at NG+1 ends it (level 20 >= 20).",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "catchup"
+ ],
+ "timeout": 360,
+ "steps": [
+  {"do": "log_has", "pattern": "\[HWP:catchup\] ready: buff loaded, thresholds NG\+1 20, NG\+2 25", "timeout": 30},
+  {"do": "console", "line": "e_cheats 1"},
+  {"do": "bot", "bot": "fix_catchup", "name": "catchup-on", "kwargs": {"sections": "town,run"},
+   "expect": {"LabCatch_ready": true, "catch_town_off": true, "catch_mission": true, "catch_on_ngp1": true, "catch_xp_150": true}},
+  {"do": "shot", "name": "catchup-buff"},
+  {"do": "bot", "bot": "fix_catchup", "name": "catchup-off", "kwargs": {"sections": "off,cap"},
+   "expect": {"catch_off_ngp0": true, "catch_on_ngp2": true, "catch_setting_off": true, "catch_back_on": true, "catch_cap_off": true, "catch_cap_plain": true}},
+  {"do": "log_clean"}
+ ]
+}
