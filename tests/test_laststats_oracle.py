@@ -45,8 +45,11 @@ def observation():
                siblings=reply([node("stat-group"), node("empty", "TextWidget",
                    "No run recorded yet. Finish (or abandon) an expedition and come back.", False),
                    node("nomatch", "TextWidget", "No stat matches the search.", False)]),
-               list=reply([node("cat-combat", "TextWidget", "Combat"), node("stat-0"), node("stat-1"),
-                           node("sep-travel", "PanelWidget"), node("cat-travel", "TextWidget", "Travel"), node("stat-2")]),
+               # tabs (issue #98): the first tab (combat) is open, so its two rows show and the
+               # headers, the separator and the travel row are hidden until a search
+               list=reply([node("cat-combat", "TextWidget", "Combat", False), node("stat-0"), node("stat-1"),
+                           node("sep-travel", "PanelWidget", visible=False),
+                           node("cat-travel", "TextWidget", "Travel", False), node("stat-2", visible=False)]),
                rows={})
     for i, (title, *cells) in enumerate(draws):
         nodes = [node("stat-bg", "RectWidget", visible=i % 2 == 1),
@@ -61,7 +64,7 @@ def observation():
                       node("bar-name-" + suffix, "TextWidget", ("Local", "Remote")[p], depth=2),
                       node("bar", "RectWidget", visible=visible, depth=2, w=width, h=8),
                       node("bar-value-" + suffix, "TextWidget", text, depth=2)]
-        obs["rows"]["stat-" + str(i)] = reply(nodes)
+        obs["rows"]["stat-" + str(i)] = reply(nodes, visible=i < 2)
     return party, obs
 
 
@@ -69,9 +72,9 @@ class ConsumerOracle(unittest.TestCase):
     def setUp(self):
         self.party, self.obs = observation()
 
-    def check(self, query="", legacy=False):
+    def check(self, query="", legacy=False, tab=None):
         return O.board_assertions(self.party, "Local", {"combat": "Combat", "travel": "Travel"},
-                                  {2: "Defeated"}, self.obs, query, legacy)
+                                  {2: "Defeated"}, self.obs, query, legacy, tab)
 
     def reject(self, mutate):
         mutate()
@@ -84,8 +87,49 @@ class ConsumerOracle(unittest.TestCase):
     def test_handwritten_union_local_first_and_absent_stats(self):
         before = copy.deepcopy((self.party, self.obs))
         result = self.check()
-        self.assertEqual((result["rows"], result["players"], result["positive_rectangles"]), (3, 2, 4))
+        self.assertEqual((result["rows"], result["shown"], result["players"], result["positive_rectangles"]),
+                         (3, 2, 2, 3))
+        self.assertEqual((result["tab"], result["tabs"]), ("combat", 2))
         self.assertEqual(before, (self.party, self.obs))
+
+    def show(self, ids, visible):
+        for n in self.obs["list"]["nodes"]:
+            if n["id"] in ids:
+                n["visible"] = visible
+        for wid in ids:
+            if wid in self.obs["rows"]:
+                self.obs["rows"][wid]["visible"] = visible
+
+    def test_other_tab_shows_only_its_rows(self):
+        self.show(("stat-0", "stat-1"), False)
+        self.show(("stat-2",), True)
+        result = self.check(tab="travel")
+        self.assertEqual((result["shown"], result["tab"], result["positive_rectangles"]), (1, "travel", 1))
+        with self.assertRaises(ValueError):
+            self.check()  # the combat tab's rows are hidden
+        with self.assertRaises(ValueError):
+            self.check(tab="loot")
+
+    def test_tab_must_hide_headers_and_other_tabs(self):
+        self.show(("stat-2",), True)
+        with self.assertRaises(ValueError):
+            self.check()
+        self.show(("stat-2",), False)
+        self.show(("cat-combat",), True)
+        with self.assertRaises(ValueError):
+            self.check()
+
+    def test_search_spans_every_tab_with_headers(self):
+        # "s" matches Blocks (combat) and Distance (travel), not Damage: both tabs' rows
+        # show under their headers whichever tab was open
+        self.show(("cat-combat", "sep-travel", "cat-travel", "stat-1", "stat-2"), True)
+        self.show(("stat-0",), False)
+        for tab in (None, "travel"):
+            result = self.check(" S ", tab=tab)
+            self.assertEqual((result["shown"], result["positive_rectangles"]), (2, 2))
+        self.show(("cat-travel",), False)
+        with self.assertRaises(ValueError):
+            self.check("s")
 
     def test_wrong_formatted_value_rejected(self):
         self.reject(lambda: self.cell("stat-0", "bar-value-0-0").update(caption="164"))
@@ -121,6 +165,7 @@ class ConsumerOracle(unittest.TestCase):
             copy.deepcopy(self.cell("stat-0", "bar-value-0-1"))))
 
     def test_search_case_trim_and_category_hide(self):
+        self.obs["list"]["nodes"][0]["visible"] = True
         self.obs["list"]["nodes"][2]["visible"] = False
         for n in self.obs["list"]["nodes"][3:]:
             n["visible"] = False
@@ -168,7 +213,7 @@ class ConsumerOracle(unittest.TestCase):
         for n in self.obs["rows"]["stat-0"]["nodes"]:
             if n["id"] == "bar" and n["w"] == 50:
                 n.update(w=1, visible=False)
-        self.assertEqual(self.check(legacy=True)["positive_rectangles"], 3)
+        self.assertEqual(self.check(legacy=True)["positive_rectangles"], 2)
 
     def test_native_formatted_comparison_survives_new_numeric_field(self):
         snap = self.party[1]

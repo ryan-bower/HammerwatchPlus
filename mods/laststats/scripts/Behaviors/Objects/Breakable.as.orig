@@ -1,0 +1,252 @@
+class Breakable : IDamageTaker
+{
+	[Editable default=true]
+	bool Respawn;
+	float m_respawnTime;
+	
+
+	UnitPtr m_unit;
+	bool m_alwaysHitGore;
+
+	SoundEvent@ m_hitSound;
+	UnitScene@ m_hitEffect;
+	SoundEvent@ m_switchSound;
+	UnitScene@ m_switchEffect;
+	SoundEvent@ m_breakSound;
+	UnitScene@ m_breakEffect;
+
+	EffectList@ m_effectList;
+	GoreSpawner@ m_gore;
+	UnitProducer@ m_corpse;
+	Item::LootTable@ m_lootTable;
+
+	bool m_sceneSwitching;
+	bool m_sceneSwitchingPass;
+	bool m_sceneSwitchingResetTime;
+	bool m_impenetrable;
+	bool m_shootThrough;
+	bool m_walkThrough;
+	uint m_walkThroughTeam;
+
+	int m_health = -1;
+	float m_mpScaleFact;
+
+
+	Breakable(UnitPtr unit, SValue& params)
+	{
+		m_unit = unit;
+
+		m_alwaysHitGore = GetParamBool(unit, params, "always-hit-gore", false, false);
+		
+		@m_hitSound = Resources::GetSoundEvent(GetParamString(unit, params, "hit-sound", false));
+		@m_hitEffect = Resources::GetEffect(GetParamString(unit, params, "hit-effect", false));
+		
+		@m_switchSound = Resources::GetSoundEvent(GetParamString(unit, params, "switch-sound", false));
+		@m_switchEffect = Resources::GetEffect(GetParamString(unit, params, "switch-effect", false));
+
+		if (m_switchSound is null)
+			@m_switchSound = m_hitSound;
+		if (m_switchEffect is null)
+			@m_switchEffect = m_hitEffect;
+
+		@m_breakSound = Resources::GetSoundEvent(GetParamString(unit, params, "break-sound", false));
+		@m_breakEffect = Resources::GetEffect(GetParamString(unit, params, "break-effect", false));
+		
+		@m_lootTable = Item::GetLootTable(GetParamString(unit, params, "loot", false));
+		@m_gore = GoreSpawner::Get(GetParamString(unit, params, "gore", false));
+
+
+		@m_corpse = Resources::GetUnitProducer(GetParamString(unit, params, "corpse", false));
+		@m_effectList = LoadEffects(unit, params);
+
+		m_sceneSwitching = GetParamBool(unit, params, "scene-switching", false, false);
+		if (m_sceneSwitching)
+		{
+			m_sceneSwitchingPass = GetParamBool(unit, params, "scene-switching-passthrough", false, false);
+			m_sceneSwitchingResetTime = GetParamBool(unit, params, "scene-switching-reset-time", false, true);
+		}
+
+		m_impenetrable = GetParamBool(unit, params, "impenetrable", false, false);
+		m_walkThrough = GetParamBool(unit, params, "walk-through", false, false);
+		m_shootThrough = GetParamBool(unit, params, "shoot-through", false, false);
+		
+		if (m_walkThrough)
+		{
+			auto walkThroughTeam = GetParamString(unit, params, "walk-through-team", false);
+			if (!walkThroughTeam.isEmpty())
+				m_walkThroughTeam = HashString(walkThroughTeam);
+		}
+		
+		m_mpScaleFact = GetParamFloat(unit, params, "mp-scale-fact", false, 0);
+		m_respawnTime = GetParamFloat(unit, params, "respawn-time", false, 12.0f);
+		
+		ResetHealth();
+	}
+
+	void ResetHealth()
+	{
+		auto svHealth = m_unit.FetchData("health");
+		if (svHealth !is null)
+			m_health = svHealth.GetInteger();
+		else
+			m_health = 1;
+	}
+
+	bool ShootThrough(Actor@ attacker, vec2 pos, vec2 dir) override
+	{
+		if (!m_shootThrough)
+			return false;
+
+		if ((attacker is null && Network::IsServer()) || (attacker !is null && !attacker.IsHusk()))
+		{
+			UnitHandler::NetSendUnitDamaged(m_unit, 1, pos, dir, attacker);
+			DamageEffects(1, pos, dir, null);
+		}
+
+		return true;
+	}
+
+	int DamageEffects(int dmg, vec2 pos, vec2 dir, Actor@ attacker)
+	{
+		if (!m_unit.IsValid() || m_unit.IsDestroyed() || m_unit.GetPhysicsBody() is null)
+			return 0;
+
+		if (m_health != -1)
+		{
+			m_health -= max(1, int(dmg / (1.0f + g_mpEnemyHealthScale * m_mpScaleFact)));
+			if (m_health > 0)
+			{
+				PlaySound3D(m_hitSound, xyz(pos));
+				PlayEffect(m_hitEffect, pos);
+
+				if (m_alwaysHitGore && m_gore !is null)
+					m_gore.OnHit(dmg / 100.0, pos, atan(dir.y, dir.x));
+
+				return dmg;
+			}
+		}
+
+		UnitScene@ nextScene = null;
+		if (m_sceneSwitching)
+		{
+			UnitScene@ currScene = m_unit.GetCurrentUnitScene();
+			
+			do
+			{
+				string sceneName = currScene.GetName();
+				int idx = sceneName.findLast("-");
+				if (idx != -1)
+				{
+					idx += 1;
+
+					int id = parseInt(sceneName.substr(idx));
+					@nextScene = m_unit.GetUnitScene(sceneName.substr(0, idx) + (id + 1));
+					@currScene = nextScene;
+				}
+
+				if (currScene is null)
+					break;
+
+				if (m_sceneSwitchingPass)
+				{
+					auto svHealth = currScene.FetchData("health");
+					if (svHealth !is null)
+					{
+						m_health += svHealth.GetInteger();
+						if (m_health < 0)
+							m_unit.SetUnitScene(nextScene, m_sceneSwitchingResetTime);
+					}
+					else
+						break;
+				}
+			} while (m_sceneSwitchingPass && m_health < 0);
+		}
+		
+		if (nextScene !is null)
+		{
+			PlaySound3D(m_switchSound, m_unit.GetPosition());
+			PlayEffect(m_switchEffect, xy(m_unit.GetPosition()));
+
+			m_unit.SetUnitScene(nextScene, m_sceneSwitchingResetTime);
+			ResetHealth();
+
+			if (m_gore !is null)
+				m_gore.OnHit(dmg / 100.0, xy(m_unit.GetPosition()), atan(dir.y, dir.x));
+
+			return dmg;
+		}
+		else
+		{
+			vec3 upos = m_unit.GetPosition();
+			PlaySound3D(m_breakSound, xyz(pos));
+			PlayEffect(m_breakEffect, pos);
+			
+			if (m_gore !is null)
+				m_gore.OnDeath(dmg / 100.0, xy(upos), atan(dir.y, dir.x));
+			
+			bool netsynced = IsNetsyncedExistance(m_unit.GetUnitProducer().GetNetSyncMode());
+			if (!netsynced || Network::IsServer())
+			{
+				if (Respawn && m_respawnTime > 0)
+				{
+					auto spawnUnit = g_spawnerUnit.Produce(g_scene, upos);
+					auto behavior = cast<SpawnerBehavior>(spawnUnit.GetScriptBehavior());
+					//behavior.Initialize(m_unit.GetUnitProducer(), m_respawnTime, m_unit.GetScriptProperties());
+					behavior.Initialize(m_unit, lerp(m_respawnTime * 0.9f, m_respawnTime * 1.1f, randf()), !m_sceneSwitching);
+				}
+			
+				m_unit.Destroy();
+			}
+
+			ApplyEffects(m_effectList, attacker, m_unit, pos, dir, 1.0, !Network::IsServer());
+
+			bool netsyncedCorpse = m_corpse !is null && IsNetsyncedExistance(m_corpse.GetNetSyncMode());
+			if (Network::IsServer())
+			{
+				if (m_lootTable !is null && cast<TownGameMode>(g_gameMode) is null)
+					m_lootTable.SpawnLoot(attacker, upos);
+					
+				if (m_corpse !is null)
+					m_corpse.Produce(g_scene, upos);
+			}
+			else if (!netsyncedCorpse && m_corpse !is null)
+				m_corpse.Produce(g_scene, upos);
+			
+			@m_corpse = null;
+		}
+
+		return dmg;
+	}
+	
+	int Damage(DamageInfo dmg, vec2 pos, vec2 dir) override
+	{
+		int d = dmg.PhysicalDamage + dmg.FireDamage + dmg.IceDamage + dmg.LightningDamage + dmg.PoisonDamage + dmg.PureDamage;
+		UnitHandler::NetSendUnitDamaged(m_unit, d, pos, dir, dmg.Attacker);
+		return DamageEffects(d, pos, dir, dmg.Attacker);
+	}
+
+	void NetDamage(DamageInfo dmg, vec2 pos, vec2 dir) override
+	{
+		DamageEffects(dmg.Damage, pos, dir, dmg.Attacker);
+	}
+
+	void Collide(UnitPtr unit, vec2 pos, vec2 normal)
+	{
+		if (!m_walkThrough)
+			return;
+		
+		Actor@ a = cast<Actor>(unit.GetScriptBehavior());
+		if (a !is null)
+		{
+			if (m_walkThroughTeam != 0 && a.Team != m_walkThroughTeam)
+				return;
+			
+			UnitHandler::NetSendUnitDamaged(m_unit, 1, pos, normal, null);
+			DamageEffects(1, pos, normal, a);
+		}
+	}
+
+	bool Impenetrable() override { return m_impenetrable; }
+	bool IsDead() override { return !m_unit.IsValid(); }
+	bool Ricochets() override { return false; }
+}

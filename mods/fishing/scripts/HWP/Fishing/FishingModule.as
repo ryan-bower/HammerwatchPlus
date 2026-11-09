@@ -28,6 +28,9 @@
 // tweak/hwp/loot_fishing.sval and answers `fishing.landed` with the fish and
 // its item level (the floor's drop level, NG+ included). Clients never choose
 // what they catch there; run spots need no bait.
+//
+// Every spot twinkles (TickTwinkle): a glint over its water every couple of seconds, played by
+// each machine for itself, until that player has fished a run spot out (fishing.twinkle, local).
 namespace HWP
 {
 	namespace Fishing
@@ -223,6 +226,7 @@ namespace HWP
 		int g_keyChanceSet = -1; // fishing.key_chance: -1 = the table; 0-1000 per mille for every catch (tests)
 		int g_keyTierSet = 0;    // fishing.key_tier: 0 = roll; 1-4 forces the key's tier (tests)
 		int g_reelHits = 0;      // fishing.reel_hits: 0 = by fish tier (REEL_HITS); 1-4 for every fish
+		bool g_twinkle = true;   // fishing.twinkle (each player's own): the glint over the spots' water
 
 		// hits in the green that land a fish of this tier
 		int HitsNeeded(int tier)
@@ -245,6 +249,7 @@ namespace HWP
 			g_keyChanceSet = clamp(HWP::Settings::GetInt("fishing.key_chance", -1), -1, 1000);
 			g_keyTierSet = clamp(HWP::Settings::GetInt("fishing.key_tier", 0), 0, 4);
 			g_reelHits = clamp(HWP::Settings::GetInt("fishing.reel_hits", 0), 0, 4);
+			g_twinkle = HWP::Settings::GetBool("fishing.twinkle", true);
 			if (g_biteMin < 100) g_biteMin = 100;
 			if (g_biteMax < g_biteMin) g_biteMax = g_biteMin;
 		}
@@ -268,6 +273,8 @@ namespace HWP
 			// turned off on a run: the floor's spots go (turned on, the next floor rolls)
 			if (wasOn && !g_enabled && !g_inTown)
 				ClearHoles();
+			if (!g_twinkle || !g_enabled)
+				StopTwinkles();
 		}
 
 		// the fishing.enabled toggle off: commands that would fish, buy or sell say so
@@ -1497,6 +1504,8 @@ namespace HWP
 				}
 				else
 					g_holeScenes[at] = scene;
+				if (scene == "empty")
+					StopTwinkle(id); // fished out: no glint left in flight over it either
 				vec3 pos = holes[i].GetPosition();
 				HWP::Log("fishing", "run spot at " + int(pos.x) + "," + int(pos.y) + ": " + scene
 					+ (scene == "empty" ? " (fished out, " + g_myCasts + " casts)" : ""));
@@ -1528,6 +1537,168 @@ namespace HWP
 			HWP::Log("fishing", "turned off: removed " + n + " run spot(s)");
 		}
 
+		// ---- the twinkle: a glint over each spot's water ------------------------------
+
+		// Every machine, for itself (PlayEffect's effect unit is netsync none): each spot plays
+		// effects/hwp/fishing_twinkle.effect (vanilla's ground-item glint, played once) at a random
+		// point of its water every TWINKLE_MIN_MS-TWINKLE_MAX_MS, while the game runs. The coast
+		// spots always twinkle; a run spot twinkles while it shows fish here, so not once this
+		// player's casts are spent ("empty", its map icon greyed: WatchHoles), and a new floor's
+		// spots start again. fishing.twinkle 0 (each player's own) turns it off.
+		const string TWINKLE_FX = "effects/hwp/fishing_twinkle.effect";
+		// the effect draws its star this far above its position (its pos-y); the glint goes that much
+		// further south, so it sorts after the well (WELL_DY px north of the spot) and draws over it
+		const float TWINKLE_LIFT = 16.0f;
+		const int TWINKLE_MIN_MS = 1800;
+		const int TWINKLE_MAX_MS = 3400;
+		const int TWINKLE_SCAN_MS = 1000; // how often the spots of the level are looked up
+		// where a spot's water is, from the spot's origin, by its scene ("_dry" counts as the
+		// kind): x0, y0, x1, y1 of where the scene's fish swim (fishing_spot.unit's two pond fish in
+		// the sea to the west; fishing_hole_well.unit / fishing_bucket.unit, the koi's frames)
+		const array<string> TWINKLE_SCENES = { "spot", "well", "dark", "barrel", "crypt", "fountain", "bucket" };
+		const array<int> TWINKLE_BOX = {
+			-62, -22, -18, 14,  // spot (coast)
+			-6, -9, 6, 0,       // well
+			-14, -15, 14, 2,    // dark
+			-6, -6, 6, 3,       // barrel
+			-18, -15, -6, -5,   // crypt
+			-28, 2, -16, 12,    // fountain
+			-5, -13, 5, -6 };   // bucket
+
+		array<UnitPtr> g_twUnit; // the spots that twinkle here
+		array<int> g_twMs;       // ms to each one's next glint
+		array<UnitPtr> g_twFx;   // its glint in flight
+		int g_twScanMs = 0;
+		int g_twPlayed = 0;      // glints this level (hwp fishing)
+
+		// the TWINKLE_BOX row of a spot's current look; -1: no fish there (fished out, not yet set)
+		int TwinkleBox(UnitPtr spot, bool coast)
+		{
+			string scene = "spot";
+			if (!coast)
+			{
+				int at = g_holeIds.find(spot.GetId());
+				if (at < 0)
+					return -1;
+				scene = g_holeScenes[at];
+				int dry = scene.findFirst("_dry");
+				if (dry > 0)
+					scene = scene.substr(0, dry);
+			}
+			return TWINKLE_SCENES.find(scene);
+		}
+
+		void StopTwinkle(int id)
+		{
+			for (uint i = 0; i < g_twUnit.length(); i++)
+			{
+				if (g_twUnit[i].GetId() != id)
+					continue;
+				if (g_twFx[i].IsValid() && !g_twFx[i].IsDestroyed())
+					g_twFx[i].Destroy();
+				g_twFx[i] = UnitPtr();
+			}
+		}
+
+		// fishing.twinkle or fishing.enabled off: every glint goes now
+		void StopTwinkles()
+		{
+			for (uint i = 0; i < g_twFx.length(); i++)
+				if (g_twFx[i].IsValid() && !g_twFx[i].IsDestroyed())
+					g_twFx[i].Destroy();
+			g_twUnit.removeRange(0, g_twUnit.length());
+			g_twMs.removeRange(0, g_twMs.length());
+			g_twFx.removeRange(0, g_twFx.length());
+			g_twScanMs = 0;
+		}
+
+		// a new level: its units (glints included) went with the old one
+		void ResetTwinkles()
+		{
+			g_twUnit.removeRange(0, g_twUnit.length());
+			g_twMs.removeRange(0, g_twMs.length());
+			g_twFx.removeRange(0, g_twFx.length());
+			g_twScanMs = 0;
+			g_twPlayed = 0;
+		}
+
+		// the level's spots now, each keeping its own timer; a new one starts at a random point
+		// of the cycle so the spots never glint together
+		void ScanTwinkles()
+		{
+			array<UnitPtr> found;
+			array<string> paths;
+			if (g_inTown)
+				paths.insertLast(SPOT_UNIT);
+			else
+			{
+				paths.insertLast(WELL_SPOT_UNIT);
+				paths.insertLast(BUCKET_UNIT);
+			}
+			for (uint k = 0; k < paths.length(); k++)
+			{
+				auto prod = Resources::GetUnitProducer(paths[k]);
+				if (prod is null)
+					continue;
+				auto units = g_scene.FetchAllUnitsOfType(prod);
+				for (uint i = 0; i < units.length(); i++)
+					found.insertLast(units[i]);
+			}
+			array<int> timers;
+			array<UnitPtr> glints;
+			for (uint i = 0; i < found.length(); i++)
+			{
+				int at = -1;
+				for (uint j = 0; j < g_twUnit.length(); j++)
+				{
+					if (g_twUnit[j].IsValid() && g_twUnit[j].GetId() == found[i].GetId())
+					{
+						at = int(j);
+						break;
+					}
+				}
+				timers.insertLast(at >= 0 ? g_twMs[at] : randi(TWINKLE_MAX_MS));
+				glints.insertLast(at >= 0 ? g_twFx[at] : UnitPtr());
+			}
+			g_twUnit = found;
+			g_twMs = timers;
+			g_twFx = glints;
+		}
+
+		// every frame the game runs (not paused: the minigame pauses it)
+		void TickTwinkle(int ms)
+		{
+			if (!g_twinkle || !g_enabled)
+				return;
+			g_twScanMs -= ms;
+			if (g_twScanMs <= 0)
+			{
+				g_twScanMs = TWINKLE_SCAN_MS;
+				ScanTwinkles();
+			}
+			for (uint i = 0; i < g_twUnit.length(); i++)
+			{
+				g_twMs[i] -= ms;
+				if (g_twMs[i] > 0)
+					continue;
+				g_twMs[i] = randi(TWINKLE_MIN_MS, TWINKLE_MAX_MS);
+				UnitPtr spot = g_twUnit[i];
+				if (!spot.IsValid() || spot.IsDestroyed())
+					continue;
+				int b = TwinkleBox(spot, g_inTown);
+				if (b < 0)
+					continue;
+				float x0 = float(TWINKLE_BOX[b * 4]);
+				float y0 = float(TWINKLE_BOX[b * 4 + 1]);
+				float x1 = float(TWINKLE_BOX[b * 4 + 2]);
+				float y1 = float(TWINKLE_BOX[b * 4 + 3]);
+				vec2 at = xy(spot.GetPosition()) + vec2(x0 + randf() * (x1 - x0), y0 + randf() * (y1 - y0) + TWINKLE_LIFT);
+				dictionary ps = { { "a", 0.3f + 0.2f * randf() } };
+				g_twFx[i] = PlayEffect(TWINKLE_FX, at, ps);
+				g_twPlayed++;
+			}
+		}
+
 		void SelfCheck()
 		{
 			LoadKeyTable();
@@ -1536,6 +1707,8 @@ namespace HWP
 				tables.insertLast("hwp_fishing_run_" + t);
 			HWP::CheckLootTables("fishing", tables);
 			HWP::CheckUnits("fishing", { SPOT_UNIT, HOLE_UNIT, WELL_SPOT_UNIT, BUCKET_UNIT, TRAP_UNIT, TRAP_FULL_UNIT, PIRATE_UNIT });
+			if (Resources::GetEffect(TWINKLE_FX) is null)
+				HWP::LogError("fishing", "missing " + TWINKLE_FX);
 			int missing = 0;
 			for (uint i = 0; i < g_fish.length(); i++)
 			{
@@ -1786,6 +1959,12 @@ namespace HWP
 				{ "chance", g_runChance }, { "casts", g_runCasts }, { "catch", s.isEmpty() ? "-" : s } }));
 			auto slot = HWP::Gear::Get("hwp-gear-rod");
 			HWP::Commands::Reply("rod slot: " + (slot is null ? "none" : slot.Icon() is null ? "empty" : "drawn"));
+			int twinkling = 0;
+			for (uint i = 0; i < g_twUnit.length(); i++)
+				if (g_twUnit[i].IsValid() && !g_twUnit[i].IsDestroyed() && TwinkleBox(g_twUnit[i], g_inTown) >= 0)
+					twinkling++;
+			HWP::Commands::Reply("twinkle: " + (g_twinkle ? "on" : "off (fishing.twinkle)") + ", " + twinkling + " of "
+				+ g_twUnit.length() + " spot(s) twinkling, " + g_twPlayed + " glint(s) this level");
 			if (KeysPresent())
 				HWP::Commands::Reply("keys: " + KeyCounts(rec));
 		}
@@ -2521,6 +2700,7 @@ namespace Modules
 					HWP::Materials::Register("a", 10 + i, "hwp-mat-bait-" + HWP::Fishing::BAIT_IDS[i], HWPBaitMaterial(i + 1));
 			}
 			HWP::Settings::LocalOnly("fishing.eat_key");
+			HWP::Settings::LocalOnly("fishing.twinkle"); // a look, each player's own
 			auto eat = HWP::Fishing::EatAction();
 			HWP::ItemActions::Register(eat);
 			HWP::Options::Register("eatkey", HWP::ItemActions::ActionKeyOption(eat, ".hwp.fishing.eat_key"));
@@ -2540,6 +2720,7 @@ namespace Modules
 		{
 			HWP::Fishing::RefreshSettings();
 			HWP::Fishing::ResetCasts();
+			HWP::Fishing::ResetTwinkles();
 			HWP::Fishing::g_local.removeRange(0, HWP::Fishing::g_local.length());
 			HWP::Fishing::g_traps.removeRange(0, HWP::Fishing::g_traps.length());
 			HWP::Fishing::Changed();
@@ -2588,6 +2769,8 @@ namespace Modules
 				HWP::Fishing::TickRun(ms);
 			if (!g_inTown && HWP::Fishing::g_enabled)
 				HWP::Fishing::WatchHoles(ms);
+			if (!paused && m_spawnDone)
+				HWP::Fishing::TickTwinkle(ms);
 			if (g_inTown && HWP::Fishing::g_trapsDirty && m_spawnDone)
 				HWP::Fishing::SpawnTraps();
 			if (g_inTown && m_spawnDone)

@@ -281,6 +281,16 @@ namespace HWP
 				CmdPreset(args);
 				return;
 			}
+			if (args.length() > 0 && args[0] == "rejoin")
+			{
+				if (Network::IsServer())
+					HWP::Commands::Reply("hwp architect rejoin is for a player who joined a host");
+				else if (OpenLoadoutMenu() !is null)
+					HWP::Commands::Reply("the run-start setup is already open");
+				else
+					RequestRejoin();
+				return;
+			}
 			HWP::Commands::Reply(Resources::GetString(".hwp.architect.status", {
 				{ "count", "" + g_ids.length() }, { "split", g_split ? "on" : "off" }, { "players", "" + ActivePlayers() } }));
 			for (uint i = 0; i < g_ids.length(); i++)
@@ -291,6 +301,8 @@ namespace HWP
 			for (uint i = 0; i < last.length(); i++)
 				names += (i > 0 ? ", " : "") + BuffName(last[i]);
 			HWP::Commands::Reply("remembered: " + last.length() + " pick(s) [" + names + "], NG+ " + LastNGP() + " (-1 = none yet)");
+			HWP::Commands::Reply("remembered rows: " + RememberedRows());
+			HWP::Commands::Reply("setup rows here: " + OpenRows());
 		}
 
 		// hwp architect challenges [id...]: every challenge with its discount,
@@ -367,7 +379,10 @@ namespace Modules
 			HWP::Net::OnRequest(HWP::Architect::PICK, HWP::Net::RequestHandler(HWP::Architect::OnPick));
 			HWP::Net::OnRequest(HWP::Architect::QUERY, HWP::Net::RequestHandler(HWP::Architect::OnQuery));
 			HWP::Net::OnEvent(HWP::Architect::SYNC, HWP::Net::EventHandler(HWP::Architect::OnSync));
-			HWP::Commands::Register("architect", " [challenges [id...] | try <id...> | preset [save <n> [name] | load <n> | clear <n>]] the party's architect picks and what the run-start remembers, the challenges and a cost multiplier, the three presets", HWP::Commands::Handler(HWP::Architect::CmdStatus));
+			HWP::Net::OnRequest(HWP::Architect::REJOIN, HWP::Net::RequestHandler(HWP::Architect::OnRejoin));
+			HWP::Net::OnEvent(HWP::Architect::REJOIN_OPEN, HWP::Net::EventHandler(HWP::Architect::OnRejoinOpen));
+			HWP::Net::OnEvent(HWP::Architect::NO_SETUP, HWP::Net::EventHandler(HWP::Architect::OnNoSetup));
+			HWP::Commands::Register("architect", " [challenges [id...] | try <id...> | preset [save <n> [name] | load <n> | clear <n>] | rejoin] the party's architect picks and what the run-start remembers, the challenges and a cost multiplier, the three presets, back into the host's run-start setup", HWP::Commands::Handler(HWP::Architect::CmdStatus));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Architect::OnSettingChanged));
 			int n = HWP::Architect::AddChallengeSetup();
 			if (n > 0)
