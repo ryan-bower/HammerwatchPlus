@@ -4,6 +4,8 @@ Running project status: the newest entries first, then the QA checkpoints and hi
 sweeps. The engine and reverse-engineering notes behind each change are in
 [RE_NOTES.md](RE_NOTES.md).
 
+> **Run copy flag (2026-11-05).** `tools/run.py --copy-slot N` copies a local profile into the new play profile, bypassing the save builder; it refuses an active dungeon run and never writes the source. Host tests only (`scripts/test.py`: 1246 passed, 28 skipped); no native GameLab run. Source at base `4cfbb3bf`.
+
 > **PR publication checkpoint (2026-11-01).** The complete QA worktree is checkpointed on `codex/run-save-builder-followup` and integrated with upstream `e7d060f1` (including merged PRs83?86). The merged host suite passed **1,244 tests**, with three unavailable-symlink skips and1,269 subtests. See [the publication record](qa/swarm/pr_publication.json). Earlier native results below retain their exact execution revisions; no new native pass is claimed for this upstream integration. The broader campaign remains paused at r4847/E018. Historical scenario/catalog pins require current review before further native admission.
 
 The [admission pipeline validation](qa/swarm/admission_pipeline_validation.json)
@@ -37,6 +39,28 @@ can be rerolled as many times as your reroll accomplishments allow, instead of o
 whole run, and the shadow curse cost starts over on each orb. Orb rerolls no longer spend the run's
 pool, so the trinket picker keeps all of it. Host setting `orbreroll.enabled` (off: vanilla).
 Overrides `GUI/Menus/GiveSkillSphereMenu.as`. Source review and offline tests only, not yet run in game.
+
+2026-11-06, the disappearing-player glitch (#71), suspected cause fixed. A player snapped into a wall
+or past a ledge rail by a collision-ignoring `SetPosition` sits hidden behind the wall sprites and boxed
+in, still connected. Two mod paths could do that: the Devil Forgemaster's Heresy lunge and Penance
+(the spot under a body across a wall or rail) and the Arcane Blink's no-room fallback (the spot it had
+just refused). Now the lunge waits until the body can be reached, the Penance channels in place, and
+Blink backs off or stays put. Source review only: the session log doesn't show who glitched, and the
+wall-side lunge, ledge Penance and corner Blink repros have not been run.
+
+2026-11-06, strongbox and abyss enemies no longer spawn inside walls (#80). The spawn check's
+line of sight started a few pixels out from the box or crack, so beside a wall it began past the wall
+and let enemies appear behind it, and the free-space check was smaller than most enemies' bodies. Now
+a spot must fit the enemy's whole body and have a clear line from the box or crack and back; a box or
+crack beside a wall spawns its pack on its open side or closer in, a member with no safe spot is
+skipped, and an abyss wave with no room at its spread spot erupts at the crack. Source review and
+offline tests only, not yet run in game.
+
+2026-11-06, the Shady Trader's orb offers show the rank you'll get (#70). It was a vanilla bug: an
+orb offered in a trade showed the rank you already have (name colour, values, highlighted rank). hwplib
+now overrides `ShopContent/ShadyTrader.as`, so an offer shows the next rank and names it ("Fireball 3"
+at rank 2), as the orb picker does; an orb taken as the cost still shows your current rank. Source
+review and offline tests only, not yet run in game.
 
 2026-11-05, Branding and Bannerlord rework (#95). Warlock proliferation/support perks and
 Warrior shield/rally support, per [the design](design/branding-bannerlord-rework.md).
