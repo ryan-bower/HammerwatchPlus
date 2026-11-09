@@ -99,7 +99,7 @@
     {
       "id": "dungeon",
       "name": "HammerwatchPlus: Dungeon Loot and Encounters",
-      "description": "New things on run floors: the puzzle rooms and HoH1's Constellation puzzle, locked loot vaults and exit switches, strongboxes, abyss cracks, three more map layouts, twelve endgame weapons, HoH1 trinket sets, valuables worth twice their gold, and Rare and Epic items that can roll a second suffix and prefix.",
+      "description": "New things on run floors: the puzzle rooms and HoH1's Constellation puzzle, locked loot vaults and exit switches, strongboxes, abyss cracks, three more map layouts, twelve endgame weapons, HoH1 trinket sets, valuables worth twice their gold, Rare and Epic items that can roll a second suffix and prefix, and bosses with more armor and resistances.",
       "mods": [
         "puzzles",
         "objectives",
@@ -109,7 +109,8 @@
         "weapons",
         "trinkets",
         "valuables",
-        "affixes"
+        "affixes",
+        "bosses"
       ]
     },
     {

@@ -135,6 +135,7 @@ SYMBOLS = {
                  px("mods/trinkets/gui/hwp/icons_trinkets_hoh1.png", 0, 64, 16, 16)],    # lucky hat
     "valuables": [cell("trade", 0, 4)],
     "affixes": [cell("equip", 3, 10), cell("equip", 15, 13)],   # a gilded breastplate, a jewelled ring
+    "bosses": [cell("equip", 3, 10)],   # the gilded breastplate: armor
     # Town Life
     "fishing": [px("mods/fishing/gui/hwp/rods.png", 0, 0, 16, 16), px("mods/fishing/items/hwp/fish.png", 96, 0, 24, 24)],
     "farming": [px("mods/farming/doodads/hwp/farm.png", 64, 0, 16, 16),        # the watering can
@@ -678,7 +679,7 @@ NOTES = {
     "strongbox": "open it, beat the pack, loot", "abyss": "waves of enemies, deeper is richer",
     "maps": "three new map layouts", "weapons": "twelve ilvl 35 weapons",
     "trinkets": "scale with NG+, 37 more", "valuables": "worth twice the gold",
-    "affixes": "two prefixes, two suffixes",
+    "affixes": "two prefixes, two suffixes", "bosses": "more boss armor and resistances",
 }
 def prereq(pids) -> str:
     """The card's red footer: what in these packages needs a DLC (tools/workshop.py DLC)."""
@@ -690,7 +691,7 @@ SHORT = {
     "autoaim": ("Auto Aim", "aim assist"), "firearms": ("Firearms", "a new class"),
     "specs": ("4th Specs", "8 new specializations"),
     "keys": ("Keys & Chests", "locked loot, ace chests"), "campaign": ("Forsaken Tower", "18-floor campaign"),
-    "modes": ("Challenge Modes", "mercenary, wave arena"), "dungeon": ("Dungeon Loot", "9 run features"),
+    "modes": ("Challenge Modes", "mercenary, wave arena"), "dungeon": ("Dungeon Loot", "10 run features"),
     "town": ("Town Life", "fish, farm, gamble"), "pets": ("Pets", "levels, skills, dyes"),
 }
 
