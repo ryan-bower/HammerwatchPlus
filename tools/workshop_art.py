@@ -111,6 +111,7 @@ SYMBOLS = {
     "groupcombo": [cell("combo", 0, 0)],
     "architect": [cell("town", 0, 0)],
     "droptrade": [px("gui/icons.png", 104, 77, 20, 12)],
+    "partyframes": [px("gui/hud.png", 316, 32, 10, 14)],  # the HUD's potion, the frames' own tile
     "partyexit": [px("gui/icons.png", 213, 0, 15, 15)],  # the HUD's exit use icon (hud.gui use-icon-exit)
     # Auto Aim
     "autoaim": [cell("skills", 6, 2)],
@@ -652,6 +653,8 @@ CHEST = {t: px("items/misc/base.png", 100, y, 16, 18) for t, y in (("bronze", 0)
 ACE_CHEST = px("items/misc/base.png", 70, 54, 14, 18)
 FEATURES = {
     # single-module packages: what is inside, as tiles (label, symbols, a few words)
+    "interface": [("Raid frames", [px("gui/hud.png", 316, 32, 10, 14)], "health, mana, shields, potions"),
+                  ("Thick or thin bars", [cell("gui", 11, 0)], "your choice in the Plus tab")],
     "autoaim": [("Reticle snaps on", [cell("skills", 6, 2)], "to the enemy in your aim cone"),
                 ("Auto fire, auto skills", [cell("skills", 0, 4)], "ready skills cast themselves"),
                 ("Controller or mouse", [px("gui/icons.png", 204, 171, 13, 13), px("gui/icons.png", 33, 114, 11, 14)],
@@ -671,7 +674,7 @@ FEATURES = {
 # a few words per module, on the cards with room for them
 NOTES = {
     "groupcombo": "party combo bonus, combo orbs", "architect": "everyone picks and pays",
-    "droptrade": "drop gear for friends", "partyexit": "most of the party opens an exit",
+    "droptrade": "drop gear for friends", "partyframes": "raid frames for your allies", "partyexit": "most of the party opens an exit",
     "mercenary": "enlist, rank up, die for good",
     "wavemode": "survival arena, from a town statue", "fishing": "on the coast and run floors",
     "farming": "crops and Holy Herbs", "gambler": "Higher or Lower, rerolls",
@@ -689,6 +692,7 @@ def prereq(pids) -> str:
 # the All pack's cover: a short name and what the package is, in a few words
 SHORT = {
     "qol": ("Quality of Life", "20 helpers"), "coop": ("Co-op Play", "4 party features"),
+    "interface": ("Interface", "raid-style party frames"),
     "autoaim": ("Auto Aim", "aim assist"), "firearms": ("Firearms", "a new class"),
     "specs": ("4th Specs", "8 new specializations"),
     "keys": ("Keys & Chests", "locked loot, ace chests"), "campaign": ("Forsaken Tower", "18-floor campaign"),

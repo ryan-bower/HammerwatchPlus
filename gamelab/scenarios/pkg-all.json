@@ -25,6 +25,11 @@
   },
   {
    "do": "log_has",
+   "pattern": "\\[HWP:core\\] package HWP-interface, library [0-9a-f]{12}",
+   "name": "HWP-interface: stamp check passed"
+  },
+  {
+   "do": "log_has",
    "pattern": "\\[HWP:core\\] package HWP-autoaim, library [0-9a-f]{12}",
    "name": "HWP-autoaim: stamp check passed"
   },
@@ -185,6 +190,16 @@
    "pattern": "\\[HWP\\] hwp skillkeys ",
    "timeout": 5,
    "name": "hwp help: \\[HWP\\] hwp skillkeys "
+  },
+  {
+   "do": "console",
+   "line": "hwp help"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] hwp partyframes ",
+   "timeout": 5,
+   "name": "hwp help: \\[HWP\\] hwp partyframes "
   },
   {
    "do": "log_clean"

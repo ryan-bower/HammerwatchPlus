@@ -1,0 +1,7 @@
+{
+  "id": "gamelab-fakecoop",
+  "requires": ["hwplib"],
+  "overrides": [],
+  "exclude": [],
+  "gamelab": true
+}

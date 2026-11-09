@@ -62,6 +62,7 @@ TERSE = {
     "groupcombo": "a party combo bonus, and rare combo orbs from boxes and vases.",
     "architect": "every player can pick and pay for Architect alterations; three saved presets.",
     "droptrade": "drop gear for friends (Q in the inventory).",
+    "partyframes": "raid-style party frames: health, mana, shields and potions for every ally.",
     "partyexit": "a floor's exit opens once two thirds of the party stands at it (3 of 4, 2 of 3).",
     "autoaim": ["the reticle of an aimed skill snaps to an enemy in your aim cone",
                 "aimed skills can fire by themselves, ready area skills cast themselves",
@@ -121,6 +122,7 @@ QUIET_STANDINS = {"pets", "classes"}
 # the All pack's line for a one-module package
 ONE_LINE = {
     "autoaim": "aim assist for reticle skills, for controllers and mouse.",
+    "interface": "raid-style party frames for every ally.",
     "firearms": "a new class with guns, grenades and four specializations.",
     "specs": "a 4th specialization for eight classes.",
     "keys": "locked chests, keys, ace chests and new legendaries.",

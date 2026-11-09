@@ -97,6 +97,15 @@ namespace HWP
 			g_sharedScaledDuration = 0;
 			g_sharedSpree = false;
 			g_rallyC = 0;
+			HWP::AllyStatus::ReportShield(0);
+		}
+
+		// the pool as a fraction of the bar the party sees: record.hp, which Living Mana keeps at
+		// the mana fraction (UpdateArcane)
+		void ReportShield(PlayerBase@ p)
+		{
+			float pool = Learned(p, LIVING_MANA) ? p.m_record.MaxMana() : p.GetMaxHp();
+			HWP::AllyStatus::ReportShield((g_standardShield + g_soulShield) / max(1.0f, pool));
 		}
 
 		void UpdateSupport(int ms)
@@ -108,6 +117,7 @@ namespace HWP
 			g_soulShieldLeft -= ms;
 			if (g_standardShieldLeft <= 0) g_standardShield = 0;
 			if (g_soulShieldLeft <= 0) g_soulShield = 0;
+			ReportShield(p);
 			if (!g_sharedSpree) return;
 			if (p.GetStacks(Stack(SPREE)) <= 0)
 			{
