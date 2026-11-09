@@ -46,7 +46,8 @@ namespace HWP
 
 		bool Enabled() { return HWP::Settings::GetBool("outofcombat.enabled", true); }
 		float Mult() { return clamp(HWP::Settings::GetFloat("outofcombat.speed", 2.0f), 1.0f, 5.0f); }
-		int DelaySecs() { return clamp(HWP::Settings::GetInt("outofcombat.delay", 10), 0, 600); }
+		// at least 1 s: with 0 a hit would be undone the next frame and the boost never ends
+		int DelaySecs() { return clamp(HWP::Settings::GetInt("outofcombat.delay", 10), 1, 600); }
 		bool InTown() { return HWP::Settings::GetBool("outofcombat.town", false); }
 
 		// 2 -> "2", 1.5 -> "1.5"
