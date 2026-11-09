@@ -34,6 +34,15 @@ tasks. Read the ledger for current counts and next actions.
 > **Historical QA checkpoint (2026-10-22): paused at the user-requested PR boundary.** The original sweep was incomplete. Recorded original-sweep passes: six original fourth specs60/60 rank cases and61/65 orb-quality cases; Firearms60/60 ranks and74/75 orb qualities; HoH1 imports29/39 skills and136/191 ranks;9/9 selected-mastery saves. Five orb cases need real co-op. The then-current 31 normal-release modules had load evidence, with broader feature/lifecycle work open. Earlier QA summaries below are historical snapshots. See [the historical checkpoint](generated/qa_pr_checkpoint.json) and [QA ledger](QA_OVERNIGHT.md).
 
 
+2026-11-06, roulette: the table can't break, a dealer, and a winner's shout (#63, #96). The tavern
+table under the wheel was a vanilla breakable, and when it broke the wheel jumped to a table hidden
+by the front wall, so the roulette seemed to vanish. Every machine now keeps that table's health
+topped up. A dealer stands behind the table facing the players (north of the round table on tavern
+levels 1-2, west of the long table from level 3), and using him opens the table too. Winning a round
+shows "Winner winner chicken dinner!" on the winner's screen, in the lobby's chat and over the
+winner's head. Source review and offline tests only; the dealer's exact spot and the lobby messages
+still need an in-game look.
+
 2026-11-06, objective levers on any reachable wall (#74). Vault and exit levers used to go on the
 floor block farthest from what they open, which was always a bottom corner by the bottom wall. Now a
 lever is mounted on a north, east or west wall (vanilla's wall pull lever art), anywhere in the far half
