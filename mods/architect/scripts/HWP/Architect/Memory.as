@@ -266,15 +266,17 @@ namespace HWP
 
 		// Before the row's BuildGUI: its picks from last time, through its own Load()
 		// (which drops what the character may no longer pick). A row that costs (the
-		// tavern) keeps what it had when the restored picks plus `spent` (the rows restored
-		// before it) are more than the character can pay.
-		void RestoreRow(MissionLoadout@ loadout, PlayerRecord@ plr, ShopCost@ spent)
+		// tavern) keeps what it had when the restored picks plus `spent` (the shown rows
+		// restored before it) are more than the character can pay. Returns the row's cost
+		// after restoring (null when it costs nothing or wasn't touched); the caller adds it
+		// to `spent` only once the row is shown, so a row BuildGUI hides costs nothing.
+		ShopCost@ RestoreRow(MissionLoadout@ loadout, PlayerRecord@ plr, ShopCost@ spent)
 		{
 			if (loadout is null || plr is null || !Enabled() || !RemembersRow(loadout))
-				return;
+				return null;
 			auto saved = HWP::SaveData::Local().Get(KEY_LOADOUT);
 			if (saved is null)
-				return;
+				return null;
 
 			SValueBuilder b;
 			b.PushDictionary();
@@ -300,12 +302,11 @@ namespace HWP
 				}
 				else
 					HWP::Log("architect", "run-start row " + loadout.m_id + ": remembered picks restored");
-				if (cost !is null)
-					spent.AddCost(cost);
 			}
 			else
 				HWP::Log("architect", "run-start row " + loadout.m_id + ": remembered pick restored");
 			before.Delete();
+			return cost;
 		}
 
 		// what one player pays for a pick list alone (CalcMyCost's sum without a split): the

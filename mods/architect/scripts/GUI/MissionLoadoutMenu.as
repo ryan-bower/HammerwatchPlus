@@ -180,7 +180,7 @@ class MissionLoadoutMenu : AWindowObject
 				continue;
 			
 			// HWP: this character's picks from last time, what it may still pick and pay for
-			HWP::Architect::RestoreRow(loadout, plr, hwpSpent);
+			auto hwpRowCost = HWP::Architect::RestoreRow(loadout, plr, hwpSpent);
 
 			auto seg = m_segmentTemplate.Clone();
 			cast<TextWidget>(seg.GetWidgetById("name")).SetText(Resources::GetString(loadout.m_name));
@@ -188,6 +188,8 @@ class MissionLoadoutMenu : AWindowObject
 			
 			if (!loadout.BuildGUI(plr, this, seg, i))
 				continue;
+			if (hwpRowCost !is null) // HWP: only a shown row's picks count toward the next rows
+				hwpSpent.AddCost(hwpRowCost);
 			
 			seg.m_height += loadout.m_height;
 			m_outerWindow.m_height += loadout.m_height + m_contentWindow.m_spacing;
