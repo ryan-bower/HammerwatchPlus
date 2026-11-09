@@ -290,8 +290,9 @@ namespace HWP
 			// Walkable) on unconsumed floor in the reached area, its wall cells (pattern Wall) on
 			// free plain wall (unconsumed, so no prefab's own art is there, and it stays wall: the
 			// prefab makes it PlaceWall). A floor lever also wants floor in the row below its
-			// patch: a wall there draws its top over the lever (walls are drawn 32 px up).
-			bool LeverFits(CellGrid@ grid, MissionPrefabDef@ def, int side, int x, int y)
+			// patch when clearBelow is set: a wall there draws its top over the lever (walls are
+			// drawn 32 px up).
+			bool LeverFits(CellGrid@ grid, MissionPrefabDef@ def, int side, int x, int y, bool clearBelow = true)
 			{
 				ivec2 sz = def.m_gridSz;
 				if (x < 1 || y < 1 || x + sz.x >= grid.m_width || y + sz.y >= grid.m_height)
@@ -315,7 +316,7 @@ namespace HWP
 						}
 					}
 				}
-				if (side == SIDE_FLOOR)
+				if (side == SIDE_FLOOR && clearBelow)
 					for (int i = 0; i < sz.x; i++)
 						if (!HWP::Carve::Walkable(grid, x + i, y + sz.y))
 							return false;
@@ -324,7 +325,8 @@ namespace HWP
 
 			// The lever's spot, far from `from` (cells) but not always the farthest (issue #74):
 			// every spot on a north, east or west wall that fits (the floor patches only when no
-			// wall does), those at least FAR_SHARE of the farthest one's distance away and, when
+			// wall does, and a patch with a wall below it only when no other patch fits: a lever
+			// partly hidden by a wall top beats no lever and an exit left open), those at least FAR_SHARE of the farthest one's distance away and, when
 			// some are, LEVER_SPACING cells from the floor's other levers; then a side at random
 			// among those left, so each wall side is as likely as the others whatever their
 			// lengths, and a spot on it at random. False when nothing fits.
@@ -333,7 +335,8 @@ namespace HWP
 				array<int> sides;
 				array<ivec2> spots;
 				array<float> dists;
-				for (int pass = 0; pass < 2 && spots.length() == 0; pass++)
+				// pass 0: the walls; 1: floor patches with floor below; 2: any floor patch
+				for (int pass = 0; pass < 3 && spots.length() == 0; pass++)
 				{
 					for (int s = 0; s < SIDES; s++)
 					{
@@ -347,7 +350,7 @@ namespace HWP
 						{
 							for (int x = 1; x + def.m_gridSz.x < grid.m_width; x++)
 							{
-								if (!LeverFits(grid, def, s, x, y))
+								if (!LeverFits(grid, def, s, x, y, pass < 2))
 									continue;
 								sides.insertLast(s);
 								spots.insertLast(ivec2(x, y));

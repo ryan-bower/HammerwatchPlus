@@ -185,7 +185,7 @@ def compute_reach(g):
     return {(x, y) for y in range(g.h) for x in range(g.w) if best >= 0 and comp[y][x] == best}
 
 
-def lever_fits(g, reach, d, side, x, y):
+def lever_fits(g, reach, d, side, x, y, clear_below=True):
     w, h = d["size"]
     if x < 1 or y < 1 or x + w >= g.w or y + h >= g.h:
         return False
@@ -197,7 +197,7 @@ def lever_fits(g, reach, d, side, x, y):
                 return False
             if p == WALL and not g.free(cx, cy):
                 return False
-    if side == "floor":
+    if side == "floor" and clear_below:
         return all(g.walkable(x + i, y + h) for i in range(w))
     return True
 
@@ -206,13 +206,13 @@ def pick_lever(g, reach, from_cell, rng, levers=(), far_share=0.5, spacing=12.0)
     defs, offsets = side_patterns(), lever_in_pfb()
     by_name = {v: k for k, v in SIDES.items()}
     spots = []
-    for wanted in (("north", "east", "west"), ("floor",)):
+    for wanted, clear_below in ((("north", "east", "west"), True), (("floor",), True), (("floor",), False)):
         for side in wanted:
             d = defs[side]
             lx, ly = (v / 16 for v in offsets[by_name[side]])
             for y in range(1, g.h - d["size"][1]):
                 for x in range(1, g.w - d["size"][0]):
-                    if lever_fits(g, reach, d, side, x, y):
+                    if lever_fits(g, reach, d, side, x, y, clear_below):
                         lever = (x + lx, y + ly)
                         spots.append((side, (x, y), lever, ((lever[0] - from_cell[0]) ** 2 + (lever[1] - from_cell[1]) ** 2) ** 0.5))
         if spots:
@@ -330,3 +330,16 @@ def test_model_keeps_away_from_the_other_lever_and_falls_back_to_the_floor():
     assert side == "floor"
     # clear of the bottom wall: the row below the patch is floor
     assert all(g.walkable(pos[0] + i, pos[1] + 3) for i in range(3))
+
+
+def test_model_floor_lever_with_a_wall_below_when_nothing_else_fits():
+    # a 3-row corridor: every floor patch has the bottom wall under it, and no wall is free.
+    # The lever still goes on the floor (the exit must not stay open for want of a spot).
+    g = room(40, 7)
+    for y in range(g.h):
+        for x in range(g.w):
+            if g.get(x, y) == WALLC:
+                g.consumed[y][x] = True
+    reach = compute_reach(g)
+    picked = pick_lever(g, reach, (2, 2), random.Random(1))
+    assert picked is not None and picked[0] == "floor"

@@ -37,7 +37,9 @@ floor block farthest from what they open, which was always a bottom corner by th
 lever is mounted on a north, east or west wall (vanilla's wall pull lever art), anywhere in the far half
 of the floor, side picked at random, kept apart from the floor's other lever, never on floor cut off
 from the rest and never under a torch. South walls are left out: from the game's camera their face is
-hidden. A floor with no wall that fits gets the old floor lever. Source review and offline tests only
+hidden. A floor with no wall that fits gets the old floor lever, clear of the wall below when it can be
+and against it when nothing else fits (2026-11-08 review fix, so the exit never stays open for want of a
+spot). Source review and offline tests only
 (`tests/test_objectives_levers.py`), not yet seen in game.
 
 2026-11-05, Branding and Bannerlord rework (#95). Warlock proliferation/support perks and
