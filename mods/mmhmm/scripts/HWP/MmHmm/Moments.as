@@ -6,7 +6,8 @@
 //   hwp_keys_aces_opened; vanilla's chest-unlocked-<key> stat is not defined for "ace");
 // - a secret room opened: run stat secrets-found (WorldScript/Player/SecretFound.as runs on
 //   every peer: a party moment, so it says it for whoever in the party wears the hat; the
-//   few secret prefabs without SecretFound are missed);
+//   few secret prefabs without SecretFound are missed). With mods/laststats only the opener's
+//   run stat goes up, so its party count (GlobalCache hwp_secrets_opened, every peer) counts too;
 // - a trinket set completed: the trinkets owned per set reaching the set's m_totItems
 //   (owning a trinket counts, as PlayerRecord.RefreshModifiers counts them);
 // - the last orb of an orb tree: a pickedTempSkills entry going up to the tree's size,
@@ -20,7 +21,7 @@ namespace HWP
 		class Seen
 		{
 			bool seeded = false;
-			int wells = 0, aces = 0, secrets = 0;
+			int wells = 0, aces = 0, secrets = 0, partySecrets = 0;
 			array<Item::TrinketSet@> sets;
 			array<int> setCounts;
 			dictionary orbs; // pickedTempSkills id -> level
@@ -102,10 +103,13 @@ namespace HWP
 			g_seen.seeded = true;
 			// a counter that went up since the last poll (a new run resets the run stats: re-taken)
 			int wells = RunStat(rec, "wells-used"), aces = parseInt(GlobalCache::Get("hwp_keys_aces_opened")), secrets = RunStat(rec, "secrets-found");
-			bool well = wells > g_seen.wells, ace = aces > g_seen.aces, secret = secrets > g_seen.secrets;
+			int partySecrets = parseInt(GlobalCache::Get("hwp_secrets_opened")); // mods/laststats Secrets.as
+			bool well = wells > g_seen.wells, ace = aces > g_seen.aces;
+			bool secret = secrets > g_seen.secrets || partySecrets > g_seen.partySecrets;
 			g_seen.wells = wells;
 			g_seen.aces = aces;
 			g_seen.secrets = secrets;
+			g_seen.partySecrets = partySecrets;
 			int sets = SetsCompleted(rec, seeding);
 			int trees = TreesFinished(rec, seeding);
 			if (seeding || !Wearing(rec))

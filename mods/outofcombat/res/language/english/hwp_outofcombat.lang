@@ -1,0 +1,11 @@
+<lang name="English" official="false">
+	<string name="hwp.outofcombat.buff">Out of Combat</string>
+	<string name="hwp.outofcombat.desc">%mult%x movement speed: you have not hit an enemy for %delay% s. Hitting one ends it.</string>
+	<string name="hwp.outofcombat.status">Out of combat speed %state%: %mult%x after %delay% s without a hit, in town: %town%. Last hit %since% s ago, %hits% hits this level; boosted now: %active%.</string>
+	<string name="hwp.outofcombat.state.on">on</string>
+	<string name="hwp.outofcombat.state.off">off</string>
+	<string name="hwp.outofcombat.town.yes">yes</string>
+	<string name="hwp.outofcombat.town.no">no</string>
+	<string name="hwp.outofcombat.active.yes">yes</string>
+	<string name="hwp.outofcombat.active.no">no</string>
+</lang>

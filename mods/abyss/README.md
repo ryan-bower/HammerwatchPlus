@@ -66,5 +66,8 @@ On the HammerwatchPlus tab of the player menu (host, host-synced; next level), o
    `hwp luck roll hwp_abyss_reward_2 3000 500` shows the epic shares up.
 
 Timeout: a wave that is still alive after 2 minutes closes the crack without
-a reward (no next wave, no loot). Wave members only spawn on free spots; a
-wave with no free spot at all closes the crack too.
+a reward (no next wave, no loot). Wave members only spawn on free spots
+(hwplib `HWP::Spawner::SpawnSpot`, issue #80: room for the member's body and a
+clear line from the wave's spot and back), and the spread spot itself needs room
+and a clear line from the crack. A wave whose spread spot fits nobody erupts at
+the crack instead; a wave with no free spot there either closes the crack.

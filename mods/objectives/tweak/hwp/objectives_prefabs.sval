@@ -11,7 +11,12 @@
 	     #26). The vault is 9x8: a wall ring, a floor interior, the doorway at cells
 	     3,7-4,7 on the south edge (the door unit covers both); grid-pos 0 0 keeps the
 	     prefab origin on the top-left cell's corner. The switches are 3x3 floor patches
-	     with the lever at the centre; they go on existing floor, far from what they open. -->
+	     with the lever at the centre; they go on existing floor, far from what they open.
+	     HWP (issue #74): the levers go on a wall, the _n/_e/_w sets: the 3x3 floor patch
+	     with a 3-cell run of the wall beside it, PlaceWall (the brush paints it as the
+	     floor's own wall; Generation.as only picks a run of plain unconsumed wall), the
+	     lever on that wall (vault_switch_<side>.pfb). The plain 3x3 patches above are the
+	     fallback on a floor where no wall run fits. -->
 	<dict>
 		<string name="id">prefabs/hwp/objectives/vault_s.pfb</string>
 		<string name="theme">hwp_objectives_vault</string>
@@ -41,5 +46,68 @@
 		<array name="junctions"><a></a><a></a><a></a><a></a></array>
 		<bytes name="grid-pattern">070707070707070707</bytes>
 		<bytes name="grid-command">060606060606060606</bytes>
+	</dict>
+	<!-- north wall: row 0 the wall run, rows 1-3 the floor in front of it -->
+	<dict>
+		<string name="id">prefabs/hwp/objectives/vault_switch_n.pfb</string>
+		<string name="theme">hwp_objectives_switch_n</string>
+		<int name="max-num">-1</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">3 4</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">050505070707070707070707</bytes>
+		<bytes name="grid-command">050505060606060606060606</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/objectives/exit_switch_n.pfb</string>
+		<string name="theme">hwp_objectives_exit_n</string>
+		<int name="max-num">-1</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">3 4</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">050505070707070707070707</bytes>
+		<bytes name="grid-command">050505060606060606060606</bytes>
+	</dict>
+	<!-- east wall: columns 0-2 the floor, column 3 the wall run -->
+	<dict>
+		<string name="id">prefabs/hwp/objectives/vault_switch_e.pfb</string>
+		<string name="theme">hwp_objectives_switch_e</string>
+		<int name="max-num">-1</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">4 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707050707070507070705</bytes>
+		<bytes name="grid-command">060606050606060506060605</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/objectives/exit_switch_e.pfb</string>
+		<string name="theme">hwp_objectives_exit_e</string>
+		<int name="max-num">-1</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">4 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">070707050707070507070705</bytes>
+		<bytes name="grid-command">060606050606060506060605</bytes>
+	</dict>
+	<!-- west wall: column 0 the wall run, columns 1-3 the floor -->
+	<dict>
+		<string name="id">prefabs/hwp/objectives/vault_switch_w.pfb</string>
+		<string name="theme">hwp_objectives_switch_w</string>
+		<int name="max-num">-1</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">4 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">050707070507070705070707</bytes>
+		<bytes name="grid-command">050606060506060605060606</bytes>
+	</dict>
+	<dict>
+		<string name="id">prefabs/hwp/objectives/exit_switch_w.pfb</string>
+		<string name="theme">hwp_objectives_exit_w</string>
+		<int name="max-num">-1</int>
+		<ivec2 name="grid-pos">0 0</ivec2>
+		<ivec2 name="grid-size">4 3</ivec2>
+		<array name="junctions"><a></a><a></a><a></a><a></a></array>
+		<bytes name="grid-pattern">050707070507070705070707</bytes>
+		<bytes name="grid-command">050606060506060605060606</bytes>
 	</dict>
 </array>

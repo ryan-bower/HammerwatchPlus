@@ -4,7 +4,7 @@
     {
       "id": "qol",
       "name": "HammerwatchPlus: Quality of Life",
-      "description": "Small helpers: buff tooltips in the HUD, item links in chat, a Sort button in the stash, a death recap, the party's last-run stats on a town board, projectile colours for colour-blind players, waygates across the town, a second weapon set on a hotkey, Priest summons that follow you to the next floor, pets that wait outside puzzle and trap rooms, HoH1-style class Title Bonuses, gold that shows its worth, the Mm-hmm! hats, orb picker warnings, dye-pot markers on the minimap, Shift+Click (20) or Ctrl+Click (5) at the Attribute Trainer, salvaging gear into Crystals or Dust instead of destroying it, and starting skills that a Skill Trainer respec unlearns too, to learn again for free.",
+      "description": "Small helpers: buff tooltips in the HUD, item links in chat, a Sort button in the stash, a death recap, the party's last-run stats on a town board, projectile colours for colour-blind players, waygates across the town, a second weapon set on a hotkey, Priest summons that follow you to the next floor, pets that wait outside puzzle and trap rooms, HoH1-style class Title Bonuses, gold that shows its worth, the Mm-hmm! hats, orb picker warnings, orb rerolls for every orb instead of one pool per run, dye-pot markers on the minimap, Shift+Click (20) or Ctrl+Click (5) at the Attribute Trainer, salvaging gear into Crystals or Dust instead of destroying it, starting skills that a Skill Trainer respec unlearns too, to learn again for free, and twice the speed in a run while you have not hit an enemy for 10 seconds.",
       "mods": [
         "bufftips",
         "chatlinks",
@@ -20,10 +20,12 @@
         "goldworth",
         "mmhmm",
         "orbwarn",
+        "orbreroll",
         "mapicons",
         "attrclick",
         "salvage",
-        "freeskills"
+        "freeskills",
+        "outofcombat"
       ]
     },
     {
@@ -106,7 +108,7 @@
     {
       "id": "dungeon",
       "name": "HammerwatchPlus: Dungeon Loot and Encounters",
-      "description": "New things on run floors: the puzzle rooms and HoH1's Constellation puzzle, locked loot vaults and exit switches, strongboxes, abyss cracks, three more map layouts, twelve endgame weapons, HoH1 trinket sets, valuables worth twice their gold, and Rare and Epic items that can roll a second suffix and prefix.",
+      "description": "New things on run floors: the puzzle rooms and HoH1's Constellation puzzle, locked loot vaults and exit switches, strongboxes, abyss cracks, three more map layouts, twelve endgame weapons, HoH1 trinket sets, valuables worth twice their gold, Rare and Epic items that can roll a second suffix and prefix, and bosses with more armor and resistances.",
       "mods": [
         "puzzles",
         "objectives",
@@ -116,7 +118,8 @@
         "weapons",
         "trinkets",
         "valuables",
-        "affixes"
+        "affixes",
+        "bosses"
       ]
     },
     {

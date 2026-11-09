@@ -80,6 +80,14 @@
         "about": "Catches can bring up a key now and then."
       },
       {
+        "key": "fishing.twinkle",
+        "type": "bool",
+        "default": true,
+        "scope": "local",
+        "title": "Twinkling spots",
+        "about": "A glint over the water of each fishing spot now and then, until you have fished it out."
+      },
+      {
         "option": "eatkey",
         "about": "Eats the hovered fish."
       }

@@ -54,21 +54,42 @@ Architect alterations for the whole party.
   (cheats, host: these picks for the next level).
 
 - **Run-start screen** (overrides `scripts/GUI/MissionLoadoutMenu.as`,
-  `scripts/Town/MissionShopContent.as` and `gui/mission_loadout.gui`, each with its
-  pristine `.orig`; memory in `scripts/HWP/Architect/Memory.as`):
-  - **Clients can leave.** Vanilla's `Back()` returned false on a client, which kept it
-    in the window until the host started or closed it. Now Escape / Back closes the
-    client's own window (its status goes to None, so the host's ready count and start
-    skip it, and the architect module drops its picks). While the host's setup is still
-    open, picking any mission on the mission board reopens the client's window
-    (`HWP::Architect::RejoinLoadout`, `MissionShopContent.Buy`); a chat line says so.
+  `scripts/Town/MissionShopContent.as`, `scripts/WorldScript/Missions/StartMission.as`
+  and `gui/mission_loadout.gui`, each with its pristine `.orig`; memory in
+  `scripts/HWP/Architect/Memory.as`, rejoining in `scripts/HWP/Architect/Rejoin.as`):
+  - **Clients can leave and come back** (issues #65, #96). Vanilla's `Back()` returned
+    false on a client, which kept it in the window until the host started or closed it.
+    Now Escape / Back closes the client's own window (its status goes to None, so the
+    host's start skips it, and the architect module drops its picks). The host's
+    waiting line names it as `Name (left)` and counts it as not ready, so Start asks the
+    vanilla force-start question before leaving it out of the run's picks.
+    To come back, the client uses the run's entrance again: the town's north-exit door
+    (vanilla runs `StartMission` on the host with the client's `PlayerHusk` and drops
+    it; the override hands it to `EntranceUsedByClient`), a mission board or portal
+    (`MissionShopContent.Buy`), or `hwp architect rejoin`. The host checks that its
+    setup is open and not starting and answers `architect.rejoin_open` with the mission
+    and every player's ready state; the client opens its own window as vanilla's
+    `OpenMissionLoadoutMenu` does and readies up again. With no setup open the client
+    gets a chat line that only the host can open it.
   - **Remembered picks and NG+.** Every change of your own picks is stored on your
     player record (`architect.last`, under the hwp key) and the host's New Game+ level
     too (`architect.ngp`); they follow the character, not the town, because the picks
     are per player and the NG+ level is capped by the character's own. When the setup
     opens with none of your picks in the party list, the remembered ones (those the
-    character may still pick) are sent as a pick; the NG+ arrows start on the remembered
-    level (clamped to the character's). `hwp architect` lists both.
+    character may still pick, and only when you can pay for them with the rows above)
+    are sent as a pick; the NG+ arrows start on the remembered level (clamped to the
+    character's). `hwp architect` lists both.
+  - **Last used rows** (issue #96). The other rows come back too: the chapel's
+    blessing, the Magic Shop's sphere, the tavern's food and drinks and the boon. Each
+    row's own `Save()` goes under `architect.loadout` on the character when the setup
+    closes or the run starts, and its own `Load()` runs when the setup opens, with the
+    character set, so a pick the character can no longer have is dropped by vanilla's
+    own checks. A row that costs (the tavern) keeps what it had when the remembered
+    picks, with the rows restored before it, are more than the character has. Vanilla
+    already saves these rows, but loads them when the record loads, before the rows know
+    the player, and keeps one character's picks for the next. `hwp architect` lists the
+    remembered rows and the rows this machine's open setup shows (the Magic Shop with
+    how many spheres the character may pick).
   - **Presets.** The picker has a row of three slots under its list: the slot button
     loads the preset (your picks become its picks; on the host the NG+ level follows),
     its `S` button asks for a name (the game's input dialog) and saves your current picks
@@ -85,6 +106,26 @@ Architect alterations for the whole party.
     bridges when the window would not leave 22 px above and below, then moves the window
     to the top edge when it still would not; the `[HWP:architect] run-start layout:`
     line says what it did. Farming's herb line is a 14 px row for the same reason.
+  - **Diagnostics (issue #64).** `[HWP:architect] run-start: row '<id>' opened on the
+    host | client (peer N), status S` is logged when any row (Magic Shop, Architect, ...)
+    is clicked open; `... ignored, the run is already starting` when a click lands after
+    Start; `Start/Ready ignored, the rows cost more than this player has (...)` when E
+    does nothing because of the cost. Keys on this screen (vanilla, host and client the
+    same): E is Start on the host and Ready / Unready on a client, never "open this row";
+    a row opens with a click or Return. In the Magic Shop's sphere picker a click (or
+    Return) selects a sphere and E applies and closes; E over a sphere picks it first
+    (next point).
+  - **E picks the sphere in the Magic Shop picker** (issue #64; overrides
+    `scripts/Missions/MissionSkillSphere.as`, pristine `.orig`, changes marked `HWP (issue
+    #64)`). E is both Use and the picker's Apply key (MenuAdditional). Vanilla's scroll area
+    only pressed the hovered sphere (a sphere is picked on release) while Apply closed the
+    window in the same frame, so "hover a sphere, press E" kept the old pick. Now, when the
+    Apply press is also a Use press, `SelectSkillSphereSelector.ApplyFromKey` first picks the
+    sphere the scroll area pressed (under the mouse, or the gamepad-focused one; an already
+    picked sphere stays picked), then applies. Pressing E over empty space, the hint bar's
+    Apply button, and an Apply key that is not Use keep vanilla's behaviour. E on the setup
+    screen itself is unchanged (Start for the host, Ready for a client). Applies with the
+    Architect setting off too, since it is a file override.
 
 ## Settings
 
@@ -92,9 +133,9 @@ On the HammerwatchPlus tab of the player menu:
 
 - **Architect** on/off, `architect.enabled` (host, default on). Off is the vanilla
   architect: only the host can open the picker and the host pays for everything, the
-  challenges are not in the list, there is no preset row, remembered picks and the
-  remembered NG+ level do not come back, a client cannot leave the setup with Escape and
-  there is no NG+ question. Turning it off drops the clients' picks and any challenge from
+  challenges are not in the list, there is no preset row, remembered picks, rows and the
+  remembered NG+ level do not come back, a client cannot leave the setup with Escape, the
+  door does nothing for a client and there is no NG+ question. Turning it off drops the clients' picks and any challenge from
   the party's list. The run-start layout (the NG+ row above Start, the fit to the screen,
   the Start NG+ hint) stays, since the gui file is an override. Presets and remembered
   picks stay saved for when it is turned back on.
@@ -133,7 +174,24 @@ Morning decisions:
    this run on New Game+ 1?" and the run starts at NG+ 1. Shots runstart-window,
    runstart-picker, runstart-confirm.
 7. Co-op (manual): a client presses Escape in the run-start setup: its window closes, the
-   host's ready count drops it; the client picks any mission on the board: its window is
-   back with the party's picks. The host's remembered NG+ comes back on the next setup.
+   host's waiting line shows `Name (left)` and Start asks the force-start question; the
+   client walks to the north-exit door and presses E: its window is back with the
+   party's picks and the host's ready count, and readying up counts again. With the
+   host's setup closed, the client's E on the door prints the "only the host" line. The
+   host's remembered NG+ comes back on the next setup.
 8. By eye: with a smoked herb, the herb line is one text row and Start plus the key hints
    stay on screen at the default resolution.
+9. Co-op (manual, issue #64): a client opens the Magic Shop row (mouse click or Return;
+   E is Ready in the setup and Apply in the picker; the log has
+   `run-start: row 'magic_shop' opened on the client`), picks a sphere and applies it; the
+   row shows it and the run starts with the sphere. If the row cannot be opened,
+   `hwp architect` on the client shows the rows its setup has and how many spheres it
+   may pick.
+10. Magic Shop picker (issue #64, manual, host and client): open the run-start Magic Shop
+   row, hover a sphere that isn't picked and press E: the window closes and the row shows
+   that sphere. Hover the picked one and press E: it stays picked. Click a sphere, then
+   press E over empty space: the clicked one is kept. With a gamepad: open the row, move
+   to a sphere, press the select button, then the Apply button: the selected sphere is kept.
+11. Last used rows: pick a blessing, a sphere and a meal, start a run, come back: the
+    setup opens with the same picks; switch character: the other character's own picks
+    (or none). With less gold than the remembered meal costs, the tavern row stays empty.
