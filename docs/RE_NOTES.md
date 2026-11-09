@@ -1,5 +1,42 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-06: Run-start setup in co-op (source review only, issues #64, #65, #96)
+
+Read from the decompiled scripts on build 25932569. No game boot, GameLab run or co-op
+session backs any of this.
+
+- **A client's E on the run's door is dropped.** The town's north exit
+  (`prefabs/town/segments/north_exit/north_exit_*.pfb`) is a UseTrigger linked to the
+  StartMission world script (`ID dark_citadel`). A client's use goes to the host as
+  `UseUnitSecure` (Player.as:1356, PlayerHandler.as:518). The host then runs
+  `UseTrigger.Use`, which executes only on the server, and then `StartMission.ServerExecute`
+  with the client's `PlayerHusk` as Instigator. StartMission returns when
+  `cast<Player>` is null (StartMission.as:28), so nothing happens and no message is sent.
+  Only the host's own use opens the setup.
+- **The mission board is dev-only.** `doodads/generic/mission_board.unit` is NON_FINAL.
+  The final game's way into a run is the door (or the campaign portal,
+  MissionShopContent), so "pick a mission on the board" cannot be a player's way back in.
+- **Loadout status messages need an open window.** `SetMissionLoadoutStatus`
+  (GameModeHandler.as:91) is applied only to open `MissionLoadoutMenu` windows. A machine
+  without the window keeps stale `loadout_status` userdata for the others.
+  `CheckToStart` skips peers whose status is None.
+- **Vanilla's loadout row memory loads too early.** The rows (MissionLoadout::Instances,
+  singletons from `tweak/town/loadouts.sval`) are saved in the record's
+  `architect-loadout` dict (PlayerRecord.as:818-823). They are loaded at record load
+  (1276-1281), before any BuildGUI sets the rows' `m_player` and with no actor, so
+  `IsValidMissionBuff` runs without the player. The singletons also keep one character's
+  picks for the next. `SelectSkillSphereLoadout.Load` keeps the old `m_selected` hash
+  when the saved string is empty, while `OnPlay` uses the string.
+- **The Magic Shop row has no host gate.** SelectSkillSphereLoadout and its picker have no
+  `Network::IsServer` check. `SkillTempUp` sends `PlayerSyncSkillTempLevel`, so each
+  player's own sphere is applied on its own machine at Started. Vanilla's only host-only
+  row is the Architect (`rect.m_enabled = Network::IsServer()`). In the setup, E is
+  MenuAdditional, which is Ready on a client and Start on the host. A row opens with
+  MenuForward (mouse or Return). In the picker, a click selects and E applies. The row is
+  hidden (BuildGUI returns false) when the character has no sphere it may pick. That
+  needs a learned skill with modifier skills of at most Common quality, or Uncommon once
+  the magic shop has variation 2 or more.
+
 ## 2026-11-05: Rework focused solo validation PASS
 
 `qa-specs-support-rework 20261105-200813` PASS on pinned build 25932569 / B176,
