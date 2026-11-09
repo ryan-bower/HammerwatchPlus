@@ -1,5 +1,22 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-08: a cloned TextWidget shares its text (issue #79)
+
+Source review only, not measured in game.
+
+- `Widget.CloneInto` copies by value (`w = this`, `Widget.as:189`) and only replaces
+  `m_parent`, `m_host` and `m_children`. Every other handle is shared with the original:
+  `TextWidget.m_text` (the built `BitmapString`) and `Widget.m_tooltip` (`WidgetTooltip`).
+  `TextWidget.SetText` calls `m_text.Cleanup()` before rebuilding (`TextWidget.as:130/159`), and
+  `Cleanup()` does the same, so the first `SetText` on a clone wipes the original's text. The
+  original only rebuilds when its own string changes (`TextWidget.as:118/147`), so it stays blank.
+  Cloning a hidden template is harmless; cloning a live, shown widget is not. Null the clone's
+  `m_text` (and `m_tooltip`) right after `Clone()`, and if it had already been shared, rebuild
+  the original with `SetText(m_str, true, true)` (the `force` argument). `m_font` is shared too,
+  which is fine. In `mods/`, `PetLevelTab.as` had the bug (pet line blanked the character level
+  in the character tab) and `SubclassPick.CloneText` already detached; every other `Clone()`
+  copies a hidden template.
+
 ## 2026-11-06: party frames, HUD drawing and ally data
 
 Measured in GameLab on build 25932569 (`mod-partyframes` 20261106-195712, `mod-partyframes-data`
