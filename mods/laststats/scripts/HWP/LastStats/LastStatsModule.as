@@ -268,7 +268,8 @@ namespace HWP
 		}
 
 		// hwp laststats sample [n]: n (2) made-up snapshots ("Sample 1".. and the local
-		// player's name first) over the first visible stats, deterministic values, so the
+		// player's name first) over the first visible stats (up to 8 per category, 24 in
+		// all, so the board has several tabs), deterministic values, so the
 		// board can be looked at without a run. In memory only (not the bag); the host
 		// syncs them to the party like real reports. A test aid.
 		void Sample(int count)
@@ -288,12 +289,18 @@ namespace HWP
 				b.PushString("mission", "Sample run");
 				b.PushInteger("state", int(MissionManager::MissionState::Failed));
 				int n = 0;
+				dictionary perCat; // at most 8 stats of a category, so the board's tabs all get some
 				b.PushArray("lines");
 				for (uint i = 0; i < Stats::StatDef::Instances.length() && n < 24; i++)
 				{
 					auto stat = Stats::StatDef::Instances[i];
 					if (stat.m_hidden || stat.m_category.isEmpty())
 						continue;
+					int inCat = 0;
+					perCat.get(stat.m_category, inCat);
+					if (inCat >= 8)
+						continue;
+					perCat.set(stat.m_category, inCat + 1);
 					// a different spread per player; the 2nd player skips every 5th stat
 					if (k > 0 && (n % 5) == 4 && k == 1)
 					{
