@@ -389,12 +389,18 @@ class HWPPartyFramesHUD : HUDCoop
 
 	// baked by tools/generate/make_partyframes_art.py: a 102 wide strip per bar height, its bright
 	// end on the right. Right-aligned, so a narrow shield keeps the end and starts part way in.
+	// A bar taller than its strip (a Living Mana frame's) repeats the strip's rows rather than
+	// stretching it.
 	void DrawStriped(SpriteBatch& sb, int x, int y, int w, int h, bool thin)
 	{
 		int srcH = thin ? HWP::PartyFrames::THIN_HP : HWP::PartyFrames::THICK_HP;
 		int srcY = thin ? HWP::PartyFrames::THICK_HP : 0;
 		int srcW = min(w, HWP::PartyFrames::STRIPE_W);
-		sb.DrawSprite(m_stripes, vec4(x, y, w, h), vec4(HWP::PartyFrames::STRIPE_W - srcW, srcY, srcW, srcH));
+		for (int oy = 0; oy < h; oy += srcH)
+		{
+			int rows = min(srcH, h - oy);
+			sb.DrawSprite(m_stripes, vec4(x, y + oy, w, rows), vec4(HWP::PartyFrames::STRIPE_W - srcW, srcY, srcW, rows));
+		}
 	}
 
 	// the mockup's glow is additive; the batch has no blend mode, so these columns approximate it

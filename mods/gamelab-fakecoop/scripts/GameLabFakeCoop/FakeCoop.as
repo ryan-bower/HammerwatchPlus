@@ -121,7 +121,10 @@ namespace GameLabFakeCoop
 	{
 		if (a.wired)
 			return;
-		HWP::AllyStatus::OnState(HWP::AllyStatus::Payload(a.record.peer, a.shield, a.left, a.total));
+		// OnState only reads the payload; nothing else frees it (Broadcast/Request would)
+		auto data = HWP::AllyStatus::Payload(a.record.peer, a.shield, a.left, a.total);
+		HWP::AllyStatus::OnState(data);
+		data.Delete();
 	}
 
 	void Report()

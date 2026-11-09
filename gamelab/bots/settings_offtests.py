@@ -916,7 +916,8 @@ class Checks(Base):
         distance = math.hypot(dx, dy)
         self.gl("spawn", "actors/npcs/town/npc_skill_trainer.unit", round(dx), round(dy))
         ms = max(50, round(300 * (distance - 9) / 31))  # 300 ms covers 31 px; stop inside both
-        mx, my = round(dx / distance, 3), round(dy / distance, 3)
+        # a drop right on the player has no direction: step up, where it was asked for
+        mx, my = (round(dx / distance, 3), round(dy / distance, 3)) if distance >= 1 else (0.0, -1.0)
 
         def t(phase, mark):
             # walk onto them (a unit spawned on a standing player is no usable until a collision
