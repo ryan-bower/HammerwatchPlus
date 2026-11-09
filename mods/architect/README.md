@@ -113,7 +113,19 @@ Architect alterations for the whole party.
     does nothing because of the cost. Keys on this screen (vanilla, host and client the
     same): E is Start on the host and Ready / Unready on a client, never "open this row";
     a row opens with a click or Return. In the Magic Shop's sphere picker a click (or
-    Return) selects a sphere and E applies and closes, so E alone keeps the old pick.
+    Return) selects a sphere and E applies and closes; E over a sphere picks it first
+    (next point).
+  - **E picks the sphere in the Magic Shop picker** (issue #64; overrides
+    `scripts/Missions/MissionSkillSphere.as`, pristine `.orig`, changes marked `HWP (issue
+    #64)`). E is both Use and the picker's Apply key (MenuAdditional). Vanilla's scroll area
+    only pressed the hovered sphere (a sphere is picked on release) while Apply closed the
+    window in the same frame, so "hover a sphere, press E" kept the old pick. Now, when the
+    Apply press is also a Use press, `SelectSkillSphereSelector.ApplyFromKey` first picks the
+    sphere the scroll area pressed (under the mouse, or the gamepad-focused one; an already
+    picked sphere stays picked), then applies. Pressing E over empty space, the hint bar's
+    Apply button, and an Apply key that is not Use keep vanilla's behaviour. E on the setup
+    screen itself is unchanged (Start for the host, Ready for a client). Applies with the
+    Architect setting off too, since it is a file override.
 
 ## Settings
 
@@ -175,6 +187,11 @@ Morning decisions:
    row shows it and the run starts with the sphere. If the row cannot be opened,
    `hwp architect` on the client shows the rows its setup has and how many spheres it
    may pick.
-10. Last used rows: pick a blessing, a sphere and a meal, start a run, come back: the
+10. Magic Shop picker (issue #64, manual, host and client): open the run-start Magic Shop
+   row, hover a sphere that isn't picked and press E: the window closes and the row shows
+   that sphere. Hover the picked one and press E: it stays picked. Click a sphere, then
+   press E over empty space: the clicked one is kept. With a gamepad: open the row, move
+   to a sphere, press the select button, then the Apply button: the selected sphere is kept.
+11. Last used rows: pick a blessing, a sphere and a meal, start a run, come back: the
     setup opens with the same picks; switch character: the other character's own picks
     (or none). With less gold than the remembered meal costs, the tavern row stays empty.
