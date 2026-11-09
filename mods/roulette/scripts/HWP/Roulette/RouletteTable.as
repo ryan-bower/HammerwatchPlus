@@ -389,13 +389,30 @@ namespace HWP
 			HWP::Net::Request("roulette.won", b.Build());
 		}
 
-		// the host: a player won, tell everyone
+		// the host: a player won, tell everyone. The name must be one of the sending peer's
+		// own players (local co-op puts several on one peer), else the peer's first player, so a
+		// client can't announce a win under someone else's name.
 		void OnWon(uint8 peer, SValue@ data)
 		{
+			string sent = HWP::SV::Str(data, "name", "");
+			string name = "?";
+			for (uint i = 0; i < ::g_players.length(); i++)
+			{
+				auto rec = ::g_players[i];
+				if (rec is null || rec.peer != peer)
+					continue;
+				if (name == "?")
+					name = rec.GetName();
+				if (rec.GetName() == sent)
+				{
+					name = sent;
+					break;
+				}
+			}
 			SValueBuilder b;
 			b.PushDictionary();
 			b.PushInteger("peer", int(peer));
-			b.PushString("name", HWP::SV::Str(data, "name", "?"));
+			b.PushString("name", name);
 			b.PopDictionary();
 			HWP::Net::Broadcast("roulette.winner", b.Build());
 		}
