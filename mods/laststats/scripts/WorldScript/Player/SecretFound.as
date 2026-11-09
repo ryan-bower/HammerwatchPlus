@@ -8,10 +8,11 @@ namespace WorldScript
 		// HWP laststats: vanilla added secrets-found to every machine's local player. The host
 		// picks the player who opened the secret (HWP::LastStats::SecretOpener, Secrets.as) and
 		// sends the peer along; only that player's run and character stats count it, the town's
-		// accomplishment counter still counts it on every machine.
+		// accomplishment counter still counts it on every machine. With laststats off (a host
+		// setting) the host sends -1, and every machine credits its own player as vanilla did.
 		SValue@ ServerExecute()
 		{
-			int peer = HWP::LastStats::SecretOpener(Position);
+			int peer = HWP::LastStats::Enabled() ? HWP::LastStats::SecretOpener(Position) : -1;
 			HWP::LastStats::CreditSecret(peer);
 			SValueBuilder b;
 			b.PushDictionary();

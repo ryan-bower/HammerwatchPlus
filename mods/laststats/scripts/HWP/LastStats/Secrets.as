@@ -17,6 +17,9 @@
 // town's total (the guild's Secrets Found accomplishment keeps counting every secret, as
 // in vanilla) and not the character or run stats. GlobalCache SECRETS_OPENED counts every
 // secret the party opened on each machine, for mods/mmhmm's party moment.
+//
+// laststats.enabled off (host scope): the host names no opener (-1), so every machine credits
+// its own player exactly as vanilla did; the GlobalCache count for mmhmm still runs.
 namespace HWP
 {
 	namespace LastStats
@@ -42,7 +45,7 @@ namespace HWP
 		// Breakable.as override, every breakable that breaks, before it is destroyed
 		void NoteBreak(UnitPtr unit, Actor@ attacker)
 		{
-			if (!Network::IsServer() || !IsSecretWall(unit))
+			if (!Network::IsServer() || !Enabled() || !IsSecretWall(unit))
 				return;
 			g_breakPeer = -1;
 			auto player = cast<PlayerBase>(attacker);
