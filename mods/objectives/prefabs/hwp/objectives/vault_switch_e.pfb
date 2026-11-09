@@ -1,0 +1,10 @@
+<!-- HWP objectives vault lever on an east wall (issue #74): 4x3 cells, a 3x3 floor patch (PlaceFloor), the wall run on column 3 (PlaceWall); the lever on the wall's west edge, at the top of its middle cell -->
+<dict>
+	<int name="version">1</int>
+	<dict name="units">
+		<array name="doodads/hwp/objective_switch_e.unit">
+			<vec2>48 16</vec2>
+			<int>1</int>
+		</array>
+	</dict>
+</dict>

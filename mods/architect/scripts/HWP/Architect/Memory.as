@@ -5,9 +5,11 @@
 //   architect.last     { ids: [int] }                    my own picks, as last set
 //   architect.ngp      int                               the NG+ level the host picked last
 //   architect.preset<n> { name, ids: [int], ngp }        preset slot n (1..PRESETS)
+//   architect.loadout  { <row id>: <the row's own Save> } the other rows, as last used
 //
 // The loadout (MissionArchitect.as override) restores the last picks when the menu
-// opens with none of mine, the menu (MissionLoadoutMenu.as override) the NG+ level;
+// opens with none of mine (if the character can pay for them), the menu
+// (MissionLoadoutMenu.as override) the NG+ level and the other rows (RestoreRow);
 // the picker's preset row and `hwp architect preset ...` save and load the slots.
 namespace HWP
 {
@@ -15,6 +17,7 @@ namespace HWP
 	{
 		const string KEY_LAST = "architect.last";
 		const string KEY_NGP = "architect.ngp";
+		const string KEY_LOADOUT = "architect.loadout";
 		const int PRESETS = 3;
 		const int NAME_MAX = 24;
 
@@ -199,23 +202,174 @@ namespace HWP
 			return true;
 		}
 
-		// a client that left the host's run-start setup (Back) picks any mission on the
-		// board: while the host's setup is still up (the mission is set), its own window
-		// comes back
-		bool RejoinLoadout()
+		// ---- the other rows: last used, per character (issue #96) ------------------
+		//
+		// Vanilla keeps the loadout rows' picks in the MissionLoadout singletons and saves
+		// them with the local record ("architect-loadout", PlayerRecord.as:818-823), but
+		// loads them back when the record loads (PlayerRecord.as:1276-1281), before any
+		// BuildGUI has set the rows' m_player and with no actor, so their validity checks
+		// (MissionBuff::IsValidMissionBuff, CheckConditionals) run without the player; and the
+		// singletons carry one character's picks over to the next. Here every row's own
+		// Save() goes under the character's hwp key when the setup closes or the run starts,
+		// and its own Load() runs again when the setup opens, with the player set.
+
+		// the vanilla rows whose picks come back: the chapel's blessing, the Magic Shop's
+		// skill sphere, the tavern's food and drinks (vanilla or the tavern mod's), the boon.
+		// The architect row has its own memory (architect.last, above); the rest are left alone.
+		bool RemembersRow(MissionLoadout@ loadout)
 		{
-			if (Network::IsServer())
-				return false;
-			if (MissionManager::g_module is null || MissionManager::g_module.m_missionDefHash == 0)
-				return false;
-			if (OpenLoadoutMenu() !is null)
-				return false;
-			auto gm = cast<BaseGameMode>(g_gameMode);
-			if (gm is null || gm.m_windowManager is null)
-				return false;
-			gm.m_windowManager.AddWindowObject(MissionLoadoutMenu(gm.m_guiBuilder));
-			HWP::Log("architect", "client rejoined the host's run-start setup");
-			return true;
+			return cast<SelectBuffLoadout>(loadout) !is null || cast<SelectBoonLoadout>(loadout) !is null
+				|| cast<SelectSkillSphereLoadout>(loadout) !is null || cast<SelectFoodLoadout>(loadout) !is null;
+		}
+
+		void RememberLoadout(array<MissionLoadout@>@ loadouts)
+		{
+			if (loadouts is null)
+				return;
+			SValueBuilder b;
+			b.PushDictionary();
+			int rows = 0;
+			for (uint i = 0; i < loadouts.length(); i++)
+			{
+				if (loadouts[i] is null || !RemembersRow(loadouts[i]))
+					continue;
+				loadouts[i].Save(b);
+				rows++;
+			}
+			b.PopDictionary();
+			HWP::SaveData::Local().Take(KEY_LOADOUT, b.Build());
+			HWP::Log("architect", "remembered the run-start rows (" + rows + ")");
+		}
+
+		// the rows' Load() validates against m_player, which only BuildGUI sets
+		void SetRowPlayer(MissionLoadout@ loadout, PlayerRecord@ plr)
+		{
+			auto buff = cast<SelectBuffLoadout>(loadout);
+			if (buff !is null)
+				@buff.m_player = plr;
+			auto boon = cast<SelectBoonLoadout>(loadout);
+			if (boon !is null)
+				@boon.m_player = plr;
+			auto food = cast<SelectFoodLoadout>(loadout);
+			if (food !is null)
+				@food.m_player = plr;
+			auto sphere = cast<SelectSkillSphereLoadout>(loadout);
+			if (sphere !is null)
+			{
+				@sphere.m_player = plr;
+				// vanilla's Load keeps the old hash when the saved string is empty, and the
+				// row would show a sphere that OnPlay (by the string) never gives
+				sphere.m_selected = 0;
+				sphere.m_selectedString = "";
+			}
+		}
+
+		// Before the row's BuildGUI: its picks from last time, through its own Load()
+		// (which drops what the character may no longer pick). A row that costs (the
+		// tavern) keeps what it had when the restored picks plus `spent` (the shown rows
+		// restored before it) are more than the character can pay. Returns the row's cost
+		// after restoring (null when it costs nothing or wasn't touched); the caller adds it
+		// to `spent` only once the row is shown, so a row BuildGUI hides costs nothing.
+		ShopCost@ RestoreRow(MissionLoadout@ loadout, PlayerRecord@ plr, ShopCost@ spent)
+		{
+			if (loadout is null || plr is null || !Enabled() || !RemembersRow(loadout))
+				return null;
+			auto saved = HWP::SaveData::Local().Get(KEY_LOADOUT);
+			if (saved is null)
+				return null;
+
+			SValueBuilder b;
+			b.PushDictionary();
+			loadout.Save(b);
+			b.PopDictionary();
+			SValue@ before = b.Build();
+
+			SetRowPlayer(loadout, plr);
+			loadout.Load(plr, saved);
+
+			auto cost = loadout.GetCost();
+			if (cost !is null)
+			{
+				auto total = ShopCost();
+				total.AddCost(spent);
+				total.AddCost(cost);
+				if (!total.CanAfford(plr))
+				{
+					SetRowPlayer(loadout, plr);
+					loadout.Load(plr, before);
+					HWP::Log("architect", "run-start row " + loadout.m_id + ": the remembered picks cost more than " + plr.GetName() + " has; not restored");
+					cost = loadout.GetCost();
+				}
+				else
+					HWP::Log("architect", "run-start row " + loadout.m_id + ": remembered picks restored");
+			}
+			else
+				HWP::Log("architect", "run-start row " + loadout.m_id + ": remembered pick restored");
+			before.Delete();
+			return cost;
+		}
+
+		// what one player pays for a pick list alone (CalcMyCost's sum without a split): the
+		// remembered picks only come back when this, with the rows before, is affordable
+		ShopCost@ SoloBill(array<int>@ ids)
+		{
+			array<uint> hashes;
+			for (uint i = 0; i < ids.length(); i++)
+				hashes.insertLast(uint(ids[i]));
+			float mul = CostMul(hashes);
+			auto sum = ShopCost();
+			auto off = ShopCost();
+			for (uint i = 0; i < hashes.length(); i++)
+			{
+				auto buff = MissionBuff::Get(hashes[i]);
+				auto d = ChallengeDiscount(hashes[i]);
+				if (d !is null)
+					off.AddCost(d);
+				else if (buff !is null)
+					sum.AddCost(buff.m_cost);
+			}
+			auto bill = ShopCost();
+			for (uint j = 0; j + 1 < sum.m_cost.length(); j += 2)
+			{
+				int amount = int(sum.m_cost[j + 1] * mul) - off.GetCost(MaterialType(sum.m_cost[j]));
+				if (amount > 0)
+					bill.AddCost(MaterialType(sum.m_cost[j]), amount);
+			}
+			return bill;
+		}
+
+		// the row ids with a remembered pick (for `hwp architect`)
+		string RememberedRows()
+		{
+			auto saved = HWP::SaveData::Local().Get(KEY_LOADOUT);
+			if (saved is null)
+				return "none";
+			auto keys = saved.GetDictionary().getKeys();
+			string s = "";
+			for (uint i = 0; i < keys.length(); i++)
+				s += (i > 0 ? ", " : "") + keys[i];
+			return s == "" ? "none" : s;
+		}
+
+		// the rows this machine's open setup shows (for `hwp architect`, issue #64): the
+		// Magic Shop row with how many spheres this character may pick and the one picked
+		string OpenRows()
+		{
+			auto menu = OpenLoadoutMenu();
+			if (menu is null)
+				return "no setup open";
+			string s = "";
+			for (uint i = 0; i < menu.m_loadouts.length(); i++)
+			{
+				auto loadout = menu.m_loadouts[i];
+				if (loadout is null)
+					continue;
+				s += (s == "" ? "" : ", ") + loadout.m_id;
+				auto sphere = cast<SelectSkillSphereLoadout>(loadout);
+				if (sphere !is null)
+					s += " (" + sphere.m_possibleSkills.length() + " sphere(s), picked '" + sphere.m_selectedString + "')";
+			}
+			return s == "" ? "none" : s;
 		}
 
 		// hwp architect preset [list | save <n> [name...] | load <n> | clear <n>]

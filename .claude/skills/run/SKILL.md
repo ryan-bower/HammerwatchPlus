@@ -42,6 +42,8 @@ Pass optional user preferences through to the same call:
 - `--gold 2500000`: starting gold for the new profile; default 1,000,000.
   Applies with or without preset characters; `--gold 0` starts unfunded.
 - `--packages town keys`: selected packages instead of all; never combine `all` with them.
+- `--copy-slot 0`: copy that local profile's town and characters into the new profile,
+  bypassing the UI; refuses a save with an active dungeon run and never writes the source.
 - `--no-launch`: prepare mods and the new default profile without starting the game.
 - `--dry-run`: show the plan without writes or a launch.
 

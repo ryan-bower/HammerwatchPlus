@@ -10,6 +10,7 @@
     run.py --character sorcerer:15:TestSorc  # prepare this character, bypassing the UI
     run.py --no-ui                  # no preset characters, default starting gold
     run.py --character sorc:15:TestSorc --gold 2500000  # configure starting gold
+    run.py --copy-slot 0            # copy local profile 0 into the new profile, bypassing the UI
 
 Every invocation creates a new profile with exactly the deployed mods enabled.
 Saves and config are backed up first; existing characters are preserved. A
@@ -109,6 +110,16 @@ def prepare_profile(install: Path, packages: list[str], dry_run: bool, name: str
         say("character", f"{character['name']}: {character['class']}, level {character['level']}")
     say("gold", f"{receipt['starting_gold']:,} starting gold")
     return 0
+
+
+def read_copy_source(install: Path, slot: int) -> bytes:
+    """A local profile to duplicate. Read-only; refuses a save with an active dungeon run."""
+    path = install / "saves" / f"{slot}.hps"
+    if not path.is_file():
+        raise ValueError(f"no local profile in slot {slot}: {path}")
+    data = path.read_bytes()
+    play_profile.characters_in(data)
+    return data
 
 
 def choose_save(args, packages: list[str]) -> save_builder.Plan | None:
@@ -214,8 +225,13 @@ def main(argv=None) -> int:
     ap.add_argument("--gold", type=save_builder.parse_gold, default=save_builder.DEFAULT_GOLD, metavar="AMOUNT",
                     help="starting gold shared by the new profile (default: 1,000,000; 0 starts broke)")
     ap.add_argument("--no-ui", action="store_true", help="skip the builder UI; omit characters unless --character is supplied; --gold still applies")
+    ap.add_argument("--copy-slot", type=int, metavar="SLOT",
+                    help="copy this local profile's town and characters into the new profile; bypasses "
+                         "the builder UI; the source is never written")
     ap.add_argument("--dry-run", action="store_true", help="print the plan; write and launch nothing")
     a = ap.parse_args(argv)
+    if a.copy_slot is not None and (a.character or a.gold != save_builder.DEFAULT_GOLD):
+        ap.error("--copy-slot keeps the profile's own characters and gold; drop --character/--gold")
 
     install = gamepaths.hoh2_dir(required=False)
     if install is None:
@@ -230,7 +246,11 @@ def main(argv=None) -> int:
         if "all" in packages and len(packages) > 1:
             say("build", "REFUSED: choose all OR individual packages; all already includes them")
             return 2
-        plan = choose_save(a, packages)
+        if a.copy_slot is not None:
+            read_copy_source(install, a.copy_slot)  # fail before the build; read again under the lock
+            plan = save_builder.Plan(a.profile_name, [], 0)
+        else:
+            plan = choose_save(a, packages)
         if plan is None:
             say("builder", "cancelled; no setup, deployment or profile changes")
             return 0
@@ -260,6 +280,10 @@ def main(argv=None) -> int:
             if not a.dry_run and game_running():
                 say("profile", "a game started during preparation; close it before creating the play profile")
                 return 3
+            if a.copy_slot is not None:
+                native_data = read_copy_source(install, a.copy_slot)
+                say("copy", f"slot {a.copy_slot}: {len(play_profile.characters_in(native_data))} characters, "
+                            f"{play_profile.gold_in(native_data):,} gold")
             code = prepare_profile(install, packages, a.dry_run, plan.profile_name, native_data, seed_run)
             if code:
                 return code

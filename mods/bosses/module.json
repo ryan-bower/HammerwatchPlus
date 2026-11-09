@@ -1,0 +1,24 @@
+{
+  "id": "bosses",
+  "requires": ["hwplib"],
+  "overrides": [],
+  "exclude": [],
+  "config": {
+    "title": "Tougher bosses",
+    "about": "Bosses have more armor and resistances; their health stays as it is.",
+    "toggle": "bosses.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": [
+      {
+        "key": "bosses.toughness",
+        "type": "int",
+        "default": 25,
+        "values": [0, 10, 25, 50, 75, 100],
+        "suffix": " %",
+        "title": "Armor and resistances",
+        "about": "How much more armor and fire, ice, lightning and poison resistance every boss has than in vanilla. 0: vanilla."
+      }
+    ]
+  }
+}

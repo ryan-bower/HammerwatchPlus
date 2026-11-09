@@ -20,8 +20,9 @@
 	<string name="hwp.architect.ngp_row">Starting on New Game+ %ngp%</string>
 	<string name="hwp.architect.ngp_row0">Starting on New Game+ 0 (base game)</string>
 	<string name="hwp.architect.confirm_ngp">Start this run on New Game+ %ngp%?</string>
-	<string name="hwp.architect.client_left">You left the run-start setup. Pick any mission on the board to rejoin it while the host's is open.</string>
-	<string name="hwp.architect.client_pick">Only the host picks the mission. Once the host has opened the run-start setup, pick any mission here to join it.</string>
+	<string name="hwp.architect.client_left">You left the run-start setup. Use the run's entrance (the door or portal) again to rejoin it while the host's is open.</string>
+	<string name="hwp.architect.no_setup">Only the host can open the run-start setup. Once the host has, use the entrance again to join it.</string>
+	<string name="hwp.architect.left_name">%name% (left)</string>
 	<string name="hwp.architect.presets">Presets</string>
 	<string name="hwp.architect.preset_empty">empty</string>
 	<string name="hwp.architect.preset_default">Preset %slot%</string>

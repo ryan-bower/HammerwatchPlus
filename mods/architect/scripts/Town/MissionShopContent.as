@@ -34,10 +34,13 @@ class MissionShopContent : AShopContent
 			auto gm = cast<BaseGameMode>(g_gameMode);
 			gm.m_windowManager.AddWindowObject(MissionLoadoutMenu(gm.m_guiBuilder));
 		}
-		else if (!HWP::Architect::RejoinLoadout()) // HWP: a client that left the host's run-start setup comes back through the board
+		else
 		{
+			// HWP: only the host picks the mission; a pick here asks the host to let this
+			// client (back) into its open run-start setup (Rejoin.as), and the host says so
+			// when there is none
 			print("Clients can't start missions, add some way of suggesting a mission to the host here maybe??");
-			HWP::Commands::Reply(Resources::GetString(".hwp.architect.client_pick"));
+			HWP::Architect::RequestRejoin();
 		}
 
 		return true;

@@ -2,7 +2,17 @@
 
 A remake of the lobby-wide roulette table from Steam Workshop 3787654264, played at a
 wheel on a table in the tavern's main hall. The wheel turns slowly while betting is open
-and fast while the ball runs. Use it to open the table.
+and fast while the ball runs. Use it, or the dealer, to open the table.
+
+- **The table can't be broken.** Tavern tables are vanilla breakables. The table under the
+  wheel has its health topped up every frame on every machine, so hits make a sound but never
+  break it (issue #63). If it goes anyway (a building upgrade reloads the town), the wheel is
+  placed again on a hall table.
+- **A dealer** (a vanilla townsman sprite, `doodads/hwp/hwp_roulette_dealer.unit`) stands
+  behind the table, toward the nearer hall wall, facing it: north of the round table on
+  tavern levels 1-2, facing south, and west of the long table on level 3 and up, facing
+  east. Using him opens the table too. His collision is a sensor only, so he blocks no
+  path. He has no spot away from the hall tables.
 
 - One single-zero table for the whole lobby. The host runs the rounds: 20 s of betting,
   5 s of spin, 5 s showing the result. Everyone sees the same countdown, number and
@@ -21,6 +31,11 @@ and fast while the ball runs. Use it to open the table.
   2.7%, so a bonus of about 3% makes straight bets even, and one smoked herb (+10% Luck)
   already favours the player.
 - The table limit is `roulette.max_stake` per player per round.
+- **Winner winner chicken dinner!** When a round pays you anything, your screen shows
+  "Winner winner chicken dinner!" in large gold letters with the quest-complete sound (announce style
+  `hwp_roulette_win`, `tweak/hwp/announce_roulette.sval`), once per round however many of
+  your bets won. The whole lobby gets "<name>: Winner winner chicken dinner!" in the chat, and
+  the line floats over the winner's head (issue #96).
 
 | Setting | Default | |
 |---|---|---|
