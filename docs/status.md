@@ -34,6 +34,16 @@ tasks. Read the ledger for current counts and next actions.
 > **Historical QA checkpoint (2026-10-22): paused at the user-requested PR boundary.** The original sweep was incomplete. Recorded original-sweep passes: six original fourth specs60/60 rank cases and61/65 orb-quality cases; Firearms60/60 ranks and74/75 orb qualities; HoH1 imports29/39 skills and136/191 ranks;9/9 selected-mastery saves. Five orb cases need real co-op. The then-current 31 normal-release modules had load evidence, with broader feature/lifecycle work open. Earlier QA summaries below are historical snapshots. See [the historical checkpoint](generated/qa_pr_checkpoint.json) and [QA ledger](QA_OVERNIGHT.md).
 
 
+2026-11-06, objective levers on any reachable wall (#74). Vault and exit levers used to go on the
+floor block farthest from what they open, which was always a bottom corner by the bottom wall. Now a
+lever is mounted on a north, east or west wall (vanilla's wall pull lever art), anywhere in the far half
+of the floor, side picked at random, kept apart from the floor's other lever, never on floor cut off
+from the rest and never under a torch. South walls are left out: from the game's camera their face is
+hidden. A floor with no wall that fits gets the old floor lever, clear of the wall below when it can be
+and against it when nothing else fits (2026-11-08 review fix, so the exit never stays open for want of a
+spot). Source review and offline tests only
+(`tests/test_objectives_levers.py`), not yet seen in game.
+
 2026-11-06, orb rerolls per orb (new `orbreroll` module, Quality of Life). Every orb you pick up
 can be rerolled as many times as your reroll accomplishments allow, instead of one pool for the
 whole run, and the shadow curse cost starts over on each orb. Orb rerolls no longer spend the run's

@@ -9806,6 +9806,31 @@ the previous all-mod scenario's links and exact fixture-only mod verification.
 The final full-width timestamp implementation was verified again by
 `mod-all 20261031-152227` (PASS, 20.5 s); its end frame was inspected.
 
+## 2026-11-06: where wall art sits, and why a lever can't go on a south wall (issue #74, objectives)
+
+Source review of the decompiled generator scripts and vanilla unit/prefab data (pinned build's
+`gamecode/`); no game run. What the objectives levers' new wall placement relies on:
+
+- **Every wall cell's art is drawn 32 px above its cell.** The wall units (`doodads/walls/*.inc`)
+  all draw with `origin="0 32"`: a wall with floor south of it (`x_s`, `h_16`) is 16x48, its top
+  at cell y - 32 and a 32 px face down to the cell's bottom edge (the floor line); every other
+  wall (`x_n`, `x_e`, `x_w`, `x_x`, corners, caps) draws only its 16x16 top, 32 px up. So a wall
+  south of the floor covers the two floor rows in front of it, and nothing on it can be seen: no
+  south-facing wall art exists (vanilla has `button_wall_n/e/w` and `button_wall_pull_n/e/w`, no
+  `_s`). A floor unit in those two rows is drawn under the wall's top, sorted by y.
+- **Wall-mounted units stand on the wall's edge.** On a north wall (floor south of it): the wall
+  cell's bottom edge at its centre, cell + (8, 16). Torches (`DungeonInstanceBrush.SpawnTorchDeco`,
+  `pos + vec3(0, 16, 0)` on cell + 8) and `button_wall_n` in `dungeon/special/trap_room_e_1.pfb`
+  (grid-pos -7 -5: cell 16.5, 7.0, below wall row 6) both do. On a side wall: the edge facing the
+  floor, the art drawn into the floor side (`button_wall_e` origin x 3 of a 3 px frame, i.e. west
+  of the unit; `_w` east of it). `crypt/special/trap_room_e_1.pfb` stands `button_wall_e.pfb` at
+  the west edge of wall column 18 (cell 18.0, 7.0), `temple/special/call_to_arms_room_w_11x11.pfb`
+  `button_wall_w.pfb` at the east edge of wall column 12 (cell 13.0, 3.5).
+- **A torch needs open floor below its wall cell.** `SpawnTorchDeco` returns early unless
+  `IsOpen(x, y + 1)` (Floor or Breakables) for the wall cell the torch belongs to; the walls are
+  filled after the brush's painting list. Vertical-wall deco (`SpawnVerticalWallDeco`) is empty in
+  `DungeonInstanceBrush`, so east and west walls never get torches.
+
 ## 2026-11-05: the Shady Trader's orb offers show the rank they grant (issue #70, vanilla bug)
 
 Source review only, against the decompiled scripts of the pinned Build 176 (Steam build

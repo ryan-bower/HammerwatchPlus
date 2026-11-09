@@ -1,0 +1,10 @@
+<!-- HWP objectives exit lever on a north wall (issue #74): 3x4 cells, the wall run on row 0 (PlaceWall), a 3x3 floor patch below it (PlaceFloor); the lever on the middle wall cell's bottom edge -->
+<dict>
+	<int name="version">1</int>
+	<dict name="units">
+		<array name="doodads/hwp/objective_exit_switch_n.unit">
+			<vec2>24 16</vec2>
+			<int>1</int>
+		</array>
+	</dict>
+</dict>
