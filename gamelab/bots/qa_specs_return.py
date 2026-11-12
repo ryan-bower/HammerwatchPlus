@@ -95,7 +95,7 @@ def sample(checks, button, direction, tag, slow=False):
         else:
             # The lab runs at about 30 FPS: 6x gives an approximately 60px return
             # step across the measured 45px gap. Restore promptly, before the real
-            # four-second Tailwind lifetime, and read at normal console timing.
+            # six-second Tailwind lifetime, and read at normal console timing.
             checks.gl("timescale", 1)
         for _ in range(4):
             snapshots.append(status(checks))

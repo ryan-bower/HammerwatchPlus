@@ -121,11 +121,11 @@ def run(p, **_):
             speeds = {key: boosted.get(key, 0) / max(0.001, baseline.get(key, 0)) for key in ("castSpeed", "moveSpeed", "mhSpeed")}
             c.flag(f"winds_rank_{rank}_speeds", earned["valid"] and all(abs(value - ratio) < 0.004 for value in speeds.values()),
                    f"actual native move/cast/weapon speeds {baseline}->{boosted}; ratios {speeds}, source {ratio}")
-            time.sleep(4.6)
+            time.sleep(6.8)
             expired, s_end = c.gl("benchstats"), status(c)
             c.flag(f"winds_rank_{rank}_expired", s_end["tailwind"] == 0
                    and all(abs(expired.get(key, 0) - baseline.get(key, 0)) < 0.004 for key in speeds),
-                   f"actual stacks and native speed stats after natural4s expiry {s_end}; {expired}")
+                   f"actual stacks and native speed stats after natural6s expiry {s_end}; {expired}")
             rows.append({**earned, "source_speed_ratio": ratio, "baseline": baseline, "boosted": boosted, "expired": expired})
             checkpoint(c, rows)
         progression(c, arrow_rows, (40, 50, 60, 70, 80), "arrow_rank_damage_progression")

@@ -192,7 +192,7 @@ def ward_trial(c, direction, quality, trial, settled=False):
                          and 1400 <= now-started <= 3500
                          and a.get("stacks") == b.get("stacks") == 5)
         c.flag(tag+"_settle_clock", bool(native_window), str({"input":started,"measured":now,
-               "earliest_expiry_lower_bound":started+4000 if isinstance(started,int) else None}))
+               "earliest_expiry_lower_bound":started+6000 if isinstance(started,int) else None}))
         earned["valid"] = earned["valid"] and native_window
     wb0, wb1 = (r.get("buffs", [{}])[0] for r in (buff0, buff1))
     intensity = 5 * (0, .015, .03)[quality]
@@ -206,7 +206,7 @@ def ward_trial(c, direction, quality, trial, settled=False):
     valid = (setup and ward and hit.get("took") == loss == expected and hit.get("hp", 0) > 0)
     c.flag(tag+"_native_dr", bool(valid), str({"earned": earned, "buff_before": buff0,"buff_after":buff1,
            "stack_before":a,"stack_after":b,"hurt_setup":hurt,"actual_hit":hit,"expected_loss":expected}))
-    time.sleep(4.7)
+    time.sleep(6.8)
     expired, off, hurt2, plain = c.g.gl_multi([["givestacks",STACK,0],["hasbuff",BUFFS+"wind_ward"],
                                              ["hurt",.95],["damagefrom",uid,200,"ranged"]])
     offbuff=off.get("buffs",[{}])[0]
