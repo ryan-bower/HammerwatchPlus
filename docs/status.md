@@ -1,5 +1,11 @@
 # Status
 
+2026-11-12, vanilla item-power investigation in `item-power-investigation` worktree.
+[Research](research/item-power.md) and a reproducible source-derived model compare
+matched/mismatched trinkets, selected equipment affixes and physical EHP. Numerical
+impact can be substantial; cooldown-throughput figures are conditional analytical
+potential, not live DPS. No BiS search, player-save inspection or native run claimed.
+
 Running project status: the newest entries first, then the QA checkpoints and historical
 sweeps. The engine and reverse-engineering notes behind each change are in
 [RE_NOTES.md](RE_NOTES.md).

@@ -1,0 +1,145 @@
+{
+  "evidence": "source review and analytical model; no native game run",
+  "assumptions": {
+    "spell_intelligence": 60,
+    "attack_speed_before": 1,
+    "no_other_additive_damage_bonus": true,
+    "spell_cadence": "cooldown-limited, sufficient mana and animation headroom",
+    "attunement": false,
+    "procs": "excluded",
+    "equipment_base_stats": "held fixed for damage comparisons"
+  },
+  "packets": {
+    "weapon": [
+      "book_attacks",
+      "girdle_might",
+      "torc_alactiy",
+      "codex_power",
+      "parry_medal"
+    ],
+    "spell": [
+      "book_spells",
+      "pendant_prowess",
+      "focus_crystal",
+      "codex_power",
+      "hourglass"
+    ]
+  },
+  "comparisons": [
+    {
+      "channel": "weapon",
+      "existing_power": 0,
+      "matched": 1.6445,
+      "mismatched": 1.2,
+      "selected_gear_and_trinkets": 2.2815000000000003,
+      "removal_share": 0.3919124353906963
+    },
+    {
+      "channel": "weapon",
+      "existing_power": 100,
+      "matched": 1.518,
+      "mismatched": 1.1333333333333333,
+      "selected_gear_and_trinkets": 2.1060000000000003,
+      "removal_share": 0.3412384716732543
+    },
+    {
+      "channel": "weapon",
+      "existing_power": 300,
+      "matched": 1.4168,
+      "mismatched": 1.08,
+      "selected_gear_and_trinkets": 1.9656000000000005,
+      "removal_share": 0.2941840767927725
+    },
+    {
+      "channel": "spell",
+      "existing_power": 120,
+      "matched": 2.7560227601515352,
+      "per_hit": 1.3780113800757676,
+      "mismatched": 1.125,
+      "selected_gear_and_trinkets": 4.508121532805281,
+      "removal_share": 0.6371582940247501
+    },
+    {
+      "channel": "spell",
+      "existing_power": 300,
+      "matched": 2.5993646243113426,
+      "per_hit": 1.2996823121556713,
+      "mismatched": 1.08,
+      "selected_gear_and_trinkets": 4.251870414098454,
+      "removal_share": 0.6152906019235631
+    },
+    {
+      "channel": "spell",
+      "existing_power": 600,
+      "matched": 2.4949258670845476,
+      "per_hit": 1.2474629335422738,
+      "mismatched": 1.05,
+      "selected_gear_and_trinkets": 4.081036334960569,
+      "removal_share": 0.5991864875854798
+    }
+  ],
+  "armor": {
+    "items": [
+      {
+        "id": "chest_str_t3a",
+        "item_level": 20,
+        "quality": "common",
+        "armor": 77,
+        "required_strength": 60
+      },
+      {
+        "id": "head_str_t3a",
+        "item_level": 20,
+        "quality": "common",
+        "armor": 62,
+        "required_strength": 58
+      },
+      {
+        "id": "feet_str_t3a",
+        "item_level": 20,
+        "quality": "common",
+        "armor": 62,
+        "required_strength": 58
+      },
+      {
+        "id": "hands_str_3a",
+        "item_level": 20,
+        "quality": "common",
+        "armor": 62,
+        "required_strength": 58
+      }
+    ],
+    "added_armor": 263,
+    "baseline_hp": 350,
+    "baseline_armor": 132,
+    "ehp_before": 581.0,
+    "ehp_after": 1041.25,
+    "ratio": 1.7921686746987953
+  },
+  "source_sha256": {
+    "players/warrior/class_warrior.sval": "17fdc1c276660457e534b6aee9047c4791a648ffb1d6cc217d2eb24ce08b7582",
+    "players/wizard/class_wizard.sval": "24dabb64d58a4c6c5051f481ded484fe94d67bd4149bb59475575d3e04b60115",
+    "scripts/Behaviors/Actors/Modifiers/Modifiers.as": "6c18f93604536b1ed3feb456ba096c4421c26b99cdf3a70aa3a2918c2e518989",
+    "scripts/Behaviors/Actors/Modifiers/Modifiers.mas": "7af48a8ced791d17f6751c93532e22d8de5a181044b6de3decb969d5f9d80d32",
+    "scripts/Behaviors/Actors/Modifiers/SkillModifier.as": "01c380de73dc363836727c50e7b503849129c64448b0f2bc009f0db09c1e185f",
+    "scripts/Behaviors/Actors/Modifiers/StatModifier.as": "c8848b50831204ef481df0db4d310caa7b4c5bc2c43af92da1c83f3ed0105f96",
+    "scripts/Behaviors/Actors/Player/Player.as": "d389cad77a3d58bf0ea39df4a9b52aa1e3f88304e3216bbc43fa7e000fd5cb5b",
+    "scripts/Behaviors/Actors/Player/PlayerBase.as": "4e44677d31322f34b641c857dee9c96a71b65bbbc25a0e2674171d426e6a9c22",
+    "scripts/Behaviors/Armor.as": "e7fe2823d11b3f0bce42402b24520948a5f9da47c3fd1c425201e518ba8615a7",
+    "scripts/Data/Misc.as": "96bf9d3b0a49d369c105d8cbc68728987aa0c84fbea3cecbac58b7399a7f4eb5",
+    "scripts/Data/Player.as": "6f7e40ac28f8f925447dbcda6b0c6ab9eec4bc852e553ab39f40d0a4c09af63c",
+    "scripts/Items/Equipment.as": "4256a0329603ae3a246f6affa076281180fea91705cbc9ae4b919d234545a130",
+    "scripts/Items/EquipmentGenerator.as": "07407406ce832593914e4c4031ca49a55a98d3940bfdf8fb43d4324af8017f88",
+    "scripts/Items/Trinkets.as": "47c700828fa21ea31a419cb7e79180e1e9086124cb84b901caf9096acb7072ff",
+    "tweak/items/equipment/equipment_shared_chest.sval": "19727bd3aa5cb57faec97f7361a86f6e4652867496ea90d8e0fdf84c44737c14",
+    "tweak/items/equipment/equipment_shared_feet.sval": "e620a117c05418f9b932727e7559464d68c1702cf654547500ef9305e37757e1",
+    "tweak/items/equipment/equipment_shared_hands.sval": "6cfa20f12f2635e1e7ceb5d1076163605dd30c00f340008c8d9f56ff59abbbff",
+    "tweak/items/equipment/equipment_shared_head.sval": "ef1c3f37a257124f987bdecf5e0f37361df8d69db15c2e1d2369e34ce008b8da",
+    "tweak/items/modifiers_equipment_epic.sval": "8fb6f5aee421182a9992c4f5e8258a1d9933873ea521c0f8cd9a3d45e4447223",
+    "tweak/items/modifiers_equipment_rare.sval": "43dc0baf342ed0f46a677d52bc178677554e33a7a914573347508711b2c59768",
+    "tweak/trinkets/common.sval": "4f104509ca82097a98da803bac94429b09b630c0e2c82f89f3c2f4d7891083d9",
+    "tweak/trinkets/epic.sval": "6d68d18b4b5820f965643d570161b26a551dad70cdd8176ef4a2c3fd46d75583",
+    "tweak/trinkets/rare.sval": "a74309219115cb5ae8acbd676a0b41d70b923b7880a86f7c8f7c68e129c1cbae",
+    "tweak/trinkets/uncommon.sval": "b4b12d08964ff741acee0a3a3794ce820fab88619e09621090e71007d8668b77"
+  }
+}

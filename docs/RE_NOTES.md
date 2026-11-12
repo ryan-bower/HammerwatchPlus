@@ -1,5 +1,24 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-12: Vanilla item-power source investigation
+
+Baseline `4cfbb3bf838661e36ecc94a35d031aa0d986a2fd`, repo pin 25932569/B176.
+Read the existing main-checkout dump without modifying it; per-input hashes and
+analytical output are in [research/item-power-results.json](research/item-power-results.json).
+[The report](research/item-power.md) distinguishes item relevance from fun and
+documents all channel/cadence assumptions. Notably `Modifiers.mas` registers
+`DamageMul` as `Vec2SumMul` (ordinary damage bonuses add), while skill cooldown
+modifiers multiply. `DamagePowerDivisor` is 200 despite its stale nearby comment.
+Five un-attuned trinkets yield 1.6445x weapon DPS at AP0 or 1.3780x per-spell
+damage at SP120/INT60; the latter becomes 2.7560x only under cooldown-limited,
+mana-sustained assumptions. Four legal common ilvl20 strength armor bases supply
+263 armor and 1.7922x physical EHP on the specified level20 Warrior. This is source
+review and an offline mathematical model, not native or ordinary-gameplay evidence.
+No live build verification or globally optimal loadout is claimed.
+Focused offline validation: seven arithmetic tests plus generated verb/config
+checks pass. Full host suite is blocked at collection by 18 Windows-runtime
+`ctypes.WinDLL` imports on Linux; no full-suite or native pass claimed.
+
 ## 2026-11-05: Rework focused solo validation PASS
 
 `qa-specs-support-rework 20261105-200813` PASS on pinned build 25932569 / B176,
