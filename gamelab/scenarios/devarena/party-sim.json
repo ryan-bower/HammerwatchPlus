@@ -1,0 +1,280 @@
+{
+ "name": "devarena-party-sim",
+ "about": "Fake allies take hits, heals, shields, deaths and respawns through the handlers a remote player's messages reach, and forty seconds of hwp fakecoop sim leaves no script errors. Forced, solo: no real client's path.",
+ "fixture": "mission-ranger",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "classes",
+  "specs",
+  "devarena",
+  "spec-ranger-test",
+  "partyframes",
+  "gamelab-fakecoop"
+ ],
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    13,
+    "seed=4242",
+    "ngp=0"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: dark_citadel floor 13"
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "gl",
+   "verb": "cull",
+   "args": [
+    "all"
+   ],
+   "expect": {
+    "ok": true
+   },
+   "name": "setup: clear the floor (cheat)"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop 3"
+  },
+  {
+   "do": "sleep",
+   "seconds": 3
+  },
+  {
+   "do": "mark",
+   "name": "start"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop"
+  },
+  {
+   "do": "log_has",
+   "pattern": "Brakka warrior peer 1 dist \\d+ hp 62 shield 25;",
+   "since": "start",
+   "timeout": 5,
+   "name": "Brakka starts at 62 with a 25 shield"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop hit 1 15"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "mark",
+   "name": "soak"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop"
+  },
+  {
+   "do": "log_has",
+   "pattern": "Brakka warrior peer 1 dist \\d+ hp 62 shield 10;",
+   "since": "soak",
+   "timeout": 5,
+   "name": "the shield takes a hit whole"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop hit 1 30"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "mark",
+   "name": "through"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop"
+  },
+  {
+   "do": "log_has",
+   "pattern": "Brakka warrior peer 1 dist \\d+ hp 42 shield 0;",
+   "since": "through",
+   "timeout": 5,
+   "name": "a bigger hit goes through it"
+  },
+  {
+   "do": "shot",
+   "name": "hit"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop heal 1 20"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "mark",
+   "name": "healed"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop"
+  },
+  {
+   "do": "log_has",
+   "pattern": "Brakka warrior peer 1 dist \\d+ hp 62 shield 0;",
+   "since": "healed",
+   "timeout": 5,
+   "name": "a heal lands"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop shield 2 40"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "mark",
+   "name": "shielded"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop"
+  },
+  {
+   "do": "log_has",
+   "pattern": "Zev wizard peer 2 dist \\d+ hp 24 shield 40;",
+   "since": "shielded",
+   "timeout": 5,
+   "name": "a shield lands"
+  },
+  {
+   "do": "shot",
+   "name": "healed and shielded"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop kill 3"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "mark",
+   "name": "dead"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop"
+  },
+  {
+   "do": "log_has",
+   "pattern": "Mira priest peer 3 dist -1 hp -?\\d+ shield 0 dead",
+   "since": "dead",
+   "timeout": 5,
+   "name": "a death goes through PlayerDied"
+  },
+  {
+   "do": "shot",
+   "name": "dead"
+  },
+  {
+   "do": "sleep",
+   "seconds": 9
+  },
+  {
+   "do": "mark",
+   "name": "back"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop"
+  },
+  {
+   "do": "log_has",
+   "pattern": "Mira priest peer 3 dist \\d+ hp 50 shield 0(;|\\s|$)",
+   "since": "back",
+   "timeout": 5,
+   "name": "the dead ally respawns"
+  },
+  {
+   "do": "shot",
+   "name": "respawned"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop 7"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop sim on"
+  },
+  {
+   "do": "sleep",
+   "seconds": 40
+  },
+  {
+   "do": "shot",
+   "name": "forty seconds of sim"
+  },
+  {
+   "do": "mark",
+   "name": "pool"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes"
+  },
+  {
+   "do": "log_has",
+   "pattern": "peer 5: .*living mana pool",
+   "since": "pool",
+   "timeout": 5,
+   "name": "Sable is a Living Mana pool in this party"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop sim off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 9
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes"
+  },
+  {
+   "do": "console",
+   "line": "hwp fakecoop off"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

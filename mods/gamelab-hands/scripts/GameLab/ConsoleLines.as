@@ -72,6 +72,7 @@ namespace GameLab
 	//   cht_damage <n>                 DamageCFunc (Console/Cheats.as:723)
 	//   cht_give_mana <n>              GiveManaCFunc (Console/Cheats.as:754)
 	//   cht_clear_trinkets             ClearTrinketsCFunc (Console/Cheats.as:702)
+	//   cht_refill_potions             RefillPotionsCFunc (Console/Cheats.as:296)
 	//   cht_give_specific_trinket <id> GiveSpecificTrinketCfunc (Console/Cheats.as:621)
 	//   cht_spawn_specific_equipment <id>  SpawnSpecificEquipmentCfunc (Console/Cheats.as:487); in
 	//                                  the game's script, so mod base items exist (the console's
@@ -229,6 +230,16 @@ namespace GameLab
 				return;
 			}
 			plr.trinketInventory.Clear();
+		}
+		else if (fn == "cht_refill_potions")
+		{
+			auto plr = GetLocalPlayerRecord();
+			if (plr is null)
+			{
+				Fail(id, "cheat cht_refill_potions: no local player record");
+				return;
+			}
+			plr.RefillPotionCharges();
 		}
 		else if (fn == "cht_give_specific_trinket")
 		{

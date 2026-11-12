@@ -10,11 +10,21 @@
 // south edge) is carved into a solid wall block on the outskirts with a
 // straight corridor to the nearest floor, the way the puzzles module forces
 // its rooms (the shared HWP::Carve spot and corridor code,
-// mods/core/scripts/HWP/Core/Carve.as). Its switch is a 3x3 floor patch placed on
-// existing floor as far from the vault as the floor allows; the exit switch
-// likewise, as far from the exit prefab as possible. Everything placed is
-// logged with cell and world positions:
+// mods/hwplib/scripts/HWP/Core/Carve.as).
+//
+// Its lever, and the exit's (issue #74), is mounted on a wall: a 3-cell run of
+// plain wall on the north, east or west side of a 3x3 floor patch the players
+// reach (PickLever). The lever used to go on the 3x3 floor block farthest from
+// what it opens, which is always a corner of the floor, and with the vault on
+// the top edge (its door faces south) one of the two bottom corners, against
+// the bottom wall. Now any spot at least half as far as the farthest one will
+// do: a wall side is picked at random among those with a spot, then a spot on
+// it. No south walls: a wall south of the floor shows only its top, drawn two
+// cells up over the floor in front of it, so a lever there would be hidden. A
+// floor with no wall run that fits gets the old floor lever on a 3x3 patch.
+// Everything placed is logged with cell and world positions:
 //   [HWP:objectives] vault 0 at cell X,Y of WxH, corridor N, world X,Y WxH, door X,Y, switch X,Y
+//   [HWP:objectives] vault 0 lever: <side>, from N spot(s) far enough (north wall A, east wall B, west wall C)
 //   [HWP:objectives] exit switch at cell X,Y world X,Y (exit at cell X,Y)
 //   [HWP:objectives] placed N vault(s), exit switch yes|no on <level>
 //
@@ -53,16 +63,65 @@ namespace HWP
 			const string DEFS = "tweak/hwp/objectives_prefabs.sval";
 			const int CELL = 16;
 			const int PAD = 2;          // cells off the grid's edge
-			const int SWITCH_SZ = 3;
 			// the vault's units, relative to the prefab origin (vault_s.pfb)
 			const vec2 DOOR_IN_PFB = vec2(48, 112);
 			const vec2 SWITCH_IN_PFB = vec2(24, 24);
+
+			// HWP (issue #74): where a lever goes. Each side is a prefab set of its own,
+			// the kind's set plus the suffix (objectives_prefabs.sval): a 3x3 floor patch
+			// and, for a wall, the 3-cell wall run beside it.
+			const int SIDE_FLOOR = 0;  // vault_switch.pfb: the old floor lever, when no wall fits
+			const int SIDE_N = 1;      // on the face of a wall north of the patch
+			const int SIDE_E = 2;      // on a wall east of the patch
+			const int SIDE_W = 3;      // on a wall west of the patch
+			const int SIDES = 4;
+			// a spot is far enough at this share of the farthest spot's distance
+			const float FAR_SHARE = 0.5f;
+			// cells kept between the floor's levers when the far spots allow it
+			const float LEVER_SPACING = 12.0f;
+
+			string SideSuffix(int side)
+			{
+				if (side == SIDE_N) return "_n";
+				if (side == SIDE_E) return "_e";
+				if (side == SIDE_W) return "_w";
+				return "";
+			}
+
+			string SideName(int side)
+			{
+				if (side == SIDE_N) return "north wall";
+				if (side == SIDE_E) return "east wall";
+				if (side == SIDE_W) return "west wall";
+				return "floor";
+			}
+
+			// the lever unit in its side's prefab, px from the top-left cell's corner (the .pfb
+			// files). North: the middle wall cell's bottom edge, where vanilla stands its wall
+			// buttons and torches (DungeonInstanceBrush.SpawnTorchDeco: cell + 8,16). East and
+			// west: the wall's edge facing the patch, at the top of the run's middle cell, so the
+			// art (drawn up to 30 px above the unit) is clear of the tops of any wall south of
+			// the patch (every wall's art is drawn 32 px up from its cell).
+			vec2 LeverInPfb(int side)
+			{
+				if (side == SIDE_N) return vec2(24, 16);
+				if (side == SIDE_E) return vec2(48, 16);
+				if (side == SIDE_W) return vec2(16, 16);
+				return SWITCH_IN_PFB;
+			}
 
 			// this generation's walkable cells (vault interiors, doorways, corridors and the
 			// switch patches), consumed again once the brush has painted them
 			array<ivec2> g_floorCells;
 			// the vaults' wall rings, for the painted line
 			array<ivec2> g_ringCells;
+			// the patch row against a north-wall lever's wall run (AfterPaint keeps torches off it)
+			array<ivec2> g_frontCells;
+			// this generation's levers, in cells, to keep the next one away from them
+			array<vec2> g_leverCells;
+			// the cells of the floor's largest connected walkable area (ComputeReach), x + y * width
+			array<bool> g_reach;
+			int g_reachWidth = 0;
 
 			// a prefab's walkable cells at pos go on the list (its commands made them PlaceFloor)
 			void KeepFloor(MissionPrefabDef@ def, ivec2 pos, bool ring)
@@ -101,8 +160,21 @@ namespace HWP
 				}
 				HWP::Log("objectives", "painted: " + floor + " floor cell(s) of " + g_floorCells.length() + ", ring "
 					+ walls + " wall cell(s) of " + g_ringCells.length() + ", switches " + (HWP::Objectives::SwitchesMarked() ? "marked" : "hidden") + OnLevel());
+				// HWP (issue #74): no torch on a north-wall lever's wall run. The walls are filled
+				// after the painting list (DungeonInstanceBrush.Build), and a wall cell gets a
+				// torch only with open floor below it (SpawnTorchDeco: IsOpen(x, y + 1), Floor or
+				// Breakables). The patch row against the wall is painted and consumed already, so
+				// it goes back to PlaceFloor: the walls' pass sees no open floor below the run,
+				// and nothing after the build reads the cell (enemy spots skip it as consumed).
+				for (uint i = 0; i < g_frontCells.length(); i++)
+				{
+					ivec2 c = g_frontCells[i];
+					if (brush.GetCell(c.x, c.y) == Cell::Floor)
+						brush.SetCell(c.x, c.y, Cell::PlaceFloor);
+				}
 				g_floorCells.removeRange(0, g_floorCells.length());
 				g_ringCells.removeRange(0, g_ringCells.length());
+				g_frontCells.removeRange(0, g_frontCells.length());
 			}
 
 			MissionPrefabDef@ FindDef(const string &in set)
@@ -117,37 +189,251 @@ namespace HWP
 				return null;
 			}
 
-			// an unconsumed, walkable SWITCH_SZ block whose top-left is x,y
-			bool SwitchFits(CellGrid@ grid, int x, int y)
+			// a kind's lever prefabs by side (set + SideSuffix), unpacked; null where missing
+			array<MissionPrefabDef@>@ LeverDefs(const string &in set)
 			{
-				for (int j = 0; j < SWITCH_SZ; j++)
-					for (int i = 0; i < SWITCH_SZ; i++)
-						if (!HWP::Carve::Walkable(grid, x + i, y + j) || grid.IsConsumed(x + i, y + j))
+				array<MissionPrefabDef@> defs;
+				for (int s = 0; s < SIDES; s++)
+				{
+					auto def = FindDef(set + SideSuffix(s));
+					if (def !is null)
+						def.UnpackGrid();
+					defs.insertLast(def);
+				}
+				return defs;
+			}
+
+			// the sides whose prefab is missing, for the error line
+			string MissingSides(array<MissionPrefabDef@>@ defs)
+			{
+				string missing = "";
+				for (int s = 0; s < SIDES; s++)
+					if (defs[s] is null || defs[s].m_gridPattern is null)
+						missing += (missing == "" ? "" : ", ") + SideName(s);
+				return missing;
+			}
+
+			// a cell a player can cross: floor, or a prefab's cells (a room with its own art is
+			// Reserved, a carved room PlaceFloor until the build)
+			bool Passable(CellGrid@ grid, int x, int y)
+			{
+				if (HWP::Carve::Walkable(grid, x, y))
+					return true;
+				Cell c = grid.GetCell(x, y);
+				return c == Cell::Reserved || c == Cell::PlaceFloor;
+			}
+
+			// g_reach: the floor's largest connected area of walkable cells (4-neighbour fill
+			// over Passable cells, counted by their walkable cells). A lever patch must be in it,
+			// so no lever lands on floor cut off by a pit or by walls.
+			void ComputeReach(CellGrid@ grid)
+			{
+				int w = grid.m_width;
+				int h = grid.m_height;
+				g_reachWidth = w;
+				array<int> comp(w * h, -1);
+				array<int> queue;
+				int best = -1;
+				int bestCount = 0;
+				int label = 0;
+				for (int y = 0; y < h; y++)
+				{
+					for (int x = 0; x < w; x++)
+					{
+						int start = x + y * w;
+						if (comp[start] >= 0 || !Passable(grid, x, y))
+							continue;
+						comp[start] = label;
+						queue.resize(0);
+						queue.insertLast(start);
+						int count = 0;
+						for (uint head = 0; head < queue.length(); head++)
+						{
+							int c = queue[head];
+							int cx = c % w;
+							int cy = c / w;
+							if (HWP::Carve::Walkable(grid, cx, cy))
+								count++;
+							for (int d = 0; d < 4; d++)
+							{
+								int nx = cx + (d == 0 ? 1 : (d == 1 ? -1 : 0));
+								int ny = cy + (d == 2 ? 1 : (d == 3 ? -1 : 0));
+								if (nx < 0 || ny < 0 || nx >= w || ny >= h)
+									continue;
+								int n = nx + ny * w;
+								if (comp[n] >= 0 || !Passable(grid, nx, ny))
+									continue;
+								comp[n] = label;
+								queue.insertLast(n);
+							}
+						}
+						if (count > bestCount)
+						{
+							bestCount = count;
+							best = label;
+						}
+						label++;
+					}
+				}
+				g_reach.resize(w * h);
+				for (int i = 0; i < w * h; i++)
+					g_reach[i] = best >= 0 && comp[i] == best;
+			}
+
+			bool Reached(int x, int y)
+			{
+				int i = x + y * g_reachWidth;
+				return x >= 0 && x < g_reachWidth && i >= 0 && uint(i) < g_reach.length() && g_reach[i];
+			}
+
+			// the side's prefab fits with its top-left cell at x,y: its floor cells (pattern
+			// Walkable) on unconsumed floor in the reached area, its wall cells (pattern Wall) on
+			// free plain wall (unconsumed, so no prefab's own art is there, and it stays wall: the
+			// prefab makes it PlaceWall). A floor lever also wants floor in the row below its
+			// patch when clearBelow is set: a wall there draws its top over the lever (walls are
+			// drawn 32 px up).
+			bool LeverFits(CellGrid@ grid, MissionPrefabDef@ def, int side, int x, int y, bool clearBelow = true)
+			{
+				ivec2 sz = def.m_gridSz;
+				if (x < 1 || y < 1 || x + sz.x >= grid.m_width || y + sz.y >= grid.m_height)
+					return false;
+				for (int j = 0; j < sz.y; j++)
+				{
+					for (int i = 0; i < sz.x; i++)
+					{
+						Pattern p = Pattern(def.m_gridPattern[j * sz.x + i]);
+						int cx = x + i;
+						int cy = y + j;
+						if (p == Pattern::Walkable)
+						{
+							if (!HWP::Carve::Walkable(grid, cx, cy) || grid.IsConsumed(cx, cy) || !Reached(cx, cy))
+								return false;
+						}
+						else if (p == Pattern::Wall)
+						{
+							if (!HWP::Carve::Free(grid, cx, cy))
+								return false;
+						}
+					}
+				}
+				if (side == SIDE_FLOOR && clearBelow)
+					for (int i = 0; i < sz.x; i++)
+						if (!HWP::Carve::Walkable(grid, x + i, y + sz.y))
 							return false;
 				return true;
 			}
 
-			// the switch block farthest from `from` (cells); false when no block fits
-			bool FarSwitchSpot(CellGrid@ grid, vec2 from, ivec2 &out cell)
+			// The lever's spot, far from `from` (cells) but not always the farthest (issue #74):
+			// every spot on a north, east or west wall that fits (the floor patches only when no
+			// wall does, and a patch with a wall below it only when no other patch fits: a lever
+			// partly hidden by a wall top beats no lever and an exit left open), those at least FAR_SHARE of the farthest one's distance away and, when
+			// some are, LEVER_SPACING cells from the floor's other levers; then a side at random
+			// among those left, so each wall side is as likely as the others whatever their
+			// lengths, and a spot on it at random. False when nothing fits.
+			bool PickLever(CellGrid@ grid, array<MissionPrefabDef@>@ defs, vec2 from, ivec2 &out cell, int &out side, string &out how)
 			{
-				float best = -1;
-				for (int y = 1; y + SWITCH_SZ < grid.m_height; y++)
+				array<int> sides;
+				array<ivec2> spots;
+				array<float> dists;
+				// pass 0: the walls; 1: floor patches with floor below; 2: any floor patch
+				for (int pass = 0; pass < 3 && spots.length() == 0; pass++)
 				{
-					for (int x = 1; x + SWITCH_SZ < grid.m_width; x++)
+					for (int s = 0; s < SIDES; s++)
 					{
-						if (!SwitchFits(grid, x, y))
+						if ((pass == 0) == (s == SIDE_FLOOR))
 							continue;
-						float dx = x + SWITCH_SZ / 2.0f - from.x;
-						float dy = y + SWITCH_SZ / 2.0f - from.y;
-						float d = dx * dx + dy * dy;
-						if (d > best)
+						auto def = defs[s];
+						if (def is null || def.m_gridPattern is null)
+							continue;
+						vec2 lever = LeverInPfb(s) * (1.0f / CELL);
+						for (int y = 1; y + def.m_gridSz.y < grid.m_height; y++)
 						{
-							best = d;
-							cell = ivec2(x, y);
+							for (int x = 1; x + def.m_gridSz.x < grid.m_width; x++)
+							{
+								if (!LeverFits(grid, def, s, x, y, pass < 2))
+									continue;
+								sides.insertLast(s);
+								spots.insertLast(ivec2(x, y));
+								dists.insertLast(dist(vec2(x, y) + lever, from));
+							}
 						}
 					}
 				}
-				return best >= 0;
+				if (spots.length() == 0)
+					return false;
+				float farthest = 0;
+				for (uint i = 0; i < dists.length(); i++)
+					farthest = max(farthest, dists[i]);
+				array<uint> pool;
+				for (int spaced = 1; spaced >= 0 && pool.length() == 0; spaced--)
+				{
+					for (uint i = 0; i < spots.length(); i++)
+					{
+						if (dists[i] < FAR_SHARE * farthest)
+							continue;
+						if (spaced == 1 && !AwayFromLevers(vec2(spots[i].x, spots[i].y) + LeverInPfb(sides[i]) * (1.0f / CELL)))
+							continue;
+						pool.insertLast(i);
+					}
+				}
+				array<int> perSide(SIDES, 0);
+				array<int> present;
+				for (uint k = 0; k < pool.length(); k++)
+				{
+					int s = sides[pool[k]];
+					if (perSide[s] == 0)
+						present.insertLast(s);
+					perSide[s]++;
+				}
+				side = present[randi(present.length())];
+				array<uint> onSide;
+				for (uint k = 0; k < pool.length(); k++)
+					if (sides[pool[k]] == side)
+						onSide.insertLast(pool[k]);
+				uint pick = onSide[randi(onSide.length())];
+				cell = spots[pick];
+				how = "on the " + SideName(side) + ", picked from " + pool.length() + " far spot(s) of " + spots.length() + " (";
+				string sep = "";
+				for (int s = 0; s < SIDES; s++)
+				{
+					if (s == SIDE_FLOOR && perSide[s] == 0)
+						continue;
+					how += sep + SideName(s) + " " + perSide[s];
+					sep = ", ";
+				}
+				how += ")";
+				return true;
+			}
+
+			bool AwayFromLevers(vec2 lever)
+			{
+				for (uint i = 0; i < g_leverCells.length(); i++)
+					if (dist(g_leverCells[i], lever) < LEVER_SPACING)
+						return false;
+				return true;
+			}
+
+			// a lever of the kind whose prefabs are `defs`, far from `from` (cells): placed, its
+			// floor kept for AfterPaint, and logged as "<what> lever: on the <side>, ..."
+			bool PlaceLever(DungeonBrush@ brush, PrefabPlacement@ placer, array<MissionPrefabDef@>@ defs, vec2 from, const string &in what, ivec2 &out cell, vec2 &out world)
+			{
+				CellGrid@ grid = brush;
+				int side = SIDE_FLOOR;
+				ivec2 pos;
+				string how;
+				if (!PickLever(grid, defs, from, pos, side, how))
+					return false;
+				auto def = defs[side];
+				placer.PlacePrefabAt(def, pos);
+				KeepFloor(def, pos, false);
+				if (side == SIDE_N)
+					for (int i = 0; i < def.m_gridSz.x; i++)
+						g_frontCells.insertLast(pos + ivec2(i, 1));
+				cell = pos;
+				world = World(brush, pos) + LeverInPfb(side);
+				g_leverCells.insertLast(vec2(pos.x, pos.y) + LeverInPfb(side) * (1.0f / CELL));
+				HWP::Log("objectives", what + " lever: " + how + OnLevel());
+				return true;
 			}
 
 			vec2 World(DungeonBrush@ brush, ivec2 cell)
@@ -183,7 +469,7 @@ namespace HWP
 			}
 
 			// one vault: carve it, its doorway and corridor, then its switch far away
-			bool PlaceVault(DungeonBrush@ brush, PrefabPlacement@ placer, int index, MissionPrefabDef@ def, MissionPrefabDef@ swDef)
+			bool PlaceVault(DungeonBrush@ brush, PrefabPlacement@ placer, int index, MissionPrefabDef@ def, array<MissionPrefabDef@>@ swDefs)
 			{
 				CellGrid@ grid = brush;
 				auto sums = HWP::Carve::BlockedSums(grid);
@@ -225,13 +511,11 @@ namespace HWP
 
 				vec2 centre = vec2(pos.x + def.m_gridSz.x / 2.0f, pos.y + def.m_gridSz.y / 2.0f);
 				ivec2 sw;
-				if (swDef !is null && FarSwitchSpot(grid, centre, sw))
+				vec2 swWorld;
+				if (PlaceLever(brush, placer, swDefs, centre, "vault " + index, sw, swWorld))
 				{
-					swDef.UnpackGrid();
-					placer.PlacePrefabAt(swDef, sw);
-					KeepFloor(swDef, sw, false);
 					v.m_switchCell = sw;
-					v.m_switch = World(brush, sw) + SWITCH_IN_PFB;
+					v.m_switch = swWorld;
 					v.m_hasSwitch = true;
 				}
 				else
@@ -248,23 +532,20 @@ namespace HWP
 				return true;
 			}
 
-			bool PlaceExitSwitch(DungeonBrush@ brush, PrefabPlacement@ placer, MissionPrefabDef@ def)
+			bool PlaceExitSwitch(DungeonBrush@ brush, PrefabPlacement@ placer, array<MissionPrefabDef@>@ defs)
 			{
-				CellGrid@ grid = brush;
 				bool found = false;
 				vec2 from = ExitCell(brush, found);
 				ivec2 sw;
-				if (!FarSwitchSpot(grid, from, sw))
+				vec2 swWorld;
+				if (!PlaceLever(brush, placer, defs, from, "exit", sw, swWorld))
 				{
 					HWP::Log("objectives", "exit switch: no 3x3 floor block on this floor; the exit stays open" + OnLevel());
 					return false;
 				}
-				def.UnpackGrid();
-				placer.PlacePrefabAt(def, sw);
-				KeepFloor(def, sw, false);
 				g_exitPresent = true;
 				g_exitOpen = false;
-				g_exitSwitch = World(brush, sw) + SWITCH_IN_PFB;
+				g_exitSwitch = swWorld;
 				HWP::Log("objectives", "exit switch at cell " + sw.x + "," + sw.y + " world " + int(g_exitSwitch.x) + "," + int(g_exitSwitch.y)
 					+ (found ? (" (exit at cell " + int(from.x) + "," + int(from.y) + ")") : " (no exit prefab yet; far from the middle)") + OnLevel());
 				return true;
@@ -277,6 +558,8 @@ namespace HWP
 				ClearFloor();
 				g_floorCells.removeRange(0, g_floorCells.length());
 				g_ringCells.removeRange(0, g_ringCells.length());
+				g_frontCells.removeRange(0, g_frontCells.length());
+				g_leverCells.removeRange(0, g_leverCells.length());
 				g_generatedHere = true;
 				if (brush is null || placer is null)
 					return;
@@ -294,15 +577,27 @@ namespace HWP
 						+ ", switch " + (swDef is null ? "no" : "ok") + ", exit " + (exitDef is null ? "no" : "ok"));
 					return;
 				}
+				// the wall levers (issue #74); a side whose prefab is missing is only skipped
+				auto swDefs = LeverDefs(SET_SWITCH);
+				auto exitDefs = LeverDefs(SET_EXIT);
+				string missing = MissingSides(swDefs);
+				if (missing != "")
+					HWP::LogError("objectives", "vault lever prefabs missing (" + DEFS + "): " + missing);
+				missing = MissingSides(exitDefs);
+				if (missing != "")
+					HWP::LogError("objectives", "exit lever prefabs missing (" + DEFS + "): " + missing);
+				// the floor the players reach, before anything is placed (a vault turns wall into
+				// its own cells, which reach nothing new; levers go on unconsumed floor only)
+				ComputeReach(brush);
 				int placed = 0;
 				for (int i = 0; i < g_vaultCount; i++)
-					if (PlaceVault(brush, placer, i, vaultDef, swDef))
+					if (PlaceVault(brush, placer, i, vaultDef, swDefs))
 						placed++;
 					else
 						break;
 				bool exit = false;
 				if (g_exitOn)
-					exit = PlaceExitSwitch(brush, placer, exitDef);
+					exit = PlaceExitSwitch(brush, placer, exitDefs);
 				HWP::Log("objectives", "placed " + placed + " vault(s), exit switch " + (exit ? "yes" : "no") + OnLevel());
 			}
 

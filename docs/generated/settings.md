@@ -20,6 +20,7 @@ next level.
 | Death recap | Boss panel time | `deathrecap.boss_seconds` | 15 s | 5 s, 10 s, 15 s, 30 s, 60 s | local |
 | Death recap | Panel collapsed | `deathrecap.collapsed` | off | on, off | local |
 | Last run stats | On | `laststats.enabled` | on | on, off | host |
+| Last run stats | Win banner | `laststats.winner` | on | on, off | local |
 | Colors | On | `colors.enabled` | on | on, off | local |
 | Colors | (option `colors`) | | | | local |
 | Colors | Projectile markers | `colors.markers` | on | on, off | local |
@@ -41,12 +42,17 @@ next level.
 | Mm-hmm! hats | Hats with it | `mmhmm.chance` | 25% | 10%, 25%, 50%, 75%, 100% | host |
 | Mm-hmm! hats | On every crit | `mmhmm.crits` | on | on, off | host |
 | Orb warnings | On | `orbwarn.enabled` | on | on, off | local |
+| Orb rerolls per orb | On | `orbreroll.enabled` | on | on, off | host |
 | Map icons | On | `mapicons.enabled` | on | on, off | local |
 | Map icons | Dye pots | `mapicons.dyes` | on | on, off | local |
 | Attribute point clicks | On | `attrclick.enabled` | on | on, off | local |
 | Salvage | On | `salvage.enabled` | on | on, off | host |
 | Salvage | Salvage yield | `salvage.yield` | 100% | 50%, 75%, 100%, 150%, 200% | host |
 | Free skills after a respec | On | `freeskills.enabled` | on | on, off | local |
+| Out of combat speed | On | `outofcombat.enabled` | on | on, off | host |
+| Out of combat speed | Speed | `outofcombat.speed` | 2x | 1.25x, 1.5x, 2x, 2.5x, 3x | host |
+| Out of combat speed | Time without a hit | `outofcombat.delay` | 10 s | 3 s, 5 s, 10 s, 15 s, 20 s, 30 s | host |
+| Out of combat speed | In town too | `outofcombat.town` | off | on, off | host |
 
 ## Co-op Play
 
@@ -63,6 +69,18 @@ next level.
 | Drop trade | Pickup first | `droptrade.pickup_first` | on | on, off | local |
 | Party exit | On | `partyexit.enabled` | on | on, off | host |
 | Party exit | Party at the exit | `partyexit.share` | 66 | Half (50), Two thirds (66), Three quarters (75) | host |
+
+## Interface
+
+| Module | Setting | Key | Default | Choices | Scope |
+|---|---|---|---|---|---|
+| Party frames | On | `partyframes.enabled` | on | on, off | local |
+| Party frames | Bar size | `partyframes.size` | 0 | Thick (0), Thin (1) | local |
+| Party frames | Shield style | `partyframes.shield` | 0 | Leading edge (0), Striped edge (1) | local |
+| Party frames | Potion style | `partyframes.potions` | 0 | Cut gems (0), Hollow bars (1) | local |
+| Party frames | Show level | `partyframes.level` | off | on, off | local |
+| Party frames | Show class | `partyframes.class` | off | on, off | local |
+| Party frames | Green health | `partyframes.green` | off | on, off | local |
 
 ## Auto Aim
 
@@ -166,6 +184,8 @@ next level.
 | Valuables | Gold multiplier | `valuables.gold_mult` | 2x | 1x, 1.5x, 2x, 3x, 5x | host |
 | Extra affixes | On | `affixes.enabled` | on | on, off | host |
 | Extra affixes | Extra affix chance | `affixes.chance` | 25% | 10%, 25%, 50%, 75%, 100% | host |
+| Tougher bosses | On | `bosses.enabled` | on | on, off | host |
+| Tougher bosses | Armor and resistances | `bosses.toughness` | 25 % | 0 %, 10 %, 25 %, 50 %, 75 %, 100 % | host |
 
 ## Town Life
 
@@ -177,6 +197,7 @@ next level.
 | Fishing | Casts per hole | `fishing.run_casts` | 3 | 1, 2, 3, 5, 8 | host |
 | Fishing | Hits to land | `fishing.reel_hits` | 0 | By fish (2-4) (0), 1 (1), 2 (2), 3 (3), 4 (4) | host |
 | Fishing | Keys from catches | `fishing.keys` | on | on, off | host |
+| Fishing | Twinkling spots | `fishing.twinkle` | on | on, off | local |
 | Fishing | (option `eatkey`) | | | | local |
 | Farming | On | `farm.enabled` | on | on, off | host |
 | Farming | Plant in town fields | `farm.fields` | on | on, off | host |

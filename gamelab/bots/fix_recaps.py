@@ -1,5 +1,5 @@
 """fix-recaps: the boss-fight damage recap (mods/deathrecap, BossRecap.as) and the last-run
-board's search + one-page bar graphs (mods/laststats).
+board's search, category tabs and bar graphs (mods/laststats).
 
 Sections (kwargs sections="boss,board"):
 - boss: start Bandit Keep floor 0, spawn the Bandit boss next to the ranger, let the pilot
@@ -18,11 +18,13 @@ Sections (kwargs sections="boss,board"):
   snapshot landed (soft), then `hwp laststats sample 2` (two deterministic snapshots: the
   local player and "Sample 2"), open the board with `gl use laststats_board`, and assert
   through "hwp laststats board" (a log line with the counts) and `gl wtext` (row titles,
-  bar names and values): two players in the legend and on every row, bars, the search
-  filter through the window's own OnFunc ("search damage" hides the other rows,
-  "search-clear" brings them back) and a typed search (press the field, type "damage": soft,
-  the console's own key may end the field's focus). Shots "board" (all rows) and
-  "board-search" (filtered).
+  bar names and values): two players in the legend and on every row, bars, one tab per
+  category (issue #98: the sample spans several; the first open, showing only its rows), the
+  search through the window's own OnFunc ("search damage" shows the matching rows of every
+  tab, "search-clear" brings the open tab back), a tab switch (`gl func tab combat`) and a
+  typed search (press the field, type "damage": soft, the console's own key may end the
+  field's focus). Shots "board" (the first tab), "board-search" (every tab's matches) and
+  "board-tab" (the combat tab).
 Every section returns its flags; the scenario asserts them. No real input.
 """
 import json
@@ -35,7 +37,9 @@ BOSS_UNIT = "actors/bosses/boss_bandit/boss_bandit.unit"
 MIRROR_UNIT = "actors/bosses/boss_bandit/boss_bandit_mirror.unit"  # the Bandit Lord's boss-tagged mirror image, no bar
 RECAP = re.compile(r"boss recap (?P<boss>[^:]+): (?P<name>\S+) dealt (?P<dealt>\d+) \((?P<pct>\d+)%\) took (?P<taken>\d+): (?P<sources>.*)")
 BOARD = re.compile(r"board open: (?P<shown>\d+) of (?P<total>\d+) stats, (?P<players>\d+) players, (?P<bars>\d+) bars, "
+                   r"tab \"(?P<tab>[^\"]*)\" (?P<tabi>\d+)/(?P<tabs>\d+), "
                    r"filter \"(?P<filter>[^\"]*)\", typing (?P<typing>\d), input \"(?P<input>[^\"]*)\", rows: (?P<rows>.*)")
+BOARD_INTS = ("shown", "total", "players", "bars", "typing", "tabi", "tabs")
 
 
 class Checks(Base):
@@ -57,7 +61,7 @@ class Checks(Base):
         if not ms:
             return None
         m = ms[-1]
-        d = {k: (int(v) if k in ("shown", "total", "players", "bars", "typing") else v) for k, v in m.groupdict().items()}
+        d = {k: (int(v) if k in BOARD_INTS else v) for k, v in m.groupdict().items()}
         d["rows"] = [r.strip() for r in d["rows"].split(";") if r.strip()]
         return d
 
@@ -262,10 +266,12 @@ class Checks(Base):
         self.flag("board_status", s0 is not None, str(s0)[:300])
         if s0 is None:
             return
-        self.flag("board_one_page", s0["players"] == 2 and s0["total"] >= 10 and s0["shown"] == s0["total"] and s0["filter"] == "",
-                  f"{s0['shown']}/{s0['total']} stats, {s0['players']} players")
-        # a bar per player per stat where the value is > 0: the second sample skips every 5th stat
-        self.flag("board_bars", s0["total"] < s0["bars"] <= 2 * s0["total"], f"bars {s0['bars']} for {s0['total']} stats")
+        # one tab per category; the first is open and shows its own rows only
+        self.flag("board_tabs", s0["players"] == 2 and s0["total"] >= 10 and s0["tabs"] >= 2 and s0["tabi"] == 1
+                  and 0 < s0["shown"] < s0["total"] and s0["filter"] == "",
+                  f"{s0['shown']}/{s0['total']} stats, {s0['players']} players, tab {s0['tab']} {s0['tabi']}/{s0['tabs']}")
+        # a bar line per player per shown stat (a "-" one for the second sample's skipped stats)
+        self.flag("board_bars", s0["shown"] < s0["bars"] <= 2 * s0["shown"], f"bars {s0['bars']} for {s0['shown']} stats")
         w = self.wtext("legend-0", "legend-1", "stat-title-0", "bar-name-0-0", "bar-name-0-1", "bar-value-0-0", "bar-value-0-1",
                        "stat-title-1", "bar-name-1-1", "bar-value-1-1")
         t = w.get("texts", {}) if isinstance(w.get("texts"), dict) else w
@@ -287,7 +293,17 @@ class Checks(Base):
         self.gl("func", "search-clear")
         time.sleep(0.4)
         s2 = self.board_status()
-        self.flag("board_filter_clear", s2 is not None and s2["filter"] == "" and s2["shown"] == s2["total"], str(s2)[:200])
+        self.flag("board_filter_clear", s2 is not None and s2["filter"] == "" and s2["tab"] == s0["tab"]
+                  and s2["shown"] == s0["shown"], str(s2)[:200])
+
+        # another tab: the window's own OnFunc, what a click on the tab sends
+        other = "combat" if s0["tab"] != "combat" else "adventuring"
+        self.gl("func", "tab", other)
+        time.sleep(0.4)
+        st = self.board_status()
+        self.flag("board_tab_switch", st is not None and st["tab"] == other and st["tabi"] >= 1 and st["filter"] == ""
+                  and 0 < st["shown"] < st["total"] and set(st["rows"]).isdisjoint(s0["rows"]), str(st)[:300])
+        self.g.shot("board-tab")
 
         # typed search: press the field, then posted WM_CHARs. Soft: `press` clicks while the
         # console is open and the console's closing can end the field's focus (gamelab skill,

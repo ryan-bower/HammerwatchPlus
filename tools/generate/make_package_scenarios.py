@@ -39,6 +39,7 @@ PROBES = {
     "town": [("hwp help", r"\[HWP\] hwp fishing ")],
     "firearms": [("hwp help", r"\[HWP\] hwp firearms")],
     "classes": [("hwp help", r"\[HWP\] hwp skillkeys ")],
+    "interface": [("hwp help", r"\[HWP\] hwp partyframes ")],
 }
 
 

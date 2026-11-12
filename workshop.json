@@ -87,6 +87,13 @@
     "Gameplay"
    ]
   },
+  "HWP-interface": {
+   "item_id": null,
+   "tags": [
+    "Addon",
+    "Interface"
+   ]
+  },
   "HWP-pets": {
    "item_id": "3828529416",
    "tags": [

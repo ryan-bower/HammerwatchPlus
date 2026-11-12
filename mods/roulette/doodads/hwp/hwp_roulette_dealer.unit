@@ -1,0 +1,65 @@
+<!-- The roulette dealer (mods/roulette, RouletteModule.as): stands behind the wheel's table,
+     between it and the nearer tavern wall, facing the table. Spawned locally on every machine
+     (netsync none, core's HWPLocalNPC, like the fishing pirate), so each machine sets its own
+     facing: scene face-N shows idle frame N of the vanilla townsman sprite
+     actors/npcs/_noble_man_3_idle.png (0 east, 2 south, 4 west, 6 north, as AnimString).
+     Interact = HWPRouletteShop, the same table window as the wheel. Its collision is a sensor
+     only (the interact range), so it never blocks a path. -->
+<unit slot="doodad" netsync="none">
+	<behavior class="HWPLocalNPC">
+		<int name="hp">100000</int>
+		<bool name="targetable">false</bool>
+		<int name="experience-reward">0</int>
+		<int name="aggro-range">0</int>
+		<int name="max-range">0</int>
+		<bool name="no-buffs">true</bool>
+		<bool name="hide-health">true</bool>
+		<bool name="hide-damage-numbers">true</bool>
+		<bool name="hide-damage-flash">true</bool>
+		<vec2 name="icon-offset">0 -30</vec2>
+		<vec3 name="dialog-offset">0 -28 0</vec3>
+		<array name="tags"></array>
+		<dict name="interact">
+			<string name="class">HWPRouletteShop</string>
+			<int name="break-distance">50</int>
+			<array name="icon"><s>gui/icons.png</s><i>100</i><vec4>97 215 18 21</vec4></array>
+		</dict>
+		<dict name="movement">
+			<string name="class">EmptyMovement</string>
+		</dict>
+		<array name="skills" />
+	</behavior>
+
+	<scenes default="face-2">
+		<scene name="shared">
+			<text origin="4 4" debug="true" layer="1" font="gui/fonts/hw8.fnt" text="\cf49b14Roulette Dealer" material="system/default.mats:bright"/>
+			<collision>
+				<circle offset="0 0" sensor="true" radius="24" />
+			</collision>
+		</scene>
+		<scene name="face-0">
+			<scene src="shared" />
+			<sprite origin="16 24" texture="actors/npcs/_noble_man_3_idle.png" material="system/default.mats:npc">
+				<frame>0 0 32 32</frame>
+			</sprite>
+		</scene>
+		<scene name="face-2">
+			<scene src="shared" />
+			<sprite origin="16 24" texture="actors/npcs/_noble_man_3_idle.png" material="system/default.mats:npc">
+				<frame>64 0 32 32</frame>
+			</sprite>
+		</scene>
+		<scene name="face-4">
+			<scene src="shared" />
+			<sprite origin="16 24" texture="actors/npcs/_noble_man_3_idle.png" material="system/default.mats:npc">
+				<frame>128 0 32 32</frame>
+			</sprite>
+		</scene>
+		<scene name="face-6">
+			<scene src="shared" />
+			<sprite origin="16 24" texture="actors/npcs/_noble_man_3_idle.png" material="system/default.mats:npc">
+				<frame>192 0 32 32</frame>
+			</sprite>
+		</scene>
+	</scenes>
+</unit>

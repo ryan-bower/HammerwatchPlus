@@ -1,0 +1,39 @@
+namespace WorldScript
+{
+	[WorldScript color="255 255 100" icon="system/icons.png;192;288;32;32"]
+	class StartMission
+	{
+		[Editable]
+		UnitFeed Instigator;
+		
+		[Editable default=""]
+		string ID;
+
+		SValue@ ServerExecute()
+		{
+			auto missionDef = MissionDef::Get(HashString(ID));
+			if (missionDef is null)
+			{
+				PrintError("Mission ID \"" + ID + "\" is invalid.");
+				return null;
+			}
+
+			if (!CheckConditionals(missionDef.m_conditionals, GetLocalPlayerRecord().actor)) // Local player?
+			{
+				PrintError("Mission with ID \"" + ID + "\" did not meet conditionals.");
+				return null;
+			}
+
+			UnitPtr unit = Instigator.FetchFirst();
+			if (unit.IsValid() && cast<Player>(unit.GetScriptBehavior()) is null)
+				return null;
+			
+			MissionManager::SetMission(missionDef.m_id);
+			
+			auto gm = cast<BaseGameMode>(g_gameMode);
+			gm.m_windowManager.AddWindowObject(MissionLoadoutMenu(gm.m_guiBuilder));
+
+			return null;
+		}
+	}
+}

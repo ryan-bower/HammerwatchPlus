@@ -1,0 +1,5 @@
+<dict>
+	<string name="name">GameLab Fake Coop</string>
+	<string name="author">HammerwatchPlus GameLab</string>
+	<string name="description">Test harness only: hwp fakecoop adds stand-in allies with real records and husks that follow the player, to look at the party UI alone. Never deployed to a play install.</string>
+</dict>
