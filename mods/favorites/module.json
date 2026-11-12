@@ -1,0 +1,16 @@
+{
+  "id": "favorites",
+  "requires": ["hwplib"],
+  "overrides": [],
+  "exclude": [],
+  "config": {
+    "title": "Favorite gear",
+    "about": "Favorite individual bag items to keep them out of the equipment buyer's sale list. Favorites can still be equipped, stashed, dropped or salvaged.",
+    "toggle": "favorites.enabled",
+    "scope": "local",
+    "applies": "now",
+    "settings": [
+      {"option": "favoritekey", "about": "Favorite or unfavorite the hovered bag item."}
+    ]
+  }
+}

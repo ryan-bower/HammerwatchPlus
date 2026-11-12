@@ -1,5 +1,78 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-12: PR screenshot attempt blocked before game boot
+
+The user requested a draft PR with a screenshot. A fresh `./gamelab.sh doctor`
+attempt exceeded the tool's 120-second limit. Retrying with a longer tool timeout
+hit the bridge's own 180-second Windows-Python deadline and returned exit 2:
+`gamelab.wine_entry doctor` did not complete. Private display/prefix cleanup ran;
+no game was booted and no frames were captured. This is a setup refusal, not
+evidence about the feature. Earlier Steam/save-path refusals remain historical.
+
+`look-favorites` is a reproducible, unrun screenshot scenario: equip a replacement
+weapon to put the starting weapon in the bag, open its inventory, activate the
+Favorite hint's click handler, then capture the marker and Unfavorite hint. It
+uses controlled setup and handler-level input, not ordinary gameplay. The draft
+PR must mark screenshots and live validation as pending until a real frame exists.
+
+## 2026-11-12: Approved favorites empty-state follow-up
+
+Audit finding 2 was approved. `EquipmentBuyerShopContent.GetEmptyShopText` now
+returns `.hwp.favorites.empty` only for an enabled feature with at least one
+protected bag item and no unprotected bag items. Null entries are skipped; a
+missing player, empty bag, mixed bag or disabled feature keeps vanilla text.
+The new string explains both sale protection and how to unfavorite gear.
+
+47 focused source/package/Workshop checks pass through `scripts/test.py`, along
+with generated settings/verbs and whitespace checks. Quality of Life builds
+with library `20ba6f4bda7c` (319 files, 473,141 bytes). `fix-favorites` and its
+package variant now declare 19 engine checks, including five new empty-state
+cases; neither has run. Previous Steam/save-path readiness blockers remain,
+so this is source/build evidence only, not a new native result.
+
+## 2026-11-12: Inventory favorites (#61), source/build checkpoint only
+
+Worktree `issue-61-inventory-favorites`, based on `4cfbb3bf`. SDK/build pin is
+25932569 / B176; no game ran on this change.
+
+Source findings: `EquipmentBuyerShopContent.GetItems` includes every bag item, and
+`Buy` spends a negative gold cost before unchecked inventory removal. The override
+filters favorites, rechecks the flag at purchase, and requires successful removal
+before payment. `EquipmentBuyerShopContentItem.IsAvailable` also checks protection
+and ownership. The vanilla empty-list state is retained.
+
+`Equipment::Item.Copy` creates an owned object, but `UniqueEquipment.Copy` returns
+the definition through `Item::Get`; its generator also returns shared definitions.
+Per-piece flags would otherwise apply to every copy. The library gives unique
+equipment a real copy operation, copies unique lookups, and copies a shared
+definition once at bag entry. Existing owned objects keep their identity on moves.
+Serialization of both item kinds remains vanilla. SaveData writes slot/snapshot
+sidecars before its own save and restores them after its own load, avoiding hook
+ordering dependencies. Stored alternate weapons carry a separate flag.
+
+Validation: the Quality of Life archive builds on Linux (library `f44dbd9a7750`,
+319 files, 472,959 bytes). 46 focused source/package/Workshop tests pass; they do
+not execute AngelScript. `fix-favorites` adds 14 controlled
+engine assertions and its package variant, both unrun. Full host test collection
+cannot import 18 Windows-only test modules (`ctypes.WinDLL` is absent on Linux).
+A broader run excluding those 18 modules produced 1,063 passes, 19 skips and 23
+failures (including subtests): unchanged bootstrap/Win32-dependent checks and
+eight new-module Workshop registration failures. Adding the missing Workshop
+description, existing-gear symbol registration, helper count and module-table
+row fixes all eight feature-related failures in the focused 46-test rerun. The
+broader suite is not claimed green; its bootstrap/Win32 failures remain open.
+Initial system-Python attempts also lacked pytest/Pillow; subsequent checks use
+the prepared checkout's dependency-equipped `.venv/bin/python`.
+
+Fresh-worktree `./gamelab.sh doctor` first refused missing private Windows Python.
+`setup` prepared the hash-checked runtime; `doctor --fix` then refused Steam not
+running and symlink/reparse save paths. It did not confirm backups or boot a game.
+No gate was bypassed and no real saves/install were changed. The SDK was copied
+from the prepared checkout for source inspection and package generation only.
+Current work is not runtime-verified; restart, unique-copy compilation, actual
+seller payment, UI/key/rebinding, marker legibility, full hint-bar fit and two-peer
+behavior remain on the feature checklist.
+
 ## 2026-11-05: Rework focused solo validation PASS
 
 `qa-specs-support-rework 20261105-200813` PASS on pinned build 25932569 / B176,

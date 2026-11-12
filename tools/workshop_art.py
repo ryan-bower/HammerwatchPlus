@@ -89,6 +89,7 @@ SYMBOLS = {
     # Quality of Life
     "bufftips": [cell("gui", 11, 0)],
     "chatlinks": [cell("special", 9, 0)],
+    "favorites": [cell("equip", 19, 3)],  # existing gear sprite; no new artwork
     "stash": [px("gui/icons.png", 13, 128, 13, 13)],
     "deathrecap": [px("gui/icons.png", 93, 77, 11, 11)],
     "laststats": [cell("town", 4, 4)],
@@ -685,7 +686,7 @@ def prereq(pids) -> str:
     return ", ".join(f"{card}: {dlc} DLC" for dlc, _, card in (workshop.DLC[p] for p in pids if p in workshop.DLC))
 # the All pack's cover: a short name and what the package is, in a few words
 SHORT = {
-    "qol": ("Quality of Life", "18 helpers"), "coop": ("Co-op Play", "4 party features"),
+    "qol": ("Quality of Life", "19 helpers"), "coop": ("Co-op Play", "4 party features"),
     "autoaim": ("Auto Aim", "aim assist"), "firearms": ("Firearms", "a new class"),
     "specs": ("4th Specs", "8 new specializations"),
     "keys": ("Keys & Chests", "locked loot, ace chests"), "campaign": ("Forsaken Tower", "18-floor campaign"),

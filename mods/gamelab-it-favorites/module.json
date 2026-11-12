@@ -1,0 +1,7 @@
+{
+  "id": "gamelab-it-favorites",
+  "requires": ["favorites"],
+  "overrides": [],
+  "exclude": [],
+  "gamelab": true
+}

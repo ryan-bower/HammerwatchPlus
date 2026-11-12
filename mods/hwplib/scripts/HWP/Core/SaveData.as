@@ -223,19 +223,25 @@ namespace HWPSaveData
 	[Hook]
 	void PlayerRecordSave(PlayerRecord@ record, SValueBuilder& builder)
 	{
-		HWP::SaveData::Player(record).Save(builder);
+		auto bag = HWP::SaveData::Player(record);
+		HWP::Favorites::SavePlayer(record, bag);
+		bag.Save(builder);
 	}
 
 	[Hook]
 	void PlayerRecordLoad(PlayerRecord@ record, SValue@ data)
 	{
-		HWP::SaveData::Player(record).Load(data);
+		auto bag = HWP::SaveData::Player(record);
+		bag.Load(data);
+		HWP::Favorites::LoadPlayer(record, bag);
 	}
 
 	[Hook]
 	void TownRecordSave(TownRecord@ town, SValueBuilder& builder)
 	{
-		HWP::SaveData::Town(town).Save(builder);
+		auto bag = HWP::SaveData::Town(town);
+		HWP::Favorites::SaveTown(town, bag);
+		bag.Save(builder);
 	}
 
 	[Hook]
@@ -243,6 +249,7 @@ namespace HWPSaveData
 	{
 		auto bag = HWP::SaveData::Town(town);
 		bag.Load(data);
+		HWP::Favorites::LoadTown(town, bag);
 		HWP::Log("core", "town record loaded, " + bag.Keys().length() + " hwp key(s)");
 	}
 }

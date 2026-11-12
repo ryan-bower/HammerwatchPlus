@@ -216,6 +216,13 @@ in a 2-player lobby for anything networked.
 
 ## Modules
 
+`favorites` (Quality of Life, issue #61) registers the bag's Favorite/Unfavorite
+action and its rebindable F key. `hwplib` owns object-local flags, player/town
+sidecars, the sale guard and item-corner marker. New overrides:
+`Items/Item.as`, `Items/UniqueEquipment.as`, `GUI/Widgets/EquipmentInventoryWidget.as`
+(owned unique identity), and `Town/EquipmentBuyer.as` (filter and transaction guard).
+See [the feature spec](../mods/favorites/README.md); live validation is pending.
+
 | id | Feature | Notes |
 |---|---|---|
 | `hwplib` | library (see Packages): the `hwp` console command (and `hwp` copies of the vanilla cheats), host-synced settings (`HWP::Settings::Sync(prefix)`), wares registry (`HWP::Market`, `hwp wares`, `hwp sell`; a second currency a module registers with `SetCurrency`), two untitled materials-tab sections modules fill (`HWP::Materials::Title` / `Register(section, order, id, material)`), settings-backed town doodads (`HWP::Town::Placeable`), pack spawner (`HWP::Spawner`), level generation safety net (`HWPOutdoorGenerator`), the local player's targeting helper with skill input and aim hooks (`HWPTargetingHelper` swapped into `Player.m_targetHelper`, `HWP::TargetHelper`, `HWP::Aim`), the bag size (`HWP::Bag`), the Luck views (`HWP::LuckView`), key names as on a US keyboard (`HWP::Options::KeyName`, not localised) and the Plus tab's Game keys group, which rebinds the game's own keyboard binds in game (`HWP::GameKeys`, saved to `res/controls.cfg`) | overrides `gui/playermenu/character.gui`, `playermenu.gui`, `GUI/PlayerMenu/Modifications.as` (the Luck row through `HWP::LuckView`, and `AppendSkillDesc` filling a skill description's `%param%` tokens from the level 1 values when there is no player actor), `system/messages.net` and the five outdoor `tweak/missions/themes_*` files (one line each: `gen-class`) |

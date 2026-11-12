@@ -1,0 +1,223 @@
+class EquipmentInventory
+{
+	array<Equipment::Equipment@> m_items;
+	int m_maxItems = -1;
+	bool m_isDirty;
+
+	EquipmentInventory(PlayerRecord@ plr)
+	{
+	}
+
+	bool CanAdd()
+	{
+		if (m_maxItems < 0)
+			return true;
+
+		return m_items.length() < uint(m_maxItems);
+	}
+
+	void Clear()
+	{
+		m_items.removeRange(0, m_items.length());
+		m_isDirty = true;
+	}
+
+	void Add(Equipment::Equipment@ item)
+	{
+		if (item is null)
+			return;
+
+		m_items.insertLast(item);
+		m_isDirty = true;
+	}
+
+	bool Remove(Equipment::Equipment@ item)
+	{
+		if (item is null)
+			return false;
+		
+		for (uint i = 0; i < m_items.length(); i++)
+		{
+			if (m_items[i] is item)
+			{
+				m_isDirty = true;
+				m_items.removeAt(i);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void Save(SValueBuilder& builder)
+	{
+		for (uint i = 0; i < m_items.length(); i++)
+			Item::SaveItem(builder, m_items[i]);
+	}
+
+	void Load(array<SValue@>@ dataArr)
+	{
+		if (dataArr is null)
+			return;
+
+		Clear();
+
+		for (uint i = 0; i < dataArr.length(); i++)
+		{
+			auto eqItem = cast<Equipment::Equipment>(Item::LoadItem(dataArr[i]));
+			if (eqItem !is null)
+				m_items.insertLast(eqItem);
+		}
+
+		m_isDirty = true;
+	}
+}
+
+
+class EquipmentInventoryWidget : RectWidget, IEquipmentWidgetHoster
+{
+	PlayerRecord@ m_owner;
+	EquipmentItemWidget@ m_itemTemplate;
+	AWindowObject@ m_window;
+
+	EquipmentInventoryWidget()
+	{
+		super();
+	}
+
+	void Load(WidgetLoadingContext &ctx) override
+	{
+		RectWidget::Load(ctx);
+	}
+
+	void SetOwner(PlayerRecord@ plr)
+	{
+		@m_owner = plr;
+		Refresh();
+	}
+
+	void OnClick(Equipment::Equipment@ item)
+	{
+		if (!m_owner.equipped.MayEquip(item))
+			return;
+
+		auto itemSlot = item.GetSlot();
+		if (itemSlot == Equipment::Slot::TwoHanded && 
+			m_owner.equipped.m_items[EquippedItemsSlots::MainHand] !is null && 
+			m_owner.equipped.m_items[EquippedItemsSlots::OffHand] !is null &&
+			!m_owner.CanAddItem(item))
+			return;
+
+		if (!m_owner.equipInventory.Remove(item))
+			return;
+
+		auto got = m_owner.equipped.Equip(item);
+		if (got !is null)
+			m_owner.equipInventory.Add(got);
+
+		m_host.OnFunc(this, "refresh");
+	}
+
+	void Refresh()
+	{
+		ClearChildren();
+
+		vec2 baseSize = vec2(m_width / m_itemTemplate.m_width, int(ceil(m_height / float(m_itemTemplate.m_height))));
+
+		vec2 offset = vec2(0);
+		ivec2 navOffset = ivec2(0);
+
+		for (uint i = 0; i < uint(max(m_owner.equipInventory.m_items.length(), baseSize.x * baseSize.y)); i++)
+		{
+			auto item = cast<EquipmentItemWidget>(m_itemTemplate.Clone());
+
+			item.SetID("");
+			item.m_offset = offset;
+			if (i < m_owner.equipInventory.m_items.length())
+				item.Set(m_owner.equipInventory.m_items[i], this);
+
+			item.m_visible = true;
+			item.m_navPos += navOffset;
+			@item.m_inventory = this;
+
+			AddChild(item);
+
+			navOffset.x += 1;
+
+			offset.x += item.m_width;
+			if ((offset.x + item.m_width) > m_width)
+			{
+				offset.x = 0;
+				offset.y += item.m_height;
+
+				navOffset.x = 0;
+				navOffset.y += 1;
+
+				if (m_owner.equipInventory.m_items.length() / baseSize.x > baseSize.y)
+					baseSize.y++;
+			}
+		}
+
+		m_height = navOffset.y * m_itemTemplate.m_height;
+	}
+
+	void Update(int dt) override
+	{
+		if (!m_visible)
+			return;
+
+		Widget::Update(dt);
+
+%if !TOOLKIT
+		if (m_owner.equipInventory.m_isDirty)
+		{
+			Refresh();
+			m_owner.equipInventory.m_isDirty = false;
+		}
+%endif
+	}
+
+	void DoLayout(vec2 origin, vec2 parentSz) override
+	{
+		if (!m_visible)
+			return;
+
+%if !TOOLKIT
+		if (m_owner.equipped is null)
+			return;
+
+/*
+		for (uint i = 0; i < m_children.length(); i++)
+		{
+			auto child = cast<EquipmentItemWidget>(m_children[i]);
+			if (child is null)
+				continue;
+			
+			child.Clear();
+		}
+*/
+		for (uint i = 0; i < m_children.length(); i++)
+		{
+			auto child = cast<EquipmentItemWidget>(m_children[i]);
+			if (child is null)
+				continue;
+			
+			auto equip = cast<Equipment::Equipment>(child.m_item);
+			if (equip !is null && !m_owner.equipped.MayEquip(equip))
+				child.m_color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+			else
+				child.m_color = vec4(1.0f);
+		}
+%endif
+
+
+		RectWidget::DoLayout(origin, parentSz);
+	}
+
+}
+
+ref@ LoadEquipmentInventoryWidget(WidgetLoadingContext &ctx)
+{
+	EquipmentInventoryWidget@ w = EquipmentInventoryWidget();
+	w.Load(ctx);
+	return w;
+}

@@ -38,6 +38,16 @@
 					</array>
 				</dict>
 				<dict>
+					<string name="id">favorites</string>
+					<bool name="shared">false</bool>
+					<string name="toggle">favorites.enabled</string>
+					<bool name="host">false</bool>
+					<bool name="level">false</bool>
+					<array name="settings">
+						<dict><string name="option">favoritekey</string></dict>
+					</array>
+				</dict>
+				<dict>
 					<string name="id">stash</string>
 					<bool name="shared">false</bool>
 					<string name="toggle">stash.enabled</string>

@@ -1,0 +1,7 @@
+<lang name="English" official="false">
+	<string name="hwp.favorites.add">Favorite</string>
+	<string name="hwp.favorites.remove">Unfavorite</string>
+	<string name="hwp.favorites.key">Favorite item key</string>
+	<string name="hwp.favorites.protected">Unfavorite this item before selling it.</string>
+	<string name="hwp.favorites.empty">All your bag equipment is favorited and protected from selling. Unfavorite an item in your inventory to sell it.</string>
+</lang>

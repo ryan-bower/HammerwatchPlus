@@ -4,6 +4,29 @@ Running project status: the newest entries first, then the QA checkpoints and hi
 sweeps. The engine and reverse-engineering notes behind each change are in
 [RE_NOTES.md](RE_NOTES.md).
 
+2026-11-12, favorites PR screenshot remains blocked before boot. GameLab doctor
+now times out at the private runtime's 180-second deadline (exit 2). No frame was
+captured; `look-favorites` records the capture steps for when readiness is restored.
+
+2026-11-12, approved favorites audit follow-up (#61). When every bag item is
+favorited, the equipment buyer now explains the protection and how to unfavorite
+an item to sell it. Empty bags and disabled favorites keep vanilla text. 47
+focused checks and the Quality of Life build pass; five new controlled-engine
+checks are written but unrun. Live validation remains blocked as recorded below.
+See the [audit follow-up](../anti-slop/audit-001-followup-2026-11-12.md).
+
+2026-11-12, inventory favorites (#61), implementation pending live validation.
+Quality of Life adds a clickable/rebindable F action and a corner marker; favorite
+gear is filtered from equipment sales and refused again before removal/payment.
+Player/town sidecars preserve flags without changing vanilla item payloads;
+unique gear gets independent owned copies. 46 focused source/package/Workshop
+checks and a package build pass. Full host pytest collection hits Windows-only
+imports on Linux; a broader partial run also retains bootstrap/Win32 failures.
+GameLab doctor refuses Steam-not-running and symlinked-save prerequisites, so no
+current compile/load, UI, persistence or multiplayer result is claimed. See
+[the checklist](../mods/favorites/README.md) and the
+[post-implementation audit](../anti-slop/audit-001-2026-11-12.md).
+
 > **PR publication checkpoint (2026-11-01).** The complete QA worktree is checkpointed on `codex/run-save-builder-followup` and integrated with upstream `e7d060f1` (including merged PRs83?86). The merged host suite passed **1,244 tests**, with three unavailable-symlink skips and1,269 subtests. See [the publication record](qa/swarm/pr_publication.json). Earlier native results below retain their exact execution revisions; no new native pass is claimed for this upstream integration. The broader campaign remains paused at r4847/E018. Historical scenario/catalog pins require current review before further native admission.
 
 The [admission pipeline validation](qa/swarm/admission_pipeline_validation.json)

@@ -1,0 +1,26 @@
+{
+ "name": "pf-fix-favorites",
+ "about": "fix-favorites against the built package qol instead of the mods' source folders (tools/generate/make_package_scenarios.py). Issue #61 controlled engine checks: identical copies, action labels, buyer filtering, refused sales without payment, bag/worn/stash sidecars, disabling and unfavoriting. Not ordinary gameplay or UI input evidence.",
+ "fixture": "town-paladin",
+ "mods": [
+  "gamelab-it-favorites"
+ ],
+ "timeout": 120,
+ "steps": [
+  {
+   "do": "console",
+   "line": "hwp testfavorites",
+   "expect": "finished 19 checks, 0 failed"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "\\[HWP:testfavorites\\] FAIL"
+  },
+  {
+   "do": "log_clean"
+  }
+ ],
+ "packages": [
+  "qol"
+ ]
+}

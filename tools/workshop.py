@@ -41,6 +41,7 @@ ALL_FILE = "HammerwatchPlus-All"
 TERSE = {
     "bufftips": "hover a buff to see what it does and how long it has left.",
     "chatlinks": "linked items stay in chat with their slot and item level.",
+    "favorites": "favorite individual pieces of gear (F) to keep them out of equipment sales.",
     "stash": "a Sort button on the town stash.",
     "deathrecap": "what killed you, and everyone's damage after each boss.",
     "laststats": "the party's last-run stats on a board by the town fountain.",

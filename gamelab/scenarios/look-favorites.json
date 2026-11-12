@@ -1,0 +1,20 @@
+{
+  "name": "look-favorites",
+  "about": "PR screenshot for #61: controlled equipment setup, then the inventory Favorite hint's own click handler. Capture the favorited bag item, corner marker and Unfavorite hint. Not ordinary gameplay or physical mouse input evidence.",
+  "fixture": "town-paladin",
+  "mods": ["favorites", "gamelab-hands"],
+  "timeout": 120,
+  "steps": [
+    {"do": "console", "line": "e_cheats 1"},
+    {"do": "gl", "verb": "equip", "args": ["mainhand_longsword_01", "common", "1"], "expect": {"replaced": true}},
+    {"do": "gl", "verb": "menu", "args": ["character", "equipment-inventory"], "expect": {"tab": "PlayerMenuCharacterTab"}},
+    {"do": "sleep", "seconds": 0.6},
+    {"do": "gl", "verb": "hover", "args": ["equipment-inventory", "0"]},
+    {"do": "gl", "verb": "navbar", "args": ["click", "4"], "expect": {"handler": true}},
+    {"do": "log_has", "pattern": "\\[HWP:favorites\\] favorited "},
+    {"do": "gl", "verb": "hover", "args": ["equipment-inventory", "0"]},
+    {"do": "sleep", "seconds": 0.6},
+    {"do": "shot", "name": "favorited-inventory"},
+    {"do": "log_clean"}
+  ]
+}

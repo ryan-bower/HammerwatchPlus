@@ -192,6 +192,7 @@ namespace HWP
 
 		void StoreAlt(const string &in key, Equipment::Equipment@ item)
 		{
+			Bag().SetBool(key + ".favorite", HWP::Favorites::Has(item));
 			if (item is null)
 				Bag().Remove(key);
 			else
@@ -286,6 +287,8 @@ namespace HWP
 			Equipment::Equipment@ curOff = rec.equipped.m_items[offSlot];
 			Equipment::Equipment@ altMain = LoadAlt(KEY_MAIN);
 			Equipment::Equipment@ altOff = LoadAlt(KEY_OFF);
+			HWP::Favorites::Set(altMain, Bag().GetBool(KEY_MAIN + ".favorite", false));
+			HWP::Favorites::Set(altOff, Bag().GetBool(KEY_OFF + ".favorite", false));
 
 			// requirement checks happen while the current pair is still worn,
 			// as a manual equip would see it
@@ -488,6 +491,10 @@ namespace HWP
 				HWP::Commands::Reply(Resources::GetString(".hwp.weaponswap.inventory_full"));
 				return;
 			}
+			if (altMain !is null)
+				HWP::Favorites::Set(altMain, Bag().GetBool(KEY_MAIN + ".favorite", false));
+			if (altOff !is null)
+				HWP::Favorites::Set(altOff, Bag().GetBool(KEY_OFF + ".favorite", false));
 			if (altMain !is null)
 				rec.equipInventory.Add(altMain);
 			if (altOff !is null)

@@ -77,6 +77,7 @@ abstract class ItemWidgetBase : AInteractableWidget
 	Sprite@ m_qualitySprite;
 
 	BitmapString@ m_stackCountText;
+	BitmapString@ m_hwpFavoriteText;
 	vec4 m_textColor;
 	vec4 m_disabledColor;
 	vec4 m_color;
@@ -160,6 +161,14 @@ abstract class ItemWidgetBase : AInteractableWidget
 
 			if (m_mirroredIcon)
 				sb.PopTransformation();
+
+			if (HWP::Favorites::Protected(m_item))
+			{
+				if (m_hwpFavoriteText is null)
+					@m_hwpFavoriteText = g_itemStackCountFont.BuildText("F");
+				sb.FillRectangle(vec4(pos.x + 2, pos.y + 2, m_hwpFavoriteText.GetWidth() + 2, m_hwpFavoriteText.GetHeight()), vec4(0, 0, 0, 1));
+				sb.DrawString(pos + vec2(3, 2), m_hwpFavoriteText);
+			}
 		}
 	}
 
