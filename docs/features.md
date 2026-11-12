@@ -5,12 +5,12 @@ Heroes of Hammerwatch 1 content (the Forsaken Tower
 campaign, keys and ace chests, legendaries, mercenaries, titles, pets), new things to find in
 the dungeons, fishing and farming in town, and co-op and quality-of-life fixes.
 
-The modules ship as twelve packages, each of which works alone, plus an all-in-one pack. Eleven
-are on the Steam Workshop; The Forsaken Tower is local-build only.
+The modules ship as thirteen packages, each of which works alone, plus an all-in-one pack. Eleven
+are on the Steam Workshop; The Forsaken Tower is local-build only, and Interface isn't published yet.
 
 | Package | Modules |
 |---|---|
-| `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, petrooms, legacy, goldworth, mmhmm, orbwarn, mapicons, attrclick, salvage, freeskills, dummydps |
+| `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, petrooms, legacy, goldworth, mmhmm, orbwarn, orbreroll, mapicons, attrclick, salvage, freeskills, outofcombat, dummydps |
 | `HWP-coop` Co-op Play | groupcombo, architect, droptrade, partyexit |
 | `HWP-autoaim` Auto Aim | autoaim |
 | `HWP-firearms` Firearms Specialist | firearms |
@@ -19,7 +19,7 @@ are on the Steam Workshop; The Forsaken Tower is local-build only.
 | `HWP-keys` Keys and Ace Chests | keys |
 | `HWP-campaign` The Forsaken Tower | campaign |
 | `HWP-modes` Challenge Modes | mercenary, wavemode |
-| `HWP-dungeon` Dungeon Loot and Encounters | puzzles, objectives, strongbox, abyss, maps, weapons, trinkets, valuables, affixes |
+| `HWP-dungeon` Dungeon Loot and Encounters | puzzles, objectives, strongbox, abyss, maps, weapons, trinkets, valuables, affixes, bosses |
 | `HWP-town` Town Life | fishing, farming, gambler, roulette, tavern |
 | `HWP-pets` Pets | pets (and petrooms, shared with Quality of Life) |
 | `HammerwatchPlus-All` | every package |

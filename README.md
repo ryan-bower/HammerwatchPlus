@@ -24,7 +24,7 @@ The key features are:
 - **A new class and new specs**: the Firearms Specialist, and a fourth specialization for eight
   vanilla classes.
 - **The Forsaken Tower**: the HoH1 campaign, with keys, ace chests, legendaries and pets.
-- **More dungeon**: puzzles, objectives, strongboxes, affixes, new weapons and trinkets.
+- **More dungeon**: puzzles, objectives, strongboxes, affixes, new weapons and trinkets, tougher bosses.
 - **Town life**: fishing, farming, a gambler, roulette and a tavern.
 - **Build benchmarks**: [five-second DPS above town training dummies](mods/dummydps/README.md),
   in Quality of Life; combined damage from all players and sources.

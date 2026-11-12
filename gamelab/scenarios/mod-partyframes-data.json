@@ -1,0 +1,38 @@
+{
+ "name": "mod-partyframes-data",
+ "about": "HWP::AllyStatus on the host: a real Bannerlord shield rises, drops when hit and clears when hit to nothing, and a potion drink and a refill both come back through the relay (a refill is the case vanilla never syncs). Forced setup, solo: a client's path needs two clients, which GameLab can't run.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "classes",
+  "specs",
+  "partyframes"
+ ],
+ "timeout": 300,
+ "steps": [
+  {"do": "console", "line": "e_cheats 1"},
+  {
+   "do": "bot",
+   "bot": "partyframes_data",
+   "expect": {
+    "frames_shield_relayed": true,
+    "frames_shield_drops": true,
+    "frames_shield_zero": true,
+    "frames_potions_relayed": true
+   }
+  },
+  {"do": "pilot", "call": "potion", "timeout": 5, "expect": {"result": "done"}, "name": "drank a real potion"},
+  {"do": "sleep", "seconds": 1},
+  {"do": "mark", "name": "drunk"},
+  {"do": "console", "line": "hwp partyframes"},
+  {"do": "log_has", "pattern": "\\(local\\): shield \\S+, potions 0/(\\d+), relayed shield \\S+, potions 0/\\1", "since": "drunk", "timeout": 5, "name": "the drink came back through the relay"},
+  {"do": "console", "line": "cht_refill_potions"},
+  {"do": "sleep", "seconds": 1},
+  {"do": "mark", "name": "refilled"},
+  {"do": "console", "line": "hwp partyframes"},
+  {"do": "log_has", "pattern": "\\(local\\): shield \\S+, potions (\\d+)/\\1, relayed shield \\S+, potions \\1/\\1", "since": "refilled", "timeout": 5, "name": "the refill came back through the relay"},
+  {"do": "log_clean"}
+ ]
+}

@@ -70,6 +70,22 @@ class SelectArchitectLoadout : MissionGUILoadout
 		if (HWP::Architect::Enabled() && HWP::Architect::MyPicks().length() == 0)
 		{
 			auto last = HWP::Architect::Available(HWP::Architect::LastPicks(), plr, m_buffSet);
+			// HWP (#96): only what the character can pay for, alone, with the rows above it
+			if (last.length() > 0)
+			{
+				auto bill = HWP::Architect::SoloBill(last);
+				for (uint i = 0; i < menu.m_loadouts.length(); i++)
+				{
+					auto rowCost = menu.m_loadouts[i].GetCost();
+					if (rowCost !is null)
+						bill.AddCost(rowCost);
+				}
+				if (!bill.CanAfford(plr))
+				{
+					HWP::Log("architect", "remembered " + last.length() + " pick(s) cost more than " + plr.GetName() + " has; not restored");
+					last.removeRange(0, last.length());
+				}
+			}
 			if (last.length() > 0)
 			{
 				HWP::Architect::SendPicks(last);

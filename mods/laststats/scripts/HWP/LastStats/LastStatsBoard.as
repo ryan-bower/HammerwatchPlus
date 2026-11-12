@@ -1,10 +1,14 @@
 // Interact class of doodads/hwp/laststats_board.unit and its window: every
-// player's last run on one page. Each stat is a row with one horizontal bar per
+// player's last run, one tab per stat category (the mission-end categories, in
+// StatDef order; issue #98). Each stat is a row with one horizontal bar per
 // player (the player's colour, labelled with the value, scaled to the biggest
-// value of that stat); the search field filters the rows by stat name as you
-// type (func-edit "search"). Rows are built once from the union of the party's
-// snapshots and only shown / hidden by the filter, so typing never rebuilds the
-// list under the field's focus.
+// value of that stat). The open tab shows its category's rows. The search field
+// (func-edit "search") looks through every tab: while it holds text the list shows
+// the matching rows of all categories under their headers, each tab reads its
+// match count and none is selected; a tab (click, or the previous / next tab
+// binding) clears the search and opens that tab. Rows are built once from the
+// union of the party's snapshots and only shown / hidden, so typing never
+// rebuilds the list under the field's focus.
 class HWPLastStatsBoard : AShopContent
 {
 	HWPLastStatsBoard() {}
@@ -57,6 +61,17 @@ class HWPLastStatsMenu : AWindowObject
 	array<string> m_players;
 	int m_shown = 0;
 
+	// the tab row: one MenuTabWidget per category, in row order
+	array<string> m_tabCats;
+	array<string> m_tabNames;  // the category's name, the tab's text when not searching
+	array<string> m_tabTexts;  // what each tab reads now
+	array<MenuTabWidget@> m_tabWidgets;
+	string m_tab;              // the open tab's category, kept while a search shows every tab
+	MenuTabGroupWidget@ m_tabs;
+	MenuTabWidget@ m_tabTemplate;
+	BindingDisplayWidget@ m_bindingTabP;
+	BindingDisplayWidget@ m_bindingTabN;
+
 	Widget@ m_statGroup;
 	Widget@ m_empty;
 	Widget@ m_nomatch;
@@ -76,6 +91,10 @@ class HWPLastStatsMenu : AWindowObject
 		PauseGame(true, true);
 
 		@m_statGroup = m_widget.GetWidgetById("stat-group");
+		@m_tabs = cast<MenuTabGroupWidget>(m_widget.GetWidgetById("tabs"));
+		@m_tabTemplate = cast<MenuTabWidget>(m_widget.GetWidgetById("tab-template"));
+		@m_bindingTabP = cast<BindingDisplayWidget>(m_widget.GetWidgetById("tab-p"));
+		@m_bindingTabN = cast<BindingDisplayWidget>(m_widget.GetWidgetById("tab-n"));
 		@m_empty = m_widget.GetWidgetById("empty");
 		@m_nomatch = m_widget.GetWidgetById("nomatch");
 		@m_legend = m_widget.GetWidgetById("legend");
@@ -95,6 +114,7 @@ class HWPLastStatsMenu : AWindowObject
 
 		@HWP::LastStats::g_openMenu = this;
 		Build();
+		BuildTabs();
 		ApplyFilter();
 	}
 
@@ -249,11 +269,124 @@ class HWPLastStatsMenu : AWindowObject
 		auto header = cast<TextWidget>(m_categoryTemplate.Clone());
 		header.SetID("cat-" + cat);
 		header.m_visible = true;
-		string key = cat == "skill_dmg" ? ".hwp.laststats.category.skill_dmg" : ".menu.stats.cat." + cat;
-		header.SetText(Resources::GetString(key));
+		header.SetText(CategoryName(cat));
 		m_statGroup.AddChild(header);
 		m_headers.insertLast(header);
 		m_headerCats.insertLast(cat);
+	}
+
+	// the mission-end menu's name of a stat category; the id for one without a string
+	string CategoryName(const string &in cat)
+	{
+		string key = cat == "skill_dmg" ? ".hwp.laststats.category.skill_dmg" : ".menu.stats.cat." + cat;
+		string name = Resources::GetString(key);
+		if (name.isEmpty() || name == key || name == key.substr(1))
+			return cat;
+		return name;
+	}
+
+	// ---- the tab row: one tab per category of the rows, in row order -------
+
+	void BuildTabs()
+	{
+		m_tabCats.removeRange(0, m_tabCats.length());
+		m_tabNames.removeRange(0, m_tabNames.length());
+		m_tabTexts.removeRange(0, m_tabTexts.length());
+		m_tabWidgets.removeRange(0, m_tabWidgets.length());
+		for (uint i = 0; i < m_rowsData.length(); i++)
+		{
+			if (m_tabCats.find(m_rowsData[i].cat) < 0)
+				m_tabCats.insertLast(m_rowsData[i].cat);
+		}
+		m_tab = m_tabCats.length() > 0 ? m_tabCats[0] : "";
+
+		if (m_tabs !is null)
+		{
+			m_tabs.ClearChildren();
+			m_tabs.m_visible = m_tabCats.length() > 0;
+		}
+		bool several = m_tabCats.length() > 1;
+		if (m_bindingTabP !is null)
+			m_bindingTabP.m_visible = several;
+		if (m_bindingTabN !is null)
+			m_bindingTabN.m_visible = several;
+
+		for (uint i = 0; i < m_tabCats.length(); i++)
+		{
+			string name = CategoryName(m_tabCats[i]);
+			m_tabNames.insertLast(name);
+			m_tabTexts.insertLast(name);
+			MenuTabWidget@ tab = null;
+			if (m_tabs !is null && m_tabTemplate !is null)
+			{
+				@tab = cast<MenuTabWidget>(m_tabTemplate.Clone());
+				tab.SetID("tab-" + m_tabCats[i]);
+				tab.m_visible = true;
+				tab.m_func = "tab " + m_tabCats[i];
+				tab.m_value = m_tabCats[i];
+				tab.SetText(name);
+				m_tabs.AddChild(tab);
+			}
+			m_tabWidgets.insertLast(tab);
+		}
+		if (m_tabs !is null && m_tabCats.length() > 0)
+			m_tabs.SetChecked(0);
+		// the window collected its clickable widgets in AWindowObject's constructor, before the tabs
+		RefreshInteractableWidgets(m_widget);
+	}
+
+	int TabIndex(const string &in cat)
+	{
+		return m_tabCats.find(cat);
+	}
+
+	// open a tab: the search is cleared, the list shows that category
+	void SetTab(const string &in cat)
+	{
+		if (TabIndex(cat) < 0)
+			return;
+		m_tab = cat;
+		if (m_search !is null)
+			m_search.SetText("");
+		m_query = "";
+		ApplyFilter();
+		ScrollToTop();
+	}
+
+	void StepTab(int dir)
+	{
+		int n = int(m_tabCats.length());
+		if (n < 2)
+			return;
+		int index = TabIndex(m_tab);
+		index = ((index < 0 ? 0 : index) + dir + n) % n;
+		SetTab(m_tabCats[index]);
+	}
+
+	void ScrollToTop()
+	{
+		auto scroll = cast<ScrollbarWidget>(m_statGroup);
+		if (scroll !is null)
+			scroll.m_handleValue = 0;
+	}
+
+	// the open tab checked (none while searching); while searching each tab reads its
+	// match count
+	void RefreshTabs(const array<int> &in matches)
+	{
+		bool searching = !m_query.isEmpty();
+		for (uint i = 0; i < m_tabCats.length(); i++)
+		{
+			string text = searching ? m_tabNames[i] + " (" + matches[i] + ")" : m_tabNames[i];
+			if (text != m_tabTexts[i])
+			{
+				m_tabTexts[i] = text;
+				if (m_tabWidgets[i] !is null)
+					m_tabWidgets[i].SetText(text);
+			}
+		}
+		if (m_tabs !is null)
+			m_tabs.SetChecked(searching ? -1 : TabIndex(m_tab));
 	}
 
 	// a stat row: the title, then one bar line per player (name, bar, value)
@@ -334,18 +467,32 @@ class HWPLastStatsMenu : AWindowObject
 			q = q.substr(1);
 		if (q == m_query)
 			return;
+		bool wasSearching = !m_query.isEmpty();
 		m_query = q;
 		ApplyFilter();
+		if (wasSearching != !m_query.isEmpty())
+			ScrollToTop(); // into or out of the every-tab list
 	}
 
 	void ApplyFilter()
 	{
 		m_shown = 0;
+		bool searching = !m_query.isEmpty();
 		array<string> shownCats;
+		array<int> matches; // per tab, while searching
+		for (uint i = 0; i < m_tabCats.length(); i++)
+			matches.insertLast(0);
 		for (uint i = 0; i < m_rowsData.length(); i++)
 		{
 			auto row = m_rowsData[i];
-			bool show = Matches(row);
+			// searching: every tab's matches; else the open tab's rows
+			bool show = searching ? Matches(row) : row.cat == m_tab;
+			if (searching && show)
+			{
+				int t = TabIndex(row.cat);
+				if (t >= 0)
+					matches[t]++;
+			}
 			row.shown = show;
 			if (row.widget !is null && row.widget.m_visible != show)
 				row.widget.m_visible = show;
@@ -356,17 +503,19 @@ class HWPLastStatsMenu : AWindowObject
 					shownCats.insertLast(row.cat);
 			}
 		}
-		// a category header (and the separator above it) only with a row of its own
+		// a category header (and the separator above it) only in a search, and only with a
+		// row of its own; a tab names its category already
 		for (uint i = 0; i < m_headers.length(); i++)
 		{
-			bool show = shownCats.find(m_headerCats[i]) >= 0;
+			bool show = searching && shownCats.find(m_headerCats[i]) >= 0;
 			if (m_headers[i].m_visible != show)
 				m_headers[i].m_visible = show;
 		}
 		m_nomatch.m_visible = m_rowsData.length() > 0 && m_shown == 0;
+		RefreshTabs(matches);
 		Invalidate();
 		HWP::Log("laststats", "board: " + m_shown + " of " + m_rowsData.length() + " stats shown, "
-			+ m_players.length() + " players, filter \"" + m_query + "\"");
+			+ m_players.length() + " players, tab \"" + m_tab + "\", filter \"" + m_query + "\"");
 	}
 
 	// for "hwp laststats board": what the window shows right now
@@ -394,7 +543,8 @@ class HWPLastStatsMenu : AWindowObject
 			n++;
 		}
 		return "board open: " + m_shown + " of " + m_rowsData.length() + " stats, " + m_players.length()
-			+ " players, " + bars + " bars, filter \"" + m_query + "\", typing " + (m_search !is null && m_search.m_typing ? "1" : "0")
+			+ " players, " + bars + " bars, tab \"" + m_tab + "\" " + (TabIndex(m_tab) + 1) + "/" + m_tabCats.length()
+			+ ", filter \"" + m_query + "\", typing " + (m_search !is null && m_search.m_typing ? "1" : "0")
 			+ ", input \"" + (m_search is null ? "" : m_search.m_text.plain()) + "\", rows: " + titles;
 	}
 
@@ -406,7 +556,24 @@ class HWPLastStatsMenu : AWindowObject
 			if (m_searchHint.m_visible != empty)
 				m_searchHint.m_visible = empty;
 		}
+		// the previous / next tab binding (a gamepad's bumpers), not while typing a search
+		if (m_search is null || !m_search.m_typing)
+		{
+			if (menuInput.MenuPreviousTab.Pressed)
+				StepTab(-1);
+			else if (menuInput.MenuNextTab.Pressed)
+				StepTab(1);
+		}
 		return AWindowObject::Update(ms, gameInput, menuInput);
+	}
+
+	void RefreshKeybinds(ControlMap@ currMap) override
+	{
+		AWindowObject::RefreshKeybinds(currMap);
+		if (m_bindingTabP !is null)
+			m_bindingTabP.SetBinding("MenuPreviousTab");
+		if (m_bindingTabN !is null)
+			m_bindingTabN.SetBinding("MenuNextTab");
 	}
 
 	void OnClose() override
@@ -427,6 +594,11 @@ class HWPLastStatsMenu : AWindowObject
 		{
 			if (m_search !is null)
 				SetQuery(m_search.m_text.plain());
+		}
+		else if (name.findFirst("tab ") == 0)
+		{
+			// a tab's func (a click: the group has checked it already), or gl func tab <cat>
+			SetTab(name.substr(4));
 		}
 		else if (name == "search-clear")
 		{

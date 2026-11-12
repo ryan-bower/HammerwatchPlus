@@ -1,0 +1,18 @@
+{
+  "id": "orbreroll",
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [
+    "scripts/GUI/Menus/GiveSkillSphereMenu.as"
+  ],
+  "exclude": [],
+  "config": {
+    "title": "Orb rerolls per orb",
+    "about": "Every orb you pick up gets your rerolls, not one pool for the whole run.",
+    "toggle": "orbreroll.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": []
+  }
+}

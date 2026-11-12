@@ -166,6 +166,22 @@ keys module, a catch can bring up a key of any tier, ace keys included.
   `fishing.landed` (fish + item level + key tier) for the fish itself.
 - Fishing spots, holes and full traps show a fish icon on the minimap
   (`gui/hwp/map_icons.png` from hwplib, made by `tools/generate/make_map_icons.py`).
+- **The twinkle** (2026-11-06, "add a twinkle to the fishing"). Every 1.8-3.4 s each fishing
+  spot glints once at a random point of its water (`TickTwinkle`): the six coast spots, and
+  a run's well spots and buckets. The glint is `effects/hwp/fishing_twinkle.effect`, vanilla's
+  ground-item glint (`items/material_reflection.effect`: the `effects/lights/flare.png` star in
+  the additive `items/items.mats:gold_reflection` material, `a*sin(t*pi)`) played once in 1.2 s
+  instead of looping, faintly blue and 0.3-0.5 of the flare's size (loot uses 0.75). Each
+  machine plays its own (`PlayEffect`'s effect unit is `netsync="none"`), so nothing goes over
+  the network. A run spot twinkles only while it shows fish on that machine: once your own
+  casts are spent (`empty`, map icon greyed, `WatchHoles`) it stops and the glint in flight is
+  removed; the next floor's spots twinkle again. The water boxes (`TWINKLE_BOX`) are where each
+  scene's fish swim. The effect draws its star 16 px above its position (`pos-y`) and the
+  script places it 16 px further south (`TWINKLE_LIFT`): a well spot sits 1 px south of its
+  well, so a glint at the water's own height would sort before the well and be drawn under it.
+  The glint waits while the game is paused (the minigame pauses it). `fishing.twinkle 0` turns
+  it off for you alone (scope local); `hwp fishing` reports `twinkle: on, N of M spot(s)
+  twinkling, K glint(s) this level`.
 - `fishing.*` settings are host-synced; `fishing.coast 0` removes the coast
   spots and the pirate. `hwp fishing buy bait|bait20|shrimp|squid|rod|trap` buys from the
   console; `hwp fishing keys` and `hwp fishing smooth` report (above). With `fishing.debug 1`: `hwp fishing hole` (host), `hwp fishing wells`
@@ -188,7 +204,7 @@ keys module, a catch can bring up a key of any tier, ace keys included.
 On the HammerwatchPlus tab of the player menu (`config` in module.json), host-synced:
 `fishing.enabled` (the module), `fishing.coast`, `fishing.run_chance` (from the next
 level), `fishing.run_casts`, `fishing.reel_hits` (hits to land: 0 by fish, 2-4; or 1-4 for
-every fish), `fishing.keys`.
+every fish), `fishing.keys`. Each player's own: `fishing.twinkle` (the glint over the spots).
 
 `fishing.enabled 0` takes effect at once: the coast spots, the crab traps and the pirate
 go away in town, and on a run the host removes the holes and buckets. Casting, catches,
@@ -271,3 +287,10 @@ again.
     cast; a bite left alone ends `too slow` with "Too slow: it got away."; with the
     Captain's rod, a 1-star fish and the worst zones the fight's window is reach + 1.5 s
     (over 2.5 s) and the fish lands. By hand: click Reel on a 2-star fish twice.
+16. Twinkle (`feat/fishing-twinkle`, not yet run in game): the self-check logs no `missing
+    effects/hwp/fishing_twinkle.effect`; in town `hwp fishing` says `twinkle: on, 6 of 6
+    spot(s) twinkling` and the glint count rises; a screenshot shows a small star over the sea
+    by a spot now and then, and over a well spot's water drawn over the well (`hwp fishing
+    wells`: each kind and the bucket). Spend your casts at a run spot: `hwp fishing` no longer
+    counts it as twinkling and no glint shows there; `hwp set fishing.twinkle 0`: the glint
+    count stops rising, and a client's own value does not follow the host's.

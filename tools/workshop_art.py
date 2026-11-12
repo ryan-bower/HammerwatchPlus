@@ -101,14 +101,17 @@ SYMBOLS = {
     "goldworth": [px("gui/icons.png", 0, 128, 13, 13)],
     "mmhmm": [cell("equip", 4, 11)],
     "orbwarn": [px("doodads/generic/skill_sphere.png", 0, 0, 10, 10)],
+    "orbreroll": [px("doodads/generic/skill_sphere.png", 0, 0, 10, 10)],
     "mapicons": [px("mods/hwplib/gui/hwp/map_icons.png", 12, 0, 11, 11)],
     "attrclick": [px("gui/icons_lang.png", 196, 61, 13, 13)],  # the attribute point (icn-attrpt)
     "salvage": [px("gui/icons.png", 65, 128, 13, 13)],  # the Dust material icon (icons.inc icon-dust)
     "freeskills": [px("gui/icons_lang.png", 1, 46, 13, 13)],  # the skill point (icn-skillpt)
+    "outofcombat": [px("items/icons_consumables.png", 225, 297, 14, 14)],  # the shrine speed blessing, its buff icon
     # Co-op Play
     "groupcombo": [cell("combo", 0, 0)],
     "architect": [cell("town", 0, 0)],
     "droptrade": [px("gui/icons.png", 104, 77, 20, 12)],
+    "partyframes": [px("gui/hud.png", 316, 32, 10, 14)],  # the HUD's potion, the frames' own tile
     "partyexit": [px("gui/icons.png", 213, 0, 15, 15)],  # the HUD's exit use icon (hud.gui use-icon-exit)
     # Auto Aim
     "autoaim": [cell("skills", 6, 2)],
@@ -134,6 +137,7 @@ SYMBOLS = {
                  px("mods/trinkets/gui/hwp/icons_trinkets_hoh1.png", 0, 64, 16, 16)],    # lucky hat
     "valuables": [cell("trade", 0, 4)],
     "affixes": [cell("equip", 3, 10), cell("equip", 15, 13)],   # a gilded breastplate, a jewelled ring
+    "bosses": [cell("equip", 3, 10)],   # the gilded breastplate: armor
     # Town Life
     "fishing": [px("mods/fishing/gui/hwp/rods.png", 0, 0, 16, 16), px("mods/fishing/items/hwp/fish.png", 96, 0, 24, 24)],
     "farming": [px("mods/farming/doodads/hwp/farm.png", 64, 0, 16, 16),        # the watering can
@@ -649,6 +653,8 @@ CHEST = {t: px("items/misc/base.png", 100, y, 16, 18) for t, y in (("bronze", 0)
 ACE_CHEST = px("items/misc/base.png", 70, 54, 14, 18)
 FEATURES = {
     # single-module packages: what is inside, as tiles (label, symbols, a few words)
+    "interface": [("Raid frames", [px("gui/hud.png", 316, 32, 10, 14)], "health, mana, shields, potions"),
+                  ("Thick or thin bars", [cell("gui", 11, 0)], "your choice in the Plus tab")],
     "autoaim": [("Reticle snaps on", [cell("skills", 6, 2)], "to the enemy in your aim cone"),
                 ("Auto fire, auto skills", [cell("skills", 0, 4)], "ready skills cast themselves"),
                 ("Controller or mouse", [px("gui/icons.png", 204, 171, 13, 13), px("gui/icons.png", 33, 114, 11, 14)],
@@ -668,7 +674,7 @@ FEATURES = {
 # a few words per module, on the cards with room for them
 NOTES = {
     "groupcombo": "party combo bonus, combo orbs", "architect": "everyone picks and pays",
-    "droptrade": "drop gear for friends", "partyexit": "most of the party opens an exit",
+    "droptrade": "drop gear for friends", "partyframes": "raid frames for your allies", "partyexit": "most of the party opens an exit",
     "mercenary": "enlist, rank up, die for good",
     "wavemode": "survival arena, from a town statue", "fishing": "on the coast and run floors",
     "farming": "crops and Holy Herbs", "gambler": "Higher or Lower, rerolls",
@@ -677,7 +683,7 @@ NOTES = {
     "strongbox": "open it, beat the pack, loot", "abyss": "waves of enemies, deeper is richer",
     "maps": "three new map layouts", "weapons": "twelve ilvl 35 weapons",
     "trinkets": "scale with NG+, 37 more", "valuables": "worth twice the gold",
-    "affixes": "two prefixes, two suffixes",
+    "affixes": "two prefixes, two suffixes", "bosses": "more boss armor and resistances",
 }
 def prereq(pids) -> str:
     """The card's red footer: what in these packages needs a DLC (tools/workshop.py DLC)."""
@@ -685,11 +691,12 @@ def prereq(pids) -> str:
     return ", ".join(f"{card}: {dlc} DLC" for dlc, _, card in (workshop.DLC[p] for p in pids if p in workshop.DLC))
 # the All pack's cover: a short name and what the package is, in a few words
 SHORT = {
-    "qol": ("Quality of Life", "18 helpers"), "coop": ("Co-op Play", "4 party features"),
+    "qol": ("Quality of Life", "20 helpers"), "coop": ("Co-op Play", "4 party features"),
+    "interface": ("Interface", "raid-style party frames"),
     "autoaim": ("Auto Aim", "aim assist"), "firearms": ("Firearms", "a new class"),
     "specs": ("4th Specs", "8 new specializations"),
     "keys": ("Keys & Chests", "locked loot, ace chests"), "campaign": ("Forsaken Tower", "18-floor campaign"),
-    "modes": ("Challenge Modes", "mercenary, wave arena"), "dungeon": ("Dungeon Loot", "9 run features"),
+    "modes": ("Challenge Modes", "mercenary, wave arena"), "dungeon": ("Dungeon Loot", "10 run features"),
     "town": ("Town Life", "fish, farm, gamble"), "pets": ("Pets", "levels, skills, dyes"),
 }
 

@@ -1,6 +1,6 @@
 {
  "name": "mod-settings-off",
- "about": "All 42 current feature modules and 3 required libraries loaded. Explicit per-feature applicability separates named effect/UI/unit checks, generated-floor logs, status-only checks and authored Classes PARKED policy. Adds bounded actual Affixes generator off/on, Attrclick trainer point-delta off/on with forced Shift, and Petrooms pet movement off/on on a checked trap-room route. Goldworth and library toggles are N/A. No exhaustive feature, persistence, ordinary-play, physical modifier/controller or co-op pass is claimed; provider off-start and delayed-sync cases remain separate tasks. Entries use explicit non-teleport Pilot intents and one bound pet ID with positive off displacement. No radius trap deletion; created IDs and unrelated-pressure preservation are recorded before disposable-floor abort. Owned initial settings reconcile/restore after failures without masking the original error. Petrooms pins the base Dog producer/type (idle 90px, leash 100px) and requires actual separation >=130px in every sample of both on windows, otherwise setup fails. No imported pet dependency.",
+ "about": "All 46 current feature modules and 3 required libraries loaded. Explicit per-feature applicability separates named effect/UI/unit checks, generated-floor logs, status-only checks and authored Classes PARKED policy. Adds bounded actual Affixes generator off/on, Attrclick trainer point-delta off/on with forced Shift, and Petrooms pet movement off/on on a checked trap-room route. Goldworth and library toggles are N/A. No exhaustive feature, persistence, ordinary-play, physical modifier/controller or co-op pass is claimed; provider off-start and delayed-sync cases remain separate tasks. Entries use explicit non-teleport Pilot intents and one bound pet ID with positive off displacement. No radius trap deletion; created IDs and unrelated-pressure preservation are recorded before disposable-floor abort. Owned initial settings reconcile/restore after failures without masking the original error. Petrooms pins the base Dog producer/type (idle 90px, leash 100px) and requires actual separation >=130px in every sample of both on windows, otherwise setup fails. No imported pet dependency.",
  "fixture": "town-tavern",
  "mods": [
   "hwplib",
@@ -36,6 +36,10 @@
   "waygates",
   "roulette",
   "autoaim",
+  "partyframes",
+  "salvage",
+  "freeskills",
+  "partyexit",
   "summons",
   "valuables",
   "wavemode",
@@ -51,6 +55,7 @@
  ],
  "timeout": 1500,
  "steps": [
+  {"do": "console", "line": "e_cheats 1"},
   {
    "do": "gl",
    "verb": "state",
@@ -84,6 +89,7 @@
     "off_architect": true,
     "off_droptrade": true,
     "off_autoaim": true,
+    "off_partyframes": true,
     "off_firearms": true,
     "off_specs": true,
     "off_classes": true,

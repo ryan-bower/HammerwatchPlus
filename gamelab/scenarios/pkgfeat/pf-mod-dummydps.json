@@ -1,6 +1,6 @@
 {
  "name": "pf-mod-dummydps",
- "about": "mod-dummydps against the built package qol instead of the mods' source folders (tools/make_package_scenarios.py). Controlled health-loss observation, rolling-window arithmetic, idle expiry, independent dummy labels and local toggle. Forced state, not ordinary combat or co-op proof.",
+ "about": "mod-dummydps against the built package qol instead of the mods' source folders (tools/generate/make_package_scenarios.py). Controlled health-loss observation, rolling-window arithmetic, idle expiry, independent dummy labels and local toggle. Forced state, not ordinary combat or co-op proof.",
  "fixture": "town-paladin",
  "timeout": 120,
  "steps": [

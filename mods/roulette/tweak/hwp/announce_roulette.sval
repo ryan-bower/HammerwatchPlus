@@ -1,0 +1,22 @@
+<loader>HUDAnnounceStyle::LoadMultiple</loader>
+<array>
+	<!-- "Winner winner chicken dinner!" (HWP::Roulette::Winner): the winner's own screen,
+	     large, gold, mid-screen, 2.5 s, the vanilla quest-complete sound -->
+	<dict>
+		<string name="id">hwp_roulette_win</string>
+		<string name="font">gui/fonts/arial24.fnt</string>
+		<string name="sound">event:/sfx/ui/quests/quest_complete</string>
+		<int name="time">2500</int>
+		<dict name="animation">
+			<string name="class">HUDAnnounceTextAnimationFade</string>
+			<int name="fade-in-time">150</int>
+			<int name="fade-out-time">400</int>
+		</dict>
+		<vec2 name="anchor">0.5 0.3</vec2>
+		<vec2 name="text-anchor">0.5 0.5</vec2>
+		<vec2 name="offset">0 0</vec2>
+		<vec4 name="text-color">1 0.84 0.2 1</vec4>
+		<string name="text-alignment">center</string>
+		<string name="behaviour">replace</string>
+	</dict>
+</array>

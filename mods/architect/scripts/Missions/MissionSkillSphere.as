@@ -1,0 +1,504 @@
+class SelectSkillSphereLoadout : MissionGUILoadout
+{
+	PlayerRecord@ m_player;
+	array<PlayerSkillDef@> m_possibleSkills;
+	Widget@ m_selectedW;
+
+	string m_selectedString;
+	uint m_selected;
+
+	SelectSkillSphereLoadout(SValue& params) 
+	{
+		super(params);
+	}
+
+	bool BuildGUI(PlayerRecord@ plr, MissionLoadoutMenu@ menu, Widget@ segment, int yNavPos) override
+	{
+		if (!MissionGUILoadout::BuildGUI(plr, menu, segment, yNavPos))
+			return false;
+
+		auto template = segment.GetWidgetById("template");
+		auto container = segment.GetWidgetById("container");
+
+		auto rect = cast<AInteractableWidget>(segment.GetWidgetById("rect").Clone());
+		rect.m_visible = true;
+		rect.m_func = m_id + " open";
+		rect.m_navPos = ivec2(0, yNavPos);
+
+		auto group = rect.GetWidgetById("group");
+
+		RefreshPossibleSkills(plr);
+
+		@m_selectedW = template.Clone();
+		int width = 0;
+		for (uint i = 0; i < m_possibleSkills.length(); i++)
+		{
+			if (m_selected != m_possibleSkills[i].m_idHash)
+				continue;
+
+			m_selectedW.m_visible = true;
+
+			auto iconW = cast<SpriteWidget>(m_selectedW.GetWidgetById("icon"));
+			iconW.SetSprite(m_possibleSkills[i].m_icon);
+
+			auto textW = cast<TextWidget>(m_selectedW.GetWidgetById("text"));
+			textW.SetText(m_possibleSkills[i].m_name);
+
+			width += m_selectedW.m_width;
+		}
+		group.AddChild(m_selectedW);
+
+		container.AddChild(rect);
+		m_width = max(m_width, width);
+
+		@m_player = plr;
+
+		if (m_possibleSkills.length() <= 0)
+			return false;
+
+		return true;
+	}
+
+	void RefreshPossibleSkills(PlayerRecord@ plr)
+	{
+		auto maxQuality = g_currTownRecord.GetVariationOnBuilding(HashString("magic_shop")) < 2 ? Item::Quality::Common : Item::Quality::Uncommon;
+		m_possibleSkills.resize(0);
+		for (uint i = 0; i < plr.playerClass.m_skillDefs.length(); i++)
+			FillPossibleSkills(m_possibleSkills, plr, plr.playerClass.m_skillDefs[i], false, maxQuality);
+	}
+
+	void FillPossibleSkills(array<PlayerSkillDef@>@ possibleSkills, PlayerRecord@ plr, PlayerSkillDef@ skill, bool modSkill, Item::Quality maxQuality)
+	{
+		if (skill is null)
+			return;
+
+		for (uint i = 0; i < skill.m_reqSkills.length(); i++)
+		{
+			auto sDefB = plr.playerClass.GetSkillDef(HashString(skill.m_reqSkills[i]));
+			if (sDefB !is null && plr.GetSkillLevel(sDefB) <= 0)
+				return;
+		}
+		
+		for (uint i = 0; i < skill.m_blockerSkills.length(); i++)
+		{
+			auto sDefB = plr.playerClass.GetSkillDef(HashString(skill.m_blockerSkills[i]));
+			if (sDefB !is null && plr.GetSkillLevel(sDefB) > 0)
+				return;
+		}
+		
+		int skillLvl = plr.GetSkillLevel(skill);
+		if (modSkill && skillLvl < int(skill.m_levelSkillCost.length()) && int(skill.m_levelQualities[skillLvl]) <= int(maxQuality))
+			possibleSkills.insertLast(skill);
+		
+		if (skillLvl > 0)
+		{
+			for (uint i = 0; i < skill.m_modSkills.length(); i++)
+				FillPossibleSkills(possibleSkills, plr, skill.m_modSkills[i], true, maxQuality);
+		}
+	}
+
+	void UpdateSelected(uint selected, const string &in selectedString)
+	{
+		m_selected = selected;
+		m_selectedString = selectedString;
+
+		auto@ skillDef = m_player.playerClass.GetSkillDef(m_selected);
+
+		m_selectedW.m_visible = skillDef !is null;
+
+		if (skillDef !is null)
+		{
+			auto iconW = cast<SpriteWidget>(m_selectedW.GetWidgetById("icon"));
+			iconW.SetSprite(skillDef.m_icon);
+
+			auto textW = cast<TextWidget>(m_selectedW.GetWidgetById("text"));
+			textW.SetText(skillDef.m_name);
+		}
+	}
+
+	void Save(SValueBuilder& builder) override 
+	{
+		if (m_selectedString.isEmpty())
+			return;
+		builder.PushString(m_id, m_selectedString);
+	}
+	
+	void Load(PlayerRecord@ plr, SValue@ save) override 
+	{
+		m_selectedString = GetParamString(UnitPtr(), save, m_id, false);
+		if (!m_selectedString.isEmpty())
+			m_selected = HashString(m_selectedString);
+		
+		RefreshPossibleSkills(plr);
+		
+		bool valid = false;
+		for (uint i = 0; i < m_possibleSkills.length(); i++)
+		{
+			if (m_selected == m_possibleSkills[i].m_idHash)
+			{
+				valid = true;
+				break;
+			}
+		}
+		
+		if (!valid)
+		{
+			m_selectedString = "";
+			m_selected = 0;
+		}
+	}
+
+	void OnPlay() override
+	{
+		if (m_selectedString.isEmpty())
+			return;
+
+		m_player.SkillTempUp(m_player.playerClass.GetSkillDef(HashString(m_selectedString)));
+	}
+
+	void OnFunc(Widget@ sender, const string &in name) override
+	{
+		auto parse = name.split(" ");
+		if (parse[1] == "open")
+		{
+			auto window = SelectSkillSphereSelector(this);
+			cast<BaseGameMode>(g_gameMode).m_windowManager.AddWindowObject(window);
+		}
+	}
+}
+
+class SelectSkillSphereSelector : AWindowObject
+{
+	SelectSkillSphereLoadout@ m_host;
+	ScrollbarWidget@ m_scroll;
+	Widget@ m_hover;
+	Widget@ m_selected;
+	Widget@ m_template;
+	Widget@ m_compareAnchor;
+	ITooltip@ m_selectedTooltip;
+	int m_scrollHeight;
+	int m_childrenHeight;
+
+	array<array<PlayerSkillDef@>> m_skills;
+	array<array<Widget@>> m_skillWidgets;
+
+	ScriptSprite@ m_left;
+	ScriptSprite@ m_right;
+	ScriptSprite@ m_fill;
+
+	bool m_changed;
+
+	SelectSkillSphereSelector(SelectSkillSphereLoadout@ host)
+	{
+		super(g_gameMode.m_guiBuilder, "gui/mission_loadout/skills_picker.gui");
+
+		@m_compareAnchor = m_widget.GetWidgetById("compare-anchor");
+
+		auto tex = Resources::GetTexture2D("gui/gui.png");
+		@m_left = ScriptSprite(tex, vec4(411, 198, 2, 12));
+		@m_right = ScriptSprite(tex, vec4(414, 198, 2, 12));
+		@m_fill = ScriptSprite(tex, vec4(413, 198, 1, 12));
+
+		@m_host = host;
+
+		uint prevParent = 0;
+		int row = -1;
+
+		for (uint i = 0; i < m_host.m_possibleSkills.length(); i++)
+		{
+			auto currItem = m_host.m_possibleSkills[i];
+			if (currItem.m_parentSkill is null)
+				continue;
+			
+			if (currItem.m_parentSkill.m_idHash != prevParent)
+			{
+				m_skills.insertLast({});
+				row++;
+			}
+
+			m_skills[row].insertLast(currItem);
+			prevParent = currItem.m_parentSkill.m_idHash;
+		}
+
+		@m_scroll = cast<ScrollbarWidget>(m_widget.GetWidgetById("scroll"));
+		@m_template = m_widget.GetWidgetById("template");
+		auto grouper = m_widget.GetWidgetById("grouper");
+		int width = m_template.m_width;
+		int height = m_template.m_height;
+		vec2 offsets = vec2(8, 4);
+		int yPadding = 4;
+
+		for (uint i = 0; i < m_skills.length(); i++)
+		{
+			m_skillWidgets.insertLast({});
+			auto group = grouper.Clone();
+			group.m_visible = true;
+
+			int centering = int(m_skills[i].length() * (width + offsets.x) * 0.5f - m_scroll.m_width * 0.5f);
+			for (uint j = 0; j < m_skills[i].length(); j++)
+			{
+				auto currItem = m_skills[i][j];
+				auto skillW = cast<AInteractableWidget>(m_template.Clone());
+				skillW.SetID(currItem.m_id);
+				skillW.m_visible = true;
+				skillW.m_navPos = ivec2(j, i);
+				skillW.m_offset = vec2(j * (width + offsets.x) - centering, 0);
+				
+				auto skillIcon = cast<SpriteWidget>(skillW.GetWidgetById("icon"));
+				skillIcon.SetSprite(currItem.m_icon);
+
+				if (m_host.m_selected == currItem.m_idHash)
+					@m_selected = skillW;
+
+				group.AddChild(skillW);
+				m_skillWidgets[i].insertLast(skillW);
+			}
+
+			m_scroll.AddChild(group);
+		}
+
+		if (m_selected !is null)
+			m_selected.GetWidgetById("select").m_visible = true;
+
+		if (m_scroll.m_handleSize >= 1.0f)
+			m_scroll.m_enabled = false;
+		else
+			m_scroll.m_enabled = true;
+
+		@m_input.m_menuAdditionalOnPressed = WindowInput::OnFunc(this.ApplyFromKey); // HWP (issue #64): was this.Apply
+	}
+
+	void RefreshKeybinds(ControlMap@ currMap) override
+	{
+		if (m_navigationBar is null)
+			return;
+
+		auto currInteractable = m_input.GetCurrentInteractable();
+		if (currInteractable is null)
+			return;
+
+		array<string>@ rawTexts = currInteractable.NavigationBarText();
+		array<KeyNavigationText@> navTexts;
+		for (uint i = 0; i < rawTexts.length(); i++)
+			navTexts.insertLast(KeyNavigationText(m_navigationBar.m_font.BuildText(rawTexts[i])));
+
+		navTexts.insertLast(KeyNavigationText(m_navigationBar.m_font.BuildText(FormatKeyName(GetActionBinding("MenuAdditional")) + " " + Resources::GetString(".menu.nav.apply")), WindowInput::OnFunc(this.Apply)));
+
+		m_navigationBar.BuildBar(navTexts, this);
+	}
+
+	void OnInteractableIndexChanged() override
+	{
+		auto currInteractable = m_input.GetCurrentInteractable();
+		if (currInteractable is null)
+			return;
+
+		array<string>@ rawTexts = currInteractable.NavigationBarText();
+		array<KeyNavigationText@> navTexts;
+		for (uint i = 0; i < rawTexts.length(); i++)
+			navTexts.insertLast(KeyNavigationText(m_navigationBar.m_font.BuildText(rawTexts[i])));
+
+		navTexts.insertLast(KeyNavigationText(m_navigationBar.m_font.BuildText(FormatKeyName(GetActionBinding("MenuAdditional")) + " " + Resources::GetString(".menu.nav.apply")), WindowInput::OnFunc(this.Apply)));
+
+		m_navigationBar.BuildBar(navTexts, this);
+	}
+
+	void Draw(SpriteBatch& sb, int idt) override
+	{
+		AWindowObject::Draw(sb, idt);
+
+		sb.PushClipping(vec4(
+			m_scroll.m_origin.x, m_scroll.m_origin.y,
+			m_scroll.m_width, m_scroll.m_height
+		));
+
+		int yPadding = int(m_template.m_height * 0.5f) - 6;
+		for (uint i = 0; i < m_skillWidgets.length(); i++)
+		{
+			if (m_skillWidgets[i].length() == 0)
+				continue;
+
+			vec2 wOrigin = vec2(m_scroll.m_origin.x, m_skillWidgets[i][0].m_origin.y);
+
+			vec2 leftOrigin = wOrigin + vec2(0, yPadding);
+			vec2 rightOrigin = wOrigin + vec2(m_scroll.m_width - m_right.GetWidth(), yPadding);
+
+			m_left.Draw(sb, leftOrigin, g_menuTime);
+			m_right.Draw(sb, rightOrigin, g_menuTime);
+
+			for (uint j = 0; j < m_skillWidgets[i].length(); j++)
+			{
+				auto current = m_skillWidgets[i][j];
+
+				vec2 startPos = vec2(0);
+				vec2 endPos = vec2(0);
+
+				if (j == 0)
+				{
+					if (m_skillWidgets[i].length() == 1)
+					{
+						startPos = vec2(m_skillWidgets[i][j].m_origin.x + m_skillWidgets[i][j].m_width, leftOrigin.y);
+						endPos = rightOrigin;
+
+						m_fill.DrawWrapped(sb, startPos, vec2(endPos.x - startPos.x, m_fill.GetHeight()), g_menuTime);
+					}
+
+					startPos = vec2(leftOrigin.x + m_left.GetWidth(), leftOrigin.y);
+					endPos = vec2(current.m_origin.x, leftOrigin.y);
+				}
+				else if (j == m_skillWidgets[i].length() - 1)
+				{
+					startPos = vec2(m_skillWidgets[i][j].m_origin.x + m_skillWidgets[i][j].m_width, leftOrigin.y);
+					endPos = rightOrigin;
+
+					m_fill.DrawWrapped(sb, startPos, vec2(endPos.x - startPos.x, m_fill.GetHeight()), g_menuTime);
+
+					startPos = vec2(m_skillWidgets[i][j - 1].m_origin.x + m_skillWidgets[i][j - 1].m_width, leftOrigin.y);
+					endPos = vec2(current.m_origin.x, leftOrigin.y);
+
+					m_fill.DrawWrapped(sb, startPos, vec2(endPos.x - startPos.x, m_fill.GetHeight()), g_menuTime);
+
+					continue;
+				}
+				else
+				{
+					startPos = vec2(m_skillWidgets[i][j - 1].m_origin.x + m_skillWidgets[i][j - 1].m_width, leftOrigin.y);
+					endPos = vec2(current.m_origin.x, leftOrigin.y);
+				}
+
+				m_fill.DrawWrapped(sb, startPos, vec2(endPos.x - startPos.x, m_fill.GetHeight()), g_menuTime);
+			}
+		}
+
+		sb.PopClipping();
+
+		if (m_selectedTooltip !is null)
+		{
+			vec2 ttPos = m_compareAnchor.m_origin;
+			m_selectedTooltip.Draw(sb, ttPos);
+		}
+	}
+
+	void Apply()
+	{
+		if (m_selected !is null)
+			m_host.UpdateSelected(m_selected.m_idHash, m_selected.m_id);
+		else
+			m_host.UpdateSelected(0, "");
+
+		m_manager.CloseTooltip();
+
+		m_changed = false;
+		m_closing = true;
+	}
+
+	// HWP (issue #64): E is both Use and MenuAdditional (Apply). The scroll area takes Use only
+	// as a press (ScrollbarWidget.Update, ClickDown) and a sphere is picked on ClickUp, but Apply
+	// closes the window in the same frame, so "hover a sphere, press E" kept the old pick. When
+	// the Apply press is also a Use press, pick the sphere the scroll area just pressed (the
+	// same target ScrollbarWidget.Update chose: mouse hover, else the focused one), then apply.
+	// The navigation bar's Apply button and a MenuAdditional key that isn't Use stay vanilla.
+	void ApplyFromKey()
+	{
+		auto target = UsePressedSphere();
+		if (target !is null && target !is m_selected)
+			OnFunc(target, "select");
+
+		Apply();
+	}
+
+	// HWP (issue #64): mirrors ScrollbarWidget.Update's Use-pressed branch, read only
+	Widget@ UsePressedSphere()
+	{
+		auto gameInput = GetInput();
+		auto menuInput = GetMenuInput();
+		if (!(menuInput.Forward.Pressed || gameInput.Use.Pressed))
+			return null;
+
+		if (m_scroll is null || !m_scroll.m_hovering || !m_scroll.m_visible || m_scroll.m_disableButtonInputs)
+			return null;
+
+		AInteractableWidget@ pressed = null;
+		if (!gameInput.UsingGamepad && m_scroll.m_input.m_usingMouse)
+			@pressed = m_scroll.m_input.m_hovering;
+		else
+			@pressed = m_scroll.m_input.GetCurrentInteractable();
+
+		if (pressed is null || !pressed.Enabled())
+			return null;
+
+		Widget@ target = pressed;
+		for (uint i = 0; i < m_skillWidgets.length(); i++)
+		{
+			for (uint j = 0; j < m_skillWidgets[i].length(); j++)
+			{
+				if (m_skillWidgets[i][j] is target)
+					return m_skillWidgets[i][j];
+			}
+		}
+
+		return null;
+	}
+
+	bool Back() override
+	{
+		if (m_changed)
+		{
+			//g_gameMode.ShowDialog("exit", Resources::GetString(".option.prompt.settings_appy"), Resources::GetString(".menu.nav.save"), Resources::GetString(".menu.nav.revert"), this);
+			Apply();
+			return false;
+		}
+
+		return true;
+	}
+
+	void OnFunc(Widget@ sender, const string &in name) override
+	{
+		if (name == "hover")
+		{
+			if (m_hover !is sender)
+			{
+				sender.GetWidgetById("hover").m_visible = true;
+
+				if (m_hover !is null)
+					m_hover.GetWidgetById("hover").m_visible = false;
+			}
+
+			@m_hover = sender;
+
+			auto@ skillDef = m_host.m_player.playerClass.GetSkillDef(m_hover.m_idHash);
+			if (skillDef !is null)
+				m_manager.SetTooltip(CreateSkillTooltip(m_host.m_player, skillDef, false), true);
+		}
+		else if (name == "select")
+		{
+			if (m_selected !is sender)
+			{
+				sender.GetWidgetById("select").m_visible = true;
+
+				if (m_selected !is null)
+					m_selected.GetWidgetById("select").m_visible = false;
+
+				@m_selected = sender;
+
+				auto@ skillDef = m_host.m_player.playerClass.GetSkillDef(m_selected.m_idHash);
+				if (skillDef is null)
+					return;
+
+				@m_selectedTooltip = CreateSkillTooltip(m_host.m_player, skillDef, false);
+			}
+			else
+			{
+				sender.GetWidgetById("select").m_visible = false;
+				@m_selected = null;
+				@m_selectedTooltip = null;
+			}
+
+			m_changed = true;
+		}
+		else if (name == "exit yes")
+			Apply();
+		else if (name == "exit no")
+			m_closing = true;
+	}
+}

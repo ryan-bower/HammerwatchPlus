@@ -4,6 +4,14 @@ Running project status: the newest entries first, then the QA checkpoints and hi
 sweeps. The engine and reverse-engineering notes behind each change are in
 [RE_NOTES.md](RE_NOTES.md).
 
+> **Party frames (2026-11-06, branch `feat/party-frames` from `4cfbb3bf`).** New `partyframes` module in a new `interface` package replaces the co-op HUD with class-coloured Thick or Thin bars and Leading edge or Striped edge shields, and `HWP::AllyStatus` syncs ally shields and potion counts. Verified solo on build 25932569 with forced setup: `mod-partyframes` (6 clean runs, 20261106-200139 to -200808), `mod-partyframes-data` 20261106-200035, `pkg-interface` 20261106-200205, `mod-settings-sweep` 20261106-202656 PASS. Not done: no real two-player session has run, so the client path is unproven; Interface isn't published; `README.md:19` still says twelve packages. Open: two runs crashed at shutdown (`mod-all` 20261106-200219, `mod-settings-sweep` 20261106-211620), both after every check passed. That is 2 of 35 runs with `partyframes` loaded against 3 of 1,248 without it, so this branch is suspect until compared. Later the same day: potions moved beside Thick bars, Show level and Show class toggles added (off by default, bars widen), the Plus list's last rows made reachable, test-only `gamelab-fakecoop` added with `devarena/party`, and the owner chose the solid blue pool for Living Mana allies, checked on a real husk (`mod-partyframes-livingmana` 20261106-213408) (`mod-partyframes` 20261106-211509, `devarena/options-list` 20261106-211446, `mod-settings-sweep` 20261106-212346 PASS). The frames now start below the game's tutorial panel while it's up (`mod-partyframes-tutorial` 20261106-220546, `mod-partyframes` 20261106-220617, `mod-partyframes-livingmana` 20261106-220645 PASS: build 25932569, forced panel and fake allies, solo). `mod-settings-off` passes after fixing its test code (20261106-232113, 20261106-232722). See [RE_NOTES.md](RE_NOTES.md).
+>
+> **Party frames, later (2026-11-07, `feat/party-frames`, on top of `57e77449`).** A shield now only fills missing health, as WoW's frames do, and anything that doesn't fit is the glow at the bar's end; this replaces the earlier rule that it lay over the bar. The potion and its count sit straight on the game, with no background. A new Green health toggle (off by default) draws every ally's health in the green of Blizzard's raid frames over their dark backdrop; a Living Mana pool stays blue. Show level and Show class no longer resize a bar: a level tag and a three-letter class tag sit in Thick's corners beside the %, and on Thin in a column between the bar and the potion. Class colours are now WoW's retail colours (from AllTheThings, Eltruism and EllesmereUI; Blizzard's source doesn't hold them), and HoH's own classes borrow a WoW class's colour: Sorcerer Evoker, Gladiator Death Knight, Thief Monk, Witch Hunter Demon Hunter, Firearms Druid. `gamelab-fakecoop` gained `sim`, `hit`, `heal`, `shield` and `kill`. Forced setup, solo, build 25932569: `mod-partyframes` 20261107-013756, `mod-partyframes-livingmana` 20261107-013827, `devarena/party-sim` 20261107-013849 all pass. Two games in sequence, no Steam: the real reports `mod-partyframes-data` 20261107-015858 logged went through `hwp fakecoop wire` into `AllyStatus::OnReport` and the frames of a second game (draft scenario, 20261107-020021, pass). The harness carried them, so transport and a real client's sending are not covered, and the two-player session is still unproven.
+
+> **Party frames, potion charges (2026-11-07, `feat/party-frames`, on top of `bc7c7f6d`).** The potion icon and count are replaced by a column of charges docked to the bar's right edge, with a new Potion style setting: Cut gems (default) or Hollow bars. Every charge in a column is the same height with the same gap; spent gems go dark and spent bars become outlines. A docked column uses the bar's edge as its own, so it never cuts the low-health border; on Thin with tags on it sits past the tags on its own black edge. Forced setup, solo, build 25932569: `mod-partyframes` 20261107-023814 pass, screenshots viewed on both sizes and styles with stub allies. Not done: both styles get cramped at 8 or more charges on Thin (1 px charges, gems become rectangles from 6); nothing past 10 charges on Thin or 16 on Thick is drawn.
+
+> **Run copy flag (2026-11-05).** `tools/run.py --copy-slot N` copies a local profile into the new play profile, bypassing the save builder; it refuses an active dungeon run and never writes the source. Host tests only (`scripts/test.py`: 1246 passed, 28 skipped); no native GameLab run. Source at base `4cfbb3bf`.
+
 > **PR publication checkpoint (2026-11-01).** The complete QA worktree is checkpointed on `codex/run-save-builder-followup` and integrated with upstream `e7d060f1` (including merged PRs83?86). The merged host suite passed **1,244 tests**, with three unavailable-symlink skips and1,269 subtests. See [the publication record](qa/swarm/pr_publication.json). Earlier native results below retain their exact execution revisions; no new native pass is claimed for this upstream integration. The broader campaign remains paused at r4847/E018. Historical scenario/catalog pins require current review before further native admission.
 
 The [admission pipeline validation](qa/swarm/admission_pipeline_validation.json)
@@ -42,6 +50,111 @@ refusal; no safety checks were bypassed or player install deployed. The UI revie
 is in [audit-001](../anti-slop/audit-001-2026-11-12.md); historical passes below remain
 historical, not evidence for this integration.
 
+2026-11-06, Magic Shop sphere picker takes E (#64). In the run-start Magic Shop picker,
+pressing E over a sphere now picks it before the window closes; vanilla closed the window and
+kept the old pick, for host and client alike. The fix is an architect override of
+`MissionSkillSphere.as`. Source review, pytest and the override check only, not tested in game
+(architect README item 9: host, client and gamepad).
+
+2026-11-06, Magic Shop for a joined client (#64), diagnostics only. Source review found no
+client-only block: the town Magic Shop NPCs and the run-start Magic Shop row have no host-only
+check. The likeliest cause is the vanilla keys: on the run-start screen E is Ready for a
+client, and in the sphere picker E applies without selecting the hovered sphere (open the row
+with a click or Return, pick with a click). The run-start screen now logs which side opens a
+row and when E is ignored. #64 stays open until a 2-player test (architect README check 8).
+
+2026-11-06, Out of combat speed (`outofcombat`, #99). In a run, a player who hasn't hit an
+enemy for 10 seconds moves twice as fast, with the shrine speed blessing icon in the buff bar,
+until they hit one again. Taking damage doesn't end it, and it is off in town unless the host
+turns that on. The host sets the speed (1.25x to 3x) and the wait (3 to 30 s); each machine
+boosts its own player, so clients get it as the host does. Source review and pytest only,
+not tested in game (`mod-outofcombat`, `pf-mod-outofcombat` and the README's two-player
+checklist are still to run).
+
+2026-11-06, Secrets Found per opener and recap board tabs (#98). Secrets Found now counts
+only for the player who broke the secret wall (the nearest living player if a summon broke
+it). The guild's town accomplishment still counts every secret, and mmhmm's secret-room line
+still plays for the whole party. The last-run recap board has one tab per stat category; the
+search looks through every tab and shows each tab's match count. Source review, pytest and
+the override check only, not tested in game; co-op attribution and the tab layout need a run
+(`fix-recaps`, laststats README item 7).
+
+2026-11-06, Forgemaster summons and Resurrection aim (#98). The Devil Forge Priest's risen
+no longer block other players: the generator gives every collision shape `ignore-player`, as
+vanilla summons have it. Resurrection now raises the intact body nearest the mouse cursor
+(within range); a gamepad keeps the aim-line pick. Source review and pytest only, not tested
+in game.
+
+2026-11-06, fishing spots twinkle. Every couple of seconds each town coast spot and each run well or
+bucket shows a small star glint (vanilla's ground-loot glint, played once, faintly blue) at a random
+point of its water. A run spot stops twinkling once you have fished it out, and the next floor's
+spots twinkle again. Each player sees their own and can turn it off (`fishing.twinkle`). Source review
+and offline tests only; how it looks and that it loads still need a GameLab run.
+
+2026-11-06, winning a run, and tougher bosses (#96). When the party finishes a run (any vanilla run,
+trial, map or the Forsaken Tower, not the Wave Arena), every player gets a big gold "Winner winner
+chicken dinner!" banner and chat line in town once the run summary closes (`laststats`, each player's
+own setting `laststats.winner`). A new `bosses` module (Dungeon package) gives every boss 25% more
+armor and fire, ice, lightning and poison resistance; health is unchanged, the host picks 0 to 100%
+(`bosses.toughness`) or turns it off, and Pelor's Fury still strips them to 0. Source review and
+offline tests only, not yet run in game.
+
+2026-11-06, back into the run-start setup, and last-used picks (#65, #96). A client who left the
+host's run-start setup can get back in by using the town's exit door again (the game ignored a
+client at the door, and the old "use the mission board" advice pointed at a board the released game
+doesn't have); they rejoin with everyone's current ready state. The host sees a player who left as
+"Name (left)", and starting without them asks the usual force-start question. The chapel, Magic
+Shop, tavern and boon rows now remember each character's last picks and restore them when the setup
+opens, skipping what the character can no longer pick or afford. #64 (a client can't select the
+Magic Shop row) is still open: no host-only check exists in the game's code, and `hwp architect` now
+lists the client's rows to pin it down. Source review and offline tests only, not tested in co-op.
+
+2026-11-06, roulette: the table can't break, a dealer, and a winner's shout (#63, #96). The tavern
+table under the wheel was a vanilla breakable, and when it broke the wheel jumped to a table hidden
+by the front wall, so the roulette seemed to vanish. Every machine now keeps that table's health
+topped up. A dealer stands behind the table facing the players (north of the round table on tavern
+levels 1-2, west of the long table from level 3), and using him opens the table too. Winning a round
+shows "Winner winner chicken dinner!" on the winner's screen, in the lobby's chat and over the
+winner's head. Source review and offline tests only; the dealer's exact spot and the lobby messages
+still need an in-game look.
+
+2026-11-06, objective levers on any reachable wall (#74). Vault and exit levers used to go on the
+floor block farthest from what they open, which was always a bottom corner by the bottom wall. Now a
+lever is mounted on a north, east or west wall (vanilla's wall pull lever art), anywhere in the far half
+of the floor, side picked at random, kept apart from the floor's other lever, never on floor cut off
+from the rest and never under a torch. South walls are left out: from the game's camera their face is
+hidden. A floor with no wall that fits gets the old floor lever, clear of the wall below when it can be
+and against it when nothing else fits (2026-11-08 review fix, so the exit never stays open for want of a
+spot). Source review and offline tests only
+(`tests/test_objectives_levers.py`), not yet seen in game.
+
+2026-11-06, orb rerolls per orb (new `orbreroll` module, Quality of Life). Every orb you pick up
+can be rerolled as many times as your reroll accomplishments allow, instead of one pool for the
+whole run, and the shadow curse cost starts over on each orb. Orb rerolls no longer spend the run's
+pool, so the trinket picker keeps all of it. Host setting `orbreroll.enabled` (off: vanilla).
+Overrides `GUI/Menus/GiveSkillSphereMenu.as`. Source review and offline tests only, not yet run in game.
+
+2026-11-06, the disappearing-player glitch (#71), suspected cause fixed. A player snapped into a wall
+or past a ledge rail by a collision-ignoring `SetPosition` sits hidden behind the wall sprites and boxed
+in, still connected. Two mod paths could do that: the Devil Forgemaster's Heresy lunge and Penance
+(the spot under a body across a wall or rail) and the Arcane Blink's no-room fallback (the spot it had
+just refused). Now the lunge waits until the body can be reached, the Penance channels in place, and
+Blink backs off or stays put. Source review only: the session log doesn't show who glitched, and the
+wall-side lunge, ledge Penance and corner Blink repros have not been run.
+
+2026-11-06, strongbox and abyss enemies no longer spawn inside walls (#80). The spawn check's
+line of sight started a few pixels out from the box or crack, so beside a wall it began past the wall
+and let enemies appear behind it, and the free-space check was smaller than most enemies' bodies. Now
+a spot must fit the enemy's whole body and have a clear line from the box or crack and back; a box or
+crack beside a wall spawns its pack on its open side or closer in, a member with no safe spot is
+skipped, and an abyss wave with no room at its spread spot erupts at the crack. Source review and
+offline tests only, not yet run in game.
+
+2026-11-06, the Shady Trader's orb offers show the rank you'll get (#70). It was a vanilla bug: an
+orb offered in a trade showed the rank you already have (name colour, values, highlighted rank). hwplib
+now overrides `ShopContent/ShadyTrader.as`, so an offer shows the next rank and names it ("Fireball 3"
+at rank 2), as the orb picker does; an orb taken as the cost still shows your current rank. Source
+review and offline tests only, not yet run in game.
 2026-11-05, Branding and Bannerlord rework (#95). Warlock proliferation/support perks and
 Warrior shield/rally support, per [the design](design/branding-bannerlord-rework.md).
 Source/data checks, a Linux GameLab full-mod compile/load and 16 focused solo gameplay

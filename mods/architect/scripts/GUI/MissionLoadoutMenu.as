@@ -171,6 +171,7 @@ class MissionLoadoutMenu : AWindowObject
 		auto plr = GetLocalPlayerRecord();
 		m_widget.GetWidgetById("pot-warning").m_visible = g_flags.IsSet("mission_story_intro_find_npcs") && plr.currStats.PotionCharges <= 0;
 		
+		auto hwpSpent = ShopCost(); // HWP: what the restored rows cost so far
 		for (uint i = 0; i < MissionLoadout::Instances.length(); i++)
 		{
 			auto loadout = MissionLoadout::Instances[i];
@@ -178,12 +179,17 @@ class MissionLoadoutMenu : AWindowObject
 			if (!CheckConditionals(loadout.m_conditionals, plr))
 				continue;
 			
+			// HWP: this character's picks from last time, what it may still pick and pay for
+			auto hwpRowCost = HWP::Architect::RestoreRow(loadout, plr, hwpSpent);
+
 			auto seg = m_segmentTemplate.Clone();
 			cast<TextWidget>(seg.GetWidgetById("name")).SetText(Resources::GetString(loadout.m_name));
 			seg.m_visible = true;
 			
 			if (!loadout.BuildGUI(plr, this, seg, i))
 				continue;
+			if (hwpRowCost !is null) // HWP: only a shown row's picks count toward the next rows
+				hwpSpent.AddCost(hwpRowCost);
 			
 			seg.m_height += loadout.m_height;
 			m_outerWindow.m_height += loadout.m_height + m_contentWindow.m_spacing;
@@ -263,7 +269,17 @@ class MissionLoadoutMenu : AWindowObject
 				continue;
 			
 			if (loadoutStatus == int(MissionLoadoutStatus::None))
+			{
+				// HWP: a client that left the setup (Back) still counts, as not ready, so the
+				// host sees who is outside and Start asks before leaving them out of the picks
+				if (player.peer == 0 || !HWP::Architect::Enabled())
+					continue;
+				totalCount++;
+				notReadyCount++;
+				string leftName = Resources::GetString(".hwp.architect.left_name", {{ "name", player.GetName() }});
+				waitingFor += (waitingFor.isEmpty() ? "" : ", ") + leftName;
 				continue;
+			}
 			
 			totalCount++;
 			if (player.peer == 0)
@@ -449,9 +465,14 @@ class MissionLoadoutMenu : AWindowObject
 	void Play() 
 	{ 
 		if (!m_canAfford)
+		{
+			// HWP (issue #64): vanilla ignores E (Start / Ready) silently when the rows cost
+			// more than this player has; the log says so
+			HWP::Log("architect", "run-start: Start/Ready ignored, the rows cost more than this player has (" + m_totCost.GetText(GetLocalPlayerRecord()) + ")");
 			return;
+		}
 
-		OnFunc(null, "play"); 
+		OnFunc(null, "play");
 	}
 
 	bool Back() override
@@ -469,11 +490,19 @@ class MissionLoadoutMenu : AWindowObject
 
 		// HWP: vanilla returned false here, which kept a client in the window until the
 		// host started or closed it. Now the client's own window closes (its status is
-		// None, so the host's ready count and start skip it) and the mission board opens
-		// it again while the host's setup is still up (MissionShopContent override).
-		HWP::Log("architect", "run-start setup left by a client (rejoin at the mission board)");
+		// None, so the host's start skips it and its list shows it as left) and the run's
+		// entrance opens it again while the host's setup is still up (HWP/Architect/Rejoin.as).
+		HWP::Log("architect", "run-start setup left by a client (rejoin: use the entrance again)");
 		HWP::Commands::Reply(Resources::GetString(".hwp.architect.client_left"));
 		return true;
+	}
+
+	// HWP: the rows' picks are remembered for this character whenever the setup goes away
+	// (Back, the host closing it, a window close); restored when it opens (RestoreRow)
+	void OnClose() override
+	{
+		AWindowObject::OnClose();
+		HWP::Architect::RememberLoadout(m_loadouts);
 	}
 
 	void OnInteractableIndexChanged() override 
@@ -508,6 +537,7 @@ class MissionLoadoutMenu : AWindowObject
 		{
 			if (GetLoadoutStatus(plr) != status)
 			{
+				HWP::Architect::RememberLoadout(m_loadouts); // HWP: the rows this run starts with, for next time
 				for (uint i = 0; i < m_loadouts.length(); i++)
 					m_loadouts[i].OnPlay();
 			}
@@ -588,7 +618,10 @@ class MissionLoadoutMenu : AWindowObject
 		auto loadoutStatus = GetLoadoutStatus();
 		
 		if (loadoutStatus == MissionLoadoutStatus::Started)
+		{
+			HWP::Log("architect", "run-start: '" + name + "' ignored, the run is already starting"); // HWP (issue #64)
 			return;
+		}
 
 		if (name == "ngminus" && m_ngp)
 		{
@@ -634,6 +667,18 @@ class MissionLoadoutMenu : AWindowObject
 		else
 		{
 			auto loadout = MissionLoadout::Get(parse[0]);
+			// HWP (issue #64): which side opened a row (Magic Shop, Architect, ...) and from
+			// which status, so a co-op log shows whether a client's click reached the row
+			if (parse.length() > 1 && parse[1] == "open")
+			{
+				string side = "host";
+				if (!Network::IsServer())
+					side = "client (peer " + int(GetLocalPlayerRecord().peer) + ")";
+				string found = "";
+				if (loadout is null)
+					found = ", no such row";
+				HWP::Log("architect", "run-start: row '" + parse[0] + "' opened on the " + side + ", status " + int(loadoutStatus) + found);
+			}
 			if (loadout !is null)
 				loadout.OnFunc(sender, name);
 		}

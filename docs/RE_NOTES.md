@@ -1,5 +1,161 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-06: party frames, HUD drawing and ally data
+
+Measured in GameLab on build 25932569 (`mod-partyframes` 20261106-195712, `mod-partyframes-data`
+20261106-200035, branched from `4cfbb3bf`), solo and with forced setup. Marked lines are source
+review.
+
+- `SpriteBatch` colours are linear. An sRGB `(51,18,25)` passed straight to `FillRectangle` came
+  out as `(123,76,89)`, which is 1/2.2 gamma. `ParseColorRGBA` decodes its hex, so hand-written
+  `vec4`s need `pow(c, 2.2)`.
+- `TextureLoader` refuses a texture that isn't a power of two, and the game then quits before
+  the main menu with exit 1. That leaves a dirty teardown, cleared with `gamelab reset`.
+- `ui_scale 1.2` set from the console takes effect at once and gives the 640x360 lab window
+  1:1 UI pixels, so hw8 text is readable in shots. At the default 0.833 scale it isn't.
+- `HUDTutorials` draws above `HUDCoop`, so a new character's panel covers the same corner in
+  vanilla too. It has no cvar: `ui_hud_visible_tutorials` doesn't exist.
+- Source review: a potion refill doesn't sync. `PlayerSyncPotion` is sent only from `DrinkPotion`
+  (`Player.as:922`), `PlayerPotionCharged` carries no count (`PlayerHandler.as:715`), and
+  `RefillPotion` and `WorldScript::PotionRefill` refill only the local `Player`. Other peers keep
+  the old `potionChargesUsed` until that player's next drink.
+- `GetPlayerRecord(peer)` lives in the `PlayerHandler` namespace, so a mod can't call it bare.
+  `GetPlayerRecordByPeer` is global (`main.as:608`).
+- A Bannerlord standard's pulses keep renewing the shield, so it doesn't run out while the
+  standard is up. A check for zero has to hit it down.
+- The sprite batch has no blend mode exposed to script, so the mockup's additive glow is
+  approximated with alpha columns.
+- **A shutdown crash, cause unknown, this branch suspect.** `mod-all` 20261106-200219 and
+  `mod-settings-sweep` 20261106-211620 passed every check, saved, then exited with 0xC0000005,
+  leaving a dirty teardown. Each passed on repeat (`mod-all` 7 of 7, sweep 212346). Retained runs:
+  2 of 35 with `partyframes` loaded, 3 of 1,248 without. Both crashes were full-stack scenarios,
+  which were rare before today, and 7 `mod-partyframes` runs, which fill the frames' text cache,
+  were clean, so the rates are confounded. Intermittent shutdown crashes predate this branch
+  (2026-10-19, 2026-10-30), but no dump was kept and the Windows event log has no entry, so the
+  fault address can't be compared with `HWR2.exe+0x15D4B`. Open: repeat `mod-all` with and without
+  `partyframes`.
+- **The tutorial panel covers the party corner in vanilla.** `HUDTutorials` is `m_drawOnTop`, at (8, 8) and
+  226 wide, and `HUDCoop` starts at (0, 5) with no code to move (source review). The panel hides whenever a
+  window is open. `tweak/tutorials` has no `levelup` or `death` entry, so those `ShowTutorial` calls do nothing;
+  only a level's `TutorialArea` raises one. Nothing gates them on co-op. The frames start below it
+  (`TutorialBottom`), which moved them from 5 to 128 for `intro_attack` (`mod-partyframes-tutorial` 20261106-220546).
+- WoW's frames draw a shield only in missing health; at 100% it's a glow at the bar's end (reference shot, not a game fact here).
+  `DrawHealth` clamps to `w - fill` and returns -1 when nothing was drawn, so Thin leaves the % where it is.
+- `hw8.fnt` is about 5 px a character. Thin's row has 96 px, which a 12-letter name, two tags and the % overflow, so Thin stacks its
+  tags in a column left of the potion instead of sharing the row. Thick has the corners beside the % free.
+- WoW's raid frame green, from `Gethe/wow-ui-source` (live) and `Gethe/wow-ui-textures` (live), read 2026-11-07. `CompactUnitFrame.xml`
+  uses atlas `RaidFrame-Hp-Fill` over `raidframe-hp-bg-white`, tinted by `COMPACT_UNIT_FRAME_FRIENDLY_HEALTH_COLOR` and `_BG`. Those two
+  are not defined in the published Lua, so their values are unknown. Used instead: the `CreateColor(0, 1, 0)` of
+  `CompactUnitFrameOptions.lua`, the older `Raid-Bar-Hp-Fill` texture (grey, 128 at the edges and 180 mid-bar), giving (0, 128, 0)
+  to (0, 180, 0), and the older `Raid-Bar-Hp-Bg` (about 21 grey). Assumed: the current atlas matches those older textures.
+- **`ScrollbarWidget` scrolls short of its last rows.** `Widget::DoLayout` puts `m_spacing` between
+  children and `ScrollbarWidget::DoLayout` leaves it out of `m_childrenHeight`, so the list stops
+  rows - 2 pixels short (measured: 13 rows, 11 px, 20261106-211338). The Plus list now has no
+  spacing and each row is a pixel taller: 0 px at 15 rows, 20261106-211446.
+- **A fake ally can be a real record.** `PlayerRecord()`, `peer` set to an unused id, `local` false,
+  `CreateCharacter`, then `g_gameMode.SpawnPlayer` gives a real husk that `MovePlayer` walks, and
+  HUDCoop lists it (`gamelab-fakecoop`, 20261106-210331). No peer stands behind it.
+- **Every Arcane Sorcerer has Living Mana.** `living_mana.sval` sets `starting-level` 1, and
+  `GetSkillLevel` adds it, so a husk has the skill in `m_skills` with nothing picked. The frames'
+  check reads that list, so an Arcane ally is always the blue pool (20261106-213408).
+- **`mod-settings-off` and `mod-settings-sweep` had drifted on `main`.** Neither loaded `salvage`,
+  `freeskills` or `partyexit`, so the sweep stopped before changing a setting and the off bot's
+  inventory failed. Later blockers: `hwp link` now answers `[HWP:chatlinks]`, not `[HWP]`; the
+  `linkkey` row wasn't in `KEY_CAPTURES`; `levelup` needs `e_cheats 1`, which the scenario never
+  set. All fixed in the scenarios and bots, adding status-only contracts for the three modules.
+  Sweep 20261106-202656 then passed.
+- **`mod-settings-off` failed on its own test code, not on the mods.** It passes twice on the same
+  seed (20261106-232113, 20261106-232722). `off_affixes`: the Back slot has no base item below
+  level 10, so 24 rolls at level 1 can only make 21; it now rolls at level 10. `off_droptrade`: a
+  drop lands a random few pixels from the point asked for, so a fixed walk could miss it; the NPC
+  now goes where the item landed (6 of 6 fresh boots). `off_petrooms*` had three causes: the shop
+  calls `pet_dog` "Dungeoneer's Mutt", a pet is a local unit with a negative id, and spikes block
+  the pathfinder, so the walk could never end on them. It now stops 32 px short with
+  `petwait.radius` 180, and steps back 15 px. The gap to the parked pet changes with the floor
+  (129 to 184 px against a 130 px floor), so the floor seed is pinned.
+
+## 2026-11-06: E picks the hovered sphere in the Magic Shop picker (issue #64, source only)
+
+Source review and a code change on `origin/main` 4cfbb3bf; no game run, no GameLab run.
+- **The trap** (vanilla, every machine): in `SelectSkillSphereSelector`
+  (`Missions/MissionSkillSphere.as`) E is both gameplay Use and MenuAdditional.
+  `AWindowObject.Update` runs `IWidgetHoster::Update` first, so `ScrollbarWidget.Update`
+  (`ScrollbarWidget.as:369-386`) sends ClickDown to the hovered (mouse) or focused (pad)
+  sphere on `GetInput().Use.Pressed || GetMenuInput().Forward.Pressed`; then
+  `WindowObject.as:155` calls the window's `m_menuAdditionalOnPressed` (`Apply`, bound at
+  `MissionSkillSphere.as:268`), which closes the window. A `ButtonWidget` fires its func
+  (`select`, `skills_picker.gui` template) only on ClickUp (`ButtonWidget.as:266-272`), so
+  the press never picks and E applies the old pick.
+- **Fix** (architect override of `MissionSkillSphere.as`, `.orig` kept): MenuAdditional
+  calls `ApplyFromKey`. When the same frame is also a Use/Forward press, and the scroll area
+  is active (`m_hovering`, visible, button inputs on), it takes the target exactly as
+  `ScrollbarWidget.Update` does (`m_scroll.m_input.m_hovering` with the mouse, else
+  `GetCurrentInteractable()`), checks it is one of the picker's sphere buttons, sends
+  `select` unless it is already the pick, then `Apply()`. Otherwise it is vanilla `Apply()`.
+  The hint bar's Apply entry still calls `Apply` directly.
+- **Unverified:** whether a gamepad binds Use and MenuAdditional to the same button (if not,
+  the gamepad path is unchanged); the change itself in game (host and client).
+
+## 2026-11-06: player move speed and hit detection (issue #99, `outofcombat`)
+
+Source review of the decompiled scripts (`gamecode/sdk/hoh2/scripts`), for the out of
+combat speed boost. Not measured in game yet.
+
+- **Move speed** (`Player.as`, the `Moving` block of `Update`, local player only): 1 x
+  `currStats.MoveSpeed` (gear and stats) x `m_buffs.MoveSpeedMul(slowScale * comboSlowScale)`
+  x `CVars::ChtSpeed` x each skill's `GetMoveSpeedMul()` x a tileset's `walk-speed`, then
+  times `Tweak::PlayerSpeedBase` (3.6) and clamped to `[PlayerSpeedMin, PlayerSpeedMax]` =
+  `[1, 8]` (`Data/Player.as`). So no player moves faster than 2.22 times the base, whatever
+  the buffs. In combo the result is then x1.2 (after the clamp).
+- `ActorBuffList.MoveSpeedMul(slowScale)` multiplies `lerp(1, buff speed-mul, slowScale)` per
+  buff: the slow-resistance scale (`Modifiers::BuffScaling` `SlowScale`) shrinks speed
+  *boosts* too, and so does combo (`comboSlowScale` 0.5).
+- `speed-mul` is `ActorBuffDef.m_mulSpeed`, a vec2 lerped by the buff's intensity; the def is
+  cached per path in `g_actorBuffDefs`, so a module that owns a buff path can set the field
+  at runtime (as `legacy` sets `m_description`).
+- **Hits:** `CompositeActorBehavior.Damage` calls `DamagedActor` on the attacker only when
+  `!dmg.DoT` and the attacker is an `IPlayerActorDamager`; `Player.DamagedActor` calls the
+  `PlayerDamagedActor` hook only when `di.Damage > 0`. Summons and trip mines pass their hits
+  to the owner's `DamagedActor` (`PlayerOwnedActor.as`, `TripMine.as`), so the hook sees them.
+  `Breakable` is an `IDamageTaker`, not an `Actor`: no hook for pots and crates.
+
+## 2026-11-06: Run-start setup in co-op (source review only, issues #64, #65, #96)
+
+Read from the decompiled scripts on build 25932569. No game boot, GameLab run or co-op
+session backs any of this.
+
+- **A client's E on the run's door is dropped.** The town's north exit
+  (`prefabs/town/segments/north_exit/north_exit_*.pfb`) is a UseTrigger linked to the
+  StartMission world script (`ID dark_citadel`). A client's use goes to the host as
+  `UseUnitSecure` (Player.as:1356, PlayerHandler.as:518). The host then runs
+  `UseTrigger.Use`, which executes only on the server, and then `StartMission.ServerExecute`
+  with the client's `PlayerHusk` as Instigator. StartMission returns when
+  `cast<Player>` is null (StartMission.as:28), so nothing happens and no message is sent.
+  Only the host's own use opens the setup.
+- **The mission board is dev-only.** `doodads/generic/mission_board.unit` is NON_FINAL.
+  The final game's way into a run is the door (or the campaign portal,
+  MissionShopContent), so "pick a mission on the board" cannot be a player's way back in.
+- **Loadout status messages need an open window.** `SetMissionLoadoutStatus`
+  (GameModeHandler.as:91) is applied only to open `MissionLoadoutMenu` windows. A machine
+  without the window keeps stale `loadout_status` userdata for the others.
+  `CheckToStart` skips peers whose status is None.
+- **Vanilla's loadout row memory loads too early.** The rows (MissionLoadout::Instances,
+  singletons from `tweak/town/loadouts.sval`) are saved in the record's
+  `architect-loadout` dict (PlayerRecord.as:818-823). They are loaded at record load
+  (1276-1281), before any BuildGUI sets the rows' `m_player` and with no actor, so
+  `IsValidMissionBuff` runs without the player. The singletons also keep one character's
+  picks for the next. `SelectSkillSphereLoadout.Load` keeps the old `m_selected` hash
+  when the saved string is empty, while `OnPlay` uses the string.
+- **The Magic Shop row has no host gate.** SelectSkillSphereLoadout and its picker have no
+  `Network::IsServer` check. `SkillTempUp` sends `PlayerSyncSkillTempLevel`, so each
+  player's own sphere is applied on its own machine at Started. Vanilla's only host-only
+  row is the Architect (`rect.m_enabled = Network::IsServer()`). In the setup, E is
+  MenuAdditional, which is Ready on a client and Start on the host. A row opens with
+  MenuForward (mouse or Return). In the picker, a click selects and E applies. The row is
+  hidden (BuildGUI returns false) when the character has no sphere it may pick. That
+  needs a learned skill with modifier skills of at most Common quality, or Uncommon once
+  the magic shop has variation 2 or more.
+
 ## 2026-11-05: Rework focused solo validation PASS
 
 `qa-specs-support-rework 20261105-200813` PASS on pinned build 25932569 / B176,
@@ -94,6 +250,19 @@ scenario run.json appeared; no game processes remained in the process inspection
 Setup was resumed with no outer shell timeout. Its outcome is pending at this
 checkpoint. Gameplay test drafts remain under ignored `gamelab/results/`, not in
 the active test sources. No native compilation, gameplay, or co-op pass is claimed.
+
+## Town dummy DPS main merge (2026-11-12)
+
+Merged `origin/main` at `3dc29e56` into the feature branch. Resolved six additive
+conflicts by retaining both branches' package descriptions/module lists, all-mod
+scenario coverage and dated status entries. Regenerated settings from the merged
+metadata so the local dummy meter and host-controlled out-of-combat options both
+remain available. Updated the DPS package scenario's generator path.
+
+Post-resolution checks: 21 focused config/package/build tests, generated settings,
+verb catalog, override checks and whitespace checks pass. Package-scenario freshness
+now flags only three unrelated upstream party-frame variants; the DPS variant is
+current. No fresh native test was attempted, and previous setup blockers remain.
 
 ## Town dummy DPS continuation (2026-11-12)
 
@@ -9888,3 +10057,212 @@ existing generated trees and smoke stamp. All 31 host regressions pass.
 the previous all-mod scenario's links and exact fixture-only mod verification.
 The final full-width timestamp implementation was verified again by
 `mod-all 20261031-152227` (PASS, 20.5 s); its end frame was inspected.
+
+## 2026-11-07: where potion charges come from (source review)
+
+`PlayerStats.PotionCharges` starts at 0 and only `Modifiers::Potion` adds to it. The apothecary's `potion-charges` upgrade has 5 steps, each 1 more charge. Uncommon trinkets add 2 and 1, an epic trinket 1, a rare equipment modifier 1, so one of each reaches 9. `tweak/town/hero_titles.sval.json` also has `Modifiers::Potion`: its charge values weren't read. The party frames' column is sized for this: 1 to 5 is the normal case.
+
+## 2026-11-06: the Magic Shop in a joined co-op game (issue #64, source review, no game run)
+- **No client-only failure found in source.** Town Magic Shop NPCs (mystic, apothecary,
+  enchanter, spell mastery trainer in `prefabs/town/buildings/magic_shop/magic_shop_tier_1.pfb`)
+  use the vanilla client path: `Player.as:1341-1357` sends `UseUnitSecure`, the host checks
+  `CanUse(husk)` and sends `UseUnit` back (`PlayerHandler.as:500-536`), and the client's
+  `Use` opens the shop window locally (`AShopContent.Interact`). No mod overrides, swaps or
+  outranks them. No mod adds a "magic shop" option of its own.
+- **Run-start Magic Shop row** (`SelectSkillSphereLoadout`, `Missions/MissionSkillSphere.as`):
+  the row's func is `magic_shop open` (line 25) with no `IsServer` gate; the row is left out
+  when the character has no sphere to pick (`BuildGUI` returns false at line 56, so it is
+  hidden, not greyed). The picked sphere is applied on each machine at Started
+  (`NetSetStatus` -> `OnPlay` -> `SkillTempUp`).
+- **E in the sphere picker** (`SelectSkillSphereSelector`): E is both gameplay Use and
+  MenuAdditional. `BaseGameMode` hands the live `gameInput` to the window manager, so the
+  picker's `ScrollbarWidget.Update` (`ScrollbarWidget.as:369`) sends ClickDown to the hovered
+  sphere on `gameInput.Use.Pressed`, while the window's MenuAdditional calls `Apply()`
+  (line 268) and closes it in the same frame. "select" fires on ClickUp, so E applies the old
+  pick and never selects the hovered one. Host and client alike.
+- **E on the setup screen** does nothing at all, silently, when the rows cost more than the
+  player has (`MissionLoadoutMenu.Play`, `if (!m_canAfford) return;`; the hint is dropped too).
+- The architect `MissionLoadoutMenu.as` override now logs `run-start: row '<id>' opened on the
+  host | client (peer N), status S`, the clicks ignored after Start and E ignored for the cost.
+
+## 2026-11-06: who opened a secret (issue #98, `laststats`; source review, no game run)
+
+- `WorldScript/Player/SecretFound.as` is the only place `secrets-found` is added
+  (`%STAT Add secrets-found 1 GetLocalPlayerRecord()`, in `ServerExecute`, and
+  `ClientExecute` calls `ServerExecute`): every machine credits its own player, so a party
+  shares every secret. It is used only by the 44 `prefabs/<theme>/secret_small_*.pfb`
+  (no level file names it), each wired the same way: a `UnitDestroyedTrigger` on the
+  breakable wall `doodads/walls/<theme>/_secret_dst_*.unit` (class `Breakable`, scene
+  switching per hit) runs `SetLight`, `RewardSpot` (Secret), `DestroyUnits`, `PlaySound`,
+  `PlayPlayerVoice` (radius 32 at the wall: vanilla's own "who found it") and `SecretFound`.
+- `UnitDestroyedTrigger` registers its callback on the host only and sets `Instigator` to
+  the destroyed wall, not the attacker; the Destroyed event carries no attacker either.
+  The attacker is known in `Breakable.DamageEffects(dmg, pos, dir, attacker)` on every
+  machine: the hitter's own machine calls it from `Damage` (`dmg.Attacker`), the others
+  from `NetDamage` after `UnitHandler::UnitDamagedByMe/ByPlayer` resolved
+  `PlayerHandler::GetPlayer(peer)` (a summon's hit is sent as plain `UnitDamaged`: no
+  attacker).
+- A world script's `ServerExecute` return value reaches each client's
+  `ClientExecute(SValue@)` (vanilla `DestroyUnitChance` sends unit ids that way); with a
+  null return the clients still run `ClientExecute(null)`.
+- `Stats::Add(hash, n, null)` adds only to `g_myTownRecord.statsTown` (and checks the
+  stat's accomplishments); with a record it also adds to `statsChar` and `statsRun`.
+  `secrets-found` has accomplishments (10 .. 4000, attribute rewards).
+- `laststats` now overrides `SecretFound.as` (host names the opener: the breaking hit's
+  player, else the nearest living player; the peer travels in the return value) and one
+  line of `Breakable.as` (`HWP::LastStats::NoteBreak`). Untested in game.
+
+## 2026-11-06: tabs built at run time (issue #98, `laststats` board; source review, no game run)
+
+- `MenuTabGroupWidget.AddChild` registers a `MenuTabWidget` child as a tab; `SetChecked(int)`
+  marks one by index (-1 marks none), `StepChecked` moves it. A `MenuTabWidget` click runs
+  `m_tabGroup.SetChecked(this)` then `m_host.OnFunc(this, m_func)`; `m_func` and `m_value`
+  are plain script fields, and `Widget.CloneInto` (`w = this`) copies them into the clone.
+- `AWindowObject`'s constructor runs `RefreshInteractableWidgets` once, so tabs cloned into
+  a window afterwards need another `RefreshInteractableWidgets(m_widget)` to take clicks.
+- The vanilla tab marker is `gui/gui.png` `0 424 11 6` (the guild hall's player menu); the
+  previous / next tab bindings are `MenuPreviousTab` / `MenuNextTab`, shown by
+  `binding-display` widgets that need `SetBinding` again in `RefreshKeybinds`.
+
+## 2026-11-06: summons that never block a player (source review, no game run)
+- Every vanilla player summon keeps players from bumping into it with one collision-shape
+  flag in its unit file: `ignore-player="true"` on every shape of its `<collision>` (the
+  crusaders' solid circle and hit sensor alike): `players/priest/units/crusader_*.unit`,
+  `players/ranger/units/wolf.inc`, `players/warlock/units/fiend.inc`, the
+  `players/shared/units/mercenary_*.unit`, `ballista_heavy.unit` (a static collision),
+  `players/pets/*.unit`, `players/items/spider_hatchling_player.unit` and `trinket_punisher.unit`.
+  No enemy under `actors/` has it. "ignore-player" is one of HWR2.exe's strings.
+- No script call does the same: the decompiled scripts never call one; the only collision
+  setters they use are `UnitPtr.SetShouldCollide(bool)` (all collision, walls too). The engine
+  API lists `SetCollisionTeam(uint16 team)`, which no vanilla script or mod calls (its effect is
+  unmeasured). The Forgemaster's risen get the flag from their generator
+  (`tools/generate/make_forgemaster_risen.py`), not at raise time.
+
+## 2026-11-06: the cursor's world point for a directional skill (issue #98, source review)
+- A `PlayerSkillDirectional`'s `NetActivate(target)` gets only the aim direction. The world point
+  under the mouse is read the way a TargetAOE skill reads it (`PlayerTargetingHelper.as:264`):
+  `xy(ToWorldspace(GetInput().MousePos))`, only when `!GetInput().UsingGamepad`.
+  `MouseBase.as` treats a negative `MousePos` as no reading (the mouse off the window).
+  The Forgemaster's `PickBody` uses it on the caster's client only; other peers get the unit id.
+- GameLab's `input` verb writes `GameInput.AimDir` but not `MousePos`, so a lab cast aims with
+  the posted direction while the cursor stays wherever the hidden window's mouse is. A lab test
+  of the cursor pick has to write `MousePos` itself, as `gamelab-hands` `Verbs_firearms.as` does.
+
+## 2026-11-06: how a run is won (issue #96, `laststats`; source review, no game run)
+
+- A run is won at the last floor's exit: `LevelExitNext` / `LevelExitAreaNext` call
+  `MissionManager::NextLevel()`, which looks up the level's `m_idNext`; when no level of the
+  `MissionDef` has that id it calls `AbortMission(Succeeded)` (`Missions/MissionManager.as:171`).
+  The host sends `SetMissionState` to everyone, `NetSetMissionState` sets `currMissionState`
+  on each machine's local `PlayerRecord`s, and the level changes to the town. There is no
+  hook or event at that point; the town's `PostStart` opens `MissionEndMenu` for the local
+  record, whose constructor resets `currMissionState` to `None`. A mod sees the win only in
+  a `PlayerRecordLoad` hook while the town loads (as laststats and farming already did).
+  The Wave Arena (`hwp_wave_arena`) ends the same way through its champion spawner's exit
+  portal, so a mod that means "won" must leave it out by mission id.
+- A `HUDAnnounceStyle` draws over open windows unless it says `top-draw` false (default
+  true, `HUDAnnounce.as:274`): `HUD.DrawPost` (after the window manager) draws those
+  (`DrawTop`). `title-color` works with `HUDAnnounceTextAnimationFade`, which passes the
+  style's title and text colours with its alpha.
+
+## 2026-11-06: enemy armor and resistances, and which bosses refuse buffs (issue #96, `bosses`; source review, no game run)
+
+- An enemy's armor and its fire, ice, lightning and poison resistances are flat ints on its
+  own `ActorProperties` (`m_armor`, `m_resistanceFire/Ice/Lightning/Poison`, from the unit's
+  `armor` / `res-*`), one object per spawned unit (`CompositeActorBehavior.LoadParams` makes
+  it) and one per state of a `StateActorBehavior` (`state.m_props`, swapped in by
+  `SetActorProperties`). `CompositeActorBehavior.Damage` uses
+  `ApplyArmor(dmg, m_buffs.ArmorMul().x * m_armor * (1 + g_ngp * EnemyNGPArmorMul), pen)` (`.y`
+  and `EnemyNGPResistanceMul` for the resistances); `ApplyArmor` takes `a = value *
+  ArmorApplyEfficiency` and keeps `1 - a / (1 + a)` of the damage, so there is no cap: any
+  value reduces less than 100 %. Penetration only applies to a positive value. No vanilla
+  actor has a negative armor or resistance.
+- `ActorBuffList.ArmorMul()` is the product of every buff's and stack's `armor-mul` /
+  `resistance-mul`, each lerped by the buff's intensity (`Modifiers::lerp`, not clamped), so a
+  buff at 0 0 (Pelor's Fury) zeroes whatever the properties say.
+- `Damage` runs on the machine that works the hit out (the attacker's), so a mod that changes
+  an enemy's properties must do it on every machine.
+- `boss_avatar.unit` and `boss_face.unit` are `no-buffs`: `CompositeActorBehavior.ApplyBuff`
+  returns false for them, so a buff-based boss change misses them. 23 vanilla units carry the
+  `boss` actor tag; the Serpents' and Harbingers' shared health units
+  (`boss_serpent_health.unit`, `boss_harbingers_health.unit`) carry the boss bar without the
+  tag and have no armor (their bodies are `TransferDamageActor`s with their own).
+
+## 2026-11-05: an unbreakable tavern table, the hall walls (source review, no game run)
+
+- **A `Breakable` breaks when its script `m_health` runs out, counted on each machine.**
+  `Behaviors/Objects/Breakable.as`: `ResetHealth` reads the unit's `health` data (tavern
+  `table_wood_*`: 60, the long ones 100); `DamageEffects` subtracts each hit (`Damage` on the
+  attacker's machine, `NetDamage` on the others) and, at 0 or below, destroys the unit and,
+  when `Respawn` is on, leaves a `SpawnerBehavior` that makes it again after
+  `respawn-time` (tables: 24 s, +-10%). The fields are public, so a mod can top
+  `cast<Breakable>(unit.GetScriptBehavior()).m_health` up on every machine to keep one unit
+  from breaking (roulette, issue #63). The stone tables (`table_stone_*`) have no behaviour
+  and never break; every wood table is a `Breakable`.
+- **The tavern hall's inner walls** (tiers 1-3, world = prefab + (-64,-176)): the north wall
+  `h_32` pieces at y -256 collide down to y -240 (`h_32.inc` rect `-4 0 40 16`); the west
+  wall `v_32` pieces at x -240 out to x -224 (`v_32.inc` rect `0 12 16 40`). The front wall
+  is at y -64 with the door at x -176. A prefab's walls are under `statics`, not `units`.
+- An NPC's idle frame N faces N x 45 degrees, clockwise from east (`AnimString`): 0 east,
+  2 south (toward the camera), 4 west, 6 north.
+
+## 2026-11-06: where wall art sits, and why a lever can't go on a south wall (issue #74, objectives)
+
+Source review of the decompiled generator scripts and vanilla unit/prefab data (pinned build's
+`gamecode/`); no game run. What the objectives levers' new wall placement relies on:
+
+- **Every wall cell's art is drawn 32 px above its cell.** The wall units (`doodads/walls/*.inc`)
+  all draw with `origin="0 32"`: a wall with floor south of it (`x_s`, `h_16`) is 16x48, its top
+  at cell y - 32 and a 32 px face down to the cell's bottom edge (the floor line); every other
+  wall (`x_n`, `x_e`, `x_w`, `x_x`, corners, caps) draws only its 16x16 top, 32 px up. So a wall
+  south of the floor covers the two floor rows in front of it, and nothing on it can be seen: no
+  south-facing wall art exists (vanilla has `button_wall_n/e/w` and `button_wall_pull_n/e/w`, no
+  `_s`). A floor unit in those two rows is drawn under the wall's top, sorted by y.
+- **Wall-mounted units stand on the wall's edge.** On a north wall (floor south of it): the wall
+  cell's bottom edge at its centre, cell + (8, 16). Torches (`DungeonInstanceBrush.SpawnTorchDeco`,
+  `pos + vec3(0, 16, 0)` on cell + 8) and `button_wall_n` in `dungeon/special/trap_room_e_1.pfb`
+  (grid-pos -7 -5: cell 16.5, 7.0, below wall row 6) both do. On a side wall: the edge facing the
+  floor, the art drawn into the floor side (`button_wall_e` origin x 3 of a 3 px frame, i.e. west
+  of the unit; `_w` east of it). `crypt/special/trap_room_e_1.pfb` stands `button_wall_e.pfb` at
+  the west edge of wall column 18 (cell 18.0, 7.0), `temple/special/call_to_arms_room_w_11x11.pfb`
+  `button_wall_w.pfb` at the east edge of wall column 12 (cell 13.0, 3.5).
+- **A torch needs open floor below its wall cell.** `SpawnTorchDeco` returns early unless
+  `IsOpen(x, y + 1)` (Floor or Breakables) for the wall cell the torch belongs to; the walls are
+  filled after the brush's painting list. Vertical-wall deco (`SpawnVerticalWallDeco`) is empty in
+  `DungeonInstanceBrush`, so east and west walls never get torches.
+
+## 2026-11-05: the Shady Trader's orb offers show the rank they grant (issue #70, vanilla bug)
+
+Source review only, against the decompiled scripts of the pinned Build 176 (Steam build
+25932569); no game run (the user was playing).
+
+- The in-run trade window is the Shady Trader (`ShopContent/ShadyTrader.as`,
+  `ShadyTraderShopContent` / `ShadyTraderMenu`, `gui/shady_trader.gui`, lang
+  `menu.shady_trader.*`): three deals, each a cost and an offer. An orb on either side is a
+  `ShadyDealSkill`; the cost takes one temp rank (`SkillTempDown`), the offer gives one
+  (`SkillTempUp`).
+- `ShadyDealSkill` stores one index for both sides, `max(0, min(GetSkillLevel, n) - 1)` with
+  `n = m_levelParams.length()`: the rank the player has now. That is right for a cost and one
+  rank low for an offer. The index picks the title colour (`m_levelQualities`) and the
+  description (`GetSkillDescriptionParams(..., index + 1, ...)`: the `%param%` values and the
+  highlighted entry of each per-rank row). The title has no rank number.
+- Index facts: `m_levelParams[i]`, `m_levelQualities[i]` and `m_levelSkillCost[i]` belong to
+  rank `i + 1` (PlayerClass.as `LoadParams`: the base `skill` dict, then each `upgrades`
+  entry); `GetSkillLevel` is picked + combo + temp ranks + the `level-bonus-stat` stat +
+  `starting-level`, so it can pass `n`. The orb picker (`GiveSkillSphereMenu.SetSkillUI`) shows
+  the next rank as index `min(GetSkillLevel, n - 1)`, title `name + " " + (index + 1)`, and
+  passes `index + 1` to `GetSkillDescriptionParams`. (`SarcophagusRewardSkillSphere` and the
+  trader's own `GetSkillDropRateChance` use `min(GetSkillLevel + 1, n - 1)`, one further;
+  left alone, they only pick a quality.)
+- The deals are rolled once, on the first `MakeShopWindow`, and saved as `"skill", idHash`
+  pairs in the `cost` and `offer` arrays; the index was recomputed only on construction and
+  load.
+- Fix: hwplib overrides `ShopContent/ShadyTrader.as` (nothing else did; `.orig` kept).
+  `ShadyDealSkill` takes `offer` (false by default, so a cost is as before), set by
+  `GenerateShadyDealOffer` and by `Load` for the `offer` array (a default parameter on
+  `LoadIShadyDealComponent`). `RefreshLevel()` recomputes the index on every `GetQuality`,
+  `GetName` and `GetDescription`: an offer uses the picker's `min(GetSkillLevel, n - 1)`, a
+  cost vanilla's. An offer's title carries the rank number, as the picker's does. Save format
+  unchanged.
+- Unverified in game: the window text, and that a skill offer whose orb was maxed after the
+  roll shows the last rank (what the trade then gives is vanilla's `SkillTempUp`, unchanged).

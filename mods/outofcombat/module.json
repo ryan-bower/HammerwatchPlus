@@ -1,0 +1,20 @@
+{
+  "id": "outofcombat",
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [],
+  "exclude": [],
+  "config": {
+    "title": "Out of combat speed",
+    "about": "In a run, move faster when you have not hit an enemy for a while; hitting one ends it.",
+    "toggle": "outofcombat.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": [
+      {"key": "outofcombat.speed", "type": "float", "default": 2, "values": [1.25, 1.5, 2, 2.5, 3], "suffix": "x", "title": "Speed", "about": "Movement speed while out of combat, times your usual speed. The game's own top speed still applies."},
+      {"key": "outofcombat.delay", "type": "int", "default": 10, "values": [3, 5, 10, 15, 20, 30], "suffix": " s", "title": "Time without a hit", "about": "Seconds since you last hit an enemy before the boost starts."},
+      {"key": "outofcombat.town", "type": "bool", "default": false, "title": "In town too", "about": "Also boost in town, where there is nothing to hit."}
+    ]
+  }
+}
