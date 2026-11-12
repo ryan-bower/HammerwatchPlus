@@ -691,7 +691,7 @@ def prereq(pids) -> str:
     return ", ".join(f"{card}: {dlc} DLC" for dlc, _, card in (workshop.DLC[p] for p in pids if p in workshop.DLC))
 # the All pack's cover: a short name and what the package is, in a few words
 SHORT = {
-    "qol": ("Quality of Life", "20 helpers"), "coop": ("Co-op Play", "4 party features"),
+    "qol": ("Quality of Life", "21 helpers"), "coop": ("Co-op Play", "4 party features"),
     "interface": ("Interface", "raid-style party frames"),
     "autoaim": ("Auto Aim", "aim assist"), "firearms": ("Firearms", "a new class"),
     "specs": ("4th Specs", "8 new specializations"),

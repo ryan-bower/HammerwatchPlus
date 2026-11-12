@@ -251,6 +251,16 @@ Setup was resumed with no outer shell timeout. Its outcome is pending at this
 checkpoint. Gameplay test drafts remain under ignored `gamelab/results/`, not in
 the active test sources. No native compilation, gameplay, or co-op pass is claimed.
 
+## Town dummy DPS CI metadata fix (2026-11-12)
+
+PR #119 run `43231315246` failed six Workshop tests: the new module lacked a
+`TERSE` description and the cover's QoL helper count remained 20 instead of 21.
+Added the player-facing DPS description and updated the count without weakening
+tests. All 28 focused Workshop/config/package/build tests now pass locally, as do
+Workshop text/ledger and generated settings checks. The failed Windows CI run
+recorded 1,250 passed and 57 skipped; a fresh remote full-suite result is required
+for this fix. Gameplay and native-test limitations are unchanged.
+
 ## Town dummy DPS main merge (2026-11-12)
 
 Merged `origin/main` at `3dc29e56` into the feature branch. Resolved six additive
