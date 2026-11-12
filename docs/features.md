@@ -10,7 +10,7 @@ are on the Steam Workshop; The Forsaken Tower is local-build only.
 
 | Package | Modules |
 |---|---|
-| `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, petrooms, legacy, goldworth, mmhmm, orbwarn, mapicons, attrclick, salvage, freeskills |
+| `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, petrooms, legacy, goldworth, mmhmm, orbwarn, mapicons, attrclick, salvage, freeskills, dummydps |
 | `HWP-coop` Co-op Play | groupcombo, architect, droptrade, partyexit |
 | `HWP-autoaim` Auto Aim | autoaim |
 | `HWP-firearms` Firearms Specialist | firearms |

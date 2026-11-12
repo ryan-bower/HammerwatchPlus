@@ -47,6 +47,7 @@ next level.
 | Salvage | On | `salvage.enabled` | on | on, off | host |
 | Salvage | Salvage yield | `salvage.yield` | 100% | 50%, 75%, 100%, 150%, 200% | host |
 | Free skills after a respec | On | `freeskills.enabled` | on | on, off | local |
+| Training dummy DPS | On | `dummydps.enabled` | on | on, off | local |
 
 ## Co-op Play
 

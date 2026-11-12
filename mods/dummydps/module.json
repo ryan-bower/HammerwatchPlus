@@ -1,0 +1,14 @@
+{
+  "id": "dummydps",
+  "requires": ["hwplib"],
+  "overrides": [],
+  "exclude": [],
+  "config": {
+    "title": "Training dummy DPS",
+    "about": "Damage per second over each nearby town dummy: actual health lost in the last five seconds, including all players, summons and damage over time.",
+    "toggle": "dummydps.enabled",
+    "scope": "local",
+    "applies": "now",
+    "settings": []
+  }
+}
