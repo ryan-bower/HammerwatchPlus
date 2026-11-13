@@ -2,7 +2,10 @@
 // updates differ (issue #24).
 //
 // tools/build.py stamps every package with its update: the last commit's date and short hash,
-// with "+" for a local build with uncommitted changes. The package's generated check module
+// with "+" for a local build with uncommitted changes, and " #" plus a hash of the files the
+// package ships. Two players' packages are the same when the stamps or the file hashes match,
+// so a build from source of exactly the released files (another commit) is the same update,
+// and a main that has moved past the release is not. The package's generated check module
 // calls Package with it at boot. From that:
 // - Packages of different updates enabled in one game: Tell names each odd package's update next
 //   to the running library's, on every town visit. It also covers packages built before update
@@ -70,15 +73,33 @@ namespace HWP
 			return Show(Library());
 		}
 
-		// "2026-10-29 1a2b3c4" -> "2026-10-29 (1a2b3c4)"
+		// "2026-10-29 1a2b3c4 #0123456789ab" -> "2026-10-29 (1a2b3c4)"; the content hash is not for people
 		string Show(const string &in update)
 		{
 			if (update == "")
 				return Resources::GetString(".hwp.builds.unstamped");
-			int sp = update.findFirst(" ");
-			if (sp < 0)
-				return update;
-			return update.substr(0, sp) + " (" + update.substr(sp + 1) + ")";
+			auto parts = update.split(" ");
+			if (parts.length() < 2 || parts[1].findFirst("#") == 0)
+				return parts[0];
+			return parts[0] + " (" + parts[1] + ")";
+		}
+
+		// the hash of the files the package ships (tools/build.py package_content), "" for an
+		// update from before content hashes
+		string Content(const string &in update)
+		{
+			int at = update.findFirst(" #");
+			return at < 0 ? "" : update.substr(at + 2);
+		}
+
+		// The same package: the same stamp, or the same files built from another commit (a build
+		// from source of exactly what was released). Different files are never the same.
+		bool Same(const string &in a, const string &in b)
+		{
+			if (a == b)
+				return true;
+			string ca = Content(a);
+			return ca != "" && ca == Content(b);
 		}
 
 		// by date: -1 a is older, 1 newer, 0 the same day; "" (before stamps) is older than any
@@ -229,7 +250,8 @@ namespace HWP
 
 		// What differs between my packages and theirs, grouped by the two updates: "HWP-qol,
 		// HWP-keys: yours 2026-10-29 (1a2b3c4), theirs 2026-10-20 (0f0f0f0)". Empty when the same.
-		string Differences(dictionary@ theirs, string &out mineNewest, string &out theirsNewest)
+		// sameFiles: "<mine>|<theirs>" of each package that matches by its files alone
+		string Differences(dictionary@ theirs, string &out mineNewest, string &out theirsNewest, array<string>@ sameFiles)
 		{
 			array<string> mineUpdates;
 			array<string> theirUpdates;
@@ -253,8 +275,12 @@ namespace HWP
 					mineUpdates.insertLast(m);
 				if (t != "-")
 					theirUpdates.insertLast(t);
-				if (m == t)
+				if (Same(m, t))
+				{
+					if (m != t && sameFiles.find(m + "|" + t) < 0)
+						sameFiles.insertLast(m + "|" + t);
 					continue;
+				}
 				string key = m + "|" + t;
 				int at = keys.find(key);
 				if (at < 0)
@@ -284,10 +310,18 @@ namespace HWP
 		{
 			string mineNewest;
 			string theirsNewest;
-			string diff = Differences(Unpack(packed), mineNewest, theirsNewest);
+			array<string> sameFiles;
+			string diff = Differences(Unpack(packed), mineNewest, theirsNewest, sameFiles);
 			if (diff == "")
 			{
 				HWP::Log("core", "updates match " + who);
+				// one side built from source: say it is the same, as the commits shown differ
+				if (sameFiles.length() > 0)
+				{
+					auto two = sameFiles[0].split("|");
+					HWP::Log("core", "same files as " + who + ", other commits: yours " + Show(two[0]) + ", theirs " + Show(two[1]));
+					HWP::Commands::Reply(Resources::GetString(".hwp.builds.samefiles", { { "who", who }, { "mine", Show(two[0]) }, { "theirs", Show(two[1]) } }));
+				}
 				return;
 			}
 			int c = Compare(mineNewest, theirsNewest);
