@@ -281,7 +281,9 @@ class Checks(Base):
                 self.gl("spawn", DUMMY, -60, 0)
             time.sleep(0.6)
             self.gl("kill", 400, "bandit_brute", "me")
+            at = time.monotonic()
             time.sleep(0.4)
+            return at
 
         k0 = self.status_num("tailwind kills") or 0
         short = 5 - k0 % 5
@@ -293,7 +295,8 @@ class Checks(Base):
         k1 = self.status_num("tailwind kills")
         self.flag("storm_gw_stack", n0 == 0 and n1 == 1 and k1 == k0 + short,
                   f"kills {k0} -> {k1}: tailwind {n0} after {short - 1}, {n1} after {short}")
-        # The second gain must keep both stacks beyond the first gain's 6 s lifetime.
+        # A 5-kill batch (its 4 refreshing kills and the gain) must keep both stacks beyond
+        # the first gain's 6 s lifetime. Since #126 the kills mask the gain's own refresh.
         time.sleep(2.0)
         kills(5)
         time.sleep(4.2)
@@ -302,20 +305,25 @@ class Checks(Base):
         n3 = self.status_num("tailwind")
         self.flag("storm_gw_expiry", n2 == 2 and n3 == 0,
                   f"two separated gains: {n2} stacks 4.2 s after the second, {n3} after 6.8 s")
-        # #126: a kill that adds no stack still refreshes the held ones. One gain, then a
-        # single kill every 3.5 s keeps the stack well past its own 6 s; idle, it ends.
-        kills(5)
-        kept = []
-        t0 = time.monotonic()
-        for _ in range(3):
-            time.sleep(3.5)
-            kills(1)
+        # #126: a kill that adds no stack still refreshes the held ones. One gain, then 4
+        # single kills (no 5th, so no new stack) keep it well past its own 6 s; idle, it ends.
+        # Each loop also pays a spawn and a status read, so the gaps are measured: one of 5 s
+        # or more leaves too little margin under the 6 s deadline to mean anything.
+        last = kills(5)
+        gained, kept, gaps = last, [], []
+        for _ in range(4):
+            time.sleep(1.6)
+            at = kills(1)
+            gaps.append(round(at - last, 2))
+            last = at
             kept.append(self.status_num("tailwind"))
-        held_for = time.monotonic() - t0
+        held_for = time.monotonic() - gained
         time.sleep(6.8)
         n4 = self.status_num("tailwind")
-        self.flag("storm_gw_kill_refresh", kept == [1, 1, 1] and held_for > 6.5 and n4 == 0,
-                  f"one stack, single kills 3.5 s apart: {kept} over {held_for:.1f} s, {n4} after 6.8 s idle")
+        self.flag("storm_gw_kill_refresh",
+                  kept == [1, 1, 1, 1] and max(gaps) < 5.0 and held_for > 7.0 and n4 == 0,
+                  f"one stack, single kills {gaps} s apart: {kept}, held {held_for:.1f} s after the gain, "
+                  f"{n4} after 6.8 s idle")
         kills(35)
         ncap = self.status_num("tailwind")
         sp = self.wait_buff(f"tailwind_{lvl}_5", 1.5)
@@ -327,7 +335,7 @@ class Checks(Base):
         time.sleep(2.6)
         expired_cap = self.status_num("tailwind")
         self.flag("storm_gw_cap_refresh", refreshed_cap == 5 and expired_cap == 0,
-                  f"gain at cap: {refreshed_cap} stacks after 4.2 s, {expired_cap} after 6.8 s")
+                  f"5-kill batch at cap: {refreshed_cap} stacks after 4.2 s, {expired_cap} after 6.8 s")
         # A fresh 5 for each of the next two checks.
         self.set_stacks(tw, 5)
         ww = self.wait_buff("wind_ward", 1.5)

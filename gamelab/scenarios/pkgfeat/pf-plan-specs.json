@@ -1,6 +1,6 @@
 {
  "name": "pf-plan-specs",
- "about": "plan-specs against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Legacy multi-spec test plan through plan_specs in an emptied Bandit Keep floor at level 20. Deadeye checks Lightning Arrow, kill-earned Tailwind, speed, Gale Force, Wind Ward and Tailwind Catch. Tailwind gains and every ranger kill refresh all stacks for 6 seconds, including at the five-stack cap; staggered-gain, kill-refresh and cap-refresh expiry are checked. Other spec sections retain historical assertions and need review against their current reworks.",
+ "about": "plan-specs against the built packages classes, specs instead of the mods' source folders (tools/generate/make_package_scenarios.py). Legacy multi-spec test plan through plan_specs in an emptied Bandit Keep floor at level 20. Deadeye checks Lightning Arrow, kill-earned Tailwind, speed, Gale Force, Wind Ward and Tailwind Catch. Tailwind gains and every ranger kill refresh all stacks for 6 seconds, including at the five-stack cap. Checked: 5-kill batches refresh staggered and capped stacks, and single kills (no gain) keep a stack past 6 s. A gain's own refresh is masked by the kills in its batch and is not isolated. Other spec sections retain historical assertions and need review against their current reworks.",
  "fixture": "town-paladin",
  "timeout": 720,
  "steps": [

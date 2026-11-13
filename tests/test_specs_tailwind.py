@@ -30,12 +30,32 @@ def test_duration_and_native_fallback_agree():
 
 def test_refresh_restarts_script_deadlines_and_native_timer():
     refresh = _function("void RefreshTailwind(PlayerBase@ plr, ActorBuffStackDef@ def)")
-    assert "g_twExp[i] = g_twNow + TAILWIND_MS;" in refresh
+    # Both loops must cover every entry: without the native one, the def's own 6.1 s
+    # timer (add-stack -999) still drops every stack whatever the script deadlines say.
+    assert re.search(
+        r"for \(uint i = 0; i < g_twExp\.length\(\); i\+\+\)\s*g_twExp\[i\] = g_twNow \+ TAILWIND_MS;",
+        refresh,
+    )
     # The native fallback/HUD timer is set directly, only on a live stack of this def,
     # so a refresh never changes the count or fires stack triggers.
-    assert "st.m_def is def && st.m_stacks > 0" in refresh
-    assert "st.m_timerTickC = Modifiers::lerp(st.m_defMod.m_timerTime, st.GetIntensity());" in refresh
+    assert re.search(
+        r"for \(uint i = 0; i < plr\.m_buffs\.m_stacks\.length\(\); i\+\+\)\s*\{\s*"
+        r"ActorBuffStacked@ st = plr\.m_buffs\.m_stacks\[i\];\s*"
+        r"if \(st\.m_def is def && st\.m_stacks > 0\)\s*"
+        r"st\.m_timerTickC = Modifiers::lerp\(st\.m_defMod\.m_timerTime, st\.GetIntensity\(\)\);\s*\}",
+        refresh,
+    )
     assert "AddStacks" not in refresh
+
+
+def test_refresh_and_gain_need_a_live_ranger_with_gathering_winds():
+    has = _function("bool HasGatheringWinds(PlayerBase@ plr)")
+    assert re.search(
+        r"return plr !is null && !plr\.IsDead\(\) && BindI\(plr, GATHERING_WINDS, \"gw-lvl\", 0\) > 0;",
+        has,
+    )
+    for name in ("void AddTailwind(PlayerBase@ plr)", "void KillTailwind(PlayerBase@ plr)"):
+        assert re.search(r"if \(def is null \|\| !HasGatheringWinds\(plr\)\)\s*return;", _function(name)), name
 
 
 def test_every_gain_refreshes_all_stacks_including_at_cap():

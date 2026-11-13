@@ -51,9 +51,13 @@ tasks. Read the ledger for current counts and next actions.
 2026-11-12, Deadeye Tailwind kill refresh (#126). Every kill by the ranger now refreshes
 held Tailwind stacks for 6 s, not only the fifth kill that adds one, so one kill per 6 s keeps
 them while building to 5. Stack gains every 5 kills, the cap and the duration are unchanged.
-Tooltip and planner updated. Offline: `test_specs_tailwind` passes (6); the full suite fails
-only in `test_workshop_art` (the `dummydps` symbol from #119, pre-existing). The new
-`plan-specs` check `storm_gw_kill_refresh` has not been run natively; no game was started.
+Tooltip and planner updated. Offline: `scripts/test.py` passes after merging main, and
+`test_specs_tailwind` (7) catches 7 of 7 hand mutations of the guards and refresh loops. With
+`gamecode/` present, `test_workshop_art` fails on main's missing `dummydps` symbol (#119,
+unrelated). The new `plan-specs` check `storm_gw_kill_refresh` (single kills about 3.5 s apart,
+gaps measured, must stay under 5 s) has not been run natively; no game was started. Since
+#126 the 5-kill batches in `storm_gw_expiry`/`storm_gw_cap_refresh` mask the gain's own
+refresh; only Tailwind Catch refreshes by gain alone, and that is not checked at the cap.
 
 2026-11-12, Deadeye Tailwind (#77). Duration increased from 4 to 6 seconds; every gain
 refreshes all existing stacks, including gains at the cap and Tailwind Catch. Updated
