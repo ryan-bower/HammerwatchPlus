@@ -78,6 +78,7 @@ Luck never changes the chance of a skill, item or trinket effect.</string>
 	<string name="hwp.hoh1.present">Heroes of Hammerwatch 1 content installed</string>
 	<string name="hwp.builds.mixed">HammerwatchPlus packages from different updates are enabled together, so some mods may misbehave. The library running is from %library%; %list%. Update them all in the Steam Workshop, or enable only HammerwatchPlus-All.</string>
 	<string name="hwp.builds.peer">%who% runs another HammerwatchPlus update than you, so some mods may misbehave together: %list%. %advice%</string>
+	<string name="hwp.builds.samefiles">%who% runs the same HammerwatchPlus as you: the same files, built from another commit (yours %mine%, theirs %theirs%).</string>
 	<string name="hwp.builds.differ">%list%: yours %mine%, theirs %theirs%</string>
 	<string name="hwp.builds.silent">%who% runs a HammerwatchPlus update from before update checks, older than yours (%mine%), so some mods may misbehave together. %who% should update every HammerwatchPlus mod in the Steam Workshop and restart the game.</string>
 	<string name="hwp.builds.advice.you">Yours are older: update every HammerwatchPlus mod in the Steam Workshop and restart the game.</string>
