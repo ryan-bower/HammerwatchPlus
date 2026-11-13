@@ -115,7 +115,7 @@ def scenario_file(name: str) -> Path:
     return Path(name) if name.endswith(".json") else SCENARIOS / f"{name}.json"
 
 
-def acquire(scenario_name: str, mode: str, wait: float = 0) -> None:
+def acquire(scenario_name: str, mode: str, wait: float = 0, beside_player: bool = False) -> None:
     """lock.acquire; with `wait` seconds, wait while another LIVE run holds the lock (another
     agent's run). A stale lock or a dirty teardown is still refused at once: those need a
     look, then `python -m gamelab reset`."""
@@ -126,7 +126,7 @@ def acquire(scenario_name: str, mode: str, wait: float = 0) -> None:
         if pending is not None and time.monotonic() >= deadline:
             raise pending
         try:
-            lock.acquire(scenario_name, mode)
+            lock.acquire(scenario_name, mode, beside_player)
             return
         except lock.Refused as error:
             remaining = deadline - time.monotonic()
@@ -154,7 +154,8 @@ def hoh1_missing(scenario: dict) -> list[str]:
     return [m for m in want if not outputs[m].exists()]
 
 
-def run(scenario_name: str, mode: str, accept_drift: bool = False, wait: float = 0) -> int:
+def run(scenario_name: str, mode: str, accept_drift: bool = False, wait: float = 0,
+        beside_player: bool = False) -> int:
     scenario_path = scenario_file(scenario_name)
     scenario_name = scenario_path.stem
     scenario = json.loads(scenario_path.read_text(encoding="utf-8"))
@@ -180,7 +181,7 @@ def run(scenario_name: str, mode: str, accept_drift: bool = False, wait: float =
     # under another live run drops that run's mods under test from the game dir
     try:
         with runtime.preparation_guard():
-            acquire(scenario_name, mode, wait)
+            acquire(scenario_name, mode, wait, beside_player)
     except lock.Refused as e:
         print("REFUSED", e)
         return lock.EXIT_REFUSED

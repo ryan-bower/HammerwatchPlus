@@ -47,3 +47,26 @@ class PlayerRuntime(unittest.TestCase):
             self.assertEqual(save.read_bytes(), b"existing lab fixture")
             lab_scan.assert_not_called()
             kill.assert_not_called()
+
+    def test_beside_player_runs_the_lab_without_touching_the_player_game(self):
+        # the owner's opt-in (run --beside-player): the lab copy starts, the player PID is left alone
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            game = root / "game"
+            game.mkdir()
+            held = root / "runtime.lock"
+            with mock.patch.object(lock, "LOCK", held), mock.patch.object(lock.env, "GAME", game), \
+                    mock.patch.object(lock, "TEARDOWN", root / "teardown.json"), \
+                    mock.patch.object(lock, "player_processes", return_value=[20]), \
+                    mock.patch.object(lock, "lab_processes", return_value=[]), \
+                    mock.patch.object(lock, "kill") as kill:
+                lock.acquire("test", "lab", beside_player=True)
+                self.assertTrue(held.exists())
+                kill.assert_not_called()
+                lock._drop_owned()
+            self.assertFalse(held.exists())
+
+    def test_beside_player_is_lab_only(self):
+        with mock.patch.object(lock, "player_processes", return_value=[20]):
+            with self.assertRaisesRegex(lock.Refused, "lab mode only"):
+                lock.acquire("test", "watch", beside_player=True)
