@@ -5,13 +5,15 @@
   "exclude": [],
   "config": {
     "title": "Floor objectives",
-    "about": "Floors get a locked vault with its switch, and an exit that opens from a switch.",
+    "about": "Some floors get a locked vault with its switch, or an exit that opens from a switch.",
     "toggle": "objectives.enabled",
     "scope": "host",
     "applies": "level",
     "settings": [
-      {"key": "objectives.vaults", "type": "int", "default": 1, "values": [0, 1, 2], "title": "Vaults per floor", "about": "Locked loot vaults on each floor, each with its own switch."},
-      {"key": "objectives.exit", "type": "bool", "default": true, "title": "Exit switch", "about": "The way down stays sealed until you find and press its switch."}
+      {"key": "objectives.vaults", "type": "int", "default": 1, "values": [0, 1, 2], "title": "Vaults per floor", "about": "Most locked loot vaults a floor can get, each rolled at Vault chance and opened by its own switch."},
+      {"key": "objectives.vault_chance", "type": "int", "default": 25, "values": [0, 10, 15, 25, 50, 75, 100], "suffix": "%", "title": "Vault chance", "about": "The chance of each vault above appearing on a floor, rolled per vault."},
+      {"key": "objectives.exit", "type": "bool", "default": true, "title": "Exit switch", "about": "The way down can be sealed until you find and press its switch."},
+      {"key": "objectives.exit_chance", "type": "int", "default": 15, "values": [0, 10, 15, 25, 50, 75, 100], "suffix": "%", "title": "Exit switch chance", "about": "The chance that a floor's way down is sealed behind a switch, when Exit switch is on."}
     ]
   }
 }

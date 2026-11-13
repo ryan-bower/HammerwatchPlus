@@ -10161,6 +10161,19 @@ The final full-width timestamp implementation was verified again by
 - An NPC's idle frame N faces N x 45 degrees, clockwise from east (`AnimString`): 0 east,
   2 south (toward the camera), 4 west, 6 north.
 
+## 2026-11-08: objectives rolled per floor (issue #67, source review, no game run)
+
+- `HWPObjectiveSpawn` is added with exec-chance 1 (`Generation.as` Install), so the
+  generator command itself always runs; the chance lives in `Run`, rolled with `randi(100)`
+  like `puzzles.room_chance` (one to three extra `randi` draws per floor, before the
+  vault and lever picks; whether that stream is seeded per floor was not checked).
+- `make_config.py` refuses a default that isn't one of the `values`, so the agreed list
+  [0, 10, 25, 50, 75, 100] gained 15 for the exit's default.
+- An unsealed floor needs nothing at Start: the exits are only disabled by `Seal()`, called
+  when `g_exitPresent`, which only generation or an exit lever unit (`AdoptFromUnits`) sets.
+  A client gets `exit_present false` from `objectives.state` and calls `Unseal(true)`, which
+  touches no script when nothing was sealed.
+
 ## 2026-11-06: where wall art sits, and why a lever can't go on a south wall (issue #74, objectives)
 
 Source review of the decompiled generator scripts and vanilla unit/prefab data (pinned build's
