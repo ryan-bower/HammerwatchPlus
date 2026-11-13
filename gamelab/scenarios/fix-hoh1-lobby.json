@@ -1,0 +1,81 @@
+{
+  "name": "fix-hoh1-lobby",
+  "needs_hoh1": true,
+  "about": "Issue #123 (the Dark Citadel's last floors were four Dark Halls floors: hoh1.content was off by default). hoh1.content is now on by default and the host checks every player's HoH1 import (HWP::HoH1, a fingerprint build.py writes): HoH1 floors, the HoH1 tower and HoH1 pets play only when every player's matches; otherwise the Dark Citadel goes dark_halls_1 -> Avatar, the portal offers the HoH2 tower, HoH1 pets are put away, and every player is told in red. One lab game stands in for the lobby with `hwp hoh1 fake none|other|match|silent`: a second player with no import, another import, the same one, or one that never reports. Checks the default-on verdict and chain, the pet put away and back, one join warning per mismatch, the short chain and the portal fallback, dark_halls_1 -> boss_avatar with a warning on each, the 'differs' and 'no report' warnings, and the chain back on a match. No StartLoadServer hoh1/. Solo forced state: a real two-player lobby is not covered. About 5 minutes.",
+  "fixture": "town-paladin",
+  "mods": [
+    "hwplib",
+    "hwplib-luck",
+    "hwplib-classui",
+    "campaign",
+    "pets",
+    "trinkets"
+  ],
+  "timeout": 900,
+  "steps": [
+    {
+      "do": "console",
+      "line": "e_cheats 1"
+    },
+    {
+      "do": "console",
+      "line": "show_chat"
+    },
+    {
+      "do": "log_has",
+      "pattern": "\\[HWP:campaign\\] self-check done: mission ok, \\d+/\\d+ schemes, HoH1 floors installed, ",
+      "timeout": 30,
+      "name": "campaign self-check: the import is packed and on by default"
+    },
+    {
+      "do": "log_lacks",
+      "pattern": "\\[HWP:hoh1\\] warning: ",
+      "name": "solo: no HoH1 warning"
+    },
+    {
+      "do": "bot",
+      "bot": "fix_hoh1_lobby",
+      "kwargs": {
+        "sections": "on,pets,none"
+      },
+      "expect": {
+        "ok": true
+      },
+      "name": "default on; the HoH1 pet put away and back; a peer without the import: one warning, short chain, HoH2 portal"
+    },
+    {
+      "do": "bot",
+      "bot": "fix_hoh1_lobby",
+      "kwargs": {
+        "sections": "citadel"
+      },
+      "expect": {
+        "ok": true
+      },
+      "name": "Dark Citadel with that peer: dark_halls_1 then the Avatar, warned on both"
+    },
+    {
+      "do": "shot",
+      "name": "citadel-avatar"
+    },
+    {
+      "do": "bot",
+      "bot": "fix_hoh1_lobby",
+      "kwargs": {
+        "sections": "other,silent,match"
+      },
+      "expect": {
+        "ok": true
+      },
+      "name": "another import, no report, then the same import: the warnings and the chain back"
+    },
+    {
+      "do": "log_lacks",
+      "pattern": "StartLoadServer hoh1/",
+      "name": "no level loaded from hoh1/ during the run"
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}

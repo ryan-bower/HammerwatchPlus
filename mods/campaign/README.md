@@ -78,6 +78,36 @@ leaves them out unless `--with-local`. The log is
 `hoh1_import/campaign/convert.md` (every rewrite counted, plus the 14
 references HoH1 itself does not ship).
 
+### Who plays the HoH1 floors (issue #123)
+
+The HoH1 floors only load on a machine that has the same import, so a lobby
+member without it would hang on `wait_loaded_level` (game night 10.28.26). The
+host decides for the whole lobby (`HWP::HoH1` in hwplib): HoH1 content plays when
+`hoh1.content` is on (the default), the host has the import, and **every player's
+import fingerprint matches the host's**. `build.py` writes the fingerprint
+(`mods/hwplib/hoh1/hwp_import_stamp.sval`: every imported file's path and the
+bytes of everything but images), and each client sends it on every level. Until
+everyone has answered a level runs on the stand-ins, then the HoH1 floors come
+back (`hoh1.lobby`). A client that never answers counts as lacking it after 10 s.
+
+When it doesn't play:
+- **Dark Citadel:** `dark_halls_1` goes straight to the Avatar, as in vanilla
+  (`Citadel::Link`). `dark_halls_2` and the Battlements stay in the list, the
+  Battlements as generated Dark Halls floors, so a save already at one of them
+  plays it and then goes to the Avatar.
+- **Portal:** it offers the HoH2 tower (`StandIns::Tower` hides the HoH1 one).
+- **HoH1 pets:** put away (pets module).
+- **Warnings**, a red chat line on every machine: when a player without a
+  matching import joins (once per player, the saved list `hoh1.warned`), on
+  `dark_halls_1` and on the Avatar, on using the portal, and when an HoH1 pet is
+  put away. Each one says why: the setting is off, the host has no import,
+  `<name>` has no import, `<name>`'s import differs, or `<name>` sent no report.
+
+`hwp hoh1` shows the setting, this game's fingerprint, the lobby's verdict and
+(on the host) each player's report. `hwp hoh1 fake none|other|match|silent|clear`
+(host, for the lab) adds a stand-in "Lab peer" with that import, saved with the
+town so it lasts across floors (`fix-hoh1-lobby`).
+
 The converter (`tools/hoh1/hoh1_convert.py`) rewrites paths, materials, fonts and
 classes; loose `.lvl`/`.pfb` are written as SValue XML (the engine reads loose
 mod files as XML) and `build.py` compiles them back to binary when packing.
@@ -333,6 +363,8 @@ On the HammerwatchPlus tab of the player menu (`hwp set <key> <value>`; `module.
   generated floors get no traps or teleporter (next level), pads already placed do nothing
   and nothing confuses. A tower run already under way plays on, and the Dark Citadel keeps
   its extra floors (`Citadel::Fix`): changing them under a run would move its floors.
+- `hoh1.content` (on): the imported HoH1 levels, pets and art, whenever every player has
+  the same import (above). Off: HoH2 stand-ins everywhere.
 - `campaign.portal_both`, `campaign.traps`, `campaign.trap_map`, `campaign.trap_density`, `campaign.teleporters`,
   `campaign.confusion`, `campaign.confusion_eye_chance` (the table above). Not on the page:
   `campaign.portal_x/y` (`hwp campaign here`).
