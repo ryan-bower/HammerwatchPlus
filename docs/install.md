@@ -1,6 +1,25 @@
 # Installing
 
-No Workshop release yet. Build and play from the repo:
+## Released binaries (no build)
+
+With Python 3.11+ and GitHub CLI installed, close the game and run
+`python tools/install_release.py` from the checkout. This installs the latest stable GitHub
+release; pass a tag to pin one. Restart and enable the pack in Resource Mods for your profile.
+See [releases](releases.md) for package selection, custom paths and recovery.
+
+## Build and play from source
+
+To build and install the current checkout without creating a profile or launching:
+
+```console
+uv run python tools/install.py modded-prod
+```
+
+This replaces stale HWP binaries in the detected install's `mods/` folder. Close the game
+first. Use `--dry-run` to preview, or `--no-local` to exclude personal HoH1 imports.
+Build/setup prerequisites and the existing save-safety confirmation are still required.
+
+To build, create a fresh profile and launch instead:
 
 1. Double-click `run.cmd` (or `python tools/run.py`).
 2. In the save builder, add characters (class and level 1–20) and set starting gold, then

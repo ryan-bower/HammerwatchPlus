@@ -52,11 +52,12 @@ class RunPlan(unittest.TestCase):
         self.assertIn("run: setup: would run -m gamelab doctor --fix --no-smoke", text)
         self.assertIn("run: build:", text)
         self.assertIn("run: launch: would open steam://rungameid/619820", text)
-        # the only subprocess a dry run starts is deploy.py's own --dry-run
+        # the only subprocess a dry run starts is install.py's own --dry-run
         self.assertEqual(len(calls), 1, calls)
+        self.assertEqual(Path(calls[0][1]).name, "install.py")
         self.assertIn("--dry-run", calls[0])
         self.assertIn("modded-prod", calls[0])
-        # deploy.py decides about the HoH1 content (it packs every import there is)
+        # install.py decides about the HoH1 content (it packs every import there is)
         self.assertNotIn("--with-local", calls[0])
 
     def test_refuses_while_the_game_runs(self):

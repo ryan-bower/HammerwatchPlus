@@ -19,7 +19,7 @@ the usual packages, and a build without `--beta`
 never carries them (`tools/build.py` refuses to build it by name without `--with-local`, and it is never
 in the all-in-one package).
 
-    python tools/deploy.py modded-prod --beta      # build.py --beta, then the .bin files into <install>/mods
+    python tools/install.py modded-prod --beta      # build.py --beta, then the .bin files into <install>/mods
     python tools/build.py --beta specs              # one package: "beta: HWP-specs.bin carries holylocal"
 
 Other `dlc has holy` gates (the chapel boons, the holy pets and trinkets, the heaven mission set, which

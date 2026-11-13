@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""deploy.py - put mods into one of the environments declared in gamelab/env/environments.json.
+"""install.py - put mods into one of the environments declared in gamelab/env/environments.json.
 
-    deploy.py gamelab [mod ...]          # junction repo mods into the GameLab game dir, verify
-    deploy.py modded-prod [package ...]  # build the Workshop packages (tools/build.py) and copy them to
+    install.py gamelab [mod ...]          # junction repo mods into the GameLab game dir, verify
+    install.py modded-prod [package ...]  # build the Workshop packages (tools/build.py) and copy them to
                                          # <install>/mods; default: the environment's list (the all pack)
-    deploy.py modded-prod --dry-run      # list what would be written, write nothing
-    deploy.py modded-prod --beta         # a beta build: build.py --beta folds the `beta_into` modules
+    install.py modded-prod --dry-run      # list what would be written, write nothing
+    install.py modded-prod --beta         # a beta build: build.py --beta folds the `beta_into` modules
                                          # (holylocal, the Priest without the DLC) into their hosts' .bin
-    deploy.py modded-prod                # packs what you imported from your own HoH1 install (the HoH1
+    install.py modded-prod                # packs what you imported from your own HoH1 install (the HoH1
                                          # campaign floors, pets, trinket icons, class art: build.py
                                          # --with-local) whenever any of it is there: it is your install
-    deploy.py modded-prod --no-local     # a release build in your install (what the Workshop has)
-    deploy.py modded-prod --with-local   # pack the local content (the default when there is some)
-    deploy.py vanilla                    # refuses: vanilla declares no mods
+    install.py modded-prod --no-local     # a release build in your install (what the Workshop has)
+    install.py modded-prod --with-local   # pack the local content (the default when there is some)
+    install.py vanilla                    # refuses: vanilla declares no mods
 
 gamelab: mods are directory junctions into mods/<id>/, so an edit in the repo *is* the
 deployed copy. Nothing is copied; this only creates/repairs the junctions and verifies

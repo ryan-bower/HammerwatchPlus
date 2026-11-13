@@ -77,7 +77,7 @@ def load_module(mod_dir: Path) -> dict:
         cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
     cfg.setdefault("id", mod_dir.name)
     if cfg["id"] != mod_dir.name:
-        # deploy.py names the deployed mod after the folder; keep one identity everywhere
+        # install.py names the deployed mod after the folder; keep one identity everywhere
         sys.exit(f"{cfg_path}: id {cfg['id']!r} must match the folder name {mod_dir.name!r}")
     cfg.setdefault("requires", [])
     cfg.setdefault("overrides", [])
@@ -164,7 +164,7 @@ def module_files(cfg: dict, with_local: bool = False):
 def personal_content(mods: list[dict]) -> list[str]:
     """The module.json `local` files on disk (<module>/<path>) that --with-local packs: what the
     player made from their own HoH1 install (tools/hoh1/import_hoh1.py). Not the local_only modules'
-    (a beta rider rides only with --beta). deploy.py modded-prod packs these by default."""
+    (a beta rider rides only with --beta). install.py modded-prod packs these by default."""
     return [f"{m['id']}/{rel}" for m in mods if not m["local_only"]
             for rel, _fp in module_files(m, True) if is_local(m, rel)]
 

@@ -5,6 +5,11 @@ description: Set up, rebuild and deploy HammerwatchPlus, create a fresh local pr
 
 # run
 
+For an **install/update of a released build**, use `python tools/install_release.py [TAG]`
+instead (see `docs/releases.md`). It verifies and installs release binaries without rebuilding,
+creating profiles or launching. The workflow below remains for requests to play the current
+checkout or use personal HoH1 imports; do not substitute a release for changed mod source.
+
 From the repository root, make **one call**:
 
 ```powershell

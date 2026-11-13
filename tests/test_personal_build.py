@@ -1,6 +1,6 @@
-"""A personal build (build.py --with-local, what deploy.py modded-prod makes when the player
+"""A personal build (build.py --with-local, what install.py modded-prod makes when the player
 imported HoH1 content) is told apart from a release build by its content, so tools/workshop.py
-never puts one in the upload kit; and deploy.py's default counts every module's imports but
+never puts one in the upload kit; and install.py's default counts every module's imports but
 not a local_only beta rider's (2026-10-29: the HoH1 trinket icons never reached the player's
 install, because only the campaign import turned --with-local on)."""
 import json

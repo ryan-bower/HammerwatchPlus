@@ -1,5 +1,35 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-13: source installation command rename
+
+`tools/install.py` replaces `tools/deploy.py` with the same arguments, environment selection,
+source build behavior, stale-binary cleanup and save-confirmation gates. `tools/run.py`
+now invokes the renamed file; its dry-run regression asserts the new subprocess filename.
+Current command references are updated, but historical records keep their original names.
+Validation: renamed CLI `--help` works; 50 focused host tests and both generated checks pass.
+The Windows launcher regression cannot collect on Linux (`ctypes.WinDLL`); no native game
+or real installation was exercised.
+
+## 2026-11-13: release binaries and local installation
+
+- Tooling only, no engine behavior changed. The existing `build.py` default already excludes
+  personal HoH1 imports and beta riders; the release wrapper uses only that build after tests
+  and override checks, and records the clean source commit in `hwp-release.json`.
+- A release carries individual package binaries plus the all-in-one. The installer defaults
+  to only the all-in-one to avoid loading duplicate packages, and removes old HWP binaries
+  (including `-local` variants) rather than mixing shared library versions. It does not alter
+  unpacked mods, Workshop subscriptions, profile enablement, saves or config.
+- Without a version argument, the publisher selects the next patch after the highest stable
+  GitHub tag (first release `v0.1.0`). Numeric sorting handles minor/major boundaries and legacy
+  two-part tags; prerelease/unrelated tags are ignored. Build-only uses local tags, offline.
+- Host evidence: 27 focused tests cover automatic version selection, manifest validation, checksums before writes,
+  preservation of unrelated mods, rollback (including retained backups on rollback failure),
+  exclusive installation locks and draft/upload/publish ordering. Together with existing
+  build/update/package-graph tests, 48 tests pass. Generated checks pass.
+  The full suite cannot collect on Linux because of 18 existing Windows-only imports.
+  Actual release publishing/downloading and Windows filesystem behavior remain unverified;
+  tests use fake GitHub responses and temporary mods directories. No real install touched.
+
 ## 2026-11-12: who plays the HoH1 floors (issue #123)
 
 - Cause: `Citadel.as` chains dark_halls_1 -> dark_halls_2 -> hwp_battlements_1 -> hwp_battlements_2

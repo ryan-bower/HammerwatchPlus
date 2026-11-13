@@ -41,7 +41,17 @@ Every module: [mods/README.md](mods/README.md).
 
 ## Installation
 
-There is no Workshop release yet. Build and launch from source:
+To install a GitHub release without building (Python 3.11+ and `gh` required):
+
+```console
+python tools/install_release.py
+```
+
+This installs the latest stable release's verified all-in-one pack into the local Steam
+HoH2 `mods/` directory, replacing old HWP binaries. Close the game first, then restart and
+enable the pack in Resource Mods. See [releases](docs/releases.md) for tags and custom paths.
+
+To build and launch the current source instead:
 
 ```console
 $ git clone https://github.com/ryan-bower/HammerwatchPlus

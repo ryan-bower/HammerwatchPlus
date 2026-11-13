@@ -4,6 +4,25 @@ Running project status: the newest entries first, then the QA checkpoints and hi
 sweeps. The engine and reverse-engineering notes behind each change are in
 [RE_NOTES.md](RE_NOTES.md).
 
+> **Install command rename (2026-11-13, worktree `release-scripts`).** Renamed
+> `tools/deploy.py` to `tools/install.py`, updated the profile launcher's subprocess call,
+> current documentation and agent guidance. Arguments and safety gates are unchanged;
+> historical notes and the historical QA inventory retain the original name. The new
+> command's help runs and 50 focused release/build/package/personal-build tests pass,
+> with both generated-file checks. The Windows-only launcher tests remain blocked on Linux.
+> No real mods directory changed and no game launched.
+
+> **Release scripts (2026-11-13, worktree `release-scripts`).** Added `tools/release.py`
+> to test/build public packages and publish a draft-first GitHub release with a checksummed
+> manifest. No version argument is needed: the publisher bumps the highest stable GitHub
+> tag's patch version (local tags for `--build-only`); explicit tags remain supported.
+> `tools/install_release.py` downloads a pinned/latest release without a build,
+> replaces only HWP binaries, and rolls back failed copies. Agent instructions prefer this
+> path for released-build installations, not changed-source tests or personal HoH1 imports.
+> Offline evidence: 48 release/build/package tests pass (27 new), both generated-file checks pass; full-suite collection
+> is blocked by 18 existing Windows-only `ctypes.WinDLL` imports on Linux. No real install
+> changed, no release published, no native-game or real GitHub upload/download validation yet.
+
 > **Reverted #124, Dark Citadel candle skips (2026-11-12, on `main` from `811a223e`).** At the owner's request the `shortcuts` module is gone: merge `bee97fdd` (`54742ec3`, `b437c122`) and its workshop art follow-up `fa41bee1` are reverted. Main after the revert: `scripts/test.py` 1352 passed, 28 skipped; GameLab on build 25932569, solo, `--beside-player`: `mod-all` 20261112-230104 PASS, `fix-campaign-battlements` 20261112-230120 PASS.
 
 > **HoH1 end floors (2026-11-12, issue #123, PR #127, branch `fix/issue-123-hoh1-end-floors` from `7cb8c74b`).** The Dark Citadel's last floors were four Dark Halls floors plus the Avatar, because `hoh1.content` (off by default since game night 10.28.26) swapped the HoH1 Battlements for generated Dark Halls floors. Now `hoh1.content` is on by default and the host decides per lobby: `build.py` stamps the HoH1 import (`mods/hwplib/hoh1/hwp_import_stamp.sval`, a fingerprint of every imported file, local and gitignored), every client reports its stamp, and the HoH1 Battlements, the HoH1 tower and HoH1 pets play only when every player's stamp matches the host's. Otherwise the citadel goes Dark Halls 1 -> Avatar, the portal offers the HoH2 tower and HoH1 pets are put away, and everyone gets red chat lines: one per mismatched player on join, on dark_halls_1 and the Avatar, on the portal and on a pet put away. `hwp hoh1` shows the lobby and each peer, and `hwp hoh1 fake none|other|match|silent|clear` (host) adds a lab stand-in peer. Evidence: forced state (the fake peer), solo, build 25932569, uncommitted source on `7cb8c74b`, every run with `--beside-player` while the owner's game was open. Results: `fix-hoh1-lobby` 20261112-205711 PASS 21/21 (the Avatar screenshot viewed); `fix-campaign-battlements` 20261112-210058 PASS 24/24; `fix-campaign-portal-version` 20261112-210133 PASS 26/26; `hoh1-standins` 20261112-210221 PASS 24/24. `fix-hoh1-off` came back INVALID twice (20261112-205839, 20261112-210237): every gameplay check passed both times, and the only fail was "user saves unchanged" on the owner's own slot-2 autosaves, `2_6.hps` at 20:58:53 and `2_7.hps` at 21:02:45. That slot had been saving every few minutes since 20:35, and the lab saves only to `gamelab/env`. After the adversarial review's fixes (`a4f413b7`: the host counts the lobby's players before calling it known; join warnings once; fallback warnings only on a real mismatch; `hwp hoh1 fake` needs e_cheats) all five passed beside the owner's open game: `fix-hoh1-lobby` 20261112-214407 21/21, `fix-campaign-portal-version` 20261112-214538 26/26, `hoh1-standins` 20261112-214629 24/24, `fix-campaign-battlements` 20261112-214644 24/24, `fix-hoh1-off` 20261112-214720 33/33. The lobby-count guard can't be exercised solo. An earlier run, 20261112-203222, was stopped by hand; its one fail was the bot's own filter, since fixed. New GameLab flag: `run`/`suite --beside-player` (lab only) lifts only the "player game owns the runtime" refusal; cleanup still kills only the lab executable (`tests/test_player_runtime.py`). No real two-player lobby has run. A player joining mid-run while the lobby is on an HoH1 floor is out of scope. Every friend must re-run run.cmd so their pack carries the stamp; until they do, the lobby falls back and names them.
