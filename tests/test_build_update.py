@@ -1,5 +1,6 @@
 """Build identity must follow shipped inputs, including staged/deleted/new files."""
 import os
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -9,20 +10,42 @@ from unittest import mock
 from tools import build
 
 
+ENVIRONMENT = dict(os.environ, GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1")
+
+
+def git(root, *args):
+    subprocess.run(["git", *args], cwd=root, env=ENVIRONMENT, capture_output=True, check=True)
+
+
+def write(root, name, content):
+    path = root / name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+
+
 class UpdateIdentity(unittest.TestCase):
-    def setUp(self):
-        temp = tempfile.TemporaryDirectory()
-        self.addCleanup(temp.cleanup)
-        self.root = Path(temp.name)
-        self.environment = dict(os.environ, GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1")
-        self.git("init", "-q")
-        self.mod = {"id": "hwplib", "dev": False, "local_only": False, "exclude": ["notes.txt"]}
+    @classmethod
+    def setUpClass(cls):
+        # git init/add/commit cost about a second on Windows, so build the baseline repository
+        # once and give every test its own copy of it.
+        template = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(template.cleanup)
+        cls.template = Path(template.name) / "repo"
+        cls.template.mkdir()
+        git(cls.template, "init", "-q")
         for name in ("packages.json", "mods/hwplib/module.json", "mods/hwplib/info.xml",
                      "mods/hwplib/scripts/Core.as", "mods/hwplib/README.md", "mods/hwplib/notes.txt",
                      "mods/gamelab-hands/scripts/Build.as", "tools/run.py", "README.md"):
-            self.write(name, "original")
-        self.git("add", ".")
-        self.git("-c", "user.name=Test", "-c", "user.email=test@example.invalid", "commit", "-qm", "baseline")
+            write(cls.template, name, "original")
+        git(cls.template, "add", ".")
+        git(cls.template, "-c", "user.name=Test", "-c", "user.email=test@example.invalid", "commit", "-qm", "baseline")
+
+    def setUp(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        self.root = Path(temp.name) / "repo"
+        shutil.copytree(self.template, self.root, symlinks=True)
+        self.mod = {"id": "hwplib", "dev": False, "local_only": False, "exclude": ["notes.txt"]}
         self.patcher = mock.patch.object(build.paths, "REPO", self.root)
         self.patcher.start()
         self.addCleanup(self.patcher.stop)
@@ -30,13 +53,10 @@ class UpdateIdentity(unittest.TestCase):
         self.assertFalse(self.clean.endswith("+"))
 
     def git(self, *args):
-        subprocess.run(["git", *args], cwd=self.root, env=self.environment,
-                       capture_output=True, check=True)
+        git(self.root, *args)
 
     def write(self, name, content):
-        path = self.root / name
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(content, encoding="utf-8")
+        write(self.root, name, content)
 
     def identity(self):
         return build.update_id([self.mod])
