@@ -30,6 +30,7 @@ Each module's full spec and test checklist is in its own `README.md`.
 
 | Module | What it does |
 |---|---|
+| `shortcuts` | Three more candles in the Dark Citadel shortcut challenge: five lit candles skip to High Courts, six to Dark Halls and seven to the Avatar. Extra candles add shades, not loot, and retain the existing Barracks shortcut unlock. Included in Quality of Life. |
 | `puzzles` | Puzzle rooms are back on most floors (HoH2 ships 88 but never places them), checked and repaired after generation, and HoH1's Constellation puzzle is one they can roll, also in a clearing on forest and heaven floors. Summons wait at the door while you solve. |
 | `objectives` | Floor objectives on generated floors: a locked loot vault (two chests behind a door) opened by a lever somewhere else on the floor, and the way down sealed until the floor's exit lever is pressed. The HUD says what is left to find. |
 | `strongbox` | Path of Exile-style strongboxes: open one, a pack of the floor's enemies spawns (elites possible), clear it for the box's loot. |
