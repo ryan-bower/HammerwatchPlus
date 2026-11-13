@@ -1,0 +1,15 @@
+{
+  "id": "shortcuts",
+  "requires": ["hwplib"],
+  "overrides": ["levels/shortcut_dark_citadel.lvl"],
+  "exclude": [],
+  "config": {
+    "title": "Dark Citadel candles",
+    "about": "Light more candles for more upgrades and trinkets, and skip to the High Courts, Dark Halls or HoH1 Battlements.",
+    "toggle": null,
+    "always_on": "Level data: extends the Dark Citadel shortcut's candle challenge.",
+    "scope": "host",
+    "applies": "level",
+    "settings": []
+  }
+}
