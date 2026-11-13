@@ -76,8 +76,10 @@ class Checks(Base):
         return any(fid == "hwp_battlements_1" for _, fid in floors)
 
     def hoh1_on(self):
-        """hoh1.content (`hwp hoh1` replies it first): off, the import is packed but unused."""
-        return "hoh1.content: on" in self.hwp("hoh1", 0.6, until="hoh1.content")
+        """HoH1 content plays in this lobby (`hwp hoh1`: the setting hoh1.content, then the lobby's
+        verdict, issue #123): off, the import is packed but unused."""
+        rep = self.hwp("hoh1", 0.6, until="hoh1.content")
+        return "hoh1.content: on" in rep and "lobby on" in rep
 
     # --- sections
     def sec_portal(self):

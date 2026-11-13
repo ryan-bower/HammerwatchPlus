@@ -107,6 +107,8 @@ namespace Modules
 			}
 			if (g_inTown)
 				HWP::Builds::Update(ms);
+			// the lobby's HoH1 check (issue #123), on every level: the floors depend on it
+			HWP::HoH1::Update(ms);
 			if (m_announced)
 				return;
 			m_announced = true;

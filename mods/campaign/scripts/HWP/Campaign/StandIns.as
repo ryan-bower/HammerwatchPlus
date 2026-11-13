@@ -1,19 +1,23 @@
-// hoh1.content off (HWP::HoH1::Enabled, the default): the HoH1 import may still be packed,
-// but no floor may load an HoH1 file. A lobby whose players lack the import hangs on such a
-// floor: the host loads hoh1/levels/battlements_1.lvl and every client waits forever on
-// wait_loaded_level (game night 10.28.26, Dark Citadel floor 21). So each HoH1 floor is
-// swapped, in place, for an HoH2 one with the same id, index, next floor and difficulty:
+// HoH1 content off in this lobby (HWP::HoH1::Enabled: the host setting hoh1.content, on by
+// default, the host's import and every player's import the same, issue #123): the HoH1 import
+// may still be packed, but no floor may load an HoH1 file. A lobby whose players lack the import
+// hangs on such a floor: the host loads hoh1/levels/battlements_1.lvl and every client waits
+// forever on wait_loaded_level (game night 10.28.26, Dark Citadel floor 21). So each HoH1 floor
+// is swapped, in place, for an HoH2 one with the same id, index, next floor and difficulty:
 // a save already at such a floor (mission-level is the floor index) plays on, and the run
-// ends where it would have. MissionDefs are rebuilt with every level, so this is undone as
-// soon as the setting is on again. Runs from the module constructor, before generation.
+// ends where it would have (the Dark Citadel skips them: Citadel::Link). MissionDefs are rebuilt
+// with every level, so this is undone as soon as the lobby says on (Apply). Runs from the module
+// constructor, before generation.
 namespace HWP
 {
 	namespace Campaign
 	{
 		namespace StandIns
 		{
-			// read here too, so tools/generate/make_config.py finds the campaign config's key in campaign
-			bool On() { return HWP::Settings::GetBool("hoh1.content", false); }
+			// the setting, read here too so tools/generate/make_config.py finds the campaign config's
+			// key in campaign; the lobby's verdict is HWP::HoH1::Enabled, which reads it as well
+			bool Setting() { return HWP::Settings::GetBool("hoh1.content", true); }
+			bool On() { return Setting() && HWP::HoH1::Enabled(); }
 
 			// a generated floor of a theme, like vanilla's own Dark Halls entries
 			MissionLevel@ Generated(MissionDef@ def, const string &in id, const string &in theme, int diff, int diffNgp, const string &in next, const string &in act)
@@ -110,8 +114,24 @@ namespace HWP
 				@def.m_levels[i] = to;
 			}
 
-			// hoh1.content on: the swapped floors back in their places (ids, as the Dark
-			// Citadel's indices move when dark_halls_2 is added), the HoH1 tower listed again
+			// on: the swapped floors back in their places (ids, as the Dark Citadel's indices move
+			// when dark_halls_2 is added), the HoH1 tower listed again, the Citadel's chain through
+			// the Battlements; off: every HoH1 floor swapped, the Citadel straight to the Avatar.
+			// Idempotent; from the constructor, TownRecordLoad and every hoh1.* change.
+			void Apply(bool on)
+			{
+				if (on)
+				{
+					Restore();
+					Citadel::Link(true);
+				}
+				else
+				{
+					Citadel::Fix(false);
+					Tower(false);
+				}
+			}
+
 			void Restore()
 			{
 				if (g_kept.isEmpty())
@@ -135,35 +155,32 @@ namespace HWP
 					hoh1.m_hidden = false;
 				g_tower = false;
 				Traps::Install();   // idempotent; fixed .lvl floors take no generator command
-				HWP::Log("campaign", "hoh1.content on: " + back + " HoH1 floor(s) back");
+				HWP::Log("campaign", "HoH1 content on: " + back + " HoH1 floor(s) back");
 			}
 
-			// the setting as the town save holds it (HWP::SaveData's "hwp" dictionary), for
-			// TownRecordLoad, whose order against hwplib's own hook is not fixed
+			// the setting as the town save holds it (HWP::SaveData's "hwp" dictionary; unset is the
+			// default, on), for TownRecordLoad, whose order against hwplib's own hook is not fixed
 			bool InSave(SValue@ data)
 			{
 				if (data is null || data.GetType() != SValueType::Dictionary)
-					return false;
+					return true;
 				auto hwp = data.GetDictionaryEntry("hwp");
 				if (hwp is null || hwp.GetType() != SValueType::Dictionary)
-					return false;
+					return true;
 				auto v = hwp.GetDictionaryEntry("settings.hoh1.content");
-				return v !is null && v.GetType() == SValueType::Boolean && v.GetBoolean();
+				return v is null || v.GetType() != SValueType::Boolean || v.GetBoolean();
 			}
 
 			// the HoH1 Forsaken Tower: hidden from the portal, and every floor from the HoH2
 			// tower for a save already in it
-			void Tower()
+			void Tower(bool on)
 			{
 				auto hoh1 = MissionDef::Get(HashString(HOH1_MISSION_ID));
 				auto hoh2 = MissionDef::Get(HashString(MISSION_ID));
-				if (hoh1 is null || hoh2 is null || On())
+				if (hoh1 is null || hoh2 is null || on)
 					return;
 				if (g_tower)
-				{
-					HWP::Log("campaign", "hoh1.content off: " + g_summary);
 					return;
-				}
 				g_tower = true;
 				hoh1.m_hidden = true;
 				int swapped = 0;
@@ -182,9 +199,9 @@ namespace HWP
 				}
 				g_summary = HOH1_MISSION_ID + ": " + swapped + "/" + hoh1.m_levels.length() + " floors on HoH2 stand-ins";
 				if (missing.isEmpty())
-					HWP::Log("campaign", "hoh1.content off: " + g_summary);
+					HWP::Log("campaign", "HoH1 content off: " + g_summary);
 				else
-					HWP::LogError("campaign", "hoh1.content off: " + g_summary + ", no stand-in for " + missing);
+					HWP::LogError("campaign", "HoH1 content off: " + g_summary + ", no stand-in for " + missing);
 			}
 
 			// every HoH1 file still referenced by a mission floor (none when off)
@@ -206,11 +223,12 @@ namespace HWP
 
 namespace HWPCampaignHooks
 {
-	// the town record is in: the HoH1 floors back if its save says hoh1.content on
+	// the town record is in: the HoH1 floors as its save's hoh1.content and the lobby say (the
+	// constructor read the default, on, before the save was there)
 	[Hook]
 	void TownRecordLoad(TownRecord@ town, SValue@ data)
 	{
-		if (town is g_myTownRecord && HWP::Campaign::StandIns::InSave(data))
-			HWP::Campaign::StandIns::Restore();
+		if (town is g_myTownRecord)
+			HWP::Campaign::StandIns::Apply(HWP::Campaign::StandIns::InSave(data) && HWP::HoH1::Enabled());
 	}
 }

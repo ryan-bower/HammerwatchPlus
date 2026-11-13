@@ -39,7 +39,8 @@ def expected_kill(f, code: int, rec: dict) -> bool:
             and bool(reasons) and all(r.startswith("runner was killed") for r in reasons))
 
 
-def suite(folder: str, mode: str, wait: float, stop_on_fail: bool, accept_drift: bool, since: str = "") -> int:
+def suite(folder: str, mode: str, wait: float, stop_on_fail: bool, accept_drift: bool, since: str = "",
+          beside_player: bool = False) -> int:
     """Run every scenario under gamelab/scenarios/<folder> (recursively, sorted), each waiting
     for the lock, then print a table and write gamelab/results/suite-<time>-<folder>.json.
     since: skip scenarios already run on the pinned build from that stamp on (resume).
@@ -61,7 +62,7 @@ def suite(folder: str, mode: str, wait: float, stop_on_fail: bool, accept_drift:
             print(f"SUITE skip {name} (run since {since})", flush=True)
             continue
         start = time.time()
-        code = launcher.run(str(f), mode, accept_drift, wait)
+        code = launcher.run(str(f), mode, accept_drift, wait, beside_player)
         if code == launcher.EXIT_SKIPPED:
             print(f"SUITE skip {name} (needs_hoh1, no HoH1 import here)", flush=True)
             continue
@@ -111,6 +112,9 @@ def main(argv=None) -> int:
                    help="run despite a build-id mismatch; the run is stamped build_drift")
     r.add_argument("--wait", type=float, default=0, metavar="S",
                    help="wait up to S seconds while another live run holds the lock (default: refuse at once)")
+    r.add_argument("--beside-player", action="store_true",
+                   help="lab mode only: run even while the owner's own game is open; the lab copy is "
+                        "isolated and cleanup never touches a non-lab HWR2.exe")
     po = sub.add_parser("pool", help="run audited scenarios in isolated lab worker slots")
     po.add_argument("scenarios", nargs="+")
     po.add_argument("--label", required=True)
@@ -125,6 +129,7 @@ def main(argv=None) -> int:
     su.add_argument("--wait", type=float, default=3600, metavar="S", help="per run, as run --wait (default 3600)")
     su.add_argument("--stop-on-fail", action="store_true")
     su.add_argument("--accept-build-drift", action="store_true")
+    su.add_argument("--beside-player", action="store_true", help="as run --beside-player")
     su.add_argument("--since", default="", metavar="YYYYmmdd-HHMMSS",
                     help="skip scenarios already run on the pinned build from this run stamp on")
     li = sub.add_parser("list", help="list scenarios")
@@ -161,7 +166,7 @@ def main(argv=None) -> int:
         from gamelab import lock
         return lock.reset()
     if a.cmd == "suite":
-        return suite(a.folder, a.mode, a.wait, a.stop_on_fail, a.accept_build_drift, a.since)
+        return suite(a.folder, a.mode, a.wait, a.stop_on_fail, a.accept_build_drift, a.since, a.beside_player)
     if a.cmd == "pool":
         from gamelab import pool
         argv = ["--label", a.label, "--workers", str(a.workers), "--mode", "lab"]
@@ -173,7 +178,7 @@ def main(argv=None) -> int:
             argv.extend(["--catalog-sha256", a.catalog_sha256])
         return pool.main(argv + a.scenarios)
     from gamelab import launcher
-    return launcher.run(a.scenario, a.mode, a.accept_build_drift, a.wait)
+    return launcher.run(a.scenario, a.mode, a.accept_build_drift, a.wait, a.beside_player)
 
 
 if __name__ == "__main__":

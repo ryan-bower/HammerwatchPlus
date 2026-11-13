@@ -183,7 +183,14 @@ modules; the optional `holylocal` module is local-only and outside that stack.
 python -m gamelab list [it]
 python -m gamelab run <scenario> --mode lab [--wait 1800]   # --wait: queue behind another agent's live run
 python -m gamelab suite it/<mod> --mode lab                  # every integration scenario of a module, in order
+python -m gamelab run <scenario> --mode lab --beside-player  # the owner's game is open: run the lab copy beside it
 ```
+
+`--beside-player` (2026-11-12, the owner's opt-in) lifts only the "a player game owns the runtime"
+refusal, in lab mode only. Cleanup still kills nothing but the exact lab executable, so the owner's
+HWR2.exe is never stopped, focused or written to. "user saves unchanged" is unchanged: if the
+owner's game saves during the run (`<slot>_<n>.hps` in the install's saves/), the run is INVALID even
+with every gameplay check passing. Read the file's time against the run before blaming the lab.
 
 Integration tests (full happy/error paths, run on purpose, not on every change) live in
 `gamelab/scenarios/it/<mod>/`; run one as `python -m gamelab run it/<mod>/<name> --mode lab`.

@@ -9,6 +9,29 @@ time (the Firearms reload pattern). Setting the field avoids a take/add pair, so
 does not change the count, send stack messages or fire StackGained/StackLost. The direct reset
 is local only; peers' husk copies do not tick the timer. Not run natively.
 
+## 2026-11-12: who plays the HoH1 floors (issue #123)
+
+- Cause: `Citadel.as` chains dark_halls_1 -> dark_halls_2 -> hwp_battlements_1 -> hwp_battlements_2
+  -> dark_halls_boss. With `hoh1.content` off, `StandIns.as` gave both Battlements generated
+  `theme_dark_halls` floors, so a run showed four Dark Halls floors before the Avatar. Now the
+  fallback re-links all four to the boss, which is vanilla's Dark Halls 1 -> Avatar.
+- The fingerprint: `tools/build.py` `hoh1_stamp` takes sha256[:12] over every non-`local_only`
+  module's `local` files: the path, plus the bytes without line endings for non-images. Images
+  count by path only, because two PNG encoders need not agree. It is written to hwplib's local
+  `hoh1/` and never packed in a release build.
+- `Resources::GetSValue` on a file that isn't packed returns null, which other code already
+  relies on (campaign `UnitMap`, `itemdealer.sval`). `HWP::SV::Str` takes null, so a release
+  build reads stamp "".
+- The host waits for every peer's report before the lobby turns on, so each level starts on the
+  stand-ins. A peer silent for 10 s (`SILENT_MS`) counts as lacking the import: an older
+  HammerwatchPlus never answers. `hoh1.warned` (saved) holds the names already warned on join,
+  so a player is named once, not on every floor.
+- Forced state, solo, build 25932569, run 20261112-203222 (stopped before its end, no
+  `run.json`): with a fake peer lacking the import, the lobby went off, the chain logged
+  `dark_halls_1 -> dark_halls_boss`, the portal logged `hwp_forsaken_tower (HoH2 themes)` and
+  warned, and a bought HoH1 pet was put away with a red line and came back once the peer
+  matched. The real network path (`hoh1.report` from a second machine) is unproven.
+
 ## 2026-11-12: Dark Citadel shortcut candle graph
 
 Source review and offline graph tests only, based on `3dc29e56`, pinned build

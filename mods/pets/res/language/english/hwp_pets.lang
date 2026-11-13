@@ -153,6 +153,7 @@
 	<string name="hwp.pets.dye.removed">The dye washes out.</string>
 	<string name="hwp.pets.dye.done">\c00ff00Dyed\d: %dye%</string>
 	<string name="hwp.pets.hoh1">the HoH1 pets are not in the Pet Shop</string>
+	<string name="hwp.pets.hoh1_away">%who%'s HoH1 pet %pet% is put away. Why: %why%.</string>
 	<!-- pet courier (Courier.as) -->
 	<string name="hwp.pets.courier.send">Send home</string>
 	<string name="hwp.pets.courier.key">Send home with pet key</string>

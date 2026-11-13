@@ -207,7 +207,13 @@ def kill(pids: list[int]) -> None:
             raise Refused(f"could not stop lab PID {pid}; runtime remains refused")
 
 
-def acquire(scenario: str, mode: str) -> None:
+def acquire(scenario: str, mode: str, beside_player: bool = False) -> None:
+    """`beside_player` (run --beside-player, the owner's opt-in, 2026-11-12): a lab run may start
+    while the owner's own game is open. Only that refusal is lifted. The lab game is still the
+    isolated copy at env.GAME, and every cleanup (`kill`) still refuses any PID whose image is not
+    exactly that copy, so the player's HWR2.exe is never stopped, focused or written to."""
+    if beside_player and mode != "lab":
+        raise Refused("--beside-player is for lab mode only (hidden, muted, never focused)")
     slot = runtime.current()
     if slot:
         if mode != "lab":
@@ -223,8 +229,11 @@ def acquire(scenario: str, mode: str) -> None:
             try:
                 require_owned()
                 players = player_processes()
+                if players and not beside_player:
+                    raise Refused(f"a player game owns the runtime: HWR2.exe {players}; close the game before "
+                                  "running GameLab, or pass --beside-player to run the lab copy alongside it")
                 if players:
-                    raise Refused(f"a player game owns the runtime: HWR2.exe {players}; close the game before running GameLab")
+                    print(f"BESIDE-PLAYER leaving the player game alone: HWR2.exe {players}", flush=True)
                 require_owned()
                 last = json.loads(TEARDOWN.read_text(encoding="utf-8")) if TEARDOWN.is_file() else {"clean": True}
                 leftover = lab_processes()

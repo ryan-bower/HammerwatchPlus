@@ -65,7 +65,15 @@
 Luck never changes the chance of a skill, item or trinket effect.</string>
 	<string name="stat.custom.hwpluck">Luck</string>
 	<string name="hwp.hoh1.missing">Heroes of Hammerwatch 1 content is not installed, so these use stand-ins: %list%. Everything else works. To add it, own HoH1 and install HammerwatchPlus with run.cmd from its project page (hwp hoh1 lists them).</string>
-	<string name="hwp.hoh1.off">HoH1 content is off (Plus menu: HoH1 content), so these use stand-ins: %list%. Turn it on only when everyone in the lobby has the same HoH1 install, or their game hangs loading an HoH1 floor.</string>
+	<string name="hwp.hoh1.off">HoH1 content is off (Plus menu: HoH1 content), so these use stand-ins: %list%. On, it plays whenever every player in the lobby has the same HoH1 import, and falls back with a warning when one doesn't.</string>
+	<string name="hwp.hoh1.join">HoH1 import mismatch: %why%. Until that changes the Dark Citadel skips the HoH1 Battlements, the town portal offers the HoH2 tower and HoH1 pets are put away. Fix: that player runs run.cmd (it imports HoH1 and rebuilds), then restarts the game.</string>
+	<string name="hwp.hoh1.why_off">HoH1 content is off (Plus menu: HoH1 content)</string>
+	<string name="hwp.hoh1.why_host">the host has no HoH1 import</string>
+	<string name="hwp.hoh1.why_you">you have no HoH1 import</string>
+	<string name="hwp.hoh1.why_none">%who% has no HoH1 import</string>
+	<string name="hwp.hoh1.why_differs">%who%'s HoH1 import differs from the host's</string>
+	<string name="hwp.hoh1.why_silent">%who% sent no HoH1 report (an older HammerwatchPlus?)</string>
+	<string name="hwp.hoh1.why_pending">waiting for %who%'s HoH1 report</string>
 	<string name="hwp.hoh1.none">No enabled HammerwatchPlus mod uses Heroes of Hammerwatch 1 content.</string>
 	<string name="hwp.hoh1.present">Heroes of Hammerwatch 1 content installed</string>
 	<string name="hwp.builds.mixed">HammerwatchPlus packages from different updates are enabled together, so some mods may misbehave. The library running is from %library%; %list%. Update them all in the Steam Workshop, or enable only HammerwatchPlus-All.</string>

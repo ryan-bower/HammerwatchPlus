@@ -14,6 +14,10 @@ Watcher in their own Update.
   every vanilla and imported pet gets the wait watcher, the owner's pickup
   toggles, the Fetch passives, the skill runner and XP per pickup. Pets are not
   netsynced: like vanilla, only the owner's copy picks up or acts.
+- **HoH1 pets in co-op.** They are in the shop and out only while HoH1 content plays in the
+  lobby (`HWP::HoH1::Enabled`: `hoh1.content` on, every player with the host's import, see
+  the campaign README). Otherwise an equipped one is put away (`pets.hoh1_pet`) and comes back
+  when it plays again; everyone gets a red chat line naming the pet and why.
 - **HoH1 pets.** `python tools/hoh1/import_hoh1.py pets` reads the player's own HoH1
   install and writes (gitignored) `players/pets/hwp/*.unit|.png`,
   `gui/hwp/icons_pets_hoh1.png` and `tweak/hwp/pets_hoh1.sval` (22 `PetDef`s,
