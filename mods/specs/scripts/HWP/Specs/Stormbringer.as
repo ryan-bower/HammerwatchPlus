@@ -7,8 +7,8 @@
 //   Boomerang's ec-lone strikes a lone target itself). Tailwind Catch (ec-catch): the
 //   ranger catching the arrow on its way back adds a Tailwind stack.
 // - Gathering Winds (stormbringer/gathering_winds.sval): every TAILWIND_KILLS kills add a
-//   Tailwind stack (HWPSpecsKillTailwind), up to TAILWIND_MAX, each lasting TAILWIND_MS on its
-//   own (g_twExp; a stack past the cap replaces the oldest). The speed is tailwind_<gw-lvl>_<n>
+//   Tailwind stack (HWPSpecsKillTailwind), up to TAILWIND_MAX. Each gain refreshes all stacks
+//   for TAILWIND_MS, including at the cap. The speed is tailwind_<gw-lvl>_<n>
 //   (buffs_specs.sval: 2-4% move, attack and cast speed per stack by level), kept on by
 //   UpdateTailwind. Gale Force (gw-gale): at TAILWIND_MAX the bow and crossbow attacks shoot
 //   gw-gale more arrows (HWPSpecsGaleForce). Wind Ward (gw-ward): wind_ward at gw-ward x
@@ -19,7 +19,7 @@ namespace HWP
 	{
 		const uint GATHERING_WINDS = HashString("hwp_ran_gathering_winds");
 		const int TAILWIND_MAX = 5;
-		const int TAILWIND_MS = 4000;
+		const int TAILWIND_MS = 6000;
 		const int TAILWIND_KILLS = 5;
 
 		// counts since the session started, for `hwp specs` (the checks read them)
@@ -51,8 +51,7 @@ namespace HWP
 				g_twExp.insertLast(g_twNow + TAILWIND_MS);
 		}
 
-		// one Tailwind stack for TAILWIND_MS; at the cap it replaces the oldest (a take and an
-		// add, so the stack's own timer starts again too)
+		// At the cap, take/add also restarts the native HUD/fallback timer.
 		void AddTailwind(PlayerBase@ plr)
 		{
 			auto def = Stack("tailwind");
@@ -66,6 +65,8 @@ namespace HWP
 				plr.AddStacks(plr, def, -1);
 			}
 			plr.AddStacks(plr, def, 1);
+			for (uint i = 0; i < g_twExp.length(); i++)
+				g_twExp[i] = g_twNow + TAILWIND_MS;
 		}
 
 		int g_wardC = 0;

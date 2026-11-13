@@ -75,7 +75,7 @@
 	<string name="hwp.specs.tailwind_catch.name">Tailwind Catch</string>
 	<string name="hwp.specs.tailwind_catch.desc">Catching your returning arrow grants a stack of Tailwind (Gathering Winds).</string>
 	<string name="hwp.specs.gathering_winds.name">Gathering Winds</string>
-	<string name="hwp.specs.gathering_winds.desc">Every 5 kills grants a stack of Tailwind for 4 seconds, up to 5 stacks. Each stack increases your Action Speed (Movement, Skill and Weapon Speed) by %speed%.</string>
+	<string name="hwp.specs.gathering_winds.desc">Every 5 kills grants a stack of Tailwind for 6 seconds, up to 5 stacks. Gaining Tailwind refreshes all stacks, including at max stacks. Each stack increases your Action Speed (Movement, Skill and Weapon Speed) by %speed%.</string>
 	<string name="hwp.specs.gale_force.name">Gale Force</string>
 	<string name="hwp.specs.gale_force.desc">At max Tailwind stacks, your Bow and Crossbow skills fire %arrows% additional projectiles.</string>
 	<string name="hwp.specs.wind_ward.name">Wind Ward</string>

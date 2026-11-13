@@ -293,19 +293,28 @@ class Checks(Base):
         k1 = self.status_num("tailwind kills")
         self.flag("storm_gw_stack", n0 == 0 and n1 == 1 and k1 == k0 + short,
                   f"kills {k0} -> {k1}: tailwind {n0} after {short - 1}, {n1} after {short}")
-        # each stack ends 4 s after its own kill
+        # The second gain must keep both stacks beyond the first gain's 6 s lifetime.
         time.sleep(2.0)
         kills(5)
-        time.sleep(2.4)  # the first stack's 4 s are over, the second's are not
+        time.sleep(4.2)
         n2 = self.status_num("tailwind")
-        time.sleep(2.2)
+        time.sleep(2.6)
         n3 = self.status_num("tailwind")
-        self.flag("storm_gw_expiry", n2 == 1 and n3 == 0, f"two stacks 2 s apart: {n2} at 4.4 s, {n3} at 6.6 s")
+        self.flag("storm_gw_expiry", n2 == 2 and n3 == 0,
+                  f"two separated gains: {n2} stacks 4.2 s after the second, {n3} after 6.8 s")
         kills(35)
         ncap = self.status_num("tailwind")
         sp = self.wait_buff(f"tailwind_{lvl}_5", 1.5)
         self.flag("storm_gw_cap", ncap == 5 and bool(sp.get("on")), f"35 kills: tailwind {ncap} (cap 5); tailwind_{lvl}_5 {sp}")
-        # the stacks last 4 s: a fresh 5 for each of the next two checks
+        time.sleep(2.0)
+        kills(5)
+        time.sleep(4.2)
+        refreshed_cap = self.status_num("tailwind")
+        time.sleep(2.6)
+        expired_cap = self.status_num("tailwind")
+        self.flag("storm_gw_cap_refresh", refreshed_cap == 5 and expired_cap == 0,
+                  f"gain at cap: {refreshed_cap} stacks after 4.2 s, {expired_cap} after 6.8 s")
+        # A fresh 5 for each of the next two checks.
         self.set_stacks(tw, 5)
         ww = self.wait_buff("wind_ward", 1.5)
         want = round(0.03 * 5, 3)

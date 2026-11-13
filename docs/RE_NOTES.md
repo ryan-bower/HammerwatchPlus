@@ -1,5 +1,27 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-12: Deadeye Tailwind refresh (#77)
+
+Source change: `TAILWIND_MS` is now 6000 (previously 4000). `AddTailwind`, shared by
+Gathering Winds kills and Tailwind Catch, sets every tracked deadline to the new
+expiry after each gain. At the five-stack cap the existing take/add pair is retained
+to reset the native stack/HUD timer; the native fallback is now 6100 ms rather than
+4100 ms. Stack cap, kill threshold and speed/Wind Ward scaling are unchanged.
+
+Six seconds is the tuning choice for the issue's unspecified duration increase.
+Offline contracts cover duration/fallback consistency, shared gain routing and the
+unconditional refresh loop. `plan-specs` now checks staggered gains and cap gains
+surviving the original expiry before expiring together; `qa-specs-deadeye` waits for
+the longer expiry. These native regressions have not been run on this source:
+`./gamelab.sh doctor` exited 2 because this worktree lacks Windows Python. No game
+started, no build was re-pinned, and no gameplay or balance PASS is claimed.
+
+Offline validation: 57 tests pass across `test_specs_tailwind`, `test_specs_support_rework`,
+`test_catalog`, `test_builds` and `test_shared_modules`, using the main checkout's existing
+Python environment against this worktree. Both generated-file checks and `git diff --check`
+pass. The full `scripts/test.py` attempt stops at collection with 18 existing Linux
+`ctypes.WinDLL` import errors; no unrelated platform code was changed.
+
 ## 2026-11-08: a cloned TextWidget shares its text (issue #79)
 
 Source review only, not measured in game.
