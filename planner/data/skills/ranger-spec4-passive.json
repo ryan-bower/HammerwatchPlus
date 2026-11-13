@@ -13,10 +13,10 @@
   ],
   "mana": "",
   "name": "Gathering Winds",
-  "notes": "The max stays 5 stacks at every level. +20% at level 5 matches vanilla Rhythm's top attack speed (ran_rhythm, 0.2).\n\nEvery 5 kills by the ranger add a Tailwind stack, up to 5. Each gain, including Tailwind Catch and gains at the cap, refreshes all stacks for 6 seconds. The speed is the tailwind_<level>_<stacks> buff. The duration/refresh change in #77 is source-reviewed; native validation is pending.",
+  "notes": "The max stays 5 stacks at every level. +20% at level 5 matches vanilla Rhythm's top attack speed (ran_rhythm, 0.2).\n\nEvery 5 kills by the ranger add a Tailwind stack, up to 5. Each gain, including Tailwind Catch and gains at the cap, refreshes all stacks for 6 seconds, and so does every kill (#126), so one kill per 6 seconds keeps them. The speed is the tailwind_<level>_<stacks> buff. The duration/refresh changes in #77 and #126 are source-reviewed; native validation is pending.",
   "order": 1,
   "role": "",
   "status": "built",
-  "summary": "Every 5 kills grants a stack of Tailwind for 6s, up to 5 stacks. Gaining Tailwind refreshes all stacks, including at max stacks. Each stack increases your Action Speed (Movement, Skill and Weapon Speed) by 2%.",
+  "summary": "Every 5 kills grants a stack of Tailwind for 6s, up to 5 stacks. Every kill and every Tailwind gained refreshes all stacks, including at max stacks. Each stack increases your Action Speed (Movement, Skill and Weapon Speed) by 2%.",
   "unlock": "bought"
 }

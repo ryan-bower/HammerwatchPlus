@@ -1,7 +1,7 @@
 %include "players/skills_cost.inc"
 <!--
 	Gathering Winds (Deadeye passive). Every 5 kills add a Tailwind stack (HWPSpecsKillTailwind,
-	scripts/HWP/Specs/Stormbringer.as), up to 5. Each gain refreshes all stacks for 6 s. Each stack is
+	scripts/HWP/Specs/Stormbringer.as), up to 5. Each gain and each kill refreshes all stacks for 6 s. Each stack is
 	gw-lvl's tailwind_<lvl>_<n> buff: 2/2.5/3/3.5/4% move, attack and cast speed per stack.
 	Orbs: Gale Force (gw-gale: at 5 stacks, bow and crossbow attacks shoot +1/+2 arrows, the
 	vanilla arrow at half the weapon's damage, assumed), Wind Ward (gw-ward: 1.5/3% less damage

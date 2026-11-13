@@ -7,8 +7,8 @@
 //   Boomerang's ec-lone strikes a lone target itself). Tailwind Catch (ec-catch): the
 //   ranger catching the arrow on its way back adds a Tailwind stack.
 // - Gathering Winds (stormbringer/gathering_winds.sval): every TAILWIND_KILLS kills add a
-//   Tailwind stack (HWPSpecsKillTailwind), up to TAILWIND_MAX. Each gain refreshes all stacks
-//   for TAILWIND_MS, including at the cap. The speed is tailwind_<gw-lvl>_<n>
+//   Tailwind stack (HWPSpecsKillTailwind), up to TAILWIND_MAX. Each gain and each kill
+//   refreshes all stacks for TAILWIND_MS, including at the cap. The speed is tailwind_<gw-lvl>_<n>
 //   (buffs_specs.sval: 2-4% move, attack and cast speed per stack by level), kept on by
 //   UpdateTailwind. Gale Force (gw-gale): at TAILWIND_MAX the bow and crossbow attacks shoot
 //   gw-gale more arrows (HWPSpecsGaleForce). Wind Ward (gw-ward): wind_ward at gw-ward x
@@ -51,11 +51,30 @@ namespace HWP
 				g_twExp.insertLast(g_twNow + TAILWIND_MS);
 		}
 
-		// At the cap, take/add also restarts the native HUD/fallback timer.
+		// Every held stack ends TAILWIND_MS from now: the script deadlines and the stack's
+		// native fallback/HUD timer (set directly, so the count and its triggers are untouched).
+		void RefreshTailwind(PlayerBase@ plr, ActorBuffStackDef@ def)
+		{
+			for (uint i = 0; i < g_twExp.length(); i++)
+				g_twExp[i] = g_twNow + TAILWIND_MS;
+			for (uint i = 0; i < plr.m_buffs.m_stacks.length(); i++)
+			{
+				ActorBuffStacked@ st = plr.m_buffs.m_stacks[i];
+				if (st.m_def is def && st.m_stacks > 0)
+					st.m_timerTickC = Modifiers::lerp(st.m_defMod.m_timerTime, st.GetIntensity());
+			}
+		}
+
+		bool HasGatheringWinds(PlayerBase@ plr)
+		{
+			return plr !is null && !plr.IsDead() && BindI(plr, GATHERING_WINDS, "gw-lvl", 0) > 0;
+		}
+
+		// At the cap, take/add also syncs the count to the other peers.
 		void AddTailwind(PlayerBase@ plr)
 		{
 			auto def = Stack("tailwind");
-			if (plr is null || def is null || plr.IsDead() || BindI(plr, GATHERING_WINDS, "gw-lvl", 0) <= 0)
+			if (def is null || !HasGatheringWinds(plr))
 				return;
 			FollowTailwind(plr.GetStacks(def));
 			g_twExp.insertLast(g_twNow + TAILWIND_MS);
@@ -65,8 +84,24 @@ namespace HWP
 				plr.AddStacks(plr, def, -1);
 			}
 			plr.AddStacks(plr, def, 1);
-			for (uint i = 0; i < g_twExp.length(); i++)
-				g_twExp[i] = g_twNow + TAILWIND_MS;
+			RefreshTailwind(plr, def);
+		}
+
+		// A ranger kill: every TAILWIND_KILLS-th adds a stack; every other one refreshes the
+		// stacks already held (#126), so one kill per TAILWIND_MS keeps them.
+		void KillTailwind(PlayerBase@ plr)
+		{
+			g_twKills++;
+			if (g_twKills % TAILWIND_KILLS == 0)
+			{
+				AddTailwind(plr);
+				return;
+			}
+			auto def = Stack("tailwind");
+			if (def is null || !HasGatheringWinds(plr))
+				return;
+			FollowTailwind(plr.GetStacks(def));
+			RefreshTailwind(plr, def);
 		}
 
 		int g_wardC = 0;
@@ -340,7 +375,7 @@ class HWPSpecsGaleForce : IEffect
 }
 
 // Gathering Winds' stack, on a kill (the kill trigger in gathering_winds.sval): every
-// TAILWIND_KILLS kills of the ranger's add one. Its own client.
+// TAILWIND_KILLS kills of the ranger's add one, and every kill refreshes them. Its own client.
 class HWPSpecsKillTailwind : IEffect
 {
 	HWPSpecsKillTailwind(UnitPtr unit, SValue& params) {}
@@ -354,9 +389,7 @@ class HWPSpecsKillTailwind : IEffect
 		auto plr = cast<PlayerBase>(owner);
 		if (husk || plr is null || !HWP::Specs::IsLocal(plr))
 			return false;
-		HWP::Specs::g_twKills++;
-		if (HWP::Specs::g_twKills % HWP::Specs::TAILWIND_KILLS == 0)
-			HWP::Specs::AddTailwind(plr);
+		HWP::Specs::KillTailwind(plr);
 		return true;
 	}
 }

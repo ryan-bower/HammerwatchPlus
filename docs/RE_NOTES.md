@@ -1,5 +1,14 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-12: Deadeye Tailwind kill refresh (#126)
+
+Source change: `HWPSpecsKillTailwind` now calls `KillTailwind`. Every fifth kill still goes
+through `AddTailwind`; every other kill calls `RefreshTailwind`, which resets all `g_twExp`
+deadlines and sets the stack's native `ActorBuffStacked.m_timerTickC` straight to the timer
+time (the Firearms reload pattern). Setting the field avoids a take/add pair, so a refresh
+does not change the count, send stack messages or fire StackGained/StackLost. The direct reset
+is local only; peers' husk copies do not tick the timer. Not run natively.
+
 ## 2026-11-12: Deadeye Tailwind refresh (#77)
 
 Source change: `TAILWIND_MS` is now 6000 (previously 4000). `AddTailwind`, shared by

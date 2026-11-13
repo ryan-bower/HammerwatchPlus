@@ -44,7 +44,7 @@
 			<array name="hud"><s>players/hwp/specs/icons.png</s><i>100</i><vec4>192 24 14 14</vec4></array>
 		</dict>
 	</dict>
-	<!-- Deadeye, Gathering Winds: a stack per 5 kills; each gain refreshes all stacks for 6 s
+	<!-- Deadeye, Gathering Winds: a stack per 5 kills; each gain and each kill refreshes all stacks for 6 s
 	     (Stormbringer.as g_twExp). This slightly longer fallback timer also drives the HUD.
 	     The speed is the tailwind_<lvl>_<n> buff (buffs_specs.sval), not the stack. -->
 	<dict>

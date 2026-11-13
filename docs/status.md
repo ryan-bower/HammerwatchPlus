@@ -44,6 +44,13 @@ tasks. Read the ledger for current counts and next actions.
 > **Historical QA checkpoint (2026-10-22): paused at the user-requested PR boundary.** The original sweep was incomplete. Recorded original-sweep passes: six original fourth specs60/60 rank cases and61/65 orb-quality cases; Firearms60/60 ranks and74/75 orb qualities; HoH1 imports29/39 skills and136/191 ranks;9/9 selected-mastery saves. Five orb cases need real co-op. The then-current 31 normal-release modules had load evidence, with broader feature/lifecycle work open. Earlier QA summaries below are historical snapshots. See [the historical checkpoint](generated/qa_pr_checkpoint.json) and [QA ledger](QA_OVERNIGHT.md).
 
 
+2026-11-12, Deadeye Tailwind kill refresh (#126). Every kill by the ranger now refreshes
+held Tailwind stacks for 6 s, not only the fifth kill that adds one, so one kill per 6 s keeps
+them while building to 5. Stack gains every 5 kills, the cap and the duration are unchanged.
+Tooltip and planner updated. Offline: `test_specs_tailwind` passes (6); the full suite fails
+only in `test_workshop_art` (the `dummydps` symbol from #119, pre-existing). The new
+`plan-specs` check `storm_gw_kill_refresh` has not been run natively; no game was started.
+
 2026-11-12, Deadeye Tailwind (#77). Duration increased from 4 to 6 seconds; every gain
 refreshes all existing stacks, including gains at the cap and Tailwind Catch. Updated
 tooltip/planner and timing regressions. All 57 focused offline tests and both generated-file

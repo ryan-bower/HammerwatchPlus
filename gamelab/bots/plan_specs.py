@@ -302,6 +302,20 @@ class Checks(Base):
         n3 = self.status_num("tailwind")
         self.flag("storm_gw_expiry", n2 == 2 and n3 == 0,
                   f"two separated gains: {n2} stacks 4.2 s after the second, {n3} after 6.8 s")
+        # #126: a kill that adds no stack still refreshes the held ones. One gain, then a
+        # single kill every 3.5 s keeps the stack well past its own 6 s; idle, it ends.
+        kills(5)
+        kept = []
+        t0 = time.monotonic()
+        for _ in range(3):
+            time.sleep(3.5)
+            kills(1)
+            kept.append(self.status_num("tailwind"))
+        held_for = time.monotonic() - t0
+        time.sleep(6.8)
+        n4 = self.status_num("tailwind")
+        self.flag("storm_gw_kill_refresh", kept == [1, 1, 1] and held_for > 6.5 and n4 == 0,
+                  f"one stack, single kills 3.5 s apart: {kept} over {held_for:.1f} s, {n4} after 6.8 s idle")
         kills(35)
         ncap = self.status_num("tailwind")
         sp = self.wait_buff(f"tailwind_{lvl}_5", 1.5)
