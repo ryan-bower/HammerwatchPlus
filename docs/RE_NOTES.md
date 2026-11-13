@@ -302,6 +302,112 @@ Setup was resumed with no outer shell timeout. Its outcome is pending at this
 checkpoint. Gameplay test drafts remain under ignored `gamelab/results/`, not in
 the active test sources. No native compilation, gameplay, or co-op pass is claimed.
 
+## Town dummy DPS CI metadata fix (2026-11-12)
+
+PR #119 run `43231315246` failed six Workshop tests: the new module lacked a
+`TERSE` description and the cover's QoL helper count remained 20 instead of 21.
+Added the player-facing DPS description and updated the count without weakening
+tests. All 28 focused Workshop/config/package/build tests now pass locally, as do
+Workshop text/ledger and generated settings checks. The failed Windows CI run
+recorded 1,250 passed and 57 skipped; a fresh remote full-suite result is required
+for this fix. Gameplay and native-test limitations are unchanged.
+
+## Town dummy DPS main merge (2026-11-12)
+
+Merged `origin/main` at `3dc29e56` into the feature branch. Resolved six additive
+conflicts by retaining both branches' package descriptions/module lists, all-mod
+scenario coverage and dated status entries. Regenerated settings from the merged
+metadata so the local dummy meter and host-controlled out-of-combat options both
+remain available. Updated the DPS package scenario's generator path.
+
+Post-resolution checks: 21 focused config/package/build tests, generated settings,
+verb catalog, override checks and whitespace checks pass. Package-scenario freshness
+now flags only three unrelated upstream party-frame variants; the DPS variant is
+current. No fresh native test was attempted, and previous setup blockers remain.
+
+## Town dummy DPS continuation (2026-11-12)
+
+Resumed the existing feature worktree at main `4cfbb3bf`. Conflict markers were
+already removed from the working files, but six index entries remained unmerged.
+Reviewed the feature-only diffs against HEAD and marked those entries resolved,
+preserving upstream salvage/freeskills packaging and the saved stash. The recovered
+implementation and two scenarios remain uncommitted; no gameplay code was changed
+in this continuation.
+
+Current offline checks: 21 focused config/package/build tests passed;
+`./build.sh --check`, verb catalog and generated settings checks passed.
+`./build.sh qol` built `dist/HWP-qol.bin` (314 files); archive listing confirms the
+DummyDPS script and both language files are included. This is packaging evidence,
+not AngelScript compilation or a live-game result. The full
+`scripts/test.py` attempt with system Python lacked pytest; with the project venv
+it stopped during collection on 18 Windows-only `ctypes.WinDLL` imports on Linux.
+Neither attempt is a full-suite pass. Do not widen this feature into a harness port.
+
+GameLab doctor initially exceeded the shell's 120-second timeout; its private
+runtime cleaned up and no Wine/game processes remained in the subsequent process
+snapshot. A second report-only attempt used a longer deadline. Its report identifies
+Steam not running and an invalid existing save confirmation: reparse/symlink save
+paths are not accepted. No reset, backup confirmation override, save restoration,
+game launch or deployment was performed. Current-source native validation remains
+blocked. Prior November 5 results below retain their original source pin.
+
+After-mode UI source review is recorded in `anti-slop/audit-001-2026-11-12.md`.
+Natural attacks with hit numbers, DoTs/summons, GUI scaling, transitions and actual
+two-player agreement remain unverified on the integrated source.
+
+The second doctor completed with exit 2. It also reports a stale capture-shim
+stamp, stale pet dye and Forgemaster generated units, and a smoke stamp requiring
+renewal. These are setup blockers, not feature failures; no fixes were forced.
+For the requested commit illustration, retained the original active screenshot
+from `mod-dummydps 20261105-201116` as `docs/images/dummy-dps.png` and linked it
+with its historical controlled-state provenance in the module README. The frame
+was inspected: the two targets display 200000 and 0 DPS respectively. The source
+run has outer PASS, no error/build drift and clean teardown; this does not extend
+its evidence to today's integrated source.
+
+## Town dummy DPS (2026-11-05, feature worktree)
+
+New `dummydps` module in Quality of Life and All. It samples actual HP loss per
+frame on nearby `target_dummy` actors, town only, and renders a cached, UI-scaled
+`DPS (5s)` label. Formula: sum of health lost in the last 5 gameplay seconds / 5;
+five seconds to fill, five damage-free seconds to zero. Each dummy is independent.
+Local toggle clears tracking immediately; no overrides, damage hooks, stat writes,
+save changes or custom networking. The observed HP loss includes all sources and
+peers, not a per-player attribution. Floating-point HP, simultaneous healing,
+discovery latency and dead/destructed targets limit this live-target meter.
+
+Expected-source anchors: `mods/dummydps/scripts/HWP/DummyDPS/DummyDPS.as`
+(`Window`, `GuardedUpdateFrame`, `GuardedRenderFrame`) and `mod-dummydps.json`.
+On pinned Steam build **25932569**, at HEAD `196cf170095e331ee74ddaaef365cb8c53fc0086`
+plus feature changes, controlled tests passed:
+
+- `mod-all 20261105-201016`: all loose modules compile/load, no mod script errors.
+- `mod-dummydps 20261105-201116`: window self-test (boundary expiry, aggregation,
+  healing exclusion, independent windows, unsigned wrap), spawned normal + armored
+  dummies, forced 1,000,000 HP loss -> 200,000 DPS, other target zero, six seconds
+  idle -> zero, disable clears, re-enable starts zero. Active/disabled screenshots
+  inspected: separate overhead labels and no labels when disabled.
+- `pf-mod-dummydps 20261105-201302`: same checks through the built QoL package.
+
+All three outer verdicts PASS, no error/build drift, clean teardown, and final
+inner results non-partial. Feature runs share before/after `mods+gamelab+tools-v2`
+fingerprint `6d1eea439c2308ab4270aac24c3ff80fac6ae1e6475affa1b6cac734325cca76`
+(2,184 files). Later documentation edits and removal of unrelated generator churn
+change the aggregate fingerprint; retain this pin with these historical trials.
+18 focused portable tests passed; `./build.sh --check` passed.
+
+Fresh-worktree setup initially exceeded the shell's 120 s deadline during
+`export-datatables 20261105-195448` (partial inner, no outer verdict). Doctor then
+refused its stale lock. After accounting for that run, GameLab reset found no
+remaining owned game process; the next doctor briefly refused a different
+worktree's active runtime (not reset/killed). Once free, export
+`20261105-200616` and doctor smoke `null-payload 20261105-200924` passed.
+No user config, install resources or saves changed in completed tests.
+
+Unfinished/manual: natural combat/DoTs/summons, actual built-town placements,
+alternate GUI scales and two-player agreement. Controlled HP changes prove the
+observer and UI, not those gameplay paths. No deployment to the player's install.
+
 ## Current Linux PR integration checkpoint (2026-11-05)
 
 Rebased the Linux host onto main `e7d060f111adf3b043c8df96526b1d27b8a86e4b`.

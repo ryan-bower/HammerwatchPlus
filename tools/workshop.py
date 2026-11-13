@@ -59,6 +59,7 @@ TERSE = {
     "mapicons": "dye pots marked on the minimap.",
     "salvage": "destroying gear salvages it into Crystals or Dust, more the higher its level.",
     "outofcombat": "twice the speed in a run while you haven't hit an enemy for 10 seconds.",
+    "dummydps": "five-second rolling DPS above town training dummies, combining damage from all players and sources.",
     "groupcombo": "a party combo bonus, and rare combo orbs from boxes and vases.",
     "architect": "every player can pick and pay for Architect alterations; three saved presets.",
     "droptrade": "drop gear for friends (Q in the inventory).",

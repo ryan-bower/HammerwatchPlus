@@ -53,6 +53,7 @@ next level.
 | Out of combat speed | Speed | `outofcombat.speed` | 2x | 1.25x, 1.5x, 2x, 2.5x, 3x | host |
 | Out of combat speed | Time without a hit | `outofcombat.delay` | 10 s | 3 s, 5 s, 10 s, 15 s, 20 s, 30 s | host |
 | Out of combat speed | In town too | `outofcombat.town` | off | on, off | host |
+| Training dummy DPS | On | `dummydps.enabled` | on | on, off | local |
 
 ## Co-op Play
 

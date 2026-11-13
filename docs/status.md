@@ -44,6 +44,21 @@ tasks. Read the ledger for current counts and next actions.
 > **Historical QA checkpoint (2026-10-22): paused at the user-requested PR boundary.** The original sweep was incomplete. Recorded original-sweep passes: six original fourth specs60/60 rank cases and61/65 orb-quality cases; Firearms60/60 ranks and74/75 orb qualities; HoH1 imports29/39 skills and136/191 ranks;9/9 selected-mastery saves. Five orb cases need real co-op. The then-current 31 normal-release modules had load evidence, with broader feature/lifecycle work open. Earlier QA summaries below are historical snapshots. See [the historical checkpoint](generated/qa_pr_checkpoint.json) and [QA ledger](QA_OVERNIGHT.md).
 
 
+2026-11-12, training dummy DPS CI fix (#119). Added the missing Workshop module
+description and corrected the QoL cover count to 21 helpers. All 28 focused
+Workshop/config/package/build tests pass locally; remote full-suite verification
+is pending. No gameplay changes or test exemptions.
+
+2026-11-12, training dummy DPS resumed on `feat/town-dummy-dps` at main `4cfbb3bf`.
+Recovered the module and scenarios, reviewed the merged contents and cleared the
+remaining Git conflict flags without dropping the saved stash. The meter supplements
+native hit numbers with combined HP loss over the last five seconds. The QoL pack
+builds and 21 focused offline tests pass. Current-source
+live validation is blocked by Steam not running and a save-confirmation symlink
+refusal; no safety checks were bypassed or player install deployed. The UI review
+is in [audit-001](../anti-slop/audit-001-2026-11-12.md); historical passes below remain
+historical, not evidence for this integration.
+
 2026-11-08, Catch-up experience (`catchup`, #73), in the Co-op package. In a New Game+
 run, a player below the level cap of the NG+ level before it gets 50% more experience: below
 20 in NG+1, 25 in NG+2, 30 in NG+3 (vanilla's cap is 20 + 5 per NG+ level, so the threshold

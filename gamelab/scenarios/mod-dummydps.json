@@ -1,0 +1,29 @@
+{
+  "name": "mod-dummydps",
+  "about": "Controlled health-loss observation, rolling-window arithmetic, idle expiry, independent dummy labels and local toggle. Forced state, not ordinary combat or co-op proof.",
+  "fixture": "town-paladin",
+  "mods": ["dummydps"],
+  "timeout": 120,
+  "steps": [
+    {"do": "wait_phase", "phase": "town"},
+    {"do": "console", "line": "hwp dummydps selftest", "expect": "window selftest PASS"},
+    {"do": "gl", "verb": "spawn", "args": ["doodads/generic/target_dummy_normal.unit", "40", "0"]},
+    {"do": "gl", "verb": "spawn", "args": ["doodads/generic/target_dummy_armored.unit", "-40", "0"]},
+    {"do": "sleep", "seconds": 1},
+    {"do": "console", "line": "hwp dummydps", "expect": "dps=0 text=yes"},
+    {"do": "gl", "verb": "kill", "args": ["150", "target_dummy_normal", "0.9"]},
+    {"do": "sleep", "seconds": 0.5},
+    {"do": "console", "line": "hwp dummydps", "expect": "dps=200000 text=yes"},
+    {"do": "shot", "name": "dummy-dps-active"},
+    {"do": "sleep", "seconds": 6},
+    {"do": "console", "line": "hwp dummydps", "expect": "dps=0 text=yes", "lacks": "dps=200000"},
+    {"do": "console", "line": "hwp set dummydps.enabled false"},
+    {"do": "sleep", "seconds": 0.5},
+    {"do": "console", "line": "hwp dummydps", "expect": "tracked=0"},
+    {"do": "shot", "name": "dummy-dps-disabled"},
+    {"do": "console", "line": "hwp set dummydps.enabled true"},
+    {"do": "sleep", "seconds": 0.5},
+    {"do": "console", "line": "hwp dummydps", "expect": "dps=0 text=yes"},
+    {"do": "log_clean"}
+  ]
+}
