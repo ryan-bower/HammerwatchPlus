@@ -15,6 +15,7 @@ package = false
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
+    "pytest-xdist>=3.8.0",
     "ruff>=0.17.3",
 ]
 
