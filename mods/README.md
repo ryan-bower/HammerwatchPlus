@@ -28,6 +28,10 @@ Each module's full spec and test checklist is in its own `README.md`.
 
 ## Runs and dungeons
 
+`shortcuts` extends the Dark Citadel candle challenge: five candles skip to the High
+Courts, six to the Dark Halls and seven to the Avatar. Extra candles add shades,
+not loot, and retain the existing Barracks shortcut unlock. Included in Quality of Life.
+
 | Module | What it does |
 |---|---|
 | `puzzles` | Puzzle rooms are back on most floors (HoH2 ships 88 but never places them), checked and repaired after generation, and HoH1's Constellation puzzle is one they can roll, also in a clearing on forest and heaven floors. Summons wait at the door while you solve. |
