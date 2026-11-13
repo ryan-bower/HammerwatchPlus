@@ -40,7 +40,10 @@ Watcher in their own Update.
   each frame the module finds the open `PlayerMenu` whose current tab is the
   character tab, clones its `player-level` text once as `hwp-pet-level` into the
   same row (its tooltip button hidden) and keeps text and offset current; hidden
-  without a pet. `gl menu character - hwp-pet-level` reads it (the tab has its own
+  without a pet. The clone's shared `BitmapString` is dropped before its first
+  `SetText` (otherwise it blanked the character's level, issue #79). If the line
+  would run into the player name it shortens to `pet lvl N`, and hides if even
+  that doesn't fit. `gl menu character - hwp-pet-level` reads it (the tab has its own
   widget tree; `gl wtext` sees only the window's).
 - **Skills** (ranks 1-5, family 1-3): Hazard Clearer (vines), Smash
   (breakables), Stun (normal enemies only; stun_minor/stun/stun_greater),

@@ -34,6 +34,45 @@ cannot collect 18 Windows-only test modules under Linux (`ctypes.WinDLL` absent)
 The module README lists the outstanding placement, combat, co-op, save and victory
 checks; none is claimed as passing.
 
+## 2026-11-12: Deadeye Tailwind refresh (#77)
+
+Source change: `TAILWIND_MS` is now 6000 (previously 4000). `AddTailwind`, shared by
+Gathering Winds kills and Tailwind Catch, sets every tracked deadline to the new
+expiry after each gain. At the five-stack cap the existing take/add pair is retained
+to reset the native stack/HUD timer; the native fallback is now 6100 ms rather than
+4100 ms. Stack cap, kill threshold and speed/Wind Ward scaling are unchanged.
+
+Six seconds is the tuning choice for the issue's unspecified duration increase.
+Offline contracts cover duration/fallback consistency, shared gain routing and the
+unconditional refresh loop. `plan-specs` now checks staggered gains and cap gains
+surviving the original expiry before expiring together; `qa-specs-deadeye` waits for
+the longer expiry. These native regressions have not been run on this source:
+`./gamelab.sh doctor` exited 2 because this worktree lacks Windows Python. No game
+started, no build was re-pinned, and no gameplay or balance PASS is claimed.
+
+Offline validation: 57 tests pass across `test_specs_tailwind`, `test_specs_support_rework`,
+`test_catalog`, `test_builds` and `test_shared_modules`, using the main checkout's existing
+Python environment against this worktree. Both generated-file checks and `git diff --check`
+pass. The full `scripts/test.py` attempt stops at collection with 18 existing Linux
+`ctypes.WinDLL` import errors; no unrelated platform code was changed.
+
+## 2026-11-08: a cloned TextWidget shares its text (issue #79)
+
+Source review only, not measured in game.
+
+- `Widget.CloneInto` copies by value (`w = this`, `Widget.as:189`) and only replaces
+  `m_parent`, `m_host` and `m_children`. Every other handle is shared with the original:
+  `TextWidget.m_text` (the built `BitmapString`) and `Widget.m_tooltip` (`WidgetTooltip`).
+  `TextWidget.SetText` calls `m_text.Cleanup()` before rebuilding (`TextWidget.as:130/159`), and
+  `Cleanup()` does the same, so the first `SetText` on a clone wipes the original's text. The
+  original only rebuilds when its own string changes (`TextWidget.as:118/147`), so it stays blank.
+  Cloning a hidden template is harmless; cloning a live, shown widget is not. Null the clone's
+  `m_text` (and `m_tooltip`) right after `Clone()`, and if it had already been shared, rebuild
+  the original with `SetText(m_str, true, true)` (the `force` argument). `m_font` is shared too,
+  which is fine. In `mods/`, `PetLevelTab.as` had the bug (pet line blanked the character level
+  in the character tab) and `SubclassPick.CloneText` already detached; every other `Clone()`
+  copies a hidden template.
+
 ## 2026-11-06: party frames, HUD drawing and ally data
 
 Measured in GameLab on build 25932569 (`mod-partyframes` 20261106-195712, `mod-partyframes-data`
@@ -129,6 +168,40 @@ Source review and a code change on `origin/main` 4cfbb3bf; no game run, no GameL
   The hint bar's Apply entry still calls `Apply` directly.
 - **Unverified:** whether a gamepad binds Use and MenuAdditional to the same button (if not,
   the gamepad path is unchanged); the change itself in game (host and client).
+
+## 2026-11-08: experience gains and the NG+ level cap (issue #73, `catchup`)
+
+Source review of the decompiled scripts (`gamecode/sdk/hoh2/scripts`, build 25932569), for
+the NG+ catch-up experience bonus. Not measured in game yet.
+
+- **The level cap** is `PlayerRecord.GetLevelCap()` = `int(Tweak::LevelCap + ngp *
+  Tweak::LevelCapNGPAdd + 0.5f)`, with `LevelCap` 20 and `LevelCapNGPAdd` 5 (`Data/Player.as`
+  72-73), where `ngp` is the *character's* unlocked NG+ (`PlayerRecord.ngp`, saved per
+  character, raised by an NG+ mission reward when `g_ngp >= ngp`). So the caps are 20, 25,
+  30, 35 for NG+0-3. `GiveExperience` stops levelling at that cap (the commented-out line
+  above it once capped by `min(ngp, g_ngp)`).
+- **The run's NG+** is the global `g_ngp` (a `pfloat`, `HWR2GameMode.as`): chosen on the
+  run-start screen (`MissionLoadoutMenu`, at most the host's `ngp`), saved in the level save
+  (`HWR2GameMode` pushes `"ngp"`) and loaded by `LoadDifficulty` on every machine. The game
+  rounds it with `int(g_ngp + 0.5f)` everywhere (tab overlay, lobby data, `SetNGPDefines`).
+  `g_diffLevel` adds `g_ngp * LevelCapNGPAdd` to a mission's difficulty level.
+- **Kill experience:** `Player.KilledActor` on the killer's machine takes
+  `killed.GetExperienceReward(killer level)`, sends `PlayerShareExperience(true, xp)` to all
+  and calls `NetShareExperience` itself; every other machine's `PlayerHandler.
+  PlayerShareExperience` calls `NetShareExperience` on its own local player. That multiplies
+  by the record's `ExpMul` modifiers and calls `GiveExperience(xpr)`. So every machine books
+  its own player's experience, and a local buff on the local player affects only that player.
+- **`PlayerRecord.GiveExperience(amount, skipGainMod)`** (2286): unless `skipGainMod`, it
+  multiplies by the actor's `m_buffs.ExperienceMul()`, `currStats.ExperienceMul`,
+  `Tweak::ExperienceScale`, `g_mpExpScale` and `GetLevelDifferenceExperienceMul(level,
+  g_diffLevel)`, then `roll_round`s. `ActorBuffList.ExperienceMul()` is the product of each
+  buff's `ActorBuffDef.m_mulExperience` (sval `experience-mul`, a vec2 lerped by intensity),
+  the field the vanilla shrine experience blessing sets to 2 (`tweak/buffs/shrine_buffs.sval`).
+- **Callers:** kill shares (above), mission rewards (`MissionManager.NetSetMissionState` on
+  Succeeded, local players only, before the host's `ChangeLevel` to town, so still in the run),
+  the `GiveExperience` effect and world script, and cheats all apply the buff multiplier.
+  `QuantityTriggerEffect` (an experience-on-quantity effect) and the level-overflow loop pass
+  `skipGainMod = true` and are not multiplied.
 
 ## 2026-11-06: player move speed and hit detection (issue #99, `outofcombat`)
 
@@ -284,6 +357,112 @@ scenario run.json appeared; no game processes remained in the process inspection
 Setup was resumed with no outer shell timeout. Its outcome is pending at this
 checkpoint. Gameplay test drafts remain under ignored `gamelab/results/`, not in
 the active test sources. No native compilation, gameplay, or co-op pass is claimed.
+
+## Town dummy DPS CI metadata fix (2026-11-12)
+
+PR #119 run `43231315246` failed six Workshop tests: the new module lacked a
+`TERSE` description and the cover's QoL helper count remained 20 instead of 21.
+Added the player-facing DPS description and updated the count without weakening
+tests. All 28 focused Workshop/config/package/build tests now pass locally, as do
+Workshop text/ledger and generated settings checks. The failed Windows CI run
+recorded 1,250 passed and 57 skipped; a fresh remote full-suite result is required
+for this fix. Gameplay and native-test limitations are unchanged.
+
+## Town dummy DPS main merge (2026-11-12)
+
+Merged `origin/main` at `3dc29e56` into the feature branch. Resolved six additive
+conflicts by retaining both branches' package descriptions/module lists, all-mod
+scenario coverage and dated status entries. Regenerated settings from the merged
+metadata so the local dummy meter and host-controlled out-of-combat options both
+remain available. Updated the DPS package scenario's generator path.
+
+Post-resolution checks: 21 focused config/package/build tests, generated settings,
+verb catalog, override checks and whitespace checks pass. Package-scenario freshness
+now flags only three unrelated upstream party-frame variants; the DPS variant is
+current. No fresh native test was attempted, and previous setup blockers remain.
+
+## Town dummy DPS continuation (2026-11-12)
+
+Resumed the existing feature worktree at main `4cfbb3bf`. Conflict markers were
+already removed from the working files, but six index entries remained unmerged.
+Reviewed the feature-only diffs against HEAD and marked those entries resolved,
+preserving upstream salvage/freeskills packaging and the saved stash. The recovered
+implementation and two scenarios remain uncommitted; no gameplay code was changed
+in this continuation.
+
+Current offline checks: 21 focused config/package/build tests passed;
+`./build.sh --check`, verb catalog and generated settings checks passed.
+`./build.sh qol` built `dist/HWP-qol.bin` (314 files); archive listing confirms the
+DummyDPS script and both language files are included. This is packaging evidence,
+not AngelScript compilation or a live-game result. The full
+`scripts/test.py` attempt with system Python lacked pytest; with the project venv
+it stopped during collection on 18 Windows-only `ctypes.WinDLL` imports on Linux.
+Neither attempt is a full-suite pass. Do not widen this feature into a harness port.
+
+GameLab doctor initially exceeded the shell's 120-second timeout; its private
+runtime cleaned up and no Wine/game processes remained in the subsequent process
+snapshot. A second report-only attempt used a longer deadline. Its report identifies
+Steam not running and an invalid existing save confirmation: reparse/symlink save
+paths are not accepted. No reset, backup confirmation override, save restoration,
+game launch or deployment was performed. Current-source native validation remains
+blocked. Prior November 5 results below retain their original source pin.
+
+After-mode UI source review is recorded in `anti-slop/audit-001-2026-11-12.md`.
+Natural attacks with hit numbers, DoTs/summons, GUI scaling, transitions and actual
+two-player agreement remain unverified on the integrated source.
+
+The second doctor completed with exit 2. It also reports a stale capture-shim
+stamp, stale pet dye and Forgemaster generated units, and a smoke stamp requiring
+renewal. These are setup blockers, not feature failures; no fixes were forced.
+For the requested commit illustration, retained the original active screenshot
+from `mod-dummydps 20261105-201116` as `docs/images/dummy-dps.png` and linked it
+with its historical controlled-state provenance in the module README. The frame
+was inspected: the two targets display 200000 and 0 DPS respectively. The source
+run has outer PASS, no error/build drift and clean teardown; this does not extend
+its evidence to today's integrated source.
+
+## Town dummy DPS (2026-11-05, feature worktree)
+
+New `dummydps` module in Quality of Life and All. It samples actual HP loss per
+frame on nearby `target_dummy` actors, town only, and renders a cached, UI-scaled
+`DPS (5s)` label. Formula: sum of health lost in the last 5 gameplay seconds / 5;
+five seconds to fill, five damage-free seconds to zero. Each dummy is independent.
+Local toggle clears tracking immediately; no overrides, damage hooks, stat writes,
+save changes or custom networking. The observed HP loss includes all sources and
+peers, not a per-player attribution. Floating-point HP, simultaneous healing,
+discovery latency and dead/destructed targets limit this live-target meter.
+
+Expected-source anchors: `mods/dummydps/scripts/HWP/DummyDPS/DummyDPS.as`
+(`Window`, `GuardedUpdateFrame`, `GuardedRenderFrame`) and `mod-dummydps.json`.
+On pinned Steam build **25932569**, at HEAD `196cf170095e331ee74ddaaef365cb8c53fc0086`
+plus feature changes, controlled tests passed:
+
+- `mod-all 20261105-201016`: all loose modules compile/load, no mod script errors.
+- `mod-dummydps 20261105-201116`: window self-test (boundary expiry, aggregation,
+  healing exclusion, independent windows, unsigned wrap), spawned normal + armored
+  dummies, forced 1,000,000 HP loss -> 200,000 DPS, other target zero, six seconds
+  idle -> zero, disable clears, re-enable starts zero. Active/disabled screenshots
+  inspected: separate overhead labels and no labels when disabled.
+- `pf-mod-dummydps 20261105-201302`: same checks through the built QoL package.
+
+All three outer verdicts PASS, no error/build drift, clean teardown, and final
+inner results non-partial. Feature runs share before/after `mods+gamelab+tools-v2`
+fingerprint `6d1eea439c2308ab4270aac24c3ff80fac6ae1e6475affa1b6cac734325cca76`
+(2,184 files). Later documentation edits and removal of unrelated generator churn
+change the aggregate fingerprint; retain this pin with these historical trials.
+18 focused portable tests passed; `./build.sh --check` passed.
+
+Fresh-worktree setup initially exceeded the shell's 120 s deadline during
+`export-datatables 20261105-195448` (partial inner, no outer verdict). Doctor then
+refused its stale lock. After accounting for that run, GameLab reset found no
+remaining owned game process; the next doctor briefly refused a different
+worktree's active runtime (not reset/killed). Once free, export
+`20261105-200616` and doctor smoke `null-payload 20261105-200924` passed.
+No user config, install resources or saves changed in completed tests.
+
+Unfinished/manual: natural combat/DoTs/summons, actual built-town placements,
+alternate GUI scales and two-player agreement. Controlled HP changes prove the
+observer and UI, not those gameplay paths. No deployment to the player's install.
 
 ## Current Linux PR integration checkpoint (2026-11-05)
 
@@ -10143,6 +10322,19 @@ The final full-width timestamp implementation was verified again by
   is at y -64 with the door at x -176. A prefab's walls are under `statics`, not `units`.
 - An NPC's idle frame N faces N x 45 degrees, clockwise from east (`AnimString`): 0 east,
   2 south (toward the camera), 4 west, 6 north.
+
+## 2026-11-08: objectives rolled per floor (issue #67, source review, no game run)
+
+- `HWPObjectiveSpawn` is added with exec-chance 1 (`Generation.as` Install), so the
+  generator command itself always runs; the chance lives in `Run`, rolled with `randi(100)`
+  like `puzzles.room_chance` (one to three extra `randi` draws per floor, before the
+  vault and lever picks; whether that stream is seeded per floor was not checked).
+- `make_config.py` refuses a default that isn't one of the `values`, so the agreed list
+  [0, 10, 25, 50, 75, 100] gained 15 for the exit's default.
+- An unsealed floor needs nothing at Start: the exits are only disabled by `Seal()`, called
+  when `g_exitPresent`, which only generation or an exit lever unit (`AdoptFromUnits`) sets.
+  A client gets `exit_present false` from `objectives.state` and calls `Unseal(true)`, which
+  touches no script when nothing was sealed.
 
 ## 2026-11-06: where wall art sits, and why a lever can't go on a south wall (issue #74, objectives)
 

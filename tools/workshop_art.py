@@ -113,6 +113,7 @@ SYMBOLS = {
     "droptrade": [px("gui/icons.png", 104, 77, 20, 12)],
     "partyframes": [px("gui/hud.png", 316, 32, 10, 14)],  # the HUD's potion, the frames' own tile
     "partyexit": [px("gui/icons.png", 213, 0, 15, 15)],  # the HUD's exit use icon (hud.gui use-icon-exit)
+    "catchup": [px("items/icons_consumables.png", 241, 297, 14, 14)],  # the shrine experience blessing, its buff icon
     # Auto Aim
     "autoaim": [cell("skills", 6, 2)],
     # Firearms Specialist, Fourth Specializations
@@ -675,6 +676,7 @@ FEATURES = {
 NOTES = {
     "groupcombo": "party combo bonus, combo orbs", "architect": "everyone picks and pays",
     "droptrade": "drop gear for friends", "partyframes": "raid frames for your allies", "partyexit": "most of the party opens an exit",
+    "catchup": "+50% XP below the last NG+ cap",
     "mercenary": "enlist, rank up, die for good",
     "wavemode": "survival arena, from a town statue", "fishing": "on the coast and run floors",
     "farming": "crops and Holy Herbs", "gambler": "Higher or Lower, rerolls",
@@ -691,7 +693,7 @@ def prereq(pids) -> str:
     return ", ".join(f"{card}: {dlc} DLC" for dlc, _, card in (workshop.DLC[p] for p in pids if p in workshop.DLC))
 # the All pack's cover: a short name and what the package is, in a few words
 SHORT = {
-    "qol": ("Quality of Life", "20 helpers"), "coop": ("Co-op Play", "4 party features"),
+    "qol": ("Quality of Life", "22 helpers"), "coop": ("Co-op Play", "5 party features"),
     "interface": ("Interface", "raid-style party frames"),
     "autoaim": ("Auto Aim", "aim assist"), "firearms": ("Firearms", "a new class"),
     "specs": ("4th Specs", "8 new specializations"),

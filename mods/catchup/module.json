@@ -1,0 +1,16 @@
+{
+  "id": "catchup",
+  "requires": [
+    "hwplib"
+  ],
+  "overrides": [],
+  "exclude": [],
+  "config": {
+    "title": "Catch-up experience",
+    "about": "In a New Game+ run, players below the level cap of the NG+ before it (20 in NG+1, 25 in NG+2) get 50% more experience.",
+    "toggle": "catchup.enabled",
+    "scope": "host",
+    "applies": "now",
+    "settings": []
+  }
+}
