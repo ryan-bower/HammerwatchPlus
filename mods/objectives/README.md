@@ -2,7 +2,8 @@
 
 Floor objectives for generated dungeon floors (bugs 10.22.26 line 46): locked
 loot vaults opened by a switch elsewhere on the floor, and the way down sealed
-until the floor's exit switch is pressed. Requires `hwplib`. Never on boss
+until the floor's exit switch is pressed. Both are rolled per floor (issue #67):
+by default a vault on 25 % of floors and a sealed exit on 15 %. Requires `hwplib`. Never on boss
 floors or in town: those levels are authored (no `DungeonGenerator`), and the
 generation command only runs on indoor generated floors (forest brushes are
 skipped).
@@ -14,6 +15,14 @@ skipped).
   every indoor `DungeonGenerator` right after its shrine/skill
   `SpawnPrefabSet` (idempotent; `[HWP:objectives] generator command on N
   indoor floor(s)`). On the host it runs once per floor:
+  - **The rolls** (issue #67). Each of the `objectives.vaults` slots is rolled
+    on its own at `objectives.vault_chance` percent, and the exit seal once at
+    `objectives.exit_chance` percent when `objectives.exit` is on, each before
+    anything is placed: `vault 0 roll 37 >= 25: skipped`, `exit roll 3 < 15:
+    placing` (the generator's `randi`, like `puzzles.room_chance`). A vault
+    that is placed takes the next index, so the first one placed is always
+    `vault 0`. A floor whose exit roll misses has no exit lever and its exits
+    are never sealed.
   - `objectives.vaults` (0-2, default 1) vaults: `prefabs/hwp/objectives/vault_s.pfb`
     (9x8 cells: a walled room, two chests, `doodads/hwp/objective_door.unit`
     in the south doorway) is placed on an unconsumed wall block on the
@@ -98,7 +107,9 @@ skipped).
   from the units at Start (`AdoptFromUnits`): each door is a vault, each vault
   gets the farthest lever left, and the exit lever is the exit switch (with
   two vaults the pairs may differ from the generation's, since a lever is no
-  longer the farthest spot; each lever still opens one vault). It logs
+  longer the farthest spot; each lever still opens one vault). A floor with no
+  exit lever unit (its exit roll missed) keeps `g_exitPresent` false, so
+  nothing is sealed; a floor with no units at all logs nothing here. It logs
   `floor not generated here (preloaded or from a save): N vault(s) and exit
   switch yes ... taken from the units, vault 0 door x,y switch x,y`.
 - **HUD** (`gui/hwp_objectives.gui`, `HWPObjectivesHUD`): a line under the
@@ -120,8 +131,15 @@ or `hwp set`:
   floors generated after it (`objectives.enabled is off: nothing placed`). Turned off on
   a sealed floor, the host opens the way down at once (`exit opened: objectives.enabled
   is off`); a locked vault stays locked until its lever.
-- `objectives.vaults` (1; 0, 1 or 2): vaults per floor.
+- `objectives.vaults` (1; 0, 1 or 2): the most vaults a floor can get.
+- `objectives.vault_chance` (25 %; 0, 10, 15, 25, 50, 75 or 100): the chance of
+  each vault slot, rolled once per slot, so 2 vaults are two independent rolls.
 - `objectives.exit` (on): the exit switch and the sealed way down.
+- `objectives.exit_chance` (15 %; same values): the chance a floor's way down is
+  sealed behind a switch, rolled once per floor while `objectives.exit` is on.
+
+The GameLab scenarios that need a vault and the exit switch (`fix-objectives*` and
+their `pf-` package copies) set both chances to 100 (`tests/test_objectives_chance.py`).
 
 The Architect's **Marked Switches** alteration (any player's Architect picks, vanilla's
 picker) shows the levers on the map for that run.
@@ -175,7 +193,12 @@ Known limits (lab run `fix-objectives`, 2026-10-26, keep floor 1):
    bottom wall. The vault's floor, walls and torches look like the rest of the floor.
    With Marked Switches picked at the Architect, both levers show on the map. Walk onto the exit before the exit switch: no use prompt. Press the
    exit switch: the exit works.
-4. `hwp set objectives.vaults 2`, new floor: two vaults, each with its own
+3b. With the defaults, over several floors: most have no vault and no sealed
+   exit (`vault 0 roll N >= 25: skipped`, `exit roll N >= 15: skipped`), the
+   exit works at once there, no HUD line; a preloaded such floor logs no
+   `floor not generated here` line and `start: 0 vault(s), exit switch none`.
+4. `hwp set objectives.vault_chance 100`, `hwp set objectives.exit_chance 100`
+   for the checks below. `hwp set objectives.vaults 2`, new floor: two vaults, each with its own
    lever. `hwp set objectives.vaults 0`, `hwp set objectives.exit 0`: a plain
    floor, no HUD line. `hwp set objectives.enabled 0` on a sealed floor: the exits
    open at once; the next floor is plain.

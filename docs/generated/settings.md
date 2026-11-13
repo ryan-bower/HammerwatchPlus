@@ -70,6 +70,7 @@ next level.
 | Drop trade | Pickup first | `droptrade.pickup_first` | on | on, off | local |
 | Party exit | On | `partyexit.enabled` | on | on, off | host |
 | Party exit | Party at the exit | `partyexit.share` | 66 | Half (50), Two thirds (66), Three quarters (75) | host |
+| Catch-up experience | On | `catchup.enabled` | on | on, off | host |
 
 ## Interface
 
@@ -165,7 +166,9 @@ next level.
 | Puzzle rooms | Hold distance | `puzzles.summon_hold_radius` | 120 px | 80 px, 120 px, 160 px, 200 px, 300 px | host |
 | Floor objectives | On | `objectives.enabled` | on | on, off | host, level |
 | Floor objectives | Vaults per floor | `objectives.vaults` | 1 | 0, 1, 2 | host, level |
+| Floor objectives | Vault chance | `objectives.vault_chance` | 25% | 0%, 10%, 15%, 25%, 50%, 75%, 100% | host, level |
 | Floor objectives | Exit switch | `objectives.exit` | on | on, off | host, level |
+| Floor objectives | Exit switch chance | `objectives.exit_chance` | 15% | 0%, 10%, 15%, 25%, 50%, 75%, 100% | host, level |
 | Strongboxes | On | `strongbox.enabled` | on | on, off | host, level |
 | Strongboxes | Strongbox chance | `strongbox.chance` | 40% | 0 to 100, step 10% | host, level |
 | Strongboxes | Pack size | `strongbox.pack` | 4 | 2, 3, 4, 6, 8 | host, level |

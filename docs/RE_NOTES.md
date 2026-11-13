@@ -1,5 +1,22 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-08: a cloned TextWidget shares its text (issue #79)
+
+Source review only, not measured in game.
+
+- `Widget.CloneInto` copies by value (`w = this`, `Widget.as:189`) and only replaces
+  `m_parent`, `m_host` and `m_children`. Every other handle is shared with the original:
+  `TextWidget.m_text` (the built `BitmapString`) and `Widget.m_tooltip` (`WidgetTooltip`).
+  `TextWidget.SetText` calls `m_text.Cleanup()` before rebuilding (`TextWidget.as:130/159`), and
+  `Cleanup()` does the same, so the first `SetText` on a clone wipes the original's text. The
+  original only rebuilds when its own string changes (`TextWidget.as:118/147`), so it stays blank.
+  Cloning a hidden template is harmless; cloning a live, shown widget is not. Null the clone's
+  `m_text` (and `m_tooltip`) right after `Clone()`, and if it had already been shared, rebuild
+  the original with `SetText(m_str, true, true)` (the `force` argument). `m_font` is shared too,
+  which is fine. In `mods/`, `PetLevelTab.as` had the bug (pet line blanked the character level
+  in the character tab) and `SubclassPick.CloneText` already detached; every other `Clone()`
+  copies a hidden template.
+
 ## 2026-11-06: party frames, HUD drawing and ally data
 
 Measured in GameLab on build 25932569 (`mod-partyframes` 20261106-195712, `mod-partyframes-data`
@@ -95,6 +112,40 @@ Source review and a code change on `origin/main` 4cfbb3bf; no game run, no GameL
   The hint bar's Apply entry still calls `Apply` directly.
 - **Unverified:** whether a gamepad binds Use and MenuAdditional to the same button (if not,
   the gamepad path is unchanged); the change itself in game (host and client).
+
+## 2026-11-08: experience gains and the NG+ level cap (issue #73, `catchup`)
+
+Source review of the decompiled scripts (`gamecode/sdk/hoh2/scripts`, build 25932569), for
+the NG+ catch-up experience bonus. Not measured in game yet.
+
+- **The level cap** is `PlayerRecord.GetLevelCap()` = `int(Tweak::LevelCap + ngp *
+  Tweak::LevelCapNGPAdd + 0.5f)`, with `LevelCap` 20 and `LevelCapNGPAdd` 5 (`Data/Player.as`
+  72-73), where `ngp` is the *character's* unlocked NG+ (`PlayerRecord.ngp`, saved per
+  character, raised by an NG+ mission reward when `g_ngp >= ngp`). So the caps are 20, 25,
+  30, 35 for NG+0-3. `GiveExperience` stops levelling at that cap (the commented-out line
+  above it once capped by `min(ngp, g_ngp)`).
+- **The run's NG+** is the global `g_ngp` (a `pfloat`, `HWR2GameMode.as`): chosen on the
+  run-start screen (`MissionLoadoutMenu`, at most the host's `ngp`), saved in the level save
+  (`HWR2GameMode` pushes `"ngp"`) and loaded by `LoadDifficulty` on every machine. The game
+  rounds it with `int(g_ngp + 0.5f)` everywhere (tab overlay, lobby data, `SetNGPDefines`).
+  `g_diffLevel` adds `g_ngp * LevelCapNGPAdd` to a mission's difficulty level.
+- **Kill experience:** `Player.KilledActor` on the killer's machine takes
+  `killed.GetExperienceReward(killer level)`, sends `PlayerShareExperience(true, xp)` to all
+  and calls `NetShareExperience` itself; every other machine's `PlayerHandler.
+  PlayerShareExperience` calls `NetShareExperience` on its own local player. That multiplies
+  by the record's `ExpMul` modifiers and calls `GiveExperience(xpr)`. So every machine books
+  its own player's experience, and a local buff on the local player affects only that player.
+- **`PlayerRecord.GiveExperience(amount, skipGainMod)`** (2286): unless `skipGainMod`, it
+  multiplies by the actor's `m_buffs.ExperienceMul()`, `currStats.ExperienceMul`,
+  `Tweak::ExperienceScale`, `g_mpExpScale` and `GetLevelDifferenceExperienceMul(level,
+  g_diffLevel)`, then `roll_round`s. `ActorBuffList.ExperienceMul()` is the product of each
+  buff's `ActorBuffDef.m_mulExperience` (sval `experience-mul`, a vec2 lerped by intensity),
+  the field the vanilla shrine experience blessing sets to 2 (`tweak/buffs/shrine_buffs.sval`).
+- **Callers:** kill shares (above), mission rewards (`MissionManager.NetSetMissionState` on
+  Succeeded, local players only, before the host's `ChangeLevel` to town, so still in the run),
+  the `GiveExperience` effect and world script, and cheats all apply the buff multiplier.
+  `QuantityTriggerEffect` (an experience-on-quantity effect) and the level-overflow loop pass
+  `skipGainMod = true` and are not multiplied.
 
 ## 2026-11-06: player move speed and hit detection (issue #99, `outofcombat`)
 
@@ -10215,6 +10266,19 @@ The final full-width timestamp implementation was verified again by
   is at y -64 with the door at x -176. A prefab's walls are under `statics`, not `units`.
 - An NPC's idle frame N faces N x 45 degrees, clockwise from east (`AnimString`): 0 east,
   2 south (toward the camera), 4 west, 6 north.
+
+## 2026-11-08: objectives rolled per floor (issue #67, source review, no game run)
+
+- `HWPObjectiveSpawn` is added with exec-chance 1 (`Generation.as` Install), so the
+  generator command itself always runs; the chance lives in `Run`, rolled with `randi(100)`
+  like `puzzles.room_chance` (one to three extra `randi` draws per floor, before the
+  vault and lever picks; whether that stream is seeded per floor was not checked).
+- `make_config.py` refuses a default that isn't one of the `values`, so the agreed list
+  [0, 10, 25, 50, 75, 100] gained 15 for the exit's default.
+- An unsealed floor needs nothing at Start: the exits are only disabled by `Seal()`, called
+  when `g_exitPresent`, which only generation or an exit lever unit (`AdoptFromUnits`) sets.
+  A client gets `exit_present false` from `objectives.state` and calls `Unseal(true)`, which
+  touches no script when nothing was sealed.
 
 ## 2026-11-06: where wall art sits, and why a lever can't go on a south wall (issue #74, objectives)
 

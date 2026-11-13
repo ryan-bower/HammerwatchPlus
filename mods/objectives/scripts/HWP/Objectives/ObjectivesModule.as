@@ -6,11 +6,12 @@
 //   (doodads/hwp/objective_door.unit, "locked": solid, nav-blocking), with two
 //   chests inside; a lever elsewhere on the floor (objective_switch_<n|e|w>.unit
 //   on a wall, objective_switch.unit on a floor with no wall that fits) opens it. Both carry the map's info_poi icon until used. Setting
-//   objectives.vaults 0-2 (default 1).
+//   objectives.vaults 0-2 (default 1), each rolled at objectives.vault_chance percent (default 25).
 // - Exit: the floor's exits (WorldScript LevelExitAreaNext / AreaJump, LevelExitNext / Jump) are
 //   disabled until the exit switch (objective_exit_switch.unit) is pressed.
 //   The HUD says "Find the switch to open the way down", then "The way down
-//   is open". Setting objectives.exit (default on).
+//   is open". Setting objectives.exit (default on), rolled at objectives.exit_chance
+//   percent a floor (default 15); a floor that rolls no seal keeps its exits open.
 //
 // Host authority: the host generated the floor and knows every vault, door
 // and switch (Generation.as). A switch use reaches the host through the
@@ -67,6 +68,11 @@ namespace HWP
 		int g_vaultCount = 1;
 		bool g_exitOn = true;
 		bool g_enabled = true;     // objectives.enabled: off, new floors get nothing
+		// issue #67: percent a floor, rolled in generation (each vault slot, then the exit)
+		const int VAULT_CHANCE = 25;
+		const int EXIT_CHANCE = 15;
+		int g_vaultChance = VAULT_CHANCE; // objectives.vault_chance
+		int g_exitChance = EXIT_CHANCE;   // objectives.exit_chance
 		int g_exitOpenShown = 0;
 		HWPObjectivesHUD@ g_hud;
 		array<HWPObjectiveDoor@> g_doors;
@@ -87,6 +93,8 @@ namespace HWP
 			g_enabled = HWP::Settings::GetBool("objectives.enabled", true);
 			g_vaultCount = clamp(HWP::Settings::GetInt("objectives.vaults", 1), 0, 2);
 			g_exitOn = HWP::Settings::GetBool("objectives.exit", true);
+			g_vaultChance = clamp(HWP::Settings::GetInt("objectives.vault_chance", VAULT_CHANCE), 0, 100);
+			g_exitChance = clamp(HWP::Settings::GetInt("objectives.exit_chance", EXIT_CHANCE), 0, 100);
 		}
 
 		void ClearFloor()
@@ -185,6 +193,9 @@ namespace HWP
 					+ " taken from the units" + vaults
 					+ (levers.length() > 0 ? (", " + levers.length() + " lever(s) with no door") : ""));
 			}
+			// No units at all (town, a boss floor, or a generated floor whose rolls all missed,
+			// issue #67): nothing is logged here, g_exitPresent stays false (ClearFloor), so
+			// Start seals nothing, the exits stay open and the HUD stays hidden.
 		}
 
 		int OpenedVaults()

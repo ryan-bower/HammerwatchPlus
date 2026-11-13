@@ -32,12 +32,13 @@
     {
       "id": "coop",
       "name": "HammerwatchPlus: Co-op Play",
-      "description": "Party features: drop equipment for other players to pick up, Architect alterations every player can pick, a group combo bonus when the party is in combo together, and floor exits that open once most of the party is there.",
+      "description": "Party features: drop equipment for other players to pick up, Architect alterations every player can pick, a group combo bonus when the party is in combo together, floor exits that open once most of the party is there, and 50% more experience in New Game+ for players below the previous NG+ level cap.",
       "mods": [
         "groupcombo",
         "architect",
         "droptrade",
-        "partyexit"
+        "partyexit",
+        "catchup"
       ]
     },
     {

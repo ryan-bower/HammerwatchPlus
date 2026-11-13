@@ -64,6 +64,7 @@ TERSE = {
     "architect": "every player can pick and pay for Architect alterations; three saved presets.",
     "droptrade": "drop gear for friends (Q in the inventory).",
     "partyframes": "raid-style party frames: health, mana, shields and potions for every ally.",
+    "catchup": "50% more experience in New Game+ below the previous NG+ level cap (20 in NG+1, 25 in NG+2).",
     "partyexit": "a floor's exit opens once two thirds of the party stands at it (3 of 4, 2 of 3).",
     "autoaim": ["the reticle of an aimed skill snaps to an enemy in your aim cone",
                 "aimed skills can fire by themselves, ready area skills cast themselves",
