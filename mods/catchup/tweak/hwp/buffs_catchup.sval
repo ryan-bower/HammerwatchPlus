@@ -1,0 +1,23 @@
+<!-- The NG+ catch-up experience bonus, "Late Bloomer". The catchup module adds it locally
+     (husk, not networked) to the local player while they are below the level cap of the NG+
+     level before the run's, writes its description in code, and resets its timer to a few
+     seconds every frame, so it never runs out while the bonus applies; when it stops, the
+     timer is set to 0. The long duration here is only what the HUD and bufftips read
+     (display-timer-radius off), so they show no countdown. experience-mul is read by
+     ActorBuffList.ExperienceMul in PlayerRecord.GiveExperience, as the vanilla shrine
+     experience blessing's is; the icon is that blessing's (tweak/buffs/shrine_buffs.sval,
+     experience). -->
+<svals>
+	<dict name="hwp_catchup">
+		<string name="name">.hwp.catchup.buff</string>
+		<string name="description">.hwp.catchup.buff</string>
+		<array name="effect-icon"><s>items/icons_consumables.png</s><i>100</i><vec4>241 297 14 14</vec4></array>
+		<array name="hud"><s>items/icons_consumables.png</s><i>100</i><vec4>241 297 14 14</vec4></array>
+		<bool name="debuff">false</bool>
+		<bool name="hide-hud-text">true</bool>
+		<bool name="display-timer-radius">false</bool>
+		<bool name="ignore-buff-scaling">true</bool>
+		<int name="duration">86400000</int>
+		<float name="experience-mul">1.5</float>
+	</dict>
+</svals>

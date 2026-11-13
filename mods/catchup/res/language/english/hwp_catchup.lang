@@ -1,0 +1,9 @@
+<lang name="English" official="false">
+	<string name="hwp.catchup.buff">Late Bloomer</string>
+	<string name="hwp.catchup.desc">%pct% experience while below level %lvl% (NG+ %ngp%).</string>
+	<string name="hwp.catchup.status">Catch-up experience %state%: NG+ %ngp%, bonus below level %lvl%, your level %level%; bonus now: %active%.</string>
+	<string name="hwp.catchup.state.on">on</string>
+	<string name="hwp.catchup.state.off">off</string>
+	<string name="hwp.catchup.active.yes">yes (%pct%)</string>
+	<string name="hwp.catchup.active.no">no (%why%)</string>
+</lang>

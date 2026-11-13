@@ -11,7 +11,7 @@ are on the Steam Workshop; The Forsaken Tower is local-build only, and Interface
 | Package | Modules |
 |---|---|
 | `HWP-qol` Quality of Life | bufftips, chatlinks, stash, deathrecap, laststats, colors, waygates, weaponswap, summons, petrooms, legacy, goldworth, mmhmm, orbwarn, orbreroll, mapicons, attrclick, salvage, freeskills, outofcombat |
-| `HWP-coop` Co-op Play | groupcombo, architect, droptrade, partyexit |
+| `HWP-coop` Co-op Play | groupcombo, architect, droptrade, partyexit, catchup |
 | `HWP-autoaim` Auto Aim | autoaim |
 | `HWP-firearms` Firearms Specialist | firearms |
 | `HWP-specs` Fourth Specializations | specs |
