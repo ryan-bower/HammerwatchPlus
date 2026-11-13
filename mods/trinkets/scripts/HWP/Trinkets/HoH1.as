@@ -327,7 +327,9 @@ namespace HWP
 				HWP::Log("trinkets", "HoH1 icons not imported (tools/hoh1/import_hoh1.py trinkets): placeholder icons");
 				return;
 			}
-			if (!HWP::HoH1::Enabled())
+			// local only: an icon never reaches another player, so the lobby's HoH1 check
+			// (HWP::HoH1::Enabled, issue #123) does not apply, only the setting
+			if (!HWP::HoH1::LocalOn())
 			{
 				HWP::Log("trinkets", "hoh1.content off: placeholder icons");
 				return;

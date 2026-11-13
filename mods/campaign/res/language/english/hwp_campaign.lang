@@ -37,4 +37,7 @@
 	<string name="hwp.campaign.citadel">Dark Citadel floors: %floors%</string>
 	<string name="hwp.campaign.help">hwp campaign [here|reset|citadel|traps|confuse [ms]|teleporter [dx dy]]</string>
 	<string name="hwp.campaign.hoh1">the Forsaken Tower runs on HoH2 themes, not the HoH1 levels</string>
+	<string name="hwp.campaign.citadel_skip">Dark Citadel: the HoH1 Battlements are skipped, so the next floor is the Avatar. Why: %why%.</string>
+	<string name="hwp.campaign.citadel_skipped">Dark Citadel: this run skipped the HoH1 Battlements. Why: %why%.</string>
+	<string name="hwp.campaign.portal_fallback">The portal offers the HoH2 Forsaken Tower, not the HoH1 levels. Why: %why%.</string>
 </lang>

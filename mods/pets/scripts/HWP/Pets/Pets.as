@@ -195,9 +195,14 @@ namespace HWP
 				RefreshSettings();
 			if (wasOn != g_enabled)
 				RemakeMyPet();
-			// hoh1.content set live, or a client got the host's value: the HoH1 pet now
+			// hoh1.content set live, a client got the host's value, or the lobby's HoH1 verdict
+			// changed (hoh1.lobby, HWP::HoH1): the HoH1 pet now
 			if (key.findFirst("hoh1.") == 0)
+			{
 				SwapHoH1Pet(GetLocalPlayerRecord());
+				if (g_inTown)
+					WarnAway(GetLocalPlayerRecord(), false);
+			}
 			// a client got the host's values ("pets."), or pets.bowl / pets.enabled changed
 			// live (`hwp set pets.bowl 1`): the bowl goes where the host has it, or away
 			if ((key == "pets." || key == "pets.bowl" || key == "pets.enabled") && g_inTown && g_bowlReady)
@@ -1223,9 +1228,12 @@ namespace HWP
 			HWP::Commands::Reply(Resources::GetString(".hwp.pets.cmd_hint"));
 		}
 
-		// hoh1.content off (HWP::HoH1::Enabled): the HoH1 pets (ids hwp_pet_*) are out of the
+		// HoH1 content off in this lobby (HWP::HoH1::Enabled: the host setting hoh1.content, the
+		// import, every player's import the same): the HoH1 pets (ids hwp_pet_*) are out of the
 		// Pet Shop and an equipped one is put away, its id kept in the save (pets.hoh1_pet), so
 		// no other machine is asked to spawn a unit only the importer has. On again, it is back.
+		// Put away once every player has reported, or still away in town then, everyone is told
+		// in red, once per level (issue #123).
 		const string HOH1_PET_KEY = "pets.hoh1_pet";
 
 		bool IsHoH1Pet(PetDef@ d) { return d !is null && d.m_id.findFirst("hwp_pet_") == 0; }
@@ -1241,9 +1249,10 @@ namespace HWP
 			if (!HWP::HoH1::Enabled() && IsHoH1Pet(rec.pet))
 			{
 				bag.SetString(HOH1_PET_KEY, rec.pet.m_id);
-				HWP::Log("pets", "hoh1.content off: put away the HoH1 pet " + rec.pet.m_id);
+				HWP::Log("pets", "HoH1 content off: put away the HoH1 pet " + rec.pet.m_id);
 				@rec.pet = null;
 				pb.ResetPet();
+				WarnAway(rec, true);
 			}
 			else if (HWP::HoH1::Enabled() && rec.pet is null && bag.Has(HOH1_PET_KEY))
 			{
@@ -1251,10 +1260,30 @@ namespace HWP
 				bag.Remove(HOH1_PET_KEY);
 				if (d is null || !rec.HasPetUnlocked(d))
 					return;
-				HWP::Log("pets", "hoh1.content on: the HoH1 pet " + d.m_id + " is back");
+				HWP::Log("pets", "HoH1 content on: the HoH1 pet " + d.m_id + " is back");
 				@rec.pet = d;
 				pb.ResetPet();
 			}
+		}
+
+		bool g_awayWarned = false;   // this level
+
+		// now: it was just put away (else: it is still away, said in town only)
+		void WarnAway(PlayerRecord@ rec, bool now)
+		{
+			if (g_awayWarned || rec is null || HWP::HoH1::Enabled() || !HWP::HoH1::Known())
+				return;
+			auto bag = HWP::SaveData::Player(rec);
+			if (!bag.Has(HOH1_PET_KEY))
+				return;
+			g_awayWarned = true;
+			auto d = PetDef::Get(HashString(bag.GetString(HOH1_PET_KEY)));
+			string why = HWP::HoH1::Why();
+			HWP::Log("pets", "HoH1 pet " + bag.GetString(HOH1_PET_KEY) + " away (" + HWP::Commands::Plain(why) + ")");
+			HWP::HoH1::Warn(Resources::GetString(".hwp.pets.hoh1_away", {
+				{ "who", Lobby::GetPlayerName(uint8(rec.peer)) },
+				{ "pet", d is null ? bag.GetString(HOH1_PET_KEY) : Resources::GetString(d.m_name) },
+				{ "why", why } }));
 		}
 
 		// Boot-time checks: units now, PetDefs (loaded after modules) on the first gameplay load.
@@ -1287,7 +1316,7 @@ namespace HWP
 			if (imported == 0)
 				HWP::Log("pets", "no HoH1 pets imported (run: python tools/hoh1/import_hoh1.py pets)");
 			else if (!HWP::HoH1::Enabled())
-				HWP::Log("pets", "hoh1.content off: " + imported + " HoH1 pet(s) out of the Pet Shop");
+				HWP::Log("pets", "HoH1 content off: " + imported + " HoH1 pet(s) out of the Pet Shop");
 			else
 				HWP::Log("pets", imported + " HoH1 pet(s) in the Pet Shop" + (missingUnit > 0 ? ", " + missingUnit + " with a missing unit" : ""));
 		}

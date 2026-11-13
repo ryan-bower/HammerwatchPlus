@@ -18,5 +18,8 @@
     "tweak/missions/themes_keep.sval",
     "tweak/missions/themes_prison.sval"
   ],
-  "exclude": []
+  "exclude": [],
+  "local": [
+    "hoh1/"
+  ]
 }

@@ -1,5 +1,6 @@
-"""hoh1.content off (the default; game night 10.28.26: the host's HoH1 Battlements floor hung
-every client on wait_loaded_level): with the HoH1 import packed, no floor loads an HoH1 file.
+"""hoh1.content off (on by default since issue #123, so the scenario turns it off; game night
+10.28.26: the host's HoH1 Battlements floor hung every client on wait_loaded_level): with the
+HoH1 import packed, no floor loads an HoH1 file.
 
 - town: `hwp hoh1` says `hoh1.content: off` and no feature reports HoH1 content installed;
   the portal offers the HoH2-themed tower (fix_campaign's portal section).
@@ -7,9 +8,9 @@ every client on wait_loaded_level): with the HoH1 import packed, no floor loads 
   back (logged) and lists the pets again, one is bought and out; `hwp set hoh1.content false` puts it away at once (logged), the campaign
   swaps its floors again in town (logged), the shop drops them; on again, the pet is back;
   off once more for the sections after this one.
-- citadel: the Dark Citadel's hwp_battlements_1 (its index from `hwp campaign citadel`) loads
-  a generated levels/ file; `cht_finish_level` goes on to hwp_battlements_2 (generated too),
-  then to dark_halls_boss: the run reaches the Avatar the way the save stuck at floor 21 would.
+- citadel: the chain skips the Battlements (dark_halls_1 -> dark_halls_boss, issue #123); the
+  Dark Citadel's hwp_battlements_1 (its index from `hwp campaign citadel`, a save already there)
+  loads a generated levels/ file and `cht_finish_level` goes on to dark_halls_boss.
 - tower: floor 0 and the last floor of hwp_forsaken_tower_hoh1 (a save already in it) load
   HoH2 tower files.
 
@@ -61,7 +62,7 @@ class Checks(Campaign):
 
     def hidden(self):
         """How many HoH1 pets the pets self-check counted (its off line, else its on line)."""
-        m = re.findall(r"\[HWP:pets\] (?:hoh1\.content off: )?(\d+) HoH1 pet\(s\)", self.g.read_log())
+        m = re.findall(r"\[HWP:pets\] (?:HoH1 content off: )?(\d+) HoH1 pet\(s\)", self.g.read_log())
         return int(m[-1]) if m else 0
 
     def pet_units(self):
@@ -101,7 +102,7 @@ class Checks(Campaign):
         live = len(self.g.read_log())
         self.set_hoh1(True)
         time.sleep(1.0)
-        back = re.findall(r"\[HWP:campaign\] hoh1\.content on: (\d+) HoH1 floor\(s\) back", self.g.read_log()[live:])
+        back = re.findall(r"\[HWP:campaign\] HoH1 content on: (\d+) HoH1 floor\(s\) back", self.g.read_log()[live:])
         self.flag("campaign_on_restores_live", bool(back) and int(back[-1]) >= 25, f"{back}")  # 23 tower + 2 Battlements
         items, hits = self.shop_pets()
         self.flag("pets_off_shop_lacks_them", n > 0 and bool(off) and len(items) - len(off) == n,
@@ -122,12 +123,12 @@ class Checks(Campaign):
         self.set_hoh1(False)
         time.sleep(1.0)
         log = self.g.read_log()[live:]
-        away = re.findall(r"\[HWP:pets\] hoh1\.content off: put away the HoH1 pet (\S+)", log)
+        away = re.findall(r"\[HWP:pets\] HoH1 content off: put away the HoH1 pet (\S+)", log)
         self.flag("pets_off_put_away_live", bool(away), f"{away}")
         gone = self.pet_units()
         self.flag("pets_off_no_pet_unit", bool(out) and not gone, f"{out[:1]} -> {gone[:1]}")
-        self.flag("campaign_off_swaps_live", "hoh1.content off: hwp_forsaken_tower_hoh1: " in log
-                  and "hoh1.content off: Dark Citadel" in log,
+        self.flag("campaign_off_swaps_live", "HoH1 content off: hwp_forsaken_tower_hoh1: " in log
+                  and "HoH1 content off: Dark Citadel" in log,
                   " | ".join(l for l in log.splitlines() if "[HWP:campaign]" in l)[-300:])
         again, _ = self.shop_pets()
         self.flag("pets_off_shop_drops_them_live", len(again) == len(off), f"{len(again)} entries, {len(off)} at boot")
@@ -135,7 +136,7 @@ class Checks(Campaign):
         live = len(self.g.read_log())
         self.set_hoh1(True)
         time.sleep(1.0)
-        back = re.findall(r"\[HWP:pets\] hoh1\.content on: the HoH1 pet (\S+) is back", self.g.read_log()[live:])
+        back = re.findall(r"\[HWP:pets\] HoH1 content on: the HoH1 pet (\S+) is back", self.g.read_log()[live:])
         self.flag("pets_on_back", bool(away) and back == away[-1:] and bool(self.pet_units()), f"{away} -> {back}")
         self.set_hoh1(False)
         time.sleep(1.0)
@@ -148,6 +149,7 @@ class Checks(Campaign):
         bat = [i for i, fid in floors if fid == "hwp_battlements_1"]
         self.flag("citadel_order_kept", ids[:5] == ["dark_halls_1", "dark_halls_2", "hwp_battlements_1",
                                                     "hwp_battlements_2", "dark_halls_boss"], f"{ids}")
+        self.flag("citadel_chain_skips_battlements", "chain dark_halls_1 -> dark_halls_boss" in text, text[-200:])
         if not bat:
             return
         self.gl("setvar", "cht_god", 1)
@@ -162,14 +164,8 @@ class Checks(Campaign):
         time.sleep(1)
         at = len(self.g.read_log())
         self.g.console("cht_finish_level")
-        lvl2 = self.load(at)
-        self.flag("citadel_bat2_generated", lvl2.startswith("levels/") and "hoh1/" not in lvl2, f"{lvl!r} -> {lvl2!r}")
-        self.no_hoh1_units("citadel_bat2_no_hoh1_units")
-        time.sleep(1)
-        at = len(self.g.read_log())
-        self.g.console("cht_finish_level")
         lvl3 = self.load(at)
-        self.flag("citadel_reaches_boss", "boss" in lvl3 and "hoh1/" not in lvl3, f"{lvl2!r} -> {lvl3!r}")
+        self.flag("citadel_reaches_boss", "boss_avatar" in lvl3 and "hoh1/" not in lvl3, f"{lvl!r} -> {lvl3!r}")
         ok, p = self.alive()
         self.flag("citadel_boss_player_alive", ok, f"{p}")
         log = self.g.read_log()[mark:]

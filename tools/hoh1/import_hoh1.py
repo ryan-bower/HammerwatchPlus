@@ -1183,6 +1183,9 @@ def main(argv=None):
         force = True
     IMPORTERS[args.what](archive, force)
     write_stamp(args.what)
+    # the fingerprint players compare in a lobby (issue #123); build.py rewrites it too
+    import build
+    print("HoH1 import fingerprint", build.write_hoh1_stamp([build.load_module(d) for d in paths.module_dirs()]) or "(none)")
 
 
 if __name__ == "__main__":

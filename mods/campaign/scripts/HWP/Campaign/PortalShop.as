@@ -35,6 +35,14 @@ class HWPCampaignShopContent : MissionShopContent
 			HWP::Log("campaign", "portal: no mission for this character (story intro not done)");
 			return;
 		}
+		// the HoH1 tower is imported but this lobby can't play it (StandIns::Tower hid it,
+		// issue #123): the HoH2 tower is offered instead; say so, in red, to everyone
+		if (MissionDef::Get(HashString(HWP::Campaign::HOH1_MISSION_ID)) !is null && !HWP::Campaign::StandIns::On())
+		{
+			string why = HWP::HoH1::Why();
+			HWP::Log("campaign", "portal: offering the HoH2 tower, HoH1 content off (" + HWP::Commands::Plain(why) + ")");
+			HWP::HoH1::Warn(Resources::GetString(".hwp.campaign.portal_fallback", { { "why", why } }));
+		}
 		MissionShopContent::Interact(player, interactLevel);
 	}
 
