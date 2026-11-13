@@ -1,0 +1,320 @@
+{
+ "name": "fix-partyframes-persist",
+ "about": "Party frames settings changed on the HammerwatchPlus page (Thin, Striped edge, Hollow bars, Green health) survive a quit-and-reload and a level load. Before the fix the module read them in its constructor, before the town record (where settings live) was loaded, so every level started on the defaults. Shots keep the vanilla bottom HUD (potion charges) in frame beside the frames. The local player gets two real potion charges (the apothecary upgrade) and drinks one on the floor: the vanilla bottom-bar count must stay as vanilla draws it (green full, yellow part-used) beside the frames.",
+ "fixture": "town-paladin",
+ "mods": [
+  "hwplib",
+  "hwplib-luck",
+  "hwplib-classui",
+  "partyframes"
+ ],
+ "timeout": 300,
+ "steps": [
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:partyframes\\] ready",
+   "timeout": 30,
+   "name": "module ready"
+  },
+  {
+   "do": "mark",
+   "name": "fresh"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes"
+  },
+  {
+   "do": "log_has",
+   "pattern": "partyframes\\] on, thick, leading edge, .*, potions gems",
+   "since": "fresh",
+   "timeout": 10,
+   "name": "the fixture starts on the defaults"
+  },
+  {
+   "do": "console",
+   "line": "e_cheats 1"
+  },
+  {
+   "do": "gl",
+   "verb": "upgrade",
+   "args": [
+    "apothecary",
+    "potion-charges",
+    0
+   ]
+  },
+  {
+   "do": "gl",
+   "verb": "upgrade",
+   "args": [
+    "apothecary",
+    "potion-charges",
+    1
+   ]
+  },
+  {
+   "do": "console",
+   "line": "cht_refill_potions"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "character"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.5
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-mod-partyframes",
+    "hwp-pkg",
+    "interface"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-cfg-partyframes.size",
+    "hwp-cfg",
+    "partyframes.size"
+   ]
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-cfg-partyframes.shield",
+    "hwp-cfg",
+    "partyframes.shield"
+   ]
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-cfg-partyframes.potions",
+    "hwp-cfg",
+    "partyframes.potions"
+   ]
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-cfg-partyframes.green",
+    "hwp-cfg",
+    "partyframes.green"
+   ]
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.3
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-cfg-partyframes.size"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Bar size | Thin"
+   },
+   "name": "the page shows Thin"
+  },
+  {
+   "do": "gl",
+   "verb": "menu",
+   "args": [
+    "hwp_options",
+    "-",
+    "hwp-cfg-partyframes.potions"
+   ],
+   "expect": {
+    "shown": true,
+    "texts": "Potion style | Hollow bars"
+   },
+   "name": "the page shows Hollow bars"
+  },
+  {
+   "do": "shot",
+   "name": "01_page_set"
+  },
+  {
+   "do": "key",
+   "key": "escape",
+   "hold": 0.1
+  },
+  {
+   "do": "sleep",
+   "seconds": 0.6
+  },
+  {
+   "do": "mark",
+   "name": "set"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes demo 3"
+  },
+  {
+   "do": "log_has",
+   "pattern": "partyframes\\] on, thin, striped edge, .*, potions hollow",
+   "since": "set",
+   "timeout": 10,
+   "name": "the page's change applies now"
+  },
+  {
+   "do": "console",
+   "line": "hwp get partyframes.green"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] partyframes.green = true",
+   "since": "set",
+   "timeout": 5,
+   "name": "green health is set"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "02_town_set"
+  },
+  {
+   "do": "restart"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP:partyframes\\] ready",
+   "timeout": 60,
+   "name": "module ready after the reload"
+  },
+  {
+   "do": "mark",
+   "name": "reloaded"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes demo 3"
+  },
+  {
+   "do": "log_has",
+   "pattern": "partyframes\\] on, thin, striped edge, .*, potions hollow",
+   "since": "reloaded",
+   "timeout": 10,
+   "name": "the settings survive quit and reload"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "03_after_reload"
+  },
+  {
+   "do": "gl",
+   "verb": "mission",
+   "args": [
+    "dark_citadel",
+    0
+   ],
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "do": "wait_phase",
+   "phase": "mission",
+   "timeout": 120
+  },
+  {
+   "do": "sleep",
+   "seconds": 2
+  },
+  {
+   "do": "mark",
+   "name": "floor"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes demo 3"
+  },
+  {
+   "do": "log_has",
+   "pattern": "partyframes\\] on, thin, striped edge, .*, potions hollow",
+   "since": "floor",
+   "timeout": 10,
+   "name": "the settings survive a level load"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "shot",
+   "name": "04_floor"
+  },
+  {
+   "do": "pilot",
+   "call": "potion",
+   "timeout": 5,
+   "expect": {
+    "result": "done"
+   },
+   "name": "drank a real potion"
+  },
+  {
+   "do": "sleep",
+   "seconds": 1
+  },
+  {
+   "do": "mark",
+   "name": "drunk"
+  },
+  {
+   "do": "console",
+   "line": "hwp partyframes"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\(local\\): shield \\S+, potions 1/2",
+   "since": "drunk",
+   "timeout": 5,
+   "name": "the drink counted: 1 of 2 left"
+  },
+  {
+   "do": "shot",
+   "name": "05_floor_drunk"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

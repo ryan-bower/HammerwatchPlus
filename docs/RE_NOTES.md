@@ -10419,3 +10419,11 @@ Source review only, against the decompiled scripts of the pinned Build 176 (Stea
   unchanged.
 - Unverified in game: the window text, and that a skill offer whose orb was maxed after the
   roll shows the last rank (what the trade then gives is vanilla's `SkillTempUp`, unchanged).
+
+## 2026-11-12: a setting read in a module constructor is always the default (partyframes)
+
+`HWP::Settings` reads `g_myTownRecord`'s hwp bag. Module constructors run before the town record and character load (see "A run's end state is gone by the time Start runs"), so a constructor-time read (no record yet: `HWP::SaveData::Town(null)` is the scratch bag; or one not loaded yet) returns the default on every level. A module that caches settings must (re)read them in `HWP::ModuleStart.Start` (GameModeStart, after the records load). partyframes only read them in the constructor, so the Plus page's changes lasted until the next level load. Measured: `fix-partyframes-persist` 20261112-222105 (red) and 20261112-222227 (green), build 25932569.
+
+## 2026-11-12: a package's update carries a hash of its files (HWP::Builds)
+
+The update string `HWP::Builds::Package` receives is now `<date> <commit>[+] #<12 hex>`. The signature can't change (packages of other updates call it), so the hash rides in the string. Older libraries keep working: `Compare` reads only the first 10 characters (the date), and their `Show` prints the hash inside the commit's brackets, which is only cosmetic. The hash leaves out `local` content because `deploy.py modded-prod` packs a friend's own HoH1 import and a release never does. That lobby difference is the HoH1 stamp's job (#123). `info.xml` is hashed because it becomes the archive's meta (classmaps, scripts), not a packed file.
