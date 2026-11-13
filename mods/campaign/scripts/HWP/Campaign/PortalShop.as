@@ -12,6 +12,8 @@
 // (hwp_forsaken_tower_hoh1, tools/hoh1/import_hoh1.py campaign) is the only entry whenever
 // its MissionDef exists at runtime; campaign.portal_both lists both again. The log
 // says which version the portal offers and which one a pick starts.
+bool g_portalWarned = false;   // the HoH1 fallback warning, once per level (globals reset with each)
+
 class HWPCampaignShopContent : MissionShopContent
 {
 	HWPCampaignShopContent(UnitPtr u, SValue& params)
@@ -37,8 +39,10 @@ class HWPCampaignShopContent : MissionShopContent
 		}
 		// the HoH1 tower is imported but this lobby can't play it (StandIns::Tower hid it,
 		// issue #123): the HoH2 tower is offered instead; say so, in red, to everyone
-		if (MissionDef::Get(HashString(HWP::Campaign::HOH1_MISSION_ID)) !is null && !HWP::Campaign::StandIns::On())
+		if (!g_portalWarned && MissionDef::Get(HashString(HWP::Campaign::HOH1_MISSION_ID)) !is null
+			&& !HWP::Campaign::StandIns::On() && HWP::HoH1::Lacks())
 		{
+			g_portalWarned = true;   // once per level, not on every opening
 			string why = HWP::HoH1::Why();
 			HWP::Log("campaign", "portal: offering the HoH2 tower, HoH1 content off (" + HWP::Commands::Plain(why) + ")");
 			HWP::HoH1::Warn(Resources::GetString(".hwp.campaign.portal_fallback", { { "why", why } }));

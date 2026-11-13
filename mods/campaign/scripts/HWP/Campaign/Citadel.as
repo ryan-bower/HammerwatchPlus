@@ -190,6 +190,11 @@ namespace HWP
 			{
 				if (g_warned || g_inTown || !Network::IsServer() || !HWP::HoH1::Known())
 					return;
+				if (!HWP::HoH1::Lacks())
+				{
+					g_warned = true;   // on, off by the host, or a build without HoH1: nothing to warn
+					return;
+				}
 				auto def = MissionManager::GetCurrentMission();
 				if (def is null || def.m_id != MISSION)
 					return;

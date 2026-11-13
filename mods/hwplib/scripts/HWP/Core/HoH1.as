@@ -93,7 +93,8 @@ namespace HWP
 			return null;
 		}
 
-		string Fake() { return HWP::Settings::GetString("hoh1.fake", ""); }
+		// the lab peer exists only with e_cheats 1: a hoh1.fake left in a real save does nothing
+		string Fake() { return GetVarBool("e_cheats") ? HWP::Settings::GetString("hoh1.fake", "") : ""; }
 
 		bool g_synced = false;   // host: SyncPeers ran this level
 
@@ -157,6 +158,17 @@ namespace HWP
 		// host: every other player has answered (or was given up on)
 		bool HostKnown()
 		{
+			// the lobby's own count first: module constructors run before the PlayerRecords are
+			// activated, so g_players can be empty while three friends are loading (PR #127 review)
+			if (Lobby::IsInLobby())
+			{
+				int answered = 0;
+				for (uint i = 0; i < g_peers.length(); i++)
+					if (g_peers[i].peer != FAKE_PEER && (g_peers[i].heard || g_peers[i].silent))
+						answered++;
+				if (answered < Lobby::GetLobbyPlayerCount() - 1)
+					return false;
+			}
 			for (uint i = 0; i < g_players.length(); i++)
 			{
 				if (g_players[i].local || g_players[i].peer == 255)
@@ -210,6 +222,7 @@ namespace HWP
 		string g_why;            // client: the host's reason
 		bool g_lastOk = false;   // what the hoh1.lobby notification last said
 		bool g_lastKnown = false;
+		bool g_notified = false;  // this level's first verdict went out
 		bool g_sentOk = false;   // host: the verdict last broadcast
 		bool g_sentKnown = false;
 		string g_sentWhy = "-";
@@ -227,6 +240,11 @@ namespace HWP
 		// On the host only after the first peer sync of the level: a module that ticks before
 		// the core's first Update would otherwise take an empty peer list for a final answer.
 		bool Known() { return Network::IsServer() ? g_synced && HostKnown() : g_known; }
+
+		// the fallback warnings' test: this machine has the import and the setting is on, the
+		// lobby has answered, and still no HoH1 content (a player lacks or differs). Not on a
+		// release build (no import: vanilla, nothing to warn about) nor when the host turned it off.
+		bool Lacks() { return SettingOn() && !Stamp().isEmpty() && Known() && !Enabled(); }
 
 		string Why()
 		{
@@ -253,8 +271,11 @@ namespace HWP
 		{
 			bool ok = Enabled();
 			bool known = Known();
-			if (ok == g_lastOk && known == g_lastKnown)
+			// the first tick always notifies: what a constructor applied before any peer sync
+			// must not stand just because the first verdict matches the initial values
+			if (g_notified && ok == g_lastOk && known == g_lastKnown)
 				return;
+			g_notified = true;
 			g_lastOk = ok;
 			g_lastKnown = known;
 			HWP::Log("hoh1", "lobby: HoH1 content " + (ok ? "on" : "off") + (known ? "" : " (waiting for reports)")
@@ -362,9 +383,19 @@ namespace HWP
 				Warn(Resources::GetString(".hwp.hoh1.join", { { "why", Resources::GetString(key, { { "who", p.who } }) } }));
 			}
 			// a name not in the lobby any more, or matching now: forget it (only once every
-			// player has answered, so a level's first ticks don't forget everyone)
+			// player has answered, so a level's first ticks don't forget everyone). Until then
+			// the names just warned are added, so the warning goes out once, not every tick.
 			if (!HostKnown())
+			{
+				if (changed)
+				{
+					for (uint i = 0; i < keep.length(); i++)
+						if (warned.find(keep[i]) < 0)
+							warned.insertLast(keep[i]);
+					HWP::Settings::SetString("hoh1.warned", join(warned, "\n"));
+				}
 				return;
+			}
 			for (uint i = 0; i < warned.length(); i++)
 				if (!warned[i].isEmpty() && keep.find(warned[i]) < 0)
 					changed = true;
@@ -488,9 +519,9 @@ namespace HWP
 		{
 			if (args.length() >= 2 && args[0] == "fake")
 			{
-				if (!Network::IsServer())
+				if (!Network::IsServer() || !GetVarBool("e_cheats"))
 				{
-					HWP::Commands::Reply("hoh1 fake: host only");
+					HWP::Commands::Reply("hoh1 fake: host only, and needs e_cheats 1 (a lab tool)");
 					return;
 				}
 				string what = args[1];
