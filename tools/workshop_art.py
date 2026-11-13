@@ -108,6 +108,7 @@ SYMBOLS = {
     "freeskills": [px("gui/icons_lang.png", 1, 46, 13, 13)],  # the skill point (icn-skillpt)
     "outofcombat": [px("items/icons_consumables.png", 225, 297, 14, 14)],  # the shrine speed blessing, its buff icon
     "dummydps": [px("doodads/generic/target_dummy.png", 0, 0, 24, 23)],  # the town training dummy (target_dummy_normal.unit outlook)
+    "shortcuts": [px("doodads/lamps/snake_pedestal.png", 0, 0, 32, 32)],  # the Dark Citadel shortcut's candle pedestal (snake_pedestal_purple.unit)
     # Co-op Play
     "groupcombo": [cell("combo", 0, 0)],
     "architect": [cell("town", 0, 0)],
@@ -694,7 +695,7 @@ def prereq(pids) -> str:
     return ", ".join(f"{card}: {dlc} DLC" for dlc, _, card in (workshop.DLC[p] for p in pids if p in workshop.DLC))
 # the All pack's cover: a short name and what the package is, in a few words
 SHORT = {
-    "qol": ("Quality of Life", "21 helpers"), "coop": ("Co-op Play", "5 party features"),
+    "qol": ("Quality of Life", "22 helpers"), "coop": ("Co-op Play", "5 party features"),
     "interface": ("Interface", "raid-style party frames"),
     "autoaim": ("Auto Aim", "aim assist"), "firearms": ("Firearms", "a new class"),
     "specs": ("4th Specs", "8 new specializations"),

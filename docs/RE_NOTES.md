@@ -1,5 +1,34 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-13: candle rewards and expanded-campaign destinations (PR #124 follow-up)
+
+- Agreed candle mapping: 0-3 Dungeon, 4 Barracks, 5 High Courts 1, 6 Dark Halls 1,
+  7 HoH1 Battlements 1 (`hwp_battlements_1`). Dark Halls 2 is reached normally after
+  Dark Halls 1, not through a separate threshold. Battlements 1 continues to
+  Battlements 2 and then the Avatar through the existing campaign links.
+- The original generator replaced the added candles' reward link with only the
+  completion counter (266). Each added candle now gets its own copy of reward link
+  249, a skill sphere (238) and the three-trinket chain (336 -> 338 -> 337), retaining
+  the shared counter. Separate chains preserve vanilla's delayed spawns without
+  sharing pending executions, and the pickups spawn near the added candle. Baseline
+  rewards are one sphere and nine trinket rolls; each lit candle adds one and three.
+- `MissionModule::NextLevel(id)` aborts with Succeeded if the id is absent.
+  `HWPShortcutExit` checks both the lobby's `HWP::HoH1::Enabled()` verdict and the
+  loaded mission's target before jumping to Battlements. Without either, it warns
+  and enters the vanilla `dark_halls_1` floor. QoL does not require the separate
+  campaign package, and must not end a run by jumping to an uninstalled floor.
+- Offline graph coverage checks every one of the 128 candle subsets for destination,
+  skill-sphere and trinket calls, and extinguished candles. These model level scripts,
+  not engine timing, loot availability, actual map generation or real co-op.
+  The AngelScript guard has source assertions only; it still needs an engine run.
+- Validation on uncommitted source based on `fff243d0`: 31 focused tests pass
+  (`test_shortcut_candles`, `test_make_config`, `test_package_graph`, `test_build_base`),
+  generated-level/config/verb and override checks pass, and `tools/build.py qol`
+  produces `dist/HWP-qol.bin`. Its entries include the generated level, guard and
+  language files, but no `.orig`; the pristine input matches the local SDK exactly.
+  Full suite collection fails on 18 Windows-only `ctypes.WinDLL` imports on Linux.
+  GameLab doctor timed out after 120 seconds; no native pass is claimed.
+
 ## 2026-11-12: who plays the HoH1 floors (issue #123)
 
 - Cause: `Citadel.as` chains dark_halls_1 -> dark_halls_2 -> hwp_battlements_1 -> hwp_battlements_2
@@ -22,6 +51,40 @@
   `dark_halls_1 -> dark_halls_boss`, the portal logged `hwp_forsaken_tower (HoH2 themes)` and
   warned, and a bought HoH1 pet was put away with a red line and came back once the peer
   matched. The real network path (`hoh1.report` from a second machine) is unproven.
+
+## 2026-11-12: Dark Citadel shortcut candle graph
+
+Source review and offline graph tests only, based on `3dc29e56`, pinned build
+25932569 / Build 176. No native run ID: the new worktree's Linux doctor refuses
+before launch because the private Windows Python runtime is missing.
+
+- `levels/shortcut_dark_citadel.lvl` has four toggleable snake-pedestal candles.
+  `CheckShortcut` 268 checks shortcut 3 at the current NG+; its false branch 348
+  randomly removes two candles. The extension removes/disables all three new ones
+  on that same branch, leaving the original pair selection and saved unlock intact.
+- Each lit candle enables a wave link and a reward link. Script 328 invokes the
+  wave links once immediately and three more times through timer 316 (6500 ms).
+  StartChallenge disables candle use; completion waits on the vanilla enemy feeds.
+  The extension adds three wave links using the same shade spawners. Whether the
+  engine's `AllSpawned` feed correctly tracks the larger waves is still unmeasured.
+- Reward links increment variable 225 before completion check 222 chooses the exit.
+  Vanilla chooses `dungeon_1` below four candles and `barracks_1` at four. The
+  extension adds thresholds five (`courts_1`), six (`dark_halls_1`) and seven
+  (`dark_halls_boss`). New completion links only increment 225, not the loot payout.
+- Check 222 also spawns the portal through output 283. New threshold checks must
+  not clone that output or a deeper skip would spawn several portals. Offline
+  execution of every candle subset asserts exactly one portal and one enabled exit.
+- The level and pristine `.orig` are accompanied by
+  `tools/generate/make_shortcut_candles.py`; it retains geometry, the original
+  spawners, reward producers and mission progression. No new AngelScript or UI.
+
+Validation: `tests/test_shortcut_candles.py`, config, package-graph, release-files
+and build-base tests: 29 passed. The new level compiles to binary SValue and decodes
+without trailing bytes. Verb/config generation checks pass. Full `scripts/test.py`
+cannot collect 18 Windows-only test modules under Linux (`ctypes.WinDLL` absent).
+`tools/build.py qol` and `--check` refuse absent generated worktree game assets.
+The module README lists the outstanding placement, combat, co-op, save and victory
+checks; none is claimed as passing.
 
 ## 2026-11-12: Deadeye Tailwind refresh (#77)
 
