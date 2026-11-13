@@ -11,6 +11,9 @@ A narrowed run stays serial, because xdist's start-up costs more than it saves a
 `-s` output: a test file or node ID, `-k`, `-s`/`--capture=no`, `--lf` or `--sw`. Pass `-n N`
 to choose yourself (`-n 0` is serial). Bytecode isn't written during the run: parallel workers
 racing to cache the same test modules leave orphaned `*.pyc.<pid>` files on Windows.
+
+Started by any other interpreter (a bare `python`, which lacks xdist), it reruns itself with the
+project's `.venv` when there is one, so a full run is parallel however it was invoked.
 """
 import importlib.util
 import os
@@ -20,6 +23,18 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 NARROWING = ("-s", "--capture=no", "--lf", "--last-failed", "--sw", "--stepwise")
+REEXEC_GUARD = "HWP_TEST_IN_VENV"
+
+
+def project_python():
+    """The repo's `.venv` interpreter when this runs under another one, else None."""
+    if os.environ.get(REEXEC_GUARD):
+        return None
+    venv = REPO / ".venv"
+    exe = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    if not exe.is_file() or Path(sys.prefix).resolve() == venv.resolve():
+        return None
+    return exe
 
 
 def narrowed(args):
@@ -60,6 +75,11 @@ def pytest_args(args):
 
 
 if __name__ == "__main__":
+    venv_python = project_python()
+    if venv_python:
+        print(f"rerunning with the project's {venv_python.relative_to(REPO)}", flush=True)
+        sys.exit(subprocess.run([str(venv_python), __file__, *sys.argv[1:]],
+                                env=dict(os.environ, **{REEXEC_GUARD: "1"})).returncode)
     CHECKS = [
         ["-m", "pytest", *pytest_args(sys.argv[1:])],
         ["tools/list_verbs.py", "--check"],

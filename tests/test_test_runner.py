@@ -56,6 +56,38 @@ def test_serial_when_xdist_is_missing_or_not_loaded(local_with_xdist):
         assert runner.pytest_args(["-p", "xdist"]) == ["-n", "14", "-p", "xdist"]
 
 
+@pytest.fixture
+def fake_repo(tmp_path):
+    venv = tmp_path / ".venv"
+    exe = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    exe.parent.mkdir(parents=True)
+    exe.write_bytes(b"")
+    env = {k: v for k, v in os.environ.items() if k != runner.REEXEC_GUARD}
+    with mock.patch.object(runner, "REPO", tmp_path), mock.patch.dict(os.environ, env, clear=True):
+        yield venv, exe
+
+
+def test_other_interpreter_reruns_with_the_venv(fake_repo):
+    venv, exe = fake_repo
+    with mock.patch.object(runner.sys, "prefix", str(venv.parent / "system-python")):
+        assert runner.project_python() == exe
+
+
+def test_venv_interpreter_runs_in_place(fake_repo):
+    venv, _ = fake_repo
+    with mock.patch.object(runner.sys, "prefix", str(venv)):
+        assert runner.project_python() is None
+
+
+def test_no_rerun_without_a_venv_or_when_already_rerun(fake_repo):
+    venv, exe = fake_repo
+    with mock.patch.object(runner.sys, "prefix", str(venv.parent / "system-python")):
+        with mock.patch.dict(os.environ, {runner.REEXEC_GUARD: "1"}):
+            assert runner.project_python() is None
+        exe.unlink()
+        assert runner.project_python() is None
+
+
 def _outcome(fsync, target):
     try:
         fsync(target)
