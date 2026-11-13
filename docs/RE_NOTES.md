@@ -113,6 +113,40 @@ Source review and a code change on `origin/main` 4cfbb3bf; no game run, no GameL
 - **Unverified:** whether a gamepad binds Use and MenuAdditional to the same button (if not,
   the gamepad path is unchanged); the change itself in game (host and client).
 
+## 2026-11-08: experience gains and the NG+ level cap (issue #73, `catchup`)
+
+Source review of the decompiled scripts (`gamecode/sdk/hoh2/scripts`, build 25932569), for
+the NG+ catch-up experience bonus. Not measured in game yet.
+
+- **The level cap** is `PlayerRecord.GetLevelCap()` = `int(Tweak::LevelCap + ngp *
+  Tweak::LevelCapNGPAdd + 0.5f)`, with `LevelCap` 20 and `LevelCapNGPAdd` 5 (`Data/Player.as`
+  72-73), where `ngp` is the *character's* unlocked NG+ (`PlayerRecord.ngp`, saved per
+  character, raised by an NG+ mission reward when `g_ngp >= ngp`). So the caps are 20, 25,
+  30, 35 for NG+0-3. `GiveExperience` stops levelling at that cap (the commented-out line
+  above it once capped by `min(ngp, g_ngp)`).
+- **The run's NG+** is the global `g_ngp` (a `pfloat`, `HWR2GameMode.as`): chosen on the
+  run-start screen (`MissionLoadoutMenu`, at most the host's `ngp`), saved in the level save
+  (`HWR2GameMode` pushes `"ngp"`) and loaded by `LoadDifficulty` on every machine. The game
+  rounds it with `int(g_ngp + 0.5f)` everywhere (tab overlay, lobby data, `SetNGPDefines`).
+  `g_diffLevel` adds `g_ngp * LevelCapNGPAdd` to a mission's difficulty level.
+- **Kill experience:** `Player.KilledActor` on the killer's machine takes
+  `killed.GetExperienceReward(killer level)`, sends `PlayerShareExperience(true, xp)` to all
+  and calls `NetShareExperience` itself; every other machine's `PlayerHandler.
+  PlayerShareExperience` calls `NetShareExperience` on its own local player. That multiplies
+  by the record's `ExpMul` modifiers and calls `GiveExperience(xpr)`. So every machine books
+  its own player's experience, and a local buff on the local player affects only that player.
+- **`PlayerRecord.GiveExperience(amount, skipGainMod)`** (2286): unless `skipGainMod`, it
+  multiplies by the actor's `m_buffs.ExperienceMul()`, `currStats.ExperienceMul`,
+  `Tweak::ExperienceScale`, `g_mpExpScale` and `GetLevelDifferenceExperienceMul(level,
+  g_diffLevel)`, then `roll_round`s. `ActorBuffList.ExperienceMul()` is the product of each
+  buff's `ActorBuffDef.m_mulExperience` (sval `experience-mul`, a vec2 lerped by intensity),
+  the field the vanilla shrine experience blessing sets to 2 (`tweak/buffs/shrine_buffs.sval`).
+- **Callers:** kill shares (above), mission rewards (`MissionManager.NetSetMissionState` on
+  Succeeded, local players only, before the host's `ChangeLevel` to town, so still in the run),
+  the `GiveExperience` effect and world script, and cheats all apply the buff multiplier.
+  `QuantityTriggerEffect` (an experience-on-quantity effect) and the level-overflow loop pass
+  `skipGainMod = true` and are not multiplied.
+
 ## 2026-11-06: player move speed and hit detection (issue #99, `outofcombat`)
 
 Source review of the decompiled scripts (`gamecode/sdk/hoh2/scripts`), for the out of
