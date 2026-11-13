@@ -22,6 +22,9 @@
 // it. No south walls: a wall south of the floor shows only its top, drawn two
 // cells up over the floor in front of it, so a lever there would be hidden. A
 // floor with no wall run that fits gets the old floor lever on a 3x3 patch.
+// Each vault slot (objectives.vaults) and the exit seal (objectives.exit) is rolled
+// first, objectives.vault_chance / objectives.exit_chance percent (issue #67):
+//   [HWP:objectives] vault 0 roll 37 >= 25: skipped on <level>
 // Everything placed is logged with cell and world positions:
 //   [HWP:objectives] vault 0 at cell X,Y of WxH, corridor N, world X,Y WxH, door X,Y, switch X,Y
 //   [HWP:objectives] vault 0 lever: <side>, from N spot(s) far enough (north wall A, east wall B, west wall C)
@@ -551,6 +554,16 @@ namespace HWP
 				return true;
 			}
 
+			// one percent roll in generation (the generator's seeded randi, like puzzles.room_chance):
+			// "[HWP:objectives] vault 0 roll 37 >= 25: skipped" / "exit roll 3 < 15: placing"
+			bool Rolled(const string &in what, int chance)
+			{
+				int roll = randi(100);
+				bool hit = roll < chance;
+				HWP::Log("objectives", what + " roll " + roll + (hit ? " < " : " >= ") + chance + (hit ? ": placing" : ": skipped") + OnLevel());
+				return hit;
+			}
+
 			// HWPObjectiveSpawn.Execute
 			void Run(DungeonBrush@ brush, PrefabPlacement@ placer)
 			{
@@ -589,14 +602,21 @@ namespace HWP
 				// the floor the players reach, before anything is placed (a vault turns wall into
 				// its own cells, which reach nothing new; levers go on unconsumed floor only)
 				ComputeReach(brush);
+				// issue #67: each vault slot and the exit seal are rolled (objectives.vault_chance,
+				// objectives.exit_chance percent); a skipped slot leaves the next vault the next
+				// index, so g_vaults[k] is always "vault k" in the log
 				int placed = 0;
 				for (int i = 0; i < g_vaultCount; i++)
-					if (PlaceVault(brush, placer, i, vaultDef, swDefs))
+				{
+					if (!Rolled("vault " + i, g_vaultChance))
+						continue;
+					if (PlaceVault(brush, placer, placed, vaultDef, swDefs))
 						placed++;
 					else
 						break;
+				}
 				bool exit = false;
-				if (g_exitOn)
+				if (g_exitOn && Rolled("exit", g_exitChance))
 					exit = PlaceExitSwitch(brush, placer, exitDefs);
 				HWP::Log("objectives", "placed " + placed + " vault(s), exit switch " + (exit ? "yes" : "no") + OnLevel());
 			}

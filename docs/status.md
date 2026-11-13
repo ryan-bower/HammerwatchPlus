@@ -4,6 +4,10 @@ Running project status: the newest entries first, then the QA checkpoints and hi
 sweeps. The engine and reverse-engineering notes behind each change are in
 [RE_NOTES.md](RE_NOTES.md).
 
+> **Fewer vaults and sealed exits (2026-11-08, issue #67, branch `fix/issue-67-objective-chance`).** `objectives` no longer puts a vault and a sealed exit on every generated floor: two new host settings roll them per floor, `objectives.vault_chance` (25 %, once per vault slot) and `objectives.exit_chance` (15 %, once per floor while `objectives.exit` is on); values 0, 10, 15, 25, 50, 75, 100. Each roll is logged (`vault 0 roll 37 >= 25: skipped`). A skipped slot doesn't leave a gap in the vault numbers, and a floor without an exit lever is never sealed, preloaded floors included (`AdoptFromUnits` already handled it; no change needed beyond a comment). The `fix-objectives*` scenarios and their `pf-` copies now set both chances to 100. Source review and pytest only, not tested in game: no GameLab run, so the rolls, the open exit on an unsealed floor and the edited scenarios are unproven on build 25932569.
+
+> **Pet level blanked the character level (2026-11-08, `fix/issue-79-pet-level` from `3dc29e56`, issue #79).** The pets module's `hwp-pet-level` line is a `Clone()` of the vanilla `player-level` text, and the clone shared its `BitmapString`, so the pet line's first `SetText` cleaned up the character's level text; vanilla rebuilds it only when the string changes, so the level stayed blank while a pet was shown. `PetLevelTab.as` now drops the clone's shared text and tooltip handles (fresh clone and one found by ID) and force-rebuilds the level once. The pet line also checks the player name: past it, it shortens to `pet lvl N` (new `hwp.pets.inv_level_short`), and hides if that doesn't fit either. No other mod clone has the bug (`SubclassPick.CloneText` already detached; the rest clone hidden templates). Source review and pytest only (`tests/test_pets_level_tab.py`), not tested in game; `fix-pets-inventory-level` hasn't been rerun.
+
 > **Party frames (2026-11-06, branch `feat/party-frames` from `4cfbb3bf`).** New `partyframes` module in a new `interface` package replaces the co-op HUD with class-coloured Thick or Thin bars and Leading edge or Striped edge shields, and `HWP::AllyStatus` syncs ally shields and potion counts. Verified solo on build 25932569 with forced setup: `mod-partyframes` (6 clean runs, 20261106-200139 to -200808), `mod-partyframes-data` 20261106-200035, `pkg-interface` 20261106-200205, `mod-settings-sweep` 20261106-202656 PASS. Not done: no real two-player session has run, so the client path is unproven; Interface isn't published; `README.md:19` still says twelve packages. Open: two runs crashed at shutdown (`mod-all` 20261106-200219, `mod-settings-sweep` 20261106-211620), both after every check passed. That is 2 of 35 runs with `partyframes` loaded against 3 of 1,248 without it, so this branch is suspect until compared. Later the same day: potions moved beside Thick bars, Show level and Show class toggles added (off by default, bars widen), the Plus list's last rows made reachable, test-only `gamelab-fakecoop` added with `devarena/party`, and the owner chose the solid blue pool for Living Mana allies, checked on a real husk (`mod-partyframes-livingmana` 20261106-213408) (`mod-partyframes` 20261106-211509, `devarena/options-list` 20261106-211446, `mod-settings-sweep` 20261106-212346 PASS). The frames now start below the game's tutorial panel while it's up (`mod-partyframes-tutorial` 20261106-220546, `mod-partyframes` 20261106-220617, `mod-partyframes-livingmana` 20261106-220645 PASS: build 25932569, forced panel and fake allies, solo). `mod-settings-off` passes after fixing its test code (20261106-232113, 20261106-232722). See [RE_NOTES.md](RE_NOTES.md).
 >
 > **Party frames, later (2026-11-07, `feat/party-frames`, on top of `57e77449`).** A shield now only fills missing health, as WoW's frames do, and anything that doesn't fit is the glow at the bar's end; this replaces the earlier rule that it lay over the bar. The potion and its count sit straight on the game, with no background. A new Green health toggle (off by default) draws every ally's health in the green of Blizzard's raid frames over their dark backdrop; a Living Mana pool stays blue. Show level and Show class no longer resize a bar: a level tag and a three-letter class tag sit in Thick's corners beside the %, and on Thin in a column between the bar and the potion. Class colours are now WoW's retail colours (from AllTheThings, Eltruism and EllesmereUI; Blizzard's source doesn't hold them), and HoH's own classes borrow a WoW class's colour: Sorcerer Evoker, Gladiator Death Knight, Thief Monk, Witch Hunter Demon Hunter, Firearms Druid. `gamelab-fakecoop` gained `sim`, `hit`, `heal`, `shield` and `kill`. Forced setup, solo, build 25932569: `mod-partyframes` 20261107-013756, `mod-partyframes-livingmana` 20261107-013827, `devarena/party-sim` 20261107-013849 all pass. Two games in sequence, no Steam: the real reports `mod-partyframes-data` 20261107-015858 logged went through `hwp fakecoop wire` into `AllyStatus::OnReport` and the frames of a second game (draft scenario, 20261107-020021, pass). The harness carried them, so transport and a real client's sending are not covered, and the two-player session is still unproven.
@@ -46,6 +50,32 @@ tooltip/planner and timing regressions. All 57 focused offline tests and both ge
 checks pass. The full suite stops at 18 Windows-only import errors on Linux.
 Native validation is pending: the new worktree's
 GameLab doctor refused setup because its Windows Python runtime is missing.
+
+2026-11-12, training dummy DPS CI fix (#119). Added the missing Workshop module
+description and corrected the QoL cover count to 21 helpers. All 28 focused
+Workshop/config/package/build tests pass locally; remote full-suite verification
+is pending. No gameplay changes or test exemptions.
+
+2026-11-12, training dummy DPS resumed on `feat/town-dummy-dps` at main `4cfbb3bf`.
+Recovered the module and scenarios, reviewed the merged contents and cleared the
+remaining Git conflict flags without dropping the saved stash. The meter supplements
+native hit numbers with combined HP loss over the last five seconds. The QoL pack
+builds and 21 focused offline tests pass. Current-source
+live validation is blocked by Steam not running and a save-confirmation symlink
+refusal; no safety checks were bypassed or player install deployed. The UI review
+is in [audit-001](../anti-slop/audit-001-2026-11-12.md); historical passes below remain
+historical, not evidence for this integration.
+
+2026-11-08, Catch-up experience (`catchup`, #73), in the Co-op package. In a New Game+
+run, a player below the level cap of the NG+ level before it gets 50% more experience: below
+20 in NG+1, 25 in NG+2, 30 in NG+3 (vanilla's cap is 20 + 5 per NG+ level, so the threshold
+is 15 + 5n), never in NG+0, and not for a character already at its own cap. It goes by the
+run's NG+ (`g_ngp`), not the teammates' levels. The buff bar shows **Late Bloomer** (the
+shrine experience blessing's icon) while it applies; the buff's `experience-mul` 1.5 goes
+through `PlayerRecord.GiveExperience`, so kill and mission-reward experience are both
+boosted. Each machine boosts its own player; the switch `catchup.enabled` is the host's.
+`hwp catchup [ngp <n>|off]`. Source review and pytest only, not tested in game: no GameLab
+scenario yet, and the README's checklist (solo and two players) is still to run.
 
 2026-11-06, Magic Shop sphere picker takes E (#64). In the run-start Magic Shop picker,
 pressing E over a sphere now picks it before the window closes; vanilla closed the window and

@@ -5,6 +5,7 @@
 	<string name="hwp.pets.shop.train">Train your pet</string>
 	<string name="hwp.pets.inv_level">pet lvl %lvl% (%pct%%)</string>
 	<string name="hwp.pets.inv_level_max">pet lvl %lvl% (max)</string>
+	<string name="hwp.pets.inv_level_short">pet lvl %lvl%</string>
 	<string name="hwp.pets.none">You have no pet.</string>
 	<string name="hwp.pets.none_hint">Buy one from the Pet Shop keeper (or the Cat Trainer in the Hunter's Lodge) and come back.</string>
 	<string name="hwp.pets.state">%name% - level %lvl% / %max%</string>
