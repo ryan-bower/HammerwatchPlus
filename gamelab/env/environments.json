@@ -1,5 +1,5 @@
 {
-  "_doc": "The three environments (docs/PLAYBOOK.md Phase 6 item 9). Read by gamelab.env and tools/env_link.py, tools/deploy.py. <install> = the Steam install of app 619820, <repo> = this repo, <cloud> = Steam userdata/<account>/619820/remote.",
+  "_doc": "The three environments (docs/PLAYBOOK.md Phase 6 item 9). Read by gamelab.env and tools/env_link.py, tools/install.py. <install> = the Steam install of app 619820, <repo> = this repo, <cloud> = Steam userdata/<account>/619820/remote.",
   "vanilla": {
     "game_dir": "<install>",
     "user_data": "<install> (HWR2.exe.cfg, HWR2.exe.log) + <cloud>/saves",

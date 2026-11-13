@@ -172,9 +172,9 @@ def setup(dry_run: bool) -> tuple[int, bool]:
 
 
 def build_and_deploy(packages: list[str], dry_run: bool) -> int:
-    # deploy.py packs your HoH1 imports whenever there are some, and says so
+    # install.py packs your HoH1 imports whenever there are some, and says so
     say("build", ", ".join(mod_id(p) for p in packages))
-    cmd = [python(), str(gamepaths.TOOLS / "deploy.py"), "modded-prod", *packages, "--avoid-workshop"]
+    cmd = [python(), str(gamepaths.TOOLS / "install.py"), "modded-prod", *packages, "--avoid-workshop"]
     if dry_run:
         cmd.append("--dry-run")
     c = subprocess.run(cmd, cwd=gamepaths.REPO)

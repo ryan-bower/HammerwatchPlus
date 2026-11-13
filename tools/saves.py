@@ -13,7 +13,7 @@ user prunes.
 
 saves-backup/confirmed.json is written by `python -m gamelab doctor --fix` (or --confirm-saves)
 once a backup of this machine's saves is taken, re-hashed and restorable. The launcher
-and `deploy.py modded-prod` refuse while confirmation_problems() is non-empty.
+and `install.py modded-prod` refuse while confirmation_problems() is non-empty.
 """
 from __future__ import annotations
 

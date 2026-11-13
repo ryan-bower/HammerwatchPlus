@@ -76,7 +76,7 @@ passes (`pkg-all-every`).
 **Heroes of Hammerwatch 1 content** is the player's own: `tools/hoh1/import_hoh1.py` cuts it into
 paths a module lists under `local` (or `local_overlay`), and only `build.py --with-local`
 packs them, never a release build (`tests/test_release_files.py` fails on any ignored file
-that a release package would carry). `deploy.py modded-prod` (the player's own install) adds
+that a release package would carry). `install.py modded-prod` (the player's own install) adds
 `--with-local` whenever any of it is on disk (`--no-local`: a release build there), and
 `tools/workshop.py` refuses a `dist/` .bin that holds any of it (`build.local_entries`). No package needs HoH1. A module with HoH1 features
 calls `HWP::HoH1::Report(mod, present, ".lang.key")` after it has looked, where the key
@@ -202,7 +202,7 @@ it (and in unpacked dev links) the placeholders are used.
 
 **Beta-only content.** A `local_only` module with `beta_into: "<host>"` (the
 `holylocal` module, the Priest without the Celestial Ruins DLC, into `hwplib`)
-is never built on its own: `build.py --beta` (`deploy.py modded-prod --beta`)
+is never built on its own: `build.py --beta` (`install.py modded-prod --beta`)
 packs its files into every package that carries the host, so a beta tester enables only the
 usual packages, and a build without `--beta` never carries them. Verified by
 `mod-holylocal-priest` (the Priest offered, selected and created in character

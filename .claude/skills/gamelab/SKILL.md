@@ -122,7 +122,7 @@ find out why. Pass the cause on to the user, because the fix is on their machine
 | changed the user's config, saves or install | stop and report: must never happen |
 - The Discord mirror is out of scope.
 
-**Saves gate.** The launcher (exit 2) and `deploy.py modded-prod` refuse until
+**Saves gate.** The launcher (exit 2) and `install.py modded-prod` refuse until
 `saves-backup/confirmed.json` exists and its backup still re-hashes. bootstrap's
 datatables step boots the game through GameLab, so `--fix` confirms saves before it
 bootstraps.

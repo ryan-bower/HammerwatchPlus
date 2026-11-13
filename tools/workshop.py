@@ -353,7 +353,7 @@ def main(argv=None) -> int:
     if not args.no_build:
         if build.main(["--workshop"]) not in (0, None):
             return 1
-    # a --with-local or --beta build (deploy.py modded-prod makes one in dist/) carries content made
+    # a --with-local or --beta build (install.py modded-prod makes one in dist/) carries content made
     # from the player's own installs: it never goes into the kit
     local = build.local_entries([build.load_module(d) for d in build.paths.module_dirs()])
     for file, _p, _inside in items(packages, allp):

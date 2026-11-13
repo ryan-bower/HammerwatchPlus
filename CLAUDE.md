@@ -25,6 +25,26 @@ that boots the real game to test them. Current status is in `docs/status.md`.
 - Don't re-pin a changed game build or restore real saves to make a test pass.
 - Preserve unrelated edits and the owner's balance and design decisions.
 
+## Releases
+
+- When asked to install/update a **released build**, prefer `python tools/install_release.py
+  [TAG]` (latest stable when omitted). This downloads verified binaries without a game dump,
+  build dependencies, GameLab setup or a rebuild. Use `--mods-dir PATH` if Steam discovery
+  cannot locate the install. See [docs/releases.md](docs/releases.md).
+- Installation requires user authorization to modify the real install. Close the game first.
+  The installer replaces only HWP binaries, not unrelated mods, saves or config. It does not
+  launch the game, enable mods in a profile, or unsubscribe Workshop copies.
+- Publish only when explicitly asked: `python tools/release.py` (automatic next patch version,
+  or pass `vX.Y.Z` to override) from a clean, pushed
+  checkout with the required game dump. Do not hand-upload old files from `dist/` or publish
+  personal (`--with-local`) or beta builds.
+- For installing the current checkout without launching, use `python tools/install.py
+  modded-prod` (`--dry-run` previews; `--no-local` excludes personal HoH1 imports).
+  This replaces the old `tools/deploy.py` command; save-safety gates remain unchanged.
+- Keep source builds for current-checkout mod changes, personal HoH1 imports and `/run`'s
+  current-source play workflow. GameLab tests still use isolated source mods, not release assets.
+  Never claim that a released binary validates uncommitted changes.
+
 ## Evidence
 - Read `run.json` (verdict, assertions, error, teardown) before drawing any conclusion. A failed
   setup is not a gameplay bug. Look at screenshots before describing them. Keep failed and
