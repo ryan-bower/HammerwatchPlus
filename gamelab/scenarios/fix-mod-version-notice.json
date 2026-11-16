@@ -1,6 +1,6 @@
 {
  "name": "fix-mod-version-notice",
- "about": "Issue #24: players with different HammerwatchPlus updates get into one lobby (the game's mod check compares mod ids, not their contents), and only the log said so. Now each package carries its update (tools/build.py), a client in town reports its packages to the host, the host answers with its own, and both are told which packages differ and whose are older; a side that never reports is an update from before these reports. One lab game stands in for two: a host's request runs locally, and `hwp builds fake` reads every report and answer as if the other side ran that.",
+ "about": "Issue #24: players with different HammerwatchPlus updates get into one lobby (the game's mod check compares mod ids, not their contents), and only the log said so. Now each package carries its update (tools/build.py), a client in town reports its packages to the host, the host answers with its own, and both are told which packages differ and whose are older; a side that never reports is an update from before these reports. One lab game stands in for two: a host's request runs locally, and `hwp builds fake` reads every report and answer as if the other side ran that. Each update also carries a hash of the package's files: a peer with the same files from another commit (a build from source of the release) is told it is the same, and one with other files under any commit still differs.",
  "fixture": "town-paladin",
  "packages": [
   "qol"
@@ -170,6 +170,79 @@
   {
    "do": "shot",
    "name": "silent"
+  },
+  {
+   "do": "log_capture",
+   "pattern": "\\[HWP:core\\] package HWP-qol, library [0-9a-f]{12}, update \\S+ \\S+ (?P<c>#[0-9a-f]{12})",
+   "save_as": "own",
+   "timeout": 5,
+   "name": "the update carries the package's file hash"
+  },
+  {
+   "do": "mark",
+   "name": "samefiles"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds fake clear"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds fake HWP-qol=2026-01-01 0000000 {$own.match.c}"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds report"
+  },
+  {
+   "do": "log_has",
+   "pattern": "\\[HWP\\] .+ runs the same HammerwatchPlus as you: the same files, built from another commit \\(yours \\d{4}-\\d\\d-\\d\\d \\([0-9a-f]{7,}\\+?\\), theirs 2026-01-01 \\(0000000\\)\\)\\.",
+   "since": "samefiles",
+   "timeout": 10,
+   "name": "same files, another commit: told it is the same"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "runs another HammerwatchPlus update",
+   "since": "samefiles",
+   "name": "same files: no mismatch notice"
+  },
+  {
+   "do": "shot",
+   "name": "samefiles"
+  },
+  {
+   "do": "mark",
+   "name": "otherfiles"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds fake clear"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds fake HWP-qol=2099-01-01 fffffff #000000000000"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds report"
+  },
+  {
+   "do": "log_has",
+   "pattern": "runs another HammerwatchPlus update than you, so some mods may misbehave together: HWP-qol: yours \\d{4}-\\d\\d-\\d\\d \\([0-9a-f]{7,}\\+?\\), theirs 2099-01-01 \\(fffffff\\)\\.",
+   "since": "otherfiles",
+   "timeout": 10,
+   "name": "other files: still a mismatch, hash hidden"
+  },
+  {
+   "do": "log_lacks",
+   "pattern": "runs the same HammerwatchPlus as you",
+   "since": "otherfiles",
+   "name": "other files: never called the same"
+  },
+  {
+   "do": "console",
+   "line": "hwp builds fake clear"
   },
   {
    "do": "log_clean"

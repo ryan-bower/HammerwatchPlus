@@ -732,15 +732,22 @@ namespace HWPPartyFrames
 
 namespace Modules
 {
-	class HWPPartyFramesModule : Module
+	class HWPPartyFramesModule : Module, HWP::ModuleStart
 	{
 		HWPPartyFramesModule()
 		{
 			super("hwp-partyframes");
+			// the town record isn't loaded yet here (docs/RE_NOTES.md), so this reads the
+			// defaults; Start reads the saved settings once it is
 			HWP::PartyFrames::Reload();
 			HWP::Commands::Register("partyframes", "[demo [count | off]]  the party frames' settings and each player's reported shield and potions; demo draws stub allies for a solo test", HWP::Commands::Handler(HWP::PartyFrames::CmdPartyFrames));
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::PartyFrames::OnSettingChanged));
 			HWP::Log("partyframes", "ready");
+		}
+
+		void Start(StartMode sMode)
+		{
+			HWP::PartyFrames::Reload();
 		}
 	}
 }
