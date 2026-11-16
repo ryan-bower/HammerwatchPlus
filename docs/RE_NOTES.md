@@ -23,40 +23,6 @@
   warned, and a bought HoH1 pet was put away with a red line and came back once the peer
   matched. The real network path (`hoh1.report` from a second machine) is unproven.
 
-## 2026-11-12: Dark Citadel shortcut candle graph
-
-Source review and offline graph tests only, based on `3dc29e56`, pinned build
-25932569 / Build 176. No native run ID: the new worktree's Linux doctor refuses
-before launch because the private Windows Python runtime is missing.
-
-- `levels/shortcut_dark_citadel.lvl` has four toggleable snake-pedestal candles.
-  `CheckShortcut` 268 checks shortcut 3 at the current NG+; its false branch 348
-  randomly removes two candles. The extension removes/disables all three new ones
-  on that same branch, leaving the original pair selection and saved unlock intact.
-- Each lit candle enables a wave link and a reward link. Script 328 invokes the
-  wave links once immediately and three more times through timer 316 (6500 ms).
-  StartChallenge disables candle use; completion waits on the vanilla enemy feeds.
-  The extension adds three wave links using the same shade spawners. Whether the
-  engine's `AllSpawned` feed correctly tracks the larger waves is still unmeasured.
-- Reward links increment variable 225 before completion check 222 chooses the exit.
-  Vanilla chooses `dungeon_1` below four candles and `barracks_1` at four. The
-  extension adds thresholds five (`courts_1`), six (`dark_halls_1`) and seven
-  (`dark_halls_boss`). New completion links only increment 225, not the loot payout.
-- Check 222 also spawns the portal through output 283. New threshold checks must
-  not clone that output or a deeper skip would spawn several portals. Offline
-  execution of every candle subset asserts exactly one portal and one enabled exit.
-- The level and pristine `.orig` are accompanied by
-  `tools/generate/make_shortcut_candles.py`; it retains geometry, the original
-  spawners, reward producers and mission progression. No new AngelScript or UI.
-
-Validation: `tests/test_shortcut_candles.py`, config, package-graph, release-files
-and build-base tests: 29 passed. The new level compiles to binary SValue and decodes
-without trailing bytes. Verb/config generation checks pass. Full `scripts/test.py`
-cannot collect 18 Windows-only test modules under Linux (`ctypes.WinDLL` absent).
-`tools/build.py qol` and `--check` refuse absent generated worktree game assets.
-The module README lists the outstanding placement, combat, co-op, save and victory
-checks; none is claimed as passing.
-
 ## 2026-11-12: Deadeye Tailwind refresh (#77)
 
 Source change: `TAILWIND_MS` is now 6000 (previously 4000). `AddTailwind`, shared by
