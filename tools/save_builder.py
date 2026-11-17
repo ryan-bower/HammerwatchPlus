@@ -15,6 +15,32 @@ DEFAULT_GOLD = 1_000_000
 MAX_GOLD = 2_147_483_647  # Native material balances are signed 32-bit integers.
 
 
+@dataclass(frozen=True)
+class TownPreset:
+    label: str
+    flags: tuple[str, ...]  # persistent town flags set through `townflag <name> on`
+    tiers: int | None       # `townpreset <tiers>`: percent of each building's last tier; None builds nothing
+
+
+# Town flags checked against the game's own data: the intro mission's reward-flag-town
+# (tweak/missions/missions_story.sval), the "local flag" conditionals of the buildings and
+# classes (datatables), and the SetFlag/SetTownFlag calls for the spell mastery trainer
+# (actors/npcs/dungeon/npc_spell_mastery_trainer.unit) and maps (Items/MissionMap.as).
+_STARTER = ("mission_story_intro_find_npcs",)
+_MID = _STARTER + tuple(f"mission_story_unlocked_{n}" for n in (
+    "blacksmith", "enchanter", "architect", "librarian", "dyer", "maps")) + (
+    "unlocked_class_rogue", "unlocked_class_sorcerer", "unlocked_class_warlock")
+# The spell mastery trainer only appears at NG+ 1 or higher, so only End game grants its flag.
+_END = _MID + ("mission_story_unlocked_spell_mastery", "beat_dark_citadel")
+TOWN_PRESETS = {
+    "vanilla": TownPreset("Vanilla (play the intro)", (), None),
+    "starter": TownPreset("Starter", _STARTER, None),
+    "mid": TownPreset("Mid game", _MID, 50),
+    "end": TownPreset("End game", _END, 100),
+}
+DEFAULT_TOWN = "starter"
+
+
 def parse_gold(value: str) -> int:
     try:
         gold = int(value.replace(",", "").strip())
@@ -48,8 +74,16 @@ class Plan:
     profile_name: str | None = None
     characters: list[Character] = field(default_factory=list)
     starting_gold: int = DEFAULT_GOLD
+    # "vanilla" here keeps a bare Plan() exactly as before presets; run.py and the builder
+    # window default to DEFAULT_TOWN.
+    town: str = "vanilla"
 
-    def validate(self, available: dict[str, str] | None = None) -> None:
+    def validate(self, available: dict[str, str] | None = None, complete: bool = True) -> None:
+        """complete=False while the builder window may still add characters."""
+        if self.town not in TOWN_PRESETS:
+            raise ValueError(f"Town must be one of: {', '.join(TOWN_PRESETS)}")
+        if complete and TOWN_PRESETS[self.town].tiers is not None and not self.characters:
+            raise ValueError(f"The {TOWN_PRESETS[self.town].label} town needs at least one character")
         if type(self.starting_gold) is not int or not 0 <= self.starting_gold <= MAX_GOLD:
             raise ValueError(f"Starting gold must be a whole number between 0 and {MAX_GOLD:,}")
         if len(self.characters) > MAX_CHARACTERS:
@@ -81,8 +115,8 @@ def show(plan: Plan, available: dict[str, str]) -> Plan | None:
 
     root = tk.Tk()
     root.title("HammerwatchPlus · Save builder")
-    root.geometry("720x665")
-    root.minsize(680, 625)
+    root.geometry("720x745")
+    root.minsize(680, 705)
     style = ttk.Style(root)
     if "vista" in style.theme_names():
         style.theme_use("vista")
@@ -99,6 +133,10 @@ def show(plan: Plan, available: dict[str, str]) -> Plan | None:
     gold = tk.StringVar(value=f"{plan.starting_gold:,}")
     ttk.Label(frame, text="Starting gold  (shared by this profile)").pack(anchor="w")
     ttk.Entry(frame, textvariable=gold).pack(fill="x", pady=(4, 16))
+    town_by_label = {preset.label: key for key, preset in TOWN_PRESETS.items()}
+    town = tk.StringVar(value=TOWN_PRESETS[plan.town].label)
+    ttk.Label(frame, text="Town  (shared by this profile)").pack(anchor="w")
+    ttk.Combobox(frame, textvariable=town, values=list(town_by_label), state="readonly").pack(fill="x", pady=(4, 16))
     form = ttk.Frame(frame)
     form.pack(fill="x")
     name = tk.StringVar(value="TestSorc")
@@ -126,7 +164,8 @@ def show(plan: Plan, available: dict[str, str]) -> Plan | None:
         try:
             by_label = {label: key for key, label in available.items()}
             character = Character(by_label[selected.get()], int(level.get()), name.get().strip())
-            Plan(profile.get().strip() or None, rows + [character], parse_gold(gold.get())).validate(available)
+            Plan(profile.get().strip() or None, rows + [character], parse_gold(gold.get()),
+                 town_by_label[town.get()]).validate(available)
             rows.append(character)
             refresh()
         except (ValueError, KeyError) as error:
@@ -144,14 +183,17 @@ def show(plan: Plan, available: dict[str, str]) -> Plan | None:
     tree.pack(fill="both", expand=True)
     refresh()
     ttk.Label(frame, text="Levels 1–20 · Normal starting gear · Earned skill and attribute points stay unspent\n"
-              "Preparing characters runs the game privately first and can take a few minutes.",
+              "Town: Vanilla plays the intro, Starter skips it, Mid game builds every building to about half its\n"
+              "tiers and End game to its last tier (both need a character). Blueprints are not granted.\n"
+              "Preparing the save runs the game privately first and can take a few minutes.",
               wraplength=650).pack(anchor="w", pady=(14, 18))
     result = None
 
     def finish(empty=False):
         nonlocal result
         try:
-            candidate = Plan(profile.get().strip() or None, [] if empty else list(rows), parse_gold(gold.get()))
+            candidate = Plan(profile.get().strip() or None, [] if empty else list(rows), parse_gold(gold.get()),
+                             town_by_label[town.get()])
             candidate.validate(available)
             if not empty and not rows:
                 raise ValueError("Add a character first, or choose No preset characters")

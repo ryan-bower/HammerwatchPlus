@@ -1,0 +1,88 @@
+{
+ "name": "town-preset-starter",
+ "about": "Starter town preset (#132): a fresh profile whose town has only the intro mission's reward flag mission_story_intro_find_npcs, set with `townflag` (TownRecord.SetTownFlag) the way the play builder does, then saved. After a fresh boot the flag reads back, the town has no buildings, and the intro is skipped: no intro Adam (npc_misc_adam_intro), but the post-intro Adam and the builder.",
+ "fixture": "town-preset-starter",
+ "mods": [],
+ "timeout": 150,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "townflag",
+   "args": [
+    "mission_story_intro_find_npcs"
+   ],
+   "expect": {
+    "ok": true,
+    "value": true
+   },
+   "name": "town flag mission_story_intro_find_npcs survived save and quit"
+  },
+  {
+   "do": "gl",
+   "verb": "towntiers",
+   "expect": {
+    "ok": true,
+    "built": 0,
+    "maxed": 0,
+    "steps": 0,
+    "truncated": false
+   },
+   "save_as": "tiers",
+   "name": "town tiers after a fresh boot (no buildings)"
+  },
+  {
+   "do": "gl",
+   "verb": "near",
+   "args": [
+    8000,
+    "/npc_misc_adam_intro.unit"
+   ],
+   "expect": {
+    "ok": true,
+    "count": 0
+   },
+   "name": "intro skipped: no intro Adam in town"
+  },
+  {
+   "do": "gl",
+   "verb": "near",
+   "args": [
+    8000,
+    "/npc_misc_adam.unit"
+   ],
+   "expect": {
+    "ok": true,
+    "count": 1
+   },
+   "name": "intro skipped: the post-intro Adam in town"
+  },
+  {
+   "do": "gl",
+   "verb": "near",
+   "args": [
+    8000,
+    "/npc_builder.unit"
+   ],
+   "expect": {
+    "ok": true,
+    "count": 1
+   },
+   "name": "intro skipped: the builder in town"
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town",
+    "player.dead": false
+   }
+  },
+  {
+   "do": "shot",
+   "name": "town"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

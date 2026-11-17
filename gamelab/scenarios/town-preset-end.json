@@ -1,0 +1,215 @@
+{
+ "name": "town-preset-end",
+ "about": "End game town preset (#132): the Mid game flags plus mission_story_unlocked_spell_mastery (NG+-earned in vanilla, so not in Mid) and beat_dark_citadel, then `townpreset 100`: every buildable building at its last tier. After a fresh boot every flag reads back and `towntiers` shows 15 of 16 buildings maxed (57 steps; treasury is never buildable).",
+ "fixture": "town-preset-end",
+ "mods": [],
+ "timeout": 150,
+ "steps": [
+  {
+   "do": "gl",
+   "verb": "townflag",
+   "args": [
+    "mission_story_intro_find_npcs"
+   ],
+   "expect": {
+    "ok": true,
+    "value": true
+   },
+   "name": "town flag mission_story_intro_find_npcs survived save and quit"
+  },
+  {
+   "do": "gl",
+   "verb": "townflag",
+   "args": [
+    "mission_story_unlocked_blacksmith"
+   ],
+   "expect": {
+    "ok": true,
+    "value": true
+   },
+   "name": "town flag mission_story_unlocked_blacksmith survived save and quit"
+  },
+  {
+   "do": "gl",
+   "verb": "townflag",
+   "args": [
+    "mission_story_unlocked_enchanter"
+   ],
+   "expect": {
+    "ok": true,
+    "value": true
+   },
+   "name": "town flag mission_story_unlocked_enchanter survived save and quit"
+  },
+  {
+   "do": "gl",
+   "verb": "townflag",
+   "args": [
+    "mission_story_unlocked_architect"
+   ],
+   "expect": {
+    "ok": true,
+    "value": true
+   },
+   "name": "town flag mission_story_unlocked_architect survived save and quit"
+  },
+  {
+   "do": "gl",
+   "verb": "townflag",
+   "args": [
+    "mission_story_unlocked_librarian"
+   ],
+   "expect": {
+    "ok": true,
+    "value": true
+   },
+   "name": "town flag mission_story_unlocked_librarian survived save and quit"
+  },
+  {
+   "do": "gl",
+   "verb": "townflag",
+   "args": [
+    "mission_story_unlocked_dyer"
+   ],
+   "expect": {
+    "ok": true,
+    "value": true
+   },
+   "name": "town flag mission_story_unlocked_dyer survived save and quit"
+  },
+  {
+   "do": "gl",
+   "verb": "townflag",
+   "args": [
+    "mission_story_unlocked_maps"
+   ],
+   "expect": {
+    "ok": true,
+    "value": true
+   },
+   "name": "town flag mission_story_unlocked_maps survived save and quit"
+  },
+  {
+   "do": "gl",
+   "verb": "townflag",
+   "args": [
+    "unlocked_class_rogue"
+   ],
+   "expect": {
+    "ok": true,
+    "value": true
+   },
+   "name": "town flag unlocked_class_rogue survived save and quit"
+  },
+  {
+   "do": "gl",
+   "verb": "townflag",
+   "args": [
+    "unlocked_class_sorcerer"
+   ],
+   "expect": {
+    "ok": true,
+    "value": true
+   },
+   "name": "town flag unlocked_class_sorcerer survived save and quit"
+  },
+  {
+   "do": "gl",
+   "verb": "townflag",
+   "args": [
+    "unlocked_class_warlock"
+   ],
+   "expect": {
+    "ok": true,
+    "value": true
+   },
+   "name": "town flag unlocked_class_warlock survived save and quit"
+  },
+  {
+   "do": "gl",
+   "verb": "townflag",
+   "args": [
+    "mission_story_unlocked_spell_mastery"
+   ],
+   "expect": {
+    "ok": true,
+    "value": true
+   },
+   "name": "town flag mission_story_unlocked_spell_mastery survived save and quit"
+  },
+  {
+   "do": "gl",
+   "verb": "townflag",
+   "args": [
+    "beat_dark_citadel"
+   ],
+   "expect": {
+    "ok": true,
+    "value": true
+   },
+   "name": "town flag beat_dark_citadel survived save and quit"
+  },
+  {
+   "do": "gl",
+   "verb": "towntiers",
+   "expect": {
+    "ok": true,
+    "count": 16,
+    "built": 15,
+    "maxed": 15,
+    "unmaxed": 0,
+    "steps": 57,
+    "truncated": false,
+    "buildings.guild_hall.v": 7,
+    "buildings.guild_hall.last": 7,
+    "buildings.blacksmith.v": 6,
+    "buildings.blacksmith.last": 6,
+    "buildings.chapel.v": 4,
+    "buildings.chapel.last": 4,
+    "buildings.magic_shop.v": 4,
+    "buildings.magic_shop.last": 4,
+    "buildings.apothecary.v": 3,
+    "buildings.apothecary.last": 3,
+    "buildings.training_grounds.v": 3,
+    "buildings.training_grounds.last": 3,
+    "buildings.architect.v": 1,
+    "buildings.architect.last": 1,
+    "buildings.enchanter.v": 1,
+    "buildings.enchanter.last": 1,
+    "buildings.general_store.v": 2,
+    "buildings.general_store.last": 2,
+    "buildings.hunters_cabin.v": 2,
+    "buildings.hunters_cabin.last": 2,
+    "buildings.library.v": 2,
+    "buildings.library.last": 2,
+    "buildings.tailor.v": 2,
+    "buildings.tailor.last": 2,
+    "buildings.tavern.v": 2,
+    "buildings.tavern.last": 2,
+    "buildings.trading_post.v": 2,
+    "buildings.trading_post.last": 2,
+    "buildings.pyre.v": 1,
+    "buildings.pyre.last": 1,
+    "buildings.treasury.v": -1,
+    "buildings.treasury.last": 0
+   },
+   "save_as": "tiers",
+   "name": "town tiers after a fresh boot (End game table)"
+  },
+  {
+   "do": "gl",
+   "verb": "state",
+   "expect": {
+    "phase": "town",
+    "player.dead": false
+   }
+  },
+  {
+   "do": "shot",
+   "name": "town"
+  },
+  {
+   "do": "log_clean"
+  }
+ ]
+}

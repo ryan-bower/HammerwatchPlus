@@ -72,6 +72,150 @@ namespace GameLab
 		Emit(Reply(id, true).Int("gold", g_myTownRecord.GetMaterial(MaterialType::Gold)));
 	}
 
+	const uint TOWNPRESET_PASSES = 128;
+	const uint TOWNPRESET_CAP = 64;
+
+	// the building's placed record in my town, or null when it is not built
+	BuildingManagement::PlacedBuilding@ TownPresetPlaced(BuildingManagement::BuildingDef@ def)
+	{
+		for (uint i = 0; i < g_myTownRecord.m_buildings.length(); i++)
+		{
+			if (g_myTownRecord.m_buildings[i].buildingDef is def)
+				return g_myTownRecord.m_buildings[i];
+		}
+		return null;
+	}
+
+	// a tier's conditionals as the town builder tests them (BuildingVariation.CheckConditionals).
+	// In town the local record's actor is set, so ::CheckConditionals(list, PlayerRecord) takes
+	// the actor path (Utils/Conditional.as:759-767), the same as the builder; only a null record
+	// or actor would fall back to CheckGlobalConditionals
+	bool TownPresetAllows(BuildingManagement::BuildingVariation@ tier, PlayerRecord@ rec)
+	{
+		return ::CheckConditionals(tier.m_conditionals, rec);
+	}
+
+	// townpreset <0..100>: a setup town at that share of every building's last tier (the play
+	// builder's Mid game is 50, End game 100). Each pass adds every unbuilt building whose own
+	// conditionals pass (the town builder's "new" item, NewBuildingContentItem.IsAvailable) and
+	// raises a built one a tier while it is under its target, round-half-up(last * n / 100),
+	// and the next tier's conditionals pass (PlacedBuilding.IsAvailable), until a pass changes
+	// nothing (at most TOWNPRESET_PASSES). The last tier is read live (m_variations.length() - 1),
+	// so a mod's extra tiers count (the tavern mod's six levels). Buildings with a plot type take
+	// the first empty buildable plot, as `build` does. The record is changed directly and saved
+	// with SavePlayerAndTown, NOT through AddBuilding / IncrementVariationOnBuilding: both call
+	// TownRecord.Refresh, whose `%STAT Max buildings-built` would credit the steps to the stat
+	// (tweak/stats/economy.sval: Steam achievement town_builder at 50). The scene is not rebuilt,
+	// so the buildings show from the next town load. Host in town only. Replies per building
+	// (capped at TOWNPRESET_CAP) v (-1 unbuilt), last and target; the town's steps (the sum of
+	// variation + 1, what "my town num building steps" counts), built, maxed, added, raised,
+	// passes, capped (still changing at the pass limit) and the ids left unbuilt (skipped).
+	void VerbTownPreset(const string &in id, array<string>@ args)
+	{
+		uint used = 0;
+		int64 pct = -1;
+		if (args.length() == 1)
+			pct = parseInt(args[0], 10, used);
+		if (args.length() != 1 || args[0].isEmpty() || used != args[0].length() || pct < 0 || pct > 100)
+		{
+			Fail(id, "usage: townpreset <0..100>");
+			return;
+		}
+		auto gm = cast<AGameplayGameMode>(g_gameMode);
+		if (gm is null || g_myTownRecord is null || !g_inTown || !Network::IsServer())
+		{
+			Fail(id, "not the host in town");
+			return;
+		}
+		PlayerRecord@ rec = GetLocalPlayerRecord();
+		array<BuildingManagement::BuildingDef@>@ defs = BuildingManagement::BuildingDef::Instances;
+		int added = 0;
+		int raised = 0;
+		uint passes = 0;
+		bool changed = true;
+		while (changed && passes < TOWNPRESET_PASSES)
+		{
+			changed = false;
+			passes++;
+			for (uint i = 0; i < defs.length(); i++)
+			{
+				BuildingManagement::BuildingDef@ def = defs[i];
+				if (def is null || def.m_variations.length() == 0)
+					continue;
+				int last = int(def.m_variations.length()) - 1;
+				int target = (last * int(pct) + 50) / 100;
+				BuildingManagement::PlacedBuilding@ placed = TownPresetPlaced(def);
+				if (placed is null)
+				{
+					if (!TownPresetAllows(def.m_variations[0], rec))
+						continue;
+					uint plotHash = 0;
+					if (def.m_plotHash != 0)
+					{
+						for (uint p = 0; p < g_myTownRecord.m_plots.length() && plotHash == 0; p++)
+						{
+							auto plot = g_myTownRecord.m_plots[p];
+							if (plot !is null && plot.m_plotDefHash == def.m_plotHash && plot.IsBuildable()
+								&& g_myTownRecord.IsPlotEmpty(plot))
+								plotHash = plot.m_idHash;
+						}
+						if (plotHash == 0)
+							continue;
+					}
+					BuildingManagement::PlacedBuilding newBuilding;
+					@newBuilding.buildingDef = def;
+					newBuilding.plotHash = plotHash;
+					newBuilding.variation = 0;
+					g_myTownRecord.m_buildings.insertLast(newBuilding);
+					added++;
+					changed = true;
+				}
+				else if (int(placed.variation) < target && int(placed.variation) < last
+					&& TownPresetAllows(def.m_variations[placed.variation + 1], rec))
+				{
+					placed.variation = placed.variation + 1;
+					raised++;
+					changed = true;
+				}
+			}
+		}
+		gm.SavePlayerAndTown();
+		Json b;
+		array<string> skipped;
+		uint listed = 0;
+		int built = 0;
+		int maxed = 0;
+		for (uint i = 0; i < defs.length(); i++)
+		{
+			BuildingManagement::BuildingDef@ def = defs[i];
+			if (def is null)
+				continue;
+			int last = int(def.m_variations.length()) - 1;
+			int v = g_myTownRecord.GetVariationOnBuilding(def.m_idHash);
+			if (v >= 0)
+			{
+				built++;
+				if (v >= last)
+					maxed++;
+			}
+			else if (skipped.length() < TOWNPRESET_CAP)
+				skipped.insertLast(def.m_id);
+			if (listed < TOWNPRESET_CAP)
+			{
+				Json e;
+				e.Int("v", v).Int("last", last).Int("target", (last * int(pct) + 50) / 100);
+				b.Raw(def.m_id, e.Close());
+				listed++;
+			}
+		}
+		int steps = 0;
+		for (uint i = 0; i < g_myTownRecord.m_buildings.length(); i++)
+			steps += int(g_myTownRecord.m_buildings[i].variation) + 1;
+		Emit(Reply(id, true).Int("pct", pct).Int("steps", steps).Int("built", built).Int("maxed", maxed)
+			.Int("added", added).Int("raised", raised).Int("passes", passes).Bool("capped", changed)
+			.Bool("truncated", listed < defs.length()).Raw("skipped", StrArray(skipped)).Raw("buildings", b.Close()));
+	}
+
 	// material <gold|wood|stone|iron|crystals|dust|ore|all> <n>: PlayerRecord.GiveMaterial with skipGainMod, like cht_give_material: the amount lands as given (a pickup applies the gain modifiers: GetMaterialModifier). "all" gives n of each.
 	void VerbMaterial(const string &in id, array<string>@ args)
 	{

@@ -181,8 +181,37 @@ class RunPlan(unittest.TestCase):
         build.assert_not_called()
         profile.assert_not_called()
 
+    def test_town_preset_dry_run_names_the_preset_and_runs_no_seed(self):
+        plan = run.save_builder.Plan(characters=[run.save_builder.Character("paladin", 5, "Pal")],
+                                     starting_gold=0, town="end")
+        out = io.StringIO()
+        with mock.patch.object(run, "game_running", return_value=False), \
+                mock.patch.object(run.gamepaths, "hoh2_dir", return_value=Path("C:/fake/HoH2")), \
+                mock.patch.object(run, "choose_save", return_value=plan), \
+                mock.patch.object(run, "build_and_deploy", return_value=0), \
+                mock.patch.object(run.profile_seed, "generate") as generate, \
+                mock.patch.object(run, "launch", return_value=0), redirect_stdout(out):
+            self.assertEqual(run.main(["--no-setup", "--dry-run", "--town", "end"]), 0)
+        generate.assert_not_called()
+        text = out.getvalue()
+        self.assertIn("run: town: would prepare the town preset end (End game)", text)
+        self.assertIn("beat_dark_citadel", text)
+        self.assertIn("every buildable building at its last tier", text)
+
+    def test_starter_town_alone_still_seeds(self):
+        plan = run.save_builder.Plan(starting_gold=0, town="starter")
+        with mock.patch.object(run, "game_running", return_value=False), \
+                mock.patch.object(run.gamepaths, "hoh2_dir", return_value=Path("C:/fake/HoH2")), \
+                mock.patch.object(run, "choose_save", return_value=plan), \
+                mock.patch.object(run, "build_and_deploy", return_value=0), \
+                mock.patch.object(run.profile_seed, "generate", return_value=(b"native", "seed-run")) as generate, \
+                mock.patch.object(run, "prepare_profile", return_value=0), redirect_stdout(io.StringIO()):
+            self.assertEqual(run.main(["--no-setup", "--no-launch"]), 0)
+        generate.assert_called_once_with(plan, ["all"])
+
     def test_copy_slot_rejects_builder_options(self):
-        for extra in (["--gold", "5"], ["--character", "sorc:15:TestSorc"]):
+        for extra in (["--gold", "5"], ["--character", "sorc:15:TestSorc"], ["--town", "starter"],
+                      ["--town", "vanilla"]):
             with self.assertRaises(SystemExit), mock.patch("sys.stderr", io.StringIO()):
                 run.main(["--copy-slot", "0", *extra])
 
@@ -194,6 +223,33 @@ class RunPlan(unittest.TestCase):
             for n in ["HWP-core.bin", "HammerwatchPlus-All.bin", "other.bin"]:
                 (mods / n).write_bytes(b"")
             self.assertEqual(run.deployed_ids(Path(d)), {"HWP-core", "HammerwatchPlus-All"})
+
+
+class ChooseSave(unittest.TestCase):
+    def args(self, **kw):
+        base = dict(profile_name=None, character=[], gold=0, town=None, no_ui=True, dry_run=True)
+        return run.argparse.Namespace(**{**base, **kw})
+
+    def choose(self, **kw):
+        with mock.patch.object(run.profile_seed, "available_classes", return_value=dict(run.save_builder.CLASSES)), \
+                redirect_stdout(io.StringIO()):
+            return run.choose_save(self.args(**kw), ["all"])
+
+    def test_town_defaults_to_starter_and_takes_the_option(self):
+        self.assertEqual(self.choose().town, "starter")
+        self.assertEqual(self.choose(town="vanilla").town, "vanilla")
+        self.assertEqual(self.choose(town="mid", character=["paladin:3:Pal"]).town, "mid")
+
+    def test_mid_and_end_need_a_character_once_the_roster_is_final(self):
+        for town in ("mid", "end"):
+            with self.assertRaisesRegex(ValueError, "needs at least one character"):
+                self.choose(town=town)
+        # the builder window still collects characters, so it may open on a Mid town
+        self.assertEqual(self.choose(town="mid", no_ui=False).town, "mid")
+
+    def test_unknown_town_is_refused_by_argparse(self):
+        with self.assertRaises(SystemExit), mock.patch("sys.stderr", io.StringIO()):
+            run.main(["--town", "late", "--dry-run"])
 
 
 class RuntimeGuard(unittest.TestCase):

@@ -1,5 +1,106 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-16: town presets for the play builder (#132)
+
+Source review of the decompiled scripts and datatables on pinned build 25932569, then the
+forced-state measurements at the end of this entry. This supersedes the 2026-10-29 line "The builder does not grant NG+
+or unrelated town progression" for the town: the builder now offers town presets. NG+ is
+still not granted.
+
+- **The intro skip is one town flag.** `story_intro_find_npcs` in
+  `tweak/missions/missions_story.sval` rewards the town flag `mission_story_intro_find_npcs`;
+  the town segments, the story missions and the hunter test that flag. Starter sets only it.
+- **Every preset flag is a town flag.** `CondFlagLocal` checks the character's flag, then
+  `g_myTownRecord.HasTownFlag`; `CondFlag` uses `g_flags.IsSet`, which also asks
+  `g_currTownRecord`. So `townflag <name> on` (`TownRecord.SetTownFlag`) satisfies both.
+  `mission_story_unlocked_{blacksmith,enchanter,architect,librarian,dyer}` and
+  `unlocked_class_{rogue,sorcerer,warlock}` are in the datatables' conditionals.
+  `mission_story_unlocked_spell_mastery` and `mission_story_unlocked_maps` are not in
+  `gamecode/datatables`, but the game sets them as town flags: the dungeon spell mastery
+  trainer (`actors/npcs/dungeon/npc_spell_mastery_trainer.unit`, SetFlag town=true; it only
+  appears at NG+ 1 or higher, so vanilla play earns this flag in NG+; only the End game preset
+  grants it) and `Items/MissionMap.as` (`SetTownFlag(HashString("mission_story_unlocked_maps"))`).
+  The town griffin (`npc_griffin.unit`) needs the maps flag and guild hall 5, so it should
+  show in End game but not in Mid game (guild hall 4).
+  `beat_dark_citadel` is set as a town flag by `MissionEndMenu.as` and gates the pyre.
+- **The vanilla building table** (`tweak/town/buildings/*.sval`, top tier = upgrades): guild
+  hall 7 (upgrades need 4/8/13/18/23/28/30 building steps), blacksmith 6, chapel 4, magic shop 4,
+  apothecary 3, training grounds 3, general store, hunter's cabin, library (flag librarian),
+  tailor (flag dyer), tavern and trading post 2, architect and enchanter 1 (their flags), pyre 1
+  (chapel 2 and `beat_dark_citadel`), treasury 0 with a `false` conditional, so never built. None
+  has a `plot` key. A fresh town record has no buildings (`TownRecord.Load` only reads saved ones).
+- **Expected preset towns** (a datatable simulation of `townpreset`, not a measurement): Mid
+  game (50%) builds 14 buildings, 37 steps: guild hall 4, blacksmith 3, chapel 2, magic shop 2,
+  apothecary 2, training grounds 2, architect 1, enchanter 1, the six two-tier buildings 1; pyre
+  and treasury unbuilt. End game builds 15, all at their last tier, 57 steps. With the tavern mod
+  (tavern top 5, upgrades need guild hall 3/5/6/7/7) Mid leaves the tavern at 1 and End reaches
+  5 (60 steps).
+- **`TownRecord.Refresh` feeds a Steam achievement.** `AddBuilding` and
+  `IncrementVariationOnBuilding` both call `Refresh`, which runs `%STAT Max buildings-built
+  numBuilt` (the sum of variation + 1) when the record is `g_myTownRecord`. `Stats::Max` can
+  unlock rewards; `tweak/stats/economy.sval` gives skill points at 5/10/20/30/40 and the Steam
+  achievement `town_builder` at 50. So the existing `build` and `buildup` verbs, and
+  `townrefresh`, each credit the stat. `townpreset` changes `m_buildings` directly and saves
+  with `SavePlayerAndTown`, so the lab run credits nothing (End has 57 steps, which would unlock
+  `town_builder` on the lab's Steam account). `TownRecord.Load` has no `%STAT`: for
+  `g_myTownRecord` it loads the saved `stats-town` and calls `RefreshHeroTitles`,
+  `RefreshDonationTitles` and `RefreshStatAccomplishmentsTitles`; the last one adds up the
+  rewards each stat's saved value has reached and unlocks their achievements (host only). The
+  preset never raises `buildings-built`, so loading a preset town unlocks nothing new. Consequence for play (inference): the first real building upgrade in a Mid or End
+  profile calls `Refresh`, which records the preset's steps at once, so those accomplishments
+  (and `town_builder` past 50 steps) unlock then.
+- **Which conditional path `townpreset` takes.** `BuildingVariation.CheckConditionals(player)`
+  calls `::CheckConditionals(list, player.actor)`, which is false for a null actor.
+  `townpreset` calls `::CheckConditionals(list, PlayerRecord)` (`Utils/Conditional.as:759-767`)
+  instead. In town the local record's actor is set, so that takes the same actor path as the
+  town builder; only a null record or actor would fall back to `CheckGlobalConditionals`. The
+  town conditions (`CondTownBuilding`, `CondTownNumBuildingSteps`, the flags) read
+  `g_myTownRecord` live, so a guild hall tier sees the steps added earlier in the same pass.
+- **Blueprints are left out.** `gl cheat cht_add_all_blueprints` exists, but no probe reads a
+  blueprint count back, so a preset could not prove it granted them.
+- **Measured (forced-state measurements, GameLab lab mode, pinned build 25932569, source
+  `8d407b47`).**
+  - Host checks: `scripts/test.py` 1390 passed, 28 skipped; `tools/build.py --check` OK.
+  - `mod-all` 20261116-233045 PASS 21/21: the new `Build.as` and `Probe.as` compile, with no
+    script errors.
+  - `town-preset-starter` 20261116-234655 PASS 25/25 on 22c8b485 (with the three intro-skip NPC assertions; mod-all 20261116-234613 PASS 21/21 on the same source).
+  - `town-preset-mid` 20261116-233252 PASS 31/31: `townpreset 50` gave built 14, maxed 2,
+    37 steps, 7 passes, not capped, skipped treasury and pyre; `towntiers` was identical after
+    a fresh boot. This matches the datatable simulation above.
+  - `town-preset-end` 20261116-233336 PASS 33/33: `townpreset 100` gave built 15, maxed 15,
+    57 steps, 10 passes, not capped, skipped treasury; identical after a fresh boot.
+  - Screenshots: Mid and End show the built town square; Starter shows the post-intro camp with
+    no buildings.
+  - Intro skip, from staged read-only scenarios (runs 20261116-234103 on a plain fresh fixture,
+    234122 on the starter fixture). `unitsof` counts and the tutorial overlay:
+
+    | | fresh | starter |
+    |---|---|---|
+    | `npc_misc_adam_intro` | 1 | 0 |
+    | `npc_misc_adam` | 0 | 1 |
+    | `npc_builder` | 0 | 1 |
+    | `npc_cleric` | 0 | 1 |
+    | `npc_hunter` | 1 | 1 |
+    | tutorial overlay | `intro_move` | `intro_guild_hall` |
+
+    The player spawn and the set of town segments also differ. The offered missions were not
+    measured (no verb lists them); that rests on source: `missions_story.sval` gates
+    `story_intro_find_npcs` on the flag being unset and every other set on it being set, and
+    `prefabs_segments.sval` switches the town segments on the same flag.
+  - Regressions: `mod-tavern` 20261116-233422 PASS 15/15, `town-rebuild` 233527 PASS 27/27,
+    `devarena/loadout-dock` 234009 PASS 54/54.
+  - `mission-enter` FAILS 25/26 on this branch (233549) and identically on `main` `0feb0220`
+    (233740, 233805): "overlays in the mission: empty or expected" sees a `region_enter`
+    announce "Level 1" that the scenario's allow list does not cover. It predates this change
+    and is not fixed here.
+  - Zero-byte crash dumps at the first quits in `town-preset-end`, `town-rebuild` and the starter
+    intro-check run: the known first-quit pattern, no full dumps.
+  - Still not verified: a full `tools/run.py --town ...` seed and export through the real
+    launcher path for any preset (host tests only); ordinary play on a preset save; other mods
+    that add buildings (only vanilla data was measured; the tavern-mod clamp is computed, not
+    run); that the first real upgrade on an End save unlocks `town_builder` (inference from
+    source). Blueprints are not granted.
+
 ## 2026-11-16: the save-and-quit crash, HWR2.exe+0x15D4B
 
 Measured in GameLab on build 25932569, on `main` `0feb0220`. The evidence is ordinary
@@ -7616,6 +7717,8 @@ changes no setup, deployment or profiles. Classes follow the selected packages.
 `--character sorc:15:TestSorc` (repeatable) bypasses the UI; `--no-ui` starts empty.
 Characters retain native starting gear and earned, unspent skill/attribute points.
 The builder does not grant NG+ or unrelated town progression.
+(Superseded 2026-11-16 for town progression: the builder's town presets, see "town presets
+for the play builder (#132)" at the top. NG+ is still not granted.)
 
 `tools/profile_seed.py` generates an immutable request under ignored results/ and
 calls GameLab with `--mode lab`. Inline fixture recipes use the existing native
