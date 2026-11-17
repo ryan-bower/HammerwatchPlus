@@ -17,7 +17,7 @@ from vpaint import *
 from motifs import L, lbox, parts, pistol, flash, cartridge
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parents[1]
+REPO = HERE.parents[2]
 OVR = REPO / "art" / "firearms" / "override"
 OUTLINE = (12, 10, 16)
 

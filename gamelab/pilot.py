@@ -25,6 +25,11 @@ scenario results.
 
 Bots (gamelab/bots/<name>.py) define run(pilot) and are loaded fresh by path on every
 call (load_bot), so an edited bot runs on the next call without a game restart.
+
+Not in this repo: the in-engine side of loot(), lootmap(), reflex(dodge=, traps=) and plan
+scenarios (Plan.as). Pilot.as has no loot intent, no lootmap verb, and its reflex takes only
+potion= and fire=. Those client calls raise NotImplementedError before sending anything,
+instead of an obscure engine refusal or a timeout. See mods/gamelab-pilot/README.md.
 """
 from __future__ import annotations
 
@@ -40,6 +45,8 @@ TRAVEL = REPO / "gamelab" / "travel"
 BOTS = REPO / "gamelab" / "bots"
 
 INTERRUPTS = ("hp_below", "under_attack", "target_dead", "level_changed", "menu_open", "dead")
+NO_ENGINE_SIDE = ("{} has no in-engine side in this repo (mods/gamelab-pilot lacks it); "
+                  "see mods/gamelab-pilot/README.md")
 RESULTS = ("done", "failed", "timeout", "interrupted", "no_route")
 
 
@@ -243,7 +250,7 @@ class Pilot:
         wanders in search of one. Exploration runs use exit() to learn new edges."""
         here = self.scan(50).get("place", "?")
         if here != place:
-            if not known_edge(here, place):
+            if not known_edge(here, place, self.forget):
                 r = Result("no_route", f"no known transition {here} -> {place} (travel graph {graph_revision()})",
                            "travel", "")
                 return self._done(r)
@@ -301,7 +308,11 @@ class Pilot:
         potion=<hp%> drinks below it, fire=<radius> aims and fires at the nearest enemy,
         dodge=<radius> sidesteps enemy projectiles seen within it ("dodge" events).
         "off" (or 0) turns one off; None leaves it as is. traps=weave|gate|dodge|none: how trap
-        hazards are met (Pilot.as g_trapMode, default weave; "trap_wait"/"trap_go" events)."""
+        hazards are met (Pilot.as g_trapMode, default weave; "trap_wait"/"trap_go" events).
+        NOT IN THIS REPO: dodge= and traps= have no in-engine side (Pilot.as reflex takes only
+        potion= and fire=); passing either raises NotImplementedError."""
+        if dodge is not None or traps is not None:
+            raise NotImplementedError(NO_ENGINE_SIDE.format("reflex(dodge=, traps=)"))
         args = [f"{k}={'off' if not v or v == 'off' else v}"
                 for k, v in (("potion", potion), ("fire", fire), ("dodge", dodge)) if v is not None]
         if traps is not None:
@@ -318,14 +329,18 @@ class Pilot:
         console opens once; per-visit "loot_visit" / "loot_menu" events land in gl.jsonl.
         exit=True: then take the nearest exit in the same command. Success is the next
         level's boot ("done", "level_changed"; call arrived() for the place); a failed exit
-        ends the loop "failed" with reason "exit <result>: ..."."""
+        ends the loop "failed" with reason "exit <result>: ...".
+        NOT IN THIS REPO: Pilot.as has no loot intent; this raises NotImplementedError."""
+        raise NotImplementedError(NO_ENGINE_SIDE.format("loot()"))
         args = [radius] + ([f"prio={','.join(prio)}"] if prio else []) + (["exit"] if exit else [])
         return self._intent("loot", *args, timeout=timeout)
 
     def lootmap(self, radius=8000, route=False) -> dict:
         """Every reward still on the floor (Pilot.as VerbLootmap): usable chests, spheres,
         pickers..., items on the ground (trinkets marked), unbroken secret walls, material
-        piles. route=True also asks whether the pilot's `use` routing reaches each usable."""
+        piles. route=True also asks whether the pilot's `use` routing reaches each usable.
+        NOT IN THIS REPO: no lootmap verb is registered; this raises NotImplementedError."""
+        raise NotImplementedError(NO_ENGINE_SIDE.format("lootmap()"))
         return self.cmd("lootmap", radius, *(["route"] if route else []), timeout=90)
 
     def place_near(self, unit, max_r=160, reach=False) -> dict:

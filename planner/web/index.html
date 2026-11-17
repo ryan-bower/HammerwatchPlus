@@ -248,7 +248,7 @@ const state = {tab:"class", cls:FIREARMS, data:{}, db:null, canWrite:false, read
 COLLECTIONS.forEach(c => state.data[c] = new Map());
 try { const t = localStorage.getItem("fp.tab"); if (t) state.tab = t; } catch {}
 try { const c = localStorage.getItem("fp.cls"); if (c) state.cls = c; } catch {}
-if (location.hash.length > 1) state.cls = decodeURIComponent(location.hash.slice(1));   // a link to one class: #ranger
+if (location.hash.length > 1) { try { state.cls = decodeURIComponent(location.hash.slice(1)); } catch (e) {} }   // a link to one class: #ranger
 
 const $ = s => document.querySelector(s);
 // Skill and orb icons cut from the game's atlases (icons.json: in-game id -> cell of icons.png).

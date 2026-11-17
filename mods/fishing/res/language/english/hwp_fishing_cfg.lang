@@ -5,9 +5,9 @@
 	<string name="hwp.cfg.s.fishing.coast">Coast and pirate</string>
 	<string name="hwp.cfg.s.fishing.coast.about">The coast's fishing spots, crab traps and the pirate in town.</string>
 	<string name="hwp.cfg.s.fishing.run_chance">Run hole chance</string>
-	<string name="hwp.cfg.s.fishing.run_chance.about">The chance a run gets a fishing hole on its first floor (Luck raises it).</string>
+	<string name="hwp.cfg.s.fishing.run_chance.about">The chance each floor of a run gets a fishing hole (Luck raises it; a boss room always has one).</string>
 	<string name="hwp.cfg.s.fishing.run_casts">Casts per hole</string>
-	<string name="hwp.cfg.s.fishing.run_casts.about">Catches each player gets at a run's fishing hole.</string>
+	<string name="hwp.cfg.s.fishing.run_casts.about">Casts each player gets at a floor's fishing hole.</string>
 	<string name="hwp.cfg.s.fishing.reel_hits">Hits to land</string>
 	<string name="hwp.cfg.s.fishing.reel_hits.about">Hits in the green a bite takes. By fish: 2 for 1-star fish, 3 for 2-star, 4 for 3-star. 1 is one press, as before.</string>
 	<string name="hwp.cfg.s.fishing.reel_hits.v0">By fish (2-4)</string>

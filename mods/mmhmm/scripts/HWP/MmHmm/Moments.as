@@ -12,7 +12,7 @@
 //   (owning a trinket counts, as PlayerRecord.RefreshModifiers counts them);
 // - the last orb of an orb tree: a pickedTempSkills entry going up to the tree's size,
 //   only for trees of more than one orb.
-// The first poll on a level only takes the counts, so nothing fires for what the
+// The first poll for a character only takes the counts, so nothing fires for what the
 // character already had. The revive is HWPMmHmmCorpse (Corpse.as).
 namespace HWP
 {
@@ -21,6 +21,7 @@ namespace HWP
 		class Seen
 		{
 			bool seeded = false;
+			PlayerRecord@ rec; // whose counts these are
 			int wells = 0, aces = 0, secrets = 0, partySecrets = 0;
 			array<Item::TrinketSet@> sets;
 			array<int> setCounts;
@@ -99,6 +100,12 @@ namespace HWP
 		{
 			if (rec is null)
 				return;
+			if (g_seen.rec !is rec)
+			{
+				// another character: the old counts are not theirs, take theirs afresh
+				@g_seen.rec = rec;
+				g_seen.seeded = false;
+			}
 			bool seeding = !g_seen.seeded;
 			g_seen.seeded = true;
 			// a counter that went up since the last poll (a new run resets the run stats: re-taken)

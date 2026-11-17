@@ -89,11 +89,11 @@
 	<string name="hwp.specs.focal_point.name">Focal Point</string>
 	<string name="hwp.specs.focal_point.desc">Each consecutive zap on the same enemy deals %per-zap% more damage, stacking up to 10 times.</string>
 	<string name="hwp.specs.lightning_rod_orb.name">Lightning Rod</string>
-	<string name="hwp.specs.lightning_rod_orb.desc">Tempest Orb zaps %zaps% more enemies per tick and has %range% increased range.</string>
+	<string name="hwp.specs.lightning_rod_orb.desc">Thunder Orb zaps %zaps% more enemies per tick and has %range% increased range.</string>
 	<string name="hwp.specs.lingering_storm.name">Lingering Storm</string>
-	<string name="hwp.specs.lingering_storm.desc">Increases Tempest Orb's duration by %duration%.</string>
+	<string name="hwp.specs.lingering_storm.desc">Increases Thunder Orb's duration by %duration%.</string>
 	<string name="hwp.specs.thunderclap.name">Thunderclap</string>
-	<string name="hwp.specs.thunderclap.desc">When Tempest Orb expires, it bursts, dealing %burst% of its zap damage as Lightning damage to all nearby enemies.</string>
+	<string name="hwp.specs.thunderclap.desc">When Thunder Orb expires, it bursts, dealing %burst% of its zap damage as Lightning damage to all nearby enemies.</string>
 	<string name="hwp.specs.static_charge.name">Static Charge</string>
 	<string name="hwp.specs.static_charge.desc">Each spell you cast grants 1 stack of Static Charge, or 2 if it Crits, for 10 seconds; each new stack resets the timer. At 5 stacks, your next spell releases a lightning strike of %damage% damage that splits between up to 3 nearby enemies. If it hits only one enemy, it deals 50% more damage.</string>
 	<string name="hwp.specs.charged_font.name">Charged Font</string>

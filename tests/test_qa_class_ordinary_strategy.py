@@ -1,7 +1,7 @@
-"""Unexecuted draft: actual Python branches with fake native boundaries.
+"""Offline strategy tests of floor_runner and Checks.ordinary with a scripted pilot.
 
 No game/process/file writes. Tests do not prove live combat, geometry or survival.
-Import from an applied/sandbox package only; do not execute ignored drafts in place.
+ClassPilot is swapped for the fake pilot, so ClassPilot.keep_objective/exit are not covered.
 """
 from collections import deque
 from copy import deepcopy

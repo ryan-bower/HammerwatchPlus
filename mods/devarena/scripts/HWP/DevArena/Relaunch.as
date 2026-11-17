@@ -69,6 +69,7 @@ namespace DevArena
 		auto inv = plr.m_record.trinketInventory.m_items;
 		for (uint i = 0; i < inv.length(); i++)
 			g_rlTrinkets.insertLast(inv[i].m_id);
+		g_rlStage = 0;
 		g_rlSave = true;
 		g_relaunches++;
 		EmitOverride();

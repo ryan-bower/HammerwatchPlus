@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import io
+import os
 from pathlib import Path
 import sys
 import urllib.request
@@ -31,16 +32,19 @@ def install(state: Path = STATE) -> None:
     for directory, url, digest in ARTIFACTS:
         cache = state / "downloads" / url.rsplit("/", 1)[1]
         cache.parent.mkdir(parents=True, exist_ok=True)
+        if cache.is_file() and hashlib.sha256(cache.read_bytes()).hexdigest() != digest:
+            print(f"Discarding corrupt cache {cache.name}", flush=True)
+            cache.unlink()
         if not cache.is_file():
             print(f"Downloading {cache.name}", flush=True)
             with urllib.request.urlopen(url, timeout=120) as response:
                 data = response.read()
             if hashlib.sha256(data).hexdigest() != digest:
                 raise ValueError(f"SHA-256 mismatch: {cache.name}")
-            cache.write_bytes(data)
+            part = cache.with_name(cache.name + ".part")
+            part.write_bytes(data)
+            os.replace(part, cache)
         data = cache.read_bytes()
-        if hashlib.sha256(data).hexdigest() != digest:
-            raise ValueError(f"SHA-256 mismatch: {cache}")
         dest = state / directory
         with zipfile.ZipFile(io.BytesIO(data)) as archive:
             for name in archive.namelist():
@@ -56,7 +60,9 @@ def install(state: Path = STATE) -> None:
                 if target.is_file() and name != "python311._pth":
                     raise ValueError(f"Refusing to overwrite a different existing file: {target}")
                 target.parent.mkdir(parents=True, exist_ok=True)
-                target.write_bytes(payload)
+                part = target.with_name(target.name + ".part")
+                part.write_bytes(payload)
+                os.replace(part, target)
     # Relative paths make a cloned/moved checkout usable without local edits.
     (state / "python/python311._pth").write_text(
         "python311.zip\n.\n../python-site\n../../../../../\nimport site\n", encoding="utf-8")

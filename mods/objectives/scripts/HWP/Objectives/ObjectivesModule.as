@@ -688,6 +688,20 @@ namespace Modules
 			{
 				if (!HWP::Objectives::g_generatedHere)
 					HWP::Objectives::AdoptFromUnits();
+				// a vault with no lever is flagged open: open its doors on the host too
+				// (clients get them open from objectives.state)
+				for (uint i = 0; i < HWP::Objectives::g_vaults.length(); i++)
+				{
+					auto v = HWP::Objectives::g_vaults[i];
+					if (!v.m_opened || v.m_hasSwitch)
+						continue;
+					for (uint k = 0; k < v.m_doors.length(); k++)
+					{
+						auto d = HWP::Objectives::DoorAt(v.m_doors[k]);
+						if (d !is null)
+							d.Open();
+					}
+				}
 				if (HWP::Objectives::g_exitPresent && !HWP::Objectives::g_exitOpen)
 					HWP::Objectives::Seal();
 				HWP::Log("objectives", "start: " + HWP::Objectives::g_vaults.length() + " vault(s), exit switch "

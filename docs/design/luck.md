@@ -23,7 +23,7 @@ A shared drop rolls once, on the host, and every player gets what it picked (van
 rule: shared entries spawn once, instanced entries such as gear and trinkets spawn once
 per player at the picked tier). The question is only whose Luck the roll uses:
 
-- **Opened drops** (chests, caches, puzzle room chests, strongboxes, a fish's loot): the
+- **Opened drops** (chests, caches, puzzle room chests, strongboxes): the
   opener's Luck (`OpenerFactor`). The luckiest player opening the chest makes the whole
   party's chest lucky.
 - **Drops nobody opens** (an abyss crack's payout, the key drop's host accept roll): the
@@ -154,7 +154,7 @@ its own copy of the record until the first one arrives.
 | Strongbox payout | the opener's factor (who paid) | `mods/strongbox/.../Strongbox.as` `HWPStrongbox::Pay`; log `[HWP:strongbox] luck x<f> payout (opener ...)` |
 | Abyss crack payout | party factor: tier-up roll, then the table | `mods/abyss/.../Abyss.as` `Finish`; log `[HWP:abyss] luck x<f> payout hwp_abyss_reward_<t>[ (tier up)]` |
 | Key drops | killer's factor on the boss chance and the normal-kill candidate share; party factor on the host's accept roll | `mods/keys/.../KeysModule.as` `OnKill`, `OnDropRequest`; logs `[HWP:keys] luck x<f> boss key roll / <elite\|normal> kill drop candidate / candidate accept roll` |
-| Fishing (bite tier bands, key chance and tier shares, catch loot) | the fisher's reported factor | `mods/fishing/.../FishingModule.as` `LuckOf` |
+| Fishing (bite tier bands, key chance and tier shares; catch loot rolls at factor 1) | the fisher's reported factor | `mods/fishing/.../FishingModule.as` `LuckOf` |
 | Secret rooms per floor | floor factor | `HWPLuckSecretSpawn` (`LuckFloors.as`), swapped in for every `*_secrets` `SpawnPrefabSet` by the module constructor; log `[HWP:luck] secrets <set> on <level>: party Luck N, extra room chance C%: rolled\|not rolled, max M, placed P` |
 | Floor rewards: the counts of trinket picks, trinkets, equipment chests, caches, exp scrolls, valuables, health food and mana pickups; their tiers; the blueprint chance (25 % x factor) | floor factor | core's `WorldScript/RewardSpot.as` override (vanilla in `.orig` beside it, changes marked `// HWP`); log `[HWP:luck] floor rewards at party Luck x<f>: blueprint chance C% -> N, ...`. Skill spheres and material piles stay vanilla |
 | Blueprint recipes (food and drink, enchantments, trinkets) | floor factor | core's `BlueprintBank.as` override (`.orig` beside it); log `[HWP:luck] blueprint <kind> picked of <n> at x<f>: quality <q>` |
@@ -190,4 +190,7 @@ locked chest at x6 (a gold one at a 50 % ace chance), the key budget at x6.
 
 Not tested on two machines: the clients' Luck reports reaching the host, and a client's
 own view of the floor (a client without the scalar uses its own `PartyLuck`, which only
-matters for client-side rolls, of which there are none on floors today).
+matters for client-side rolls). The one client-side roll on floors is the blueprint
+recipe pick (`BlueprintBank.as`, run by each peer's `BlueprintBehavior` constructor before
+the host's `hwp.luck.floor` event can arrive), so it may weight by a slightly different
+factor than the host's; this is accepted.

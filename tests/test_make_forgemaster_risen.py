@@ -1,6 +1,6 @@
 """tools/generate/make_forgemaster_risen.py: the generated units' invariants, without a game.
 
-    python -m unittest tools.test_make_forgemaster_risen -q
+    python -m pytest tests/test_make_forgemaster_risen.py -q
 
 Needs the game dumps (gamecode/sdk/hoh2/actors, `python -m gamelab doctor --fix`); skipped without.
 """

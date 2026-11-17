@@ -134,3 +134,11 @@ def test_lint_cli(tmp_path, capsys):
     out = capsys.readouterr().out
     assert "vanilla stale 0" in out and "1 edits, 5 stale" in out
     assert tl.main(["--stats"]) == 0
+
+
+def test_check_rejects_import_log(tmp_path):
+    log = tmp_path / "game.log"
+    log.write_text(LOG, encoding="utf-8")
+    with pytest.raises(SystemExit) as e:
+        mp.main(["--check", "--import-log", str(log)])
+    assert e.value.code == 2

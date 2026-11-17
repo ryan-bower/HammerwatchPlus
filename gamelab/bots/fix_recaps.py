@@ -75,7 +75,7 @@ class Checks(Base):
             return
         # god mode first: the boss killed the level-20 ranger within the 10 s attack window
         # (fix-recaps 20261025-231419, "player dead or not spawned"); damage taken is a soft flag
-        self.hwp("god", 0.3)
+        self.god_on()
         mark = len(self.g.read_log())
         sp = self.gl("spawn", BOSS_UNIT, 70, 0)
         self.flag("boss_spawned", sp.get("ok") is True and isinstance(sp.get("unit"), int), str(sp))
@@ -327,6 +327,9 @@ class Checks(Base):
 def run(p, sections="boss,board", **_):
     c = Checks(p)
     for s in [x.strip() for x in sections.split(",") if x.strip()]:
-        getattr(c, s)()
+        try:
+            getattr(c, s)()
+        except Exception as exc:  # a crashed section is a failed section, not a crashed run
+            c.flag(s + "_crashed", False, repr(exc))
     c.out["notes"] = c.notes
     return c.out

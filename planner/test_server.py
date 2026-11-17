@@ -128,6 +128,26 @@ class PlannerPersistenceTests(unittest.TestCase):
                 self.assertEqual(after[name], before[name], name)
         self.assertEqual(list(self.data.rglob(".planner-*.tmp")), [])
 
+    def test_rebound_host_write_is_refused(self):
+        before = self.snapshot()
+        connection = http.client.HTTPConnection("127.0.0.1", self.server.server_address[1], timeout=2)
+        try:
+            connection.request("PUT", "/api/skills/fixture", b'{"name":"x"}',
+                               {"Host": "evil.example:8737", "Origin": "http://evil.example:8737"})
+            response = connection.getresponse()
+            response.read()
+            self.assertEqual(response.status, 400)
+        finally:
+            connection.close()
+        self.assertEqual(self.snapshot(), before)
+
+    def test_unparsable_record_is_skipped_not_fatal(self):
+        (self.data / "skills" / "broken.json").write_bytes(b"<<<<<<< HEAD\n{}\n")
+        with mock.patch.object(planner.sys, "stderr", io.StringIO()):
+            status, body = self.request("GET")
+        self.assertEqual(status, 200)
+        self.assertEqual(sorted(body["data"]["skills"]), ["fixture", "untouched"])
+
     def test_unpaired_high_surrogate_refuses_without_changing_data(self):
         self.assert_bad_unicode_preserved(br'{"name":"\ud800"}')
 

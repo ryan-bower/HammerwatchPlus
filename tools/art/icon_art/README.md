@@ -5,7 +5,7 @@ outlines, 4-6 step ramps lit from the upper left, a bright rim and a dark core s
 big cropped subjects, glowing energy with a white-hot core, near-black tinted grounds
 (vpaint.py's docstring has the full list). Each icon function returns three ideas,
 A (the gear up close), B (the moment it happens) and C (an abstract mark), for the user
-to pick from; nothing here writes to a mod. A picked Firearms icon goes into the game
+to pick from; nothing here writes to a mod except `firearms_showcase.py` (below). A picked Firearms icon goes into the game
 through `art/firearms/override/` and `tools/generate/make_firearms_icons.py`.
 
 | file | what |
@@ -30,6 +30,7 @@ through `art/firearms/override/` and `tools/generate/make_firearms_icons.py`.
 | render.py, rorb.py | write the ideas and comparison sheets |
 | picker.py, picker_tpl.html | the picker page (every idea, the current icon beside it) |
 | grid.py | a labelled review grid of any icons |
+| firearms_showcase.py | the Firearms class_showcase.png figure; with no argument it overwrites the one in `mods/firearms/` and writes a `class_showcase_x8.png` preview beside it (delete the preview), so pass an `out/` path to keep it out of the mod |
 
 Everything is written under `tools/art/icon_art/out/` (git-ignored):
 

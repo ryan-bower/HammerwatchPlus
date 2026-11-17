@@ -15,7 +15,7 @@ The party sees a one-line summary in chat.
   King`); no attacker (traps, lava, DoT without owner) -> "Hazards".
 - `HWPDeathRecapModule` implements `IEventPlayerDied`; on the local player's
   death it aggregates, fills `HWPDeathRecapHUD` (added through
-  `[Hook] HUDConstructor`, visible while `record.IsDead()`), stores the
+  `[Hook] HUDConstructor`, shown until `record.deadTime` resets on revive / back in town, checked only after a 1 s grace period, never via `record.IsDead()`), stores the
   summary in the player record (`deathrecap.last`) and sends
   `deathrecap.announce` to the host, which broadcasts `deathrecap.show`; every
   machine prints "<name> was killed by A 60%, B 30%, C 10%" unless

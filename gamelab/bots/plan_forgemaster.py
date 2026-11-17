@@ -764,7 +764,7 @@ class Checks(Base, TowerBoss):
         self.flag("lock_pen_locked", presses > 0 and e["locked"] == 1 and e["angle"] is not None and abs(e["angle"] + 90) <= 12 and e["beam"] == 1,
                   f"locked {e['locked']}, facing {e['angle']} (up is -90), beam {e['beam']}, bar {e['bar']}, {self.channel_ms(st)} ms left")
         moved = self.dash_try()
-        f = e
+        st2, f = self.lock_status()
         log = self.g.read_log()[mark:]
         self.flag("lock_pen_dash_refused", moved < 4 and ((f["dashrefused"] or 0) >= 1 or "dash refused during penance channel" in log),
                   f"moved {moved:.1f} px, refused {f['dashrefused']}, log {'dash refused during penance channel' in log}, {self.channel_ms(st)} ms left at the read")
@@ -1271,13 +1271,14 @@ class Checks(Base, TowerBoss):
         self.hwp("forge trace off", 0.2)
 
     def hoh1_tower(self, only=""):
+        only = only or getattr(self, "only_floors", "")
         self.setup_forge("h1t", levels=4)
         self.gl("orb", "hwp_pri_coh_deeper_depravity", 3)   # epic: dd-boss 1.0
         time.sleep(0.3)
         rels = hoh1_rels()
         floors = [(i, lvl) for i, _, lvl in self.levels() if level_name(lvl) in RECIPES
                   and (not only or level_name(lvl) in only.split(","))]
-        self.flag("h1t_floors", len(floors) == len(RECIPES), str(floors))
+        self.flag("h1t_floors", len(floors) == (len(only.split(",")) if only else len(RECIPES)), str(floors))
         rows = []
         for i, lvl in floors:
             name = level_name(lvl)
@@ -1331,8 +1332,9 @@ class Checks(Base, TowerBoss):
         self.flag("h1t_no_errors", not any(r.get("errors") for r in rows), str([(r["boss"], r["errors"]) for r in rows if r.get("errors")]))
 
 
-def run(p, sections="forge,penance,heresy_rules,lunge,decay,bosses,raise_all", units="", **_):
+def run(p, sections="forge,penance,heresy_rules,lunge,decay,bosses,raise_all", units="", only="", **_):
     c = Checks(p)
+    c.only_floors = only   # hoh1_tower on these boss floors only
     c.only = [u for u in units.split(",") if u]   # raise_all on these units only
     for s in sections.split(","):
         try:

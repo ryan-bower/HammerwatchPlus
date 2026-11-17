@@ -24,7 +24,8 @@ def script_issues(text: str) -> list[dict]:
     out = []
     for m in SCRIPT_ISSUE.finditer(text):
         end = text.find("\n", m.end())
-        msg = text[end + 1:text.find("\n", end + 1)].strip() if end >= 0 else ""
+        nxt = text.find("\n", end + 1) if end >= 0 else -1
+        msg = text[end + 1:nxt if nxt >= 0 else len(text)].strip() if end >= 0 else ""
         msg = LINE_PREFIX.sub("", msg)          # "[WRN] [15:33:16] SE : Function 'opNeg()' not found"
         out.append({"kind": m.group(1), "file": m.group("file"), "line": int(m.group("line")),
                     "col": int(m.group("col")), "msg": msg})

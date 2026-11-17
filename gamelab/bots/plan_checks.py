@@ -1741,6 +1741,11 @@ def run(p, sections="gambler,sell,merchant,traps,full_bag", **_):
             getattr(c, s)()
         except Exception as e:  # a section's crash is its own failure, not the bot's
             c.flag(f"{s}_crashed", False, repr(e))
+            for undo in (lambda: c.gl("timescale", 1), lambda: c.g.console("dbg_cht_ignore_equipment_requirements 0")):
+                try:  # a crash must not leak 16x speed or the cheat into the next section
+                    undo()
+                except Exception:
+                    pass
     c.out["notes"] = c.notes
     c.out["terminal"] = " | ".join(c.notes)[-3000:]
     return c.out

@@ -257,7 +257,11 @@ namespace HWP
 				pb.m_buffs.Add(buff);
 			}
 			else
+			{
+				// a buff reloaded from a run save is rebuilt non-husk on the host
+				buff.m_husk = true;
 				buff.m_duration = g_def.m_duration;
+			}
 			PruneHUD(buff);
 		}
 

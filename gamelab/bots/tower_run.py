@@ -536,7 +536,7 @@ class Checks(Base):
         def fl(k, bad, detail=""):
             self.flag(k, not bad, f"{bad}{detail}")
         stuck = [(f["n"], f.get("id"), f.get("exit"), f.get("exitUse"), f.get("next"), f.get("crash"))
-                 for f in floors if f.get("crash") or (f is not floors[-1] and not f.get("exitTaken"))]
+                 for f in floors if f.get("crash") or f.get("exitTaken") is False]
         fl("run_all_floors", stuck if stuck or len(floors) == want else [("reached", len(floors))], f" reached {len(floors)} of {want}")
         fl("run_alive", [f["n"] for f in floors if "alive" in f and not f["alive"]])
         fl("run_clean_log", [(f["n"], f.get("nbad"), f.get("bad", [])[:3]) for f in floors if f.get("nbad")])

@@ -1521,6 +1521,7 @@ namespace HWP
 			g_treeFrom.removeRange(0, g_treeFrom.length());
 			g_setupAgain = false;
 			g_floorCounted = false;
+			g_migrated = false; // each character that loads is checked for Gambler's Gold
 			g_lastMessage = "";
 			g_picked.removeRange(0, g_picked.length());
 			if (!Network::IsServer())

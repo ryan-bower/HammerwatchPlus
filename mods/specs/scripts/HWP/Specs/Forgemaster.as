@@ -182,6 +182,8 @@ namespace HWP
 		void ClearForgemaster()
 		{
 			g_bodies.removeRange(0, g_bodies.length());
+			if (g_eat !is null && g_eat.m_plr !is null)
+				RestoreDash(cast<Skills::Charge>(FindSkill(g_eat.m_plr, DASH)));
 			if (g_channel !is null)
 				EndChannelFx(g_channel);
 			@g_channel = null;
@@ -488,7 +490,12 @@ namespace HWP
 			}
 			auto rec = GetPlayerRecordByPeer(peer);
 			if (rec is null || rec.actor is null)
+			{
+				// answer anyway: the caster's mana and cooldown are already spent
+				Log("specs", "raise: no player for peer " + peer + ", denied");
+				RaiseAnswer(peer, "specs.raise_denied", bodyId, 0);
 				return;
+			}
 			auto prod = Resources::GetUnitProducer(body.m_source);
 			if (prod is null)
 			{
@@ -705,8 +712,14 @@ namespace HWP
 			if (g_channel is null)
 				return;
 			Log("specs", "channel cancelled: " + why);
+			auto cp = g_channel.m_plr;
 			EndChannelFx(g_channel);
 			@g_channel = null;
+			// the lock buffs would otherwise run out their full duration
+			DropOwnBuff(cp, "raising");
+			DropOwnBuff(cp, "penance_stance");
+			if (cp !is null)
+				RestoreDash(cast<Skills::Charge>(FindSkill(cp, DASH)));
 		}
 
 		void CompleteChannel()
@@ -992,6 +1005,8 @@ namespace HWP
 			auto plr = e.m_plr;
 			if (plr is null || plr.IsDead())
 			{
+				if (plr !is null)
+					RestoreDash(cast<Skills::Charge>(FindSkill(plr, DASH)));
 				@g_eat = null;
 				return;
 			}

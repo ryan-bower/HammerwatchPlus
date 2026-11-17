@@ -512,6 +512,8 @@ namespace GameLab
 			}
 			n++;
 		}
+		if (n == 0)
+			g_fails++; // setup counts an ok=false reply as a failed line
 		Emit(Reply(id, n > 0).Int(hp < 0 ? "killed" : "hurt", n).Raw("names", StrArray(names)));
 	}
 
@@ -545,6 +547,8 @@ namespace GameLab
 			return;
 		}
 		plr.GiveCombo();
+		if (!plr.m_comboActive)
+			g_fails++; // setup counts an ok=false reply as a failed line
 		Emit(Reply(id, plr.m_comboActive).Bool("combo", plr.m_comboActive));
 	}
 
@@ -728,7 +732,7 @@ namespace GameLab
 				auto plr = GetLocalPlayer();
 				if (plr is null)
 				{
-					Emit(Reply(id, false).Str("error", "no local player"));
+					Fail(id, "no local player");
 					return;
 				}
 				@killer = plr;

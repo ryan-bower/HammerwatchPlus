@@ -57,7 +57,9 @@ def run(p, settle=3.0, samples=8, unit="players/ranger/units/wolf"):
     c.flag("summons_out", bool(cs), f"{len(cs)} summon(s) matching {unit!r}")
     if not cs:
         return out
-    c.hwp("god")
+    # hwp god toggles (the cht_god cvar outlives the floor): on, never back off
+    if not c.gl("cvars", "cht_god").get("cvars", {}).get("cht_god"):
+        c.hwp("god")
     c.hwp("killall")
     # outside the doorway: the leash brings the summons along
     c.gl("teleport", spot[0], spot[1])
@@ -85,7 +87,7 @@ def run(p, settle=3.0, samples=8, unit="players/ranger/units/wolf"):
     mark = len(g.read_log())
     c.gl("teleport", spot[0], spot[1])
     time.sleep(settle)
-    released = "[HWP:puzzles] summons of" in g.read_log()[mark:] and "released" in g.read_log()[mark:]
+    released = re.search(r"\[HWP:puzzles\] summons of \S+ released", g.read_log()[mark:]) is not None
     near = [u for u in summons() if u.get("dist", 1e9) < 400]
     c.flag("release_logged", released)
     c.flag("summons_rejoin", len(near) == len(cs), f"{len(near)}/{len(cs)} within 400 px after leaving")

@@ -2,7 +2,7 @@
 import copy
 import unittest
 
-from gamelab.bots.qa_specs_wizard_ranks import MAX_HP, TT, evaluate_impact
+from gamelab.bots.qa_specs_wizard_ranks import MAX_HP, SC_DAMAGE, TT, TT_DAMAGE, evaluate_impact, rank_progression
 
 
 def observation():
@@ -46,6 +46,17 @@ class ImpactOracleTests(unittest.TestCase):
         before, data = observation()
         data["first"]["spell_crit"] = 0.03
         self.assertFalse(evaluate_impact(data, before, 3, TT)[0])
+
+
+class RankProgressionTests(unittest.TestCase):
+    def test_true_thunder_orb_table_accepted(self):
+        self.assertTrue(rank_progression(list(TT_DAMAGE), TT_DAMAGE)[0])
+
+    def test_non_proportional_thunder_orb_sequence_rejected(self):
+        self.assertFalse(rank_progression([3, 5, 9, 10, 12], TT_DAMAGE)[0])
+
+    def test_static_charge_keeps_two_hp_envelope(self):
+        self.assertTrue(rank_progression([51, 69, 91, 119, 151], SC_DAMAGE)[0])
 
 
 if __name__ == "__main__":

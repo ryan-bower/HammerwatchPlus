@@ -35,7 +35,7 @@
         "suffix": "%",
         "title": "Run hole chance",
         "applies": "level",
-        "about": "The chance a run gets a fishing hole on its first floor (Luck raises it)."
+        "about": "The chance each floor of a run gets a fishing hole (Luck raises it; a boss room always has one)."
       },
       {
         "key": "fishing.run_casts",
@@ -49,7 +49,7 @@
           8
         ],
         "title": "Casts per hole",
-        "about": "Catches each player gets at a run's fishing hole."
+        "about": "Casts each player gets at a floor's fishing hole."
       },
       {
         "key": "fishing.reel_hits",

@@ -114,7 +114,7 @@
 	<string name="skills.hwp_firearms.reload_explosive.name">Explosive Reload</string>
 	<string name="skills.hwp_firearms.reload_explosive.desc">Reload throws the old magazine, which explodes for %damage% physical damage per round left in it. With a pistol in each hand, both magazines are thrown, one right after the other.</string>
 	<string name="skills.hwp_firearms.reload_over.name">Perfect Reload</string>
-	<string name="skills.hwp_firearms.reload_over.desc">Every reload shows a ring with a gold mark. Hit Reload in the mark (%window%) for a perfect reload, which finishes at once: during the automatic reload, use Reload; during your own Reload, press it again. The clip then holds %rounds% more rounds, never more, until it next runs dry or a reload is not perfect.</string>
+	<string name="skills.hwp_firearms.reload_over.desc">Every reload shows a ring with a gold mark. Hit Reload, or left click, in the mark (%window%) for a perfect reload, which finishes at once: during the automatic reload, use Reload or click; during your own Reload, press it again or click. You get one try per reload. The clip then holds %rounds% more rounds, never more, until it next runs dry or a reload is not perfect.</string>
 
 	<!-- Frag Grenade orbs: each makes the grenade a different type -->
 	<string name="skills.hwp_firearms.frag_stun.name">Stun Grenade</string>

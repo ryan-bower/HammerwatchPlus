@@ -40,8 +40,9 @@ Sections:
 - run_stars: rod 4, 30 casts a floor at a debug hole: the zone width of each bite gives
   the rolled tier on a first-half floor, a second-half floor and the boss floor (fishing s11).
 
-Verbs: bagitems, wield, shoplevel, wcaption, wchildren, pressin, sweepclick
-(mods/gamelab-hands/scripts/GameLab/Verbs_fishing.as) and tooltip (Verbs_farming.as)."""
+Verbs: bagitems, wield, wcaption, wchildren, pressin, sweepclick
+(mods/gamelab-hands/scripts/GameLab/Verbs_fishing.as), tooltip (Verbs_farming.as) and
+shoplevel (Shop.as)."""
 import json
 import math
 import re
@@ -100,8 +101,9 @@ class Checks(Base):
         """A new character (it starts with the Driftwood Rod); rod=N sets its rod tier (debug),
         rod=0 leaves the starter rod in place."""
         r = self.gl("char", "paladin", name)
-        self.wait_phase("town", 60)
+        ok = self.wait_phase("town", 60)
         time.sleep(2)
+        self.flag(f"{name}_ready", bool(ok and r.get("ok")), str(r)[:200])
         self.hwp("set fishing.debug 1")
         if rod:
             self.hwp(f"fishing rod {rod}", 0.4, until="rod: ")
@@ -1414,6 +1416,10 @@ def run(p, sections="fish_sword,fish_enchant,rod_slot", required_flags=(), **_):
             getattr(c, s)()
         except Exception as e:  # a section's crash is its own failure, not the bot's
             c.flag(f"{s}_crashed", False, repr(e))
+            try:
+                c.gl("timescale", 1)   # a crashed section must not leave the next step at 16x
+            except Exception:
+                pass
     if required_flags:
         c.out.update(assess(c.out, required_flags))
     c.out["notes"] = c.notes

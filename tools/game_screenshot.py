@@ -28,7 +28,10 @@ def main(argv=None) -> int:
     scenario = argv[0] if argv else "screenshot"
     before = set(RESULTS.iterdir()) if RESULTS.is_dir() else set()
     rc = subprocess.run([sys.executable, "-m", "gamelab", "run", scenario, "--mode", "lab"], cwd=gamepaths.REPO).returncode
-    runs = sorted(set(RESULTS.iterdir()) - before) if RESULTS.is_dir() else []
+    # the launcher names the run directory from the scenario file's stem (nested names and .json paths too)
+    stem = Path(scenario).stem
+    runs = sorted(d for d in set(RESULTS.iterdir()) - before
+                  if d.is_dir() and d.name.endswith(f"-{stem}-lab")) if RESULTS.is_dir() else []
     if not runs:
         print("no results directory: the run was refused before it started")
         return rc or 1

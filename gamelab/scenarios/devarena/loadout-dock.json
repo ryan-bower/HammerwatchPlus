@@ -42,7 +42,7 @@
   {"do": "shot", "name": "sheet-edited"},
   {"do": "gl", "verb": "da-loadout", "expect": {"ok": true, "edited": true, "level": 6}, "name": "the sheet is marked edited"},
   {"do": "click", "dock": "lsave", "verify": false, "name": "Save variant"},
-  {"do": "log_has", "pattern": "\\[HWP:devarena\\] loadout-variant \\{\"id\":\"paladin_divine/early\\+e1\",\"from\":\"paladin_divine/early\",\"level\":6,\"rows\":\\[\\[\"stat\",\"str\",\"9\"\\]", "since": "edit", "timeout": 5, "name": "variant logged with str 9"},
+  {"do": "log_has", "pattern": "\\[HWP:devarena\\] loadout-variant \\{\"id\":\"paladin_divine/early\\+e1\",\"from\":\"paladin_divine/early\",\"level\":6,\"rows\":\\[\\[\"stat\",\"str\",\"10\"\\]", "since": "edit", "timeout": 5, "name": "variant logged with str 10"},
 
   {"do": "mark", "name": "revert"},
   {"do": "click", "dock": "lrevert", "verify": false, "name": "Revert"},

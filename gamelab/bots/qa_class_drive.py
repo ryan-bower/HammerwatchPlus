@@ -50,6 +50,7 @@ class ClassPilot:
         self.pilot = pilot
         self.melee = cls.startswith("hwp_thief") or cls.startswith("hwp_gladiator")
         self.keep_objectives = {}
+        self.keep_place = None
 
     def __getattr__(self, name):
         return getattr(self.pilot, name)
@@ -75,6 +76,9 @@ class ClassPilot:
         """
         if place not in {"bandit_keep/keep_3", "bandit_keep/keep_4", "bandit_keep/keep_5"}:
             return None
+        if self.keep_place != place:
+            self.keep_objectives.clear()  # a new arrival is a new floor: drop stale memos
+            self.keep_place = place
         memo = self.keep_objectives.setdefault(place, {"place": place, "samples": [], "attempts": 0})
         if memo.get("combat_ended"):
             return None  # exit still independently requires actual top usable/CanUse

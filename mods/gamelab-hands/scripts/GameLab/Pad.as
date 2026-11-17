@@ -50,8 +50,14 @@ namespace GameLab
 				Fail(id, "usage: pad hold <" + join(PAD_BUTTONS, "|") + "> <ms>");
 				return;
 			}
+			int ms = int(parseInt(args[2]));
+			if (ms <= 0)
+			{
+				Fail(id, "pad hold needs ms > 0");
+				return;
+			}
 			g_padButton = args[1];
-			g_padMs = int(parseInt(args[2]));
+			g_padMs = ms;
 			SetPadHeld(g_padButton);
 		}
 		else if (what == "release")

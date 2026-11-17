@@ -308,8 +308,13 @@ def extract_hoh2(force: bool) -> None:
     if out.is_dir():
         shutil.rmtree(out)
     game = gamepaths.hoh2_dir()
-    packager_unpack(game / "res" / "assets.bin", out)
-    shutil.copytree(game / "res" / "language", out / "language", dirs_exist_ok=True)
+    try:
+        packager_unpack(game / "res" / "assets.bin", out)
+        shutil.copytree(game / "res" / "language", out / "language", dirs_exist_ok=True)
+    except BaseException:
+        # a partial tree would read as "exists" on the next run; drop it so a rerun extracts again
+        shutil.rmtree(out, ignore_errors=True)
+        raise
 
 
 def extract_hoh1(force: bool) -> None:
@@ -321,9 +326,13 @@ def extract_hoh1(force: bool) -> None:
     if out.is_dir() and any(out.iterdir()) and not force:
         return
     import hwr_archive
-    hwr_archive.main(["extract", str(game / "res" / "assets.bin"), str(out)])
-    if (game / "res" / "language").is_dir():
-        shutil.copytree(game / "res" / "language", out / "language", dirs_exist_ok=True)
+    try:
+        hwr_archive.main(["extract", str(game / "res" / "assets.bin"), str(out)])
+        if (game / "res" / "language").is_dir():
+            shutil.copytree(game / "res" / "language", out / "language", dirs_exist_ok=True)
+    except BaseException:
+        shutil.rmtree(out, ignore_errors=True)
+        raise
 
 
 def api_strings(force: bool) -> None:

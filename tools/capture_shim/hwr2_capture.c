@@ -128,9 +128,10 @@ static void capture(const char *path)
     fh.bfType = 0x4D42; fh.bfOffBits = sizeof fh + sizeof ih; fh.bfSize = fh.bfOffBits + (DWORD)n;
     ih.biSize = sizeof ih; ih.biWidth = w; ih.biHeight = h;   /* bottom-up, as GL returns it */
     ih.biPlanes = 1; ih.biBitCount = 32; ih.biCompression = BI_RGB; ih.biSizeImage = (DWORD)n;
-    fwrite(&fh, sizeof fh, 1, f); fwrite(&ih, sizeof ih, 1, f); fwrite(px, 1, n, f);
-    fclose(f);
+    int wrote = fwrite(&fh, sizeof fh, 1, f) == 1 && fwrite(&ih, sizeof ih, 1, f) == 1 && fwrite(px, 1, n, f) == n;
+    if (fclose(f) != 0) wrote = 0;
     free(px);
+    if (!wrote) { shim_log("ERR short write to %s", tmp); DeleteFileA(tmp); return; }
     DeleteFileA(path);
     if (!MoveFileA(tmp, path)) { shim_log("ERR rename to %s failed (%lu)", path, GetLastError()); return; }
     shim_log("captured frame %lu %dx%d -> %s", frames, w, h, path);

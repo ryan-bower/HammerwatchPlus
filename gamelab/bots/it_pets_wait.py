@@ -28,6 +28,9 @@ def run(p, verb=None, args=(), expect=None, timeout=30, every=0.5, cinema=True):
     if cinema:
         while time.time() < end:
             c = p.cmd("cinema")
+            if not c.get("ok"):
+                return {"terminal": "cinematic", "reply": c, "waited": round(time.time() - start, 2), "polls": 0,
+                        "mismatch": ["the cinema verb was refused"]}
             if not c.get("active"):
                 break
             time.sleep(0.5)

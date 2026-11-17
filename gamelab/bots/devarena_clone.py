@@ -32,9 +32,13 @@ def run(p, src, id, name, version="live", results=None):
     log.write_text(p.game.read_log(), encoding="utf-8")
     out = results / "clone"
     buf = io.StringIO()
-    with redirect_stdout(buf):
-        code = clone_spec.main(["--from", src, "--id", id, "--name", name, "--log", str(log),
-                                "--version", str(version), "--out", str(out), "--force"])
+    try:
+        with redirect_stdout(buf):
+            code = clone_spec.main(["--from", src, "--id", id, "--name", name, "--log", str(log),
+                                    "--version", str(version), "--out", str(out), "--force"])
+    except SystemExit as e:  # clone_spec refuses a bad --id/--from this way, not by return code
+        code = e.code if isinstance(e.code, int) and e.code else 1
+        buf.write(f"{e.code}" + chr(10))
     (results / "clone.out.txt").write_text(buf.getvalue(), encoding="utf-8")
     folder = "spec-" + id.replace("_", "-")
     made, mod = out / folder, REPO / "mods" / folder

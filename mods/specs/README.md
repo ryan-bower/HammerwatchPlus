@@ -89,7 +89,7 @@ Test checklist (`gamelab/scenarios/`, bot `gamelab/bots/plan_forgemaster.py`):
 `python -m gamelab doctor --fix`); `scripts/HWP/Specs/Forgemaster_Risen.as` holds their
 classes (`HWPSpecsRisenUnit`, `HWPSpecsRisenStateUnit`, `HWPSpecsBodyUnit`, subclasses of
 `Forgemaster.as`'s) and `hwp risen` (each risen's movement class, speed, run-back, roaming,
-search multiplier, target, distance). `python -m unittest tools.test_make_forgemaster_risen`
+search multiplier, target, distance). `python -m pytest tests/test_make_forgemaster_risen.py`
 checks every generated unit offline.
 
 - **A risen runs.** Every follower movement gets roaming 1.0 (an idle risen walks at full
@@ -231,6 +231,10 @@ blink/recast/drain counters.
   off, blue smoke and speckles), a `blink_trail.effect` bead every 16 px along the skipped path,
   `blink_in.effect` where it lands (the ring collapsing, a pop,
   speckles rushing in) plus the vanilla `magic_blink` and `arcane_explosion_1` that were there.
+  Teammates see it too (2026-11-16): the sorcerer's client sends the start, landing and aim through the
+  host (`specs.blink`, relayed as `specs.blink_seen`), and each other peer plays the same effects and
+  sounds and puts the sorcerer's husk down at the landing. Visual only: the damage, the recast and
+  the Void Barrier stay on the sorcerer's own client, so nothing is applied twice.
 - **Living Mana, one pool, one bar** (2026-10-25, the user's call): the pool was already one
   number (max mana = base mana + max health, a hit drains mana, heals and regeneration fill it,
   spells spend it, health is set to the mana fraction every frame). The HUD now shows it as one
@@ -288,8 +292,9 @@ The Hellfire Claw deals `pb-base` + the stored damage x the charge: the part of 
 gone by, 0 when cast and 1 when it runs out. A recast goes off early for less, and a brand left
 to run out is the nuke. At full charge the brand pays 100/150/250/350/500% of the damage that
 fed it (rank 1-5, the planner's 10-50% times ten). A brand passed on by a dying victim keeps its
-charge. A Proliferation brand lasts 3 s and charges in 3 s, and a brand it spreads starts its
-charge again with the whole stored damage.
+stored damage, charge and remaining time. Spreading is baseline: a brand also spreads within 100
+to other enemies carrying its stored damage, remaining time and charge. The legacy Proliferation
+perk id now grants Enfeeblement, which only adds Weakness.
 
 Before, the claw was `pb-base` + 10-50% of the fed damage whenever it went off, so the brand's
 time made no difference and the claw was smaller than the damage that fed it.

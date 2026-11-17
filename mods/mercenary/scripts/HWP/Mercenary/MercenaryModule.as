@@ -331,7 +331,7 @@ namespace HWP
 			}
 			if (dead != g_wasDead && Revivable())
 				Bag(rec).SetBool("merc.down", dead);
-			if (dead && !g_wasDead && !Revivable())
+			if (dead && !Revivable())
 				Fall(rec, FloorName(MissionManager::g_module.m_missionDefHash, int(MissionManager::g_module.m_missionLevelIndex)));
 			g_wasDead = dead;
 		}

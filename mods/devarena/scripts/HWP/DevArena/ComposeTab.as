@@ -64,6 +64,8 @@ namespace DevArena
 			return;
 		g_cmpCheckKey = key;
 		g_cmpErrs.resize(0);
+		if (g_cmpBuilt !is null)
+			g_cmpBuilt.Delete();
 		@g_cmpBuilt = g_cmpSlot == "" ? null : ComposeCheck(g_cmpSlot, d.Text(), g_cmpErrs);
 		if (g_cmpSlot == "")
 			g_cmpErrs.insertLast("no spell slot (learn a skill first)");

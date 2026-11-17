@@ -217,8 +217,9 @@ namespace DevArena
 			ui.Text(x + 3, y + 1, "search presets", COL_DIM);
 		y += row + 2;
 
-		if (g_lClass == "" && g_preset != "")
-			g_lClass = BaseClass(FindPreset(g_preset).cls);
+		Preset@ curPreset = FindPreset(g_preset);
+		if (g_lClass == "" && curPreset !is null)
+			g_lClass = BaseClass(curPreset.cls);
 		array<string> bases, subs;
 		for (uint i = 0; i < g_presets.length(); i++)
 		{
@@ -238,7 +239,7 @@ namespace DevArena
 			g_lSub = "";
 		}
 		if (subs.length() > 0 && subs.find(g_lSub) < 0)
-			g_lSub = (g_preset != "" && subs.find(FindPreset(g_preset).cls) >= 0) ? FindPreset(g_preset).cls : subs[0];
+			g_lSub = (curPreset !is null && subs.find(curPreset.cls) >= 0) ? curPreset.cls : subs[0];
 		// subclass chips without the class prefix: "nature" for ranger_nature
 		array<string> shortIds;
 		for (uint i = 0; i < subs.length(); i++)

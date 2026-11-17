@@ -2,8 +2,8 @@
 // base level once and keeps it across "retrying from scratch": when a
 // required prefab set can never fit on that base (seen with forest_2 on
 // base_levels/level_6 and forest_skill), the game retries the same layout
-// forever until the connection times out. This picks the base level again
-// on every retry and sets aside a base that failed RETRIES times in a row.
+// forever until the connection times out. This retries the same base up to
+// RETRIES times in a row, then sets that base aside and rolls another.
 class HWPOutdoorGenerator : OutdoorGenerator
 {
 	int RETRIES = 10;

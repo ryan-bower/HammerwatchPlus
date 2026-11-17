@@ -33,6 +33,8 @@ def table(rows):
             continue
         med_s = statistics.median(r["single"] for r in vanilla)
         med_p = statistics.median(r["pack"] for r in vanilla)
+        if not med_s or not med_p:
+            continue  # an all-zero vanilla group is a failed bench, not a baseline to divide by
         top_s = max(r["single"] for r in vanilla)
         when = "start of a run" if stage == "start" else "late in a run (orbs, trinkets)"
         lines.append(f"\n## Level {level}, {when}  (vanilla median: single {med_s:.0f}, pack {med_p:.0f};"

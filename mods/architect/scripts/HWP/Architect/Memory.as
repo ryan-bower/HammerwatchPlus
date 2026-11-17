@@ -224,7 +224,8 @@ namespace HWP
 
 		void RememberLoadout(array<MissionLoadout@>@ loadouts)
 		{
-			if (loadouts is null)
+			// with the module off the rows hold vanilla's singleton state: keep what was remembered
+			if (loadouts is null || !Enabled())
 				return;
 			SValueBuilder b;
 			b.PushDictionary();

@@ -56,5 +56,5 @@ else:                # a smaller rifle
     pos = (9, 7)
 fig.alpha_composite(gun, pos)
 fig.save(out)
-fig.resize((256, 256), Image.NEAREST).save(out.replace(".png", "_x8.png"))
+fig.resize((256, 256), Image.NEAREST).save(str(Path(out).with_name(Path(out).stem + "_x8.png")))
 print("wrote", out)
