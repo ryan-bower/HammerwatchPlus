@@ -3,7 +3,8 @@
 No Workshop release yet. Build and play from the repo:
 
 1. Double-click `run.cmd` (or `python tools/run.py`).
-2. In the save builder, add characters (class and level 1–20) and set starting gold, then
+2. In the save builder, add characters (class and level 1–20), set starting gold and pick a
+   town (Starter skips the intro; Mid game and End game also build the town up), then
    **Build save & launch**.
 3. Pick your character. In game, open the console with <kbd>&#96;</kbd> and type `hwp help`.
 
@@ -18,6 +19,7 @@ lobby needs the same mods.
 |---|---|
 | `--character sorc:15:Name` | Add a character without the UI (repeatable; no spaces in names) |
 | `--gold N` | Starting gold (default 1,000,000; 0 for a fresh start) |
+| `--town PRESET` | The profile's town: `vanilla` (play the intro), `starter` (intro skipped; the default), `mid` (every building at about half its tiers) or `end` (every building at its last tier). `mid` and `end` need a character. Not with `--copy-slot` |
 | `--no-ui` | Skip the save builder |
 | `--profile-name "Name"` | Name the new profile |
 | `--no-launch` | Prepare everything, don't start the game |

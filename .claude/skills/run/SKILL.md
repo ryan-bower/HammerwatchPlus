@@ -41,6 +41,14 @@ Pass optional user preferences through to the same call:
   is supplied; the chosen starting gold still applies.
 - `--gold 2500000`: starting gold for the new profile; default 1,000,000.
   Applies with or without preset characters; `--gold 0` starts unfunded.
+- `--town starter`: the town preset, also a combobox in the builder. `vanilla` plays the
+  intro as before; `starter` (the default) sets the intro mission's town flag
+  `mission_story_intro_find_npcs` so the intro is skipped; `mid` adds the story building,
+  maps and rogue/sorcerer/warlock unlocks and raises every building to
+  round-half-up(half its last tier) where its conditionals allow; `end` adds the spell mastery
+  unlock (NG+-earned in vanilla) and `beat_dark_citadel` and raises every buildable building
+  to its last tier. `mid` and `end`
+  need at least one character. No town NG+ and no blueprints. Refused with `--copy-slot`.
 - `--packages town keys`: selected packages instead of all; never combine `all` with them.
 - `--copy-slot 0`: copy that local profile's town and characters into the new profile,
   bypassing the UI; refuses a save with an active dungeon run and never writes the source.
@@ -49,7 +57,8 @@ Pass optional user preferences through to the same call:
 
 Character preparation uses `python -m gamelab run <generated-request.json> --mode lab`
 internally and checks verdict, assertions, error, teardown, source fingerprints and
-the persisted roster and exact gold balance before importing the save into a new play slot. Native fixture
+the persisted roster, exact gold balance and, for a town preset, its saved town flags (and a
+raised guild hall for Mid and End) before importing the save into a new play slot. Native fixture
 creation and levelups generate the records; the lab-only save-write guard stays intact.
 This may take a few minutes. A failed preparation never selects a new real profile.
 

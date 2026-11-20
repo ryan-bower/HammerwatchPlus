@@ -10,7 +10,8 @@ from pathlib import Path
 
 from gamelab import env
 from tools import build, gamepaths, qa_batch
-from tools.save_builder import CLASSES, Plan
+from gamelab.hps import hash_string
+from tools.save_builder import CLASSES, TOWN_PRESETS, Plan
 
 
 def modules_for(packages: list[str]) -> list[str]:
@@ -46,25 +47,52 @@ def required_unlocks(plan: Plan) -> list[str]:
     return sorted(flags)
 
 
+def town_flags(plan: Plan) -> list[str]:
+    """The roster's required class unlocks, then the town preset's flags, each once."""
+    return list(dict.fromkeys([*required_unlocks(plan), *TOWN_PRESETS[plan.town].flags]))
+
+
+def town_probe(plan: Plan) -> dict | None:
+    """The `towntiers` readback for the preset. The exact tiers depend on the enabled mods (the
+    tavern mod adds tavern tiers), so the play builder checks the shape; the town-preset-*
+    scenarios check exact vanilla tiers."""
+    tiers = TOWN_PRESETS[plan.town].tiers
+    if tiers is None:
+        return None
+    if tiers == 100:
+        expect = {"ok": True, "built": {"between": [1, 64]}, "unmaxed": 0, "truncated": False,
+                  "buildings.guild_hall.v": {"between": [1, 99]}}
+    else:
+        expect = {"ok": True, "built": {"between": [1, 64]}, "truncated": False,
+                  "buildings.guild_hall.v": {"between": [1, 99]}}
+    return {"verb": "towntiers", "expect": expect}
+
+
 def scenario(plan: Plan, packages: list[str], name: str) -> dict:
     plan.validate(available_classes(packages))
     modules = modules_for(packages)
     first = plan.characters[0] if plan.characters else None
     setup = ([{"verb": "levelup", "args": [first.level - 1],
                "expect": {"ok": True, "level": first.level}}] if first and first.level > 1 else [])
-    unlocks = required_unlocks(plan)
+    flags = town_flags(plan)
     setup += [{"verb": "townflag", "args": [flag, "on"], "expect": {"ok": True, "value": True}}
-              for flag in unlocks]
+              for flag in flags]
+    tiers = TOWN_PRESETS[plan.town].tiers
+    if tiers is not None:
+        # after the flags: the buildings' conditionals read them
+        setup.append({"verb": "townpreset", "args": [tiers], "expect": {"ok": True, "pct": tiers, "capped": False}})
     setup.append({"verb": "townmoney", "args": [plan.starting_gold],
                   "expect": {"ok": True, "gold": plan.starting_gold}})
     readback = ({"phase": "town", "player.class": first.class_id, "player.name": first.name,
                  "player.level": first.level, "player.dead": False} if first else {"phase": "no_character"})
+    probe = town_probe(plan)
     fixture = {"name": "play-builder", "slot": 0,
                "binary_edits": {"enable_mods": ["gamelab-probe", "gamelab-hands", "gamelab-pilot", *modules]},
                "character": {"class": first.class_id, "name": first.name} if first else None, "setup": setup,
                "save_town": True,
                "readback_probes": [{"verb": "townflag", "args": [flag], "expect": {"ok": True, "value": True}}
-                                   for flag in unlocks] + [{"verb": "townmoney", "expect": {"ok": True, "gold": plan.starting_gold}}],
+                                   for flag in flags] + ([probe] if probe else [])
+                                  + [{"verb": "townmoney", "expect": {"ok": True, "gold": plan.starting_gold}}],
                "readback": readback}
     return {"name": name, "about": "Native pre-launch character/save preparation; no real save writes",
             "fixture": fixture, "mods": modules, "export_profile": True,
@@ -75,7 +103,7 @@ def scenario(plan: Plan, packages: list[str], name: str) -> dict:
 
 
 def verified_export(result: Path, plan: Plan) -> bytes:
-    from tools.play_profile import characters_in, gold_in
+    from tools.play_profile import characters_in, gold_in, town_in
 
     run = json.loads((result / "run.json").read_text(encoding="utf-8"))
     assertions = run.get("assertions") if isinstance(run, dict) else None
@@ -93,6 +121,16 @@ def verified_export(result: Path, plan: Plan) -> bytes:
         raise RuntimeError(f"Saved roster differs from the request: {observed} != {wanted}")
     if gold_in(data) != plan.starting_gold:
         raise RuntimeError(f"Saved gold differs from the request: {gold_in(data)} != {plan.starting_gold}")
+    preset = TOWN_PRESETS[plan.town]
+    if preset.flags or preset.tiers is not None:
+        town = town_in(data)
+        missing = [flag for flag in preset.flags if hash_string(flag) not in town["flags"]]
+        if missing:
+            raise RuntimeError(f"Saved town lacks the {preset.label} flags: {', '.join(missing)}")
+        # Exact tiers depend on the enabled mods and are read back in game (towntiers);
+        # the export only refuses a preset town whose guild hall was never raised.
+        if preset.tiers is not None and town["buildings"].get(hash_string("guild_hall"), -1) < 1:
+            raise RuntimeError(f"Saved town has no raised guild hall for the {preset.label} preset")
     return data
 
 

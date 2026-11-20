@@ -135,6 +135,39 @@ def gold_in(data: bytes) -> int:
     return int(materials[0])
 
 
+def _hash(value, what: str) -> int:
+    if not isinstance(value, int) or isinstance(value, bool) or not -2**31 <= value < 2**32:
+        raise ValueError(f"Native profile has an invalid town {what}")
+    return value & 0xFFFFFFFF  # the town saves uint hashes through PushInteger (signed)
+
+
+def town_in(data: bytes) -> dict:
+    """The saved town's flags and buildings (TownRecord.Save: "flags", "buildings").
+
+    Returns {"flags": set of HashString values, "buildings": {building-def hash: variation}}.
+    A null town section has neither.
+    """
+    town, _ = _profile_records(data)
+    if town is None:
+        return {"flags": set(), "buildings": {}}
+    if not isinstance(town, dict):
+        raise ValueError("Native profile town is not a record")
+    flags, buildings = town.get("flags", []), town.get("buildings", [])
+    if not isinstance(flags, list) or not isinstance(buildings, list):
+        raise ValueError("Native profile town flags or buildings are not lists")
+    result = {"flags": {_hash(flag, "flag") for flag in flags}, "buildings": {}}
+    for building in buildings:
+        if not isinstance(building, dict):
+            raise ValueError("Native profile has an invalid town building")
+        key = _hash(building.get("building-def"), "building")
+        variation = building.get("variation")
+        if (not isinstance(variation, int) or isinstance(variation, bool) or not 0 <= variation < 1000
+                or key in result["buildings"]):
+            raise ValueError("Native profile has an invalid town building")
+        result["buildings"][key] = variation
+    return result
+
+
 def from_native(data: bytes, ids: list[str], name: str) -> bytes:
     characters_in(data)
     # Reuse validated identity encoding; preserve the game's body byte-for-byte.

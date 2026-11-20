@@ -635,6 +635,7 @@ namespace Modules
 			GameLab::RegisterVerb("charflag", "<name>", GameLab::Verb(GameLab::VerbCharFlag));
 			GameLab::RegisterVerb("townflag", "<name> [on|off]", GameLab::Verb(GameLab::VerbTownFlag));
 			GameLab::RegisterVerb("townmoney", "[amount]", GameLab::Verb(GameLab::VerbTownMoney));
+			GameLab::RegisterVerb("townpreset", "<0..100>", GameLab::Verb(GameLab::VerbTownPreset));
 			GameLab::RegisterVerb("subclass", "<classId>", GameLab::Verb(GameLab::VerbSubclass));
 			GameLab::RegisterVerb("classskills", "<classId>", GameLab::Verb(GameLab::VerbClassSkills));
 			GameLab::RegisterVerb("skill", "<skillId> [times] [combo]", GameLab::Verb(GameLab::VerbSkill));
