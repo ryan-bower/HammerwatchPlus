@@ -250,7 +250,12 @@ def load_ledger():
 
 
 def save_ledger(led):
-    LEDGER.write_text(json.dumps(led, indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+    tmp = LEDGER.with_name(LEDGER.name + ".tmp")
+    with open(tmp, "w", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(led, indent=1, ensure_ascii=False) + "\n")
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp, LEDGER)
 
 
 def kit_items(led, only):
@@ -321,6 +326,9 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
     led = load_ledger()
     if args.delete:
+        if args.dry_run:
+            print("workshop_publish: --dry-run cannot be combined with --delete (delete is permanent)", file=sys.stderr)
+            return 2
         return delete(led, args.delete)
     only = {x.strip() for x in args.only.split(",") if x.strip()}
     todo, problems = kit_items(led, only)

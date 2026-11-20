@@ -6,7 +6,8 @@
 // rooms' chest_platinum) lock on their first tick and want a key of their own
 // tier (platinum: gold); without one the chest shows a cross and a tooltip
 // naming the key, and does not open. Cursed chests and the resource caches
-// stay open. A locked chest pays its own vanilla loot.
+// stay open. A locked chest pays its own vanilla loot; an ace chest pays that
+// too, plus the hwp_chest_ace table.
 //
 // keys.lock_chance (default 1: every chest) and the ace roll are deterministic
 // - a hash of the chest's position, the mission reward seed and the level
@@ -29,6 +30,7 @@ class HWPChest : Chest
 	int m_tier = 0; // 0 = plain chest, 1..4 = bronze/silver/gold/ace lock
 	UnitPtr m_lockUnit;
 	ITooltip@ m_lockTooltip;
+	Item::LootTable@ m_ownTable; // an ace chest's own table, paid on top of hwp_chest_ace
 
 	HWPChest(UnitPtr unit, SValue& params)
 	{
@@ -130,7 +132,10 @@ class HWPChest : Chest
 		{
 			auto table = Item::GetLootTable("hwp_chest_ace");
 			if (table !is null)
+			{
+				@m_ownTable = m_lootTable;
 				@m_lootTable = table;
+			}
 			else
 				HWP::LogError("keys", "missing loot table hwp_chest_ace");
 		}
@@ -259,6 +264,8 @@ class HWPChest : Chest
 		{
 			@m_lootTable = luckTable;
 			HWP::Luck::SpawnLoot(luckTable, player, luckPos, luckFactor, "chest");
+			if (m_ownTable !is null)
+				HWP::Luck::SpawnLoot(m_ownTable, player, luckPos, luckFactor, "chest own");
 		}
 		if (!m_key.isEmpty() && player.m_record.local)
 		{

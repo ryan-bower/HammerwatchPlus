@@ -104,8 +104,34 @@ namespace HWP
 
 		// ---- host --------------------------------------------------------------
 
+		// host: drop the picks of a payer that has left (a crash, a drop, a kick): its client
+		// can't send the Back/Escape empty list, and nobody else would pay for them
+		bool DropGonePayers()
+		{
+			bool dropped = false;
+			for (int j = int(g_picks.length()) - 1; j >= 0; j--)
+			{
+				bool here = false;
+				for (uint i = 0; i < g_players.length(); i++)
+					if (g_players[i] !is null && g_players[i].peer == g_picks[j].payer)
+						here = true;
+				if (!here)
+				{
+					HWP::Log("architect", PayerName(g_picks[j].payer) + " left, drops " + BuffName(g_picks[j].id));
+					g_picks.removeAt(j);
+					dropped = true;
+				}
+			}
+			return dropped;
+		}
+
 		void OnPick(uint8 peer, SValue@ data)
 		{
+			// no setup open on the host: nobody's OnPlay would charge a remote peer's picks.
+			// The host's own picks are exempt: the remembered-pick restore runs inside the menu
+			// constructor, before the menu is registered as open.
+			if (peer != uint8(Lobby::GetLocalPeer()) && !LoadoutMenuOpen())
+				return;
 			array<int>@ ids = HWP::SV::Ints(data, "ids");
 			if (!Enabled())
 				@ids = VanillaPicks(peer, ids);
@@ -146,10 +172,8 @@ namespace HWP
 		void OnQuery(uint8 peer, SValue@ data)
 		{
 			RefreshSplit();
-			if (peer == uint8(Lobby::GetLocalPeer()))
-				OnSync(Pack());
-			else
-				HWP::Net::Send(peer, SYNC, Pack());
+			// Send also dispatches to the local peer, and frees the value there
+			HWP::Net::Send(peer, SYNC, Pack());
 		}
 
 		void OnMissionStarted()
@@ -410,6 +434,8 @@ namespace Modules
 		void GuardedUpdateFrame(int ms, GameInput& gameInput, MenuInput& menuInput, bool paused)
 		{
 			bool open = HWP::Architect::LoadoutMenuOpen();
+			if (open && Network::IsServer() && HWP::Architect::g_picks.length() > 0 && HWP::Architect::DropGonePayers())
+				HWP::Architect::BroadcastState();
 			if (m_menuOpen && !open)
 				HWP::Architect::OnLoadoutClosed();
 			m_menuOpen = open;

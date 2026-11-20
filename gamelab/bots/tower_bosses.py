@@ -313,6 +313,7 @@ def run(p, floors="all"):
             c.fight(i, fid, lvl)
         except Exception as e:  # one boss's failed read must not hide the rest
             c.flag(f"boss{i}_raised", False, repr(e))
-    c.out["ok"] = all(v for k, v in c.out.items() if isinstance(v, bool))
+    c.out["ok"] = bool(c.out.get("bosses") or any(k.endswith("_raised") for k in c.out)) and all(
+        v for k, v in c.out.items() if isinstance(v, bool))
     c.out["notes"] = c.notes
     return c.out

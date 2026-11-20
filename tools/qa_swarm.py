@@ -33,6 +33,7 @@ STATUSES = ("queued", "reviewing", "reproduced", "harness-blocked", "fix-drafted
             "reviewed", "integrated", "verified", "deferred")
 OPERATIONS = ("review", "draft", "sandbox", "integration", "native")
 SCOPES = ("source", "offline", "native-contract", "load", "controlled-native", "ordinary", "visual", "packed", "coop")
+RESULTS = ROOT / "gamelab/results"
 NATIVE_SCOPES = {"native-contract", "load", "controlled-native", "ordinary", "packed", "coop"}
 ID = re.compile(r"[A-Z][A-Z0-9_-]{0,79}\Z")
 TRANSITIONS = {
@@ -182,7 +183,7 @@ class Store:
                 json.dump({"pid": os.getpid(), "created": stamp(), "store": str(self.path)}, stream)
             yield
         finally:
-            self.lock.unlink()
+            self.lock.unlink(missing_ok=True)
 
     def save(self, state):
         validate(state)
@@ -451,6 +452,27 @@ def evidence_valid(evidence, state):
                     "invalid_evidence", "native PASS requires matching epoch, verdict, guards and assertions")
 
 
+def manual_native_run(evidence):
+    """`update --evidence` may not invent native PASS: run_id must name a real run whose run.json agrees."""
+    if evidence.get("scope") not in NATIVE_SCOPES or evidence.get("outcome") != "pass":
+        return
+    run_id = evidence.get("run_id")
+    require(isinstance(run_id, str) and re.fullmatch(r"[A-Za-z0-9_-]+", run_id), "invalid_evidence",
+            "native PASS evidence needs a safe run_id; use record-batch or record-pool")
+    run_json = RESULTS / run_id / "run.json"
+    require(run_json.is_file(), "invalid_evidence",
+            f"native PASS evidence run_id {run_id!r} has no gamelab/results run directory; use record-batch or record-pool")
+    try:
+        record = read_json(run_json)
+    except (OSError, ValueError):
+        record = None
+    teardown = record.get("teardown") if isinstance(record, dict) else None
+    require(isinstance(record, dict) and record.get("verdict") == "PASS" == evidence.get("verdict")
+            and record.get("build") == evidence.get("build") and isinstance(teardown, dict)
+            and teardown.get("clean") is True, "invalid_evidence",
+            "native PASS evidence disagrees with the run's run.json on verdict, build or clean teardown")
+
+
 def verification_ready(task, state):
     require(state["current_epoch"] is not None, "epoch_required", "pin a source epoch before verification")
     require(task["claim"]["epoch"] == state["current_epoch"], "claim_epoch_changed",
@@ -498,7 +520,7 @@ def batch_evidence(args, state):
         from . import qa_batch
     else:
         import qa_batch
-    rows = [json.loads(line) for line in Path(args.journal).read_text(encoding="utf-8-sig").splitlines() if line.strip()]
+    rows = [json.loads(line) for line in (ROOT / args.journal).read_text(encoding="utf-8-sig").splitlines() if line.strip()]
     require(all(isinstance(row, dict) for row in rows), "invalid_journal", "journal rows must be objects")
     matches = [row for row in rows if row.get("index") == args.index]
     require(len(matches) == 1, "invalid_journal", "need exactly one indexed batch row")
@@ -738,7 +760,7 @@ def pool_evidence(args, state):
 
 
 def pool_import_spec(path):
-    path = Path(path).absolute()
+    path = (ROOT / path)
     for item in (path, *path.parents):
         info = item.lstat()
         require(not stat.S_ISLNK(info.st_mode) and not getattr(info, "st_file_attributes", 0) & 0x400,
@@ -781,7 +803,7 @@ def stage_pool_import(state, spec, verify_all=False):
         require(claim.get("dependencies") == deps and not blockers(state, task), "dependencies_changed", "import prerequisites changed or are unmet")
         require(row["scope"] in NATIVE_SCOPES and row["scope"] in task["required_scopes"]
                 and row["check"] in task["checks"], "invalid_bundle", "import scope/check not declared by task")
-        key = (row["task"], str(Path(row["journal"]).absolute()), row["index"], row["epoch"], row["scope"], row["check"])
+        key = (row["task"], str((ROOT / row["journal"])), row["index"], row["epoch"], row["scope"], row["check"])
         require(key not in seen, "invalid_bundle", "duplicate import")
         seen.add(key)
         identity = (row["expect"], row["token"])
@@ -981,6 +1003,8 @@ def mutate(store, args):
                             read_json(args.evidence) if args.evidence else None)
                         if evidence is not None:
                             evidence_valid(evidence, state)
+                            if args.command == "update":
+                                manual_native_run(evidence)
                             task["evidence"].append(dict(evidence, recorded_at=stamp(), attempt=claim["attempt"],
                                                         dependencies=dict(claim["dependencies"])))
                         if args.command == "update":

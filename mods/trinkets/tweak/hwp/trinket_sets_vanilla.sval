@@ -1,4 +1,4 @@
-<!-- Changes to vanilla trinket sets and trinkets, applied once by HWP/Trinkets/VanillaSets.as.
+<!-- Changes to vanilla trinket sets and trinkets, applied once by HWP/Trinkets/HoH1.as (ApplyVanilla).
      A set's add-items join it; its numbered tiers replace the set's bonuses (each tier lists
      all its modifiers). A trinket's modifier and attune-modifier are added to its own, and its
      desc and attune-desc replace the tooltip lines. -->

@@ -120,6 +120,10 @@ pick, and the package would only add the Skill 4-6 keys. The All pack still carr
 Skill 4-6 keys), but its page and cover don't name it. Remove the `hold` when the classes come
 back.
 
+The same goes for **Interface** (`HWP-interface`, the party frames): it has had no real
+two-player validation, so it is on `hold` and nothing public is created for it. Remove the `hold`
+when it has been checked with two players.
+
 A package with `"workshop": false` in `packages.json` is not on the Workshop at all: it gets no
 kit folder, and `tools/build.py --workshop` (which `tools/workshop.py` runs) leaves it out of
 the All pack too. Your own build (`tools/build.py`, `/run`) still has it in the All pack. At the

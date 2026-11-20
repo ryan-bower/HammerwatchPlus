@@ -6,7 +6,8 @@
 
 	<array name="description-params">
 		<array><s>range</s><s>.skills.desc.params.range</s><s>56</s><s>56</s><s>60</s><s>64</s><s>72</s></array>
-		<array><s>duration</s><b>t</b><s>.skills.desc.params.duration</s><s>3s</s></array>
+		<array><s>duration</s><b>t</b><s>.skills.desc.params.hwp_blind</s><s>5s</s></array>
+		<array><s>slow</s><b>t</b><s>.skills.desc.params.hwp_slow</s><s>4s</s></array>
 		<array><s>cooldown</s><b>t</b><s>.skills.desc.params.cooldown</s><s>9s</s></array>
 	</array>
 

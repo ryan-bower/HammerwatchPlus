@@ -374,6 +374,7 @@ namespace Modules
 			HWP::Colors::Refresh();
 			HWP::PlayerColors::Refresh();
 			HWP::PlayerColors::g_loggedTint = false;
+			HWP::Colors::g_loggedTint = false;
 			HWP::Colors::g_marked.removeRange(0, HWP::Colors::g_marked.length());
 			HWP::Colors::g_markersDrawn = 0;
 			HWP::Log("colors", "player colours: " + HWP::PlayerColors::Status());

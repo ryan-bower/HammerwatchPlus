@@ -309,7 +309,7 @@ namespace HWP
 						int cy = y + j;
 						if (p == Pattern::Walkable)
 						{
-							if (!HWP::Carve::Walkable(grid, cx, cy) || grid.IsConsumed(cx, cy) || !Reached(cx, cy))
+							if (!HWP::Carve::Walkable(grid, cx, cy) || grid.IsConsumed(cx, cy) || grid.GetCell(cx, cy) == Cell::Bridge || !Reached(cx, cy))
 								return false;
 						}
 						else if (p == Pattern::Wall)

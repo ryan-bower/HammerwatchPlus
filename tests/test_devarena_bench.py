@@ -104,6 +104,8 @@ def test_write_csv(tmp_path):
     assert len(text) == 5
     bench.write_csv(_log(pulls, [res]), "runY", out=tmp_path)
     assert len((tmp_path / "all.csv").read_text(encoding="utf-8").splitlines()) == 9
+    bench.write_csv(_log(pulls, [res]), "runX", out=tmp_path)
+    assert len((tmp_path / "all.csv").read_text(encoding="utf-8").splitlines()) == 9
 
 
 def test_baseline_round_trip(tmp_path):

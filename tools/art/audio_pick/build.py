@@ -57,7 +57,7 @@ def audio_md():
             out.append("")
     out += ["Left without a sound by choice: stack gains (Tailwind, Static Charge, Essence), the arrow",
             "catch, a brand passing on, Arcane Feedback banking, Mana Conduit. Vanilla stacks are silent too.", ""]
-    (HERE.parents[1] / "art/specs/AUDIO.md").write_text("\n".join(out), encoding="utf-8", newline="\n")
+    (HERE.parents[2] / "art/specs/AUDIO.md").write_text("\n".join(out), encoding="utf-8", newline="\n")
 
 
 def main():

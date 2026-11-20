@@ -24,7 +24,8 @@
 // - `uses` (default endless): after that many "on"s the unit stays in its "spent" scene.
 // - `setting`: a bool setting that must be on for it to go off at all (the confusion
 //   glyph and plate: campaign.confusion, which says it applies now, so a trap already on
-//   the floor stays dark while it is off; issue #38).
+//   the floor stays dark while it is off; issue #38). The master switch campaign.enabled
+//   must be on as well, so with it off a placed glyph or plate stays dark too.
 //
 // Every machine runs every trap by itself, the way vanilla floor traps do: an effect only
 // sticks to a player on that player's machine and to an enemy on the host
@@ -292,7 +293,7 @@ class HWPTrap : DangerAreaBehavior
 		if (m_state == 0)
 		{
 			bool go = m_trigger == "timer" ? m_c <= 0 : (m_c <= 0 && PlayerNear());
-			if (go && m_setting != "" && !HWP::Settings::GetBool(m_setting, true))
+			if (go && m_setting != "" && !(HWP::Settings::GetBool("campaign.enabled", true) && HWP::Settings::GetBool(m_setting, true)))
 			{
 				// switched off: look again after another off spell, not every frame
 				go = false;

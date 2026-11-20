@@ -9,6 +9,9 @@ A **Sort** button on the town stash, next to the tab picker.
   level comes first, then the better quality, then the name.
 - The sort is stable and only saves when the order changed; a second press
   logs `(already in order)`.
+- When Sort changes the order it also sets the stash's own sorting option (the
+  stash configuration button) to None, because vanilla re-sorts the grid on
+  every refresh otherwise and the new order would not show.
 - The stash is your own town record, so the button sorts your stash on your
   machine only; nothing is sent to the lobby.
 - Overrides `gui/player_stash/player_stash.gui` (the tab row is 50 px

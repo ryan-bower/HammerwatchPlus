@@ -228,6 +228,11 @@ namespace GameLab
 			Fail(id, "usage: menubutton <" + join(MENU_BUTTONS, "|") + "> [pad]");
 			return;
 		}
+		if (g_menuHeld != "" || g_menuPending != "")
+		{
+			Fail(id, "busy: menubutton " + (g_menuHeld != "" ? g_menuHeld : g_menuPending) + " has not finished");
+			return;
+		}
 		g_menuPending = args[0];
 		g_menuPendingId = id;
 		g_menuPad = args.length() > 1;

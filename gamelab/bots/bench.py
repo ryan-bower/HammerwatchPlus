@@ -226,6 +226,8 @@ class Bench:
         equipped). Returns the lowest ilvl used."""
         reply = self.gl("kit", level, quality, ",".join(weapons), seed(f"L{level}:weapons"))
         failed = reply.get("failed") or []
+        if reply.get("ok") is False and not failed:
+            raise RuntimeError(f"bench: kit refused: {reply}")
         ilvl = level
         while failed and ilvl > 1:
             ilvl -= 1
@@ -246,7 +248,10 @@ class Bench:
             tag = f"{spec}.{build}.L{level}.{stage}.{'off' if off else 'main'}"
             ev = self.bench(tag, off)
             dummies = ev.get("dummies", [])
-            single = dummies[0]["dmg"] / (ev.get("ms", 1) / 1000) if dummies else 0
+            if not dummies:
+                # a failed setup is not a 0 damage measurement: no row, no saved zero
+                raise RuntimeError(f"bench: {tag} produced no bench event with dummies ({ev.get('error') or ev})")
+            single = dummies[0]["dmg"] / (ev.get("ms", 1) / 1000)
             run = {"off": off, "dps": ev.get("dps", 0), "single": single, "ev": ev}
             runs.append(run)
             if best is None or run["single"] > best["single"]:
@@ -282,7 +287,8 @@ def run(p, cls="ranger", levels=(1, 12, 20, 25), ms=15000, builds=None, specs=No
     g.console("e_cheats 1")
     time.sleep(0.3)
     b.gl("char", cls, "Bench", timeout=60)
-    g.wait_gl(lambda o: o.get("ev") == "hb" and o.get("phase") == "town", 60, fresh=True)
+    if not g.wait_gl(lambda o: o.get("ev") == "hb" and o.get("phase") == "town", 60, fresh=True):
+        raise RuntimeError("bench: no town heartbeat after the char verb")
     time.sleep(2)
     g.console("e_cheats 1")
     time.sleep(0.3)
@@ -305,7 +311,9 @@ def run(p, cls="ranger", levels=(1, 12, 20, 25), ms=15000, builds=None, specs=No
                 have = level
                 time.sleep(1)
             b.gl("assign", cfg["attr"], "all")
-            b.gl("kit", level, quality, seed(f"L{level}:armour"))
+            armour = b.gl("kit", level, quality, seed(f"L{level}:armour"))
+            if armour.get("ok") is False or armour.get("failed"):
+                raise RuntimeError(f"bench: armour kit at L{level} failed: {armour}")
             here = [cls] if level < 10 else cfg["specs"]
             for spec in here:
                 if specs and spec not in specs:

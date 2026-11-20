@@ -151,8 +151,13 @@ def wiki() -> None:
 
 
 def reference_mods() -> None:
-    root = gamepaths.steam_root() / "steamapps" / "workshop" / "content" / gamepaths.HOH2_APPID
+    steam = gamepaths.steam_root()
+    if steam is None:
+        sys.exit("reference-mods: Steam not found; set HWP_STEAM_DIR")
+    root = steam / "steamapps" / "workshop" / "content" / gamepaths.HOH2_APPID
     items = sorted(p for p in root.iterdir() if p.is_dir()) if root.is_dir() else []
+    if not items:
+        sys.exit(f"reference-mods: no Workshop items under {root}; leaving the existing mirror alone")
     fresh(REFMODS)
     names = []
     for item in items:

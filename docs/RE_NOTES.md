@@ -1,5 +1,165 @@
 # RE notes: Heroes of Hammerwatch II
 
+## 2026-11-16: the save-and-quit crash, HWR2.exe+0x15D4B
+
+Measured in GameLab on build 25932569, on `main` `0feb0220`. The evidence is ordinary
+start-quit cycles in the forced fixture `town-paladin`; it is not gameplay. The interpretation
+lines are marked.
+
+- **The signature.** Every full dump has the same one: `EXCEPTION_ACCESS_VIOLATION`
+  (`0xC0000005`) at `HWR2.exe+0x15D4B`, parameters `[0x0, 0x28]`. That is a read of `null+0x28`.
+  The heuristic stack scan finds the HWR2 return addresses `0x15D4B`, `0x122499`, `0x121DEF`,
+  `0x15194C` and `0x151B6B`. The 2026-10-22 17:51 dump and the swarm ledger's E010 dump match.
+  The dump-writer frames show `dbgcore`, `ucrtbase`, `D3D12Core` and `gameoverlayrenderer64`.
+- **When.** Only at the run's first save-and-quit, during that pass's shutdown, after its last
+  log line and before the next pass was injected (the shim log's ms timestamps). A later pass
+  never dumped: 0 of 65 later quits since 16:00 (10 full and 15 zero-byte in 63 first quits; `pass_dumps.py --day 20261116 --since 160000`).
+- **Where the dumps go.** The game writes `HWR2_176_crash_YYYY_MM_DD_Thh_mm_ss__N.mdmp` beside
+  the exe, which in the lab is `gamelab/env/userdata/game/`, at about 1.9 MB each. Zero-byte
+  dumps of the same name are frequent: 15 against 10 full ones today, in nearly every arm, including
+  the one without HammerwatchPlus. What they hold is unknown.
+- **The exit code under-reports.** Of the 10 pass-1 quits that wrote a full dump, only 3 exited
+  `0xC0000005` (3221225477). Those failed `pass 1 exited cleanly`, left a dirty teardown and
+  needed `gamelab reset`. The other 7 exited 0 and PASSed. `mod-all` 20261116-165130 PASSed with
+  a full dump. Count dumps, not exits (`pass_dumps.py`).
+- **What triggers it** (full dumps per pass-1 quit):
+
+  | Arm | Mods | Pass 1 does | Full dumps | Zero-byte | Exit crash | Runs |
+  |---|---|---|---|---|---|---|
+  | `fix-partyframes-persist` | hwplib trio + partyframes | Plus page settings, frames demo | 3/6 | 1 | 2 | 161653, 162346, 162424, 162502, 162540, 162619 |
+  | tmp settings | same | Plus page settings only | 2/5 | 0 | 1 | 163924, 163958, 164033, 164108, 164142 |
+  | tmp demo | same | `hwp partyframes demo 3` (HUD), no menu | 2/8 | 2 | 0 | 164227, 164302, 164337, 164412, 164448, 164524, 164559, 164634 |
+  | tmp nopf-menu | hwplib trio | character tab, then the Plus page, Escape | 2/5 | 1 | 0 | 164741, 164822, 164907, 164944, 165021 |
+  | tmp bare | hwplib trio + partyframes | idle 8 s | 0/8 | 4 | 0 | 163401, 163438, 163516, 163614, 163652, 163730, 163808, 163845 |
+  | `mod-core-town-save` | hwplib trio | town save, no UI | 0/5 | 1 | 0 | 162707, 162751, 162818, 162845, 162911 |
+  | tmp nohwp-menu | none (gamelab-probe, -hands, -pilot only) | vanilla character, mods, map, character tabs, Escape | 0/8 | 2 | 0 | 165327, 165411, 165450, 165527, 165603, 165639, 165715, 165752 |
+  | `mod-all` | all 54 | boot, town, `log_clean` | 1/5 | 0 | 0 | 160909, 161636, 163045, 165130 (the dump), 172630 |
+  | tmp second-quit, pass 2 (measured) | hwplib trio | nopf-menu's activity, then a quit with the dirs present | 0/8 | 0 | 0 | 171839, 172000, 172057, 172154, 172247, 172339, 172432, 172525 |
+  | tmp second-quit, pass 1 | hwplib trio | idle 6 s, the run's first quit | 0/8 | 2 | 0 | same runs (zero-byte in 172154, 172525) |
+
+  (`mod-all` 160452 failed on a stale HoH1 import and wrote one zero-byte dump. Count it in no
+  arm.)
+
+  Every arm that drew HammerwatchPlus UI before the first quit wrote full dumps, at about 2 in 5
+  (9 of 24 combined), whether that was the Plus options page or the party frames HUD. The arms
+  that drew none wrote no full dump: idle with partyframes loaded 0/8, the hwplib trio's town save
+  0/5, and vanilla menu tabs with no HammerwatchPlus mod 0/8. `mod-all` draws no menu, but its
+  54 mods put their own HUD in town.
+- **The no-HWP control** (`tmp-crash-nohwp-menu`, 8 runs, all PASS 24/24, every exit 0, clean
+  teardowns). Only the fixture's `gamelab-probe`, `gamelab-hands` and `gamelab-pilot` loaded
+  (checked in each pass log's "Adding ... mod" lines). Shot `page.png` of 165327 shows the
+  vanilla Character tab open and no Plus tab. Result: 0 full dumps and 2 zero-byte (165411 and
+  165752) from 8 pass-1 quits.
+  - What it shows: at a true full-dump rate of 2 in 5, 0 of 8 would happen 1.7 % of the time
+    (0.6^8). At the pooled UI-arm rate of 9/24 it would happen 2.3 % of the time. Against the
+    four UI arms, 0/8 vs 9/24 is a one-sided Fisher p of about 0.05. So a no-HWP full-dump rate
+    as high as the UI arms' is unlikely, but not excluded.
+  - What it doesn't show: with 0 of 8 the 95 % upper bound is about 31 % one-sided (37 %
+    two-sided), so a lower no-HWP rate of 10 to 25 % is fully consistent. That is the same order
+    as `mod-all` (1/5) and the demo arm (2/8). It also doesn't separate "HammerwatchPlus loaded"
+    from "HammerwatchPlus UI drawn", because the vanilla tabs aren't the Plus page. The bare arm
+    (HammerwatchPlus loaded, no UI, 0/8) is the evidence for "drawn".
+  - The zero-byte dumps cut against the clean reading. They appear in every arm, the no-HWP one
+    included (2/8), and more often in the arms without UI (bare 4/8). If a zero-byte dump is
+    the same fault cut short, which is unknown, then the fault itself happens without
+    HammerwatchPlus, and the UI only changes how often a full dump gets written. Until a zero-byte
+    dump is explained, "no HammerwatchPlus, no fault" is not established, only "no
+    HammerwatchPlus, no full dump in 8".
+  - Load: run 8 (165752) overlapped the start of a heavy host test fan-out. It took 164 s instead
+    of about 32 s and logged 5 harness stalls, but it still PASSed. Its quit wrote one of the two
+    zero-byte dumps. Without it the arm is 0 full and 1 zero-byte in 7.
+- **The correction.** `partyframes` isn't needed: the nopf-menu arm, with no partyframes, dumped
+  2 of 5. The 2026-11-06 "this branch suspect" note compared exit-code crashes only (2 of 35 with
+  partyframes, 3 of 1,248 without), which miss about two thirds of the faults, and the
+  partyframes runs were the ones that opened the Plus page. The fault isn't vanilla-only either:
+  vanilla menu activity with no HammerwatchPlus mod gave 0 full dumps in 8.
+- **Fresh directories.** Every pass-1 log creates `appdata/HeroesofHammerwatch2` and its
+  `save_backups` ("did not exist, creating", 37/37 pass-1 logs, none in later passes). Since `gamelab
+  reset` and fixture entry give every run a fresh appdata, the first quit is also the first save
+  into a new directory. The bisect's 0/38 pass-2+ quits don't separate the two causes. Apart from
+  `fix-partyframes-persist` pass 2 (town frames and a Dark Citadel load, 0/6), those passes drew
+  no HammerwatchPlus UI, so "the later quits are safe" and "the later quits did nothing" are
+  confounded. `tmp-crash-second-quit` is the same-run test: pass 1 idles and quits, pass 2 does
+  the nopf-menu activity and quits with the directories present. Each run's pass-1 log created
+  the directories, and the pass-2 shot shows the Plus Options page open (172525 viewed).
+  - Result: 8 runs, all PASS 31/31, every exit 0, clean teardowns, host load under 60 % before
+    each boot. The measured pass-2 quit gave 0 full and 0 zero-byte dumps in 8. The idle pass-1
+    first quit gave 0 full and 2 zero-byte, like the bare arm.
+  - What it shows: the same Plus-page activity that dumped 2 of 5 as a first quit (nopf-menu) dumped
+    0 of 8 as a second quit. Against nopf-menu alone that is weak (one-sided Fisher p about 0.13);
+    against the pooled UI first quits (9/24) it is about 0.05. It agrees with every other count: no
+    full or zero-byte dump has ever come from a quit after the first in a run (0 of 65 later
+    quits since 16:00; all 15 zero-byte dumps today came from a pass-1 quit).
+  - What it doesn't show: that the fresh directories are the cause. A run's first quit is also
+    the first save of the character in that process's lifetime, the first shutdown after a fresh
+    fixture entry, and the first after a cold start. This arm separates "first quit" from "later
+    quit", not "new appdata" from those. One way to split them: a fixture whose appdata already
+    holds `HeroesofHammerwatch2/save_backups` before pass 1 (the fixture-option route; not built).
+  - An earlier attempt, 20261116-170103, was a setup failure and is not evidence: FAIL "main menu
+    never loaded", exit 1, dirty teardown, no dump, and a 71 s gap in the startup log while the
+    host CPU was at 100 % from other work. It was reset (`gamelab reset`: killed nothing, wiped saves
+    and appdata).
+- Interpretation, not measured: a null read at a fixed offset in native code during shutdown,
+  after script UI has run, looks like an engine object (a font string, sprite or texture
+  handle) released after its owner, or used through a handle a script left dangling. One
+  lead for source review: shared `BitmapString` handles from cloned widgets (the 2026-11-08
+  `TextWidget` clone note) can be cleaned up twice. Nothing has linked the Plus page to
+  that pattern yet.
+- Open: the faulting function in HWR2.exe (needs a disassembler on `+0x15D4B`, `+0x122499` and
+  `+0x121DEF`); which Plus page or HUD object is enough; whether the real install faults the
+  same way (only the lab has been measured); what the zero-byte dumps are. A Windows WER dump
+  from 2026-11-05, `%LOCALAPPDATA%\CrashDumps\HWR2.exe.9112.dmp` (17 MB), is in the user's
+  profile and was left unopened.
+
+## 2026-11-16: review sweep fixes, what they taught (source review only)
+
+Source review plus host tests; nothing here was run in the game. Fixers' notes, kept where they
+say something about the engine or the mods.
+
+- **A natural end is not a cast.** `HoH1JumpStrike` and `HoH1ChargeStrike` reach `Landed()` from
+  `Update()` after decrementing every counter, so `IsCasting()` is already false and a `was =
+  IsCasting()` guard in `Reset` or `CancelSkill` skips the `finish-` effects and the stage 1 net
+  message. Landing paths have to force both (F001). `RayProjectile` reads `m_bounces` only in
+  `Initialize`, so a constructor can't set it up (F020).
+- **Devarena relaunch stage.** The stage lives in `Relaunch.as` state that survives the restore,
+  because the floor is entered by a level change that reloads the dictionary at stage 1. The stage
+  is then 2, so `Relaunch()` must reset it before saving or a second relaunch on the same floor
+  saves the wrong stage (F002).
+- **Roulette winner shout.** `Settle` runs when the Result state arrives, so the host's Result
+  window (`RESULT_MS`, 5 s) is when `roulette.won` has to land; a later request is now dropped.
+  `g_wonNames` and `g_wonRounds` are kept, not reset (F180).
+- **HoH1 fake reply text.** The `hoh1 fake: off` and `hoh1 fake: a lab peer ...` replies come
+  from `HoH1.as:538`. The refusal at `:524` also starts `hoh1 fake: `, so the bot's `until`
+  strings deliberately exclude it (F093).
+- **A port that is already taken.** On Windows `HTTPServer`'s `allow_reuse_address=1` lets a
+  second listener bind a taken port, so the planner server's `OSError` fallback never ran. The
+  fix sets it to false (F127); a live second-instance run was not done, and
+  `SO_EXCLUSIVEADDRUSE` was not added.
+- **A guess, not a measurement.** The +15 s upper slack in `qa_event_timeouts` (F111) is derived
+  from 0.25 s real polling at 16x timescale (about 4 s of scene time per poll). No live run has
+  checked it; widen it if one shows jitter.
+- **Design-decision fixes (owner, 2026-11-16; source review, not compiled or run).**
+  - Blink is relayed the way other client-owned visuals are: the sorcerer's client sends
+    `specs.blink` (start, landing, aim) as a request, the host re-sends `specs.blink_seen`, and
+    every other peer plays the effects and sounds and places the husk. Damage, recast and the Void
+    Barrier stay on the owner, so nothing applies twice (F187).
+  - An ace chest used to pay only the `hwp_chest_ace` table. It now keeps its own table
+    (`m_ownTable`) and the host runs `HWP::Luck::SpawnLoot` twice, the ace table and the chest's own
+    loot, before the regular-table roll (F068). The six `hwp_chest_locked_*` tables nothing read are
+    gone (F070). The boss key roll is on each killer's machine (`PlayerKilledActor` is local-only),
+    and the host's `g_hostBossMask` lets one boss key drop per level whatever the number of
+    successful rolls (F069).
+  - Vanilla re-sorts the stash grid on every Refresh unless the town record's own `m_sorting` is
+    `StashSorting::None`, which is why the Sort button seemed to do nothing with a sorting option
+    set. Sort now switches that option off (F192).
+  - F013: on a force start that races a pick, the host's `OnPlay` can't afford its share. The
+    clients pay their split shares of the host's picks on their own machines, so the host must keep
+    those picks when `architect.split` is on and more than one player is active (`g_split`,
+    `ActivePlayers()`); only with split off are the host's picks dropped.
+- **Partial or unchecked.** The `hwr2_capture.c` write checks (F164) need a shim rebuild to take
+  effect and were not compiled. Architect F011 can't merge hidden rows: no API pushes an existing
+  `SValue` into a builder.
+
 ## 2026-11-12: who plays the HoH1 floors (issue #123)
 
 - Cause: `Citadel.as` chains dark_halls_1 -> dark_halls_2 -> hwp_battlements_1 -> hwp_battlements_2
@@ -87,7 +247,7 @@ review.
   standard is up. A check for zero has to hit it down.
 - The sprite batch has no blend mode exposed to script, so the mockup's additive glow is
   approximated with alpha columns.
-- **A shutdown crash, cause unknown, this branch suspect.** `mod-all` 20261106-200219 and
+- **A shutdown crash, cause unknown, this branch suspect.** *(Corrected 2026-11-16: `partyframes` is not needed for it; see "the save-and-quit crash" at the top of this file.)* `mod-all` 20261106-200219 and
   `mod-settings-sweep` 20261106-211620 passed every check, saved, then exited with 0xC0000005,
   leaving a dirty teardown. Each passed on repeat (`mod-all` 7 of 7, sweep 212346). Retained runs:
   2 of 35 with `partyframes` loaded, 3 of 1,248 without. Both crashes were full-stack scenarios,

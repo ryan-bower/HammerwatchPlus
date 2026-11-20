@@ -25,7 +25,8 @@ slots, trinkets for the next run) and red legendaries.
 - **Ace chests.** 15 % of gold chests (`keys.ace_chance`) become ace chests
   (the art below; red-tinted where there is none) and need an ace key, the
   vanilla skull key tinted red (`items/hwp/keys/key_ace.png`, on the floor, in
-  the HUD and at the merchant). Opening one spawns the chest's own loot plus, 50/50
+  the HUD and at the merchant). Opening one spawns the chest's own loot, the ace table (`hwp_chest_ace`: gold,
+  valuables and an epic trinket) and, 50/50
   (`keys.legendary_chance`), either an epic equipment drop or one red
   legendary **per player in the lobby** (instanced through `Item::DropItem`;
   tables in `tweak/hwp/loot_chests_ace.sval`).
@@ -67,8 +68,10 @@ slots, trinkets for the next run) and red legendaries.
   sends every elite kill and `keys.normal_try` (4 %) of normal kills as
   candidates (`keys.drop`, flood-guarded at 10 per peer per 10 s); the host
   drops a key for `keys.accept` (40 %) of them while the budget lasts, elites
-  taking the highest tier left. The first boss-tagged kill on a level has a
-  20 % (`keys.boss_chance`) key drop outside the budget; its tier follows the
+  taking the highest tier left. Each player's first boss-tagged kill on a level
+  has a 20 % (`keys.boss_chance`) key drop outside the budget (rolled on the killer's
+  machine, so in co-op every player who lands one gets their own roll, which raises the odds;
+  the host still drops at most one boss key per level); its tier follows the
   floor's diff-level (up to 7 bronze, up to 13 silver, then gold), and from
   the mission's second-to-last boss on it is an ace key (Bone Serpent and
   Avatar in the Dark Citadel). `hwp keys` shows the pool, the floor's locked

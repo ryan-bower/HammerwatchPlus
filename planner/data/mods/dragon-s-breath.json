@@ -5,11 +5,11 @@
   "levels": [
     {
       "q": "uncommon",
-      "text": "15% bonus fire damage that lasts for 1 second"
+      "text": "20% bonus fire damage that lasts for 1 second"
     },
     {
       "q": "rare",
-      "text": "30% bonus fire damage that lasts for 3 second"
+      "text": "40% bonus fire damage that lasts for 3 second"
     }
   ],
   "name": "Dragon's Breath",

@@ -39,7 +39,7 @@ and fast while the ball runs. Use it, or the dealer, to open the table.
 
 | Setting | Default | |
 |---|---|---|
-| `roulette.enabled` | on | the table; off refunds the chips on it and the host takes the wheel away at once |
+| `roulette.enabled` | on | the table; off refunds the chips on it and the host takes the wheel away at once (the table itself stays bare and unbreakable until the town reloads) |
 | `roulette.max_stake` | 1000000 | the most gold one player can have on the table in a round (at most 10000000) |
 
 Both are host-synced and on the HammerwatchPlus tab of the player menu.

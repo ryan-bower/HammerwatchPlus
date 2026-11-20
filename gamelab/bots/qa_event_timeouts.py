@@ -92,13 +92,16 @@ def run(pilot, kind, **_):
     deadline = time.monotonic() + 5
     while cfg["started"] not in c.g.read_log()[log0:] and time.monotonic() < deadline:
         time.sleep(0.1)
+    # Baseline for the timeout check: sampled once the event is armed, not
+    # before the placement/use/RPC setup that the event's own timer never ran.
+    clock_armed = c.gl("clock")
     c.gl("buffnear", 600, "bandit_brute", STUN, 1000000)
     pack = [u for u in units("bandit_brute") if not u.get("dead") and u.get("hp", 0) > 0]
     sample_ids = {u["unit"] for u in sample}
     pack_ids = {u["unit"] for u in pack}
     started = cfg["started"] in c.g.read_log()[log0:] and bool(pack_ids - sample_ids)
     c.flag("event_started_with_live_pack", started, str(pack))
-    records.update(event_before=event, pack_before=pack, clock_before=clock0,
+    records.update(event_before=event, pack_before=pack, clock_before=clock0, clock_armed=clock_armed,
                    status=c.hwp(kind, 0.1))
     if not started:
         return {**c.out, "notes": c.notes, "records": records}
@@ -121,10 +124,12 @@ def run(pilot, kind, **_):
     live_after = [u for u in units("bandit_brute") if not u.get("dead") and u.get("hp", 0) > 0]
     loot1 = units("items/", 800)
     new_loot = [u for u in loot1 if u["unit"] not in {v["unit"] for v in loot0}]
-    elapsed = clock1.get("sceneMs", -1) - clock0.get("sceneMs", -1)
+    elapsed = clock1.get("sceneMs", -1) - clock_armed.get("sceneMs", -1)
     log = c.g.read_log()[log0:]
     c.flag("event_expired", not after and cfg["expired"] in log, log[-2500:])
-    c.flag("real_timeout_elapsed", elapsed >= cfg["ms"], f"actual scene elapsed {elapsed} ms")
+    # Lower slack covers the arm-to-baseline gap; upper slack covers 16x polling.
+    c.flag("real_timeout_elapsed", cfg["ms"] - 500 <= elapsed <= cfg["ms"] + 15000,
+           f"scene elapsed since armed {elapsed} ms, expected about {cfg['ms']} ms")
     c.flag("pack_still_alive", pack_ids <= {u["unit"] for u in live_after}, str(live_after))
     c.flag("no_reward", not new_loot and cfg["reward"] not in log,
            f"new loot {new_loot}; payout log present {cfg['reward'] in log}")

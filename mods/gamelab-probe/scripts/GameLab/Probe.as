@@ -1310,6 +1310,7 @@ namespace GameLab
 			Fail(id, err);
 			return;
 		}
+		SValue@ root = sv; // sv walks down the path; the built tree is ours to Delete() on every exit
 		string path = args.length() > 1 ? args[1] : "";
 		array<string>@ segs = path.length() > 0 ? path.split(".") : array<string>();
 		for (uint i = 0; i < segs.length(); i++)
@@ -1322,12 +1323,14 @@ namespace GameLab
 			{
 				int k = parseInt(segs[i]);
 				auto arr = sv.GetArray();
-				if (k >= 0 && uint(k) < arr.length())
+				// parseInt gives 0 for non-numeric text: require the segment to round-trip
+				if (k >= 0 && ("" + k) == segs[i] && uint(k) < arr.length())
 					@next = arr[k];
 			}
 			if (next is null)
 			{
 				Fail(id, "no '" + segs[i] + "' at path segment " + i + " of '" + path + "'");
+				root.Delete();
 				return;
 			}
 			@sv = next;
@@ -1348,6 +1351,7 @@ namespace GameLab
 		else
 			j.Bool("truncated", true);
 		Emit(j);
+		root.Delete();
 	}
 
 	// selftest-throw: dereferences null on purpose; proves ConsoleGl's catch (playbook 1.4)

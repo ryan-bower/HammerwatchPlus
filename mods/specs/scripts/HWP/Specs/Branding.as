@@ -247,6 +247,7 @@ namespace HWP
 			if (plr is null || plr.IsDead())
 			{
 				g_brands.removeRange(0, g_brands.length());
+				g_brandsUp = false;
 				return;
 			}
 

@@ -635,7 +635,9 @@ namespace DevArena
 			return false;
 		}
 		array<string> errs;
-		ComposeCheck(e.skill, e.value, errs);
+		SValue@ built = ComposeCheck(e.skill, e.value, errs);
+		if (built !is null)
+			built.Delete();
 		if (errs.length() == 0)
 			return true;
 		err = errs[0];

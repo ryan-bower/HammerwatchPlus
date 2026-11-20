@@ -179,11 +179,11 @@ class Checks(Base):
         time.sleep(1.5)
         g0 = self.gold()
         n, left = 0, -1
-        for _ in range(3):
+        for attempt in range(3):
             n = self.gold_drop()
             left = self.gold_left(8)
-            if left == 0 or not hasattr(self, "drop_dir"):
-                break
+            if left == 0 or not hasattr(self, "drop_dir") or attempt == 2:
+                break  # the last attempt keeps drop_at: the flags below read it
             self.bad_dirs = getattr(self, "bad_dirs", set()) | {self.drop_dir}
             del self.drop_at
             self.dropped = []

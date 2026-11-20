@@ -4,7 +4,7 @@
     python tools/devarena/clone_spec.py ... --log gamelab/results/<run>/logs/pass1.HWR2.exe.log [--version live]
 
 Writes mods/spec-<id with - for _>/:
-  info.xml, module.json            requires core
+  info.xml, module.json            requires hwplib and hwplib-classui; local_only
   players/hwp/spec_<id>/class_<id>.sval
                                    the source subclass dict (PlayerClass::LoadMultiple) with the new
                                    id and a new name key, the parent's SharedStats block, the
@@ -318,19 +318,18 @@ def build(a) -> int:
 
     mod_name = "spec-" + new_id.replace("_", "-")
     mod = Path(a.out) / mod_name if a.out else REPO / "mods" / mod_name
-    if mod.exists():
-        if not a.force:
-            raise SystemExit(f"{mod} exists (--force replaces it)")
-        shutil.rmtree(mod)
-    rel_dir = f"players/hwp/spec_{new_id}"
-    (mod / rel_dir / "skills").mkdir(parents=True)
-
+    if mod.exists() and not a.force:
+        raise SystemExit(f"{mod} exists (--force replaces it)")
     state, log = load_state(a)
     edits = version_edits(state, a.version) if state else []
     picked = None
     if state:
         from tools.devarena.export import pick
         picked = pick(state, a.version)
+    if mod.exists():
+        shutil.rmtree(mod)
+    rel_dir = f"players/hwp/spec_{new_id}"
+    (mod / rel_dir / "skills").mkdir(parents=True)
     dicts_by_slot = (version_dicts(log, picked) if picked is not None else None) or {}
     lang = {f".skills.hwp_{new_id}.mastery.name": a.name}
     refused = []
@@ -398,9 +397,9 @@ def build(a) -> int:
         f"\t<string name=\"name\">HammerwatchPlus spec: {a.name}</string>\n"
         "\t<string name=\"author\">Dev Arena</string>\n"
         f"\t<string name=\"description\">{a.name}, a {parent} subclass cloned from {a.src} by the Dev Arena "
-        "(tools/devarena/clone_spec.py). Part of HammerwatchPlus; requires HWP Core.</string>\n"
+        "(tools/devarena/clone_spec.py). Part of HammerwatchPlus; requires hwplib and hwplib-classui.</string>\n"
         "</dict>\n", encoding="utf-8", newline="\n")
-    (mod / "module.json").write_text(json.dumps({"id": mod_name, "requires": ["hwplib", "hwplib-classui"], "overrides": [], "exclude": []}, indent=2) + "\n",
+    (mod / "module.json").write_text(json.dumps({"id": mod_name, "requires": ["hwplib", "hwplib-classui"], "overrides": [], "exclude": [], "local_only": True}, indent=2) + "\n",
                                      encoding="utf-8", newline="\n")
     lang_dir = mod / "res" / "language" / "english"
     lang_dir.mkdir(parents=True)

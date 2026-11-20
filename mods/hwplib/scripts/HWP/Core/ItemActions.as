@@ -284,8 +284,8 @@ namespace HWP
 		// the menu actions an action key must not share a key with
 		array<string> MENU_ACTIONS = { "MenuAdditional", "MenuContext", "MenuForward", "MenuAccept", "MenuBack", "MenuChatAll", "PlayerMenu", "MenuToggle" };
 
-		// the menu action bound to this key name ("e" -> MenuAdditional), or ""
-		string MenuClash(const string &in keyName)
+		// the menu action bound to this key's scancode ("e" -> MenuAdditional), or ""
+		string MenuClash(int scancode)
 		{
 			// every binding of the current map: GetActionBinding returns only an action's first
 			// key, and PlayerMenu has two (I and C)
@@ -295,11 +295,12 @@ namespace HWP
 			auto map = input.GetCurrentMap();
 			if (map is null)
 				return "";
-			string k = keyName.toLower();
+			// binding ids are SDL names ("return", "lctrl"), not the keycap names KeyName gives,
+			// so compare scancodes
 			auto bindings = map.GetBindings();
 			for (uint i = 0; i < bindings.length(); i++)
 			{
-				if (MENU_ACTIONS.find(bindings[i].Action) >= 0 && bindings[i].ID.toLower() == k)
+				if (MENU_ACTIONS.find(bindings[i].Action) >= 0 && HWP::GameKeys::KeyboardScancode(bindings[i]) == scancode)
 					return bindings[i].Action;
 			}
 			return "";
@@ -313,7 +314,7 @@ namespace HWP
 				auto a = g_actions[i];
 				if (a.Scancode() <= 0)
 					continue;
-				string clash = MenuClash(a.KeyName());
+				string clash = MenuClash(a.Scancode());
 				string line = "item action " + a.Id() + " key " + a.KeyName() + " (" + a.Scancode() + ")"
 					+ (clash == "" ? "" : " CLASHES with the menu's " + clash + " key");
 				HWP::Log("core", line);

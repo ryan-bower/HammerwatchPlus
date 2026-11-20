@@ -7,7 +7,7 @@ from PIL import Image
 from vpaint import *
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parents[1]
+REPO = HERE.parents[2]
 OUT = HERE / "out" / "firearms"
 OUT.mkdir(parents=True, exist_ok=True)
 CUR = REPO / "mods/firearms/players/hwp/firearms/icons.png"

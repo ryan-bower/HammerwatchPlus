@@ -13,7 +13,10 @@ Architect alterations for the whole party.
   (default). The vanilla cost multiplier counts every pick regardless of payer.
   `GetCost()` now returns the local share on clients too, so a player who
   cannot afford their share cannot ready up, and the share is deducted on each
-  machine when the host starts (`OnPlay`).
+  machine when the host starts (`OnPlay`). If a force start races a pick and the host
+  cannot afford its own share, the host spends nothing. Picks other players paid for
+  are still applied, and so are the host's picks when architect.split is on (the
+  clients paid their split shares); with split off only the host-paid picks are dropped.
 - Override: `scripts/Missions/MissionArchitect.as` (declared in
   `module.json`, pristine `.orig` next to it, every change marked `HWP`).
   Vanilla's `SyncMissionLoadoutArchitect` message keeps working (host pays).

@@ -44,6 +44,18 @@ class RuntimeSetupTests(unittest.TestCase):
                 setup.install(Path(temp))
             self.assertFalse((Path(temp) / "python").exists())
 
+    def test_corrupt_cache_is_redownloaded(self):
+        data = self.archive({"python.exe": b"test"})
+        with tempfile.TemporaryDirectory() as temp,                 mock.patch.object(setup, "ARTIFACTS", [("python", "https://example.invalid/python.zip",
+                                                       hashlib.sha256(data).hexdigest())]),                 mock.patch.object(setup.urllib.request, "urlopen", return_value=io.BytesIO(data)) as download:
+            cache = Path(temp) / "downloads/python.zip"
+            cache.parent.mkdir(parents=True)
+            cache.write_bytes(b"truncated")
+            setup.install(Path(temp))
+            download.assert_called_once()
+            self.assertEqual((Path(temp) / "python/python.exe").read_bytes(), b"test")
+            self.assertFalse(cache.with_name("python.zip.part").exists())
+
     def test_archive_cannot_escape_destination(self):
         data = self.archive({"../escape": b"bad"})
         with tempfile.TemporaryDirectory() as temp, \

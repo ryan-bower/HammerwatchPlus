@@ -137,5 +137,26 @@ class RestartTests(unittest.TestCase):
         self.runner.boot.assert_not_called()
 
 
+class FinishWithoutLogTests(unittest.TestCase):
+    def test_finish_tolerates_a_game_that_never_wrote_a_log(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "lab").mkdir()
+            with patch("gamelab.runner.env.SETTINGS", root), \
+                    patch("gamelab.runner.env.cvars", return_value={}):
+                runner = Run({}, root, "lab")
+            game = Mock()
+            game.stop.return_value = None
+            game.log_path = root / "missing.HWR2.exe.log"
+            game.game_dir = root
+            game.read_log.return_value = ""
+            game.transport = "posted"
+            game.inbox_sent = game.inbox_resends = game.console_typed = 0
+            game.paused_fallbacks = ()
+            runner.passes = 1
+            runner.finish(game)
+            self.assertFalse((root / "logs" / "pass1.HWR2.exe.log").exists())
+
+
 if __name__ == "__main__":
     unittest.main()

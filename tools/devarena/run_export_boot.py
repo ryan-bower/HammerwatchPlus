@@ -35,6 +35,10 @@ def main(argv=None) -> int:
         print(f"{log}: want a 3-version override line, got {state and len(state['versions'])}")
         return 2
     sval_before = overrides.SVAL.read_text(encoding="utf-8")
+    if overrides.from_sval(sval_before) != overrides.empty():
+        print(f"{overrides.SVAL} is not the committed vanilla default (a killed run left it dirty?); "
+              "restore it with git checkout before running")
+        return 2
     try:
         overrides.write(state, overrides.SVAL)
         r = subprocess.run([sys.executable, "-m", "gamelab", "run", "devarena/export-boot", "--mode", "lab",

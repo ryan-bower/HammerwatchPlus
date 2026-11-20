@@ -184,6 +184,8 @@ namespace Modules
 			HWP::Specs::SelfCheck();
 			HWP::Net::OnRequest("specs.conduit", HWP::Net::RequestHandler(HWP::Specs::OnConduit));
 			HWP::Net::OnEvent("specs.conduit_mana", HWP::Net::EventHandler(HWP::Specs::OnConduitMana));
+			HWP::Net::OnRequest("specs.blink", HWP::Net::RequestHandler(HWP::Specs::OnBlink));
+			HWP::Net::OnEvent("specs.blink_seen", HWP::Net::EventHandler(HWP::Specs::OnBlinkSeen));
 			HWP::Commands::Register("forge", "  Devil Forgemaster: status | body <unit> [dx dy] | raise|penance [now] | heresy <n> | lunge | decay <ms> | cull | risen | bodies | trace [on|off]", HWP::Commands::Handler(HWP::Specs::CmdForge));
 			HWP::Net::OnRequest("specs.raise", HWP::Net::RequestHandler(HWP::Specs::OnRaise));
 			HWP::Net::OnRequest("specs.body_gone", HWP::Net::RequestHandler(HWP::Specs::OnBodyGone));

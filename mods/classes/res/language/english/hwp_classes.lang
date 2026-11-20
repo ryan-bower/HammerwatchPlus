@@ -16,7 +16,9 @@
 	<string name="skills.hwp_thief.knives.name">Throwing Knives</string>
 	<string name="skills.hwp_thief.knives.desc">Throw a fan of %number% knives for %damage% physical damage each.</string>
 	<string name="skills.hwp_thief.smoke.name">Smoke Bomb</string>
-	<string name="skills.hwp_thief.smoke.desc">Throw a smoke bomb at the target spot: enemies in a %range% radius are blinded and slowed for %duration%.</string>
+	<string name="skills.hwp_thief.smoke.desc">Throw a smoke bomb at the target spot: enemies in a %range% radius are blinded for %duration% and slowed for %slow%.</string>
+	<string name="skills.desc.params.hwp_blind">Blind Duration:</string>
+	<string name="skills.desc.params.hwp_slow">Slow Duration:</string>
 	<string name="skills.hwp_thief.sidestep.name">Sidestep</string>
 	<string name="skills.hwp_thief.sidestep.desc">You evade %chance% of attacks.</string>
 	<string name="skills.hwp_thief.vicious_cuts.name">Vicious Cuts</string>

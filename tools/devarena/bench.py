@@ -184,11 +184,14 @@ def write_csv(text: str, run: str, out: Path = OUT) -> tuple[Path, list[dict]]:
         w.writeheader()
         w.writerows(rs)
     allp = out / "all.csv"
-    new = not allp.is_file()
-    with allp.open("a", newline="", encoding="utf-8") as f:
+    kept: list[dict] = []
+    if allp.is_file():
+        with allp.open(newline="", encoding="utf-8") as f:
+            kept = [r for r in csv.DictReader(f) if r.get("run") != run]
+    with allp.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=COLUMNS)
-        if new:
-            w.writeheader()
+        w.writeheader()
+        w.writerows(kept)
         w.writerows(rs)
     return path, rs
 

@@ -122,27 +122,41 @@ def header(text, note):
     return text[:j] + "\n<!-- " + note + " -->" + text[j:]
 
 
+def _swap(s, old, new, count=-1):
+    """str.replace that fails loudly when the vanilla text no longer holds `old` (a game patch)."""
+    if old not in s:
+        raise SystemExit(f"make_specs_fx: vanilla text changed, no match for {old[:60]!r}")
+    return s.replace(old, new, count)
+
+
+def _resub(s, pattern, repl):
+    s, n = re.subn(pattern, repl, s, flags=re.S)
+    if not n:
+        raise SystemExit(f"make_specs_fx: vanilla text changed, no match for {pattern[:60]!r}")
+    return s
+
+
 def standard():
     """Bannerlord's Battlefield Standard: the Holy Banner in red and gold, with a planted param."""
     src = "players/priest/effects/holy_banner.effect"
     s = absolute((SDK / src).read_text(encoding="utf-8"), src)
-    s = s.replace('<param name="radius" default="40" />', '<param name="radius" default="40" />\n\t<param name="planted" default="1" />', 1)
-    s = s.replace('%replace "flag_y_offset" "-30+30*prog_tl_fast_in"',
+    s = _swap(s, '<param name="radius" default="40" />', '<param name="radius" default="40" />\n\t<param name="planted" default="1" />', 1)
+    s = _swap(s, '%replace "flag_y_offset" "-30+30*prog_tl_fast_in"',
                   '%replace "flag_y_offset" "(-30+30*prog_tl_fast_in-18*(1-planted))"\n\t%replace "flag_x_offset" "(-7*(1-planted))"')
-    s = s.replace('pos-y="flag_y_offset"', 'pos-x="flag_x_offset"\n\t\tpos-y="flag_y_offset"')
-    s = s.replace('pos-x="0"\n\t\tpos-y="-20+flag_y_offset"', 'pos-x="flag_x_offset"\n\t\tpos-y="-20+flag_y_offset"')
+    s = _swap(s, 'pos-y="flag_y_offset"', 'pos-x="flag_x_offset"\n\t\tpos-y="flag_y_offset"')
+    s = _swap(s, 'pos-x="0"\n\t\tpos-y="-20+flag_y_offset"', 'pos-x="flag_x_offset"\n\t\tpos-y="-20+flag_y_offset"')
     # the cloth crimson (the holy banner's is white)
-    s = s.replace('\t\tcolor-r="1"\n\t\tcolor-g="1"\n\t\tcolor-b="1"\n\t\tcolor-a="prog_tl_fast_out"',
+    s = _swap(s, '\t\tcolor-r="1"\n\t\tcolor-g="1"\n\t\tcolor-b="1"\n\t\tcolor-a="prog_tl_fast_out"',
                   '\t\tcolor-r="CLOTH_R"\n\t\tcolor-g="CLOTH_G"\n\t\tcolor-b="CLOTH_B"\n\t\tcolor-a="prog_tl_fast_out"')
-    s = s.replace('color-r="0.2*prog_tl_fast_out"\n\t\tcolor-g="0.2*prog_tl_fast_out"\n\t\tcolor-b="0.8*prog_tl_fast_out"',
+    s = _swap(s, 'color-r="0.2*prog_tl_fast_out"\n\t\tcolor-g="0.2*prog_tl_fast_out"\n\t\tcolor-b="0.8*prog_tl_fast_out"',
                   'color-r="0.8*prog_tl_fast_out"\n\t\tcolor-g="0.25*prog_tl_fast_out"\n\t\tcolor-b="0.15*prog_tl_fast_out"')
-    s = s.replace('<color-r value="0.1*prog_tl_fast_out" />\n\t\t<color-g value="0.1*prog_tl_fast_out" />\n\t\t<color-b value="2*prog_tl_fast_out" />',
+    s = _swap(s, '<color-r value="0.1*prog_tl_fast_out" />\n\t\t<color-g value="0.1*prog_tl_fast_out" />\n\t\t<color-b value="2*prog_tl_fast_out" />',
                   '<color-r value="2*prog_tl_fast_out" />\n\t\t<color-g value="0.6*prog_tl_fast_out" />\n\t\t<color-b value="0.2*prog_tl_fast_out" />')
     # the ring faint while carried, full when planted
-    s = s.replace('color-a="1*prog_tl_fast_out"', 'color-a="(0.35+0.65*planted)*prog_tl_fast_out"')
-    s = s.replace('color-a="0.7*prog_tl_fast_out"', 'color-a="(0.25+0.45*planted)*prog_tl_fast_out"')
+    s = _swap(s, 'color-a="1*prog_tl_fast_out"', 'color-a="(0.35+0.65*planted)*prog_tl_fast_out"')
+    s = _swap(s, 'color-a="0.7*prog_tl_fast_out"', 'color-a="(0.25+0.45*planted)*prog_tl_fast_out"')
     s = recolour(s, (1.0, 0.42, 0.12))  # the cloth's markers are not numbers, so it keeps its own colour
-    s = s.replace('"CLOTH_R"', '"1.25"').replace('"CLOTH_G"', '"0.45"').replace('"CLOTH_B"', '"0.4"')
+    s = _swap(_swap(_swap(s, '"CLOTH_R"', '"1.25"'), '"CLOTH_G"', '"0.45"'), '"CLOTH_B"', '"0.4"')
     # the holy banner and its shadow give way to the standard's own art (fx.png): frames 0-1
     # carried, 2-3 planted in a mound; the effect is respawned on planting (StandardFx)
     x, y = FX_SHEET["fx_battlefield_standard"]
@@ -156,7 +170,7 @@ def standard():
     # the ring and flag back in -172522 with this), so an invisible one keeps the length
     flag += ('\n<!-- LENGTH -->\n\t<sprite origin="0 0" looping="true" texture="players/hwp/specs/effects/fx.png"'
              ' material="system/default.mats:default-noxray" color-a="0">\n\t\t<frame time="4000">0 0 1 1</frame>\n\t</sprite>\n')
-    s = re.sub(r"<!-- FLAG SHADOW-->.*?(?=<!-- FLAG GLOW 1 -->)", "", s, flags=re.S)
+    s = _resub(s, r"<!-- FLAG SHADOW-->.*?(?=<!-- FLAG GLOW 1 -->)", "")
     s = re.sub(r"<!-- FLAG -->.*?(?=<!-- LIGHT SHAFT -->)", lambda m: flag + "\n", s, flags=re.S)
     return header(s, "Bannerlord's Battlefield Standard (scripts/HWP/Specs/Bannerlord.as): " + src
                   + " in red and gold with the standard's art from fx.png (tools/generate/make_specs_fx.py). planted 0:"

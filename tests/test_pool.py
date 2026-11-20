@@ -454,6 +454,13 @@ class PoolTests(unittest.TestCase):
         self.assertEqual(run.call_args.kwargs["catalog"], path)
         self.assertEqual(run.call_args.kwargs["catalog_sha256"], digest)
 
+    def test_default_catalog_needs_sha_pin_for_non_dry_run(self):
+        path, digest, _ = self.catalog_fixture()
+        with patch.object(pool, "DEFAULT_CATALOG", path):
+            with self.assertRaisesRegex(ValueError, "default catalog requires --catalog-sha256"):
+                pool.run_pool([self.name], label="unpinned-default")
+            pool.run_pool([self.name], label="default-dry", dry_run=True)
+
     def test_catalog_bot_stream_is_hashed_and_failed_consumer_stops_dispatch(self):
         self.scenario(steps=[{"do": "bot", "bot": "reviewed_bot", "expect": {"ok": True}}])
         path, digest, _ = self.catalog_fixture()

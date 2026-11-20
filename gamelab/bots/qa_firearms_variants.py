@@ -150,6 +150,17 @@ class Checks(Base):
         """Predict HP from source components and measured caster fields, never variant HP."""
         stats, probe, elements = trial["caster_fields"]
         observed = trial["native_hp_observer"]["events"]
+        # A failed capture must become an invalid row, not an exception that drops the trials.
+        if (not observed or not all(isinstance(x, dict) and x.get("ok") for x in (stats, probe, elements))
+                or not all(isinstance(x, dict) and "damageMul" in x for x in observed)
+                or "skillDmgMul" not in probe
+                or not all(k in stats for k in ("damageMul", "spellPower"))
+                or not all(k in probe for k in ("spellCritDmg", "skillCritDmg", "damageMul"))
+                or not isinstance(probe["damageMul"], (list, tuple)) or len(probe["damageMul"]) < 2
+                or not all(e in elements for e in ("fire", "ice", "poison"))):
+            return {"expected_total_hp": float("nan"), "native_components": {},
+                    "captured_caster_multiplier": None, "source_skill_multiplier": None, "valid": False,
+                    "source": []}
         buff_mul = observed[0]["damageMul"]
         multiplier = (buff_mul * stats["damageMul"] * (200 + stats["spellPower"]) / 200
                       * probe["skillDmgMul"] * (probe["spellCritDmg"] + probe["skillCritDmg"])

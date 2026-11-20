@@ -200,10 +200,10 @@ class Checks(Base):
         self.to_town()
 
     def pool(self):
+        mark0 = len(self.g.read_log())
         self.arcane_char("pool")
-        mark0 = self.g.read_log()
         st = self.status()
-        self.flag("pool_bar_on", "living 1 bar on" in st and "living mana bar: on" in mark0, st.strip()[-160:])
+        self.flag("pool_bar_on", "living 1 bar on" in st and "living mana bar: on" in self.g.read_log()[mark0:], st.strip()[-160:])
         if not self.enter_floor("pool"):
             return
         self.gl("mana", 80)

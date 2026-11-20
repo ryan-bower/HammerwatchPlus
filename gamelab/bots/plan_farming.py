@@ -875,8 +875,8 @@ class Checks(Base):
         mark = len(self.g.read_log())
         self.next_floor()
         lv = self.gl("state").get("level", "")
-        boss = self.wild_line(mark, 4.0)
-        self.flag("s11_wild_every_floor", all(ln for _, ln in lines), f"{[(lv0, [x[0] for x in ln]) for lv0, ln in lines]}")
+        boss = [x for x in self.wild_line(mark, 4.0) if x[1]]
+        self.flag("s11_wild_every_floor", all(any(x[1] for x in ln) for _, ln in lines), f"{[(lv0, [x[0] for x in ln]) for lv0, ln in lines]}")
         self.flag("s11_no_wild_boss", "boss" in lv and not boss, f"{lv}: {boss}")
         self.to_town()
 

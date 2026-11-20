@@ -190,6 +190,7 @@ if WINDOWS:
     _k32.TerminateProcess.argtypes = [wintypes.HANDLE, wintypes.UINT]
     _k32.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
     _k32.ResumeThread.argtypes = [wintypes.HANDLE]
+    _k32.ResumeThread.restype = wintypes.DWORD
     _k32.GetExitCodeProcess.argtypes = [wintypes.HANDLE, ctypes.POINTER(wintypes.DWORD)]
 
 
@@ -498,7 +499,8 @@ def run(cmd: list[str], cwd: Path | str | None = None, timeout: float = 1800.0,
                         affinity_mask=affinity_mask, allow_breakaway=allow_breakaway)
         tmp = Path(tempfile.mkdtemp(prefix="claude-hidden-"))
         out_path, err_path = tmp / "stdout.txt", tmp / "stderr.txt"
-        h_out, h_err = _inheritable_file(out_path), _inheritable_file(err_path)
+        h_out = _inheritable_file(out_path)
+        h_err = _inheritable_file(err_path)
 
         si = _StartupInfoW()
         si.cb = ctypes.sizeof(si)

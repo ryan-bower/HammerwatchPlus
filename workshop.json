@@ -89,6 +89,7 @@
   },
   "HWP-interface": {
    "item_id": null,
+   "hold": "not published yet: the party frames have had no real two-player validation; publish it when they have",
    "tags": [
     "Addon",
     "Interface"

@@ -119,6 +119,10 @@ namespace HWP
 			HWP::Log("stash", "sorted " + tab.m_items.length() + " item(s) in tab '" + tab.m_name + "'" + (moved ? "" : " (already in order)"));
 			if (!moved)
 				return;
+			// vanilla re-sorts the grid on every Refresh unless the stash's own sorting is None,
+			// which would hide this order, so Sort switches that option off
+			if (g_myTownRecord !is null)
+				g_myTownRecord.m_sorting = StashSorting::None;
 			wnd.Refresh();
 			wnd.SaveStash();
 		}

@@ -287,7 +287,7 @@ def run(p, section="orb_damage", **_):
                 extra = row["mana_change"] - baseline
                 native = row["native"]
                 native_ms = native.get("after", {}).get("now", 0) - native.get("before", {}).get("now", 0)
-                baseline_ms = (font_rows[0]["native"]["after"]["now"] - font_rows[0]["native"]["before"]["now"]) if font_rows else native_ms
+                baseline_ms = (font_rows[0]["native"].get("after", {}).get("now", 0) - font_rows[0]["native"].get("before", {}).get("now", 0)) if font_rows else native_ms
                 # Equal native windows and unchanged MM rank/cost make passive
                 # regeneration cancel; control must really pay a net mana cost.
                 paid_control = baseline < -1

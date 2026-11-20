@@ -44,7 +44,12 @@ def write_record(path, raw):
 def load_all():
     out = {}
     for c in COLLECTIONS:
-        out[c] = {p.stem: json.loads(p.read_text(encoding="utf-8")) for p in sorted((DATA / c).glob("*.json"))}
+        out[c] = {}
+        for p in sorted((DATA / c).glob("*.json")):
+            try:
+                out[c][p.stem] = json.loads(p.read_text(encoding="utf-8"))
+            except ValueError as e:   # e.g. git conflict markers: skip the file, keep the planner usable
+                sys.stderr.write("planner: cannot parse %s/%s: %s\n" % (c, p.name, e))
     return out
 
 
@@ -88,8 +93,13 @@ class Handler(SimpleHTTPRequestHandler):
 
     def same_origin(self):
         # Another site open in the browser must not be able to write here.
+        # Host must be this server's own loopback name, or a DNS-rebound page passes the Origin check.
+        port = self.server.server_address[1]
+        host = self.headers.get("Host", "")
+        if host not in ("127.0.0.1:%d" % port, "localhost:%d" % port):
+            return False
         origin = self.headers.get("Origin")
-        return origin is None or origin == "http://" + self.headers.get("Host", "")
+        return origin is None or origin == "http://" + host
 
     def do_GET(self):
         path = self.path.split("?")[0]
@@ -97,7 +107,8 @@ class Handler(SimpleHTTPRequestHandler):
             with LOCK:
                 return self.reply(200, {"stamp": stamp(), "data": load_all()})
         if path == "/api/stamp":
-            return self.reply(200, {"stamp": stamp()})
+            with LOCK:   # a write replacing a file the poll holds open fails on Windows
+                return self.reply(200, {"stamp": stamp()})
         if path == "/icons.png" and (WEB / "icons.local.png").exists():
             # cut from the local HoH1 art (git-ignored), in place of the committed placeholders
             self.path = "/icons.local.png"
@@ -135,6 +146,10 @@ class Handler(SimpleHTTPRequestHandler):
             return self.reply(200, {"stamp": stamp()})
 
 
+class Server(ThreadingHTTPServer):
+    allow_reuse_address = False   # on Windows SO_REUSEADDR lets a second server share a taken port
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="python -m planner", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -142,9 +157,9 @@ def main(argv=None):
     ap.add_argument("--no-browser", action="store_true", help="don't open the page in a browser")
     a = ap.parse_args(argv)
     try:
-        server = ThreadingHTTPServer(("127.0.0.1", a.port), Handler)
+        server = Server(("127.0.0.1", a.port), Handler)
     except OSError:
-        server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)   # the port is taken: any free one
+        server = Server(("127.0.0.1", 0), Handler)   # the port is taken: any free one
     url = f"http://127.0.0.1:{server.server_address[1]}/"
     print(f"Class planner: {url}  (data in {DATA}; Ctrl+C to stop)", flush=True)
     if not a.no_browser:

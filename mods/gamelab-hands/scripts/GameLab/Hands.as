@@ -657,7 +657,6 @@ namespace Modules
 			GameLab::Register_specs();
 			GameLab::Register_qa_resources();
 			GameLab::Register_qa_actor_buffs();
-			GameLab::Register_qa_routeleg();
 			GameLab::Register_qa_input_sequence();
 			GameLab::Register_qa_input_target();
 			GameLab::Register_qa_pose_frame();

@@ -10,7 +10,7 @@ Warrior's Leap, the Sorcerer's Firewall and the like.
 - **Auto fire:** once the reticle is on an enemy, the skill fires. You don't need to press
   attack, or to let go of the skill button with quick cast.
 - **Auto skill:** while you aim at nothing, a ready AOE skill casts itself at an enemy in
-  range. It waits until your mana is at or over the set share, and casts at most once every
+  range and inside the aim cone. It waits until your mana is at or over the set share, and casts at most once every
   2 s.
 
 The original works with a controller only. Here it is on for controllers by default and

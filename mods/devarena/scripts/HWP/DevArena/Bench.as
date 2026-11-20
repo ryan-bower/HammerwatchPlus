@@ -646,6 +646,7 @@ namespace DevArena
 		g_bRelease = 0;
 		g_bTargetMs = 0;
 		g_bReplayMain = false;
+		g_bMainHeld = false;
 		g_bAoe = 0;
 		BenchResetTries(g_bIdx == 0);
 		for (uint i = 0; i < g_bPresses.length(); i++)
@@ -1029,6 +1030,11 @@ namespace DevArena
 			if (VariantReady())
 			{
 				ResetForPull(plr);
+				if (!g_golem.IsValid())
+				{
+					BenchStop("golem did not spawn");
+					return;
+				}
 				g_benchState = 2;
 				g_bT = 0;
 			}

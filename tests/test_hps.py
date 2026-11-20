@@ -27,5 +27,19 @@ class RotationTests(unittest.TestCase):
         self.assertEqual(header.encode(), data[:16])
 
 
+class HashAndWriteTests(unittest.TestCase):
+    def test_hash_string_known_answers(self):
+        self.assertEqual(hps.hash_string("test", 0), 0xBA6BD213)
+        self.assertEqual(hps.hash_string("The quick brown fox jumps over the lazy dog", 0), 0x2E4FF723)
+        self.assertEqual(hps.hash_string("gamelab-probe"), 0x6F7F1318)
+
+    def test_script_issues_keeps_last_char_without_trailing_newline(self):
+        from gamelab import logparse
+        text = "[x] [12:00:00] ERR : a.as (ln 3, col 4) : Error\nFunction foo not found"
+        issues = logparse.script_issues(text)
+        self.assertEqual(len(issues), 1)
+        self.assertEqual(issues[0]["msg"], "Function foo not found")
+
+
 if __name__ == "__main__":
     unittest.main()

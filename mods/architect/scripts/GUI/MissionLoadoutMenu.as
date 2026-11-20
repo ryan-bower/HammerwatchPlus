@@ -654,7 +654,7 @@ class MissionLoadoutMenu : AWindowObject
 				if (Network::IsServer() && !m_allReady)
 				{
 					string warning = Resources::GetString(".menu.loadout.force_start_warning");
-					if (m_ngp)
+					if (confirmNgp)
 						warning += "\n\n" + Resources::GetString(".hwp.architect.confirm_ngp", {{ "ngp", ngp }});
 					g_gameMode.ShowDialog("force", warning, Resources::GetString(".menu.yes"), Resources::GetString(".menu.no"), this);
 				}

@@ -118,8 +118,8 @@ against HoH2's base classes with HoH1's unit parameters:
 | File | Classes |
 |---|---|
 | `Effects.as` | `HoH1GiveGold`, `HoH1GiveOre`, `HoH1Decimate` (the wraiths' % HP / mana drain), `HoH1AddCurse`, `HoH1InertEffect` |
-| `Projectiles.as` | `HoH1Projectile`, `HoH1TossProjectile` (vampire bats), `HoH1LurkerProjectile` (golem / dragon / warden ground spikes) |
-| `Skills.as` | `HoH1JumpStrike`, `HoH1ChargeStrike`, `HoH1SpewSkill`, `HoH1WhirlwindSkill`, `HoH1WhirlNovaSkill` |
+| `Projectiles.as` | `HoH1Projectile`, `HoH1TossProjectile` (vampire bats), `HoH1LurkerProjectile` (golem / dragon / warden ground spikes), `HoH1SteeringRayProjectile` (the High Priest's curling fireballs) |
+| `Skills.as` | `HoH1JumpStrike`, `HoH1ChargeStrike`, `HoH1SpewSkill`, `HoH1WhirlwindSkill`, `HoH1WhirlNovaSkill`, `HoH1NovaSkill`, `HoH1BurstSkill` (fires without anim-begin; works around HoH2's backwards fail-chance roll) |
 | `Bosses.as` | `HoH1BossLich` (+ movement, random skill: the Three Councilors), `HoH1BossVampire` (+ movement), `HoH1BossEye` + `HoH1BossEyeWisp` (the Watcher) |
 | `WorldScripts.as` | HoH1 level scripts by their HoH1 names: environment, boss bar, wind, lich / vampire nodes and room, eye wisp scripts, elevators, shops... |
 
@@ -292,8 +292,9 @@ treasure point of interest on the floor (so it sometimes lands you in a trap roo
 else the farthest floor cell, logged as `teleporter placed at X,Y (cell x,y) -> DX,DY
 (cell x,y, why)`. The host moves the user (`UnitTeleported` message like a vanilla
 teleport); a client's use reaches the host as `NetUse`. The destination survives a
-save (`Save`/`Load`). `hwp campaign teleporter [dx dy]` spawns a pad next to the player
-on the host and prints every pad with its destination.
+save (`Save`/`Load`). `hwp campaign teleporter [dx dy]` spawns a pad at the player's
+position on the host, with its destination dx,dy away (default 200,0), and replies with
+that one pad.
 
 | Setting | Default | What |
 |---|---|---|

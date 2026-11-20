@@ -164,6 +164,8 @@ keys module, a catch can bring up a key of any tier, ace keys included.
   `fishing.catch`: the host spawns `hwp_fishing_run_<tier>` loot for the catcher
   alone (`SpawnCatchLoot`), maybe a key pickup, and sends the catcher
   `fishing.landed` (fish + item level + key tier) for the fish itself.
+  Closing the window mid-cast loses nothing: the cast stays pending
+  (`g_castPending`) and the bite is taken when the window is reopened.
 - Fishing spots, holes and full traps show a fish icon on the minimap
   (`gui/hwp/map_icons.png` from hwplib, made by `tools/generate/make_map_icons.py`).
 - **The twinkle** (2026-11-06, "add a twinkle to the fishing"). Every 1.8-3.4 s each fishing

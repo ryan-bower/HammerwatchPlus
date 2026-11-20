@@ -256,7 +256,19 @@ def write_save(path: Path, data: bytes, hdr: Header) -> Path:
             except OSError:
                 pass  # retain the original copy/flush error; no save mutation
             raise
-    path.write_bytes(new)
+    tmp = path.with_name(path.name + ".tmp")  # not `*.hps`, so slot_files() never sees it
+    try:
+        with tmp.open("wb") as target:
+            target.write(new)
+            target.flush()
+            os.fsync(target.fileno())
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
+        raise
     return backup
 
 

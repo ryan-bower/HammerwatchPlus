@@ -352,6 +352,8 @@ def run_pool(names, *, label, workers=2, dry_run=False, catalog=None, catalog_sh
     if catalog is not None and catalog_sha256 is None:
         raise ValueError("an explicit catalog requires --catalog-sha256")
     catalog_path = Path(catalog) if catalog is not None else DEFAULT_CATALOG if os.path.lexists(DEFAULT_CATALOG) else None
+    if catalog is None and catalog_path is not None and catalog_sha256 is None and not dry_run:
+        raise ValueError("the default catalog requires --catalog-sha256 for a non-dry run")
     if catalog_sha256 is not None and catalog_path is None:
         raise ValueError("--catalog-sha256 requires a catalog")
     catalog_value = catalog_raw = None

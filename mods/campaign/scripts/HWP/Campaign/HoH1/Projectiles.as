@@ -308,6 +308,7 @@ class HoH1SteeringRayProjectile : RayProjectile
 	float m_dirOffset;
 	float m_speedOffset;
 	bool m_disableSteerOnBounce;
+	bool m_steerStopped;
 
 	HoH1SteeringRayProjectile(UnitPtr unit, SValue& params)
 	{
@@ -318,7 +319,16 @@ class HoH1SteeringRayProjectile : RayProjectile
 			@m_dirSteering = GetDynamicExpression(dirSteer);
 		if (!speedSteer.isEmpty())
 			@m_speedSteering = GetDynamicExpression(speedSteer);
-		m_disableSteerOnBounce = m_bounces > 0 && GetParamBool(unit, params, "disable-steer-on-bounce", false, false);
+	}
+
+	void Initialize(Actor@ owner, ProjectileTarget@ target, float intensity, bool husk, uint weapon) override
+	{
+		// pooled: start every flight from scratch; m_bounces is only valid after the base Initialize
+		m_dirOffset = 0;
+		m_speedOffset = 0;
+		m_steerStopped = false;
+		RayProjectile::Initialize(owner, target, intensity, husk, weapon);
+		m_disableSteerOnBounce = m_bounces > 0 && GetParamBool(m_unit, m_params, "disable-steer-on-bounce", false, false);
 	}
 
 	vec2 GetDirection() override { return addrot(m_dir, m_dirOffset); }
@@ -336,8 +346,7 @@ class HoH1SteeringRayProjectile : RayProjectile
 		RayProjectile::OnBounce(pos);
 		if (m_disableSteerOnBounce)
 		{
-			@m_dirSteering = null;
-			@m_speedSteering = null;
+			m_steerStopped = true;
 		}
 	}
 
@@ -351,9 +360,9 @@ class HoH1SteeringRayProjectile : RayProjectile
 			return;
 		}
 
-		if (m_dirSteering !is null)
+		if (!m_steerStopped && m_dirSteering !is null)
 			m_dirOffset = m_dirSteering.Evaluate(m_unit);
-		if (m_speedSteering !is null)
+		if (!m_steerStopped && m_speedSteering !is null)
 			m_speedOffset = m_speedSteering.Evaluate(m_unit);
 
 		SetDirection(m_dir);

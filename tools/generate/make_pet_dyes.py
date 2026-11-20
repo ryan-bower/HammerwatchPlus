@@ -391,6 +391,9 @@ def main(argv=None) -> int:
         print("pet dyes: " + ("; ".join(bad) if bad else "complete and current"))
         return 1 if bad else 0
 
+    if not BASE.is_dir() or not any(source(rel) for rel, _ in PETS.values()):
+        print(f"pet dyes: no source units under {BASE} or {PETS_DIR}; run tools/bootstrap.py first (nothing written)")
+        return 2
     write_parts_as()
     classed = write_class_units()
     for d in (OUT, OUT_BASE):

@@ -124,7 +124,8 @@ uv run python tools/qa_batch.py --workers 2 --catalog docs/qa/swarm/catalogs/sta
 ```
 
 Listing is structural discovery; `--case` validates current selected files.
-Explicit execution requires the reviewed catalog's exact SHA256. The coordinator
+Explicit execution requires the reviewed catalog's exact SHA256, including when the
+implicit default `docs/qa/swarm/case_catalog.json` exists (dry runs may still load it unpinned). The coordinator
 freezes its bytes to `catalog.snapshot.json`, authenticates that snapshot to both
 children, and retains each scenario's exact bytes and raw bot-result hashes.
 Declared consumer rows must all exist exactly once and pass; aggregate `ok`

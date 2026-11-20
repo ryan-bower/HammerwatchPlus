@@ -153,9 +153,10 @@ class HoH1JumpStrike : HoH1Skill
 	void Started() {}
 
 	// stop moving and land; with `finished` the finish- effects play
-	void Reset(bool finished)
+	// (`landing`: the flight ran out, so the counters are already spent)
+	void Reset(bool finished, bool landing = false)
 	{
-		bool was = IsCasting();
+		bool was = landing || IsCasting();
 		m_cooldownC = m_cooldown;
 		m_preCastC = 0;
 		m_castingC = 0;
@@ -175,14 +176,19 @@ class HoH1JumpStrike : HoH1Skill
 	}
 
 	// the flight ended on its own
-	void Landed() { CancelSkill(); }
+	void Landed()
+	{
+		Reset(true, true);
+		if (Network::IsServer())
+			UnitHandler::NetSendUnitUseSkill(m_unit, m_id, 1);
+	}
 
 	void NetUseSkill(int stage, SValue@ param) override
 	{
 		if (stage == 0)
 			Start(ParamDir(param));
 		else if (stage == 1)
-			Reset(true);
+			Reset(true, true);
 	}
 
 	void OnCollide(UnitPtr unit, vec2 normal) override
@@ -326,7 +332,8 @@ class HoH1ChargeStrike : HoH1JumpStrike
 	{
 		if (m_animStop is null)
 		{
-			CancelSkill();
+			m_stoppingC = 0;
+			HoH1JumpStrike::Landed();
 			return;
 		}
 		Stop();
@@ -335,7 +342,7 @@ class HoH1ChargeStrike : HoH1JumpStrike
 
 	void Stop()
 	{
-		Reset(true);
+		Reset(true, true);
 		m_cooldownC = m_cooldown;
 		m_stoppingC = max(1, m_behavior.SetUnitScene(m_animStop.GetSceneName(atan(m_dir.y, m_dir.x)), true));
 	}

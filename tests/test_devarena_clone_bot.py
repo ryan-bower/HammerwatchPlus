@@ -52,3 +52,13 @@ def test_clone_failure(tmp_path, monkeypatch):
     monkeypatch.setattr(bot.clone_spec, "main", lambda argv: 1)
     r = bot.run(P, "ranger_nature", "ranger_test", "Test Warden", results=tmp_path)
     assert r["terminal"] == "clone_failed" and r["code"] == 1
+
+
+def test_clone_system_exit_is_clone_failed(tmp_path, monkeypatch):
+    def refuse(argv):
+        raise SystemExit("bad --id")
+    monkeypatch.setattr(bot, "REPO", tmp_path)
+    monkeypatch.setattr(bot.clone_spec, "main", refuse)
+    r = bot.run(P, "ranger_nature", "ranger_test", "Test Warden", results=tmp_path)
+    assert r["terminal"] == "clone_failed" and r["code"] == 1 and "bad --id" in r["out"]
+    assert "bad --id" in (tmp_path / "clone.out.txt").read_text(encoding="utf-8")

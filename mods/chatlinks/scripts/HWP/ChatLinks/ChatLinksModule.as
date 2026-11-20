@@ -55,7 +55,13 @@ namespace HWP
 			SendSystemMessage("AddChat", b.Build());
 			g_announced++;
 			Linked l;
+			// snapshot, so a later upgrade or rename can't change what the panel shows (remote links are copies too)
 			@l.m_item = item;
+			SValueBuilder snap;
+			Item::SaveItem(snap, item);
+			Item::Item@ copy = Item::LoadItem(snap.Build());
+			if (copy !is null)
+				@l.m_item = copy;
 			g_links.insertLast(l);
 			while (g_links.length() > MAX_LINKS)
 				g_links.removeAt(0);
