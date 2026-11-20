@@ -222,6 +222,15 @@
 					</array>
 				</dict>
 				<dict>
+					<string name="id">shortcuts</string>
+					<bool name="shared">false</bool>
+					<string name="toggle"></string>
+					<bool name="host">true</bool>
+					<bool name="level">true</bool>
+					<array name="settings">
+					</array>
+				</dict>
+				<dict>
 					<string name="id">dummydps</string>
 					<bool name="shared">false</bool>
 					<string name="toggle">dummydps.enabled</string>
