@@ -175,7 +175,8 @@ On the HammerwatchPlus tab of the player menu (`config` in module.json), host-sy
 the vanilla crops come back and the apple tree returns to its place; on a run the wild
 plots hide. The farmer, herb buffs, joints and `hwp farm` / `hwp joint` stop (the status
 line and `hwp farm chance` still answer), crops do not grow on runs, and from the next
-level the can slot and herb cells are hidden. The plots, crops, can and herbs stay in the
+game start the can slot and herb cells are left out (they are set up
+when the game starts, from the local setting, so turning it off mid-session keeps them). The plots, crops, can and herbs stay in the
 save data. The farmer's unit override stays (he stands still with his shop icon on the
 minimap). Turning it back on in town lays the farm out again.
 

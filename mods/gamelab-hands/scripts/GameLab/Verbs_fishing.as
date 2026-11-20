@@ -1,6 +1,6 @@
 // gamelab-hands: verbs the fishing plan checks need (gamelab/bots/plan_fishing.py): the
 // local main hand and bag as items (bagitems), equipping a bag item the way a click on it
-// does (wield), an NPC's shop level (shoplevel), a click on a widget inside another one
+// does (wield), a click on a widget inside another one
 // (pressin: an enchanter entry's own button), a widget's children with their captions
 // (wchildren), button captions (wcaption) and the fishing window's reel, timed off its own
 // bar widgets (sweepclick). The tooltip read is Verbs_farming's tooltip verb.
@@ -105,48 +105,6 @@ namespace GameLab
 		auto old = cast<Equipment::Item>(got);
 		Emit(Reply(id, true).Raw("main", FishItemJson(rec.equipped.m_items[EquippedItemsSlots::MainHand], -1))
 			.Str("replaced", old is null || old.baseItem is null ? "" : old.baseItem.m_id));
-	}
-
-	// shoplevel <filter> <level>: the ShopLevel field (what Use passes to the NPC's
-	// interaction as its shop level; the town's prefabs set it) of the nearest
-	// CompositeActorBehaviorNPC whose unit path contains the filter. A spawned enchanter has
-	// ShopLevel 0, which offers no enchanting.
-	void VerbFishShopLevel(const string &in id, array<string>@ args)
-	{
-		auto plr = GetLocalPlayer();
-		if (plr is null || args.length() < 2)
-		{
-			Fail(id, plr is null ? "no spawned local player" : "usage: shoplevel <filter> <level>");
-			return;
-		}
-		vec2 center = xy(plr.m_unit.GetPosition());
-		auto units = g_scene.FetchAllUnits(~0, center, 3000);
-		CompositeActorBehaviorNPC@ best = null;
-		UnitPtr bestUnit;
-		float bestDist = 0;
-		for (uint i = 0; i < units.length(); i++)
-		{
-			if (!units[i].IsValid() || units[i].IsDestroyed() || units[i].GetDebugName().findFirst(args[0]) < 0)
-				continue;
-			auto npc = cast<CompositeActorBehaviorNPC>(units[i].GetScriptBehavior());
-			if (npc is null)
-				continue;
-			float d = dist(center, xy(units[i].GetPosition()));
-			if (best is null || d < bestDist)
-			{
-				@best = npc;
-				bestUnit = units[i];
-				bestDist = d;
-			}
-		}
-		if (best is null)
-		{
-			Fail(id, "no NPC matching '" + args[0] + "'");
-			return;
-		}
-		int before = best.ShopLevel;
-		best.ShopLevel = int(parseInt(args[1]));
-		Emit(Reply(id, true).Str("unit", bestUnit.GetDebugName()).Int("before", before).Int("level", best.ShopLevel));
 	}
 
 	AWindowObject@ FishTopWindow()
@@ -571,7 +529,7 @@ namespace GameLab
 	{
 		RegisterVerb("bagitems", "", Verb(VerbFishBagItems));
 		RegisterVerb("wield", "<baseIdFilter>", Verb(VerbFishWield));
-		RegisterVerb("shoplevel", "<filter> <level>", Verb(VerbFishShopLevel));
+		// "shoplevel" is registered by Hands.as (Shop.as VerbShopLevel)
 		RegisterVerb("wcaption", "<widgetId...>", Verb(VerbFishCaption));
 		RegisterVerb("wchildren", "<widgetId> [depth]", Verb(VerbFishChildren));
 		RegisterVerb("pressin", "<parentId> <childId>", Verb(VerbFishPressIn));

@@ -1,6 +1,6 @@
 """Host-side regressions; no game, Steam, or real saves are touched.
 
-    python3 -m unittest gamelab.test_linux -v
+    python3 -m unittest tests.test_linux -v
 """
 import contextlib
 import io

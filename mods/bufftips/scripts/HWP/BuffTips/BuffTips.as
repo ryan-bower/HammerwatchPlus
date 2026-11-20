@@ -495,7 +495,15 @@ class HWPBuffTipsHUD : HUDComponent
 		auto info = w.m_buff;
 		int left = info.GetBuffIconDuration();
 		// no countdown for permanent buffs (kept up by script, e.g. Heroic Legacy)
-		int secs = (left > 0 && left < 3600000 && info.GetBuffIconMaxDuration() > 0) ? int(ceil(left / 1000.0f)) : 0;
+		// and none for count-based stacks, whose "duration" is the stack count
+		bool isTimer = true;
+		auto stackedBuff = cast<ActorBuffStacked>(info);
+		if (stackedBuff !is null && stackedBuff.m_def !is null && !stackedBuff.m_def.m_displayTimerRadius)
+			isTimer = false;
+		auto stackSkill = cast<Skills::StackSkill>(info);
+		if (stackSkill !is null && stackSkill.m_timer == -1)
+			isTimer = false;
+		int secs = (isTimer && left > 0 && left < 3600000 && info.GetBuffIconMaxDuration() > 0) ? int(ceil(left / 1000.0f)) : 0;
 		int count = info.GetBuffIconCount();
 		if (info is m_tipBuff && secs == m_tipSecs && count == m_tipCount)
 			return;

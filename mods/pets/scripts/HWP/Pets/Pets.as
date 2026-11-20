@@ -690,7 +690,7 @@ namespace HWP
 				else if (kind == Skill::Smash)
 				{
 					auto brk = cast<Breakable>(u.GetScriptBehavior());
-					if (brk is null)
+					if (brk is null || IsSecretWall(u))
 						continue;
 					DamageInfo di(attacker);
 					di.PhysicalDamage = 60;
@@ -915,7 +915,7 @@ namespace HWP
 						{
 							if (!units[i].IsValid() || units[i].IsDestroyed())
 								continue;
-							if (cast<Breakable>(units[i].GetScriptBehavior()) is null)
+							if (cast<Breakable>(units[i].GetScriptBehavior()) is null || IsSecretWall(units[i]))
 								continue;
 							ids.insertLast(units[i].GetId());
 						}
@@ -1673,6 +1673,7 @@ namespace Modules
 			HWP::Pets::RefreshSettings();
 			HWP::Pets::ResetHost();
 			HWP::Pets::ResetSecrets();
+			HWP::Pets::g_awayWarned = false;
 			HWP::Pets::g_bowlUnit = UnitPtr();
 			HWP::Pets::g_bowlReady = false;
 			HWP::PetDye::Start();

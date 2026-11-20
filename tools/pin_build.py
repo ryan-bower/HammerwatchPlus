@@ -71,7 +71,7 @@ def main(argv=None) -> int:
     now = live()
     pin = {
         **now,
-        "game_version": "Build 170",
+        "game_version": "unknown",  # the launcher passes "unknown" and reports the log's Build N; set it by hand
         "engine": "Crackshell custom C++ (bgfx, SDL2, FMOD, Box2D, ozz) + AngelScript",
         "pinned_at": time.strftime("%Y-%m-%d"),
         "pinned_by": a.reason,

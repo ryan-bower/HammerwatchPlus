@@ -31,7 +31,8 @@ WARN = r"\[HWP:hoh1\] warning: "
 
 class Checks(HoH1Checks):
     def fake(self, what):
-        rep = self.hwp(f"hoh1 fake {what}", 0.5, until="hoh1 fake")
+        # the console echoes the command line, so wait for the mod's reply text ("hoh1 fake: ...")
+        rep = self.hwp(f"hoh1 fake {what}", 0.5, until="hoh1 fake: off" if what == "clear" else "hoh1 fake: a lab peer")
         time.sleep(1.5)   # a few core ticks: the peer list, the verdict, the warnings
         return rep
 

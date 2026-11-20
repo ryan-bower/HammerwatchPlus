@@ -377,7 +377,8 @@ class Run:
         code = game.stop()
         logs = self.results / "logs"
         logs.mkdir(exist_ok=True)
-        shutil.copy2(game.log_path, logs / f"pass{self.passes}.HWR2.exe.log")
+        if game.log_path.exists():      # a start() that failed before launch left no log
+            shutil.copy2(game.log_path, logs / f"pass{self.passes}.HWR2.exe.log")
         self.check_console(game)
         shim = game.game_dir / "gamelab_capture.log"
         if shim.exists():
@@ -1181,6 +1182,8 @@ class Run:
                 out["mods_under_test"] = extra
             self.recipe, self.extra = fixture["recipe"], extra
             if "plan" in self.scenario:
+                raise GameError("plan scenarios have no in-engine side in this repo (Plan.as is absent "
+                                "from mods/gamelab-pilot); see mods/gamelab-pilot/README.md")
                 self.plan = self.plan_steps(fixture["recipe"])
                 write_plan([f"{st['at']}|{st['name']}|{st['line']}" for st in self.plan])
                 out["plan_lines"] = len(self.plan)

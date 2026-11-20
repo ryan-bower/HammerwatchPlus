@@ -16,7 +16,7 @@ The HoH1 classes' atlases are committed placeholders; when the local HoH1 art is
 (mods/classes/hoh1art/), the same sheet cut from it is written as icons.local.png
 (git-ignored), which the planner serves instead.
 Needs gamecode/ (python -m gamelab doctor) for the vanilla atlases."""
-import json, re, sys, glob
+import json, os, re, sys, glob
 from pathlib import Path
 from PIL import Image
 
@@ -124,11 +124,18 @@ def sheet(overlay):
 
 
 web = REPO / "planner/web"
-sheet(False).save(web / "icons.png", optimize=True)
 local = any((OVERLAY / rel).exists() for rel, _ in cells)
+sheet(False).save(web / "icons.tmp.png", optimize=True, format="PNG")
 if local:
-    sheet(True).save(web / "icons.local.png", optimize=True)
-json.dump({"cell": 24, "cols": COLS, "icons": {i: index[(p, r)] for i, (p, r) in sorted(found.items())}},
-          open(web / "icons.json", "w"), separators=(",", ":"))
+    sheet(True).save(web / "icons.local.tmp.png", optimize=True, format="PNG")
+with open(web / "icons.tmp.json", "w") as f:
+    json.dump({"cell": 24, "cols": COLS, "icons": {i: index[(p, r)] for i, (p, r) in sorted(found.items())}},
+              f, separators=(",", ":"))
+os.replace(web / "icons.tmp.png", web / "icons.png")
+if local:
+    os.replace(web / "icons.local.tmp.png", web / "icons.local.png")
+else:
+    (web / "icons.local.png").unlink(missing_ok=True)   # a stale sheet would be served against the new icons.json
+os.replace(web / "icons.tmp.json", web / "icons.json")
 print(len(want), "wanted,", len(found), "found,", len(cells), "cells", "(and icons.local.png from the HoH1 art)" if local else "")
 print("missing:", missing)

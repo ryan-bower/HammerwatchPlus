@@ -35,6 +35,7 @@ namespace GameLab
 		}
 		if (skill is null)
 		{
+			g_fails++; // setup counts an ok=false reply as a failed line
 			Emit(Reply(id, false).Str("error", "no skill " + args[0]).Raw("skills", StrArray(ids)));
 			return;
 		}

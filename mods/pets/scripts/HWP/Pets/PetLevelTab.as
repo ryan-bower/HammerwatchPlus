@@ -85,7 +85,12 @@ namespace HWP
 		void Tick()
 		{
 			if (!HWP::Pets::g_enabled)
+			{
+				if (g_text !is null)
+					g_text.m_visible = false;
+				g_layoutKey = "";
 				return;
+			}
 			auto tab = OpenTab();
 			if (tab is null)
 			{

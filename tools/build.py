@@ -343,6 +343,22 @@ def library_stamp(mods: list[dict]) -> str:
     return h.hexdigest()[:12]
 
 
+def package_content(mods: list[dict], riders: list[dict] = ()) -> str:
+    """One hash over the files a package ships from these modules, as a release packs them (no
+    `local` content; a beta rider's all of it). Two builds from different commits carry the same
+    package exactly when this matches, so HWP::Builds can call a source build of the released
+    files the same update. Hashed like library_stamp: sources, line endings normalised."""
+    h = hashlib.sha256()
+    for m, with_local in sorted([(m, False) for m in mods] + [(r, True) for r in riders], key=lambda x: x[0]["id"]):
+        info = Path(m["dir"]) / "info.xml"  # not a packed file: it becomes the archive's meta
+        files = [("info.xml", info)] if info.is_file() else []
+        for rel, fp in files + list(module_files(m, with_local)):
+            h.update(f"{m['id']}/{rel}\0".encode())
+            h.update(_comparable(rel, fp.read_bytes()))
+            h.update(b"\0")
+    return h.hexdigest()[:12]
+
+
 STAMP_FILE = "scripts/HWP/Core/LibStamp.as"
 
 # The HoH1 import's fingerprint (issue #123): hwplib's HWP::HoH1 reads it and every player sends it
@@ -578,7 +594,11 @@ def main(argv=None):
             riding = entries_of(rider, True)
             add_entries(entries, riding, f"{PACKAGE_PREFIX}{p['id']}.bin", rider["id"])
             print(f"  beta: {PACKAGE_PREFIX}{p['id']}.bin carries {rider['id']} ({len(riding)} files); do not publish it")
-        add_entries(entries, stamp_entries(p["id"], stamp, args.store, update), f"{PACKAGE_PREFIX}{p['id']}.bin", "build.py")
+        # "<date> <commit>[+] #<content>": HWP::Builds compares the content, the rest is for people
+        content = package_content([by_id[mid] for mid in p["closure"]],
+                                  [r for r in beta if r["beta_into"] in p["closure"]])
+        add_entries(entries, stamp_entries(p["id"], stamp, args.store, f"{update} #{content}"),
+                    f"{PACKAGE_PREFIX}{p['id']}.bin", "build.py")
         if local:
             print(f"  note: {PACKAGE_PREFIX}{p['id']}.bin contains locally generated content; do not publish it")
         meta.update({"author": AUTHOR, "name": p["name"], "description": p["description"]})

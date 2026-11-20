@@ -659,8 +659,8 @@ namespace HWP
 					SpawnKey(vec2(HWP::SV::Float(data, "x"), HWP::SV::Float(data, "y")), tier);
 				return;
 			}
-			// the boss drops are once per level for the whole lobby, whoever
-			// landed the killing blow (every killer's machine asks)
+			// a successful boss roll drops once per level for the whole lobby (every
+			// killer's machine rolls on its own and asks on success)
 			if (boss)
 			{
 				int level = CurrentLevel();
@@ -732,7 +732,7 @@ namespace HWP
 
 		// Server. Half of the ace chests give every player in the lobby their
 		// own (instanced) legendary; the other half an epic piece of equipment
-		// from the regular table on top of the chest's own loot.
+		// from the regular table on top of the ace table and the chest's own loot.
 		void SpawnAceBonus(PlayerBase@ opener, vec3 pos)
 		{
 			if (randf() >= g_legendaryChance)

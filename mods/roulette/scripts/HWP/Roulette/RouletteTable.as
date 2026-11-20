@@ -243,7 +243,7 @@ namespace HWP
 			if (g_myRound != g_round)
 				ForgetBets();
 			g_why = !CanBet() ? ".hwp.roulette.no_betting" : (bet is null || rec is null || chip <= 0) ? ".hwp.roulette.no_bet"
-				: Gold() < chip ? ".hwp.roulette.no_gold" : MyTotal() + chip > MaxStake() ? ".hwp.roulette.no_max" : "";
+				: Gold() < chip ? ".hwp.roulette.no_gold" : chip > MaxStake() - MyTotal() ? ".hwp.roulette.no_max" : "";
 			if (!g_why.isEmpty())
 				return false;
 			g_myRound = g_round;
@@ -335,7 +335,7 @@ namespace HWP
 				if (bet is null || !bet.Covers(g_result))
 					continue;
 				int pay = Payout(g_myStakes[i], bet.odds);
-				won += pay;
+				won = pay > 2000000000 - won ? 2000000000 : won + pay;
 				hits += (hits.isEmpty() ? "" : ", ") + g_myKeys[i] + " " + pay;
 			}
 			auto rec = Me();
@@ -392,8 +392,14 @@ namespace HWP
 		// the host: a player won, tell everyone. The name must be one of the sending peer's
 		// own players (local co-op puts several on one peer), else the peer's first player, so a
 		// client can't announce a win under someone else's name.
+		array<string> g_wonNames; // who was announced, and in which round (once per round each)
+		array<int> g_wonRounds;
+
 		void OnWon(uint8 peer, SValue@ data)
 		{
+			// only while the result shows (the winner's Settle runs when it starts)
+			if (!h_open || h_phase != Phase::Result)
+				return;
 			string sent = HWP::SV::Str(data, "name", "");
 			string name = "?";
 			for (uint i = 0; i < ::g_players.length(); i++)
@@ -409,6 +415,16 @@ namespace HWP
 					break;
 				}
 			}
+			int w = g_wonNames.find(name);
+			if (w >= 0 && g_wonRounds[w] == h_round)
+				return;
+			if (w < 0)
+			{
+				g_wonNames.insertLast(name);
+				g_wonRounds.insertLast(h_round);
+			}
+			else
+				g_wonRounds[w] = h_round;
 			SValueBuilder b;
 			b.PushDictionary();
 			b.PushInteger("peer", int(peer));
@@ -657,7 +673,18 @@ namespace HWP
 					HWP::Commands::Reply("host only");
 					return;
 				}
-				g_forced = parseInt(args[1]);
+				int n = parseInt(args[1]);
+				if (n < 0 || n >= NUMBERS)
+				{
+					HWP::Commands::Reply("pick 0 to " + (NUMBERS - 1));
+					return;
+				}
+				if (h_phase != Phase::Betting)
+				{
+					HWP::Commands::Reply("only while bets are open");
+					return;
+				}
+				g_forced = n;
 				g_spinNow = true;
 				HWP::Commands::Reply("the ball lands on " + g_forced);
 				return;

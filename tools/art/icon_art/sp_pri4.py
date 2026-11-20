@@ -81,7 +81,9 @@ if __name__ == "__main__":
     elif a[:1] == ["--pick"]:
         for k, v in json.loads(Path(a[1]).read_text(encoding="utf-8")).items():
             c = v.get("choice") if isinstance(v, dict) else v
-            if c in ("a", "b", "c"):
+            if k.split(".")[-1] != "hud_heresy_5":
+                print("skip", k, c)
+            elif c in ("a", "b", "c"):
                 save("hud_heresy_5", Image.open(OUT / f"hud_heresy_5_{c}.png").convert("RGBA"))
     else:
         render()

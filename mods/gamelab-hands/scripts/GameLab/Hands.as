@@ -635,6 +635,7 @@ namespace Modules
 			GameLab::RegisterVerb("charflag", "<name>", GameLab::Verb(GameLab::VerbCharFlag));
 			GameLab::RegisterVerb("townflag", "<name> [on|off]", GameLab::Verb(GameLab::VerbTownFlag));
 			GameLab::RegisterVerb("townmoney", "[amount]", GameLab::Verb(GameLab::VerbTownMoney));
+			GameLab::RegisterVerb("townpreset", "<0..100>", GameLab::Verb(GameLab::VerbTownPreset));
 			GameLab::RegisterVerb("subclass", "<classId>", GameLab::Verb(GameLab::VerbSubclass));
 			GameLab::RegisterVerb("classskills", "<classId>", GameLab::Verb(GameLab::VerbClassSkills));
 			GameLab::RegisterVerb("skill", "<skillId> [times] [combo]", GameLab::Verb(GameLab::VerbSkill));
@@ -657,7 +658,6 @@ namespace Modules
 			GameLab::Register_specs();
 			GameLab::Register_qa_resources();
 			GameLab::Register_qa_actor_buffs();
-			GameLab::Register_qa_routeleg();
 			GameLab::Register_qa_input_sequence();
 			GameLab::Register_qa_input_target();
 			GameLab::Register_qa_pose_frame();

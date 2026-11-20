@@ -37,6 +37,7 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -122,6 +123,28 @@ def deploy_prod(packages: list[str], dry_run: bool, beta: bool = False, with_loc
     if r.returncode:
         return r.returncode
     target.mkdir(exist_ok=True)
+    staged = []
+    for src, dst in plan:
+        tmp = dst.with_name(dst.name + ".tmp")
+        try:
+            shutil.copy2(src, tmp)
+        except PermissionError:
+            for t in staged + [tmp]:
+                t.unlink(missing_ok=True)
+            print(f"REFUSED: cannot write beside {dst}: the game is holding it open. Close Heroes of Hammerwatch II "
+                  "and deploy again")
+            return 3
+        staged.append(tmp)
+    for tmp, (src, dst) in zip(staged, plan):
+        try:
+            os.replace(tmp, dst)
+        except PermissionError:
+            for t in staged:
+                t.unlink(missing_ok=True)
+            print(f"REFUSED: cannot replace {dst}: the game is holding it open. Close Heroes of Hammerwatch II "
+                  "and deploy again")
+            return 3
+        print(f"deployed {dst}")
     for p in stale:
         try:
             p.unlink()
@@ -130,14 +153,6 @@ def deploy_prod(packages: list[str], dry_run: bool, beta: bool = False, with_loc
                   "and deploy again")
             return 3
         print(f"removed {p}")
-    for src, dst in plan:
-        try:
-            shutil.copy2(src, dst)
-        except PermissionError:
-            print(f"REFUSED: cannot replace {dst}: the game is holding it open. Close Heroes of Hammerwatch II "
-                  "and deploy again")
-            return 3
-        print(f"deployed {dst}")
     print(RELOAD)
     return 0
 

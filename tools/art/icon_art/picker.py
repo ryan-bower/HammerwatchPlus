@@ -65,10 +65,12 @@ def firearms_r2_group():
     """Round 2: ids firearms2.<name>, so the round-1 picks (firearms.<name>) stay as they are."""
     import fa_r2
     d = HERE / "out" / "firearms_r2"
-    r1 = json.loads((HERE / "out" / "picks_r1.json").read_text(encoding="utf-8"))
+    p1 = HERE / "out" / "picks_r1.json"
+    r1 = json.loads(p1.read_text(encoding="utf-8")) if p1.exists() else {}
     items = []
     for n in sorted(fa_r2.FA_R2):
-        imgs = {k: uri(Image.open(d / f"{n}_{k}.png")) for k in ("a", "b", "c", "now")}
+        imgs = {k: uri(Image.open(d / f"{n}_{k}.png")) for k in ("a", "b", "c", "now")
+                if k != "now" or (d / f"{n}_{k}.png").exists()}
         choice, note = r1.get(n, ["", ""])
         desc = f"Round 1: you picked {R1[choice]}" + (f'; "{note}"' if note else "") + "."
         if n.endswith("_hud"):

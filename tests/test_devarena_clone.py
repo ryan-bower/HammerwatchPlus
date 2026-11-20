@@ -48,7 +48,15 @@ def test_plain_clone_keeps_shared_skills_and_renames_own(tmp_path):
     t = skill(tmp_path)
     assert ">nature_entangle_heal<" not in t and ">hwp_ranger_test_nature_entangle_heal<" in t
     assert json.loads((mod / "module.json").read_text())["requires"] == ["hwplib", "hwplib-classui"]
+    assert json.loads((mod / "module.json").read_text())["local_only"] is True
     assert "Test Warden" in (mod / "res/language/english/hwp_spec_ranger_test.lang").read_text(encoding="utf-8")
+
+
+def test_generated_module_is_local_only_and_docs_name_the_real_requires():
+    # Runs without gamecode/: build.py rejects a spec module that is in no package unless local_only.
+    src = Path(clone_spec.__file__).read_text(encoding="utf-8")
+    assert '"local_only": True' in src
+    assert "requires core" not in src and "requires HWP Core" not in src
 
 
 @pytest.mark.needs_gamecode
@@ -96,11 +104,12 @@ def test_compose_without_its_dict_line_is_refused(tmp_path):
     assert run(tmp_path / "out", "--log", str(log)) == 1
 
 
+@pytest.mark.needs_gamecode
 def test_a_base_class_is_not_a_subclass(tmp_path):
     try:
         clone_spec.main(["--from", "ranger", "--id", "x", "--name", "X", "--out", str(tmp_path)])
     except SystemExit as e:
-        assert "subclass" in str(e)
+        assert "has no parent" in str(e)
     else:
         raise AssertionError("cloned a base class")
 

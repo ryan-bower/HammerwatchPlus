@@ -172,4 +172,5 @@ def run(p, sections="dealer,end", **_):
         c.gambler()
     if "end" in want:
         c.end()
+    c.out["notes"] = c.notes
     return c.out

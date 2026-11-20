@@ -172,7 +172,10 @@ namespace HWP
 				return;
 			pb.ResetPet(); // SetPetType: the others re-make their copy too
 			if (PetOut(pb))
+			{
 				Smoke(pb.m_pet.m_unit);
+				HWP::Pets::SendLevel(rec); // the family is read from the live pet
+			}
 			HWP::Log("pets", "courier: the pet is back");
 			HWP::Commands::Reply(Resources::GetString(".hwp.pets.courier.back"));
 		}

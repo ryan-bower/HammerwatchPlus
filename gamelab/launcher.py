@@ -298,8 +298,8 @@ def _run(scenario_path: Path, scenario_name: str, scenario: dict, mode: str, dri
     report = fg.report()
     if mode == "lab":
         # every switch is listed; only one the user's own input does not explain invalidates
-        outer("focus never left the user's window", not report["unexplained"], json.dumps(report))
-        outer("no game-tree window on the input desktop", report["window_scans"] > 0 and not report["game_windows_on_input_desktop"],
+        outer("focus never left the user's window", not report["unexplained"] and not report.get("error"), json.dumps(report))
+        outer("no game-tree window on the input desktop", report["window_scans"] > 0 and not report["game_windows_on_input_desktop"] and not report.get("error"),
               f"{report['window_scans']} scans, leaks {report['game_windows_on_input_desktop']}")
     else:
         # watch: the window is visible and the human may click it, but from launch to the
@@ -324,7 +324,7 @@ def _run(scenario_path: Path, scenario_name: str, scenario: dict, mode: str, dri
         verdict = "FAIL"
     else:
         verdict = "PASS"
-    dirty = [f"{a['name']}: {a['detail']}" for a in assertions if a["name"].endswith("exited cleanly") and not a["ok"]]
+    dirty = [f"{a['name']}: {a['detail']}" for a in assertions if (a["name"].endswith("exited cleanly") or a["name"] == "owned worker job fully exited") and not a["ok"]]
     if aborted:
         pass                                   # a runner cut short by Ctrl+C has no full inner.json by design
     elif not (results / "inner.json").exists():

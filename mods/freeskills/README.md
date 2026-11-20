@@ -24,7 +24,8 @@ sells them back for free (issue #78).
     level's sval cost against the free points. `GetItems` marks that level cost 0 and
     buyable.
   - **The cost shown.** The window reads costs from the skill's level costs, so while it
-    draws, the free levels read 0.
+    draws, the free levels read 0. The hover tooltip is built outside the draw and still
+    prints the level's sval cost (usually 1); the cost charged is 0.
   - **Saves.** A save keeps the negative pick, but `PlayerRecord.Load` clamps it to 0, so the
     `PlayerRecordLoad` hook puts it back.
   - **Without the mod.** With the mod removed, the skills load learned, as vanilla has them.

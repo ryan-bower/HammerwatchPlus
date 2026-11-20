@@ -44,7 +44,8 @@ def run(p, levels=(1, 12), ms=15000, only=""):
     g.console("e_cheats 1")
     time.sleep(0.3)
     gl("char", "hwp_firearms", "Bench", timeout=60)
-    g.wait_gl(lambda o: o.get("ev") == "hb" and o.get("phase") == "town", 60, fresh=True)
+    if not g.wait_gl(lambda o: o.get("ev") == "hb" and o.get("phase") == "town", 60, fresh=True):
+        raise RuntimeError("bench_weapons: no town heartbeat after the char verb")
     time.sleep(2)
     g.console("e_cheats 1")
     time.sleep(0.3)
@@ -81,5 +82,17 @@ def run(p, levels=(1, 12), ms=15000, only=""):
             rows.append(row)
             print(f"[bench] L{level:<2} {name:9} dps {dps:8.1f} {used}", flush=True)
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / "weapons.json").write_text(json.dumps(rows, indent=1), encoding="utf-8")
+    out = OUT / "weapons.json"
+    saved = rows
+    if only and out.exists():
+        # a partial bench replaces only its own (level, weapon) rows, as bench.save does
+        mine = {(r["level"], r["weapon"]) for r in rows}
+        try:
+            old = json.loads(out.read_text(encoding="utf-8"))
+        except ValueError:
+            old = []
+        saved = [r for r in old if (r.get("level"), r.get("weapon")) not in mine] + rows
+    tmp = out.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(saved, indent=1), encoding="utf-8")
+    tmp.replace(out)
     return {"rows": [{k: r[k] for k in ("level", "weapon", "dps", "attacks")} for r in rows], "count": len(rows)}

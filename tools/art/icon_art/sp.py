@@ -18,7 +18,7 @@ from vm import *
 from motifs import heart, skull, flash
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parents[1]
+REPO = HERE.parents[2]
 OUT = HERE / "out" / "specs"
 OVR = REPO / "art" / "specs" / "override"
 

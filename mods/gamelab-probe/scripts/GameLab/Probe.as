@@ -926,6 +926,55 @@ namespace GameLab
 		Emit(Reply(id, true).Int("count", g_currTownRecord.m_buildings.length()).Raw("buildings", b.Close()));
 	}
 
+	const uint TOWNTIERS_CAP = 64;
+
+	// towntiers: read-only. Every building definition (BuildingDef::Instances, the first
+	// TOWNTIERS_CAP listed) with its tier in my town, v (-1 when unbuilt,
+	// TownRecord.GetVariationOnBuilding), and its last tier, last (m_variations.length() - 1,
+	// read live, so a mod's extra tiers count). built, maxed and unmaxed (built below the last
+	// tier) count every definition; steps is the sum of variation + 1 over the town's buildings
+	// (what "my town num building steps" counts); truncated when definitions were left out.
+	void VerbTownTiers(const string &in id, array<string>@ args)
+	{
+		if (g_myTownRecord is null)
+		{
+			Fail(id, "no town record");
+			return;
+		}
+		array<BuildingManagement::BuildingDef@>@ defs = BuildingManagement::BuildingDef::Instances;
+		Json b;
+		uint listed = 0;
+		int built = 0;
+		int maxed = 0;
+		for (uint i = 0; i < defs.length(); i++)
+		{
+			BuildingManagement::BuildingDef@ def = defs[i];
+			if (def is null)
+				continue;
+			int last = int(def.m_variations.length()) - 1;
+			int v = g_myTownRecord.GetVariationOnBuilding(def.m_idHash);
+			if (v >= 0)
+			{
+				built++;
+				if (v >= last)
+					maxed++;
+			}
+			if (listed < TOWNTIERS_CAP)
+			{
+				Json e;
+				e.Int("v", v).Int("last", last);
+				b.Raw(def.m_id, e.Close());
+				listed++;
+			}
+		}
+		int steps = 0;
+		for (uint i = 0; i < g_myTownRecord.m_buildings.length(); i++)
+			steps += int(g_myTownRecord.m_buildings[i].variation) + 1;
+		Emit(Reply(id, true).Int("count", defs.length()).Int("built", built).Int("maxed", maxed)
+			.Int("unmaxed", built - maxed).Int("steps", steps).Bool("truncated", listed < defs.length())
+			.Raw("buildings", b.Close()));
+	}
+
 	const int FETCHBENCH_REPS = 1000;
 
 	// fetchbench <radius> [reps] [all|foes|units]: measurement. g_scene.FetchAllUnits(~0, ...) (or
@@ -1310,6 +1359,7 @@ namespace GameLab
 			Fail(id, err);
 			return;
 		}
+		SValue@ root = sv; // sv walks down the path; the built tree is ours to Delete() on every exit
 		string path = args.length() > 1 ? args[1] : "";
 		array<string>@ segs = path.length() > 0 ? path.split(".") : array<string>();
 		for (uint i = 0; i < segs.length(); i++)
@@ -1322,12 +1372,14 @@ namespace GameLab
 			{
 				int k = parseInt(segs[i]);
 				auto arr = sv.GetArray();
-				if (k >= 0 && uint(k) < arr.length())
+				// parseInt gives 0 for non-numeric text: require the segment to round-trip
+				if (k >= 0 && ("" + k) == segs[i] && uint(k) < arr.length())
 					@next = arr[k];
 			}
 			if (next is null)
 			{
 				Fail(id, "no '" + segs[i] + "' at path segment " + i + " of '" + path + "'");
+				root.Delete();
 				return;
 			}
 			@sv = next;
@@ -1348,6 +1400,7 @@ namespace GameLab
 		else
 			j.Bool("truncated", true);
 		Emit(j);
+		root.Delete();
 	}
 
 	// selftest-throw: dereferences null on purpose; proves ConsoleGl's catch (playbook 1.4)
@@ -1445,6 +1498,7 @@ namespace GameLab
 		RegisterVerb("controls", "[mapId] [max]", Verb(VerbControls));
 		RegisterVerb("overlays", "", Verb(VerbOverlays));
 		RegisterVerb("buildings", "", Verb(VerbBuildings));
+		RegisterVerb("towntiers", "", Verb(VerbTownTiers));
 		RegisterVerb("clock", "", Verb(VerbClock));
 		RegisterVerb("widgets", "[depth] [root] [type]", Verb(VerbWidgets));
 		RegisterVerb("terrain", "[radius] [step]", Verb(VerbTerrain));

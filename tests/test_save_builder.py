@@ -10,10 +10,11 @@ from pathlib import Path
 from gamelab import hps
 from gamelab.bots import play_profile as profile_bot
 from tools import hwr_archive as hwr, play_profile, profile_seed
-from tools.save_builder import Character, Plan, parse_character, parse_gold, DEFAULT_GOLD, MAX_GOLD
+from tools.save_builder import (Character, Plan, parse_character, parse_gold, DEFAULT_GOLD, DEFAULT_TOWN, MAX_GOLD,
+                                TOWN_PRESETS)
 
 
-def native_profile(records, gold=DEFAULT_GOLD):
+def native_profile(records, gold=DEFAULT_GOLD, town=None):
     def section(value):
         value = dict(value, padding="native records contain substantially more data" * 40)
         raw = hwr.encode_svalue(value)
@@ -22,7 +23,7 @@ def native_profile(records, gold=DEFAULT_GOLD):
 
     seed = play_profile.empty_profile(["gamelab-probe", "gamelab-hands"], "Native")
     header = hps.Header(seed)
-    body = section({"materials": [gold, 0, 0, 0, 0, 0, 0]}) + struct.pack("<I", len(records))
+    body = section({"materials": [gold, 0, 0, 0, 0, 0, 0], **(town or {})}) + struct.pack("<I", len(records))
     for index, record in enumerate(records, 1):
         body += struct.pack("<I", index) + section(record) + struct.pack("<I", 0)
     data = header.encode() + body
@@ -135,6 +136,145 @@ class SaveBuilderTests(unittest.TestCase):
             with mock.patch.object(profile_seed.gamepaths, "GAMECODE", root):
                 self.assertEqual(profile_seed.required_unlocks(Plan(characters=[Character("sorcerer", 15, "Test")])),
                                  ["unlocked_class_sorcerer"])
+
+
+def signed(value):
+    """A HashString as the town saves it: PushInteger, a signed 32-bit integer."""
+    return value - 2**32 if value >= 2**31 else value
+
+
+def town_section(flags=(), buildings=()):
+    return {"flags": [signed(hps.hash_string(f)) for f in flags],
+            "buildings": [{"building-def": signed(hps.hash_string(b)), "plot": 0, "variation": v}
+                          for b, v in buildings]}
+
+
+class TownPresets(unittest.TestCase):
+    PALADIN = Character("paladin", 5, "Pal")
+
+    def test_presets_and_defaults(self):
+        self.assertEqual(list(TOWN_PRESETS), ["vanilla", "starter", "mid", "end"])
+        self.assertEqual(DEFAULT_TOWN, "starter")
+        self.assertEqual(Plan().town, "vanilla")  # a bare Plan keeps the pre-preset behaviour
+        self.assertEqual(TOWN_PRESETS["vanilla"].flags, ())
+        self.assertEqual(TOWN_PRESETS["starter"].flags, ("mission_story_intro_find_npcs",))
+        mid, end = TOWN_PRESETS["mid"], TOWN_PRESETS["end"]
+        self.assertEqual((mid.tiers, end.tiers), (50, 100))
+        self.assertEqual(end.flags, mid.flags + ("mission_story_unlocked_spell_mastery", "beat_dark_citadel"))
+        self.assertEqual(mid.flags[0], "mission_story_intro_find_npcs")
+        for name in ("blacksmith", "enchanter", "architect", "librarian", "dyer", "maps"):
+            self.assertIn("mission_story_unlocked_" + name, mid.flags)
+        # NG+-earned in vanilla (the trainer needs NG+ 1), so End game only
+        self.assertNotIn("mission_story_unlocked_spell_mastery", mid.flags)
+        for name in ("rogue", "sorcerer", "warlock"):
+            self.assertIn("unlocked_class_" + name, mid.flags)
+        for preset in TOWN_PRESETS.values():
+            self.assertEqual(len(preset.flags), len(set(preset.flags)))
+
+    def test_validation(self):
+        for town in TOWN_PRESETS:
+            Plan(characters=[self.PALADIN], town=town).validate()
+        for town in ("vanilla", "starter"):
+            Plan(town=town).validate()
+        for town in ("mid", "end"):
+            with self.subTest(town=town), self.assertRaisesRegex(ValueError, "needs at least one character"):
+                Plan(town=town).validate()
+            Plan(town=town).validate(complete=False)
+        for town in ("", "Mid", "late", None):
+            with self.subTest(town=town), self.assertRaisesRegex(ValueError, "Town must be one of"):
+                Plan(characters=[self.PALADIN], town=town).validate(complete=False)
+
+    def scenario(self, plan, unlocks=()):
+        with mock.patch.object(profile_seed, "required_unlocks", return_value=list(unlocks)):
+            return profile_seed.scenario(plan, ["all"], "town-builder")
+
+    def test_vanilla_setup_is_unchanged(self):
+        scenario = self.scenario(Plan(characters=[self.PALADIN], town="vanilla"), ["unlocked_class_paladin"])
+        setup = scenario["fixture"]["setup"]
+        self.assertEqual([step["verb"] for step in setup], ["levelup", "townflag", "townmoney"])
+        probes = scenario["fixture"]["readback_probes"]
+        self.assertEqual([p["verb"] for p in probes], ["townflag", "townmoney"])
+
+    def test_starter_sets_the_intro_flag_and_builds_nothing(self):
+        scenario = self.scenario(Plan(starting_gold=0, town="starter"))
+        setup = scenario["fixture"]["setup"]
+        self.assertEqual(setup[0], {"verb": "townflag", "args": ["mission_story_intro_find_npcs", "on"],
+                                    "expect": {"ok": True, "value": True}})
+        self.assertNotIn("townpreset", [step["verb"] for step in setup])
+        probes = scenario["fixture"]["readback_probes"]
+        self.assertEqual(probes[0], {"verb": "townflag", "args": ["mission_story_intro_find_npcs"],
+                                     "expect": {"ok": True, "value": True}})
+        self.assertNotIn("towntiers", [p["verb"] for p in probes])
+
+    def test_mid_and_end_flags_are_deduplicated_then_the_preset_runs_then_readback(self):
+        for town, tiers in (("mid", 50), ("end", 100)):
+            with self.subTest(town=town):
+                plan = Plan(characters=[self.PALADIN, Character("rogue", 1, "Rog")], town=town)
+                scenario = self.scenario(plan, ["unlocked_class_rogue"])
+                setup = scenario["fixture"]["setup"]
+                flags = [step["args"][0] for step in setup if step["verb"] == "townflag"]
+                self.assertEqual(flags, ["unlocked_class_rogue",
+                                         *[f for f in TOWN_PRESETS[town].flags if f != "unlocked_class_rogue"]])
+                verbs = [step["verb"] for step in setup]
+                self.assertEqual(verbs.index("townpreset"), len(verbs) - 2)  # after every flag, before gold
+                self.assertEqual(setup[verbs.index("townpreset")],
+                                 {"verb": "townpreset", "args": [tiers],
+                                  "expect": {"ok": True, "pct": tiers, "capped": False}})
+                probes = scenario["fixture"]["readback_probes"]
+                self.assertEqual([p["args"][0] for p in probes if p["verb"] == "townflag"], flags)
+                tiers_probe = next(p for p in probes if p["verb"] == "towntiers")
+                self.assertEqual(tiers_probe["expect"]["truncated"], False)
+                self.assertEqual(tiers_probe["expect"]["buildings.guild_hall.v"], {"between": [1, 99]})
+                self.assertEqual("unmaxed" in tiers_probe["expect"], town == "end")
+                self.assertEqual(probes[-1]["verb"], "townmoney")
+
+    def test_town_in_reads_signed_flags_and_buildings(self):
+        data = native_profile([], town=town_section(["mission_story_intro_find_npcs", "beat_dark_citadel"],
+                                                    [("guild_hall", 4), ("tavern", 1)]))
+        town = play_profile.town_in(data)
+        self.assertEqual(town["flags"], {hps.hash_string("mission_story_intro_find_npcs"),
+                                         hps.hash_string("beat_dark_citadel")})
+        self.assertEqual(town["buildings"], {hps.hash_string("guild_hall"): 4, hps.hash_string("tavern"): 1})
+        self.assertEqual(play_profile.town_in(native_profile([])), {"flags": set(), "buildings": {}})
+        self.assertEqual(play_profile.town_in(play_profile.empty_profile(["x"], "Empty")),
+                         {"flags": set(), "buildings": {}})
+
+    def test_town_in_refuses_malformed_towns(self):
+        good = {"building-def": 1, "plot": 0, "variation": 0}
+        for town in ({"flags": "x"}, {"buildings": {}}, {"flags": [True]}, {"flags": ["a"]},
+                     {"flags": [2**32]}, {"buildings": [None]}, {"buildings": [good | {"variation": -1}]},
+                     {"buildings": [good | {"variation": True}]}, {"buildings": [good | {"building-def": "x"}]},
+                     {"buildings": [good, good]}):
+            with self.subTest(town=town), self.assertRaises(ValueError):
+                play_profile.town_in(native_profile([], town=town))
+
+    def export(self, plan, town):
+        temp = tempfile.TemporaryDirectory(prefix="h1-town-export-")
+        self.addCleanup(temp.cleanup)
+        root = Path(temp.name)
+        (root / "profile.hps").write_bytes(native_profile(
+            [{"class": "paladin", "name": "Pal", "level": 5}], gold=plan.starting_gold, town=town))
+        (root / "run.json").write_text(json.dumps({"verdict": "PASS", "teardown": {"clean": True},
+                                                   "assertions": [{"ok": True}], "partial": False,
+                                                   "build_drift": False, "error": None}))
+        return profile_seed.verified_export(root, plan)
+
+    def test_export_refuses_missing_preset_flags_or_unraised_guild_hall(self):
+        for town in ("starter", "mid", "end"):
+            plan = Plan(characters=[self.PALADIN], town=town)
+            flags = TOWN_PRESETS[town].flags
+            built = [("guild_hall", 4)] if TOWN_PRESETS[town].tiers else []
+            with self.subTest(town=town):
+                self.export(plan, town_section(flags, built))
+                with self.assertRaisesRegex(RuntimeError, flags[-1]):
+                    self.export(plan, town_section(flags[:-1], built))
+            if built:
+                with self.subTest(town=town, guild_hall=0), self.assertRaisesRegex(RuntimeError, "guild hall"):
+                    self.export(plan, town_section(flags, [("guild_hall", 0)]))
+                with self.subTest(town=town, guild_hall=None), self.assertRaisesRegex(RuntimeError, "guild hall"):
+                    self.export(plan, town_section(flags))
+        # the vanilla town needs neither
+        self.export(Plan(characters=[self.PALADIN], town="vanilla"), town_section())
 
 
 class ExportFinality(unittest.TestCase):

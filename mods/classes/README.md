@@ -118,15 +118,16 @@ On the HammerwatchPlus tab of the player menu (`hwp set <key> <value>`; `module.
 
 1. `python -m gamelab run mod-classes --mode lab`: `[HWP:classes] self-check done: 3/3 classes`, no "has N
    subclasses" errors, no missing unit/item lines, no sval errors.
-2. Character creation lists Thief, Gladiator and Witch Hunter with the
-   generated icons; each spawns with its starting weapon.
+2. While `PARKED` is true, character creation must NOT list them (expect them hidden). To
+   test, set `PARKED = false` locally; then creation lists Thief, Gladiator and Witch Hunter
+   with the generated icons and each spawns with its starting weapon.
 3. Thief: knives fan out and hit, grappling hook pulls you, smoke bomb
    blinds, the Sidestep tooltip shows the evade chance.
 4. Gladiator: the trident thrusts (damage numbers), net roots enemies, the
    gladius returns, a pit fighter follows you after ~20 s.
 5. Witch Hunter: the pyre appears and burns enemies next to it for 8 s, a
    hound follows, the ward leaves enemies vulnerable.
-6. Reach the subclass pick for each: three masteries each; the self-buff
+6. (Needs a class pick, so `PARKED = false` locally, or a pre-made character.) Reach the subclass pick for each: three masteries each; the self-buff
    skills show the buff icon on the HUD for the listed duration.
 7. Co-op: a client sees the host's pyre, hounds and knives and vice versa.
 

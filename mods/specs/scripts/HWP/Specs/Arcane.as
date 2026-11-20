@@ -25,7 +25,7 @@
 //   spell cast gets + FEEDBACK_PER_MANA damage per banked mana for FEEDBACK_TIME
 //   (HWPSpecsFeedbackMul, a skill modifier). Mana Conduit (lm-conduit): that share of the mana
 //   lost to damage goes to the teammates, split evenly (through the host: HWP::Net).
-// Everything runs on the sorcerer's own client.
+// Everything runs on the sorcerer's own client (Blink's look is also sent to the teammates).
 namespace HWP
 {
 	namespace Specs
@@ -84,6 +84,7 @@ namespace HWP
 
 		void ClearArcane()
 		{
+			g_poolBar = false;
 			g_lastSpell = 0;
 			g_castIds.removeRange(0, g_castIds.length());
 			g_lastHp = -1;
@@ -371,6 +372,98 @@ namespace HWP
 			}
 		}
 
+		// the look (2026-10-25): the vanish, a bead trail along the skipped path, the arrival.
+		// Played on the sorcerer's client and, through SendBlink, on every teammate's
+		int BlinkFx(vec2 from, vec2 at, vec2 dir, float radius)
+		{
+			int fx = 0;
+			PlayEffect(FX + "blink_out.effect", from);
+			fx++;
+			float gone = dist(from, at);
+			for (float d = BLINK_TRAIL_STEP; d < gone; d += BLINK_TRAIL_STEP)
+			{
+				PlayEffect(FX + "blink_trail.effect", from + dir * d);
+				fx++;
+			}
+			PlayEffect(FX + "blink_in.effect", at);
+			fx++;
+			// sounds picked in the audio picker (art/specs/AUDIO.md); the vanish at twice the volume, as asked
+			PlayEffect("effects/generic/other/arcane/magic_blink.effect", from);
+			auto vanish = Resources::GetSoundEvent("event:/sfx/actors/undead/shade/shade/shade_blink_out");
+			if (vanish !is null)
+			{
+				SoundInstance@ si = vanish.PlayTracked(xyz(from));
+				si.SetVolume(2.0f);
+				si.SetPaused(false);
+			}
+			PlayEffect("effects/generic/other/arcane/magic_blink.effect", at);
+			dictionary ps = { { "radius", radius } };
+			PlayEffect("effects/generic/explosions/arcane_explosion_1.effect", at, ps);
+			PlaySound3D(Resources::GetSoundEvent("event:/sfx/actors/undead/shade/shade/shade_blink_in"), xyz(at));
+			return fx;
+		}
+
+		// Blink for the teammates (2026-11-16): the sorcerer's client sends where it went, the host
+		// relays it to the other peers, which play the look and put the husk down at the landing.
+		// Visual only: the damage, the recast and the barrier stay on the sorcerer's client
+		void SendBlink(vec2 from, vec2 at, vec2 dir, float radius)
+		{
+			SValueBuilder b;
+			b.PushDictionary();
+			b.PushFloat("fx", from.x);
+			b.PushFloat("fy", from.y);
+			b.PushFloat("ax", at.x);
+			b.PushFloat("ay", at.y);
+			b.PushFloat("dx", dir.x);
+			b.PushFloat("dy", dir.y);
+			b.PushFloat("radius", radius);
+			b.PopDictionary();
+			HWP::Net::Request("specs.blink", b.Build());
+		}
+
+		// host: tell every other live peer
+		void OnBlink(uint8 peer, SValue@ data)
+		{
+			for (uint i = 0; i < g_players.length(); i++)
+			{
+				if (g_players[i].peer == 255 || g_players[i].peer == peer || g_players[i].actor is null)
+					continue;
+				SValueBuilder b;
+				b.PushDictionary();
+				b.PushInteger("peer", int(peer));
+				b.PushFloat("fx", GetParamFloat(UnitPtr(), data, "fx", false, 0));
+				b.PushFloat("fy", GetParamFloat(UnitPtr(), data, "fy", false, 0));
+				b.PushFloat("ax", GetParamFloat(UnitPtr(), data, "ax", false, 0));
+				b.PushFloat("ay", GetParamFloat(UnitPtr(), data, "ay", false, 0));
+				b.PushFloat("dx", GetParamFloat(UnitPtr(), data, "dx", false, 0));
+				b.PushFloat("dy", GetParamFloat(UnitPtr(), data, "dy", false, 0));
+				b.PushFloat("radius", GetParamFloat(UnitPtr(), data, "radius", false, 20));
+				b.PopDictionary();
+				HWP::Net::Send(g_players[i].peer, "specs.blink_seen", b.Build());
+			}
+		}
+
+		// a teammate blinked: play the look and move its husk to where it landed
+		void OnBlinkSeen(SValue@ data)
+		{
+			int peer = GetParamInt(UnitPtr(), data, "peer", false, -1);
+			if (peer < 0 || peer == Lobby::GetLocalPeer())
+				return;
+			vec2 from = vec2(GetParamFloat(UnitPtr(), data, "fx", false, 0), GetParamFloat(UnitPtr(), data, "fy", false, 0));
+			vec2 at = vec2(GetParamFloat(UnitPtr(), data, "ax", false, 0), GetParamFloat(UnitPtr(), data, "ay", false, 0));
+			vec2 dir = vec2(GetParamFloat(UnitPtr(), data, "dx", false, 0), GetParamFloat(UnitPtr(), data, "dy", false, 0));
+			float radius = GetParamFloat(UnitPtr(), data, "radius", false, 20);
+			for (uint i = 0; i < g_players.length(); i++)
+			{
+				if (int(g_players[i].peer) != peer || g_players[i].actor is null || g_players[i].actor.IsDead())
+					continue;
+				auto unit = g_players[i].actor.m_unit;
+				unit.SetPosition(xyz(at, unit.GetPosition().z));
+				break;
+			}
+			BlinkFx(from, at, dir, radius);
+		}
+
 		// mana lost to damage (attacker null: damage over time from a buff)
 		void Drain(PlayerBase@ plr, Actor@ attacker, float lost)
 		{
@@ -561,31 +654,8 @@ class HWPSpecsBlink : IEffect
 		plr.m_unit.SetPosition(xyz(path.m_at, was.z));
 		vec2 at = xy(plr.m_unit.GetPosition());
 		float radius = HWP::Specs::BindF(plr, HWP::Specs::BLINK, "bl-radius", 20);
-		// the look (2026-10-25): the vanish, a bead trail along the skipped path, the arrival
-		int fx = 0;
-		PlayEffect(HWP::Specs::FX + "blink_out.effect", from);
-		fx++;
-		float gone = dist(from, at);
-		for (float d = HWP::Specs::BLINK_TRAIL_STEP; d < gone; d += HWP::Specs::BLINK_TRAIL_STEP)
-		{
-			PlayEffect(HWP::Specs::FX + "blink_trail.effect", from + dir * d);
-			fx++;
-		}
-		PlayEffect(HWP::Specs::FX + "blink_in.effect", at);
-		fx++;
-		// sounds picked in the audio picker (art/specs/AUDIO.md); the vanish at twice the volume, as asked
-		PlayEffect("effects/generic/other/arcane/magic_blink.effect", from);
-		auto vanish = Resources::GetSoundEvent("event:/sfx/actors/undead/shade/shade/shade_blink_out");
-		if (vanish !is null)
-		{
-			SoundInstance@ si = vanish.PlayTracked(xyz(from));
-			si.SetVolume(2.0f);
-			si.SetPaused(false);
-		}
-		PlayEffect("effects/generic/other/arcane/magic_blink.effect", at);
-		dictionary ps = { { "radius", radius } };
-		PlayEffect("effects/generic/explosions/arcane_explosion_1.effect", at, ps);
-		PlaySound3D(Resources::GetSoundEvent("event:/sfx/actors/undead/shade/shade/shade_blink_in"), xyz(at));
+		int fx = HWP::Specs::BlinkFx(from, at, dir, radius);
+		HWP::Specs::SendBlink(from, at, dir, radius);
 
 		float dmg = HWP::Specs::BindF(plr, HWP::Specs::BLINK, "bl-dmg", 25);
 		auto enemies = HWP::Specs::EnemiesNear(at, radius, plr.Team);

@@ -17,6 +17,17 @@ namespace HWP
 			return HWP::Settings::RemoteReady() && HWP::Settings::GetBool("gambler.enabled", true);
 		}
 
+		bool g_cellRegistered = false; // the token cell is registered once per level
+
+		void RegisterTokenCell()
+		{
+			if (g_cellRegistered)
+				return;
+			g_cellRegistered = true;
+			HWP::Materials::Title("a", ".hwp.gambler.supplies");
+			HWP::Materials::Register("a", 0, "hwp-mat-bet-tokens", HWPTokenMaterial());
+		}
+
 		void RefreshSettings()
 		{
 			bool was = g_enabled;
@@ -26,7 +37,10 @@ namespace HWP
 			if (was == g_enabled)
 				return;
 			if (g_enabled)
+			{
 				HWP::Market::SetCurrency(BetTokens());
+				RegisterTokenCell(); // turned on after starting off: the cell was not registered yet
+			}
 			else
 				HWP::Market::SetCurrency(null);
 		}
@@ -83,10 +97,7 @@ namespace Modules
 			HWP::Commands::OnSettingChanged(HWP::Commands::SettingListener(HWP::Gambler::OnSettingChanged));
 			// off: no token cell (the tokens stay in the save data)
 			if (HWP::Gambler::g_enabled)
-			{
-				HWP::Materials::Title("a", ".hwp.gambler.supplies");
-				HWP::Materials::Register("a", 0, "hwp-mat-bet-tokens", HWPTokenMaterial());
-			}
+				HWP::Gambler::RegisterTokenCell();
 		}
 
 		// HWP::Guard (tools/guard_modules.py): a script error here turns this off, not the game

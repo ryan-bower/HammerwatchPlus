@@ -10,7 +10,7 @@ once it dies, the exit portal. A .unit path there leaves the prefab null and thr
 "Null pointer access" when the bar fills, so the champion never came.
 
 This copies the valor trial's spawner (prefabs/heaven/seg_heaven/boss_spawners/
-heaven_warrior_spawner.pfb, read from .base/) with three changes:
+heaven_warrior_spawner.pfb, read from gamecode/sdk/hoh2/) with three changes:
   - SpawnUnit spawns actors/hwp/wave_boss.unit (the spirit warrior without the valor
     stat reward), so arena clears raise only the HWP arena rank;
   - the BossDefeated link no longer fires UnlockAchievement (boss_spirit_warrior) or
@@ -29,7 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import hwr_archive as hwr  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
-SRC = ROOT / ".base/prefabs/heaven/seg_heaven/boss_spawners/heaven_warrior_spawner.pfb"
+SRC = ROOT / "gamecode/sdk/hoh2/prefabs/heaven/seg_heaven/boss_spawners/heaven_warrior_spawner.pfb"
 OUT = ROOT / "mods/wavemode/prefabs/hwp/wave_boss_spawner.pfb"
 VANILLA_BOSS = "actors/bosses/spirits/warrior/boss_spirit_warrior.unit"
 OUR_BOSS = "actors/hwp/wave_boss.unit"
@@ -70,7 +70,7 @@ def main(argv=None) -> int:
     ap.add_argument("--check", action="store_true", help="fail when the committed prefab differs")
     args = ap.parse_args(argv)
     if not SRC.exists():
-        print(f"{SRC.relative_to(ROOT).as_posix()} missing: extract the base game first (tools/extract_base.py)")
+        print(f"{SRC.relative_to(ROOT).as_posix()} missing: run tools/bootstrap.py first")
         return 1
     data = render()
     if args.check:

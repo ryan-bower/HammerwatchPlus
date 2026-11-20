@@ -342,7 +342,7 @@ class Checks(Base):
                 w = self.cast_watch(sid, lambda: self.gl("input", hold(sval), 0, 0, d[0], d[1], btn), secs=1.0)
             tried.append((sid, btn, w["cd"] > 0, w["others"]))
             time.sleep(0.5)
-        self.flag(f"{spec}_own_buttons", len(btns) == len(set(btns)) and all(c and not o for _, _, c, o in tried),
+        self.flag(f"{spec}_own_buttons", len(btns) == len(set(btns)) and bool(tried) and all(c and not o for _, _, c, o in tried),
                   f"active spells {act}; presses (skill, button, cast, others cooled) {tried}")
 
     # --- direction skills: a dummy in the line of fire

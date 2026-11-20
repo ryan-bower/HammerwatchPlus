@@ -515,7 +515,7 @@ namespace DevArena
 			SetMe("mana", !g_infMana);
 		y += row + gap;
 		ui.Text(x, y + 1, "speed", COL_DIM);
-		array<float> speeds = { 1.0f, 1.5f, 2.0f, 4.0f };
+		array<float> speeds = { 0.5f, 1.0f, 1.5f, 2.0f, 4.0f };
 		float sx = x + ui.TextW("speed ") + 4;
 		for (uint i = 0; i < speeds.length(); i++)
 		{

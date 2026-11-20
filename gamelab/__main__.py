@@ -10,8 +10,9 @@ import sys
 import time
 
 def ran_since(since: str, mode: str) -> set[str]:
-    """scenario names with a run in mode on the pinned build, started at or after since (a
-    YYYYmmdd-HHMMSS run-dir stamp): what a resumed suite skips"""
+    """scenario names with a finished PASS in mode on the pinned build, started at or after since
+    (a YYYYmmdd-HHMMSS run-dir stamp): what a resumed suite skips. A FAIL, INVALID, TIMEOUT or
+    ABORTED run, a partial one, one with a dirty teardown or build drift is not done: it re-runs."""
     from gamelab import launcher
     pin = json.loads((launcher.RESULTS.parent / "build_id.json").read_text(encoding="utf-8"))["build_id"]
     done = set()
@@ -22,7 +23,9 @@ def ran_since(since: str, mode: str) -> set[str]:
             r = json.loads(rj.read_text(encoding="utf-8"))
         except ValueError:
             continue
-        if (r.get("build") or {}).get("build_id") == pin and not r.get("build_drift"):
+        if ((r.get("build") or {}).get("build_id") == pin and not r.get("build_drift")
+                and r.get("verdict") == "PASS" and not r.get("partial")
+                and (r.get("teardown") or {}).get("clean") is True):
             done.add(r.get("scenario"))
     return done
 
@@ -43,7 +46,7 @@ def suite(folder: str, mode: str, wait: float, stop_on_fail: bool, accept_drift:
           beside_player: bool = False) -> int:
     """Run every scenario under gamelab/scenarios/<folder> (recursively, sorted), each waiting
     for the lock, then print a table and write gamelab/results/suite-<time>-<folder>.json.
-    since: skip scenarios already run on the pinned build from that stamp on (resume).
+    since: skip scenarios that already passed cleanly on the pinned build from that stamp on (resume).
     Exit 0 when every run passed, else the worst run's code (refusals first)."""
     from gamelab import launcher, lock
     root = launcher.SCENARIOS / folder
@@ -59,7 +62,7 @@ def suite(folder: str, mode: str, wait: float, stop_on_fail: bool, accept_drift:
         except (ValueError, AttributeError):
             name = None
         if name in done:
-            print(f"SUITE skip {name} (run since {since})", flush=True)
+            print(f"SUITE skip {name} (passed since {since})", flush=True)
             continue
         start = time.time()
         code = launcher.run(str(f), mode, accept_drift, wait, beside_player)
@@ -131,7 +134,7 @@ def main(argv=None) -> int:
     su.add_argument("--accept-build-drift", action="store_true")
     su.add_argument("--beside-player", action="store_true", help="as run --beside-player")
     su.add_argument("--since", default="", metavar="YYYYmmdd-HHMMSS",
-                    help="skip scenarios already run on the pinned build from this run stamp on")
+                    help="skip scenarios that already passed cleanly (PASS, clean teardown, not partial) on the pinned build from this run stamp on; failed, invalid and timed-out runs re-run")
     li = sub.add_parser("list", help="list scenarios")
     li.add_argument("folder", nargs="?", default="", help="a folder under gamelab/scenarios/ (recursive)")
     ca = sub.add_parser("catalog", help="inspect reviewed pool case admission without launching")

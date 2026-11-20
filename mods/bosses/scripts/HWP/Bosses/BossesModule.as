@@ -182,6 +182,9 @@ namespace Modules
 		{
 			HWP::Settings::Sync("bosses.");
 			m_scanC = 0;
+			// per level: drop the last floor's handles and count
+			HWP::Bosses::g_scaled.resize(0);
+			HWP::Bosses::g_seen = 0;
 			HWP::Log("bosses", "level start: +" + HWP::Bosses::Percent() + "% boss armor and resistances");
 		}
 

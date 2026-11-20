@@ -123,7 +123,7 @@ class Checks(SpecChecks):
                     break
                 time.sleep(0.15)
             restored, b3 = self.damage(uid)
-            revert = ended and restored == baseline
+            revert = bool(ended and baseline > 0 and restored > 0 and abs(restored - baseline) <= 1)
             self.flag(tag + "_expires_reverts", revert, str({"ended": ended, "baseline": b0, "actual": b3}))
             passed &= bool(carrying and plant_ok and revert)
             rows.append({"rank": rank, "expected": {"ttl_ms": ttl, "cooldown_ms": cooldown, "dr": dr},

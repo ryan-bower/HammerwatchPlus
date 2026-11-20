@@ -38,14 +38,14 @@ def ship_replies(run: Path) -> list[dict]:
             continue
         if d.get("ev") == "rx" and d.get("verb") == "da-ship":
             want.add(d.get("cid"))
-        elif d.get("id") in want and "class" in d:
+        elif d.get("id") in want:
             want.discard(d["id"])
             out.append(d)
     return out
 
 
 def checks(replies: list[dict], record: dict, inner: dict, stale: list[dict], linted: int) -> list[tuple[str, bool, str]]:
-    first, last = replies[0], replies[-1]
+    first, last = next((r for r in replies if "class" in r), replies[0]), replies[-1]
     shown = next((r for r in replies if r.get("picker") and r.get("shows") == first["class"]), None)
     run_ok = (qa_batch.successful(record, "hp6-ship")
               and qa_batch.inner_matches_outer(record, inner, "hp6-ship"))
@@ -108,7 +108,10 @@ def main(argv=None) -> int:
     if not replies:
         print(f"bad input: no da-ship reply in {run / 'gl.jsonl'}")
         return 2
-    cls = replies[0]
+    cls = next((r for r in replies if "class" in r), None)
+    if cls is None:
+        print(f"bad input: every da-ship reply in {run / 'gl.jsonl'} failed: {replies[0].get('error')}")
+        return 2
     mod = Path(a.mod) if a.mod else overrides.REPO / "mods" / ("spec-" + cls["class"].replace("_", "-"))
     try:
         linted, stale = tooltip_lint.lint_spec(tooltip_lint.skill_entries(), mod)

@@ -6,7 +6,7 @@
 
 	<array name="description-params">
 		<array><s>range</s><s>.skills.desc.params.range</s><s>40</s><s>44</s><s>48</s><s>52</s><s>56</s></array>
-		<array><s>duration</s><b>t</b><s>.skills.desc.params.duration</s><s>2s</s></array>
+		<array><s>duration</s><b>t</b><s>.skills.desc.params.duration</s><s>3.5s</s></array>
 		<array><s>cooldown</s><b>t</b><s>.skills.desc.params.cooldown</s><s>8s</s></array>
 	</array>
 

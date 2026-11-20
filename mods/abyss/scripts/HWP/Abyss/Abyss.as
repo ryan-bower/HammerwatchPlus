@@ -230,8 +230,11 @@ class HWPAbyssCrack
 
 	void Finish(bool reward)
 	{
-		m_state = 3;
 		vec3 pos = m_unit.GetPosition();
+		// nobody to pay yet (every player actor gone): stay in the wave state and retry next tick
+		if (reward && HWP::Spawner::NearestPlayer(pos) is null)
+			return;
+		m_state = 3;
 		if (reward)
 		{
 			HWP::Abyss::g_cleared++;

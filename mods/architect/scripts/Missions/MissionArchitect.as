@@ -163,9 +163,27 @@ class SelectArchitectLoadout : MissionGUILoadout
 		{
 			// The menu hides Ready while the share is unaffordable and un-readies
 			// a player whose share changes, so this is a force start racing a
-			// pick. Nobody gets alterations they did not pay for, and nobody
-			// goes negative.
-			HWP::LogError("architect", m_player.GetName() + " cannot afford the architect share at start; alterations skipped");
+			// pick. Nobody goes negative and the host does not pay. Only the
+			// host's list takes effect. Sponsored picks were paid for on the
+			// other players' machines, so they are applied. With architect.split
+			// on, the host's picks were paid for as split shares by the clients,
+			// so they are applied too and the host gets its own share free in
+			// this rare race. With split off the host's picks are dropped.
+			HWP::LogError("architect", m_player.GetName() + " cannot afford the architect share at start; its own alterations skipped");
+			if (Network::IsServer())
+			{
+				bool split = HWP::Architect::g_split && HWP::Architect::ActivePlayers() > 1;
+				for (uint i = 0; i < m_buffs.length(); i++)
+				{
+					uint8 payer = i < m_payers.length() ? m_payers[i] : 0;
+					if (payer == 0 && !split)
+						continue;
+					auto missionBuff = MissionBuff::Get(m_buffs[i]);
+					if (missionBuff is null)
+						continue;
+					m_player.architectBuffs.insertLast(missionBuff);
+				}
+			}
 			return;
 		}
 

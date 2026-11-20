@@ -363,7 +363,7 @@ def check() -> int:
         data = p.read_bytes()
         try:
             m = read_mesh(data)
-        except ValueError as e:
+        except (ValueError, struct.error) as e:
             print(f"{p.relative_to(ROOT)}: {e}")
             bad += 1
             continue

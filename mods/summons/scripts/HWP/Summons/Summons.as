@@ -131,6 +131,7 @@ namespace HWP
 			g_lastRestored = 0;
 			if (rec is null)
 				return;
+			RefreshSettings(); // host spawns before Start has refreshed them
 			auto bag = HWP::SaveData::Player(rec);
 			if (g_inTown || !g_enabled || !rec.local || rec.actor is null)
 			{

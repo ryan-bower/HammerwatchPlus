@@ -40,7 +40,7 @@ mods/specs/.gitignore) and remade here, like tools/class_units.py's copies.
     python tools/generate/make_forgemaster_risen.py          # write
     python tools/generate/make_forgemaster_risen.py --check  # exit 1 when anything on disk differs
     python tools/generate/make_forgemaster_risen.py --list   # the raisable units, write nothing
-    python -m unittest tools.test_make_forgemaster_risen   # the unit texts' invariants
+    python -m pytest tests/test_make_forgemaster_risen.py   # the unit texts' invariants
 """
 import argparse
 import math

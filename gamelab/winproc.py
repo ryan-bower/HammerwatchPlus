@@ -411,7 +411,15 @@ class ForegroundSampler:
         self.leaks: list[dict] = []
         self.window_scans = 0
         self._images: dict[int, str] = {}
-        self._t = threading.Thread(target=self._run, daemon=True)
+        self.error: str | None = None
+        self._t = threading.Thread(target=self._guarded_run, daemon=True)
+
+    def _guarded_run(self):
+        # a dead sampler must not let the focus checks pass vacuously: record why it stopped
+        try:
+            self._run()
+        except Exception as e:
+            self.error = f"{type(e).__name__}: {e}"
 
     def _run(self):
         last = self.start_hwnd
@@ -484,7 +492,8 @@ class ForegroundSampler:
                 "owner_pids": owners, "forbidden_seen": sorted(set(owners) & set(forbidden_pids)),
                 "switches": self.switches,
                 "unexplained": sum(1 for sw in self.switches if sw["cause"] != "user"),
-                "window_scans": self.window_scans, "game_windows_on_input_desktop": self.leaks[:20]}
+                "window_scans": self.window_scans, "game_windows_on_input_desktop": self.leaks[:20],
+                "error": self.error}
 
 
 def process_image(pid: int) -> str:

@@ -235,7 +235,7 @@ def acquire(scenario: str, mode: str, beside_player: bool = False) -> None:
                 if players:
                     print(f"BESIDE-PLAYER leaving the player game alone: HWR2.exe {players}", flush=True)
                 require_owned()
-                last = json.loads(TEARDOWN.read_text(encoding="utf-8")) if TEARDOWN.is_file() else {"clean": True}
+                last = _read_teardown()
                 leftover = lab_processes()
                 if not last.get("clean") or leftover:
                     raise Refused(f"previous run did not tear down cleanly: {last}"
@@ -254,6 +254,19 @@ def acquire(scenario: str, mode: str, beside_player: bool = False) -> None:
         raise owner_contention(LOCK, "runtime") from None
 
 
+def _read_teardown() -> dict:
+    """The last teardown record; a torn or unreadable file is a refusal, not a raw traceback."""
+    if not TEARDOWN.exists():
+        return {"clean": True}
+    try:
+        last = json.loads(TEARDOWN.read_text(encoding="utf-8"))
+        if not isinstance(last, dict):
+            raise ValueError("not an object")
+        return last
+    except (OSError, ValueError) as error:
+        raise Refused(f"previous teardown record is unreadable: {TEARDOWN}: {error} (python -m gamelab reset)") from None
+
+
 @contextmanager
 def play_lease():
     """The real-play caller shares lifecycle fencing without wiping lab scratch."""
@@ -261,7 +274,7 @@ def play_lease():
     with lifecycle_guard():
         _claim_file("player-run", "play")
         try:
-            last = json.loads(TEARDOWN.read_text()) if TEARDOWN.exists() else {"clean": True}
+            last = _read_teardown()
             if not last.get("clean"):
                 raise Refused(f"previous GameLab teardown is dirty: {last}; diagnose before retrying")
         except BaseException:

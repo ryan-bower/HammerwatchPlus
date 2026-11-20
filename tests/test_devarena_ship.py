@@ -66,6 +66,16 @@ def test_a_run_without_da_ship_is_a_bad_input(tmp_path):
     assert ship_check.main(["--run", str(tmp_path), "--mod", str(MOD), "--out", str(tmp_path / "r.md")]) == 2
 
 
+def test_a_failed_da_ship_reply_fails_the_replies_check(tmp_path):
+    write_run(tmp_path, [reply("c1"), {"id": "c2", "ok": False, "error": "no class X"}])
+    replies = ship_check.ship_replies(tmp_path)
+    assert len(replies) == 2
+    record = json.loads((tmp_path / "run.json").read_text(encoding="utf-8"))
+    inner = json.loads((tmp_path / "inner.json").read_text(encoding="utf-8"))
+    rows = ship_check.checks(replies, record, inner, [], 1)
+    assert rows[0][0] == "da-ship replies succeeded" and rows[0][1] is False
+
+
 @pytest.mark.needs_gamecode  # tooltip_lint reads gamecode/datatables/players
 def test_ship_main_checks_real_numeric_tooltip_values(tmp_path_factory):
     # The cloned skill paths are long; keep this temporary root short on Windows.

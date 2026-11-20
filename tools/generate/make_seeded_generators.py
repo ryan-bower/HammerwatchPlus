@@ -57,6 +57,9 @@ def main() -> int:
     ap.add_argument("--check", action="store_true")
     a = ap.parse_args()
     want = plan()
+    if not want:
+        print(f"no generator sources under {SRC.relative_to(paths.REPO).as_posix()}; run tools/bootstrap.py first")
+        return 2
     cfg_path = MOD / "module.json"
     cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
     stale = []

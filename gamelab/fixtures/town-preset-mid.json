@@ -1,0 +1,255 @@
+{
+  "name": "town-preset-mid",
+  "about": "town-paladin plus the play builder's Mid game town (tools/save_builder.py TOWN_PRESETS): its town flags, then `townpreset 50`.",
+  "slot": 0,
+  "binary_edits": {
+    "enable_mods": [
+      "gamelab-probe",
+      "gamelab-hands",
+      "gamelab-pilot"
+    ]
+  },
+  "character": {
+    "class": "paladin",
+    "name": "GameLab"
+  },
+  "setup": [
+    {
+      "verb": "townflag",
+      "args": [
+        "mission_story_intro_find_npcs",
+        "on"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "mission_story_unlocked_blacksmith",
+        "on"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "mission_story_unlocked_enchanter",
+        "on"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "mission_story_unlocked_architect",
+        "on"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "mission_story_unlocked_librarian",
+        "on"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "mission_story_unlocked_dyer",
+        "on"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "mission_story_unlocked_maps",
+        "on"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "unlocked_class_rogue",
+        "on"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "unlocked_class_sorcerer",
+        "on"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "unlocked_class_warlock",
+        "on"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townpreset",
+      "args": [
+        50
+      ],
+      "expect": {
+        "ok": true,
+        "pct": 50,
+        "capped": false
+      }
+    }
+  ],
+  "readback": {
+    "phase": "town",
+    "player.class": "paladin",
+    "player.name": "GameLab",
+    "player.level": 1,
+    "player.dead": false
+  },
+  "readback_probes": [
+    {
+      "verb": "townflag",
+      "args": [
+        "mission_story_intro_find_npcs"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "mission_story_unlocked_blacksmith"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "mission_story_unlocked_enchanter"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "mission_story_unlocked_architect"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "mission_story_unlocked_librarian"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "mission_story_unlocked_dyer"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "mission_story_unlocked_maps"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "unlocked_class_rogue"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "unlocked_class_sorcerer"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "townflag",
+      "args": [
+        "unlocked_class_warlock"
+      ],
+      "expect": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "verb": "towntiers",
+      "expect": {
+        "ok": true,
+        "truncated": false
+      }
+    }
+  ]
+}

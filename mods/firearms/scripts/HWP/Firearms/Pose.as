@@ -73,6 +73,9 @@ namespace HWP
 		{
 			if (gun == "" || pose == PoseStraight)
 				return "";
+			// no such model for this gun family (a skewed peer's payload): stay straight
+			if ((pose == PoseKick && PoseIsRifle(gun)) || (pose == PoseHigh && !PoseIsRifle(gun)))
+				return "";
 			return "players/models/equipment/pose_" + gun + "_" + POSE_NAMES[pose] + ".model";
 		}
 
@@ -268,10 +271,11 @@ namespace HWP
 				m_kickMain = max(0, m_kickMain - ms);
 				m_kickOff = max(0, m_kickOff - ms);
 				string state;
-				if (reloading)
-					state = "reloading";
-				else if (secondary)
-					state = "secondary";
+				if (reloading || secondary)
+				{
+					state = reloading ? "reloading" : "secondary";
+					m_sinceShot = POSE_IDLE_MS;
+				}
 				else if (shooting)
 				{
 					state = "firing";

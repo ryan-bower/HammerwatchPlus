@@ -154,10 +154,12 @@ def run(p, trials=3, **_):
         angle = index * math.pi / 16
         direction = (round(math.cos(angle), 5), round(math.sin(angle), 5))
         geometry["rays"].append({"direction": direction, "ray": ray(c, direction, 450)})
-    normal_entry = max(geometry["rays"], key=lambda entry: float(entry["ray"].get("wd") or 0)
-                       if entry["ray"].get("wall") else 450)
+    # A reply without ok is unmeasured, never a clear lane.
+    normal_entry = max(geometry["rays"], key=lambda entry: -1 if entry["ray"].get("ok") is not True else
+                       float(entry["ray"].get("wd") or 0) if entry["ray"].get("wall") else 450)
     normal, normal_ray = normal_entry["direction"], normal_entry["ray"]
-    normal_ok = not normal_ray.get("wall") or float(normal_ray.get("wd") or 0) >= 220
+    normal_ok = normal_ray.get("ok") is True and (
+        not normal_ray.get("wall") or float(normal_ray.get("wd") or 0) >= 220)
     c.flag("returnqa_normal_geometry", normal_ok, str(normal_ray))
     checkpoint(c, records, geometry)
     try:

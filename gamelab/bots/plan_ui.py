@@ -468,7 +468,7 @@ class Checks(Base):
                   f"{len(mine)} friendly")
         self.flag("enemy_shots_reddish", bool(theirs) and all(near_color(p["color"], enemy) for p in theirs),
                   f"{len(theirs)} enemy")
-        self.flag("tint_logged", "[HWP:colors] tinted" in self.log_since(mark) or "[HWP:colors] tinted" in self.g.read_log(),
+        self.flag("tint_logged", "[HWP:colors] tinted" in self.log_since(mark),
                   re.findall(r"\[HWP:colors\] tinted [^\n]*", self.g.read_log())[-1:])
         self.gl("cull")
         # beams (trap beams are the only BeamProjectile units) and rays, by owner

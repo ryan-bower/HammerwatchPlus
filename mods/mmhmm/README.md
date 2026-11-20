@@ -35,7 +35,7 @@ All of them only while the hat is on (`HWP::MmHmm::Wearing`).
 | You take the last orb of an orb tree | a `pickedTempSkills` entry reaches the tree's size; trees of one orb do not count |
 | You open an Ace chest | `mods/keys` counts the local player's in GlobalCache `hwp_keys_aces_opened` (vanilla's `chest-unlocked-<key>` stat is not defined for "ace"); without keys there are no Ace chests |
 
-The non-crit moments are polled twice a second (`Moments.as`); the first poll of a level
+The non-crit moments are polled twice a second (`Moments.as`); the first poll for a character
 only takes the counts, so nothing fires for what the character already had. A moment goes
 to the host (`mmhmm.say` request), which plays it on every peer (`mmhmm.say` event, with the
 reporting peer, whose player is the wearer) and drops the same key within 1.5 s. Each peer
@@ -49,7 +49,8 @@ The generator has no hook: the local character's worn and bagged hats are checke
 second and a qualifying one gets the modifier added. A dropped or shop hat shows it once it
 is yours. Legendary items keep no modifiers (Item.Finalize), so they never have it. The
 modifier is never rolled (spawn-chance 0, quality "quest", which also keeps it out of the
-enchanter's slots and out of an epic item's name).
+enchanter's slots and out of an epic item's name text; adding it can still change which of an epic's prefix or
+suffix naming forms is used, as the item's name seed counts every modifier id).
 
 `hwp mmhmm` reports the worn hat, whether it has the bonus or qualifies, and this session's
 crits, moments, voices played and voices held back; `hwp mmhmm give` (cheats) adds it to the

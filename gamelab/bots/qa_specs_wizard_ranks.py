@@ -120,21 +120,41 @@ def cast_first(c, direction, offsets, tag, expected_hits, expected_damage=None, 
             "projectiles": units, "cast": queue, "crit": crit, "native": data}
 
 
-def progression(c, records, expected, tag):
-    # Native integer damage can round each strike. A single constant multiplier must
-    # explain every independently specified source rank, within two HP per strike.
+def rounded(value):
+    # Behaviors/Armor.as damage_round, as in qa_specs_wizard_orbs.rounded (not imported: circular).
+    return 0 if value == 0 else max(1, int(value + .5))
+
+
+def exact_coefficients(actual, expected):
+    # Small bases: one native coefficient must reproduce every rank under the pinned
+    # two-stage integer rounding, to the +/-0.025 the Thunder Orb oracle uses.
+    return [k / 2000 for k in range(1, 20001)
+            if all(abs(value - rounded(rounded(base) * (k / 2000))) <= .025
+                   for value, base in zip(actual, expected))]
+
+
+def rank_progression(actual, expected):
+    # Large bases (Static Charge): native integer damage can round each strike, so a single
+    # constant multiplier must explain every rank within two HP per strike.
+    # Small bases (Thunder Orb, under 20): exact integer-rounding match instead.
+    if len(actual) != len(expected):
+        return False, 1.0, 0.0
+    if max(expected) < 20:
+        found = exact_coefficients(actual, expected)
+        ok = bool(found) and all(b > a + 0.1 for a, b in zip(actual, actual[1:]))
+        return ok, (found[0] if found else 1.0), (found[-1] if found else 0.0)
     low, high = 0.0, float("inf")
-    actual = []
-    for row, base in zip(records, expected):
-        value = row.get("mean_damage")
-        if value is None:
-            low, high = 1.0, 0.0
-            break
-        actual.append(value)
+    for value, base in zip(actual, expected):
         low = max(low, (value - 2.0) / base)
         high = min(high, (value + 2.0) / base)
-    ok = len(actual) == len(expected) and low <= high and high > 0
+    ok = low <= high and high > 0
     ok = ok and all(b > a + 0.1 for a, b in zip(actual, actual[1:]))
+    return ok, low, high
+
+
+def progression(c, records, expected, tag):
+    actual = [row["mean_damage"] for row in records if row.get("mean_damage") is not None]
+    ok, low, high = rank_progression(actual, expected)
     c.flag(tag, ok, f"source damage {expected}; actual first-impact HP/strike {actual}; compatible native multiplier [{low}, {high}]")
 
 

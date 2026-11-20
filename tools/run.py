@@ -11,6 +11,7 @@
     run.py --no-ui                  # no preset characters, default starting gold
     run.py --character sorc:15:TestSorc --gold 2500000  # configure starting gold
     run.py --copy-slot 0            # copy local profile 0 into the new profile, bypassing the UI
+    run.py --character sorc:15 --town end    # town preset: vanilla, starter (default), mid, end
 
 Every invocation creates a new profile with exactly the deployed mods enabled.
 Saves and config are backed up first; existing characters are preserved. A
@@ -123,15 +124,28 @@ def read_copy_source(install: Path, slot: int) -> bytes:
 
 
 def choose_save(args, packages: list[str]) -> save_builder.Plan | None:
-    plan = save_builder.Plan(args.profile_name, [save_builder.parse_character(c) for c in args.character], args.gold)
+    plan = save_builder.Plan(args.profile_name, [save_builder.parse_character(c) for c in args.character], args.gold,
+                             args.town or save_builder.DEFAULT_TOWN)
     available = profile_seed.available_classes(packages)
-    plan.validate(available)
+    # Without --no-ui or --character the builder window still collects the roster.
+    plan.validate(available, complete=bool(args.no_ui or args.character))
     if args.dry_run or args.no_ui or args.character:
         if args.dry_run and not args.no_ui and not args.character:
             say("builder", "would open the pre-launch character/save builder")
         return plan
     say("builder", "opening the character/save builder; add characters, start empty, or cancel")
     return save_builder.show(plan, available)
+
+
+def town_summary(town: str) -> str:
+    preset = save_builder.TOWN_PRESETS[town]
+    if preset.tiers is None:
+        built = "no buildings"
+    elif preset.tiers == 100:
+        built = "every buildable building at its last tier"
+    else:
+        built = f"every buildable building at {preset.tiers}% of its last tier (rounded half up)"
+    return f"{town} ({preset.label}): {built}; town flags: {', '.join(preset.flags) or 'none'}"
 
 
 def deployed_ids(install: Path) -> set[str]:
@@ -228,10 +242,14 @@ def main(argv=None) -> int:
     ap.add_argument("--copy-slot", type=int, metavar="SLOT",
                     help="copy this local profile's town and characters into the new profile; bypasses "
                          "the builder UI; the source is never written")
+    ap.add_argument("--town", choices=list(save_builder.TOWN_PRESETS), metavar="PRESET",
+                    help="town preset: vanilla (play the intro), starter (intro skipped; default), mid "
+                         "(buildings at about half their tiers) or end (every building at its last tier); "
+                         "mid and end need --character")
     ap.add_argument("--dry-run", action="store_true", help="print the plan; write and launch nothing")
     a = ap.parse_args(argv)
-    if a.copy_slot is not None and (a.character or a.gold != save_builder.DEFAULT_GOLD):
-        ap.error("--copy-slot keeps the profile's own characters and gold; drop --character/--gold")
+    if a.copy_slot is not None and (a.character or a.gold != save_builder.DEFAULT_GOLD or a.town is not None):
+        ap.error("--copy-slot keeps the profile's own town, characters and gold; drop --character/--gold/--town")
 
     install = gamepaths.hoh2_dir(required=False)
     if install is None:
@@ -268,11 +286,12 @@ def main(argv=None) -> int:
         # GameLab must own its own lock for the entire isolated native session.
         # Real profile writes happen only after its verdict/teardown is verified.
         native_data, seed_run = None, None
-        if plan.characters or plan.starting_gold:
+        if plan.characters or plan.starting_gold or plan.town != "vanilla":
             if a.dry_run:
                 roster = ", ".join(f"{c.name} ({c.class_id} level {c.level})" for c in plan.characters)
                 say("characters", "would prepare in isolated lab mode: " + (roster or "no preset characters"))
                 say("gold", f"would prepare {plan.starting_gold:,} starting gold for the profile")
+                say("town", "would prepare the town preset " + town_summary(plan.town))
             else:
                 say("characters", "preparing the requested save and gold privately; this can take a few minutes")
                 native_data, seed_run = profile_seed.generate(plan, packages)

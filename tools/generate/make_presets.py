@@ -223,7 +223,9 @@ def all_presets() -> list[dict]:
     by_id = {p["id"]: p for p in out}
     if HAND.exists():
         for v in json.loads(HAND.read_text(encoding="utf-8"))["variants"]:
-            out.append(apply_variant(by_id[v["from"]], v))
+            built = apply_variant(by_id[v["from"]], v)
+            by_id[built["id"]] = built  # a later variant may start from this one
+            out.append(built)
     return out
 
 
@@ -387,6 +389,8 @@ def main(argv=None) -> int:
     ap.add_argument("--import-log", type=Path, metavar="LOG",
                     help="fold the Loadout tab's saved variants and favorites from a game log into the hand file first")
     a = ap.parse_args(argv)
+    if a.check and a.import_log:
+        ap.error("--check is read-only and cannot be combined with --import-log")
     if a.import_log:
         added, changed = import_log(a.import_log.read_text(encoding="utf-8", errors="replace"))
         print(f"imported {added} variants{', favorites' if changed else ''} into {HAND.relative_to(REPO)}")

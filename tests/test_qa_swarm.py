@@ -33,6 +33,9 @@ class TrackerTests(unittest.TestCase):
         self.source = {"head": "a" * 40, "source_sha256": "b" * 64, "files": 3,
                        "fingerprint_scope": "mods+gamelab+tools-v2"}
         self.build = {"build_id": "test", "exe_sha256": "c" * 64}
+        results = patch.object(tracker, "RESULTS", self.root / "results")
+        results.start()
+        self.addCleanup(results.stop)
         self.epoch = self.write("epoch.json", {"native": self.source, "supplementary": {}, "build": self.build})
 
     def write(self, name, value):
@@ -71,6 +74,11 @@ class TrackerTests(unittest.TestCase):
     def release(self, claimed):
         return self.call("release", claimed["id"], "--expect", claimed["revision"], "--token", claimed["claim"]["token"],
                          "--summary", "Durable handoff", "--next-action", "Resume the saved next step")["result"]
+
+    def make_run(self, run_id, **changes):
+        record = {"verdict": "PASS", "build": self.build, "teardown": {"clean": True}}
+        record.update(changes)
+        self.write("results/" + run_id + "/run.json", record)
 
     def evidence(self, **changes):
         record = {"scope": "source", "outcome": "pass", "epoch": "E001", "reviewer": "independent",
@@ -201,6 +209,7 @@ class TrackerTests(unittest.TestCase):
         self.init()
         self.pin()
         claimed = self.claim()
+        self.make_run("fake-mod-all-lab")
         for index in range(count):
             claimed = self.update(claimed, "--evidence", self.evidence(
                 scope="load", command=["python", "-m", "gamelab", "run", "mod-all", "--mode", "lab"],
@@ -490,12 +499,30 @@ class TrackerTests(unittest.TestCase):
                       exit=0, build=self.build, run_id="test-mod-all-lab", scenario="mod-all", source_before=self.source,
                       source_after=self.source, verdict="PASS", partial=False, build_drift=False,
                       error=None, teardown_clean=True, assertions_ok=True)
+        self.make_run("test-mod-all-lab")
         for changes in ({"build": None}, {"build": "unrecorded"}, {"build": dict(self.build, build_id="other")},
                         {"source_after": dict(self.source, head="d" * 40)}, {"partial": True},
                         {"teardown_clean": False}, {"exit": 2}):
             invalid = dict(fields, **changes)
             self.update(claimed, "--evidence", self.evidence(**invalid), ok=False)
         self.assertEqual(self.load()["tasks"]["H1-A"]["evidence"], [])
+
+    def test_update_refuses_native_pass_without_a_matching_real_run(self):
+        self.init()
+        self.pin()
+        claimed = self.claim()
+        fields = dict(scope="load", command=["python", "-m", "gamelab", "run", "mod-all", "--mode", "lab"],
+                      exit=0, build=self.build, run_id="invented-lab", scenario="mod-all", source_before=self.source,
+                      source_after=self.source, verdict="PASS", partial=False, build_drift=False,
+                      error=None, teardown_clean=True, assertions_ok=True)
+        self.assertEqual(self.update(claimed, "--evidence", self.evidence(**fields), ok=False)["code"], "invalid_evidence")
+        for disagree in ({"verdict": "FAIL"}, {"build": {"build_id": "other", "exe_sha256": "d" * 64}},
+                         {"teardown": {"clean": False}}):
+            self.make_run("invented-lab", **disagree)
+            self.assertEqual(self.update(claimed, "--evidence", self.evidence(**fields), ok=False)["code"], "invalid_evidence")
+        self.make_run("invented-lab")
+        self.update(claimed, "--evidence", self.evidence(**fields))
+        self.assertEqual(len(self.load()["tasks"]["H1-A"]["evidence"]), 1)
 
     def test_prerequisite_change_cannot_relabel_old_observations(self):
         self.init([task(), dict(task("H1-B"), depends_on=["H1-A"])])

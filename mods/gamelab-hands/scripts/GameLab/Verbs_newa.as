@@ -24,8 +24,6 @@ namespace GameLab
 			return;
 		}
 		auto stash = g_myTownRecord.m_townStash;
-		while (int(stash.m_tabs.length()) <= index)
-			stash.CreateTab("tab " + (stash.m_tabs.length() + 1));
 		auto baseItem = Equipment::BaseItem::Get(args[1]);
 		if (baseItem is null)
 		{
@@ -42,6 +40,8 @@ namespace GameLab
 			Fail(id, "GenerateItem returned null for " + args[1] + " " + args[2]);
 			return;
 		}
+		while (int(stash.m_tabs.length()) <= index)
+			stash.CreateTab("tab " + (stash.m_tabs.length() + 1));
 		auto tab = stash.m_tabs[index];
 		tab.Add(item);
 		Emit(Reply(id, true).Str("item", args[1]).Int("tab", index).Str("name", tab.m_name).Int("ilvl", gen.m_ilvl)

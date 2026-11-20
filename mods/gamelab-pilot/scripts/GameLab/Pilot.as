@@ -1786,20 +1786,25 @@ namespace GameLab
 		if (sub == "reflex")
 		{
 			// reflex [potion=<hp%>|off] [fire=<radius>|off]
+			// validate every pair first, then commit, so a bad pair leaves the old orders intact
+			float newPotion = g_reflexPotion;
+			float newFire = g_reflexFire;
 			for (uint i = 0; i < args.length(); i++)
 			{
 				auto kv = args[i].split("=");
 				float v = kv.length() > 1 && kv[1] != "off" ? parseFloat(kv[1]) : 0;
 				if (kv[0] == "potion" && kv.length() > 1)
-					g_reflexPotion = v > 0 ? v : -1;
+					newPotion = v > 0 ? v : -1;
 				else if (kv[0] == "fire" && kv.length() > 1)
-					g_reflexFire = v;
+					newFire = v;
 				else
 				{
 					Fail(id, "unknown reflex '" + args[i] + "': potion=<hp%>|off, fire=<radius>|off");
 					return;
 				}
 			}
+			g_reflexPotion = newPotion;
+			g_reflexFire = newFire;
 			PilotStatus(id);
 			return;
 		}
@@ -2538,6 +2543,7 @@ namespace Modules
 			GameLab::RegisterVerb("pathfind", "x y [diameter] [maxDistance] [maxRange] [fromX fromY]", GameLab::Verb(GameLab::VerbPathfind));
 			GameLab::RegisterVerb("reachmap", "x0 y0 x1 y1 step", GameLab::Verb(GameLab::VerbReachmap));
 			GameLab::RegisterVerb("exitareas", "[radius]", GameLab::Verb(GameLab::VerbExitAreas));
+			GameLab::Register_qa_routeleg();
 			GameLab::RegisterVerb("routesweep", "[spacing] [offset]", GameLab::Verb(GameLab::VerbRouteSweep));
 			GameLab::RegisterVerb("bodies", "<x> <y> [step]", GameLab::Verb(GameLab::VerbBodies));
 			GameLab::RegisterVerb("breakables", "[radius]", GameLab::Verb(GameLab::VerbBreakables));

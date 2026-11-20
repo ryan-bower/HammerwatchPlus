@@ -1108,6 +1108,7 @@ namespace HWP
 		bool g_lastDenied = false;        // local: the host said no
 		int g_myCasts = 0;                // local: casts the host granted us this level
 		int g_biteTier = 0;               // local: tier the host rolled (0 = none pending)
+		bool g_castPending = false;       // local: a run cast is out and its bite is not taken yet (survives closing the window)
 		int g_biteDelay = 0;              // local: ms until that bite
 
 		int CastsLeft(uint8 peer)
@@ -1118,9 +1119,10 @@ namespace HWP
 		// host: a cast at a hole spends a cast and rolls what is on the line
 		void OnCastRequest(uint8 peer, SValue@ data)
 		{
-			if (!Network::IsServer() || g_inTown || !g_enabled)
+			if (!Network::IsServer())
 				return;
-			if (g_castsUsed[peer] >= g_runCasts)
+			// fishing off or in town: answer anyway, or the asker waits forever
+			if (g_inTown || !g_enabled || g_castsUsed[peer] >= g_runCasts)
 			{
 				HWP::Net::Send(peer, DENIED);
 				return;
@@ -1205,6 +1207,7 @@ namespace HWP
 		void OnDenied(SValue@ data)
 		{
 			g_lastDenied = true;
+			g_castPending = false;
 			g_myCasts = g_runCasts;
 			HWP::Commands::Reply(Resources::GetString(".hwp.fishing.denied"));
 		}
@@ -1218,6 +1221,7 @@ namespace HWP
 			}
 			g_lastDenied = false;
 			g_biteTier = 0;
+			g_castPending = false;
 			g_myCasts = 0;
 			g_holeIds.removeRange(0, g_holeIds.length());
 			g_holeScenes.removeRange(0, g_holeScenes.length());
@@ -2070,8 +2074,15 @@ class HWPFishingMenu : AWindowObject
 
 		m_rod = HWP::Fishing::RodTier();
 		HWP::Fishing::g_lastDenied = false;
-		HWP::Fishing::g_biteTier = 0;
-		SetState(HWP::Fishing::STATE_IDLE);
+		// a cast sent before the window was closed still owes its bite: keep it and
+		// wait for it, so closing the window never loses a cast
+		if (m_spot.m_inRun && HWP::Fishing::g_castPending)
+			SetState(HWP::Fishing::STATE_WAIT);
+		else
+		{
+			HWP::Fishing::g_biteTier = 0;
+			SetState(HWP::Fishing::STATE_IDLE);
+		}
 		RefreshInfo();
 	}
 
@@ -2331,6 +2342,7 @@ class HWPFishingMenu : AWindowObject
 					m_tier = HWP::Fishing::g_biteTier;
 					m_timer = HWP::Fishing::g_biteDelay;
 					HWP::Fishing::g_biteTier = 0;
+					HWP::Fishing::g_castPending = false;
 				}
 				else if (HWP::Fishing::g_lastDenied)
 				{
@@ -2408,6 +2420,7 @@ class HWPFishingMenu : AWindowObject
 				return;
 			}
 			HWP::Fishing::g_biteTier = 0;
+			HWP::Fishing::g_castPending = true;
 			SValueBuilder b;
 			b.PushDictionary();
 			b.PushInteger("rod", m_rod);
