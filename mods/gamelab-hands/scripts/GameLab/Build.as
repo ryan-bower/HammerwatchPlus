@@ -299,6 +299,51 @@ namespace GameLab
 		Emit(Reply(id, true).Int("ngp", now).Int("cap", rec.GetLevelCap()));
 	}
 
+	// shortcut <n>: setup. What the UnlockShortcut world script does (WorldScript/UnlockShortcut.as:
+	// g_maxShortcut and every player's PlayerRecord.shortcut raised to n + g_ngp * 100), which a
+	// level's CheckShortcut reads (WorldScript/Conditionals/CheckShortcut.as). The game mode saves
+	// the players' highest on a level change (HWR2GameMode.SaveGameMode) and the next level loads it.
+	void VerbShortcut(const string &in id, array<string>@ args)
+	{
+		if (args.length() < 1)
+		{
+			Fail(id, "usage: shortcut <n>");
+			return;
+		}
+		int wanted = int(parseInt(args[0])) + int(g_ngp + 0.01f) * 100;
+		g_maxShortcut = max(g_maxShortcut, wanted);
+		int players = 0;
+		for (uint i = 0; i < g_players.length(); i++)
+		{
+			if (g_players[i].peer == 255)
+				continue;
+			g_players[i].shortcut = max(g_players[i].shortcut, wanted);
+			players++;
+		}
+		Emit(Reply(id, true).Int("shortcut", g_maxShortcut).Int("players", players).Num("ngp", g_ngp));
+	}
+
+	// rerollcharges <n>: setup. The town's accomplishment reroll charges (TownRecord
+	// m_accomplishmentRewards.m_rRerolls, the sum of the earned "reward-rerolls" in
+	// tweak/stats/adventuring.sval, TownRecord.as:770-784), which the skill sphere menu's reroll
+	// reads (GiveSkillSphereMenu.as GetRerollCharges). The town recomputes the sum when it loads.
+	void VerbRerollCharges(const string &in id, array<string>@ args)
+	{
+		if (args.length() < 1)
+		{
+			Fail(id, "usage: rerollcharges <n>");
+			return;
+		}
+		if (g_myTownRecord is null || g_myTownRecord.m_accomplishmentRewards is null)
+		{
+			Fail(id, "no town accomplishment rewards");
+			return;
+		}
+		int before = g_myTownRecord.m_accomplishmentRewards.m_rRerolls;
+		g_myTownRecord.m_accomplishmentRewards.m_rRerolls = max(0, int(parseInt(args[0])));
+		Emit(Reply(id, true).Int("before", before).Int("charges", g_myTownRecord.m_accomplishmentRewards.m_rRerolls));
+	}
+
 	// points <skill|stat> <n>: bonus skill or attribute points (PlayerRecord.bonusSkillPts /
 	// bonusStatPts, then SyncStatPoints), as core's "hwp skillpoints" and "hwp statpoints"
 	// (mods/hwplib/scripts/HWP/Core/Cheats.as:119-146)

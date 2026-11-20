@@ -102,8 +102,14 @@ namespace GameLab
 				reply.Int("sphere_unit_id", menu.m_skillSphereItem.GetUseUnit().GetId())
 					.Str("sphere_unit", menu.m_skillSphereItem.GetUseUnit().GetDebugName());
 			reply.Raw("offers", RawArray(offers)).Bool("sphere_present", menu.m_skillSphereItem !is null)
-				.Bool("sphere_used", menu.m_skillSphereItem !is null && menu.m_skillSphereItem.m_used);
+				.Bool("sphere_used", menu.m_skillSphereItem !is null && menu.m_skillSphereItem.m_used)
+				.Bool("rerolled", menu.m_skillSphereItem !is null && menu.m_skillSphereItem.m_rerolled);
+			// what the menu's reroll would cost and allow now (GiveSkillSphereMenu.as GetRerollShadowCurseCost,
+			// GetRerollCharges: rerolls used this run, and the town's accomplishment reroll charges)
+			ivec2 charges = GetRerollCharges();
+			reply.Int("reroll_cost", GetRerollShadowCurseCost()).Int("reroll_used", charges.x).Int("reroll_max", charges.y);
 		}
+		reply.Int("shadow_curses", rec.shadowCurses);
 		Json qualities;
 		qualities.Int("common", int(Item::Quality::Common)).Int("uncommon", int(Item::Quality::Uncommon))
 			.Int("rare", int(Item::Quality::Rare)).Int("epic", int(Item::Quality::Epic));
