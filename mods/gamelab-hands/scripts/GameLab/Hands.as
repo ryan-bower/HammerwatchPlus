@@ -99,7 +99,7 @@ namespace GameLab
 	// sets g_ngp unclamped, as before seed= existed (the scenarios that pass [floor, ngp]).
 	void VerbMission(const string &in id, array<string>@ args)
 	{
-		string usage = "usage: mission <missionId> [floorIndex] [ngp] [seed=N] [ngp=N]";
+		string usage = "usage: mission <missionId> [floorIndex] [ngp] [seed=N] [ngp=N] [level=<floorId>]";
 		if (args.length() < 1)
 		{
 			Fail(id, usage);
@@ -134,6 +134,20 @@ namespace GameLab
 				auto rec = GetLocalPlayerRecord();
 				int cap = rec is null ? 0 : rec.ngp;
 				g_ngp = float(max(0, min(cap, int(parseInt(args[i].substr(4))))));
+			}
+			else if (args[i].findFirst("level=") == 0)
+			{
+				// a floor by its MissionLevel id (the floor list's order shifts with the mods loaded)
+				string want = args[i].substr(6);
+				floor = -1;
+				for (uint j = 0; j < def.m_levels.length(); j++)
+					if (def.m_levels[j].m_id == want)
+						floor = int(j);
+				if (floor < 0)
+				{
+					Fail(id, "mission '" + args[0] + "' has no floor '" + want + "'");
+					return;
+				}
 			}
 			else if (positional++ == 0)
 				floor = int(parseInt(args[i]));
@@ -618,7 +632,7 @@ namespace Modules
 			super("gamelab-hands");
 			GameLab::RegisterVerb("spawn", "<unitFile> <dx> <dy>", GameLab::Verb(GameLab::VerbSpawn));
 			GameLab::RegisterVerb("pick", "[index] [town|resume]", GameLab::Verb(GameLab::VerbPick));
-			GameLab::RegisterVerb("mission", "<missionId> [floorIndex] [ngp] [seed=N] [ngp=N]", GameLab::Verb(GameLab::VerbMission));
+			GameLab::RegisterVerb("mission", "<missionId> [floorIndex] [ngp] [seed=N] [ngp=N] [level=<floorId>]", GameLab::Verb(GameLab::VerbMission));
 			GameLab::RegisterVerb("genseed", "", GameLab::Verb(GameLab::VerbGenSeed));
 			GameLab::RegisterVerb("randcheck", "<seed> [n] [seed|draw]", GameLab::Verb(GameLab::VerbRandCheck));
 			GameLab::RegisterVerb("build", "<buildingId>", GameLab::Verb(GameLab::VerbBuild));
@@ -631,6 +645,8 @@ namespace Modules
 			GameLab::RegisterVerb("levelup", "<n>", GameLab::Verb(GameLab::VerbLevelup));
 			GameLab::RegisterVerb("points", "<skill|stat> <n>", GameLab::Verb(GameLab::VerbPoints));
 			GameLab::RegisterVerb("ngp", "<n>", GameLab::Verb(GameLab::VerbNgp));
+			GameLab::RegisterVerb("shortcut", "<n>", GameLab::Verb(GameLab::VerbShortcut));
+			GameLab::RegisterVerb("rerollcharges", "<n>", GameLab::Verb(GameLab::VerbRerollCharges));
 			GameLab::RegisterVerb("setup", "<file>", GameLab::Verb(GameLab::VerbSetup));
 			GameLab::RegisterVerb("charflag", "<name>", GameLab::Verb(GameLab::VerbCharFlag));
 			GameLab::RegisterVerb("townflag", "<name> [on|off]", GameLab::Verb(GameLab::VerbTownFlag));

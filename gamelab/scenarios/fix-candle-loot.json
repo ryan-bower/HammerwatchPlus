@@ -1,0 +1,61 @@
+{
+  "name": "fix-candle-loot",
+  "about": "Dark Citadel candle room (mods/shortcuts, PR #133): with all seven candles lit, every skill sphere and trinket the level pays out lands where the level puts it, stays there, and can be collected the way a player does. Suspicion under test (owner, 2026-11-19): the added candles sit on top of loot spawns and the loot is lost. Setup (labelled): `gl shortcut 3` is the UnlockShortcut world script's effect (so the room loads unlocked with all seven pedestals), `gl mission dark_citadel level=shortcut_dark_citadel` loads the room by its floor id, `gl rerollcharges 3` grants the town's accomplishment reroll charges. The bot reads the expected payout from the generated level (baseline 1 sphere + 9 trinkets, each candle 1 + 3; 8 + 30 for seven), stands in each candle's use area just off its pedestal and presses Use (F), presses the start button the same way, then kills the shades with no killer while the room's wave timers run at 4x (`timescale`, back to 1x when the portal spawns; forced state: no enemy drops to confuse with the reward, and nothing walks under it). It watches every sphere and item pickup until all are there and unchanged for 1.5 s (cap 5 s; a drop that appears and goes is caught), checks each spawn left its drop at its spot, then collects: Use on each sphere, one reroll through the key-hint bar's Reroll and the dialog's Yes (Shadow Curse rises by the shown cost, one charge spent, offers change), the first offer through the menu's own button handler (the emulated mouse does not land a click in this menu; its run level rises by one, the sphere is spent), and Use on each trinket (the run's trinket count rises by one, the pickup is gone). About 72 s.",
+  "fixture": "mission-ranger",
+  "mods": [
+    "hwplib",
+    "shortcuts"
+  ],
+  "timeout": 420,
+  "steps": [
+    {
+      "do": "gl",
+      "verb": "shortcut",
+      "args": [3],
+      "expect": {"ok": true},
+      "name": "shortcut 3 unlocked (setup)"
+    },
+    {
+      "do": "gl",
+      "verb": "mission",
+      "args": ["dark_citadel", "level=shortcut_dark_citadel", "seed=1"],
+      "expect": {"ok": true},
+      "name": "load the candle room"
+    },
+    {
+      "do": "wait_phase",
+      "phase": "mission",
+      "timeout": 120
+    },
+    {
+      "do": "sleep",
+      "seconds": 2
+    },
+    {
+      "do": "gl",
+      "verb": "rerollcharges",
+      "args": [3],
+      "expect": {"ok": true},
+      "name": "reroll charges (setup)"
+    },
+    {
+      "do": "shot",
+      "name": "room"
+    },
+    {
+      "do": "bot",
+      "bot": "fix_candle_loot",
+      "kwargs": {"candles": "all"},
+      "save_as": "loot",
+      "expect": {"ok": true},
+      "name": "all seven candles: every sphere and trinket lands, stays and is collected"
+    },
+    {
+      "do": "shot",
+      "name": "collected"
+    },
+    {
+      "do": "log_clean"
+    }
+  ]
+}
